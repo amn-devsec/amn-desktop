@@ -15,6 +15,9 @@ cliente ne doit **jamais** changer pendant ce chantier.
 - Push autorisé sur **ta** branche seulement. Jamais `main`, pas de PR, pas de
   fusion toi-même : le CO fusionne.
 - **Jamais de tag `v*`, aucune release, aucun déploiement client.**
+- **Seule l'édition Business est commitée** (AMN Business = `internal` dans le code). Aucun commit nouveau sur l'édition cliente (AMN Desktop = `business` : `*.business.*`, `src/business/**`, son déploiement), sauf le jumeau vide d'une couture interne et les gardes d'isolation.
+- **Aucun secret** ni dans le code, ni dans un commit, ni dans un chat, ni dans un ticket, ni dans un dépôt.
+- **Distribution** : aucune avant le rapport SEC (phase 0 de S6), et jamais par une Release publique.
 - **Notes de préparation** : `docs/refonte/preparation/LOT-xx-<nom>.md`, sur ta branche (modèle : `LOT-06-creer.md`).
 - Ne lance pas l'app (ni `npm start`, ni `start:business`, ni `build:web`), ni
   aucun serveur. Aucune donnée réelle (Syraagensy, NWSY), aucun secret.
@@ -72,6 +75,12 @@ Concrètement :
   code interne. Un nouveau type de moment, ou un `emit` dans un fichier
   partagé, passe par le CO, et l'`emit` partagé se fait via `@edition/socle`
   (vide côté cliente).
+
+## Produit : autonomie, facilité, chaleur (directive du 10 nov., `PLAN-10NOV.md` §4 et §7)
+
+- **Autonomie d'abord** : ce que l'application peut faire seule, sur le poste ou sur notre serveur, elle le fait. Une API payante n'est jamais requise : c'est un connecteur facultatif de H21, activé ou arrêté en trois clics au plus, avec son coût affiché avant.
+- **Facilité** : une tâche courante se fait en trois actions au plus, depuis n'importe où (⌘K et ⌘J comptent pour une), sans manuel.
+- **Chaleur** : phrases courtes, simples, humaines ; une phrase d'encouragement quand une tâche est finie ; peu de choses à la fois, calme visuel, contrastes doux ; salutation selon l'heure, reprise là où l'on s'était arrêté. Jamais de reproche, d'urgence inventée, de robot ni de mascotte. Le guide de voix du socle fait foi.
 
 ## Fichiers sensibles
 

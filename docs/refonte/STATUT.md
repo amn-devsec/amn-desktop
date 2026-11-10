@@ -3,7 +3,7 @@
 > Tenu par le CO. Une session ne modifie que **la section de son lot** dans « 7. Écrans » (une ligne par écran) ; tout le reste est au CO. Règles : [`REGLES.md`](REGLES.md).
 
 - Branche d'intégration : **`claude/refonte-vivante`** (décision du 31 oct., §1.1). Base `main` @ `630ef45`.
-- Dernière mise à jour : 2026-11-06. Design v3 validé (§1.10). G09 Écran de veille ajouté à LOT-00 : **142 écrans**. S0 finit le socle v3 en mode ULTRA ; S7 est créée ; prompts de préparation dans [`PROMPTS-6NOV.md`](PROMPTS-6NOV.md) (§1.12).
+- Dernière mise à jour : 2026-11-10. **Directive de Harun du 10 nov.** (seul outil de travail, espaces Cyber et Développement, connecteurs, serveur, charge, chaleur, SEC-0) : §1.13 et [`PLAN-10NOV.md`](PLAN-10NOV.md). Socle v3 fini par S0 (`8e7e771`) : passe finale, passage 2 de T1, puis fusion et bascule.
 - LOT-00 (socle v2) est fusionné (`488cdcc`), avec les 4 commits de S5. **Le socle v3 s'y ajoute avant la construction visuelle des lots** (S0 a ses consignes). D'ici là, chaque lot prépare et construit sa logique : §5.
 - Fusionnés aussi le 1er nov. : T1 (API d'essai, bac à sable, contrôle de fidélité) et les données fictives de SIM (100 jeux, `4fe559b`), avec `check:donnees` en CI (87 contrôles).
 - Gardes locales sur `refonte-vivante` : `typecheck`, `typecheck:business`, `lint` et les 55 contrôles sans navigateur de `editions.yml` verts.
@@ -276,6 +276,62 @@ Les points 1 à 8 (§1.5) restent des décisions par défaut, sauf le n° 1 (ban
 
 Les prompts de préparation du 6 nov. sont dans [`PROMPTS-6NOV.md`](PROMPTS-6NOV.md).
 
+### 1.13 Directive du 10 nov. (Harun) — plan complet : [`PLAN-10NOV.md`](PLAN-10NOV.md)
+
+AMN Business devient le seul outil de travail de l'équipe. Nouveaux lots :
+
+- **LOT-11** Espace Développement (S8, à créer ; maquettes à fournir par Harun) ;
+- **LOT-12** Connecteurs et autonomie (S9, à créer ; le modèle et les moteurs locaux, H21 en est l'écran) ;
+- **LOT-13** Serveur (SRV, à créer ; comparatif en lecture seule, à rendre le 16 nov. au plus tard) ;
+- **LOT-14** Charge et essais longs (SIM et T1) ;
+- **SEC-0** (phase 0 de S6), puis **DIST** (distribution interne privée).
+
+L'espace Cyber est couvert par LOT-10 et LOT-08 (correspondance au §3.1 du plan). Mohamed a validé le design : S0 et T1 avancent vers la bascule.
+
+**Socle v3 : passe finale de S0.** Les 6 constats de sa seconde passe adverse sont **à corriger** avant la fusion : le segment survolé (régression visible), `Kpi` avec `title`, les gardes `check:socle-briques`, `check:socle` et `check:coquille` plus strictes, la démo, et « -0,00 € ». Puis T1 relit la différence et le CO fusionne. **T1 commence son passage 2 tout de suite**, sur `8e7e771`.
+
+**Réponses du CO aux 14 questions du socle complet** (par délégation) :
+
+| # | Décision |
+|---|---|
+| 1 | Compteurs : la déclaration du module **l'emporte**, pas d'addition. |
+| 2 | `FournisseurAujourdhui` **au-dessus des deux coquilles** (une seule instance). |
+| 3 | Deux briques pour l'instant (`EtatVide` du §4, `BlocEtat` aux cotes de H43), pas d'unification. **S2** (LOT-01) est prévenue pour N01. |
+| 4 | `IconTile` : les variantes `part` et `bordure` deviennent **officielles** (les images font foi). |
+| 5 | Hubs : **sept routes exactes**, une par lot. |
+| 6 | Le substitut de la session de support suit le drapeau de la coquille (choix de S0 confirmé). La clé `module` garde aussi l'édition interne : **oui** (un module fermé renvoie à l'Accueil partout). |
+| 7 | `check:coquille`, second passage : **mesurer aussi les bureaux** ; le voyant orange de La Garde est la **seule** exception à « aucun ambre dans la colonne » ; étendre la détection à l'ambre **translucide**. |
+| 8 | Notifications : garder `{ section }` jusqu'à H18 (LOT-07), puis `/settings/notifications`. Le cadre commun des trois réglages convient. |
+| 9 | C-001 : **sortir** les 48 références du socle de `src/index.css` avant la fusion. T1 vérifie ensuite que le paquet client revient au niveau de `main`. |
+| 10 | Le §7.6 (accessibilité) l'emporte pour les **zones de clic** : 34 px au moins, **sans changer le dessin** (zone élargie invisible), pour l'interrupteur, les cases, les segments et les boutons de `PageHead`. Segment choisi : repère non chromatique par la graisse. |
+| 11 | Interdire `vers` et `onClick` ensemble : **oui**. `Kpi` : ≤ 92 px, variation sur une ligne avec `title` (constat 2). Gris de décor en `fill` et `stroke` dans les `.tsx` : **non** (illustrations permises, 04-B n° 15). |
+| 12 | D02 : drapeau `critique` au registre : **oui**, posé par S5 (propriétaire du registre), lu par D02. S0 rééquilibre son registre d'exemple. |
+| 13 | `v-discussion.png` et `v-scan-inline.png` à la racine : **retirés** de l'arbre par S0 (ils restent dans l'historique). |
+| 14 | Images des fiches F10, F30, F50, F70, MR06, MR09, H16, N01 et H18 : demandées à Harun pour S0. |
+
+**Règles ajoutées** (dans `REGLES.md`) :
+
+- seule l'édition Business (`internal`) est commitée : aucun commit nouveau sur l'édition cliente ;
+- autonomie d'abord, une API payante est un connecteur facultatif ;
+- trois actions au plus pour une tâche courante ;
+- chaleur (les mots, le rythme, les petites attentions) ;
+- aucun secret ni dans un chat, ni dans un ticket, ni dans un dépôt ;
+- SEC-0 avant toute distribution, et distribution interne privée.
+
+**Fait à connaître.** `.github/workflows/release.yml` publie l'installeur interne dans les Releases GitHub de ce dépôt public quand on pousse un tag `v*`, et la mise à jour automatique les lit. Harun protège les tags `v*` ; la distribution privée est choisie après SEC-0.
+
+**Ce que le CO demande à Harun** (détail au §9 du plan) :
+
+1. les maquettes DV01 à DV10 et la place de Développement dans la barre latérale ;
+2. créer S8, S9 et SRV, et attacher amn-api à SRV ;
+3. les chiffres de Render et le budget du serveur ; la décision après le comparatif ;
+4. où garder le travail sur Desktop client (A, B ou C ; A recommandée) ;
+5. protéger les tags `v*` ; le canal de distribution privé après SEC-0 ;
+6. qui corrige amn-api (les points faibles trouvés par SIM) ;
+7. les chiffres cibles des tests de charge ;
+8. les images manquantes pour S0 ;
+9. S6 en Opus pour LOT-07.
+
 ## 2. Les lots
 
 Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en parallèle, une branche chacun ; **LOT-09 en dernier**. Les chiffres viennent de `03-INDEX.md` : 9 + 16 + 13 + 9 + 17 + 10 + 15 + 16 + 12 + 11 + 14 = **142**. (Le tableau du fichier 00 compte G05 dans LOT-05 ; l'index et les prompts le rangent dans LOT-00. Le CO suit l'index.)
@@ -293,6 +349,11 @@ Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en para
 | 2 | **LOT-08** La Garde et la supervision | 12 (0 / 11 / 1) | `claude/refonte-garde` | S3 | Opus 5.5, élevé | socle v3 fusionné | préparation (note, §1.8) |
 | 3 | **LOT-09** Mobile et tablette | 11 (0 / 0 / 11) | `claude/refonte-mobile` | S1, après LOT-02 | Sonnet 5.5, élevé | lots 01 à 08 et 10 fusionnés | à faire |
 | 2 | **LOT-10** Cyber | 14 (0 / 4 / 10) | `claude/refonte-cyber` | S6, après LOT-07 | Opus 5.5, élevé | socle v3 fusionné ; phase 1 de S6 ; LOT-07 | à faire |
+| 2 | **LOT-11** Espace Développement | à dessiner (DV01 à DV10 proposés) | `claude/refonte-developpement` | S8 (à créer) | Opus 5.5, élevé | maquettes de Harun ; socle v3 fusionné ; LOT-12 pour les connecteurs | préparation possible |
+| 2 | **LOT-12** Connecteurs et autonomie | modèle et moteurs (écran : H21, LOT-07) | `claude/refonte-connecteurs` | S9 (à créer) | Opus 5.5, élevé | socle v3 fusionné pour les écrans ; relu par S6 et T1 | préparation possible |
+| 0 | **LOT-13** Serveur | comparatif en lecture seule (16 nov.), puis migration sur décision | `claude/refonte-serveur` | SRV (à créer) | Sonnet 5.5, élevé | aucune ; **urgent** (échéance du 23 nov.) | à lancer |
+| — | **LOT-14** Charge et essais longs | scénarios, 72 h, seuils | (branches de SIM et T1) | SIM et T1 | Sonnet 5.5, élevé | chargeur de SIM ; serveur cible | à lancer |
+| — | **SEC-0**, puis **DIST** | rapport SEC (privé), puis distribution interne privée | (privé) | S6, Harun | Opus 5.5, max | avant toute distribution à l'équipe | en cours (S6) |
 
 ## 3. Répartition (décisions de Harun du 1er nov. incluses)
 
