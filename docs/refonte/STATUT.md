@@ -3,7 +3,7 @@
 > Tenu par le CO. Une session ne modifie que **la section de son lot** dans « 7. Écrans » (une ligne par écran) ; tout le reste est au CO. Règles : [`REGLES.md`](REGLES.md).
 
 - Branche d'intégration : **`claude/refonte-vivante`** (décision du 31 oct., §1.1). Base `main` @ `630ef45`.
-- Dernière mise à jour : 2026-11-10. **Directive de Harun du 10 nov.** (seul outil de travail, espaces Cyber et Développement, connecteurs, serveur, charge, chaleur, SEC-0) : §1.13 et [`PLAN-10NOV.md`](PLAN-10NOV.md). Socle v3 fini par S0 (`8e7e771`) : passe finale, passage 2 de T1, puis fusion et bascule.
+- Dernière mise à jour : 2026-11-11. **Dossier v4** : néon dosé par famille, tutoiement dans l'interface, 4 écrans Cyber (`CYB-*`), 7 images de l'espace Développement (`DEV-*`) : §1.14. Prompts du jour : [`PROMPTS-11NOV.md`](PROMPTS-11NOV.md). Directive du 10 nov. : §1.13 et [`PLAN-10NOV.md`](PLAN-10NOV.md).
 - LOT-00 (socle v2) est fusionné (`488cdcc`), avec les 4 commits de S5. **Le socle v3 s'y ajoute avant la construction visuelle des lots** (S0 a ses consignes). D'ici là, chaque lot prépare et construit sa logique : §5.
 - Fusionnés aussi le 1er nov. : T1 (API d'essai, bac à sable, contrôle de fidélité) et les données fictives de SIM (100 jeux, `4fe559b`), avec `check:donnees` en CI (87 contrôles).
 - Gardes locales sur `refonte-vivante` : `typecheck`, `typecheck:business`, `lint` et les 55 contrôles sans navigateur de `editions.yml` verts.
@@ -83,7 +83,7 @@ Le dépôt a déjà ce qu'il faut : le même renderer tourne en PWA installable 
 
 Les points 9 à 15 sont **validés** (§1.10). Les règles A1 à A9 de la section A du fichier 04 valent aussi pour tous les lots : chiffres calculés depuis les données réelles, un seul bouton primaire par page plus celui de la suggestion d'Ajmani, colonne droite de 340 px, format français, pastille de La Garde selon N02 §6.2, aucun avatar pour Ajmani.
 
-### 1.6 Direction design (verrouillée par Harun)
+### 1.6 Direction design (verrouillée par Harun) — **couleurs et vouvoiement remplacés par la v4 (§1.14)**
 
 Sobre, noir et gris, ultra professionnel, ludique premium (cases à cocher, « x sur y fait », anneaux, séries, jalons, « Boîte à zéro »). **Aucun robot, aucune mascotte, aucun personnage** : Ajmani est une barre de texte en bas de page (⌘J) et une palette ⌘J. Vouvoiement, français. En v3 (§1.10), la barre latérale n'a plus de pastilles : la couleur d'une famille n'apparaît que sur l'icône de la famille active ; les teintes des familles et les accents d'équipe restent des accents rares sur fond noir et gris.
 
@@ -332,6 +332,45 @@ L'espace Cyber est couvert par LOT-10 et LOT-08 (correspondance au §3.1 du plan
 8. les images manquantes pour S0 ;
 9. S6 en Opus pour LOT-07.
 
+### 1.14 Dossier v4 : néon et tutoiement (11 nov., décisions de Harun)
+
+**Dossier.** `AMN-Business-dossier-v4` (5 zips `AMN-v4-1-docs.zip` à `AMN-v4-5-images.zip`, à décompresser dans un même dossier, hors du dépôt) remplace le v3 pour tous les lots. Il contient 153 images : les 142 écrans, 4 écrans Cyber `CYB-*` et 7 images Développement `DEV-*`. S'y ajoutent `sources-neon/` (143 sources HTML aux styles exacts), `_data/couleurs-familles.json` et `_data/tutoiement.json` (353 textes). Les fiches, l'index, les écarts et les prompts sont identiques au v3 (vérifié).
+
+**Décisions :**
+
+1. **Néon dosé, couleur par famille.** `06-V4-NEON-ET-TUTOIEMENT.md` l'emporte sur `01-SOCLE-DESIGN.md`.
+   - Deux couleurs par famille (`--fam-a`, `--fam-b`), posées par la coquille selon la famille active.
+   - Nouvelles couleurs d'état : succès `#5EE6A8`, info `#6EA8FF`, attention `#FFBE5C`, danger `#FF6B7A`.
+   - Les 15 règles de rendu du §3 de `06`. Le mouvement est inchangé ; `prefers-reduced-motion` coupe aussi les lueurs animées.
+   - Les dispositions, les fiches et la logique ne changent pas. **Cela remplace « noir et gris » (§1.6 et §1.10).**
+   - Cyber prend ses propres couleurs (`#FF6B7A`, `#A58BFF`) : il ne partage plus celles de La Garde.
+   - `couleurs-familles.json` n'a pas d'entrée Développement : on prend le tableau de `06` (`#6EA8FF`, `#5EE6A8`).
+2. **Tutoiement** dans toute l'interface ; **vouvoiement** gardé dans les textes destinés aux clients (courriels, devis, factures, relances, réponses automatiques, page publique, messages reçus). Table : `_data/tutoiement.json`. Les règles « vouvoiement » des prompts et des fiches sont remplacées. Les gardes qui exigent le vouvoiement (`check:systeme-ajmani`, `check:systeme-demarrage`, `check:systeme-demo`, `check:ajmani`) sont **mises à jour, pas désactivées** ; nouvelle garde `check:tutoiement`.
+3. **Espace Développement (LOT-11)** :
+   - 7 maquettes `DEV-*` : Projets de code, Déploiements, Serveur et santé, Éditeur de flux, Coûts et API, Modèles de sites (et sa vue code) ; brief dans `07-ESPACE-DEV.md`.
+   - **Place dans la barre latérale : juste au-dessus de « Surveillance »**, validée.
+   - Aucune fiche n'existe : **S8 les écrit d'abord** (gabarit `02-FICHE-MODELE.md`).
+   - **Pas d'image « Vue d'ensemble »** : S8 propose sa fiche, sur le modèle des hubs F10 à F70.
+   - Sous-modules réutilisés avec leurs fiches : H20, H21, H24, H03, ME05, MO03.
+4. **Cyber** : 4 écrans ajoutés à LOT-10 (`CYB-vulnerabilites`, `CYB-rapport-audit`, `CYB-playbook`, `CYB-chiffrage`). **LOT-10 passe à 18 écrans.** Les fiches sont à écrire avant de construire (S6). Les prix et la mention de TVA de `CYB-chiffrage` sont des données d'un catalogue, jamais du code en dur.
+5. **Images attendues par S0** (F10, F30, F50, F70, MR06, MR09, H16, N01, H18) : elles sont dans le dossier v4 (vérifié, 9 sur 9).
+6. **`build:web` en local permis à toutes les sessions** sur données fictives (`REGLES.md`). `npm start` reste interdit, et `build:web:business` reste à T1.
+
+**Passe finale de S0 (v4), avant la fusion du socle** :
+
+- tout le §1.13 (6 constats, 14 réponses, C-001, zones de clic de 34 px, guide de voix) ;
+- plus, pour la v4 :
+  - jetons de famille `--fam-a` / `--fam-b` pour les 11 familles du tableau de `06`, posés par la coquille ;
+  - couleurs d'état v4 ;
+  - règles de rendu du §3 dans le socle (fond à deux halos, cartes, titre et grands chiffres en dégradé, boutons, pastilles, lueurs, barre latérale active, onglets, bord dégradé d'Ajmani, tuiles d'icône) ;
+  - tutoiement de la coquille et des 9 écrans de LOT-00 ;
+  - entrée « Développement » dans la barre latérale, au-dessus de « Surveillance », avec ses signaux ;
+  - mise à jour des gardes qui figent les couleurs v3 ou le vouvoiement (`check:encres`, `check:socle`, `check:coquille`, `check:socle-*`, `check:systeme-*`), et `check:tutoiement` ;
+  - correctif du `Segmented` au survol.
+- Puis : passage de T1 sur les images v4 (paquet client, gardes navigateur coquille éteinte puis allumée, fidélité des 9 écrans), fusion par le CO, bascule de la coquille.
+
+**À noter.** Depuis le 6 nov., aucune session de lot n'a poussé de branche de préparation, sauf S7 (`claude/refonte-creer`). S0 n'a rien poussé depuis `8e7e771` (passe finale à faire), ni T1 depuis `0a1751c`, ni SIM depuis `4fe559b`. Les prompts du 11 nov. relancent tout le monde : [`PROMPTS-11NOV.md`](PROMPTS-11NOV.md).
+
 ## 2. Les lots
 
 Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en parallèle, une branche chacun ; **LOT-09 en dernier**. Les chiffres viennent de `03-INDEX.md` : 9 + 16 + 13 + 9 + 17 + 10 + 15 + 16 + 12 + 11 + 14 = **142**. (Le tableau du fichier 00 compte G05 dans LOT-05 ; l'index et les prompts le rangent dans LOT-00. Le CO suit l'index.)
@@ -348,8 +387,8 @@ Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en para
 | 2 | **LOT-07** Outils et réglages | 16 (0 / 12 / 4) | `claude/refonte-outils` | S6 | Opus 5.5, élevé | socle v3 fusionné ; phase 1 de S6 | à faire |
 | 2 | **LOT-08** La Garde et la supervision | 12 (0 / 11 / 1) | `claude/refonte-garde` | S3 | Opus 5.5, élevé | socle v3 fusionné | préparation (note, §1.8) |
 | 3 | **LOT-09** Mobile et tablette | 11 (0 / 0 / 11) | `claude/refonte-mobile` | S1, après LOT-02 | Sonnet 5.5, élevé | lots 01 à 08 et 10 fusionnés | à faire |
-| 2 | **LOT-10** Cyber | 14 (0 / 4 / 10) | `claude/refonte-cyber` | S6, après LOT-07 | Opus 5.5, élevé | socle v3 fusionné ; phase 1 de S6 ; LOT-07 | à faire |
-| 2 | **LOT-11** Espace Développement | à dessiner (DV01 à DV10 proposés) | `claude/refonte-developpement` | S8 (à créer) | Opus 5.5, élevé | maquettes de Harun ; socle v3 fusionné ; LOT-12 pour les connecteurs | préparation possible |
+| 2 | **LOT-10** Cyber | 18 (0 / 4 / 14, dont 4 `CYB-*` sans fiche) | `claude/refonte-cyber` | S6, après LOT-07 | Opus 5.5, élevé | socle v3 fusionné ; phase 1 de S6 ; LOT-07 | à faire |
+| 2 | **LOT-11** Espace Développement | 7 images `DEV-*` (fiches à écrire par S8 ; vue d'ensemble à proposer) | `claude/refonte-developpement` | S8 (à créer) | Opus 5.5, élevé | socle v4 fusionné ; LOT-12 pour les connecteurs | **fiches à écrire maintenant** |
 | 2 | **LOT-12** Connecteurs et autonomie | modèle et moteurs (écran : H21, LOT-07) | `claude/refonte-connecteurs` | S9 (à créer) | Opus 5.5, élevé | socle v3 fusionné pour les écrans ; relu par S6 et T1 | préparation possible |
 | 0 | **LOT-13** Serveur | comparatif en lecture seule (16 nov.), puis migration sur décision | `claude/refonte-serveur` | SRV (à créer) | Sonnet 5.5, élevé | aucune ; **urgent** (échéance du 23 nov.) | à lancer |
 | — | **LOT-14** Charge et essais longs | scénarios, 72 h, seuils | (branches de SIM et T1) | SIM et T1 | Sonnet 5.5, élevé | chargeur de SIM ; serveur cible | à lancer |
@@ -450,7 +489,7 @@ Dépendances croisées à surveiller :
 - **Le passage de T1 sur `claude/refonte-socle`** : il conditionne la bascule de la coquille.
 - La fin de la phase 1 de S6.
 
-## 7. Écrans (142)
+## 7. Écrans (142, plus 4 `CYB-*` et 7 `DEV-*`)
 
 Une ligne par écran, par lot. **Chaque session ne modifie que la section de son lot** (état : `à faire`, `en cours`, `fait`, `écart`, avec la raison en note). Les sections sont séparées pour que les branches ne se gênent pas à la fusion. Le CO tient les autres sections.
 
@@ -663,7 +702,7 @@ Mots fr/en par `definirMots`. Gardes : `check:socle-controles|graphiques|situati
 | T01 | Tablette · Accueil | nouveau | à faire | |
 | T02 | Tablette · Clients en vue scindée | nouveau | à faire | |
 
-### LOT-10 · Cyber — `claude/refonte-cyber` — 14 écrans
+### LOT-10 · Cyber — `claude/refonte-cyber` — 18 écrans
 
 Lire `05-CYBER-MODELE-COMMUN.md` : consentement d'abord (accord signé, périmètre, dates), OSINT limité à l'organisation du client, interface seulement. Famille contextuelle dans la barre latérale (§1.7).
 
@@ -683,6 +722,24 @@ Lire `05-CYBER-MODELE-COMMUN.md` : consentement d'abord (accord signé, périmè
 | CY12 | Cyber · Missions | mixte | à faire | |
 | CY13 | Cyber · Documents | mixte | à faire | |
 | CY14 | Cyber · Dossier de mission | nouveau | à faire | |
+| CYB-vulnerabilites | Cyber · Vulnérabilités | nouveau | fiche à écrire | v4, image seule |
+| CYB-rapport-audit | Cyber · Rapport d'audit | nouveau | fiche à écrire | v4, image seule |
+| CYB-playbook | Cyber · Playbook d'incident | nouveau | fiche à écrire | v4, image seule ; délai CNIL 72 h |
+| CYB-chiffrage | Cyber · Chiffrage | nouveau | fiche à écrire | v4, image seule ; prix = données d'un catalogue |
+
+### LOT-11 · Développement — `claude/refonte-developpement` — 7 images (6 écrans), plus une vue d'ensemble à proposer
+
+Brief : `07-ESPACE-DEV.md`. Entrée de barre latérale au-dessus de « Surveillance ». Fiches à écrire par S8 avant de construire.
+
+| ID | Écran | Type | État | Écart / note |
+|---|---|---|---|---|
+| DEV-ensemble | Développement · Vue d'ensemble | nouveau | fiche à proposer | aucune image : sur le modèle des hubs |
+| DEV-projets | Développement · Projets de code | nouveau | fiche à écrire | |
+| DEV-deploiements | Développement · Déploiements | nouveau | fiche à écrire | retour arrière en 1 clic, planifiés |
+| DEV-serveur | Développement · Serveur et santé | nouveau | fiche à écrire | lié à LOT-13 |
+| DEV-editeur | Développement · Éditeur de flux | nouveau | fiche à écrire | mode Local ou API (LOT-12) |
+| DEV-couts | Développement · Coûts et API | nouveau | fiche à écrire | modèle de LOT-12 (S9) |
+| DEV-modeles-sites | Développement · Modèles de sites (et vue code) | nouveau | fiche à écrire | prototype `sources-neon/DEV-modeles-sites.html` |
 
 ## 8. Références
 

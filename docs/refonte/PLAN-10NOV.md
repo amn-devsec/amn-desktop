@@ -60,6 +60,8 @@ Barre latérale : Cyber est **toujours visible** (section SURVEILLANCE), avec so
 
 ### 3.2 Espace Développement
 
+> **Mise à jour du 11 nov.** Les maquettes sont arrivées avec le dossier v4 : 7 images `DEV-*` et le brief `07-ESPACE-DEV.md`. Elles remplacent la proposition DV01 à DV10 ci-dessous. Place validée : au-dessus de « Surveillance ». Voir `STATUT.md` §1.14.
+
 **Il n'a aucune fiche ni aucune image.** Il faut un lot de maquettes v3, comme Cyber l'a eu. L'existant donne une bonne base :
 
 | Besoin de Harun | Fiches v3 réutilisables (seconde entrée) | Déjà dans l'app | À dessiner (proposition) |
@@ -156,7 +158,7 @@ Session : **SRV** (Sonnet 5.5, effort élevé), en lecture seule, sur `claude/re
 
 **Chaleur.**
 
-- **Les mots** : phrases courtes et simples, vouvoiement, aucun reproche, aucune urgence inventée. Une phrase d'encouragement quand une tâche est finie : une seule, sans confettis ni son.
+- **Les mots** : phrases courtes et simples, tutoiement dans l'interface (v4 ; vouvoiement pour les textes destinés aux clients), aucun reproche, aucune urgence inventée. Une phrase d'encouragement quand une tâche est finie : une seule, sans confettis ni son.
 - **Le rythme** : peu de choses à la fois, trois éléments mis en avant au plus, calme visuel, contrastes doux (jetons du socle), deux ou trois animations continues au plus (socle §0.2).
 - **Les petites attentions** : salutation selon l'heure (`src/lib/homeGreetings.ts`), reprise là où l'on s'était arrêté (déjà en place dans la coque), mémoire des filtres et des onglets.
 - **Jamais** de robot, de mascotte ni de personnage.
