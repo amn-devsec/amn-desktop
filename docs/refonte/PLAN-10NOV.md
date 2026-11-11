@@ -121,6 +121,8 @@ Lot porteur : **LOT-12**, nouvelle session **S9** (Opus 5.5, effort élevé), re
 
 ## 5. Serveur (LOT-13) : comparatif en lecture seule
 
+> **Décision du 12 nov.** Serveur reporté, SRV en pause ; aucune distribution. Voir `STATUT.md` §1.16.
+
 > **Décision du 11 nov.** 0 € ce mois-ci. Serveur maison d'abord : amn-api et Postgres dans Docker sur un poste de l'équipe, accès de Mohamed par Tailscale, rien d'exposé sur Internet. Le comparatif porte sur trois paliers (gratuit, environ 10 €/mois, environ 25 €/mois), achat décidé en décembre ; SRV écrit aussi le guide « serveur maison ». Aucune donnée réelle avant SEC-0. Voir `STATUT.md` §1.15.
 
 **Contexte.** Render est trop cher, et sa base gratuite est restreinte jusqu'au **23 nov.** On vise un serveur à nous. **Aucune décision d'achat** : Harun tranche.

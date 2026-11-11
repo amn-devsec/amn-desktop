@@ -61,6 +61,8 @@ Avant de rendre la main : lint vert ; commit, push, message au CO : sha testé, 
 
 ## SRV — comparatif serveur et guide « serveur maison » (Sonnet 5.5, effort élevé, en lecture seule)
 
+> **En pause depuis le 12 nov.** (`STATUT.md` §1.16) : ne pas lancer.
+
 > Version du 11 nov. au soir : elle remplace la précédente (décision de Harun, `STATUT.md` §1.15).
 
 ```
@@ -151,6 +153,8 @@ Avant de rendre la main : typecheck, typecheck:business, lint, check:donnees et 
 ---
 
 ## S6 — phase 0 sécurité, assistée (Opus 5.5, effort max, pas de Fable)
+
+> **12 nov.** : une priorité unique, transmise par Harun en privé, passe avant ce qui suit.
 
 ```
 Vous êtes S6, session Sécurité et SOC d'AMN DevSec. Phase 0, ASSISTÉE : un audit défensif de NOS PROPRES actifs, avant toute distribution de l'application aux membres de l'équipe. « Assistée » veut dire que vous guidez et que Harun agit : vous ne demandez, ne voyez et ne recevez jamais un secret (mot de passe, jeton, clé, code). Pour tout ce qui demande un accès, vous donnez à Harun une consigne pas à pas, et il vous rapporte seulement le résultat (oui ou non, un nom, un réglage, une capture sans secret).

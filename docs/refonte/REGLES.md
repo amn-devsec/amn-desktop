@@ -17,7 +17,7 @@ cliente ne doit **jamais** changer pendant ce chantier.
 - **Jamais de tag `v*`, aucune release, aucun déploiement client.**
 - **Seule l'édition Business est commitée** (AMN Business = `internal` dans le code). Aucun commit nouveau sur l'édition cliente (AMN Desktop = `business` : `*.business.*`, `src/business/**`, son déploiement), sauf le jumeau vide d'une couture interne et les gardes d'isolation.
 - **Aucun secret** ni dans le code, ni dans un commit, ni dans un chat, ni dans un ticket, ni dans un dépôt.
-- **Distribution** : aucune avant le rapport SEC (phase 0 de S6), et jamais par une Release publique.
+- **Distribution** : **aucune pour l'instant**, ni à l'équipe ni à des clients (décision du 12 nov.) ; l'application tourne seulement en local sur le poste de Harun, sur données fictives. Plus tard : jamais avant le rapport SEC (phase 0 de S6), et jamais par une Release publique.
 - **Aucune donnée réelle de client** tant que SEC-0 n'est pas terminée : ni sur le serveur maison, ni dans un essai, ni dans une capture.
 - **Serveur maison** : rien d'exposé sur Internet (aucun port ouvert, accès par Tailscale seulement) ; aucun nom d'hôte, adresse, nom de machine ni secret dans le dépôt ; le `.env` reste sur le poste.
 - **Notes de préparation** : `docs/refonte/preparation/LOT-xx-<nom>.md`, sur ta branche (modèle : `LOT-06-creer.md`).

@@ -3,7 +3,7 @@
 > Tenu par le CO. Une session ne modifie que **la section de son lot** dans « 7. Écrans » (une ligne par écran) ; tout le reste est au CO. Règles : [`REGLES.md`](REGLES.md).
 
 - Branche d'intégration : **`claude/refonte-vivante`** (décision du 31 oct., §1.1). Base `main` @ `630ef45`.
-- Dernière mise à jour : 2026-11-11, soir. **Serveur : 0 € ce mois-ci, serveur maison** (Docker, Postgres, amn-api, Tailscale), comparatif en trois paliers pour décembre, aucune donnée réelle avant SEC-0 : §1.15. Dossier v4 (néon et tutoiement) : §1.14.
+- Dernière mise à jour : 2026-11-12. **Aucune distribution** (ni équipe ni clients) : l'application tourne seulement en local sur le poste de Harun, sur données fictives ; serveur reporté, SRV en pause ; guide [`LANCER-EN-LOCAL.md`](LANCER-EN-LOCAL.md) : §1.16. Dossier v4 : §1.14.
 - LOT-00 (socle v2) est fusionné (`488cdcc`), avec les 4 commits de S5. **Le socle v3 s'y ajoute avant la construction visuelle des lots** (S0 a ses consignes). D'ici là, chaque lot prépare et construit sa logique : §5.
 - Fusionnés aussi le 1er nov. : T1 (API d'essai, bac à sable, contrôle de fidélité) et les données fictives de SIM (100 jeux, `4fe559b`), avec `check:donnees` en CI (87 contrôles).
 - Gardes locales sur `refonte-vivante` : `typecheck`, `typecheck:business`, `lint` et les 55 contrôles sans navigateur de `editions.yml` verts.
@@ -389,6 +389,14 @@ L'espace Cyber est couvert par LOT-10 et LOT-08 (correspondance au §3.1 du plan
 - **⚠ Avant le 23 nov.** : la base gratuite actuelle sur Render peut contenir des données réelles. **Harun l'exporte d'ici là** (sauvegarde chiffrée, hors ligne, hors dépôt, jamais dans un chat), pour ne rien perdre au moment de la restriction. Elle ne sera importée nulle part avant SEC-0.
 - La migration de la production reste suspendue jusqu'à la décision de décembre.
 
+### 1.16 Aucune distribution ; serveur reporté (décision de Harun, 12 nov.)
+
+1. **Aucune distribution pour l'instant**, ni à l'équipe ni à des clients. L'application tourne **seulement en local, sur le poste de Harun, sur données fictives**, pour ses essais. **Le verrou de distribution reste fermé.** Cela remplace l'accès de Mohamed par Tailscale du §1.15.
+2. **Serveur reporté. SRV est en pause** : pas de comparatif le 16 nov., pas de guide « serveur maison » pour l'instant. Le §1.15 reste écrit pour plus tard.
+3. **S6 garde la phase 0, avec une seule priorité**, fixée par Harun et transmise en privé. Elle passe avant tout le reste de la phase 0 et avant la phase 1. Rien de cette priorité n'est décrit dans le dépôt.
+4. **Le guide « lancer AMN Business sur mon PC »** est prêt : [`LANCER-EN-LOCAL.md`](LANCER-EN-LOCAL.md). Il est à suivre quand le socle v4 est fusionné, avec la version web construite en local, l'API d'essai en mémoire et les données fictives. Il demande un dossier neuf, sans `.env`, et jamais `npm start`.
+5. Ce qui ne change pas : socle v4 (S0, puis T1, puis fusion), vague 1 (S2, S3), préparation des lots, S8, S9, SIM (son chargeur sert aux essais de Harun) et F1.
+
 ## 2. Les lots
 
 Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en parallèle, une branche chacun ; **LOT-09 en dernier**. Les chiffres viennent de `03-INDEX.md` : 9 + 16 + 13 + 9 + 17 + 10 + 15 + 16 + 12 + 11 + 14 = **142**. (Le tableau du fichier 00 compte G05 dans LOT-05 ; l'index et les prompts le rangent dans LOT-00. Le CO suit l'index.)
@@ -408,7 +416,7 @@ Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en para
 | 2 | **LOT-10** Cyber | 18 (0 / 4 / 14, dont 4 `CYB-*` sans fiche) | `claude/refonte-cyber` | S6, après LOT-07 | Opus 5.5, élevé | socle v3 fusionné ; phase 1 de S6 ; LOT-07 | à faire |
 | 2 | **LOT-11** Espace Développement | 7 images `DEV-*` (fiches à écrire par S8 ; vue d'ensemble à proposer) | `claude/refonte-developpement` | S8 (à créer) | Opus 5.5, élevé | socle v4 fusionné ; LOT-12 pour les connecteurs | **fiches à écrire maintenant** |
 | 2 | **LOT-12** Connecteurs et autonomie | modèle et moteurs (écran : H21, LOT-07) | `claude/refonte-connecteurs` | S9 (à créer) | Opus 5.5, élevé | socle v3 fusionné pour les écrans ; relu par S6 et T1 | préparation possible |
-| 0 | **LOT-13** Serveur | comparatif en trois paliers (16 nov.) et guide « serveur maison » (18 nov.) ; achat décidé en décembre | `claude/refonte-serveur` | SRV (à créer) | Sonnet 5.5, élevé | aucune ; 0 € en novembre | à lancer |
+| — | **LOT-13** Serveur | **en pause** (12 nov.) : ni comparatif ni guide pour l'instant | `claude/refonte-serveur` | SRV (à créer) | Sonnet 5.5, élevé | décision de Harun | en pause |
 | — | **LOT-14** Charge et essais longs | scénarios, 72 h, seuils | (branches de SIM et T1) | SIM et T1 | Sonnet 5.5, élevé | chargeur de SIM ; serveur cible | à lancer |
 | — | **SEC-0**, puis **DIST** | rapport SEC (privé), puis distribution interne privée | (privé) | S6, Harun | Opus 5.5, max | avant toute distribution à l'équipe | en cours (S6) |
 
