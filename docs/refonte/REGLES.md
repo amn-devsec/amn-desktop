@@ -18,6 +18,8 @@ cliente ne doit **jamais** changer pendant ce chantier.
 - **Seule l'édition Business est commitée** (AMN Business = `internal` dans le code). Aucun commit nouveau sur l'édition cliente (AMN Desktop = `business` : `*.business.*`, `src/business/**`, son déploiement), sauf le jumeau vide d'une couture interne et les gardes d'isolation.
 - **Aucun secret** ni dans le code, ni dans un commit, ni dans un chat, ni dans un ticket, ni dans un dépôt.
 - **Distribution** : aucune avant le rapport SEC (phase 0 de S6), et jamais par une Release publique.
+- **Aucune donnée réelle de client** tant que SEC-0 n'est pas terminée : ni sur le serveur maison, ni dans un essai, ni dans une capture.
+- **Serveur maison** : rien d'exposé sur Internet (aucun port ouvert, accès par Tailscale seulement) ; aucun nom d'hôte, adresse, nom de machine ni secret dans le dépôt ; le `.env` reste sur le poste.
 - **Notes de préparation** : `docs/refonte/preparation/LOT-xx-<nom>.md`, sur ta branche (modèle : `LOT-06-creer.md`).
 - **`npm start` (Electron) reste interdit à tous**, comme tout serveur autre que local. Aucune donnée réelle (Syraagensy, NWSY), aucun secret.
 - **`build:web` en local, permis à toutes les sessions** (décision du 11 nov., demande de T1), à ces conditions :

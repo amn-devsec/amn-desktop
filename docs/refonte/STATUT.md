@@ -3,7 +3,7 @@
 > Tenu par le CO. Une session ne modifie que **la section de son lot** dans « 7. Écrans » (une ligne par écran) ; tout le reste est au CO. Règles : [`REGLES.md`](REGLES.md).
 
 - Branche d'intégration : **`claude/refonte-vivante`** (décision du 31 oct., §1.1). Base `main` @ `630ef45`.
-- Dernière mise à jour : 2026-11-11. **Dossier v4** : néon dosé par famille, tutoiement dans l'interface, 4 écrans Cyber (`CYB-*`), 7 images de l'espace Développement (`DEV-*`) : §1.14. Prompts du jour : [`PROMPTS-11NOV.md`](PROMPTS-11NOV.md). Directive du 10 nov. : §1.13 et [`PLAN-10NOV.md`](PLAN-10NOV.md).
+- Dernière mise à jour : 2026-11-11, soir. **Serveur : 0 € ce mois-ci, serveur maison** (Docker, Postgres, amn-api, Tailscale), comparatif en trois paliers pour décembre, aucune donnée réelle avant SEC-0 : §1.15. Dossier v4 (néon et tutoiement) : §1.14.
 - LOT-00 (socle v2) est fusionné (`488cdcc`), avec les 4 commits de S5. **Le socle v3 s'y ajoute avant la construction visuelle des lots** (S0 a ses consignes). D'ici là, chaque lot prépare et construit sa logique : §5.
 - Fusionnés aussi le 1er nov. : T1 (API d'essai, bac à sable, contrôle de fidélité) et les données fictives de SIM (100 jeux, `4fe559b`), avec `check:donnees` en CI (87 contrôles).
 - Gardes locales sur `refonte-vivante` : `typecheck`, `typecheck:business`, `lint` et les 55 contrôles sans navigateur de `editions.yml` verts.
@@ -371,6 +371,24 @@ L'espace Cyber est couvert par LOT-10 et LOT-08 (correspondance au §3.1 du plan
 
 **À noter.** Depuis le 6 nov., aucune session de lot n'a poussé de branche de préparation, sauf S7 (`claude/refonte-creer`). S0 n'a rien poussé depuis `8e7e771` (passe finale à faire), ni T1 depuis `0a1751c`, ni SIM depuis `4fe559b`. Les prompts du 11 nov. relancent tout le monde : [`PROMPTS-11NOV.md`](PROMPTS-11NOV.md).
 
+### 1.15 Serveur : 0 € ce mois-ci, serveur maison (décision de Harun, 11 nov.)
+
+1. **Aucune dépense en novembre.** On construit en local, sur données fictives (`build:web` local, API d'essai, `src/refonte/donnees/`).
+2. **Ensuite, un serveur maison** :
+   - amn-api et Postgres dans Docker, sur un poste de l'équipe ;
+   - Mohamed y accède par **Tailscale** (gratuit) ;
+   - **rien n'est exposé sur Internet** : aucun port ouvert sur la box, services liés à `127.0.0.1` ou à l'interface Tailscale seulement ;
+   - une sauvegarde nocturne chiffrée, et un essai de restauration.
+3. **SRV garde son comparatif** (rendu le 16 nov., aucun achat), en **trois paliers** : gratuit (le serveur maison), environ 10 €/mois, environ 25 €/mois. **Décision d'achat en décembre.**
+4. **SRV écrit en plus le guide pas à pas « serveur maison »** : `docs/serveur/SERVEUR-MAISON.md`, au plus tard le 18 nov. Il couvre Docker, Postgres, amn-api, Tailscale et la sauvegarde nocturne, sans aucun nom d'hôte, adresse, nom de machine ni secret. Les secrets sont générés sur le poste, dans un fichier `.env` jamais commité ni collé dans un chat. S6 relit le guide avant toute mise en service.
+5. **Aucune donnée réelle de client tant que la phase 0 de sécurité (SEC-0) n'est pas terminée**, ni sur le serveur maison, ni ailleurs dans la refonte.
+
+**Ce que le CO en déduit :**
+
+- **L'accès de Mohamed au serveur maison, sur données fictives, n'est pas une distribution.** L'installeur Electron ne lui est remis qu'après SEC-0. Avant, s'il veut essayer l'application, c'est la version web (`build:web`) servie sur le réseau Tailscale, avec données fictives.
+- **⚠ Avant le 23 nov.** : la base gratuite actuelle sur Render peut contenir des données réelles. **Harun l'exporte d'ici là** (sauvegarde chiffrée, hors ligne, hors dépôt, jamais dans un chat), pour ne rien perdre au moment de la restriction. Elle ne sera importée nulle part avant SEC-0.
+- La migration de la production reste suspendue jusqu'à la décision de décembre.
+
 ## 2. Les lots
 
 Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en parallèle, une branche chacun ; **LOT-09 en dernier**. Les chiffres viennent de `03-INDEX.md` : 9 + 16 + 13 + 9 + 17 + 10 + 15 + 16 + 12 + 11 + 14 = **142**. (Le tableau du fichier 00 compte G05 dans LOT-05 ; l'index et les prompts le rangent dans LOT-00. Le CO suit l'index.)
@@ -390,7 +408,7 @@ Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en para
 | 2 | **LOT-10** Cyber | 18 (0 / 4 / 14, dont 4 `CYB-*` sans fiche) | `claude/refonte-cyber` | S6, après LOT-07 | Opus 5.5, élevé | socle v3 fusionné ; phase 1 de S6 ; LOT-07 | à faire |
 | 2 | **LOT-11** Espace Développement | 7 images `DEV-*` (fiches à écrire par S8 ; vue d'ensemble à proposer) | `claude/refonte-developpement` | S8 (à créer) | Opus 5.5, élevé | socle v4 fusionné ; LOT-12 pour les connecteurs | **fiches à écrire maintenant** |
 | 2 | **LOT-12** Connecteurs et autonomie | modèle et moteurs (écran : H21, LOT-07) | `claude/refonte-connecteurs` | S9 (à créer) | Opus 5.5, élevé | socle v3 fusionné pour les écrans ; relu par S6 et T1 | préparation possible |
-| 0 | **LOT-13** Serveur | comparatif en lecture seule (16 nov.), puis migration sur décision | `claude/refonte-serveur` | SRV (à créer) | Sonnet 5.5, élevé | aucune ; **urgent** (échéance du 23 nov.) | à lancer |
+| 0 | **LOT-13** Serveur | comparatif en trois paliers (16 nov.) et guide « serveur maison » (18 nov.) ; achat décidé en décembre | `claude/refonte-serveur` | SRV (à créer) | Sonnet 5.5, élevé | aucune ; 0 € en novembre | à lancer |
 | — | **LOT-14** Charge et essais longs | scénarios, 72 h, seuils | (branches de SIM et T1) | SIM et T1 | Sonnet 5.5, élevé | chargeur de SIM ; serveur cible | à lancer |
 | — | **SEC-0**, puis **DIST** | rapport SEC (privé), puis distribution interne privée | (privé) | S6, Harun | Opus 5.5, max | avant toute distribution à l'équipe | en cours (S6) |
 

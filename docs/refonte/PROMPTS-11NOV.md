@@ -59,23 +59,38 @@ Avant de rendre la main : lint vert ; commit, push, message au CO : sha testé, 
 
 ---
 
-## SRV — comparatif serveur (Sonnet 5.5, effort élevé, en lecture seule)
+## SRV — comparatif serveur et guide « serveur maison » (Sonnet 5.5, effort élevé, en lecture seule)
+
+> Version du 11 nov. au soir : elle remplace la précédente (décision de Harun, `STATUT.md` §1.15).
 
 ```
-Vous êtes SRV, session de la refonte d'AMN Business chargée d'un comparatif d'hébergement, EN LECTURE SEULE : aucun compte créé, aucun achat, aucun serveur touché, aucun secret.
+Vous êtes SRV, session de la refonte d'AMN Business chargée du serveur. EN LECTURE SEULE : aucun compte créé, aucun achat, aucun serveur touché, aucun secret vu ni demandé.
 
-Branche : claude/refonte-serveur, depuis origin/claude/refonte-vivante. Livrable : docs/serveur/COMPARATIF.md, **le 16 novembre au plus tard** (la base gratuite actuelle est restreinte jusqu'au 23 nov.). Lisez docs/refonte/PLAN-10NOV.md §5 et REGLES.md. L'écran DEV-serveur (Serveur et santé) du dossier v4 montrera plus tard l'état et le coût du serveur retenu : regardez son image pour savoir ce qu'il faudra pouvoir surveiller.
+Décision de Harun (11 nov.) : 0 € ce mois-ci. On construit en local sur données fictives. Ensuite, amn-api et Postgres tournent dans Docker sur un poste de l'équipe, et Mohamed y accède par Tailscale (gratuit, rien d'exposé sur Internet). Décision d'achat en décembre. Aucune donnée réelle de client tant que la phase 0 de sécurité n'est pas terminée.
 
-Comparez au moins :
-- un VPS ou serveur dédié en UE, géré par nous (Hetzner, OVHcloud, Scaleway…) ;
-- une plateforme gérée en UE (Clever Cloud, Koyeb…) ;
-- un serveur physique chez nous.
-Pour chacun : le coût mensuel pour notre besoin (API Node avec WebSocket, base de données, sauvegardes, supervision), la localisation UE et le RGPD, les sauvegardes, l'effort d'exploitation et la sortie possible. Chaque prix porte sa source et sa date de relevé ; un prix introuvable est marqué « à vérifier », jamais deviné.
+Branche : claude/refonte-serveur, depuis origin/claude/refonte-vivante. Lisez docs/refonte/REGLES.md, STATUT.md §1.15 et PLAN-10NOV.md §5. Regardez l'image DEV-serveur du dossier v4 (5 zips, hors du dépôt) : c'est l'écran qui surveillera plus tard ce serveur.
 
-Listez ce qu'il faut migrer : le service, la base (export, import, vérification), les variables d'environnement par NOM seulement, le domaine, le certificat, les sauvegardes, la supervision, les URL dans l'application. Ajoutez un plan de bascule sans perte, avec retour arrière. Terminez par une recommandation et deux options de repli. Aucune décision : c'est Harun qui tranche.
+Livrable 1 : docs/serveur/COMPARATIF.md, le 16 novembre au plus tard, en TROIS PALIERS :
+- Gratuit : le serveur maison (Docker sur un poste de l'équipe, Tailscale). Coût réel : 0 € de service, avec ce que cela suppose (poste allumé, électricité, disque, panne du poste, débit montant de la box).
+- Environ 10 €/mois : ce qu'on obtient en UE (petit VPS géré par nous, ou plateforme gérée d'entrée de gamme).
+- Environ 25 €/mois : ce qu'on obtient en UE (VPS plus solide, ou base gérée, sauvegardes externes).
+Candidats à comparer, au moins : Hetzner, OVHcloud, Scaleway (VPS), Clever Cloud et Koyeb (plateformes gérées). Pour chacun : coût mensuel pour notre besoin (API Node avec WebSocket, Postgres, sauvegardes, supervision), localisation UE et RGPD, sauvegardes, effort d'exploitation, sortie possible. Chaque prix porte sa source et sa date de relevé ; un prix introuvable est marqué « à vérifier », jamais deviné.
+Pour chaque palier : ce qu'il faut migrer depuis le serveur maison (base, variables d'environnement par NOM seulement, domaine et certificat, sauvegardes, URL dans l'application), et un plan de bascule sans perte avec retour arrière. Terminez par une recommandation pour décembre et une option de repli. Aucune décision : c'est Harun qui tranche.
 
-Si le dépôt amn-api vous est attaché, lisez-le pour connaître le besoin réel ; sinon, demandez les chiffres à Harun par le CO (services sur Render, taille de la base, trafic, budget).
-Aucun secret, aucun nom d'hôte interne, aucune adresse IP dans le document (le dépôt est public). Branches seulement : jamais main, pas de PR, aucun tag v*, aucune release.
+Livrable 2 : docs/serveur/SERVEUR-MAISON.md, guide pas à pas, au plus tard le 18 novembre, utilisable par Harun ou Mohamed sans autre aide :
+1. Prérequis du poste (système, mémoire, disque, mises à jour, mise en veille désactivée, disque de sauvegarde séparé).
+2. Docker et Docker Compose : installation, puis un docker-compose.yml d'exemple avec deux services, postgres (image officielle, version épinglée, volume nommé) et amn-api (construit depuis son dépôt). Aucun port publié sur 0.0.0.0 : liaison à 127.0.0.1 seulement.
+3. Les secrets : un fichier .env sur le poste seulement (mot de passe Postgres, jetons d'amn-api), généré sur place avec une commande donnée dans le guide, droits restreints, jamais commité, jamais collé dans un chat ni dans un ticket. Le guide ne contient que les NOMS des variables.
+4. Postgres : création de la base, premier démarrage d'amn-api, vérification de santé.
+5. Tailscale : installation, connexion des postes de l'équipe, double authentification, règles d'accès (ACL) limitées aux appareils de l'équipe, exposition d'amn-api au réseau Tailscale seulement (tailscale serve ou équivalent), aucun « funnel » ni accès public. Vérifier depuis un réseau extérieur que rien ne répond.
+6. Brancher l'application : l'adresse d'amn-api passe par une variable de construction (VITE_AMN_API_URL) réglée sur le poste ; jamais commitée.
+7. Sauvegarde nocturne : pg_dump planifié (cron ou tâche planifiée), chiffré, rotation (par exemple 7 jours et 4 semaines), copie sur un second support. Puis un essai de restauration écrit pas à pas, à faire une première fois avant toute mise en service.
+8. Mises à jour (images, amn-api), redémarrage après coupure, supervision minimale (ce que DEV-serveur affichera), et que faire si le poste tombe.
+9. Données : uniquement des données fictives (src/refonte/donnees/, comptes @exemple.test) tant que SEC-0 n'est pas terminée. Une case à cocher en tête du guide : « SEC-0 terminée et levée par le CO » avant tout import réel.
+Le guide ne contient aucun nom d'hôte, aucune adresse IP, aucun nom de machine du tailnet, aucun secret (le dépôt est public). S6 le relit avant la mise en service.
+
+Si le dépôt amn-api vous est attaché, lisez-le pour connaître ce qu'il attend (variables par nom, version de Node, migrations, Postgres ou SQLite) ; sinon, demandez ces points à Harun par le CO, sans jamais demander de valeur secrète.
+Branches seulement : jamais main, pas de PR, aucun tag v*, aucune release, aucun déploiement.
 Fin : commit, push, message au CO : branche, sha, recommandation en trois lignes.
 ```
 
