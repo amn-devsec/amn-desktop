@@ -121,6 +121,8 @@ Légende : **Existant** = ce que le dépôt fait aujourd'hui ; **Manque** = ce q
 
 ## 5. Constats à porter au CO
 
+> **Décisions du CO** (`STATUT.md` §1.17, 12 nov.) : barre latérale = section « ESPACES DE TRAVAIL » de l'image, sous-liste du socle §0.1 (n° 6) ; 8e hub accepté, posé par S0 (n° 3) ; format des blocs avec Sinon / Puis tenu par S9, relu par S6 (n° 4) ; cible « Interne » inerte (n° 5) ; « Éditeur de flux » partout, comptes de DEV-couts calculés, Modèles de sites dans Développement (n° 7). Restent ouverts : n° 1 (seconde entrée dans le registre) et n° 2 (teinte de la famille).
+
 1. **Seconde entrée et registre.** `check:navigation` refuse une **vue en double** : H20, H21, H24, H03, ME05 et MO03 ne peuvent pas être redéclarés dans une famille `developpement`. La seconde entrée passe donc par la **sous-liste de la barre latérale** (coquille, S0) ou par un champ « aussi dans » du registre (S5). **Décision du CO.**
 2. **Teinte de la famille.** `declarerFamille` n'accepte qu'une des **sept** teintes (`Famille` de `src/socle/familles.ts`) ; La Garde a pris celle des Outils. Le socle v4 connaît bien `developpement` dans `FAMILLES_COULEUR` (`--socle-fam-developpement-a|b`), mais le registre ne le lit pas. Proposition : que le registre accepte une `FamilleCouleur`, sinon prendre `outils` comme La Garde. **S0 / S5, par le CO.**
 3. **Huitième hub.** DEV-ensemble demande `/ensemble/developpement` dans `HUBS` (`src/refonte/substitutions/hubs.ts`, socle v4) : à ajouter par S0. Sinon la vue d'ensemble reste sur le repli générique.

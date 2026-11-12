@@ -1,6 +1,6 @@
 # DEV-modeles-sites · Modèles de sites (et sa vue code)
 Développement · LOT-11 · Images : `images/DEV-modeles-sites.png` (bibliothèque), `images/DEV-modeles-sites-code.png` (fiche d'un modèle, vue code) · Prototype : `sources-neon/DEV-modeles-sites.html` · Statut : NOUVEAU
-Parcours : Développement / Modèles de sites (l'image et le prototype disent « Créer et produire / Modèles de sites » : voir §13)
+Parcours : Développement / Modèles de sites (l'image et le prototype disent « Créer et produire / Modèles de sites » ; famille Développement décidée par le CO, voir §13)
 
 > Règles communes de l'espace : [`00-COMMUN.md`](00-COMMUN.md).
 
@@ -32,7 +32,7 @@ Une **bibliothèque de sites complets, prêts à copier** : on cherche par secte
 Le prototype vouvoie : les textes ci-dessous sont **passés au tutoiement** (06 §4). Le **contenu des modèles** (les pages des sites) reste tel quel, au vouvoiement : ce sont des pages destinées aux clients.
 
 **Bibliothèque**
-- Fil d'Ariane : « Développement / Modèles de sites » (*Proposition*, voir §13).
+- Fil d'Ariane : « Développement / Modèles de sites » (décision du CO, voir §13).
 - h1 : « Modèles de sites ».
 - Sous-titre : « Chaque modèle est une page complète, prête à copier. Ouvre-en un, regarde le site, puis prends le code d'un clic. » (prototype : « Ouvrez-en un, regardez le site, puis prenez le code d'un clic. »)
 - Bouton : « + Ajouter un modèle ».
@@ -126,7 +126,7 @@ Sans objet (bibliothèque d'outils). Ce qu'on ne fait pas : pas de « modèle le
 - [ ] `typecheck`, `lint`, `check:socle`, `check:developpement` verts.
 
 ## 13. Pièges
-- **Parcours** : l'image et le prototype disent « Créer et produire / Modèles de sites » et montrent une barre latérale de prototype (CRÉER ET PRODUIRE, OUTILS ET RÉGLAGES) ; `07-ESPACE-DEV.md` place le module dans Développement. Proposition : famille Développement, et une seconde entrée possible dans Créer et produire si Harun le souhaite (précédent MO02 / CY07). **À trancher par le CO.**
+- **Parcours** : l'image et le prototype disent « Créer et produire / Modèles de sites » et montrent une barre latérale de prototype (CRÉER ET PRODUIRE, OUTILS ET RÉGLAGES) ; `07-ESPACE-DEV.md` place le module dans Développement. **Décision du CO** (`STATUT.md` §1.17 n° 3) : famille Développement, avec une seconde entrée possible dans Créer et produire (précédent MO02 / CY07).
 - **Style** : l'image est en v3 (gris) ; 06 §3 s'applique (néon, couleurs de la famille Développement).
 - Le prototype vouvoie l'interface : tutoyer l'interface, pas les modèles.
 - Les noms des modèles (Optique Lumière, Veillance…) sont fictifs ; « Veillance » vend des services de cybersécurité : contenu marketing, à relire, sans aucune donnée réelle.

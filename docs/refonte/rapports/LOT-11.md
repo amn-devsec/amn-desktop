@@ -69,6 +69,8 @@ Les mêmes gardes étaient vertes sur `refonte-vivante` avant le lot. Dépendanc
 
 ## Points à trancher
 
+> Mis à jour après les décisions du CO (`STATUT.md` §1.17) : barre latérale, 8e hub, famille des Modèles de sites, « Éditeur de flux », comptes de DEV-couts, cible « Interne » et format Sinon / Puis (S9) sont **tranchés**, et les fiches y sont alignées. Restent ouverts : la relecture de Harun, la seconde entrée dans le registre et la teinte de la famille.
+
 Détail : `preparation/LOT-11-developpement.md` §5 et rubrique 13 de chaque fiche.
 
 - **Relecture des fiches par Harun**, dont DEV-ensemble (aucune image : disposition calée sur F50 et F60).
