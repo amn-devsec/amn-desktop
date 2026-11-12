@@ -1,0 +1,90 @@
+# Rapport de fin de session — S8 · LOT-11 Espace Développement
+
+## Résumé (5 lignes au plus)
+
+1. **Étape 1 faite** : 6 fiches d'après les images `DEV-*` (13 rubriques, textes au tutoiement, cotes relevées sur les images) et 1 fiche proposée sans image (DEV-ensemble, sur le modèle des hubs, avec `ModuleTile`), plus `00-COMMUN.md` ; envoyées au CO (`6af5f4f`) pour la relecture de Harun.
+2. **Étape 2 faite** : note `docs/refonte/preparation/LOT-11-developpement.md` (inventaire, sous-modules réutilisés avec leur lot, dépendances, 7 constats pour le CO, données à demander à SIM).
+3. **Logique pure** dans `src/refonte/developpement/` : journal des exécutions, tâches planifiées locales, état des déploiements ; garde `check:developpement` (51 contrôles) ajoutée à `package.json` et `editions.yml`.
+4. **Rien n'est contourné** : connecteurs Code, Hébergement et coûts attendent le modèle de S9 (LOT-12) ; DEV-serveur attend LOT-13. Aucun composant visuel.
+5. **Étape 3 non commencée** : elle attend le feu vert du CO (socle v4 fusionné, fiches relues).
+
+## Branche et sha
+
+- Branche : `claude/refonte-developpement`
+- Dernier commit : voir le message au CO (commit de ce rapport, après `5a390e7`)
+- Partie de : `claude/refonte-vivante` @ `50a58c4`
+
+## Fichiers touchés
+
+Sortie de `git diff --name-status origin/claude/refonte-vivante...HEAD` (avant le commit de ce rapport) :
+
+```
+M	.github/workflows/editions.yml
+M	docs/refonte/STATUT.md
+A	docs/refonte/fiches/LOT-11/00-COMMUN.md
+A	docs/refonte/fiches/LOT-11/DEV-couts.md
+A	docs/refonte/fiches/LOT-11/DEV-deploiements.md
+A	docs/refonte/fiches/LOT-11/DEV-editeur.md
+A	docs/refonte/fiches/LOT-11/DEV-ensemble.md
+A	docs/refonte/fiches/LOT-11/DEV-modeles-sites.md
+A	docs/refonte/fiches/LOT-11/DEV-projets.md
+A	docs/refonte/fiches/LOT-11/DEV-serveur.md
+A	docs/refonte/preparation/LOT-11-developpement.md
+M	package.json
+A	scripts/check-developpement.ts
+A	src/refonte/developpement/commun.ts
+A	src/refonte/developpement/deploiements.ts
+A	src/refonte/developpement/i18n.ts
+A	src/refonte/developpement/journal.ts
+A	src/refonte/developpement/planification.ts
+```
+
+Plus ce rapport (`docs/refonte/rapports/LOT-11.md`).
+
+Fichiers **sensibles** ou **hors zone** touchés, avec la raison :
+
+| Fichier | Changement (ajout seulement ?) | Pourquoi |
+|---|---|---|
+| `package.json` | ajout seulement : une ligne `check:developpement` après `check:donnees` | la garde du lot (demandée) |
+| `.github/workflows/editions.yml` | ajout seulement : une étape « Espace Développement (LOT-11) » après `check:donnees` | la garde du lot en CI (demandée) |
+| `docs/refonte/STATUT.md` | section LOT-11 du §7 seulement | une ligne par écran (`REGLES.md`) |
+
+Aucun fichier de l'édition cliente, du socle, de `src/screens/**` ni de `appRoot.internal.tsx`. `package-lock.json` inchangé.
+
+## Gardes
+
+| Garde | Résultat |
+|---|---|
+| `typecheck` | vert |
+| `typecheck:business` | vert |
+| `lint` | vert |
+| `check:accueils` | vert |
+| `check:socle` | vert |
+| `check:moments` | vert |
+| `check:navigation` | vert |
+| `check:donnees` | vert |
+| `check:developpement` | vert, 51 contrôles |
+
+Les mêmes gardes étaient vertes sur `refonte-vivante` avant le lot. Dépendances installées par `npm ci --ignore-scripts` (aucun script d'installation lancé). Ni `npm start`, ni `build:web`, ni serveur.
+
+## Points à trancher
+
+Détail : `preparation/LOT-11-developpement.md` §5 et rubrique 13 de chaque fiche.
+
+- **Relecture des fiches par Harun**, dont DEV-ensemble (aucune image : disposition calée sur F50 et F60).
+- **Seconde entrée** de H20, H21, H24, H03, ME05, MO03 : le registre refuse une vue en double (`check:navigation`) → par la sous-liste de la barre latérale (S0) ou un champ « aussi dans » du registre (S5).
+- **Teinte de la famille** `developpement` dans le registre (sept teintes seulement ; La Garde a pris `outils`) → accepter une `FamilleCouleur` du socle v4, ou prendre `outils`.
+- **8e hub** `/ensemble/developpement` dans `HUBS` du socle v4 (S0).
+- **Moteur de H20** à étendre pour les blocs Sinon / Puis : avec S6, sans troisième moteur.
+- **Barre latérale** des images (13 lignes dépliées) : je retiens la coquille du socle (5 lignes + « + N autres ») ; entrée « Développement » à poser par S0.
+- **Écarts de maquette** : h1 « Éditeur d'automatisation » contre menu « Éditeur de flux » ; « 5 connecteurs sur 7 » contre 4 lignes « Local » ; durées d'étapes (113 s) contre « 1 min 48 » (retenu : durée mesurée) ; DEV-modeles-sites en v3 gris et parcours « Créer et produire » ; « Redémarrer » en bouton primaire.
+- **Cible « Interne »** inerte (`DISTRIBUTION_INTERNE_OUVERTE = false`) jusqu'à DIST : à ouvrir seulement sur décision de Harun.
+- **Données fictives** à commander à SIM (§8 de la note) : dépôts, déploiements et planifiés, journal d'exécutions, tâches planifiées, mesures et services du serveur, coûts des connecteurs.
+
+## Ce qui n'a pas été vérifié
+
+- **Aucune capture** : aucun écran n'est construit (étape 3 au feu vert). Les cotes des fiches sont relevées par analyse des pixels des images (bords des cartes) et à l'œil pour le reste : à ± 2 px, à confirmer à la première capture.
+- **Les textes de l'image** sont recopiés à la lecture (pas de `_data/DEV-*.json` dans le dossier v4) ; un texte tronqué dans l'image est signalé (« 3 commit… »).
+- **H21 et MO03** : leur écran actuel (sections des Paramètres) est noté « à confirmer » ; LOT-07 les tient.
+- **La logique** n'est branchée sur aucun écran ni aucune donnée réelle ; elle est éprouvée sur des cas écrits et sur le jeu fictif `automatisations` seulement.
+- La CI GitHub n'a pas tourné sur la branche (pas de PR, consigne).
