@@ -1,8 +1,8 @@
-# DEV-ensemble · Développement, vue d'ensemble — PROPOSITION
-Développement · LOT-11 · Image : **aucune** (proposition de S8, sur le modèle des hubs F10 à F70) · Statut : NOUVEAU
+# DEV-ensemble · Développement, vue d'ensemble
+Développement · LOT-11 · Image : **aucune** (proposition de S8 sur le modèle des hubs F10 à F70, **validée par Harun le 12 nov.**) · Statut : NOUVEAU
 Parcours : Développement / Vue d'ensemble
 
-> **Proposition à valider par Harun** : aucune maquette n'existe (`STATUT.md` §1.14, point 3). Toutes les cotes ci-dessous reprennent celles des hubs existants (F50 pour la grille des modules, F60 pour les instruments) pour que la page se construise sans nouvelle image ; elles sont toutes des **propositions**. Règles communes : [`00-COMMUN.md`](00-COMMUN.md).
+> **Validée par Harun telle que proposée** (12 nov.). Aucune maquette n'existe (`STATUT.md` §1.14, point 3) : les cotes ci-dessous reprennent celles des hubs existants (F50 pour la grille des modules, F60 pour les instruments) et font foi à la place d'une image ; la capture se compare à cette fiche. Règles communes : [`00-COMMUN.md`](00-COMMUN.md).
 
 ## 1. Rôle
 Page d'accueil de l'espace Développement, vue comme **la chaîne de mise en ligne** : le code (dépôts et tests), les déploiements, ce qui est en ligne, le serveur qui le porte, chacun en un poste. On voit où ça coince, les trois choses à regarder aujourd'hui, ce qui tourne seul et ce que ça coûte, puis on ouvre l'un des **12 modules** de l'espace, tous visibles. On ne travaille pas ici : chaque élément ouvre son écran.
@@ -94,10 +94,10 @@ Aucune donnée propre : tout vient des écrans du lot et des modules réutilisé
 ## 11. Adaptation (fenêtre réduite, mobile)
 - Sous 1280 px : la chaîne passe en 2 × 2 postes ; la rangée du milieu s'empile ; tuiles en 2 colonnes de groupes.
 - Sous 900 px : un poste par rangée.
-- Mobile (LOT-09) : *Proposition* : la chaîne en liste et « À regarder aujourd'hui », lecture seule.
+- Mobile (LOT-09) : **lecture seule** (décision de Harun, 12 nov.) : la chaîne en liste et « À regarder aujourd'hui » ; pas de « Déployer » sur le téléphone.
 
 ## 12. Critères de réussite
-- [ ] Validée par Harun avant toute construction (aucune image).
+- [x] Validée par Harun (12 nov.), telle que proposée.
 - [ ] Les chiffres sont ceux des écrans du lot, par les mêmes requêtes.
 - [ ] Les 12 modules visibles, chacun ouvre le bon écran ; « Tous les modules » ouvre D02.
 - [ ] Route `/ensemble/developpement` déclarée par la substitution du lot, une fois le huitième hub ajouté au socle.

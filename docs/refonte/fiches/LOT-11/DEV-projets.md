@@ -106,7 +106,7 @@ Pastilles : « Tests verts » (succès), « 1 test en échec » (attention). Cou
 ## 11. Adaptation (fenêtre réduite, mobile)
 - Sous 1280 px : grille de dépôts en 2 colonnes ; « À regarder » et « Prochaines versions » l'une sous l'autre ; la carte d'activité passe à 16 colonnes.
 - Sous 900 px : une carte par rangée ; le bandeau garde ses 3 chiffres, sans carte d'activité.
-- Mobile (LOT-09) : *Proposition* : lecture seule (état des tests, « À regarder »), dans MB06.
+- Mobile (LOT-09) : **lecture seule** (décision de Harun, 12 nov.) : état des tests et « À regarder », dans MB06 ; ni « Importer un dépôt » ni « Nouveau projet ».
 
 ## 12. Critères de réussite
 - [ ] Identique à `images/DEV-projets.png` à ± 2 px : bandeau 1108 × 120, cartes 360 × 144 en 3 × 2, cartes du bas 638 × 204 et 456 × 204 ; annotations de maquette absentes (`00-COMMUN.md` §1).

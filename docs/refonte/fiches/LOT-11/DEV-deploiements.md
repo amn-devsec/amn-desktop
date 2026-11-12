@@ -78,7 +78,7 @@ Logique pure : `src/refonte/developpement/deploiements.ts` (préparation du lot,
 ## 7. Interactions
 - **« Déployer »** (primaire) : boîte de dialogue en une étape (dépôt, branche, cible ; la dernière combinaison est proposée), puis « Déployer » ; la frise passe en cours. Production : confirmation en une ligne (« Mettre en ligne en production ? ») (*Proposition*). Trois actions au plus.
 - **« Planifier »** : même dialogue + date et heure ; ajoute une ligne à « Planifiés ». Un déploiement planifié s'annule depuis sa ligne (menu « Annuler »).
-- **« Revenir »** : un clic ouvre une confirmation en une ligne « Revenir à la version du <date> sur <cible> ? » + « Revenir » ; *Proposition* : sans confirmation pour la cible Aperçu. Le retour apparaît en tête de l'historique.
+- **« Revenir »** (décision de Harun, 12 nov.) : en **Production**, un clic ouvre une confirmation en une ligne « Revenir à la version du <date> sur <cible> ? » + « Revenir » ; sur les **versions d'essai** (Aperçu), **aucune confirmation** : le retour part au clic. Le retour apparaît en tête de l'historique. *À confirmer par le CO* : Préproduction, Interne et Serveur AMN suivent la règle de la Production (proposition de S8).
 - Clic sur une ligne d'historique : ouvre le **journal** du déploiement (lignes monospace, étape par étape) ; sur un échec, le journal s'ouvre à la première ligne en erreur.
 - Clic sur une étape de la frise : journal filtré sur cette étape.
 - Clic sur une barre : liste des déploiements du jour. Clic sur « En ligne maintenant » : ouvre la cible (lien externe si c'est un site, avec confirmation d'ouverture).
@@ -105,12 +105,12 @@ Logique pure : `src/refonte/developpement/deploiements.ts` (préparation du lot,
 ## 11. Adaptation (fenêtre réduite, mobile)
 - Sous 1280 px : la colonne droite passe sous l'historique (3 cartes côte à côte) ; la frise garde ses 5 étapes, libellés sur deux lignes si besoin.
 - Sous 900 px : historique en cartes (une par déploiement) ; la frise devient verticale.
-- Mobile (LOT-09) : *Proposition* : lecture de l'état et des échecs ; « Revenir » et « Déployer » restent sur le poste.
+- Mobile (LOT-09) : **lecture seule** (décision de Harun, 12 nov.) : état, historique et échecs ; « Déployer », « Planifier » et « Revenir » restent sur l'ordinateur.
 
 ## 12. Critères de réussite
 - [ ] Identique à `images/DEV-deploiements.png` à ± 2 px : carte 1108 × 171, historique 732 × 313 (lignes de 55), planifiés 732 × 147, colonne droite 360 de large.
 - [ ] La durée totale est mesurée de bout en bout ; chaque étape affiche la sienne.
-- [ ] « Revenir » vise la dernière version réussie antérieure sur la même cible, et se confirme (sauf Aperçu, si retenu).
+- [ ] « Revenir » vise la dernière version réussie antérieure sur la même cible ; une ligne de confirmation en Production, aucune sur Aperçu.
 - [ ] La cible « Interne » ne publie rien tant que DIST n'est pas décidé ; aucun tag `v*`, aucune Release.
 - [ ] Aucune variable d'environnement ni clé affichée, même masquée.
 - [ ] Un seul bouton primaire (« Déployer ») ; états vide, en cours, échec, non branché, chargement, erreur, hors ligne présents.
