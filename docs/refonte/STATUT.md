@@ -3,7 +3,7 @@
 > Tenu par le CO. Une session ne modifie que **la section de son lot** dans « 7. Écrans » (une ligne par écran) ; tout le reste est au CO. Règles : [`REGLES.md`](REGLES.md).
 
 - Branche d'intégration : **`claude/refonte-vivante`** (décision du 31 oct., §1.1). Base `main` @ `630ef45`.
-- Dernière mise à jour : 2026-11-12, soir. Fiches de LOT-11 relues par Harun : §1.23. LOT-12 préparation fusionnée : §1.22. Modules de F1 : §1.21. Seuils de LOT-14 : §1.20.
+- Dernière mise à jour : 2026-11-12, soir. Seuils de rapidité de LOT-14 validés par Harun : §1.20. Fiches de LOT-11 relues : §1.23. LOT-12 préparation fusionnée : §1.22. Modules de F1 : §1.21.
 - LOT-00 (socle v2) est fusionné (`488cdcc`), avec les 4 commits de S5. **Le socle v3 s'y ajoute avant la construction visuelle des lots** (S0 a ses consignes). D'ici là, chaque lot prépare et construit sa logique : §5.
 - Fusionnés aussi le 1er nov. : T1 (API d'essai, bac à sable, contrôle de fidélité) et les données fictives de SIM (100 jeux, `4fe559b`), avec `check:donnees` en CI (87 contrôles).
 - Gardes locales sur `refonte-vivante` : `typecheck`, `typecheck:business`, `lint` et les 55 contrôles sans navigateur de `editions.yml` verts.
@@ -447,7 +447,7 @@ Jeux fictifs pour LOT-11 (note §8) : à commander à SIM quand l'étape 3 déma
 
 | Essai | Ce qu'on simule | Ce qui est attendu |
 |---|---|---|
-| **Charge (cible à tenir)** | 100 organisations clientes fictives, dont **20 connectées en même temps**, plus **3 personnes de l'équipe interne** au travail sur l'ensemble | Ça tient : aucune perte ni aucun écrasement de données, aucune erreur serveur. Valeurs par défaut du CO, que Harun peut changer : **95 % des actions courantes en moins d'1 s**, et une écriture visible sur les autres postes en **moins de 5 s**. |
+| **Charge (cible à tenir)** | 100 organisations clientes fictives, dont **20 connectées en même temps**, plus **3 personnes de l'équipe interne** au travail sur l'ensemble | Ça tient : aucune perte ni aucun écrasement de données, aucune erreur serveur. **Validé par Harun le 12 nov.** : **95 % des actions courantes en moins d'1 s**, et une écriture visible sur les autres postes en **moins de 5 s**. |
 | **Résistance** | Montée jusqu'à **1 000 organisations**, en augmentant les connexions simultanées par paliers | On ne demande pas que ça tienne : on veut **le premier point de rupture** (à quel palier, sur quelle ressource : processeur, mémoire, base, connexions) et la façon dont ça casse (lenteur, erreurs, perte). |
 | **Essais longs** | 72 h à la cible de charge, avec redémarrages, coupures réseau et reprise après plantage (PLAN-10NOV §8) | Aucune donnée perdue, et une reprise sans intervention. |
 
