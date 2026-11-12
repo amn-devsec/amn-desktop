@@ -3,7 +3,7 @@
 > Tenu par le CO. Une session ne modifie que **la section de son lot** dans « 7. Écrans » (une ligne par écran) ; tout le reste est au CO. Règles : [`REGLES.md`](REGLES.md).
 
 - Branche d'intégration : **`claude/refonte-vivante`** (décision du 31 oct., §1.1). Base `main` @ `630ef45`.
-- Dernière mise à jour : 2026-11-12, soir. Dépôt passé dans l'organisation `amn-devsec`, toujours public, option A ouverte (§8 sur le dépôt public). Tags `v*` protégés. LOT-11 étape 2 : §1.19. Reprise après 18h : §1.18.
+- Dernière mise à jour : 2026-11-12, soir. amn-api : Harun responsable, Mohamed suppléant. Dépôt dans `amn-devsec`, toujours public. Tags `v*` protégés. LOT-11 étape 2 : §1.19. Reprise après 18h : §1.18.
 - LOT-00 (socle v2) est fusionné (`488cdcc`), avec les 4 commits de S5. **Le socle v3 s'y ajoute avant la construction visuelle des lots** (S0 a ses consignes). D'ici là, chaque lot prépare et construit sa logique : §5.
 - Fusionnés aussi le 1er nov. : T1 (API d'essai, bac à sable, contrôle de fidélité) et les données fictives de SIM (100 jeux, `4fe559b`), avec `check:donnees` en CI (87 contrôles).
 - Gardes locales sur `refonte-vivante` : `typecheck`, `typecheck:business`, `lint` et les 55 contrôles sans navigateur de `editions.yml` verts.
@@ -327,7 +327,7 @@ L'espace Cyber est couvert par LOT-10 et LOT-08 (correspondance au §3.1 du plan
 3. les chiffres de Render et le budget du serveur ; la décision après le comparatif ;
 4. où garder le travail sur Desktop client (A, B ou C ; A recommandée) ;
 5. ~~protéger les tags `v*`~~ (fait le 12 nov., workflow de publication désactivé aussi) ; le canal de distribution privé après SEC-0 ;
-6. qui corrige amn-api (les points faibles trouvés par SIM) ;
+6. ~~qui corrige amn-api~~ : **Harun est responsable, Mohamed suppléant** (12 nov.). Les « demandes à amn-api » des lots leur reviennent, et le détail des points de SIM reste hors du dépôt public ;
 7. les chiffres cibles des tests de charge ;
 8. les images manquantes pour S0 ;
 9. S6 en Opus pour LOT-07.
