@@ -3,7 +3,7 @@
 > Tenu par le CO. Une session ne modifie que **la section de son lot** dans « 7. Écrans » (une ligne par écran) ; tout le reste est au CO. Règles : [`REGLES.md`](REGLES.md).
 
 - Branche d'intégration : **`claude/refonte-vivante`** (décision du 31 oct., §1.1). Base `main` @ `630ef45`.
-- Dernière mise à jour : 2026-11-12, soir. Fiches de LOT-11 (S8) fusionnées pour relecture de Harun, 7 points tranchés : §1.17. Aucune distribution, serveur reporté : §1.16.
+- Dernière mise à jour : 2026-11-12, 17h. Registre de D02 et ordre de reprise après 18h : §1.18. Fiches de LOT-11 : §1.17. Aucune distribution : §1.16.
 - LOT-00 (socle v2) est fusionné (`488cdcc`), avec les 4 commits de S5. **Le socle v3 s'y ajoute avant la construction visuelle des lots** (S0 a ses consignes). D'ici là, chaque lot prépare et construit sa logique : §5.
 - Fusionnés aussi le 1er nov. : T1 (API d'essai, bac à sable, contrôle de fidélité) et les données fictives de SIM (100 jeux, `4fe559b`), avec `check:donnees` en CI (87 contrôles).
 - Gardes locales sur `refonte-vivante` : `typecheck`, `typecheck:business`, `lint` et les 55 contrôles sans navigateur de `editions.yml` verts.
@@ -412,6 +412,20 @@ Les 7 fiches de l'espace Développement (`DEV-projets`, `DEV-deploiements`, `DEV
 | 7 | `DEV-editeur` : branches Sinon / Puis | Une extension du format des blocs et du moteur local, **qui revient à S9** (LOT-12 tient le format Quand / Si / Alors). S6 relit, et H20 (LOT-07) s'appuie dessus. S8 construit l'écran sur ce format. |
 
 **Ajouté à la passe finale de S0** : la section « ESPACES DE TRAVAIL » de la barre latérale, et le hub `/ensemble/developpement`.
+
+### 1.18 Point du 12 nov., 17h : registre de D02, ordre de reprise après 18h
+
+**Registre d'exemple de D02 (question de S0, réponse 12 du §1.13)** : la réponse 12 est **retirée**. L'aperçu de D02 garde le vrai registre de S5 tel quel, parce que l'ordre du registre fait foi (§1.12 n° 3) et que les comptes viennent des données, jamais de l'image (04-A n° 1). La 4ᵉ colonne défile dans sa carte, comme livré. L'écart avec l'image (lignes du registre) est un **écart gardé**, hors pourcentage. Rien ne change dans `src/refonte/modules/`. Les points 5 à 9 de S0 continuent sans attendre.
+
+**Ordre de reprise après la remise à zéro de 18h** (limite partagée, une session à la fois si besoin) :
+
+1. **S0** : points 5 à 9 de la passe finale. C'est le chemin critique : rien ne se fusionne ni ne s'allume sans lui.
+2. **S6** : phase 0, sa priorité en cours (étapes 3 à 6).
+3. **S9** : LOT-12, le format des blocs Quand / Si / Alors avec Sinon / Puis (§1.17 n° 7). Branche `claude/refonte-connecteurs` @ `f7f3d1a` relue : 26 fichiers dans sa zone, aucun conflit, aucun secret.
+4. **T1** : passage 2, **seulement quand S0 a poussé le point 9**, pas avant (une seule passe, pas deux).
+5. **S8** : en pause après ses fiches, jusqu'à la relecture de Harun. Aucun coût d'ici là.
+
+S2 et S3 : après la fusion du socle v4 et l'allumage de la coquille (§1.9).
 
 ## 2. Les lots
 
