@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   ChevronDown,
   Circle,
+  Code,
   Euro,
   Layers,
   LayoutGrid,
@@ -21,23 +22,24 @@ import {
 import { AnneauProgression, Avatar, CountBadge, LiveDot, Raccourci, type TonVivant } from '../ui';
 import { useSocleLangue } from '../i18n';
 import { estFamilleCouleur } from '../familles';
-import type { CarteAujourdhui, EtatGarde, FamilleLaterale, ModuleLateral } from './types';
+import type { CarteAujourdhui, EtatGarde, FamilleLaterale, ModuleLateral, SignalLateral } from './types';
 
 /**
  * LA BARRE LATÉRALE v3 (01-SOCLE-DESIGN §0.1) — la seule navigation, 252 px.
  *
  * Du haut en bas : la marque (logo, « AMN Business », « Espace de l'équipe ») et le bouton qui replie la barre ;
  * la ligne de recherche (le champ ⌘K et, collé à droite, le bouton carré « Tous les modules (N) ») ; trois
- * sections nommées — ESPACE (les sept familles), SURVEILLANCE (La Garde, Cyber), ÉPINGLÉS (trois modules choisis
- * par la personne) — ; en bas, la carte « Aujourd'hui » (les chiffres de l'Accueil, le prochain rendez-vous, qui
+ * sections nommées — ESPACE (les sept familles, puis « Développement », toujours là, juste au-dessus de
+ * SURVEILLANCE), SURVEILLANCE (La Garde, Cyber), ÉPINGLÉS (trois modules choisis par la personne) — ; en bas, la carte « Aujourd'hui » (les chiffres de l'Accueil, le prochain rendez-vous, qui
  * est en ligne et où).
  *
  * Familles : 32 px, une icône de trait de 15 px en T3 et le libellé en T2. Plus aucune pastille de couleur : la
  * teinte de la famille ne colore que l'icône de la famille active. La famille où l'on est déroule au plus cinq
  * lignes (« Vue d'ensemble » d'abord, sauf Ma journée ; le module courant toujours visible) sur un filet, avec un
- * repère blanc posé sur le filet en face du module courant, puis « + N autres ». Les compteurs ne s'écrivent
+ * repère posé sur le filet en face du module courant, puis « + N autres ». Les compteurs ne s'écrivent
  * plus ni sur les familles ni dans la sous-liste (images v3) : ils restent sur les épinglés et sur Cyber, et
- * l'Accueil les porte tous.
+ * l'Accueil les porte tous. Développement écrit à droite ses deux signaux d'état (déploiements en cours, tests
+ * en échec), déclarés par son lot ; un signal à zéro ne s'écrit pas.
  *
  * Données et navigation arrivent par props : cette barre ne lit rien d'autre. Le module courant porte
  * `aria-current="page"`. Sous 900 px la barre est un tiroir (fermé sur Échap par la coquille, et au choix d'un
@@ -47,6 +49,8 @@ export interface BarreLateraleProps {
   produit: string;
   /** ESPACE : les sept familles. */
   familles: FamilleLaterale[];
+  /** ESPACE, en dernier (juste au-dessus de SURVEILLANCE) : Développement, toujours là, déplié sur ses écrans. */
+  developpement: FamilleLaterale;
   /** SURVEILLANCE : La Garde (huitième famille), ou `null` quand l'organisation n'a aucun de ses modules. */
   garde: FamilleLaterale | null;
   /** SURVEILLANCE : Cyber, toujours là (un lien vers ses écrans, et le compteur d'alertes ouvertes du SOC). */
@@ -85,6 +89,7 @@ export const ICONES_FAMILLE: Readonly<Record<string, LucideIcon>> = {
   outils: SlidersHorizontal,
   garde: Shield,
   cyber: Target,
+  developpement: Code,
 };
 const iconeDe = (cle: string | undefined): LucideIcon => (cle ? ICONES_FAMILLE[cle] : undefined) ?? Circle;
 
@@ -99,6 +104,7 @@ export const BarreLaterale = React.forwardRef<HTMLElement, BarreLateraleProps>(f
   {
     produit,
     familles,
+    developpement,
     garde,
     cyber,
     epingles,
@@ -116,7 +122,7 @@ export const BarreLaterale = React.forwardRef<HTMLElement, BarreLateraleProps>(f
   ref,
 ) {
   const { ts } = useSocleLangue();
-  const toutes = [...familles, ...(garde ? [garde] : []), cyber];
+  const toutes = [...familles, developpement, ...(garde ? [garde] : []), cyber];
   const actuelle = toutes.find((f) => f.active)?.cle;
   const [ouvertes, setOuvertes] = useState<Set<string>>(() => new Set(actuelle ? [actuelle] : []));
   // Entrer dans une famille par ailleurs (⌘K, un lien) la déroule : on voit toujours où l'on est.
@@ -142,7 +148,20 @@ export const BarreLaterale = React.forwardRef<HTMLElement, BarreLateraleProps>(f
     </li>
   );
 
-  /** Ce qu'une famille écrit à droite : « veille » et le voyant de La Garde, le compteur de Cyber, le chevron de la famille ouverte. */
+  /** Les signaux d'une ligne (Développement) : un voyant de leur ton et leur chiffre ; ce qu'ils disent passe par le libellé de la ligne. */
+  const signaux = (liste: SignalLateral[]) => (
+    <span aria-hidden className="sc-famille__signaux">
+      {liste.map((s) => (
+        <span key={s.cle} className="sc-signal" data-signal={s.cle} data-ton={s.ton} title={s.libelle}>
+          <LiveDot ton={s.ton} onde={Boolean(s.enCours)} halo={false} taille={6} libelle={s.libelle} />
+          <span className="sc-signal__n">{s.n}</span>
+        </span>
+      ))}
+    </span>
+  );
+  const signauxDe = (f: FamilleLaterale) => (f.signaux ?? []).filter((s) => Number.isFinite(s.n) && s.n > 0);
+
+  /** Ce qu'une famille écrit à droite : « veille » et le voyant de La Garde, le compteur de Cyber, les signaux de Développement, le chevron de la famille ouverte. */
   const droite = (f: FamilleLaterale, deployee: boolean) => {
     if (f.cle === 'garde') {
       const etat = etatGarde;
@@ -156,8 +175,16 @@ export const BarreLaterale = React.forwardRef<HTMLElement, BarreLateraleProps>(f
       );
     }
     if (f.compteur != null && f.compteur > 0) return compteur(f.compteur, f.compteurAide ?? ts('coquille.badge', { n: f.compteur }), true);
-    if (deployee) return <ChevronDown aria-hidden size={15} strokeWidth={1.8} className="sc-famille__chevron" />;
-    return null;
+    const chevron = deployee ? <ChevronDown aria-hidden size={15} strokeWidth={1.8} className="sc-famille__chevron" /> : null;
+    const sig = signauxDe(f);
+    if (sig.length > 0)
+      return (
+        <>
+          {signaux(sig)}
+          {chevron}
+        </>
+      );
+    return chevron;
   };
 
   const groupe = (f: FamilleLaterale) => {
@@ -165,6 +192,9 @@ export const BarreLaterale = React.forwardRef<HTMLElement, BarreLateraleProps>(f
     const aSousListe = f.modules.length > 0 || Boolean(f.ensemble);
     const deployee = aSousListe && ouvertes.has(f.cle);
     const idSous = `sc-sous-${f.cle}`;
+    // Les signaux se disent avec le nom de la ligne : le libellé d'un bouton remplace son contenu pour les lecteurs d'écran.
+    const ditSignaux = signauxDe(f).map((s) => s.libelle).join(', ');
+    const avecSignaux = (libelle: string) => (ditSignaux ? `${libelle}, ${ditSignaux}` : libelle);
     const contenu = (
       <>
         <Icone aria-hidden size={15} strokeWidth={1.8} className="sc-famille__icone" />
@@ -174,13 +204,13 @@ export const BarreLaterale = React.forwardRef<HTMLElement, BarreLateraleProps>(f
     );
     return (
       // La paire de couleurs de la ligne (v4) : La Garde et Cyber posent la leur (leur clé), les autres celle de leur teinte.
-      <li key={f.cle} data-famille={f.cle === 'garde' || f.cle === 'cyber' ? f.cle : estFamilleCouleur(f.famille) ? f.famille : 'systeme'} data-cle={f.cle}>
+      <li key={f.cle} data-famille={f.cle === 'garde' || f.cle === 'cyber' || f.cle === 'developpement' ? f.cle : estFamilleCouleur(f.famille) ? f.famille : 'systeme'} data-cle={f.cle}>
         {aSousListe ? (
           <button
             type="button"
             aria-expanded={deployee}
             aria-controls={idSous}
-            aria-label={ts(deployee ? 'coquille.famille.replier' : 'coquille.famille.deplier', { nom: f.nom })}
+            aria-label={avecSignaux(ts(deployee ? 'coquille.famille.replier' : 'coquille.famille.deplier', { nom: f.nom }))}
             data-active={f.cle === actuelle}
             onClick={() => basculer(f.cle)}
             className="sc-famille sc-focus"
@@ -188,7 +218,7 @@ export const BarreLaterale = React.forwardRef<HTMLElement, BarreLateraleProps>(f
             {contenu}
           </button>
         ) : (
-          <Link to={f.vers ?? routeTousLesModules} onClick={onFermer} aria-current={f.active ? 'page' : undefined} data-active={f.cle === actuelle} className="sc-famille sc-focus">
+          <Link to={f.vers ?? routeTousLesModules} onClick={onFermer} aria-current={f.active ? 'page' : undefined} aria-label={ditSignaux ? avecSignaux(f.nom) : undefined} data-active={f.cle === actuelle} className="sc-famille sc-focus">
             {contenu}
           </Link>
         )}
@@ -249,7 +279,7 @@ export const BarreLaterale = React.forwardRef<HTMLElement, BarreLateraleProps>(f
       </div>
 
       <nav aria-label={ts('coquille.nav')} data-guide="epingles" className="sc-nav">
-        {section('espace', ts('coquille.section.espace'), familles.filter((f) => f.modules.length > 0 || f.ensemble).map((f) => groupe(f)))}
+        {section('espace', ts('coquille.section.espace'), [...familles.filter((f) => f.modules.length > 0 || f.ensemble).map((f) => groupe(f)), groupe(developpement)])}
         {section('surveillance', ts('coquille.section.surveillance'), [...(garde && garde.modules.length > 0 ? [groupe(garde)] : []), groupe(cyber)], 'supervision')}
         {montres.length > 0 &&
           section(

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { verifierDeclaration, type DeclarationCompteurs } from './declarerCompteurs';
+import { verifierDeclaration, type DeclarationCompteurs, type SignauxDeveloppement } from './declarerCompteurs';
 
 /**
  * LES COMPTEURS DE LA BARRE LATÉRALE — ramassés seuls, dans un ordre stable.
@@ -40,7 +40,7 @@ export function ramasserCompteurs(fichiers: FichierCompteurs[]): CompteursRamass
     if (raison) ecartes.push({ chemin: f.chemin, raison });
     else {
       const d = f.declaration as DeclarationCompteurs;
-      declarations.push({ chemin: f.chemin, famille: d.famille, useCompteurs: d.useCompteurs, ...(d.useRepli ? { useRepli: d.useRepli } : {}) });
+      declarations.push({ chemin: f.chemin, famille: d.famille, useCompteurs: d.useCompteurs, ...(d.useRepli ? { useRepli: d.useRepli } : {}), ...(d.useSignaux ? { useSignaux: d.useSignaux } : {}) });
     }
   }
   return { declarations, ecartes };
@@ -93,4 +93,35 @@ export function useCompteursDe(declarations: readonly DeclarationCompteurs[]): R
 /** Tous les compteurs déclarés, fusionnés par adresse : la source des pastilles de la barre latérale. */
 export function useCompteursDeclares(): Record<string, number> {
   return useCompteursDe(COMPTEURS_DECLARES.declarations);
+}
+
+/** Un signal lu : un nombre fini et positif ou nul, sinon `null` (la source n'a pas répondu). */
+function signalLu(v: unknown): number | null {
+  return typeof v === 'number' && Number.isFinite(v) && v >= 0 ? Math.floor(v) : null;
+}
+
+/**
+ * Les signaux de plusieurs déclarations, SANS addition : pour chaque signal, la première déclaration (ordre des
+ * chemins) qui donne un nombre l'emporte ; aucune : `null`. Pur.
+ */
+export function fusionnerSignaux(parts: SignauxDeveloppement[]): { deploiementsEnCours: number | null; testsEnEchec: number | null } {
+  const premier = (cle: keyof SignauxDeveloppement) => parts.map((p) => signalLu(p?.[cle])).find((n) => n !== null) ?? null;
+  return { deploiementsEnCours: premier('deploiementsEnCours'), testsEnEchec: premier('testsEnEchec') };
+}
+
+/** Les déclarations qui donnent des signaux (Développement), figées au chargement : les hooks s'appellent dans le même ordre. */
+const DECLARATIONS_SIGNAUX = COMPTEURS_DECLARES.declarations.filter((d) => d.useSignaux);
+
+/** Les signaux d'une liste de déclarations (figée), fusionnés. */
+export function useSignauxDe(declarations: readonly DeclarationCompteurs[]): { deploiementsEnCours: number | null; testsEnEchec: number | null } {
+  const parts = declarations.map((d) => (d.useSignaux ? d.useSignaux() : {}));
+  const d = parts.map((p) => signalLu(p?.deploiementsEnCours));
+  const t = parts.map((p) => signalLu(p?.testsEnEchec));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  return useMemo(() => fusionnerSignaux(parts), [...d, ...t]);
+}
+
+/** Les deux signaux de Développement, déclarés par son lot (`compteurs/developpement.ts`) ; `null` tant que rien n'est déclaré. */
+export function useSignauxDeclares(): { deploiementsEnCours: number | null; testsEnEchec: number | null } {
+  return useSignauxDe(DECLARATIONS_SIGNAUX);
 }

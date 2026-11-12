@@ -127,6 +127,7 @@ export function CoquilleRefonte({ children, largeur = 'lecture' }: { children?: 
           <BarreLaterale
             produit={EDITION_PRODUCT_NAME}
             familles={donnees.familles}
+            developpement={donnees.developpement}
             garde={garde}
             cyber={donnees.cyber}
             epingles={donnees.epingles}

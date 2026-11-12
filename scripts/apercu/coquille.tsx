@@ -26,6 +26,8 @@
  *   · `tousLesModules` : le bouton carré « Tous les modules » est allumé (D02).
  *   · `garde`    : l'état de La Garde (`calme` par défaut, `attention`, `critique`).
  *   · `epingles`, `aujourdhui`, `notifications`, `cyber` : pour changer les données fictives d'un écran.
+ *   · `developpement` : les deux signaux fictifs de l'entrée « Développement » (défaut : 1 déploiement en cours,
+ *                  2 tests en échec) ; `famille: 'developpement'` la déplie.
  */
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
@@ -211,6 +213,8 @@ export interface ApercuBureauProps {
   notifications?: number;
   /** Le compteur d'alertes ouvertes de Cyber. */
   cyber?: number | null;
+  /** Les signaux fictifs de Développement. */
+  developpement?: { deploiements: number; tests: number };
   largeur?: 'lecture' | 'pleine';
   children?: React.ReactNode;
 }
@@ -226,12 +230,28 @@ export function ApercuBureau({
   aujourdhui = AUJOURDHUI,
   notifications = 4,
   cyber = 5,
+  developpement = { deploiements: 1, tests: 2 },
   largeur = 'pleine',
   children,
 }: ApercuBureauProps) {
   const rien = () => undefined;
   const familles = FAMILLES.map((f) => deplier(f, f.cle === famille, sousPage));
   const laGarde = deplier(GARDE, famille === 'garde', sousPage);
+  const surDev = famille === 'developpement';
+  const leDev: FamilleLaterale = {
+    cle: 'developpement',
+    nom: 'Développement',
+    famille: 'outils',
+    modules: [],
+    badge: 0,
+    active: surDev,
+    ensemble: { cle: 'ensemble-developpement', libelle: '', vers: '/ensemble/developpement', badge: 0, courant: surDev },
+    autres: 0,
+    signaux: [
+      ...(developpement.deploiements > 0 ? [{ cle: 'deploiements', n: developpement.deploiements, ton: 'info' as const, enCours: true, libelle: `${developpement.deploiements} déploiement(s) en cours` }] : []),
+      ...(developpement.tests > 0 ? [{ cle: 'tests', n: developpement.tests, ton: 'critique' as const, libelle: `${developpement.tests} test(s) en échec` }] : []),
+    ],
+  };
   const leCyber: FamilleLaterale = { cle: 'cyber', nom: 'Cyber', famille: 'outils', modules: [], badge: 0, active: famille === 'cyber', vers: '/cyber', compteur: cyber, compteurAide: `${cyber ?? 0} alertes ouvertes` };
   return (
     <MemoryRouter>
@@ -245,6 +265,7 @@ export function ApercuBureau({
             <BarreLaterale
               produit="AMN Business"
               familles={familles}
+              developpement={leDev}
               garde={laGarde}
               cyber={leCyber}
               epingles={epingles}

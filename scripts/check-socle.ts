@@ -838,13 +838,14 @@ const FAMILLES_TEST = (actif: string | null) => [
 ];
 const GARDE_TEST = { cle: 'garde', nom: 'La Garde', famille: 'outils', badge: 0, active: false, modules: [{ cle: 'gardeSalle', libelle: 'Salle de contrôle', vers: '/garde', badge: 0, courant: false }] };
 const CYBER_TEST = { cle: 'cyber', nom: 'Cyber', famille: 'outils', badge: 0, active: false, modules: [], vers: '/cyber', compteur: null };
+const DEV_TEST = { cle: 'developpement', nom: 'Développement', famille: 'outils', badge: 0, active: false, modules: [], autres: 0, ensemble: { cle: 'ensemble-developpement', libelle: '', vers: '/ensemble/developpement', badge: 0, courant: false } };
 const EPINGLES_TEST = [
   { cle: 'invoices', libelle: 'Facturation', vers: '/facturation', badge: 2, courant: false, famille: 'argent' },
   { cle: 'clients', libelle: 'Clients', vers: '/clients', badge: 0, courant: false, famille: 'contacts' },
 ];
 const JOUR_TEST = { faites: 2, total: 4, serie: 0, rendezVous: null, collegues: [{ cle: 'b', nom: 'Mohamed', lieu: 'Facturation' }], presenceMontree: true, vers: '/' };
 const LATERALE = (surcharges: Record<string, unknown> = {}) =>
-  hk(K.BarreLaterale, { produit: 'Mon espace', familles: FAMILLES_TEST('jour'), garde: GARDE_TEST, cyber: CYBER_TEST, epingles: EPINGLES_TEST, nombreModules: 101, routeTousLesModules: '/tous-les-modules', aujourdhui: JOUR_TEST, raccourciRecherche: '⌘K', onRecherche: () => undefined, onReplier: () => undefined, ouvert: false, onFermer: () => undefined, ...surcharges });
+  hk(K.BarreLaterale, { produit: 'Mon espace', familles: FAMILLES_TEST('jour'), developpement: DEV_TEST, garde: GARDE_TEST, cyber: CYBER_TEST, epingles: EPINGLES_TEST, nombreModules: 101, routeTousLesModules: '/tous-les-modules', aujourdhui: JOUR_TEST, raccourciRecherche: '⌘K', onRecherche: () => undefined, onReplier: () => undefined, ouvert: false, onFermer: () => undefined, ...surcharges });
 
 await dit('barre latérale : une seule navigation, la famille active déroulée, le module courant marqué', () => {
   const r = rendreK(LATERALE());

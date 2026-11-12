@@ -30,10 +30,30 @@ import { FAMILLES, type Famille } from '../../socle/familles';
  *
  * Une déclaration mal formée (sans famille connue, sans hook) est écartée sans
  * rien casser : les autres compteurs s'affichent (`check:socle-coquille`).
+ *
+ * LES DEUX SIGNAUX DE DÉVELOPPEMENT (LOT-11). L'entrée « Développement » de
+ * la barre écrit à droite deux signaux d'état : les déploiements en cours et
+ * les tests en échec. Le lot les déclare dans `compteurs/developpement.ts` :
+ *
+ *   function useSignaux(): SignauxDeveloppement {
+ *     const { deploiements, tests } = …; // ses propres accès
+ *     return useMemo(() => ({ deploiementsEnCours: …, testsEnEchec: … }), [...]);
+ *   }
+ *   export default declarerCompteurs({ famille: 'developpement', useCompteurs, useSignaux });
+ *
+ * `null` (ou absent) : la source n'a pas répondu, rien ne s'écrit — jamais un
+ * zéro inventé ; zéro : rien ne s'écrit non plus. `useSignaux` n'appartient
+ * qu'à Développement : sur une autre famille, la déclaration est écartée.
  */
 
-/** Qui déclare : une des sept familles, La Garde ou Cyber. */
-export type FamilleCompteurs = Famille | 'garde' | 'cyber';
+/** Qui déclare : une des sept familles, La Garde, Cyber ou Développement. */
+export type FamilleCompteurs = Famille | 'garde' | 'cyber' | 'developpement';
+
+/** Les deux signaux de l'entrée « Développement » : `null` ou absent, la source n'a pas répondu. */
+export interface SignauxDeveloppement {
+  deploiementsEnCours?: number | null;
+  testsEnEchec?: number | null;
+}
 
 export interface DeclarationCompteurs {
   famille: FamilleCompteurs;
@@ -41,9 +61,11 @@ export interface DeclarationCompteurs {
   useCompteurs: () => Record<string, number>;
   /** Un hook, facultatif : des compteurs de repli, montrés seulement là où aucune déclaration ne donne l'adresse. */
   useRepli?: () => Record<string, number>;
+  /** Un hook, Développement seulement : ses deux signaux d'état. */
+  useSignaux?: () => SignauxDeveloppement;
 }
 
-const FAMILLES_COMPTEURS: ReadonlySet<string> = new Set<string>([...FAMILLES, 'garde', 'cyber']);
+const FAMILLES_COMPTEURS: ReadonlySet<string> = new Set<string>([...FAMILLES, 'garde', 'cyber', 'developpement']);
 
 /** L'identité, typée : ce que le fichier d'un lot exporte par défaut. */
 export function declarerCompteurs(d: DeclarationCompteurs): DeclarationCompteurs {
@@ -57,5 +79,7 @@ export function verifierDeclaration(valeur: unknown): string | null {
   if (typeof d.famille !== 'string' || !FAMILLES_COMPTEURS.has(d.famille)) return `famille inconnue : ${String(d.famille)}`;
   if (typeof d.useCompteurs !== 'function') return 'useCompteurs n’est pas une fonction';
   if (d.useRepli !== undefined && typeof d.useRepli !== 'function') return 'useRepli n’est pas une fonction';
+  if (d.useSignaux !== undefined && typeof d.useSignaux !== 'function') return 'useSignaux n’est pas une fonction';
+  if (d.useSignaux !== undefined && d.famille !== 'developpement') return 'useSignaux est réservé à Développement';
   return null;
 }

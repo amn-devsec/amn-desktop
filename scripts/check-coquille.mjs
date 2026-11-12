@@ -782,6 +782,7 @@ const TEINTES_FAMILLES = {
   outils: 'rgb(124, 196, 255)', /* #7cc4ff — v4, décision du CO (v3 : le gris #9a9aa0) */
   garde: 'rgb(94, 230, 168)', /* #5ee6a8 (v3 : le gris #d6d6da) */
   cyber: 'rgb(255, 107, 122)', /* #ff6b7a (v3 : celui de La Garde) */
+  developpement: 'rgb(110, 168, 255)', /* #6ea8ff, sa couleur a (LOT-11) */
 };
 /** Les paires a / b des onze familles (06-V4 §1), par la clé que pose la ligne (`data-famille` de son <li>). */
 const PAIRES = {
@@ -911,6 +912,21 @@ async function mesurerV3(page) {
       /* La Garde et Cyber, dans SURVEILLANCE. */
       const liGarde = aside.querySelector('[data-section="surveillance"] li[data-cle="garde"]');
       const liCyber = aside.querySelector('[data-section="surveillance"] li[data-cle="cyber"]');
+      /* Développement (v4) : toujours là, dernière ligne d'ESPACE, juste au-dessus de SURVEILLANCE ; ses signaux. */
+      const liDev = aside.querySelector('li[data-cle="developpement"]');
+      const listeEspace = aside.querySelector('[data-section="espace"] > .sc-liste');
+      const secSurveillance = aside.querySelector('[data-section="surveillance"]');
+      const developpement = liDev
+        ? {
+            dansEspace: Boolean(listeEspace && liDev.parentElement === listeEspace),
+            dernier: Boolean(listeEspace && listeEspace.lastElementChild === liDev),
+            bas: boite(liDev).bas,
+            hautSurveillance: secSurveillance ? boite(secSurveillance).y : null,
+            icone: Boolean(liDev.querySelector('.sc-famille > svg.lucide-code')),
+            libelle: liDev.querySelector('.sc-famille')?.getAttribute('aria-label') ?? texte(liDev.querySelector('.sc-famille')),
+            signaux: [...liDev.querySelectorAll('.sc-signal')].map((sg) => ({ cle: sg.dataset.signal, ton: sg.dataset.ton, n: texte(sg.querySelector('.sc-signal__n')), titre: sg.getAttribute('title') ?? '', voyant: Boolean(sg.querySelector('.sc-voyant')) })),
+          }
+        : null;
       const garde = liGarde
         ? {
             veille: texte(liGarde.querySelector('.sc-famille__veille')),
@@ -1029,6 +1045,7 @@ async function mesurerV3(page) {
         pastilles,
         garde,
         cyber: liCyber ? { section: 'surveillance', nom: texte(liCyber.querySelector('.sc-famille__nom')) } : null,
+        developpement,
         sous,
         aujourdhui,
         enTete,
@@ -1143,6 +1160,21 @@ function jugerV3(nom, m, exigeant) {
     if (!m.garde.voyant) f.push(`${nom} · La Garde n'a pas son voyant.`);
   }
   if (!m.cyber) f.push(`${nom} · Cyber manque dans SURVEILLANCE : Cyber est TOUJOURS visible (§1.10).`);
+
+  /* Développement (v4, point 6) : toujours là, dernière ligne d'ESPACE, juste au-dessus de SURVEILLANCE ; ses signaux dits. */
+  const d = m.developpement;
+  if (!d) f.push(`${nom} · « Développement » manque : l'entrée est TOUJOURS visible, juste au-dessus de SURVEILLANCE.`);
+  else {
+    if (!d.dansEspace || !d.dernier) dire('place de « Développement »', 'la dernière ligne d’ESPACE', d.dansEspace ? 'pas la dernière' : 'hors d’ESPACE');
+    if (d.hautSurveillance === null || d.bas > d.hautSurveillance + 0.5) dire('« Développement » au-dessus de SURVEILLANCE', `bas ≤ ${d.hautSurveillance} px`, `bas à ${d.bas} px`);
+    if (!d.icone) f.push(`${nom} · « Développement » n'a pas son icône de code.`);
+    for (const s of d.signaux) {
+      if (!/^[1-9]\d*$/.test(s.n)) dire(`signal « ${s.cle} » de Développement`, 'un nombre ≥ 1', s.n);
+      if (!s.voyant) f.push(`${nom} · le signal « ${s.cle} » de Développement n'a pas son voyant.`);
+      if (!['info', 'critique'].includes(s.ton)) dire(`ton du signal « ${s.cle} »`, 'info ou critique', s.ton);
+      if (!s.titre || !String(d.libelle).includes(s.titre)) dire(`signal « ${s.cle} » dit avec la ligne`, `« ${s.titre} » dans le libellé`, d.libelle);
+    }
+  }
 
   /* La sous-liste de la famille ouverte. */
   if (m.sous) {
@@ -1287,7 +1319,7 @@ if (PAGE) {
     process.exit(1);
   }
   console.log(
-    `\nCoquille v3 : OK — ${path.relative(process.cwd(), fichier)} : une barre de 252 px (16 / 14 / 14), recherche 34 + bouton carré 34, sections ESPACE / SURVEILLANCE / ÉPINGLÉS,\nfamilles de 32 px à icône de 15 sans pastille, La Garde « veille » + voyant, Cyber présent, sous-liste ≤ 5 × 27 px avec famille active et module courant en dégradé de leur paire (v4), repère 3 × 14 a → b sur le filet, « + N autres »,\ncarte « Aujourd'hui » (anneau 34), en-tête 60 (fil, « N en ligne », cloche 34, Garde avec onde), barre Ajmani 46 / rayon 14 (« Entrée pour envoyer » + ⌘J), aucun ambre, une seule ligne active. Réseau : rien de refusé.`,
+    `\nCoquille v3 : OK — ${path.relative(process.cwd(), fichier)} : une barre de 252 px (16 / 14 / 14), recherche 34 + bouton carré 34, sections ESPACE / SURVEILLANCE / ÉPINGLÉS,\nfamilles de 32 px à icône de 15 sans pastille, La Garde « veille » + voyant, Cyber présent, sous-liste ≤ 5 × 27 px avec famille active et module courant en dégradé de leur paire (v4), repère 3 × 14 a → b sur le filet, « Développement » en dernier d’ESPACE, « + N autres »,\ncarte « Aujourd'hui » (anneau 34), en-tête 60 (fil, « N en ligne », cloche 34, Garde avec onde), barre Ajmani 46 / rayon 14 (« Entrée pour envoyer » + ⌘J), aucun ambre, une seule ligne active. Réseau : rien de refusé.`,
   );
   process.exit(0);
 }

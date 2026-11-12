@@ -12,7 +12,7 @@ import { cheminLePlusPrecis } from '../../lib/cheminCourant';
 import type { AttentionItem } from '../../lib/attention';
 import { traduireSocle } from '../../socle/i18n';
 import { familleDeCouleur, type FamilleCouleur } from '../../socle/familles';
-import type { FamilleLaterale, ModuleLateral, MiettePain, PersonneEnLigne } from '../../socle/coquille';
+import type { FamilleLaterale, ModuleLateral, MiettePain, PersonneEnLigne, SignalLateral } from '../../socle/coquille';
 import { REGISTRE_MODULES, vueDuRegistre } from '../modules/registre';
 import type { Libelle } from '../modules/declarer';
 import { construireFil } from './fil';
@@ -20,7 +20,7 @@ import { routeEnsemble } from '../systeme/ensemble';
 import { choisirEpingles, choisirLesVisibles, placesDeModules } from './visibles';
 import { libelleDuLieu } from './lieu';
 import { libellePageSysteme, motsPagesSysteme, pageSysteme } from './pagesSysteme';
-import { useCompteursDeclares } from './compteurs';
+import { useCompteursDeclares, useSignauxDeclares } from './compteurs';
 import type { PageCoquille } from './page';
 
 /**
@@ -50,6 +50,8 @@ import type { PageCoquille } from './page';
  */
 export interface DonneesCoquille {
   familles: FamilleLaterale[];
+  /** Développement (LOT-11) : toujours là, en dernier dans ESPACE, avec ses deux signaux déclarés. */
+  developpement: FamilleLaterale;
   /** La huitième famille, ou `null` quand l'organisation n'a aucun de ses modules. */
   garde: FamilleLaterale | null;
   /** Cyber : toujours là. */
@@ -75,6 +77,9 @@ export interface DonneesCoquille {
 }
 
 
+/** L'identifiant de Développement au registre (LOT-11) : sa famille de couleurs, sa vue d'ensemble. */
+export const ID_DEVELOPPEMENT = 'developpement';
+
 /** Où mène Cyber : l'accueil du bureau Cyber (ses écrans vivent dans la coquille de son bureau). */
 export const ROUTE_CYBER = '/cyber';
 
@@ -91,6 +96,8 @@ export function useDonneesCoquille(pathname: string, pageDeclaree: PageCoquille 
   const compteurs = useCompteursDeclares();
   // Cyber : `null` tant que rien n'est déclaré (la source n'a pas répondu), jamais un zéro inventé.
   const alertesCyber = Object.hasOwn(compteurs, ROUTE_CYBER) ? compteurs[ROUTE_CYBER] : null;
+  // Développement : ses deux signaux, `null` tant que son lot n'a rien déclaré (jamais un zéro inventé).
+  const { deploiementsEnCours, testsEnEchec } = useSignauxDeclares();
 
   const nomDe = useCallback(
     (e: string) => {
@@ -162,7 +169,31 @@ export function useDonneesCoquille(pathname: string, pageDeclaree: PageCoquille 
         nomCourt: famille.amnSeulement ? ts('coquille.garde.court') : dire(famille.nom),
       };
     });
-    const familles = toutes.filter((f) => !f.amnSeulement && f.lateral.modules.length > 0).map((f) => f.lateral);
+    const familles = toutes.filter((f) => !f.amnSeulement && f.lateral.cle !== ID_DEVELOPPEMENT && f.lateral.modules.length > 0).map((f) => f.lateral);
+
+    /* ── Développement : toujours là, juste au-dessus de SURVEILLANCE, déplié sur ses écrans ──
+       Ses modules viennent du registre quand LOT-11 y déclare la famille `developpement` ; d'ici là, sa vue
+       d'ensemble seule (`/ensemble/developpement`, que LOT-11 remplace par substitution). */
+    const signaux: SignalLateral[] = [
+      ...(deploiementsEnCours ? [{ cle: 'deploiements', n: deploiementsEnCours, ton: 'info' as const, enCours: true, libelle: ts('coquille.developpement.deploiements', { n: deploiementsEnCours }) }] : []),
+      ...(testsEnEchec ? [{ cle: 'tests', n: testsEnEchec, ton: 'critique' as const, libelle: ts('coquille.developpement.tests', { n: testsEnEchec }) }] : []),
+    ];
+    const devRegistre = toutes.find((f) => f.lateral.cle === ID_DEVELOPPEMENT);
+    const versDev = routeEnsemble(ID_DEVELOPPEMENT);
+    const devEnsembleCourant = parPage ? famillePage === ID_DEVELOPPEMENT && sousPage === 'ensemble' : pathname === versDev;
+    const developpement: FamilleLaterale = devRegistre
+      ? { ...devRegistre.lateral, nom: ts('coquille.developpement'), signaux }
+      : {
+          cle: ID_DEVELOPPEMENT,
+          nom: ts('coquille.developpement'),
+          famille: 'outils',
+          modules: [],
+          badge: 0,
+          active: parPage ? famillePage === ID_DEVELOPPEMENT : devEnsembleCourant,
+          ensemble: { cle: `ensemble-${ID_DEVELOPPEMENT}`, libelle: '', vers: versDev, badge: 0, courant: devEnsembleCourant },
+          autres: 0,
+          signaux,
+        };
     const gardeTrouvee = toutes.find((f) => f.amnSeulement && f.lateral.modules.length > 0);
     // « La Garde » en barre latérale (§0.1) : le nom court, jamais tronqué (écart C6).
     const gardeFam = gardeTrouvee ? { ...gardeTrouvee.lateral, nom: gardeTrouvee.nomCourt } : null;
@@ -200,20 +231,21 @@ export function useDonneesCoquille(pathname: string, pageDeclaree: PageCoquille 
     /* ── Le fil d'Ariane : « Famille / Page » ── */
     const familleActive = toutes.find((f) => f.lateral.active);
     const courant = catalogue.find((i) => i.to === cheminCourant);
-    const nomFamille = (id: string | null | undefined) => (id ? toutes.find((f) => f.lateral.cle === id)?.nomCourt ?? null : null);
+    const nomFamille = (id: string | null | undefined) => (id === ID_DEVELOPPEMENT ? developpement.nom : id ? toutes.find((f) => f.lateral.cle === id)?.nomCourt ?? null : null);
     const fil = construireFil(
       page
         ? { page: { famille: nomFamille(page.famille), miettes: page.miettes }, espace: ts('coquille.section.espace') }
         : {
-            famille: familleActive?.nomCourt ?? null,
-            module: courant ? libelleNav(courant) : familleActive?.lateral.ensemble?.courant ? ts('coquille.ensemble') : null,
+            famille: familleActive?.nomCourt ?? (developpement.active ? developpement.nom : null),
+            module: courant ? libelleNav(courant) : (familleActive?.lateral.ensemble?.courant ?? developpement.ensemble?.courant) ? ts('coquille.ensemble') : null,
             espace: ts('coquille.section.espace'),
           },
     );
 
     return {
-      familleCouleur: familleDeCouleur(surCyber, familleActive?.lateral.cle ?? page?.famille),
+      familleCouleur: familleDeCouleur(surCyber, developpement.active ? ID_DEVELOPPEMENT : familleActive?.lateral.cle ?? page?.famille),
       familles,
+      developpement,
       garde: gardeFam,
       cyber,
       epingles,
@@ -228,5 +260,5 @@ export function useDonneesCoquille(pathname: string, pageDeclaree: PageCoquille 
       catalogue,
       compteurs,
     };
-  }, [langue, catalogue, cheminCourant, compteurs, moi, autres, montree, nomDe, pathname, attention, checkedAt, pageDeclaree, favorites, alertesCyber]);
+  }, [langue, catalogue, cheminCourant, compteurs, moi, autres, montree, nomDe, pathname, attention, checkedAt, pageDeclaree, favorites, alertesCyber, deploiementsEnCours, testsEnEchec]);
 }

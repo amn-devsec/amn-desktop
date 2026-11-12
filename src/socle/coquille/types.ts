@@ -15,6 +15,20 @@ export interface ModuleLateral {
   famille?: string;
 }
 
+/**
+ * Un signal écrit à droite d'une ligne de la barre (Développement : déploiements en cours, tests en échec) : un voyant
+ * de son ton et son chiffre. Ce n'est pas un compteur de modules : c'est un état, dit en mots pour les lecteurs d'écran.
+ */
+export interface SignalLateral {
+  cle: string;
+  n: number;
+  ton: 'info' | 'critique';
+  /** Ce que dit le signal, chiffre compris (« 2 déploiements en cours »). */
+  libelle: string;
+  /** Un état en cours (un déploiement) : le voyant porte l'onde. */
+  enCours?: boolean;
+}
+
 /** Une famille de la barre latérale : ses modules, et la somme de leurs compteurs. */
 export interface FamilleLaterale {
   /** L'identifiant du registre (`jour`, `contacts`… `garde`, `cyber`) : il choisit l'icône de trait de la famille. */
@@ -37,6 +51,8 @@ export interface FamilleLaterale {
   compteur?: number | null;
   /** Ce que compte `compteur`, en mots (« 5 alertes ouvertes »), pour l'infobulle et les lecteurs d'écran. */
   compteurAide?: string;
+  /** Des signaux d'état à droite de la ligne (Développement) ; un signal à zéro ne se donne pas. */
+  signaux?: SignalLateral[];
 }
 
 export interface PersonneEnLigne {

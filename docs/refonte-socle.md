@@ -345,7 +345,8 @@ export default declarerCompteurs({ famille: 'creer', useCompteurs });
 ```
 
 - `useCompteurs` est un **hook** (il lit les accès existants) qui rend les compteurs par adresse de vue (le `to` du catalogue). Rendez un objet mémorisé. Une adresse absente ou à zéro n'affiche rien. **Rien ne s'additionne** (décision du CO) : sur une adresse, la déclaration du module l'emporte ; `useRepli` (facultatif) donne des compteurs de repli, montrés seulement là où aucune déclaration ne donne l'adresse (un zéro déclaré compte). Déclarez une adresse une seule fois : deux fois, la première dans l'ordre des chemins l'emporte.
-- `famille` : une des sept familles, `garde` ou `cyber`. Une déclaration mal formée est écartée avec sa raison (`COMPTEURS_DECLARES.ecartes`), les autres s'affichent.
+- `famille` : une des sept familles, `garde`, `cyber` ou `developpement`. Une déclaration mal formée est écartée avec sa raison (`COMPTEURS_DECLARES.ecartes`), les autres s'affichent.
+- `useSignaux` (Développement seulement, voir « v4 : l'entrée Développement ») : les deux signaux d'état de sa ligne.
 - Les compteurs d'avant sont la première déclaration, `compteurs/jour.ts` (agenda, tâches, relances, priorités ; et, en repli, l'activité non vue de chaque module) ; celui de Cyber est `compteurs/cyber.ts` (absent tant que la source n'a pas répondu : pas de pastille, pas de zéro inventé).
 - Hors de Vite (contrôles Node), `import.meta.glob` n'existe pas : la liste est vide ; `check:socle-coquille` et les aperçus (`scripts/apercu/construire.ts`) la remplacent par le contenu du dossier.
 
@@ -444,4 +445,32 @@ Les règles de 06-V4 § 3 sont portées par les briques et la coquille, aux vale
 - Les miroirs `--color-socle-surface` / `-eleve` / `-bord` suivent les cartes v4 (`#111113`, `#19191C`, `#2A2A2E`).
 - Gardent leur rayon 14 (`--socle-rayon-boite`, sources v4) : boîte de dialogue, toast, palettes, zone vide ; la barre Ajmani a le sien (`--socle-rayon-ajmani`).
 - `check:socle` vérifie les quinze règles, valeur pour valeur ; `check:coquille --page` mesure la barre v4 dans le navigateur (dégradés de la paire, repère, lueur).
+
+## Mise à jour — v4 : l'entrée « Développement » (2026-11-12)
+
+La barre latérale a une entrée « Développement » (LOT-11, 07-ESPACE-DEV), **toujours visible**, en **dernière ligne d'ESPACE, juste au-dessus de SURVEILLANCE**, avec l'icône de code et la paire de couleurs `developpement` (`#6EA8FF` / `#5EE6A8`).
+
+- **Ses modules** : quand LOT-11 déclare au registre la famille d'identifiant `developpement`, ses modules s'y déplient comme ceux d'une famille (cinq lignes au plus, « Vue d'ensemble » d'abord, « + N autres ») ; elle n'est pas répétée plus haut dans ESPACE. D'ici là, la ligne porte sa seule « Vue d'ensemble » (`/ensemble/developpement`, que LOT-11 remplace par substitution sur cette route exacte, `src/refonte/substitutions/hubs.ts`).
+- **Dépliée sur ses écrans** : un module du registre, sa vue d'ensemble ou une page qui se déclare `famille: 'developpement'` (`usePageCoquille`) l'allument et la déplient ; la coquille pose alors sa paire (`data-famille-active="developpement"`).
+- **Deux signaux** à droite de la ligne : les déploiements en cours (voyant bleu, qui ondule) et les tests en échec (voyant rouge), chacun avec son chiffre ; ils se disent avec le nom de la ligne pour les lecteurs d'écran. Zéro, ou rien de déclaré : rien ne s'écrit, jamais un zéro inventé.
+- **LOT-11 les déclare** dans `src/refonte/compteurs/developpement.ts`, ramassé seul :
+
+```ts
+import { useMemo } from 'react';
+import { declarerCompteurs, type SignauxDeveloppement } from '../coquille/declarerCompteurs';
+
+function useCompteurs(): Record<string, number> {
+  return useMemo(() => ({}), []); // ses compteurs de modules, s'il en a
+}
+function useSignaux(): SignauxDeveloppement {
+  const deploiements = …; const tests = …; // ses propres accès
+  return useMemo(() => ({ deploiementsEnCours: deploiements, testsEnEchec: tests }), [deploiements, tests]);
+}
+export default declarerCompteurs({ famille: 'developpement', useCompteurs, useSignaux });
+```
+
+- `null` ou absent : la source n'a pas répondu. Rien ne s'additionne : si deux fichiers donnent un signal, le premier dans l'ordre des chemins l'emporte. `useSignaux` sur une autre famille : la déclaration est écartée.
+- Côté socle, la ligne reçoit des `signaux` génériques (`SignalLateral` : clé, nombre, ton `info` ou `critique`, libellé, `enCours`) : la barre ne sait rien des déploiements.
+- À 900 px de haut, une famille dépliée et trois épinglés, la colonne dépasse d'une ligne : elle défile (comme avant), la carte « Aujourd'hui » s'atteint en descendant.
+- `check:socle-coquille` (présence, place, signaux, déclaration) et `check:coquille --page` (dans le navigateur : dernière ligne d'ESPACE, au-dessus de SURVEILLANCE, icône, signaux dits) le tiennent.
 

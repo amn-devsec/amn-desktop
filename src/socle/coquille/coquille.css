@@ -203,12 +203,16 @@
 [data-famille='outils'] > .sc-famille[data-active='true'] .sc-famille__icone { color: var(--socle-fam-outils); }
 [data-famille='garde'] > .sc-famille[data-active='true'] .sc-famille__icone { color: var(--socle-fam-garde); }
 [data-famille='cyber'] > .sc-famille[data-active='true'] .sc-famille__icone { color: var(--socle-fam-cyber-a); }
+[data-famille='developpement'] > .sc-famille[data-active='true'] .sc-famille__icone { color: var(--socle-fam-developpement-a); }
 .sc-famille__nom { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sc-famille__chevron { flex: none; margin-right: -1px; color: var(--socle-texte-3); }
 /* La Garde : « veille » et son voyant vivant, dans l'état de la pire situation ouverte. */
 .sc-famille__etat { display: inline-flex; flex: none; align-items: center; gap: 8px; }
 .sc-famille__veille { color: var(--socle-texte-3); font-size: 11.5px; font-weight: 400; }
 .sc-famille__etat[data-etat='inconnu'] .sc-voyant { --sc-v-c: var(--socle-texte-3); }
+/* Développement : ses deux signaux d'état (déploiements en cours, tests en échec), un voyant de 6 px et le chiffre. */
+.sc-famille__signaux { display: inline-flex; flex: none; align-items: center; gap: 8px; }
+.sc-signal { display: inline-flex; align-items: center; gap: 4px; color: var(--socle-texte-courant); font-size: 11.5px; font-weight: 500; font-variant-numeric: tabular-nums; }
 
 /* Le compteur de Cyber : `CountBadge` du socle, variante `laterale` (21 px de large au moins, 11,5 / 500, fond `--socle-lateral-compteur`). */
 

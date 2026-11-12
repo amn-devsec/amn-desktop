@@ -41,6 +41,11 @@ const { h, rendre } = K;
 const mod = (cle: string, niveau: string, courant = false) => ({ cle, libelle: `Module ${cle}`, vers: `/${cle}`, badge: 0, courant, avance: niveau === 'avance', niveau });
 const famille = (cle: string, modules: ReturnType<typeof mod>[], extra: Record<string, unknown> = {}) => ({ cle, nom: `Famille ${cle}`, famille: 'argent', modules, badge: 0, active: false, ...extra });
 const CYBER = { cle: 'cyber', nom: 'Cyber', famille: 'outils', modules: [], badge: 0, active: false, vers: '/cyber', compteur: 5, compteurAide: '5 alertes ouvertes' };
+/** Développement (point 6 de la v4) : toujours là ; sa vue d'ensemble seule tant que LOT-11 n'a rien déclaré au registre. */
+const DEV = (plus: Record<string, unknown> = {}) => ({
+  cle: 'developpement', nom: 'Développement', famille: 'outils', modules: [], badge: 0, active: false, autres: 0,
+  ensemble: { cle: 'ensemble-developpement', libelle: '', vers: '/ensemble/developpement', badge: 0, courant: false }, signaux: [], ...plus,
+});
 const JOUR = { faites: 5, total: 8, serie: 6, rendezVous: { titre: 'Rendez-vous Exemple', heure: '11:00', dans: 'dans 18 min' }, collegues: [{ cle: 'b', nom: 'Camille', lieu: 'Facturation' }, { cle: 'c', nom: 'Dominique', lieu: 'Clients' }, { cle: 'd', nom: 'Sacha', lieu: 'Notes' }], presenceMontree: true, vers: '/' };
 const EPINGLES = [
   { cle: 'invoices', libelle: 'Facturation', vers: '/facturation', badge: 2, courant: false, famille: 'argent' },
@@ -50,7 +55,7 @@ const EPINGLES = [
   { cle: 'agenda', libelle: 'Calendrier', vers: '/agenda', badge: 0, courant: false, famille: 'jour' },
 ];
 const props = (familles: unknown[], garde: unknown = null, plus: Record<string, unknown> = {}) => ({
-  produit: 'Produit', familles, garde, cyber: CYBER, epingles: EPINGLES, etatGarde: 'calme', nombreModules: 101, routeTousLesModules: '/tous-les-modules',
+  produit: 'Produit', familles, developpement: DEV(), garde, cyber: CYBER, epingles: EPINGLES, etatGarde: 'calme', nombreModules: 101, routeTousLesModules: '/tous-les-modules',
   aujourdhui: JOUR, raccourciRecherche: '⌘K', onRecherche: () => undefined, onReplier: () => undefined, ouvert: false, onFermer: () => undefined, ...plus,
 });
 const sousListe = (html: string, cle: string) => /<ul id="sc-sous-[^"]+" class="sc-sous">([\s\S]*?)<\/ul>/.exec(html.slice(html.indexOf(`data-cle="${cle}"`)))?.[1] ?? '';
@@ -536,6 +541,8 @@ type ModuleCompteurs = {
   useCompteursDe: (d: { famille: string; useCompteurs: () => Record<string, number>; useRepli?: () => Record<string, number> }[]) => Record<string, number>;
   declarerCompteurs: (d: unknown) => unknown;
   verifierDeclaration: (v: unknown) => string | null;
+  fusionnerSignaux: (parts: unknown[]) => { deploiementsEnCours: number | null; testsEnEchec: number | null };
+  useSignauxDe: (d: { famille: string; useCompteurs: () => Record<string, number>; useSignaux?: () => unknown }[]) => { deploiementsEnCours: number | null; testsEnEchec: number | null };
 };
 
 await dit('v4 : la coquille pose la famille active (data-famille-active) — Cyber sur ses écrans, la famille de la barre ou de la page, sinon Système — et ses couleurs deviennent --fam-a / --fam-b', () => {
@@ -547,7 +554,9 @@ await dit('v4 : la coquille pose la famille active (data-famille-active) — Cyb
   assert.match(rendu(), /^<div data-socle="coquille"[^>]* data-famille-active="systeme" class="sc-coquille">/, 'par défaut : Système');
   assert.match(rendu({ famille: 'cyber' }), /data-famille-active="cyber"/);
   const donnees = sansCommentaires(lire('src/refonte/coquille/donnees.ts'));
-  assert.match(donnees, /familleCouleur: familleDeCouleur\(surCyber, familleActive\?\.lateral\.cle \?\? page\?\.famille\),/, 'la coquille calcule la famille de couleur');
+  // Développement actif (registre ou vue d'ensemble) pose sa paire ; sinon la famille de la barre ou de la page.
+  assert.match(donnees, /familleCouleur: familleDeCouleur\(surCyber, developpement\.active \? ID_DEVELOPPEMENT : familleActive\?\.lateral\.cle \?\? page\?\.famille\),/, 'la coquille calcule la famille de couleur');
+  assert.match(donnees, /export const ID_DEVELOPPEMENT = 'developpement';/);
   assert.match(lire('src/refonte/coquille/CoquilleRefonte.tsx'), /famille=\{donnees\.familleCouleur\}/, 'et la pose sur sa racine');
   assert.match(lire('scripts/apercu/coquille.tsx'), /famille=\{familleDeCouleur\(famille === 'cyber', famille\)\}/, 'l’aperçu aussi');
 });
@@ -667,8 +676,94 @@ await dit('l’aperçu ApercuBureau (données fictives) rend toujours la coquill
   assert.match(r, /aria-current="page"[^>]*><span class="sc-module__nom">Accueil</);
   assert.match(r, /Ma journée<\/a><\/li><li aria-current="page"><span>Démarrage<\/span>/);
   assert.match(r, /Demandez à Ajmani/);
+  assert.match(r, /<li data-famille="developpement" data-cle="developpement">[\s\S]*?data-signal="deploiements"[\s\S]*?data-signal="tests"[\s\S]*?<\/li><\/ul><\/section><section aria-labelledby="sc-section-surveillance"/, 'Développement et ses signaux fictifs, juste au-dessus de SURVEILLANCE');
   const apercu = sansCommentaires(lire('scripts/apercu/coquille.tsx'));
   assert.doesNotMatch(apercu, /useCompteursDeclares|useDonneesCoquille|useAujourdhui|refonte\/coquille/, 'l’aperçu reste sur ses données fictives, sans les hooks de l’application');
+});
+
+await dit('Développement (v4, point 6) : toujours là, dernière ligne d’ESPACE juste au-dessus de SURVEILLANCE, icône de code ; sa paire ; déplié sur ses écrans', () => {
+  const ordre = (html: string, ...re: RegExp[]) => re.map((r) => html.search(r));
+  // Sans aucun module ni signal, et sans famille dans ESPACE : la ligne est là.
+  for (const familles of [[], [famille('jour', [mod('home', 'essentiel', true)], { active: true, famille: 'jour' }), famille('argent', [mod('invoices', 'essentiel')])]]) {
+    const r = rendre(h(K.BarreLaterale, props(familles)));
+    const [espace, dev, surveillance] = ordre(r, /data-section="espace"/, /<li data-famille="developpement" data-cle="developpement">/, /data-section="surveillance"/);
+    assert.ok(espace >= 0 && dev > espace && surveillance > dev, `ESPACE ${espace} < Développement ${dev} < SURVEILLANCE ${surveillance}`);
+    // Aucune autre famille (`data-cle`) après elle : la section ESPACE se ferme, SURVEILLANCE s'ouvre.
+    assert.match(r, /<li data-famille="developpement" data-cle="developpement">(?:(?!data-cle=)[\s\S])*<\/li><\/ul><\/section><section aria-labelledby="sc-section-surveillance"/, 'la dernière ligne d’ESPACE');
+    assert.match(r, /data-cle="developpement"><button[^>]*class="sc-famille sc-focus"><svg[^>]*lucide-code[^>]*sc-famille__icone/);
+    assert.match(r, />Développement<\/span>/);
+  }
+  assert.equal(K.ICONES_FAMILLE.developpement?.displayName ?? K.ICONES_FAMILLE.developpement?.render?.displayName, 'Code');
+  // Hors de ses écrans : replié ; sur ses écrans : actif et déplié, « Vue d’ensemble » marquée.
+  const replie = rendre(h(K.BarreLaterale, props([famille('jour', [mod('home', 'essentiel', true)], { active: true, famille: 'jour' })])));
+  assert.match(replie, /data-cle="developpement"><button type="button" aria-expanded="false"[^>]*data-active="false"/);
+  assert.doesNotMatch(replie, /id="sc-sous-developpement"/);
+  const ouvert = rendre(h(K.BarreLaterale, props([famille('jour', [mod('home', 'essentiel')])], null, { developpement: DEV({ active: true, ensemble: { cle: 'ensemble-developpement', libelle: '', vers: '/ensemble/developpement', badge: 0, courant: true } }) })));
+  assert.match(ouvert, /data-cle="developpement"><button type="button" aria-expanded="true" aria-controls="sc-sous-developpement"[^>]*data-active="true"/);
+  assert.match(sousListe(ouvert, 'developpement'), /<a aria-current="page" data-ensemble="true" class="sc-module sc-focus" href="\/ensemble\/developpement"[^>]*><span class="sc-module__nom">Vue d’ensemble<\/span>/);
+  // Ses modules (LOT-11 au registre) se déplient comme ceux d’une famille.
+  const avecModules = rendre(h(K.BarreLaterale, props([], null, { developpement: DEV({ active: true, modules: [mod('deploiements', 'essentiel', true), mod('projets', 'essentiel')], autres: 9 }) })));
+  assert.match(sousListe(avecModules, 'developpement'), /aria-current="page"[^>]*href="\/deploiements"[\s\S]*href="\/projets"[\s\S]*9 autres/);
+  // Sa paire : l’icône active prend sa couleur a, la ligne pose `developpement`.
+  const css = sansCommentaires(lire('src/socle/coquille/coquille.css'));
+  assert.match(css, /\[data-famille='developpement'\] > \.sc-famille\[data-active='true'\] \.sc-famille__icone \{ color: var\(--socle-fam-developpement-a\); \}/);
+  assert.match(sansCommentaires(lire('src/socle/noir.css')), /\[data-famille-active='developpement'\], \[data-famille='developpement'\]\) \{ --fam-a: var\(--socle-fam-developpement-a\); --fam-b: var\(--socle-fam-developpement-b\); \}/);
+});
+
+await dit('Développement : deux signaux (déploiements en cours, tests en échec) — un voyant de leur ton et leur chiffre, dits avec le nom de la ligne ; zéro, négatif ou non fini : rien', () => {
+  const sig = (cle: string, n: number, ton: string, libelle: string, enCours?: boolean) => ({ cle, n, ton, libelle, ...(enCours ? { enCours } : {}) });
+  const deux = [sig('deploiements', 2, 'info', '2 déploiements en cours', true), sig('tests', 1, 'critique', '1 test en échec')];
+  const r = rendre(h(K.BarreLaterale, props([], null, { developpement: DEV({ signaux: deux }) })));
+  const ligne = r.slice(r.indexOf('data-cle="developpement"'), r.indexOf('data-section="surveillance"'));
+  assert.match(ligne, /aria-label="Afficher les modules de Développement, 2 déploiements en cours, 1 test en échec"/, 'le libellé du bouton dit les signaux');
+  assert.match(ligne, /<span aria-hidden="true" class="sc-famille__signaux"><span class="sc-signal" data-signal="deploiements" data-ton="info" title="2 déploiements en cours"><span class="sc-voyant" data-socle="voyant" data-ton="info" data-taille="6"><span aria-hidden="true" class="sc-voyant__point" data-halo="non" data-mvt="onde"><\/span>[\s\S]*?<\/span><span class="sc-signal__n">2<\/span><\/span><span class="sc-signal" data-signal="tests" data-ton="critique" title="1 test en échec"><span class="sc-voyant" data-socle="voyant" data-ton="critique" data-taille="6"><span aria-hidden="true" class="sc-voyant__point" data-halo="non"><\/span>[\s\S]*?<span class="sc-signal__n">1<\/span><\/span><\/span>/, 'déploiement : voyant info qui ondule ; test : voyant rouge, immobile');
+  assert.doesNotMatch(ligne, /sc-count-badge|sc-compteur/, 'des signaux, pas une pastille de compteur');
+  for (const n of [0, -1, Number.NaN, Number.POSITIVE_INFINITY]) {
+    const vide = rendre(h(K.BarreLaterale, props([], null, { developpement: DEV({ signaux: [sig('tests', n, 'critique', `${n} test en échec`)] }) })));
+    assert.doesNotMatch(vide, /sc-signal/, `un signal à ${n} ne s’écrit pas`);
+    assert.match(vide, /aria-label="Afficher les modules de Développement"/);
+  }
+  // Sur ses écrans, le chevron reste après les signaux.
+  const actif = rendre(h(K.BarreLaterale, props([], null, { developpement: DEV({ active: true, signaux: deux }) })));
+  assert.match(actif, /class="sc-famille__signaux">[\s\S]*?<\/span><\/span><svg[^>]*lucide-chevron-down[^>]*sc-famille__chevron/);
+  const css = sansCommentaires(lire('src/socle/coquille/coquille.css'));
+  assert.match(css, /\.sc-famille__signaux \{ display: inline-flex; flex: none; align-items: center; gap: 8px; \}/);
+  assert.match(css, /\.sc-signal \{[^}]*color: var\(--socle-texte-courant\);[^}]*font-size: 11\.5px;[^}]*font-variant-numeric: tabular-nums;/);
+});
+
+await dit('Développement : ses signaux se déclarent par son lot (`declarerCompteurs({ famille: \'developpement\', useCompteurs, useSignaux })`), fusionnés sans addition ; `useSignaux` ailleurs est écarté', async () => {
+  const m = await charger<ModuleCompteurs & { h: (...a: unknown[]) => unknown; rendre: (el: unknown) => string }>({
+    code: "import { createElement as h } from 'react'; import { renderToStaticMarkup } from 'react-dom/server.browser'; export const rendre = (el) => renderToStaticMarkup(el); export { h }; export * from '../src/refonte/coquille/compteurs'; export * from '../src/refonte/coquille/declarerCompteurs';",
+  });
+  const sansCompteur = () => ({});
+  assert.equal(m.verifierDeclaration({ famille: 'developpement', useCompteurs: sansCompteur, useSignaux: () => ({}) }), null);
+  assert.equal(m.verifierDeclaration({ famille: 'developpement', useCompteurs: sansCompteur }), null);
+  assert.match(m.verifierDeclaration({ famille: 'argent', useCompteurs: sansCompteur, useSignaux: () => ({}) }) ?? '', /useSignaux est réservé à Développement/);
+  assert.match(m.verifierDeclaration({ famille: 'developpement', useCompteurs: sansCompteur, useSignaux: 2 }) ?? '', /useSignaux n’est pas une fonction/);
+  const r = m.ramasserCompteurs([{ chemin: 'compteurs/developpement.ts', declaration: { famille: 'developpement', useCompteurs: sansCompteur, useSignaux: () => ({}) } }]);
+  assert.equal(r.ecartes.length, 0);
+  assert.equal(typeof (r.declarations[0] as { useSignaux?: unknown }).useSignaux, 'function', 'le ramassage garde useSignaux');
+  // Sans addition : la première déclaration qui donne un nombre l'emporte ; null, négatif ou non fini ne comptent pas.
+  assert.deepEqual(m.fusionnerSignaux([]), { deploiementsEnCours: null, testsEnEchec: null }, 'rien de déclaré : null, jamais un zéro inventé');
+  assert.deepEqual(m.fusionnerSignaux([{ deploiementsEnCours: null, testsEnEchec: -2 }, { deploiementsEnCours: 3, testsEnEchec: Number.NaN }, { deploiementsEnCours: 5, testsEnEchec: 0 }]), { deploiementsEnCours: 3, testsEnEchec: 0 });
+  assert.deepEqual(m.fusionnerSignaux([{ testsEnEchec: 2.7 }]), { deploiementsEnCours: null, testsEnEchec: 2 });
+  // Le hook appelle chaque useSignaux à chaque rendu, dans l'ordre.
+  const appels: string[] = [];
+  const decl = (nom: string, signaux: unknown) => ({ famille: 'developpement', useCompteurs: sansCompteur, useSignaux: () => (appels.push(nom), signaux) });
+  const html = m.rendre(m.h(() => m.h('i', null, JSON.stringify(m.useSignauxDe([decl('a', { testsEnEchec: 4 }), decl('b', { deploiementsEnCours: 1, testsEnEchec: 9 })])))));
+  assert.equal(html, '<i>{&quot;deploiementsEnCours&quot;:1,&quot;testsEnEchec&quot;:4}</i>');
+  assert.deepEqual(appels, ['a', 'b']);
+  // La coquille branchée : Développement hors d'ESPACE du registre, ses signaux mis en mots, sa paire quand il est actif.
+  const donnees = sansCommentaires(lire('src/refonte/coquille/donnees.ts'));
+  assert.match(donnees, /const \{ deploiementsEnCours, testsEnEchec \} = useSignauxDeclares\(\);/);
+  assert.match(donnees, /const familles = toutes\.filter\(\(f\) => !f\.amnSeulement && f\.lateral\.cle !== ID_DEVELOPPEMENT && f\.lateral\.modules\.length > 0\)/, 'pas deux fois dans ESPACE');
+  assert.match(donnees, /ts\('coquille\.developpement\.deploiements', \{ n: deploiementsEnCours \}\)/);
+  assert.match(donnees, /ts\('coquille\.developpement\.tests', \{ n: testsEnEchec \}\)/);
+  assert.match(donnees, /const versDev = routeEnsemble\(ID_DEVELOPPEMENT\);/, 'sa vue d’ensemble, que LOT-11 remplace par substitution');
+  assert.match(sansCommentaires(lire('src/refonte/coquille/CoquilleRefonte.tsx')), /developpement=\{donnees\.developpement\}/);
+  const i18n = lire('src/socle/i18n.ts');
+  for (const cle of ['coquille.developpement', 'coquille.developpement.deploiements', 'coquille.developpement.tests']) assert.equal(i18n.split(`'${cle}':`).length - 1, 2, `${cle} en anglais et en français`);
+  assert.equal(fs.existsSync(path.join(racine, DOSSIER_COMPTEURS, 'developpement.ts')), false, 'le fichier de déclaration est celui de LOT-11 : le socle n’invente aucun signal');
 });
 
 await dit('chiffres tabulaires sur les nombres seulement (C11) : le corps et la coquille en chiffres normaux, les nombres du socle tabulaires', () => {
