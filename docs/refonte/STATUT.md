@@ -3,7 +3,7 @@
 > Tenu par le CO. Une session ne modifie que **la section de son lot** dans « 7. Écrans » (une ligne par écran) ; tout le reste est au CO. Règles : [`REGLES.md`](REGLES.md).
 
 - Branche d'intégration : **`claude/refonte-vivante`** (décision du 31 oct., §1.1). Base `main` @ `630ef45`.
-- Dernière mise à jour : 2026-11-12, soir. Modules de F1 choisis : §1.21. Seuils de LOT-14 : §1.20. LOT-07 : réglage confirmé. amn-api : Harun, Mohamed suppléant. Reprise après 18h : §1.18.
+- Dernière mise à jour : 2026-11-12, soir. LOT-12 préparation fusionnée : §1.22. Modules de F1 : §1.21. Seuils de LOT-14 : §1.20. Reprise après 18h : §1.18.
 - LOT-00 (socle v2) est fusionné (`488cdcc`), avec les 4 commits de S5. **Le socle v3 s'y ajoute avant la construction visuelle des lots** (S0 a ses consignes). D'ici là, chaque lot prépare et construit sa logique : §5.
 - Fusionnés aussi le 1er nov. : T1 (API d'essai, bac à sable, contrôle de fidélité) et les données fictives de SIM (100 jeux, `4fe559b`), avec `check:donnees` en CI (87 contrôles).
 - Gardes locales sur `refonte-vivante` : `typecheck`, `typecheck:business`, `lint` et les 55 contrôles sans navigateur de `editions.yml` verts.
@@ -469,6 +469,20 @@ Comment ça se passe (procédure [`INTEGRATION-F1.md`](INTEGRATION-F1.md), adopt
 4. Le CO relit et fusionne **un commit `--no-ff` par module**, pour pouvoir retirer chacun seul.
 
 Édition interne seulement : rien côté édition cliente. Réglage de F1 : Sonnet 5.5, effort élevé. Ordre de lancement : avec S2 et S3, après la fusion du socle v4.
+
+### 1.22 LOT-12 préparation (S9, `890522d`) : fusionnée, questions tranchées
+
+Fusionnée (`4254e7a`) : le modèle des connecteurs, les moteurs locaux, le format Sinon / Puis rangé dans le moteur de H20 (convertible dans les deux sens, les règles existantes relues à l'identique), et `check:connecteurs` (93 contrôles). Un seul conflit, dans `editions.yml` et `package.json` : deux ajouts côte à côte, les deux gardés. Après la fusion, tout est vert : typecheck des deux éditions, lint, `check:connecteurs`, `check:developpement`, `check:navigation`, `check:moments`, `check:donnees`.
+
+| # | Question de S9 | Décision |
+|---|---|---|
+| 1 | Notion et Webhooks, sans catégorie | Comme proposé : Webhooks est la brique « événements reçus » d'amn-api, affichée comme prise « chez nous ». Notion passe par « Demander un connecteur » tant que la liste des catégories ne l'ajoute pas. |
+| 2 | Prise arrêtée | Comme proposé : même dessin que « libre », avec « arrêtée le … » à la place de « libre, à brancher ». |
+| 3 | Valeurs par défaut | **Adoptées comme valeurs de départ**, toutes modifiables dans les réglages : plage clients lun.–ven. 08:00–19:00, plage équipe 07:30–21:00, 7 jours entre relances, 30 courriels par heure, rotation 7 / 4 / 6, suggestion à 70 % du forfait. Harun peut les corriger à tout moment. |
+| 4 | Moteur de H20, aussi chargé par l'édition cliente | **Une couture `@edition/*`**, pas un déplacement. Un jumeau `.business` reprend le comportement actuel, à l'identique, et le `.internal` branche le format étendu. L'édition cliente ne change donc pas, ce que `check:client-statique` prouve. C'est S6 qui la pose, dans LOT-07. |
+| 5 | Section LOT-12 dans §7 | **Oui, courte** : état, sha, gardes et dépendances, sans table d'écrans. S9 la crée et y touche seul. |
+
+**Espace Développement** : Harun a répondu directement à S8 sur ses 8 questions (S8 transmet au CO). Les modèles de sites ajoutés restent **sur le poste** pour l'instant. Leur partage attend le serveur (LOT-13).
 
 ## 2. Les lots
 
