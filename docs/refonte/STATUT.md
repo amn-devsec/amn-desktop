@@ -3,7 +3,7 @@
 > Tenu par le CO. Une session ne modifie que **la section de son lot** dans « 7. Écrans » (une ligne par écran) ; tout le reste est au CO. Règles : [`REGLES.md`](REGLES.md).
 
 - Branche d'intégration : **`claude/refonte-vivante`** (décision du 31 oct., §1.1). Base `main` @ `630ef45`.
-- Dernière mise à jour : 2026-11-12, soir. LOT-07 : réglage confirmé, démarre après la priorité de sécurité de S6. amn-api : Harun responsable, Mohamed suppléant. Dépôt dans `amn-devsec`, toujours public. Tags `v*` protégés. Reprise après 18h : §1.18.
+- Dernière mise à jour : 2026-11-12, soir. Seuils de LOT-14 : §1.20. LOT-07 : réglage confirmé. amn-api : Harun, Mohamed suppléant. Dépôt dans `amn-devsec`, toujours public. Reprise après 18h : §1.18.
 - LOT-00 (socle v2) est fusionné (`488cdcc`), avec les 4 commits de S5. **Le socle v3 s'y ajoute avant la construction visuelle des lots** (S0 a ses consignes). D'ici là, chaque lot prépare et construit sa logique : §5.
 - Fusionnés aussi le 1er nov. : T1 (API d'essai, bac à sable, contrôle de fidélité) et les données fictives de SIM (100 jeux, `4fe559b`), avec `check:donnees` en CI (87 contrôles).
 - Gardes locales sur `refonte-vivante` : `typecheck`, `typecheck:business`, `lint` et les 55 contrôles sans navigateur de `editions.yml` verts.
@@ -328,7 +328,7 @@ L'espace Cyber est couvert par LOT-10 et LOT-08 (correspondance au §3.1 du plan
 4. où garder le travail sur Desktop client (A, B ou C ; A recommandée) ;
 5. ~~protéger les tags `v*`~~ (fait le 12 nov., workflow de publication désactivé aussi) ; le canal de distribution privé après SEC-0 ;
 6. ~~qui corrige amn-api~~ : **Harun est responsable, Mohamed suppléant** (12 nov.). Les « demandes à amn-api » des lots leur reviennent, et le détail des points de SIM reste hors du dépôt public ;
-7. les chiffres cibles des tests de charge ;
+7. ~~les chiffres cibles des tests de charge~~ : fixés le 12 nov. (§1.20) ;
 8. les images manquantes pour S0 ;
 9. ~~S6 en Opus pour LOT-07~~ : confirmé le 12 nov. LOT-07 démarre après la priorité de sécurité de S6.
 
@@ -442,6 +442,21 @@ Fusionnée (`f984ad1`) : la note de préparation, la logique pure de `src/refont
 | 7 | « Redémarrer » en bouton primaire (DEV-serveur) | **Bouton secondaire, avec confirmation.** Le bouton primaire reste l'action courante de la page. Le bouton est inerte tant que LOT-13 (serveur) est en pause. Les autres écarts : §1.17 n° 3 à 5. |
 
 Jeux fictifs pour LOT-11 (note §8) : à commander à SIM quand l'étape 3 démarre, pas avant.
+
+### 1.20 Seuils de LOT-14 (Harun, 12 nov.)
+
+| Essai | Ce qu'on simule | Ce qui est attendu |
+|---|---|---|
+| **Charge (cible à tenir)** | 100 organisations clientes fictives, dont **20 connectées en même temps**, plus **3 personnes de l'équipe interne** au travail sur l'ensemble | Ça tient : aucune perte ni aucun écrasement de données, aucune erreur serveur. Valeurs par défaut du CO, que Harun peut changer : **95 % des actions courantes en moins d'1 s**, et une écriture visible sur les autres postes en **moins de 5 s**. |
+| **Résistance** | Montée jusqu'à **1 000 organisations**, en augmentant les connexions simultanées par paliers | On ne demande pas que ça tienne : on veut **le premier point de rupture** (à quel palier, sur quelle ressource : processeur, mémoire, base, connexions) et la façon dont ça casse (lenteur, erreurs, perte). |
+| **Essais longs** | 72 h à la cible de charge, avec redémarrages, coupures réseau et reprise après plantage (PLAN-10NOV §8) | Aucune donnée perdue, et une reprise sans intervention. |
+
+Où l'on mesure :
+- **Maintenant**, sur l'API d'essai locale : SIM écrit les scénarios et génère les organisations fictives (jusqu'à 1 000), T1 vérifie que les scénarios tournent. Ces chiffres ne valent pas pour le serveur réel.
+- **Les vrais chiffres**, sur le serveur maison, quand LOT-13 reprend.
+- Toujours sur des données fictives, comme partout (REGLES).
+
+Les points faibles d'amn-api que ces essais révèlent vont à Harun et Mohamed, et leur détail reste hors du dépôt public.
 
 ## 2. Les lots
 

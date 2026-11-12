@@ -181,9 +181,9 @@ Session : **SRV** (Sonnet 5.5, effort élevé), en lecture seule, sur `claude/re
 - **charge** : N postes simultanés, organisations de 10 à 600 personnes, pics de synchronisation, présence temps réel ;
 - **essais longs** : 72 h en continu, redémarrages, coupures réseau, écritures concurrentes, reprise après plantage ;
 - **sur le bac à sable d'abord, puis sur le serveur cible** (LOT-13) ;
-- **seuils à atteindre**, fixés avec Harun (nombre de clientes et d'utilisateurs au lancement).
+- **seuils fixés par Harun le 12 nov.** : cible à tenir de **100 organisations clientes, dont 20 connectées en même temps**, plus l'équipe interne de **3 personnes**. Test de résistance à **1 000 organisations**, pour repérer où ça casse (détail : `STATUT.md` §1.20).
 
-Les points faibles déjà trouvés par SIM dans amn-api se corrigent **dans amn-api**, hors de ce dépôt, avant le lancement : écrasement concurrent (haute), lot d'événements non atomique, présence en N³, route manquante.
+Les points relevés par SIM dans amn-api se corrigent **dans amn-api**, hors de ce dépôt, avant le lancement. Leur détail reste hors du dépôt public. Responsable : Harun, avec Mohamed comme suppléant.
 
 ---
 
