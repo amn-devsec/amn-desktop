@@ -3,7 +3,7 @@
 > Tenu par le CO. Une session ne modifie que **la section de son lot** dans « 7. Écrans » (une ligne par écran) ; tout le reste est au CO. Règles : [`REGLES.md`](REGLES.md).
 
 - Branche d'intégration : **`claude/refonte-vivante`** (décision du 31 oct., §1.1). Base `main` @ `630ef45`.
-- Dernière mise à jour : 2026-11-12, soir. Seuils de rapidité de LOT-14 validés par Harun : §1.20. Fiches de LOT-11 relues : §1.23. LOT-12 préparation fusionnée : §1.22. Modules de F1 : §1.21.
+- Dernière mise à jour : 2026-11-12, soir. Qui travaille sans le socle v4, par priorité : §1.24 et `PROMPTS-12NOV.md`. Seuils de LOT-14 validés : §1.20.
 - LOT-00 (socle v2) est fusionné (`488cdcc`), avec les 4 commits de S5. **Le socle v3 s'y ajoute avant la construction visuelle des lots** (S0 a ses consignes). D'ici là, chaque lot prépare et construit sa logique : §5.
 - Fusionnés aussi le 1er nov. : T1 (API d'essai, bac à sable, contrôle de fidélité) et les données fictives de SIM (100 jeux, `4fe559b`), avec `check:donnees` en CI (87 contrôles).
 - Gardes locales sur `refonte-vivante` : `typecheck`, `typecheck:business`, `lint` et les 55 contrôles sans navigateur de `editions.yml` verts.
@@ -491,6 +491,21 @@ Les 8 décisions de Harun sont en tête de `fiches/LOT-11/00-COMMUN.md`, et les 
 - **Confirmation avant « Revenir »** : Préproduction, Interne et Serveur AMN suivent la règle de la production, avec une ligne de confirmation. Seules les versions d'essai (Aperçu) n'en demandent pas. **Décidé par le CO**, comme S8 le propose.
 
 **Étape 3 de S8 (les écrans)** : feu vert **dès la fusion du socle v4**. Elle n'attend plus que cela : les fiches sont relues et le modèle des connecteurs est fusionné (§1.22).
+
+### 1.24 Qui travaille sans attendre le socle v4 (12 nov., soir), par ordre de priorité
+
+Prompts : [`PROMPTS-12NOV.md`](PROMPTS-12NOV.md), qui remplacent ceux du 6 nov. pour S1, S5, DS, S7 et SIM.
+
+| Ordre | Session | Ce qu'elle fait | Réglage |
+|---|---|---|---|
+| déjà lancées | **S0**, **S6**, **S9** | passe finale v4 (points 5 à 9), priorité de sécurité, puis la section LOT-12 du §7 (S9 se met ensuite en pause) | inchangé |
+| 1 | **SIM** | dates à 10:42, chargeur vers l'API d'essai (essais de Harun), attendus des écrans calculés, générateur et scénarios de charge (§1.20) | Sonnet 5.5, élevé |
+| 2 | **DS** | préparation de LOT-04 L'argent, le plus gros lot (17 écrans), logique d'argent | Opus 5.5, élevé |
+| 3 | **S1** | préparation de LOT-02 Contacts et clients | Sonnet 5.5, élevé |
+| 4 | **S5** | préparation de LOT-03 puis LOT-05 | Sonnet 5.5, élevé |
+| 5 | **S7** | mise à jour de sa préparation de LOT-06 pour la v4 | Sonnet 5.5, moyen |
+
+**Attendent, sans rien consommer** : T1 (passage 2, quand S0 a poussé le point 9), S2, S3, F1 et S8 étape 3 (après la fusion du socle v4), SRV (en pause).
 
 ## 2. Les lots
 
