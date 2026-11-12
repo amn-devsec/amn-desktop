@@ -78,16 +78,19 @@ await dit('choisirLesVisibles : au plus 5 lignes (4 quand la famille a sa « Vue
   assert.equal((K.choisirLesVisibles(tous.slice(0, 3)) as unknown[]).length, 3);
 });
 
-await dit('barre latérale : trois sections nommées, dans l’ordre — ESPACE (les familles), SURVEILLANCE (La Garde, Cyber), ÉPINGLÉS', () => {
+await dit('barre latérale : quatre sections nommées, dans l’ordre — ESPACE (les familles), ESPACES DE TRAVAIL (Développement, §1.17 n° 1), SURVEILLANCE (La Garde, Cyber), ÉPINGLÉS', () => {
   const garde = famille('garde', [mod('salle', 'essentiel')], { nom: 'La Garde', famille: 'outils' });
   const r = rendre(h(K.BarreLaterale, props([famille('jour', [mod('home', 'essentiel', true)], { active: true }), famille('argent', [mod('invoices', 'essentiel')])], garde)));
   const titres = [...r.matchAll(/<h2 id="sc-section-(\w+)" class="sc-section__titre">([^<]+)<\/h2>/g)].map((m) => [m[1], m[2]]);
-  assert.deepEqual(titres, [['espace', 'Espace'], ['surveillance', 'Surveillance'], ['epingles', 'Épinglés']]);
+  assert.deepEqual(titres, [['espace', 'Espace'], ['travail', 'Espaces de travail'], ['surveillance', 'Surveillance'], ['epingles', 'Épinglés']]);
   assert.match(sansCommentaires(lire('src/socle/coquille/coquille.css')), /\.sc-section__titre \{[^}]*height: 20px;[^}]*font-size: 10\.5px;[^}]*letter-spacing: 0\.09em;[^}]*text-transform: uppercase/);
   const surveillance = r.slice(r.indexOf('data-section="surveillance"'), r.indexOf('data-section="epingles"'));
   assert.ok(surveillance.indexOf('La Garde') < surveillance.indexOf('Cyber'), 'La Garde, puis Cyber');
-  const espace = r.slice(r.indexOf('data-section="espace"'), r.indexOf('data-section="surveillance"'));
-  assert.doesNotMatch(espace, /La Garde|Cyber/);
+  const espace = r.slice(r.indexOf('data-section="espace"'), r.indexOf('data-section="travail"'));
+  assert.doesNotMatch(espace, /La Garde|Cyber|Développement/);
+  const travail = r.slice(r.indexOf('data-section="travail"'), r.indexOf('data-section="surveillance"'));
+  assert.equal((travail.match(/data-cle="/g) ?? []).length, 1, 'ESPACES DE TRAVAIL : Développement seul');
+  assert.match(travail, /data-cle="developpement"/);
   assert.equal((r.match(/<nav/g) ?? []).length, 1, 'une seule navigation');
 });
 
@@ -676,20 +679,20 @@ await dit('l’aperçu ApercuBureau (données fictives) rend toujours la coquill
   assert.match(r, /aria-current="page"[^>]*><span class="sc-module__nom">Accueil</);
   assert.match(r, /Ma journée<\/a><\/li><li aria-current="page"><span>Démarrage<\/span>/);
   assert.match(r, /Demandez à Ajmani/);
-  assert.match(r, /<li data-famille="developpement" data-cle="developpement">[\s\S]*?data-signal="deploiements"[\s\S]*?data-signal="tests"[\s\S]*?<\/li><\/ul><\/section><section aria-labelledby="sc-section-surveillance"/, 'Développement et ses signaux fictifs, juste au-dessus de SURVEILLANCE');
+  assert.match(r, /data-section="travail"[^>]*><h2[^>]*>Espaces de travail<\/h2><ul class="sc-liste"><li data-famille="developpement" data-cle="developpement">[\s\S]*?data-signal="deploiements"[\s\S]*?data-signal="tests"[\s\S]*?<\/li><\/ul><\/section><section aria-labelledby="sc-section-surveillance"/, 'Développement et ses signaux fictifs, dans ESPACES DE TRAVAIL, juste au-dessus de SURVEILLANCE');
   const apercu = sansCommentaires(lire('scripts/apercu/coquille.tsx'));
   assert.doesNotMatch(apercu, /useCompteursDeclares|useDonneesCoquille|useAujourdhui|refonte\/coquille/, 'l’aperçu reste sur ses données fictives, sans les hooks de l’application');
 });
 
-await dit('Développement (v4, point 6) : toujours là, dernière ligne d’ESPACE juste au-dessus de SURVEILLANCE, icône de code ; sa paire ; déplié sur ses écrans', () => {
+await dit('Développement (v4, point 6 ; §1.17 n° 1) : toujours là, seule ligne de la section ESPACES DE TRAVAIL, juste au-dessus de SURVEILLANCE, icône de code ; sa paire ; déplié sur ses écrans', () => {
   const ordre = (html: string, ...re: RegExp[]) => re.map((r) => html.search(r));
   // Sans aucun module ni signal, et sans famille dans ESPACE : la ligne est là.
   for (const familles of [[], [famille('jour', [mod('home', 'essentiel', true)], { active: true, famille: 'jour' }), famille('argent', [mod('invoices', 'essentiel')])]]) {
     const r = rendre(h(K.BarreLaterale, props(familles)));
-    const [espace, dev, surveillance] = ordre(r, /data-section="espace"/, /<li data-famille="developpement" data-cle="developpement">/, /data-section="surveillance"/);
-    assert.ok(espace >= 0 && dev > espace && surveillance > dev, `ESPACE ${espace} < Développement ${dev} < SURVEILLANCE ${surveillance}`);
-    // Aucune autre famille (`data-cle`) après elle : la section ESPACE se ferme, SURVEILLANCE s'ouvre.
-    assert.match(r, /<li data-famille="developpement" data-cle="developpement">(?:(?!data-cle=)[\s\S])*<\/li><\/ul><\/section><section aria-labelledby="sc-section-surveillance"/, 'la dernière ligne d’ESPACE');
+    const [espace, travail, dev, surveillance] = ordre(r, /data-section="espace"/, /data-section="travail"/, /<li data-famille="developpement" data-cle="developpement">/, /data-section="surveillance"/);
+    assert.ok(espace >= 0 && travail > espace && dev > travail && surveillance > dev, `ESPACE ${espace} < ESPACES DE TRAVAIL ${travail} < Développement ${dev} < SURVEILLANCE ${surveillance}`);
+    // Sa section ne porte qu'elle : elle s'ouvre sur Développement, se ferme, et SURVEILLANCE suit.
+    assert.match(r, /<h2 id="sc-section-travail" class="sc-section__titre">Espaces de travail<\/h2><ul class="sc-liste"><li data-famille="developpement" data-cle="developpement">(?:(?!data-cle=)[\s\S])*<\/li><\/ul><\/section><section aria-labelledby="sc-section-surveillance"/, 'seule ligne de sa section, juste au-dessus de SURVEILLANCE');
     assert.match(r, /data-cle="developpement"><button[^>]*class="sc-famille sc-focus"><svg[^>]*lucide-code[^>]*sc-famille__icone/);
     assert.match(r, />Développement<\/span>/);
   }
@@ -764,6 +767,29 @@ await dit('Développement : ses signaux se déclarent par son lot (`declarerComp
   const i18n = lire('src/socle/i18n.ts');
   for (const cle of ['coquille.developpement', 'coquille.developpement.deploiements', 'coquille.developpement.tests']) assert.equal(i18n.split(`'${cle}':`).length - 1, 2, `${cle} en anglais et en français`);
   assert.equal(fs.existsSync(path.join(racine, DOSSIER_COMPTEURS, 'developpement.ts')), false, 'le fichier de déclaration est celui de LOT-11 : le socle n’invente aucun signal');
+});
+
+await dit('sous-liste Développement (§1.17 n° 1, §1.19 n° 1) : l’ordre des treize lignes de l’image, les modules de LOT-11 à leur rang, les vues reprises d’autres familles (le registre reste sans doublon), puis cinq lignes au plus et « + N autres »', async () => {
+  const m = await charger<{ ORDRE_DEVELOPPEMENT: ({ lot11: number } | { fiche: string; vue: string | null })[]; lignesDeveloppement: <T>(p: T[], r: (v: string) => T | undefined) => T[] }>({ code: "export * from '../src/refonte/coquille/sousListeDeveloppement';" });
+  assert.equal(m.ORDRE_DEVELOPPEMENT.length, 12, 'douze lignes après « Vue d’ensemble »');
+  assert.deepEqual(m.ORDRE_DEVELOPPEMENT.map((l) => ('lot11' in l ? `L${l.lot11}` : l.fiche)), ['L0', 'L1', 'L2', 'L3', 'H20', 'H21', 'L4', 'H24', 'L5', 'H03', 'MO03', 'ME05']);
+  assert.deepEqual(m.ORDRE_DEVELOPPEMENT.filter((l) => 'vue' in l).map((l) => (l as { vue: string | null }).vue), ['automations', null, 'vault', null, null, 'knowledge'], 'H20, H24, ME05 au registre ; H21, H03, MO03 pas encore');
+  const reprises: Record<string, string> = { automations: 'Automatisations', vault: 'Coffre-fort', knowledge: 'Base de connaissances' };
+  const r = (v: string) => reprises[v];
+  // Sans LOT-11 au registre : les trois vues reprises, dans l'ordre de l'image.
+  assert.deepEqual(m.lignesDeveloppement([], r), ['Automatisations', 'Coffre-fort', 'Base de connaissances']);
+  // Avec ses six modules : chacun à son rang ; un septième vient après, dans l'ordre du registre.
+  assert.deepEqual(m.lignesDeveloppement(['Projets', 'Déploiements', 'Serveur', 'Éditeur', 'Coûts', 'Modèles', 'Septième'], r), ['Projets', 'Déploiements', 'Serveur', 'Éditeur', 'Automatisations', 'Coûts', 'Coffre-fort', 'Modèles', 'Base de connaissances', 'Septième']);
+  // Une vue reprise absente (fermée à l'organisation) ne prend pas de ligne.
+  assert.deepEqual(m.lignesDeveloppement(['Projets'], (v) => (v === 'vault' ? 'Coffre-fort' : undefined)), ['Projets', 'Coffre-fort']);
+  // La coquille branchée : les lignes, puis le socle §0.1 (Vue d'ensemble + quatre, « + N autres ») ; une vue reprise n'est pas allumée par sa famille d'origine.
+  const donnees = sansCommentaires(lire('src/refonte/coquille/donnees.ts'));
+  assert.match(donnees, /const lignesDev = lignesDeveloppement\(propresDev, reprise\);\s*const montresDev = choisirLesVisibles\(lignesDev, placesDeModules\(true\)\);/);
+  assert.match(donnees, /autres: lignesDev\.length - montresDev\.length,/);
+  assert.match(donnees, /return \{ \.\.\.m, courant: parPage && famillePage === ID_DEVELOPPEMENT && sousPage === m\.cle \};/, 'jamais deux lignes allumées');
+  assert.match(donnees, /if \(!m \|\| m\.famille === ID_DEVELOPPEMENT\) return undefined;/, 'une vue de Développement n’est pas reprise deux fois');
+  // Le huitième hub.
+  assert.equal(K.routeEnsemble('developpement'), '/ensemble/developpement');
 });
 
 await dit('chiffres tabulaires sur les nombres seulement (C11) : le corps et la coquille en chiffres normaux, les nombres du socle tabulaires', () => {

@@ -26,7 +26,7 @@ import type React from 'react';
  * (`/ensemble/contacts`…, voir `hubs.ts`), jamais `/ensemble/:famille`.
  *
  * `npm run check:substitutions` refuse une route absente de
- * `appRoot.internal.tsx` (hors les sept hubs), une route déclarée deux fois, une clé `module` qui
+ * `appRoot.internal.tsx` (hors les huit hubs), une route déclarée deux fois, une clé `module` qui
  * n'est pas celle de la garde de la route d'origine, un substitut hors de
  * `src/refonte/<lot>/` ou qui importe `src/screens/**`, et un fichier de
  * `declarations/` qui ne finit pas par `.tsx` (il serait ignoré en silence).

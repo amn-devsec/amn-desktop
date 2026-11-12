@@ -18,6 +18,7 @@ import type { Libelle } from '../modules/declarer';
 import { construireFil } from './fil';
 import { routeEnsemble } from '../systeme/ensemble';
 import { choisirEpingles, choisirLesVisibles, placesDeModules } from './visibles';
+import { lignesDeveloppement } from './sousListeDeveloppement';
 import { libelleDuLieu } from './lieu';
 import { libellePageSysteme, motsPagesSysteme, pageSysteme } from './pagesSysteme';
 import { useCompteursDeclares, useSignauxDeclares } from './compteurs';
@@ -125,6 +126,8 @@ export function useDonneesCoquille(pathname: string, pageDeclaree: PageCoquille 
     /* ── Les familles, d'après le registre ── */
     const ouverts = new Map(catalogue.map((i) => [i.key, i]));
     const parEntree = new Map<string, ModuleLateral>();
+    // Les mêmes, avec leur niveau : la sous-liste « Développement » reprend des vues d'autres familles (§1.19 n° 1).
+    const parEntreeNiveau = new Map<string, ModuleLateral & { avance: boolean; niveau: string }>();
     const toutes = REGISTRE_MODULES.familles.map((famille) => {
       const entrees = famille.entrees
         .map((entree) => ({ entree, vues: entree.vues.flatMap((v) => ouverts.get(v.id) ?? []) }))
@@ -143,6 +146,7 @@ export function useDonneesCoquille(pathname: string, pageDeclaree: PageCoquille 
           niveau: entree.niveau,
         };
         parEntree.set(entree.id, { cle: m.cle, libelle: m.libelle, vers: m.vers, badge: m.badge, courant: m.courant, famille: m.famille });
+        parEntreeNiveau.set(entree.id, m);
         return m;
       });
       /* La première ligne : « Vue d'ensemble », sauf pour Ma journée (son Accueil en tient lieu). Quand la vue
@@ -155,6 +159,8 @@ export function useDonneesCoquille(pathname: string, pageDeclaree: PageCoquille 
       const active = parPage ? famillePage === famille.id : modules.some((m) => m.courant) || Boolean(ensemble?.courant);
       return {
         entrees: entrees.length,
+        /* Tous les modules de la famille, avant le choix des cinq lignes (la sous-liste « Développement » les range). */
+        tous: sansDoublon,
         lateral: {
           cle: famille.id,
           nom: dire(famille.nom),
@@ -181,19 +187,29 @@ export function useDonneesCoquille(pathname: string, pageDeclaree: PageCoquille 
     const devRegistre = toutes.find((f) => f.lateral.cle === ID_DEVELOPPEMENT);
     const versDev = routeEnsemble(ID_DEVELOPPEMENT);
     const devEnsembleCourant = parPage ? famillePage === ID_DEVELOPPEMENT && sousPage === 'ensemble' : pathname === versDev;
-    const developpement: FamilleLaterale = devRegistre
-      ? { ...devRegistre.lateral, nom: ts('coquille.developpement'), signaux }
-      : {
-          cle: ID_DEVELOPPEMENT,
-          nom: ts('coquille.developpement'),
-          famille: 'outils',
-          modules: [],
-          badge: 0,
-          active: parPage ? famillePage === ID_DEVELOPPEMENT : devEnsembleCourant,
-          ensemble: { cle: `ensemble-${ID_DEVELOPPEMENT}`, libelle: '', vers: versDev, badge: 0, courant: devEnsembleCourant },
-          autres: 0,
-          signaux,
-        };
+    /* Ses lignes : ses modules (LOT-11) et les vues reprises d'autres familles, dans l'ordre de l'image. Une vue
+       reprise n'est jamais « courante » par sa famille d'origine (une seule ligne allumée dans la barre) ; elle
+       l'est quand la page se déclare dans Développement avec elle pour sous-page. */
+    const propresDev = devRegistre?.tous ?? [];
+    const reprise = (cleVue: string) => {
+      const v = vueDuRegistre(cleVue);
+      const m = v ? parEntreeNiveau.get(v.entree) : undefined;
+      if (!m || m.famille === ID_DEVELOPPEMENT) return undefined;
+      return { ...m, courant: parPage && famillePage === ID_DEVELOPPEMENT && sousPage === m.cle };
+    };
+    const lignesDev = lignesDeveloppement(propresDev, reprise);
+    const montresDev = choisirLesVisibles(lignesDev, placesDeModules(true));
+    const developpement: FamilleLaterale = {
+      cle: ID_DEVELOPPEMENT,
+      nom: ts('coquille.developpement'),
+      famille: 'outils',
+      modules: montresDev.map((m) => ({ cle: m.cle, libelle: m.libelle, vers: m.vers, badge: m.badge, courant: m.courant })),
+      badge: montresDev.reduce((n, m) => n + m.badge, 0),
+      active: parPage ? famillePage === ID_DEVELOPPEMENT : propresDev.some((m) => m.courant) || devEnsembleCourant,
+      ensemble: { cle: `ensemble-${ID_DEVELOPPEMENT}`, libelle: '', vers: versDev, badge: 0, courant: devEnsembleCourant },
+      autres: lignesDev.length - montresDev.length,
+      signaux,
+    };
     const gardeTrouvee = toutes.find((f) => f.amnSeulement && f.lateral.modules.length > 0);
     // « La Garde » en barre latérale (§0.1) : le nom court, jamais tronqué (écart C6).
     const gardeFam = gardeTrouvee ? { ...gardeTrouvee.lateral, nom: gardeTrouvee.nomCourt } : null;

@@ -29,8 +29,8 @@ import type { CarteAujourdhui, EtatGarde, FamilleLaterale, ModuleLateral, Signal
  *
  * Du haut en bas : la marque (logo, « AMN Business », « Espace de l'équipe ») et le bouton qui replie la barre ;
  * la ligne de recherche (le champ ⌘K et, collé à droite, le bouton carré « Tous les modules (N) ») ; trois
- * sections nommées — ESPACE (les sept familles, puis « Développement », toujours là, juste au-dessus de
- * SURVEILLANCE), SURVEILLANCE (La Garde, Cyber), ÉPINGLÉS (trois modules choisis par la personne) — ; en bas, la carte « Aujourd'hui » (les chiffres de l'Accueil, le prochain rendez-vous, qui
+ * sections nommées — ESPACE (les sept familles), ESPACES DE TRAVAIL (« Développement », toujours là, STATUT
+ * §1.17 n° 1), SURVEILLANCE (La Garde, Cyber), ÉPINGLÉS (trois modules choisis par la personne) — ; en bas, la carte « Aujourd'hui » (les chiffres de l'Accueil, le prochain rendez-vous, qui
  * est en ligne et où).
  *
  * Familles : 32 px, une icône de trait de 15 px en T3 et le libellé en T2. Plus aucune pastille de couleur : la
@@ -49,7 +49,7 @@ export interface BarreLateraleProps {
   produit: string;
   /** ESPACE : les sept familles. */
   familles: FamilleLaterale[];
-  /** ESPACE, en dernier (juste au-dessus de SURVEILLANCE) : Développement, toujours là, déplié sur ses écrans. */
+  /** ESPACES DE TRAVAIL (juste au-dessus de SURVEILLANCE) : Développement, toujours là, déplié sur ses écrans. */
   developpement: FamilleLaterale;
   /** SURVEILLANCE : La Garde (huitième famille), ou `null` quand l'organisation n'a aucun de ses modules. */
   garde: FamilleLaterale | null;
@@ -279,7 +279,8 @@ export const BarreLaterale = React.forwardRef<HTMLElement, BarreLateraleProps>(f
       </div>
 
       <nav aria-label={ts('coquille.nav')} data-guide="epingles" className="sc-nav">
-        {section('espace', ts('coquille.section.espace'), [...familles.filter((f) => f.modules.length > 0 || f.ensemble).map((f) => groupe(f)), groupe(developpement)])}
+        {section('espace', ts('coquille.section.espace'), familles.filter((f) => f.modules.length > 0 || f.ensemble).map((f) => groupe(f)))}
+        {section('travail', ts('coquille.section.travail'), [groupe(developpement)])}
         {section('surveillance', ts('coquille.section.surveillance'), [...(garde && garde.modules.length > 0 ? [groupe(garde)] : []), groupe(cyber)], 'supervision')}
         {montres.length > 0 &&
           section(

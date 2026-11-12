@@ -384,7 +384,7 @@ Un écran qui envoie aux Paramètres passe la rubrique dans l'état de navigatio
 - **Segment choisi** : en plus du fond et de l'encre, la graisse (600). Chaque libellé réserve la largeur de sa forme grasse (`.sc-segment__texte`, copie invisible par `attr(data-texte)`, hors de l'arbre d'accessibilité) : choisir un segment ne déplace pas ses voisins.
 - **Compteurs** : la déclaration du module l'emporte, rien ne s'additionne ; l'activité non vue est le repli de `jour.ts` (voir plus haut).
 - **« Aujourd'hui »** : `FournisseurAujourdhui` au-dessus des deux coquilles.
-- **Hubs** : sept routes exactes, une par lot (`src/refonte/substitutions/hubs.ts`) ; la « Vue d'ensemble » de La Garde mène à `/ensemble/garde` (F70, STATUT §1.8 ; la Salle `/garde` ne change pas).
+- **Hubs** : huit routes exactes, une par lot (le huitième, `/ensemble/developpement`, STATUT §1.17 n° 2) (`src/refonte/substitutions/hubs.ts`) ; la « Vue d'ensemble » de La Garde mène à `/ensemble/garde` (F70, STATUT §1.8 ; la Salle `/garde` ne change pas).
 - **C-001** : le socle quitte `src/index.css` pour `src/socle/theme.css`, par la couture `@edition/socle-theme.css`.
 - **D02** : le chiffre rouge d'Alertes suit le drapeau `critique` du registre (sur l'entrée ou une vue), que S5 pose ; tant qu'il n'est pas posé, D02 ne change pas.
 - **Tuiles** : `vers` et `onClick` exclusifs (`CibleTuile`), `onAjouter` et `versAjouter` aussi (`AjoutGroupe`).
@@ -448,9 +448,10 @@ Les règles de 06-V4 § 3 sont portées par les briques et la coquille, aux vale
 
 ## Mise à jour — v4 : l'entrée « Développement » (2026-11-12)
 
-La barre latérale a une entrée « Développement » (LOT-11, 07-ESPACE-DEV), **toujours visible**, en **dernière ligne d'ESPACE, juste au-dessus de SURVEILLANCE**, avec l'icône de code et la paire de couleurs `developpement` (`#6EA8FF` / `#5EE6A8`).
+La barre latérale a une entrée « Développement » (LOT-11, 07-ESPACE-DEV), **toujours visible**, seule ligne de la section **« ESPACES DE TRAVAIL », juste au-dessus de SURVEILLANCE** (STATUT §1.17 n° 1), avec l'icône de code et la paire de couleurs `developpement` (`#6EA8FF` / `#5EE6A8`).
 
-- **Ses modules** : quand LOT-11 déclare au registre la famille d'identifiant `developpement`, ses modules s'y déplient comme ceux d'une famille (cinq lignes au plus, « Vue d'ensemble » d'abord, « + N autres ») ; elle n'est pas répétée plus haut dans ESPACE. D'ici là, la ligne porte sa seule « Vue d'ensemble » (`/ensemble/developpement`, que LOT-11 remplace par substitution sur cette route exacte, `src/refonte/substitutions/hubs.ts`).
+- **Sa sous-liste** (`src/refonte/coquille/sousListeDeveloppement.ts`) suit l'ordre des treize lignes de l'image (fiche LOT-11 `00-COMMUN`) : « Vue d'ensemble », puis les modules de LOT-11 (famille `developpement` du registre, déclarés dans l'ordre de l'image) et des **vues reprises d'autres familles** (§1.19 n° 1 : le registre reste sans doublon, la sous-liste pointe vers elles) : Automatisations (H20, `automations`), Coffre-fort (H24, `vault`), Base de connaissances (ME05, `knowledge`) ; Connecteurs (H21), Missions et tickets (H03) et Sauvegardes (MO03) ne sont pas encore au registre : leur identifiant s'écrira dans `ORDRE_DEVELOPPEMENT` quand leur lot les déclarera. Puis le socle §0.1 : cinq lignes au plus, « + N autres ». Une vue reprise n'est jamais allumée par sa famille d'origine (une seule ligne allumée dans la barre).
+- **Sa vue d'ensemble** : le huitième hub, `/ensemble/developpement` (`DEV-ensemble`, lot `developpement`, `src/refonte/substitutions/hubs.ts`, §1.17 n° 2), que LOT-11 déclare par substitution sur cette route exacte ; d'ici là, la page générique.
 - **Dépliée sur ses écrans** : un module du registre, sa vue d'ensemble ou une page qui se déclare `famille: 'developpement'` (`usePageCoquille`) l'allument et la déplient ; la coquille pose alors sa paire (`data-famille-active="developpement"`).
 - **Deux signaux** à droite de la ligne : les déploiements en cours (voyant bleu, qui ondule) et les tests en échec (voyant rouge), chacun avec son chiffre ; ils se disent avec le nom de la ligne pour les lecteurs d'écran. Zéro, ou rien de déclaré : rien ne s'écrit, jamais un zéro inventé.
 - **LOT-11 les déclare** dans `src/refonte/compteurs/developpement.ts`, ramassé seul :
@@ -471,6 +472,6 @@ export default declarerCompteurs({ famille: 'developpement', useCompteurs, useSi
 
 - `null` ou absent : la source n'a pas répondu. Rien ne s'additionne : si deux fichiers donnent un signal, le premier dans l'ordre des chemins l'emporte. `useSignaux` sur une autre famille : la déclaration est écartée.
 - Côté socle, la ligne reçoit des `signaux` génériques (`SignalLateral` : clé, nombre, ton `info` ou `critique`, libellé, `enCours`) : la barre ne sait rien des déploiements.
-- À 900 px de haut, une famille dépliée et trois épinglés, la colonne dépasse d'une ligne : elle défile (comme avant), la carte « Aujourd'hui » s'atteint en descendant.
-- `check:socle-coquille` (présence, place, signaux, déclaration) et `check:coquille --page` (dans le navigateur : dernière ligne d'ESPACE, au-dessus de SURVEILLANCE, icône, signaux dits) le tiennent.
+- À 900 px de haut, une famille dépliée et trois épinglés, la colonne dépasse : elle défile (comme avant), la carte « Aujourd'hui » s'atteint en descendant.
+- `check:socle-coquille` (présence, section, sous-liste, signaux, déclaration), `check:substitutions` (huit hubs) et `check:coquille --page` (dans le navigateur : seule ligne d'ESPACES DE TRAVAIL, juste avant SURVEILLANCE, icône, signaux dits) le tiennent.
 

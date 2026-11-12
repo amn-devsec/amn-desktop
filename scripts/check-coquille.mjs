@@ -80,7 +80,7 @@
  *     et plus aucun rail d'avant rendu en même temps ;
  *   · la ligne de recherche : champ de 34 px et, collé à droite, le bouton
  *     carré 34 × 34 « Tous les modules » ;
- *   · les sections ESPACE / SURVEILLANCE (/ ÉPINGLÉS) : libellés 10,5 px en
+ *   · les sections ESPACE / ESPACES DE TRAVAIL / SURVEILLANCE (/ ÉPINGLÉS) : libellés 10,5 px en
  *     capitales, 20 px de haut ;
  *   · les familles : 32 px, icône de trait de 15 px en T3, AUCUNE pastille de
  *     couleur ; la famille active (rendu v4, 06-V4 §3 règle 10) : dégradé de
@@ -912,14 +912,16 @@ async function mesurerV3(page) {
       /* La Garde et Cyber, dans SURVEILLANCE. */
       const liGarde = aside.querySelector('[data-section="surveillance"] li[data-cle="garde"]');
       const liCyber = aside.querySelector('[data-section="surveillance"] li[data-cle="cyber"]');
-      /* Développement (v4) : toujours là, dernière ligne d'ESPACE, juste au-dessus de SURVEILLANCE ; ses signaux. */
+      /* Développement (v4, §1.17 n° 1) : toujours là, seule ligne de la section ESPACES DE TRAVAIL, juste au-dessus de SURVEILLANCE ; ses signaux. */
       const liDev = aside.querySelector('li[data-cle="developpement"]');
-      const listeEspace = aside.querySelector('[data-section="espace"] > .sc-liste');
+      const secTravail = aside.querySelector('[data-section="travail"]');
+      const listeTravail = secTravail?.querySelector(':scope > .sc-liste') ?? null;
       const secSurveillance = aside.querySelector('[data-section="surveillance"]');
       const developpement = liDev
         ? {
-            dansEspace: Boolean(listeEspace && liDev.parentElement === listeEspace),
-            dernier: Boolean(listeEspace && listeEspace.lastElementChild === liDev),
+            dansSection: Boolean(listeTravail && liDev.parentElement === listeTravail),
+            seul: Boolean(listeTravail && listeTravail.children.length === 1),
+            avantSurveillance: Boolean(secTravail && secSurveillance && secTravail.nextElementSibling === secSurveillance),
             bas: boite(liDev).bas,
             hautSurveillance: secSurveillance ? boite(secSurveillance).y : null,
             icone: Boolean(liDev.querySelector('.sc-famille > svg.lucide-code')),
@@ -1109,9 +1111,10 @@ function jugerV3(nom, m, exigeant) {
 
   /* Les sections nommées. */
   const ids = m.sections.map((sct) => sct.id);
-  for (const attendu of ['espace', 'surveillance']) if (!ids.includes(attendu)) f.push(`${nom} · la section « ${attendu.toUpperCase()} » manque.`);
+  /* ESPACES DE TRAVAIL (`travail`, §1.17 n° 1) porte Développement : toujours là, comme ESPACE et SURVEILLANCE. */
+  for (const [attendu, titre] of [['espace', 'ESPACE'], ['travail', 'ESPACES DE TRAVAIL'], ['surveillance', 'SURVEILLANCE']]) if (!ids.includes(attendu)) f.push(`${nom} · la section « ${titre} » manque.`);
   if (exigeant && !ids.includes('epingles')) f.push(`${nom} · la section « ÉPINGLÉS » manque (l'aperçu porte trois épinglés).`);
-  if (ids.length > 0 && ids.join(',') !== ['espace', 'surveillance', 'epingles'].filter((i) => ids.includes(i)).join(',')) dire('ordre des sections', 'ESPACE, SURVEILLANCE, ÉPINGLÉS', ids.join(', '));
+  if (ids.length > 0 && ids.join(',') !== ['espace', 'travail', 'surveillance', 'epingles'].filter((i) => ids.includes(i)).join(',')) dire('ordre des sections', 'ESPACE, ESPACES DE TRAVAIL, SURVEILLANCE, ÉPINGLÉS', ids.join(', '));
   for (const sct of m.sections) {
     const t = V3.sectionTitre;
     if (sct.taille !== t.taille || !sct.capitales || sct.hauteur !== t.hauteur || sct.encre !== t.encre || !(Math.abs(sct.interlettrage - t.interlettrage) <= 0.05)) {
@@ -1161,11 +1164,12 @@ function jugerV3(nom, m, exigeant) {
   }
   if (!m.cyber) f.push(`${nom} · Cyber manque dans SURVEILLANCE : Cyber est TOUJOURS visible (§1.10).`);
 
-  /* Développement (v4, point 6) : toujours là, dernière ligne d'ESPACE, juste au-dessus de SURVEILLANCE ; ses signaux dits. */
+  /* Développement (v4, point 6 ; §1.17 n° 1) : toujours là, seule ligne d'ESPACES DE TRAVAIL, juste au-dessus de SURVEILLANCE ; ses signaux dits. */
   const d = m.developpement;
   if (!d) f.push(`${nom} · « Développement » manque : l'entrée est TOUJOURS visible, juste au-dessus de SURVEILLANCE.`);
   else {
-    if (!d.dansEspace || !d.dernier) dire('place de « Développement »', 'la dernière ligne d’ESPACE', d.dansEspace ? 'pas la dernière' : 'hors d’ESPACE');
+    if (!d.dansSection || !d.seul) dire('place de « Développement »', 'la seule ligne de la section ESPACES DE TRAVAIL', d.dansSection ? 'pas seule dans sa section' : 'hors de la section ESPACES DE TRAVAIL');
+    if (!d.avantSurveillance) dire('section ESPACES DE TRAVAIL', 'juste avant SURVEILLANCE', 'ailleurs');
     if (d.hautSurveillance === null || d.bas > d.hautSurveillance + 0.5) dire('« Développement » au-dessus de SURVEILLANCE', `bas ≤ ${d.hautSurveillance} px`, `bas à ${d.bas} px`);
     if (!d.icone) f.push(`${nom} · « Développement » n'a pas son icône de code.`);
     for (const s of d.signaux) {
@@ -1319,7 +1323,7 @@ if (PAGE) {
     process.exit(1);
   }
   console.log(
-    `\nCoquille v3 : OK — ${path.relative(process.cwd(), fichier)} : une barre de 252 px (16 / 14 / 14), recherche 34 + bouton carré 34, sections ESPACE / SURVEILLANCE / ÉPINGLÉS,\nfamilles de 32 px à icône de 15 sans pastille, La Garde « veille » + voyant, Cyber présent, sous-liste ≤ 5 × 27 px avec famille active et module courant en dégradé de leur paire (v4), repère 3 × 14 a → b sur le filet, « Développement » en dernier d’ESPACE, « + N autres »,\ncarte « Aujourd'hui » (anneau 34), en-tête 60 (fil, « N en ligne », cloche 34, Garde avec onde), barre Ajmani 46 / rayon 14 (« Entrée pour envoyer » + ⌘J), aucun ambre, une seule ligne active. Réseau : rien de refusé.`,
+    `\nCoquille v3 : OK — ${path.relative(process.cwd(), fichier)} : une barre de 252 px (16 / 14 / 14), recherche 34 + bouton carré 34, sections ESPACE / ESPACES DE TRAVAIL / SURVEILLANCE / ÉPINGLÉS,\nfamilles de 32 px à icône de 15 sans pastille, La Garde « veille » + voyant, Cyber présent, sous-liste ≤ 5 × 27 px avec famille active et module courant en dégradé de leur paire (v4), repère 3 × 14 a → b sur le filet, « ESPACES DE TRAVAIL » (Développement) au-dessus de SURVEILLANCE, « + N autres »,\ncarte « Aujourd'hui » (anneau 34), en-tête 60 (fil, « N en ligne », cloche 34, Garde avec onde), barre Ajmani 46 / rayon 14 (« Entrée pour envoyer » + ⌘J), aucun ambre, une seule ligne active. Réseau : rien de refusé.`,
   );
   process.exit(0);
 }
