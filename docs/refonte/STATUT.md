@@ -3,7 +3,7 @@
 > Tenu par le CO. Une session ne modifie que **la section de son lot** dans « 7. Écrans » (une ligne par écran) ; tout le reste est au CO. Règles : [`REGLES.md`](REGLES.md).
 
 - Branche d'intégration : **`claude/refonte-vivante`** (décision du 31 oct., §1.1). Base `main` @ `630ef45`.
-- Dernière mise à jour : 2026-11-12, soir. amn-api : Harun responsable, Mohamed suppléant. Dépôt dans `amn-devsec`, toujours public. Tags `v*` protégés. LOT-11 étape 2 : §1.19. Reprise après 18h : §1.18.
+- Dernière mise à jour : 2026-11-12, soir. LOT-07 : réglage confirmé, démarre après la priorité de sécurité de S6. amn-api : Harun responsable, Mohamed suppléant. Dépôt dans `amn-devsec`, toujours public. Tags `v*` protégés. Reprise après 18h : §1.18.
 - LOT-00 (socle v2) est fusionné (`488cdcc`), avec les 4 commits de S5. **Le socle v3 s'y ajoute avant la construction visuelle des lots** (S0 a ses consignes). D'ici là, chaque lot prépare et construit sa logique : §5.
 - Fusionnés aussi le 1er nov. : T1 (API d'essai, bac à sable, contrôle de fidélité) et les données fictives de SIM (100 jeux, `4fe559b`), avec `check:donnees` en CI (87 contrôles).
 - Gardes locales sur `refonte-vivante` : `typecheck`, `typecheck:business`, `lint` et les 55 contrôles sans navigateur de `editions.yml` verts.
@@ -264,7 +264,7 @@ Les points 1 à 8 (§1.5) restent des décisions par défaut, sauf le n° 1 (ban
 | S0 (socle v3) | Fable 5.1, effort max (ULTRA) | ✓ |
 | S6, sécurité (phases 0 à 3) | Opus 5.5, effort max, pas de Fable | ✓ |
 | S6, LOT-10 Cyber | Opus 5.5, effort élevé | ✓ |
-| **S6, LOT-07 Outils** | Sonnet 5.5, effort élevé | **À relever en Opus 5.5, effort élevé** : c'est ce que conseille le dossier, pour les surfaces sensibles (accès H19, connecteurs H21 dont WhatsApp et SMS, coffre-fort H24). |
+| **S6, LOT-07 Outils** | Opus 5.5, effort élevé (**confirmé par Harun le 12 nov.**) | Ce réglage est celui que conseille le dossier, pour les surfaces sensibles (accès H19, connecteurs H21 dont WhatsApp et SMS, coffre-fort H24). |
 | S1 (LOT-02, LOT-09), S5 (LOT-03, LOT-05), S7 (LOT-06), T1, SIM | Sonnet 5.5, effort élevé | ✓ |
 | F1 (non cité) | — | Sonnet 5.5, effort élevé |
 
@@ -330,7 +330,7 @@ L'espace Cyber est couvert par LOT-10 et LOT-08 (correspondance au §3.1 du plan
 6. ~~qui corrige amn-api~~ : **Harun est responsable, Mohamed suppléant** (12 nov.). Les « demandes à amn-api » des lots leur reviennent, et le détail des points de SIM reste hors du dépôt public ;
 7. les chiffres cibles des tests de charge ;
 8. les images manquantes pour S0 ;
-9. S6 en Opus pour LOT-07.
+9. ~~S6 en Opus pour LOT-07~~ : confirmé le 12 nov. LOT-07 démarre après la priorité de sécurité de S6.
 
 ### 1.14 Dossier v4 : néon et tutoiement (11 nov., décisions de Harun)
 
@@ -456,7 +456,7 @@ Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en para
 | 2 | **LOT-04** L'argent | 17 (0 / 16 / 1) | `claude/refonte-argent` | DS | Sonnet 5.5, élevé | socle v3 fusionné | à faire |
 | 2 | **LOT-05** Échanger | 10 (0 / 9 / 1) | `claude/refonte-echanger` | S5 | Sonnet 5.5, élevé | socle v3 fusionné ; après LOT-03 | à faire |
 | 2 | **LOT-06** Créer et produire | 15 (0 / 14 / 1) | `claude/refonte-creer` | S7 (à créer) | Sonnet 5.5, élevé | socle v3 fusionné | à faire |
-| 2 | **LOT-07** Outils et réglages | 16 (0 / 12 / 4) | `claude/refonte-outils` | S6 | Opus 5.5, élevé | socle v3 fusionné ; phase 1 de S6 | à faire |
+| 2 | **LOT-07** Outils et réglages | 16 (0 / 12 / 4) | `claude/refonte-outils` | S6 | Opus 5.5, élevé | socle v4 fusionné ; priorité de sécurité de S6 terminée | à faire |
 | 2 | **LOT-08** La Garde et la supervision | 12 (0 / 11 / 1) | `claude/refonte-garde` | S3 | Opus 5.5, élevé | socle v3 fusionné | préparation (note, §1.8) |
 | 3 | **LOT-09** Mobile et tablette | 11 (0 / 0 / 11) | `claude/refonte-mobile` | S1, après LOT-02 | Sonnet 5.5, élevé | lots 01 à 08 et 10 fusionnés | à faire |
 | 2 | **LOT-10** Cyber | 18 (0 / 4 / 14, dont 4 `CYB-*` sans fiche) | `claude/refonte-cyber` | S6, après LOT-07 | Opus 5.5, élevé | socle v3 fusionné ; phase 1 de S6 ; LOT-07 | à faire |
