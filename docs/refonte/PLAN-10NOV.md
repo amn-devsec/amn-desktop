@@ -193,7 +193,7 @@ Les points faibles déjà trouvés par SIM dans amn-api se corrigent **dans amn-
 2. **Créer trois sessions** : **S8** (LOT-11 Développement, Opus 5.5, élevé), **S9** (LOT-12 Connecteurs, Opus 5.5, élevé), **SRV** (LOT-13 Serveur, Sonnet 5.5, élevé, en lecture seule). Attachez le dépôt amn-api à SRV, en lecture.
 3. **Serveur** : ce qui tourne sur Render (services, taille de la base, trafic), votre budget mensuel maximum, et votre décision après le comparatif (rendu au plus tard le 16 nov., avant l'échéance du 23).
 4. **Dépôt** : l'option A, B ou C du §6 (le CO recommande A).
-5. **Distribution** : protéger les tags `v*` dans les règles du dépôt GitHub dès maintenant ; puis choisir le canal privé (§8) après le rapport SEC.
+5. **Distribution** : tags `v*` protégés et workflow de publication désactivé (fait le 12 nov.) ; puis choisir le canal privé (§8) après le rapport SEC.
 6. **amn-api** : qui corrige, avant le lancement, les points faibles trouvés par SIM ? (une session sur amn-api, privée)
 7. **Lancement** : les chiffres cibles pour les tests de charge (clientes, utilisateurs par cliente, postes simultanés).
 8. **Images manquantes pour S0** : les images de F10, F30, F50, F70, MR06, MR09, H16, N01 et H18, ou les zips des lots 01, 02, 04, 06, 07 et 08, pour lever le « provisoire » de quelques briques.
