@@ -1,12 +1,13 @@
 # Rapport de fin de session — S9 (LOT-12 Connecteurs et autonomie)
 
-## Résumé (5 lignes au plus)
+## Résumé
 
 1. Modèle des connecteurs livré dans `src/refonte/connecteurs/` : 14 catégories du §4, version locale toujours présente, prises « service » ou « chez nous », état, coût affiché avant, plafond, 3 clics au plus.
 2. Aucun tarif écrit : tous « à relever » ; sans relevé (source https + date), pas d'activation.
 3. Règles de H21 (S6) et de DEV-couts, DEV-editeur (S8) prêtes à lire ; format des flux Quand / Si / Alors relié à `useAutomations`.
 4. Moteurs locaux : courriels, relances, rappels, tri, rapports, sauvegardes, planificateur (heure de Paris) ; liste « Demandé à amn-api » avec un repli local par point.
-5. Garde `check:connecteurs` (85 contrôles), ajoutée à `package.json` et `editions.yml` ; note `docs/refonte/preparation/LOT-12-connecteurs.md`.
+5. Branches Sinon et Puis rangées dans le moteur H20 existant (`automatisations.ts`), sans perte dans les deux sens (décision du CO, 12 nov.).
+6. Garde `check:connecteurs` (93 contrôles), ajoutée à `package.json` et `editions.yml` ; note `docs/refonte/preparation/LOT-12-connecteurs.md`.
 
 ## Branche et sha
 
@@ -22,7 +23,7 @@ A	docs/refonte/preparation/LOT-12-connecteurs.md
 A	docs/refonte/rapports/S9-connecteurs.md
 M	package.json
 A	scripts/check-connecteurs.ts
-A	src/refonte/connecteurs/** (21 fichiers)
+A	src/refonte/connecteurs/** (22 fichiers)
 ```
 
 | Fichier | Changement (ajout seulement ?) | Pourquoi |
@@ -40,7 +41,7 @@ Aucun fichier `*.business.*`, aucun écran, ni `STATUT.md` ni `REGLES.md`.
 | `typecheck:business` | vert |
 | `lint` | vert |
 | `check:donnees` | vert (87) |
-| `check:connecteurs` | vert (85) ; mordant vérifié par 3 mutations volontaires (tarif non relevé, validation humaine, tutoiement client), toutes détectées |
+| `check:connecteurs` | vert (93) ; mordant vérifié par 6 mutations volontaires (tarif non relevé, validation humaine, tutoiement client, déclencheur réel gardé à tort, SINON perdu, identifiant historique changé), toutes détectées |
 | `check:accueils` | vert |
 | `check:socle` | vert |
 | `check:moments` | vert |
@@ -50,6 +51,7 @@ Aucun fichier `*.business.*`, aucun écran, ni `STATUT.md` ni `REGLES.md`.
 - Notion et Webhooks (prises d'exemple de H21) sans catégorie au §4 : proposition dans la note, §9.
 - Dessin d'une prise « arrêtée » dans H21 (S6).
 - Valeurs par défaut (plages d'envoi, délais, rotation, seuils) à valider par Harun.
+- Couture `@edition/*` ou déplacement de `automatisations.ts` pour que S6 étende `useAutomations` (partagé avec l'édition cliente).
 - Section LOT-12 dans `STATUT.md` § 7 : au CO de dire s'il en faut une.
 - Les tarifs sont à relever au moment de construire H21 (procédure : note, §8).
 

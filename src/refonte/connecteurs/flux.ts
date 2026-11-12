@@ -1,6 +1,5 @@
 import { modeDeCategorie } from './cycle';
 import type { CategorieId, ConnecteurInstance } from './types';
-import type { AutomationData, Declencheur } from '../../state/useAutomations';
 
 /**
  * LE FORMAT DES FLUX (DEV-editeur) — des blocs Quand / Si / Alors, chacun en
@@ -17,10 +16,9 @@ import type { AutomationData, Declencheur } from '../../state/useAutomations';
  * Le format est sérialisable tel quel (collection synchronisée), sans aucun
  * secret : un bloc nomme une boîte (« contact@ ») ou un modèle, jamais un accès.
  *
- * Il prolonge le moteur existant (`src/state/useAutomations.ts`) : une
- * automatisation d'aujourd'hui se traduit en flux (`depuisAutomation`), et un
- * flux assez simple se traduit en automatisation (`versAutomation`) pour être
- * exécuté par `AutomationsRunner` dès maintenant, sans rien changer.
+ * Il n'a pas de moteur à lui (décision du CO) : il s'enregistre comme une
+ * règle du moteur d'automatisation existant (H20, `useAutomations`), au format
+ * étendu de `automatisations.ts`, convertible dans les deux sens.
  */
 
 export type ModeBloc = 'local' | 'api';
@@ -314,48 +312,4 @@ export function essayer(f: Flux, e: Evenement, contexte: { instances: readonly C
   };
 }
 
-/* ─── Le pont avec le moteur existant (`useAutomations`) ─────────────────── */
-
-const QUAND_DEPUIS: Record<Declencheur, TypeQuand> = {
-  formAnswer: 'formulaire-repondu',
-  invoiceOverdue: 'facture-en-retard',
-  ticketOpened: 'ticket-ouvert',
-  prospectWon: 'prospect-gagne',
-  stockLow: 'stock-bas',
-};
-
-/** Une automatisation d'aujourd'hui, lue comme un flux (sans perte). */
-export function depuisAutomation(id: string, nom: string, a: AutomationData): Flux {
-  const action: BlocAction =
-    a.action === 'task'
-      ? { id: `${id}-alors`, mode: 'local', type: 'creer-tache', parametres: { assigneeEmail: a.assigneeEmail } }
-      : { id: `${id}-alors`, mode: 'local', type: 'ecrire-journal', parametres: { assigneeEmail: a.assigneeEmail } };
-  return {
-    id,
-    nom,
-    etat: a.enabled ? 'actif' : 'en-pause',
-    quand: { id: `${id}-quand`, mode: 'local', type: QUAND_DEPUIS[a.trigger], parametres: {} },
-    si: null,
-    alors: [action],
-    sinon: [],
-  };
-}
-
-/**
- * Un flux que `AutomationsRunner` sait déjà exécuter : un déclencheur existant,
- * sans condition, une seule action « tâche » ou « journal », en local.
- * `null` sinon : il attend le moteur de flux complet.
- */
-export function versAutomation(f: Flux, createdAt: string): AutomationData | null {
-  const trigger = (Object.keys(QUAND_DEPUIS) as Declencheur[]).find((k) => QUAND_DEPUIS[k] === f.quand.type);
-  if (!trigger || f.si || f.sinon.length || f.alors.length !== 1 || f.etat === 'brouillon') return null;
-  const [b] = f.alors;
-  if (b.mode !== 'local') return null;
-  if (b.type === 'creer-tache') {
-    return { trigger, action: 'task', enabled: f.etat === 'actif', assigneeEmail: b.parametres.assigneeEmail ?? '', createdAt };
-  }
-  if (b.type === 'ecrire-journal') {
-    return { trigger, action: 'logbook', enabled: f.etat === 'actif', assigneeEmail: b.parametres.assigneeEmail ?? '', createdAt };
-  }
-  return null;
-}
+/* Le pont avec le moteur existant (`useAutomations`, H20) : voir `automatisations.ts`. */

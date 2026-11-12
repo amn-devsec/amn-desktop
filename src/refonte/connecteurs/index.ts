@@ -12,6 +12,7 @@ export * from './cycle';
 export * from './baie';
 export * from './couts';
 export * from './flux';
+export * from './automatisations';
 export * from './amnApi';
 export * from './adaptateurs';
 export * from './i18n';

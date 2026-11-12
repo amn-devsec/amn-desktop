@@ -13,7 +13,9 @@
  *   · l'interface tutoie, les textes destinés aux clients vouvoient ;
  *   · les moteurs locaux (courriels, rappels, relances, rapports, tri,
  *     sauvegardes, planificateur) tiennent leurs règles, heure de Paris comprise ;
- *   · le format des flux Quand / Si / Alors, et son pont avec `useAutomations` ;
+ *   · le format des flux Quand / Si / Alors, rangé dans le moteur existant (H20) :
+ *     branches Sinon et Puis, mode par bloc, aller-retour sans perte, et le VRAI
+ *     moteur actuel qui ignore ce qu'il ne sait pas exécuter en entier ;
  *   · le tout rejoué sur les jeux fictifs de SIM (vide, peu, normal, beaucoup).
  *
  *   npm run check:connecteurs
@@ -30,7 +32,23 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const racine = path.join(here, '..');
 const ZONE = path.join(racine, 'src/refonte/connecteurs');
 
-async function loadFromSrc<T>(entry: string): Promise<T> {
+/**
+ * Pour charger le VRAI moteur d'automatisation (`src/state/useAutomations.ts`)
+ * hors application : ses deux imports (React et la synchronisation) sont
+ * remplacés par des bouchons inertes. Seules ses fonctions pures servent ici.
+ */
+const bouchons: esbuild.Plugin = {
+  name: 'bouchons',
+  setup(b) {
+    b.onResolve({ filter: /^react$|\/SyncContext$/ }, (a) => ({ path: a.path, namespace: 'bouchon' }));
+    b.onLoad({ filter: /.*/, namespace: 'bouchon' }, () => ({
+      contents: 'export const useEffect = () => {}, useMemo = (f) => f(), useRef = (v) => ({ current: v }), useSync = () => ({}), useCollection = () => [];',
+      loader: 'js',
+    }));
+  },
+};
+
+async function loadFromSrc<T>(entry: string, plugins: esbuild.Plugin[] = []): Promise<T> {
   const built = await esbuild.build({
     entryPoints: [path.join(racine, entry)],
     bundle: true,
@@ -39,6 +57,7 @@ async function loadFromSrc<T>(entry: string): Promise<T> {
     platform: 'neutral',
     target: 'node22',
     charset: 'utf8',
+    plugins,
   });
   return (await import(
     `data:text/javascript;charset=utf-8;base64,${Buffer.from(built.outputFiles[0].text, 'utf8').toString('base64')}`
@@ -47,6 +66,7 @@ async function loadFromSrc<T>(entry: string): Promise<T> {
 
 const K = await loadFromSrc<any>('src/refonte/connecteurs/index.ts');
 const D = await loadFromSrc<any>('src/refonte/donnees/index.ts');
+const MOTEUR_H20 = await loadFromSrc<any>('src/state/useAutomations.ts', [bouchons]);
 const { temps, planificateur, courriels, relances, rappels, tri, rapports, sauvegardes } = K.moteurs;
 
 let vus = 0;
@@ -567,18 +587,130 @@ dit('« Tu peux changer à tout moment » : la bascule ne touche que les blocs q
   assert.deepEqual(K.basculerFlux(api, 'local'), DEVIS_PAR_COURRIEL);
 });
 
-dit('pont avec useAutomations : chaque automatisation se lit en flux, et revient à l’identique', () => {
-  for (const trigger of ['formAnswer', 'invoiceOverdue', 'ticketOpened', 'prospectWon', 'stockLow']) {
-    for (const action of ['task', 'logbook']) {
-      for (const enabled of [true, false]) {
-        const a = { trigger, action, enabled, assigneeEmail: 'aaron@equipe.exemple.test', createdAt: '2026-11-01T08:00:00.000Z' };
-        const f = K.depuisAutomation('r1', 'Règle', a);
-        assert.deepEqual(K.defautsDuFlux(f), [], `${trigger}/${action}`);
-        assert.deepEqual(K.versAutomation(f, a.createdAt), a, `${trigger}/${action}/${enabled}`);
-      }
-    }
+/* ─────────────────── Branches Sinon et Puis, dans le moteur H20 ─────────────────── */
+section('Format étendu des règles H20 (Sinon, Puis, mode par bloc)');
+
+const ANCIENNES = ['formAnswer', 'invoiceOverdue', 'ticketOpened', 'prospectWon', 'stockLow'].flatMap((trigger) =>
+  ['task', 'logbook'].flatMap((action) =>
+    [true, false].map((enabled) => ({ trigger, action, enabled, assigneeEmail: 'aaron@equipe.exemple.test', createdAt: '2026-11-01T08:00:00.000Z' })),
+  ),
+);
+/** Une règle telle qu'elle revient de la collection synchronisée (JSON). */
+const parLaCollection = (x: unknown) => JSON.parse(JSON.stringify(x));
+const SOURCES_VIDES = {
+  formAnswers: [{ id: 'r1', formId: 'f1', answers: { besoin: 'Un devis pour un site' } }],
+  forms: [{ id: 'f1', title: 'Contact' }],
+  invoices: [{ id: 'i1', number: '2026-001', status: 'issued', paidAt: '', dueAt: '2020-01-01' }],
+  tickets: [{ id: 't1', subject: 'Panne', client: 'Client', status: 'ouvert' }],
+  prospects: [{ id: 'p1', name: 'Nom', company: 'Société', stage: 'gagne' }],
+  stockItems: [{ id: 's1', name: 'Câble', quantity: 1, minQuantity: 3 }],
+};
+const LIBELLES = new Proxy({}, { get: () => (a: string, b: string) => `${a} ${b}` });
+
+dit('chaque règle existante se lit en flux et revient À L’IDENTIQUE (aucun champ ajouté, rien à migrer)', () => {
+  for (const a of ANCIENNES) {
+    const f = K.depuisAutomation('r1', 'Nom affiché par H20', a);
+    assert.deepEqual(K.defautsDuFlux(f), [], `${a.trigger}/${a.action}`);
+    const r = K.versAutomation(f, a.createdAt, 'Nom affiché par H20');
+    assert.deepEqual(r, a, `${a.trigger}/${a.action}/${a.enabled}`);
+    assert.equal('flux' in r, false);
+    assert.deepEqual(K.defautsDeLAutomation('r1', a), []);
   }
-  assert.equal(K.versAutomation(DEVIS_PAR_COURRIEL, AUJ), null);
+});
+
+dit('le flux de DEV-editeur (SI, SINON, PUIS) se range dans la collection et se relit sans perte', () => {
+  const r = parLaCollection(K.versAutomation(DEVIS_PAR_COURRIEL, '2026-11-12T09:42:00.000Z', 'sans objet'));
+  assert.equal(r.trigger, K.DECLENCHEUR_FLUX);
+  assert.equal(r.enabled, true);
+  assert.equal(r.flux.format, 2);
+  assert.deepEqual(K.depuisAutomation(DEVIS_PAR_COURRIEL.id, 'sans objet', r), DEVIS_PAR_COURRIEL);
+  assert.deepEqual(K.defautsDeLAutomation(DEVIS_PAR_COURRIEL.id, r), []);
+  const api = K.basculerFlux(DEVIS_PAR_COURRIEL, 'api');
+  assert.deepEqual(K.depuisAutomation(api.id, '', parLaCollection(K.versAutomation(api, AUJ, ''))), api, 'le mode de chaque bloc est gardé');
+});
+
+dit('sans perte dans tous les cas : nom choisi, réglage d’étape, bloc en API, PUIS ajouté, brouillon', () => {
+  const simple = K.depuisAutomation('r2', 'Nom par défaut', ANCIENNES[0]);
+  const cas = [
+    { ...simple, nom: 'Mon nom à moi' },
+    { ...simple, alors: [{ ...simple.alors[0], parametres: { ...simple.alors[0].parametres, titre: 'Rappeler', echeanceJours: 2 } }] },
+    { ...simple, alors: [...simple.alors, { id: 'p1', mode: 'api', type: 'notifier-equipe', parametres: {} }] },
+    { ...simple, quand: { ...simple.quand, id: 'autre-id' } },
+    { ...simple, etat: 'brouillon', alors: [] },
+  ];
+  for (const f of cas) {
+    const r = parLaCollection(K.versAutomation(f, AUJ, 'Nom par défaut'));
+    assert.ok(r.flux, f.nom);
+    assert.deepEqual(K.depuisAutomation(f.id, 'Nom par défaut', r), f);
+    assert.deepEqual(K.defautsDeLAutomation(f.id, r), []);
+  }
+  assert.equal(K.versAutomation({ ...simple, alors: [] }, AUJ, 'Nom par défaut'), null, 'un flux actif invalide ne s’enregistre pas');
+  assert.equal(K.versAutomation({ ...simple, nom: 'Mon nom à moi' }, AUJ, 'Nom par défaut').trigger, 'formAnswer', 'un nom seul ne change pas l’exécution');
+});
+
+dit('le moteur actuel, tel qu’il est dans le dépôt, ne fait RIEN d’une règle qu’il ne sait pas exécuter en entier', () => {
+  const regles = [
+    K.versAutomation(DEVIS_PAR_COURRIEL, AUJ, ''),
+    K.versAutomation({ ...DEVIS_PAR_COURRIEL, quand: { id: 'q', mode: 'local', type: 'formulaire-repondu', parametres: {} } }, AUJ, ''),
+    K.versAutomation({ ...K.depuisAutomation('r3', 'x', ANCIENNES[2]), alors: [...K.depuisAutomation('r3', 'x', ANCIENNES[2]).alors, { id: 'p', mode: 'local', type: 'classer', parametres: { dossier: 'a-lire' } }] }, AUJ, 'x'),
+  ];
+  for (const r of regles) {
+    assert.equal(r.trigger, K.DECLENCHEUR_FLUX);
+    assert.deepEqual(MOTEUR_H20.sourcesPour(r.trigger, SOURCES_VIDES, LIBELLES), []);
+  }
+  for (const t of MOTEUR_H20.DECLENCHEURS) assert.ok(MOTEUR_H20.sourcesPour(t, SOURCES_VIDES, LIBELLES).length > 0, `${t} : le jeu d’essai a une source`);
+});
+
+dit('quand la règle garde son vrai déclencheur, le moteur actuel fait exactement la première étape du plan', () => {
+  for (const a of ANCIENNES.filter((x) => x.enabled)) {
+    const f = K.depuisAutomation('r4', 'x', a);
+    assert.ok(K.executableParLeMoteurActuel(f));
+    const [source] = MOTEUR_H20.sourcesPour(a.trigger, SOURCES_VIDES, LIBELLES);
+    const plan = K.planDExecution('r4', f, source.id, K.evenementDepuisSource(a.trigger, source, MAINTENANT), { instances: [] });
+    assert.equal(plan.length, 1);
+    assert.equal(plan[0].id, `auto-r4-${source.id}`, 'même identifiant que le moteur actuel');
+    assert.equal(plan[0].type, a.action === 'task' ? 'creer-tache' : 'ecrire-journal');
+    assert.equal(plan[0].parametres.assigneeEmail, a.assigneeEmail);
+  }
+});
+
+dit('identifiants des étapes : le premier ALORS garde l’historique, PUIS et SINON ajoutent un suffixe, tous distincts', () => {
+  assert.equal(K.idDEtape('r', 's', 'alors', 0), 'auto-r-s');
+  assert.equal(K.idDEtape('r', 's', 'alors', 2), 'auto-r-s-p2');
+  assert.equal(K.idDEtape('r', 's', 'sinon', 0), 'auto-r-s-sinon');
+  assert.equal(K.idDEtape('r', 's', 'sinon', 1), 'auto-r-s-sinon-p1');
+  const ids = ['alors', 'sinon'].flatMap((b) => Array.from({ length: K.BLOCS_MAX_PAR_BRANCHE }, (_, k) => K.idDEtape('r', 's', b, k)));
+  assert.equal(new Set(ids).size, ids.length);
+});
+
+dit('plan d’exécution : ALORS puis PUIS dans l’ordre, SINON sinon ; rien en pause ; un bloc API au service arrêté passe en local', () => {
+  const e = { type: 'courriel-recu', at: MAINTENANT, texte: 'Vos tarifs ?', boite: 'contact@equipe.exemple.test' };
+  const oui = K.planDExecution('devis', DEVIS_PAR_COURRIEL, 'm1', e, { instances: [] });
+  assert.deepEqual(oui.map((x: any) => x.id), ['auto-devis-m1', 'auto-devis-m1-p1', 'auto-devis-m1-p2']);
+  const non = K.planDExecution('devis', DEVIS_PAR_COURRIEL, 'm2', { ...e, texte: 'Bonjour' }, { instances: [] });
+  assert.deepEqual(non.map((x: any) => [x.id, x.type]), [['auto-devis-m2-sinon', 'classer']]);
+  assert.deepEqual(K.planDExecution('devis', { ...DEVIS_PAR_COURRIEL, etat: 'en-pause' }, 'm1', e, { instances: [] }), []);
+  const api = K.basculerFlux(DEVIS_PAR_COURRIEL, 'api');
+  const boite = branchee('messagerie', 'brevo', 1);
+  assert.equal(K.planDExecution('devis', api, 'm1', e, { instances: [boite] })[1].mode, 'api');
+  const arrete = ok(K.arreter(boite, 'volontaire', ctx())).instance;
+  assert.equal(K.planDExecution('devis', api, 'm1', e, { instances: [arrete] })[1].mode, 'local');
+});
+
+dit('une source du moteur actuel nourrit le SI : une réponse de formulaire qui parle de devis prend ALORS', () => {
+  const f = { ...DEVIS_PAR_COURRIEL, quand: { id: 'q', mode: 'local', type: 'formulaire-repondu', parametres: {} } };
+  const [source] = MOTEUR_H20.sourcesPour('formAnswer', SOURCES_VIDES, LIBELLES);
+  const plan = K.planDExecution('rf', f, source.id, K.evenementDepuisSource('formAnswer', source, MAINTENANT), { instances: [] });
+  assert.equal(plan[0].branche, 'alors');
+});
+
+dit('une règle abîmée est signalée : « flux » sans flux rangé, déclencheur ou état incohérents', () => {
+  assert.equal(K.defautsDeLAutomation('x', { ...ANCIENNES[0], trigger: 'flux' }).length, 1);
+  const r = K.versAutomation(DEVIS_PAR_COURRIEL, AUJ, '');
+  assert.ok(K.defautsDeLAutomation('devis-courriel', { ...r, trigger: 'formAnswer' }).length > 0);
+  assert.ok(K.defautsDeLAutomation('devis-courriel', { ...r, enabled: false }).length > 0);
+  assert.ok(K.defautsDeLAutomation('devis-courriel', { ...r, flux: { ...r.flux, format: 3 } }).length > 0);
+  assert.throws(() => K.depuisAutomation('x', '', { ...ANCIENNES[0], trigger: 'flux' }));
 });
 
 /* ──────────────────────────── Moteurs locaux ──────────────────────────── */
@@ -838,7 +970,8 @@ function clesSensibles(v: unknown, chemin = '$'): string[] {
 
 dit('aucun champ ne ressemble à un secret : catalogue, prises, devis, journal, flux, demandes à amn-api', () => {
   const { fini, apres, devis } = activerJusquAuBout(K.instanceLibre('sms', 'twilio', 8), 2000);
-  const tout = { catalogue: K.CATALOGUE, baie: BAIE, fini, apres, devis, flux: DEVIS_PAR_COURRIEL, amn: K.DEMANDES_AMN_API, releves: K.RELEVES };
+  const regle = K.versAutomation(K.basculerFlux(DEVIS_PAR_COURRIEL, 'api'), AUJ, '');
+  const tout = { catalogue: K.CATALOGUE, baie: BAIE, fini, apres, devis, flux: DEVIS_PAR_COURRIEL, regle, amn: K.DEMANDES_AMN_API, releves: K.RELEVES };
   assert.deepEqual(clesSensibles(tout), []);
 });
 

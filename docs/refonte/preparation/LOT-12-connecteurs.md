@@ -6,7 +6,7 @@
 
 ## 1. En bref
 
-- **Livré** : `src/refonte/connecteurs/` (le modèle et les moteurs locaux, purs, sans React ni réseau) et `scripts/check-connecteurs.ts` (`npm run check:connecteurs`, **85 contrôles**, ajouté à `editions.yml`).
+- **Livré** : `src/refonte/connecteurs/` (le modèle et les moteurs locaux, purs, sans React ni réseau) et `scripts/check-connecteurs.ts` (`npm run check:connecteurs`, **93 contrôles**, ajouté à `editions.yml`).
 - **Aucun écran** : H21 reste à LOT-07 (S6), DEV-couts et DEV-editeur à LOT-11 (S8). Ils lisent ce module.
 - **Local d'abord** : chacune des 14 catégories du §4 a une version locale ; un connecteur arrêté rend la main au local (`modeDeCategorie`), l'écran reste utilisable.
 - **Jamais deviné** : aucun tarif n'est écrit. Tous les services sont « à relever » ; tant qu'un tarif n'est pas relevé (source https + date), le connecteur **ne peut pas s'activer**. Le relevé se fait dans `tarifs.ts`, au moment de construire H21.
@@ -22,7 +22,8 @@
 | `cycle.ts` | Activer, autoriser, arrêter, reconnecter ; `PARCOURS` (3 clics au plus) ; `modeEffectif`, `modeDeCategorie` ; `defautsDePrise`. |
 | `baie.ts` | Les règles de H21 : état de prise, santé, badge, puces, droits accordés, dernière erreur, « il y a ». |
 | `couts.ts` | Les règles de DEV-couts : part locale, payé, plafond (80 % puis arrêt), coût d'un tarif, « si tout passait par des API », projection, six mois, pastilles. |
-| `flux.ts` | Le format des blocs Quand / Si / Alors (DEV-editeur), mode Local ou API par bloc, validation, essai, pont avec `useAutomations`. |
+| `flux.ts` | Le format des blocs Quand / Si / Alors (DEV-editeur), mode Local ou API par bloc, validation, essai. |
+| `automatisations.ts` | Le flux rangé dans une règle du moteur H20 (branches Sinon et Puis), conversion dans les deux sens, plan d'exécution pour le moteur étendu. |
 | `moteurs/` | `temps` (heure de Paris), `planificateur` (+ plages calmes), `courriels`, `relances`, `rappels`, `tri`, `rapports`, `sauvegardes`. |
 | `amnApi.ts` | La liste « Demandé à amn-api ». |
 | `adaptateurs.ts` | Le jeu `connecteurs` de SIM traduit en prises. |
@@ -97,7 +98,35 @@ La baie d'exemple de la fiche (8 branchées dont Gmail à reconnecter, 2 libres 
 
 **DEV-editeur** : un flux s'écrit `{ quand, si, alors[], sinon[] }` ; le premier bloc d'une branche s'affiche ALORS ou SINON, les suivants PUIS (`roleAffiche`). Chaque bloc a un mode `local` ou `api` ; `modeEffectifBloc` repasse en local quand le service est arrêté (un flux ne casse jamais), `basculerFlux` répond à « Tu peux changer à tout moment », `essayer` donne le résultat de « Tester » sans rien faire, `defautsDuFlux` nomme ce qui manque. Le flux de la maquette (« Demande de devis par courriel ») est valide et rejoué.
 
-**Pont avec l'existant** : `depuisAutomation` lit chaque automatisation de `useAutomations` en flux, et `versAutomation` rend un flux simple exécutable dès aujourd'hui par `AutomationsRunner` (aller-retour vérifié sur les 5 déclencheurs × 2 actions).
+**Pas de moteur à part** (décision du CO) : un flux s'enregistre comme une règle du moteur d'automatisation existant (H20). Voir §5 bis.
+
+## 5 bis. Branches Sinon et Puis dans le moteur H20 (`automatisations.ts`)
+
+**Format.** Une règle de la collection `automations` reste une `AutomationData`, avec un champ facultatif en plus :
+
+```
+{ trigger, action, enabled, assigneeEmail, createdAt }        ← l'existant, inchangé
++ flux?: { format: 2, nom, etat, quand, si, alors[], sinon[] }  ← l'extension
+```
+
+`alors[0]` est le bloc ALORS, les suivants sont des PUIS ; `sinon[0]` est SINON, les suivants des PUIS. Chaque bloc garde son mode `local` ou `api`. Aucun bloc ne porte d'accès (une boîte « contact@ », un modèle, un dossier).
+
+**Convertible dans les deux sens, sans perte** (vérifié) :
+- `depuisAutomation(id, nomParDefaut, regle)` lit toute règle, ancienne ou étendue ;
+- `versAutomation(flux, createdAt, nomParDefaut)` écrit la règle. Si l'ancienne forme suffit à redonner exactement le flux, elle est écrite **telle quelle** : une règle existante relue puis réécrite revient à l'identique (10 cas sur 10), rien à migrer. Sinon, `flux` est ajouté (nom choisi, réglage d'étape, bloc en API, PUIS, SI, SINON, brouillon : tous relus à l'identique après passage par JSON) ;
+- un flux actif invalide ne s'enregistre pas ; un brouillon, si.
+
+**Sans danger pour le moteur actuel, avant son extension.** La règle garde son vrai `trigger` seulement si le moteur actuel exécute **tout** le flux (déclencheur existant, une action « tâche » ou « journal », en local, sans SI). Sinon `trigger` vaut `'flux'`, et le moteur actuel n'en fait rien (`sourcesPour` rend `[]`) au lieu d'exécuter un ALORS en ignorant son SI. La garde le vérifie sur le **vrai** `useAutomations.ts` du dépôt, chargé avec React et la synchronisation remplacés par des bouchons.
+
+**Identifiants des étapes** (`idDEtape`) : le premier ALORS garde l'identifiant historique `auto-<règle>-<source>` ; puis `-p1`, `-p2`… ; SINON `-sinon`, puis `-sinon-p1`… Ajouter un PUIS à une règle qui tourne ne refait pas ce qu'elle a déjà fait.
+
+**Ce que le moteur étendu appelle** : `planDExecution(regleId, flux, sourceId, evenement, { instances })` rend les étapes de la branche choisie, dans l'ordre, avec leur identifiant et leur mode réel (un bloc API dont le service est arrêté passe en local). `evenementDepuisSource` fait d'une `Source` de `sourcesPour` l'événement que lit le SI. `defautsDeLAutomation` signale une règle abîmée.
+
+**Pour S6 (intégration à H20) :**
+1. `useAutomations` et `AutomationsRunner` sont aussi montés par l'édition cliente (`BusinessLayout`). Ils ne doivent pas importer `src/refonte/**` : passer par une couture `@edition/*` (jumeau `.business` vide), ou le CO déplace `automatisations.ts` et `flux.ts` (purs, sans dépendance) vers un endroit neutre. **Question au CO.**
+2. Élargir le type `trigger` à `'flux'` ; pour une règle `'flux'`, H20 affiche `flux.nom` au lieu du libellé du déclencheur.
+3. Les nouvelles actions (créer le contact, répondre, classer, prévenir…) écrivent ailleurs que `tasks` et `logbook` : `useAutomationsParRegle` devra les compter.
+4. `Source` n'a ni montant ni expéditeur : un SI « montant » ou « expéditeur connu » sur un déclencheur existant attend ces champs.
 
 ## 6. Les moteurs locaux
 
@@ -143,8 +172,9 @@ Même liste dans `amnApi.ts`. Rien de ceci n'est contourné dans ce dépôt.
 1. **Notion et Webhooks** (prises d'exemple de H21) n'ont pas de catégorie au §4. Proposition : Webhooks = la brique « événements reçus » d'amn-api, affichée comme prise « chez nous » ; Notion = « Demander un connecteur » tant que le §4 ne l'ajoute pas.
 2. **Prise arrêtée** : H21 dessine « libre » mais pas « arrêtée ». Proposition : même dessin que libre, avec « arrêtée le … » à la place de « libre, à brancher ».
 3. **Valeurs par défaut** à valider par Harun : plage clients (lun.–ven. 08:00–19:00), plage équipe (07:30–21:00), 7 jours entre relances, 30 courriels par heure, rotation 7 / 4 / 6, seuil de suggestion à 70 % du forfait.
-4. **Section LOT-12 dans `STATUT.md` § 7** : elle n'existe pas (le lot n'a pas d'écran). Je n'y ai pas touché ; au CO de dire s'il en faut une.
+4. **Couture pour le moteur H20** : voir §5 bis, point 1.
+5. **Section LOT-12 dans `STATUT.md` § 7** : elle n'existe pas (le lot n'a pas d'écran). Je n'y ai pas touché ; au CO de dire s'il en faut une.
 
 ## 10. Gardes
 
-`typecheck`, `typecheck:business`, `lint`, `check:donnees`, `check:connecteurs` (85), plus `check:accueils`, `check:socle`, `check:moments` : verts (détail dans `docs/refonte/rapports/S9-connecteurs.md`).
+`typecheck`, `typecheck:business`, `lint`, `check:donnees`, `check:connecteurs` (93), plus `check:accueils`, `check:socle`, `check:moments` : verts (détail dans `docs/refonte/rapports/S9-connecteurs.md`).
