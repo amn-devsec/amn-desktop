@@ -387,3 +387,14 @@ Un écran qui envoie aux Paramètres passe la rubrique dans l'état de navigatio
 - **C-001** : le socle quitte `src/index.css` pour `src/socle/theme.css`, par la couture `@edition/socle-theme.css`.
 - **D02** : le chiffre rouge d'Alertes suit le drapeau `critique` du registre (sur l'entrée ou une vue), que S5 pose ; tant qu'il n'est pas posé, D02 ne change pas.
 - **Tuiles** : `vers` et `onClick` exclusifs (`CibleTuile`), `onAjouter` et `versAjouter` aussi (`AjoutGroupe`).
+
+## Mise à jour — v4 : deux couleurs par famille (2026-11-12)
+
+`06-V4-NEON-ET-TUTOIEMENT.md` l'emporte sur `01-SOCLE-DESIGN.md`. Chaque famille a deux couleurs, **a** (principal) et **b** (second) : jetons `--socle-fam-<famille>-a` / `-b` de `src/socle/noir.css`, pour les onze familles de `FAMILLES_COULEUR` (`src/socle/familles.ts`) : les sept, `garde`, `cyber` (ses propres couleurs, distinctes de La Garde), `developpement` (LOT-11 ; absent de `couleurs-familles.json`, pris dans le tableau de 06) et `systeme` (connexion, modules : la paire « brand »).
+
+- **Lire, jamais écrire** : un écran lit `var(--fam-a)` et `var(--fam-b)`. Aucun lot n'écrit une de ces couleurs à la main.
+- **La coquille pose la famille active** sur sa racine (`data-famille-active`, prop `famille` de `Coquille`) : Cyber sur ses écrans, la famille de la barre (ou celle que la page déclare par `usePageCoquille`), sinon Système (`familleDeCouleur`). Toute la coquille, barre et contenu, reçoit sa paire.
+- **Un bloc qui dit sa famille** (`data-famille="argent"`) pose la sienne pour ce qu'il contient.
+- **Par défaut** (hors coquille, page sans famille) : la paire de Système, posée sur la racine noire.
+- Une famille ajoutée (LOT-11) prend l'identifiant `developpement` au registre pour recevoir ses couleurs.
+- Les règles de rendu de 06 § 3 (dégradés, lueurs, barre latérale active…) lisent ces jetons ; elles ne sont pas encore posées.

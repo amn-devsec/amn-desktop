@@ -30,6 +30,7 @@
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import '../../src/refonte/accueil/Ambiance';
+import { familleDeCouleur } from '../../src/socle/familles';
 import { BarreAjmani, BarreLaterale, Coquille, EnTete, type EtatGarde, type FamilleLaterale, type MiettePain, type ModuleLateral } from '../../src/socle/coquille';
 import type { CarteAujourdhui } from '../../src/socle/coquille/types';
 import type { Famille } from '../../src/socle/familles';
@@ -237,6 +238,7 @@ export function ApercuBureau({
       <div style={{ width: 1440, height: 900, overflow: 'hidden' }}>
         <Coquille
           largeur={largeur}
+          famille={familleDeCouleur(famille === 'cyber', famille)}
           tiroirOuvert={false}
           onFermerTiroir={rien}
           lateral={

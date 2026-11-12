@@ -80,6 +80,35 @@
   /* La Garde et la supervision : l'icône bouclier, jamais une pastille (01-SOCLE-DESIGN §1). */
   --socle-fam-garde: #d6d6da;
 
+  /* ── v4 (06-V4-NEON §1) : deux couleurs par famille, a (principal) et b (second), pour les onze familles ──
+     Valeurs de `_data/couleurs-familles.json` du dossier v4 ; Développement (absent du fichier) d'après le tableau de 06 ;
+     Système (connexion, modules) = la paire « brand ». Cyber a ses propres couleurs, distinctes de La Garde. La coquille
+     pose la paire de la famille active en `--fam-a` / `--fam-b` (plus bas) ; par défaut, celle de Système. */
+  --socle-fam-jour-a: #6ea8ff;
+  --socle-fam-jour-b: #a58bff;
+  --socle-fam-contacts-a: #4fe3c1;
+  --socle-fam-contacts-b: #6ea8ff;
+  --socle-fam-ecrire-a: #a58bff;
+  --socle-fam-ecrire-b: #f08bd6;
+  --socle-fam-argent-a: #5ee6a8;
+  --socle-fam-argent-b: #ffd166;
+  --socle-fam-echanger-a: #ff7eb6;
+  --socle-fam-echanger-b: #a58bff;
+  --socle-fam-creer-a: #ffa463;
+  --socle-fam-creer-b: #ff6b7a;
+  --socle-fam-outils-a: #7cc4ff;
+  --socle-fam-outils-b: #a58bff;
+  --socle-fam-garde-a: #5ee6a8;
+  --socle-fam-garde-b: #6ea8ff;
+  --socle-fam-cyber-a: #ff6b7a;
+  --socle-fam-cyber-b: #a58bff;
+  --socle-fam-developpement-a: #6ea8ff;
+  --socle-fam-developpement-b: #5ee6a8;
+  --socle-fam-systeme-a: #a58bff;
+  --socle-fam-systeme-b: #6ea8ff;
+  --fam-a: var(--socle-fam-systeme-a);
+  --fam-b: var(--socle-fam-systeme-b);
+
   /* ── États ── */
   --socle-etat-succes: #8fbf7a;
   --socle-etat-attention: #e0b35a;
@@ -282,6 +311,24 @@
   --color-etat-info-fond: color-mix(in srgb, var(--color-etat-info) 14%, transparent);
   --color-etat-info-bord: color-mix(in srgb, var(--color-etat-info) 40%, transparent);
 }
+
+/*
+  LA PAIRE DE COULEURS DE LA FAMILLE (v4, 06-V4-NEON §1) — `--fam-a` / `--fam-b`, que les briques lisent.
+  La coquille pose la famille active sur sa racine (`data-famille-active`, `Coquille`) ; un bloc qui dit sa famille
+  (`data-famille`) pose la sienne pour ce qu'il contient. Ailleurs : la paire de Système, posée sur la racine.
+  Aucun lot n'écrit une de ces couleurs à la main : il lit `var(--fam-a)` et `var(--fam-b)`.
+*/
+:root[data-ambiance='noir'] :is([data-famille-active='jour'], [data-famille='jour']) { --fam-a: var(--socle-fam-jour-a); --fam-b: var(--socle-fam-jour-b); }
+:root[data-ambiance='noir'] :is([data-famille-active='contacts'], [data-famille='contacts']) { --fam-a: var(--socle-fam-contacts-a); --fam-b: var(--socle-fam-contacts-b); }
+:root[data-ambiance='noir'] :is([data-famille-active='ecrire'], [data-famille='ecrire']) { --fam-a: var(--socle-fam-ecrire-a); --fam-b: var(--socle-fam-ecrire-b); }
+:root[data-ambiance='noir'] :is([data-famille-active='argent'], [data-famille='argent']) { --fam-a: var(--socle-fam-argent-a); --fam-b: var(--socle-fam-argent-b); }
+:root[data-ambiance='noir'] :is([data-famille-active='echanger'], [data-famille='echanger']) { --fam-a: var(--socle-fam-echanger-a); --fam-b: var(--socle-fam-echanger-b); }
+:root[data-ambiance='noir'] :is([data-famille-active='creer'], [data-famille='creer']) { --fam-a: var(--socle-fam-creer-a); --fam-b: var(--socle-fam-creer-b); }
+:root[data-ambiance='noir'] :is([data-famille-active='outils'], [data-famille='outils']) { --fam-a: var(--socle-fam-outils-a); --fam-b: var(--socle-fam-outils-b); }
+:root[data-ambiance='noir'] :is([data-famille-active='garde'], [data-famille='garde']) { --fam-a: var(--socle-fam-garde-a); --fam-b: var(--socle-fam-garde-b); }
+:root[data-ambiance='noir'] :is([data-famille-active='cyber'], [data-famille='cyber']) { --fam-a: var(--socle-fam-cyber-a); --fam-b: var(--socle-fam-cyber-b); }
+:root[data-ambiance='noir'] :is([data-famille-active='developpement'], [data-famille='developpement']) { --fam-a: var(--socle-fam-developpement-a); --fam-b: var(--socle-fam-developpement-b); }
+:root[data-ambiance='noir'] :is([data-famille-active='systeme'], [data-famille='systeme']) { --fam-a: var(--socle-fam-systeme-a); --fam-b: var(--socle-fam-systeme-b); }
 
 /*
   LES CHIFFRES TABULAIRES, SUR LES NOMBRES SEULEMENT (§2 ; écart C11 du LOT-00).

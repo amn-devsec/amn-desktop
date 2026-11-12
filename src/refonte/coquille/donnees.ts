@@ -11,6 +11,7 @@ import type { NavItem } from '../../data/navigation';
 import { cheminLePlusPrecis } from '../../lib/cheminCourant';
 import type { AttentionItem } from '../../lib/attention';
 import { traduireSocle } from '../../socle/i18n';
+import { familleDeCouleur, type FamilleCouleur } from '../../socle/familles';
 import type { FamilleLaterale, ModuleLateral, MiettePain, PersonneEnLigne } from '../../socle/coquille';
 import { REGISTRE_MODULES, vueDuRegistre } from '../modules/registre';
 import type { Libelle } from '../modules/declarer';
@@ -69,7 +70,10 @@ export interface DonneesCoquille {
   catalogue: NavItem[];
   /** Ce qui attend, par adresse de module (la source des pastilles de la barre latérale). */
   compteurs: Record<string, number>;
+  /** La famille dont la coquille pose les couleurs (v4, `--fam-a` / `--fam-b`) : Cyber, la famille active, sinon Système. */
+  familleCouleur: FamilleCouleur;
 }
+
 
 /** Où mène Cyber : l'accueil du bureau Cyber (ses écrans vivent dans la coquille de son bureau). */
 export const ROUTE_CYBER = '/cyber';
@@ -208,6 +212,7 @@ export function useDonneesCoquille(pathname: string, pageDeclaree: PageCoquille 
     );
 
     return {
+      familleCouleur: familleDeCouleur(surCyber, familleActive?.lateral.cle ?? page?.famille),
       familles,
       garde: gardeFam,
       cyber,

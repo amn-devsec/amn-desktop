@@ -122,6 +122,7 @@ export function CoquilleRefonte({ children, largeur = 'lecture' }: { children?: 
         tiroirOuvert={tiroir}
         onFermerTiroir={() => setTiroir(false)}
         lateralRepliee={repliee}
+        famille={donnees.familleCouleur}
         lateral={
           <BarreLaterale
             produit={EDITION_PRODUCT_NAME}

@@ -416,6 +416,27 @@ await dit('noir.css : les jetons validés par la direction de design, valeur pou
   assert.match(noir, /--socle-halo:\s*radial-gradient\(1000px 520px at 85% -10%, rgba\(255, 255, 255, 0\.045\), transparent 70%\)/);
 });
 
+await dit('v4 (06-V4 §1) : deux couleurs par famille pour les onze familles, valeur pour valeur ; Cyber distinct de La Garde ; la coquille et chaque bloc posent leur paire en --fam-a / --fam-b, Système par défaut', () => {
+  // Le tableau de 06-V4-NEON §1 (et `_data/couleurs-familles.json` ; Développement, absent du fichier, d'après le tableau).
+  const PAIRES: Record<string, [string, string]> = {
+    jour: ['#6ea8ff', '#a58bff'], contacts: ['#4fe3c1', '#6ea8ff'], ecrire: ['#a58bff', '#f08bd6'], argent: ['#5ee6a8', '#ffd166'],
+    echanger: ['#ff7eb6', '#a58bff'], creer: ['#ffa463', '#ff6b7a'], outils: ['#7cc4ff', '#a58bff'], garde: ['#5ee6a8', '#6ea8ff'],
+    cyber: ['#ff6b7a', '#a58bff'], developpement: ['#6ea8ff', '#5ee6a8'], systeme: ['#a58bff', '#6ea8ff'],
+  };
+  const familles = lireSrc('src/socle/familles.ts');
+  assert.match(familles, /export const FAMILLES_COULEUR = \[\.\.\.FAMILLES, 'garde', 'cyber', 'developpement', 'systeme'\] as const;/, 'les onze familles de couleur');
+  for (const [f, [a, b]] of Object.entries(PAIRES)) {
+    assert.equal(brut(`--socle-fam-${f}-a`), a, `--socle-fam-${f}-a`);
+    assert.equal(brut(`--socle-fam-${f}-b`), b, `--socle-fam-${f}-b`);
+    assert.ok(noir.includes(`:root[data-ambiance='noir'] :is([data-famille-active='${f}'], [data-famille='${f}']) { --fam-a: var(--socle-fam-${f}-a); --fam-b: var(--socle-fam-${f}-b); }`), `${f} : la coquille et un bloc posent sa paire`);
+  }
+  assert.notDeepEqual(PAIRES.cyber, PAIRES.garde, 'Cyber a ses propres couleurs');
+  // Par défaut (pages sans famille, hors coquille) : la paire de Système, posée sur la racine noire.
+  const racine = /:root\[data-ambiance='noir'\] \{([\s\S]*?)\n\}/.exec(sansCommentaires(noir))?.[1] ?? '';
+  assert.match(racine, /\n\s*--fam-a: var\(--socle-fam-systeme-a\);\s*\n\s*--fam-b: var\(--socle-fam-systeme-b\);/, 'par défaut : la paire de Système');
+  assert.equal([...noir.matchAll(/--socle-fam-[a-z]+-[ab]:\s*#/g)].length, 22, 'onze paires, pas une de plus');
+});
+
 await dit('noir.css : les noms du socle S0 disent la même chose que les jetons bruts', () => {
   const paires: [string, string][] = [
     ['--color-socle-fond', '--socle-fond-page'], ['--color-bg', '--socle-fond-page'], ['--color-socle-surface', '--socle-carte-bas'], ['--color-socle-eleve', '--socle-carte-haut'], ['--color-socle-bord', '--socle-bord-carte'],

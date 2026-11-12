@@ -1,4 +1,5 @@
 import React from 'react';
+import type { FamilleCouleur } from '../familles';
 import { useSocleLangue } from '../i18n';
 
 /**
@@ -22,12 +23,14 @@ export interface CoquilleProps {
   onFermerTiroir: () => void;
   /** La barre latérale est repliée (son bouton « panneau ») : le contenu prend toute la largeur. */
   lateralRepliee?: boolean;
+  /** La famille active (v4) : sa paire de couleurs devient `--fam-a` / `--fam-b` pour toute la coquille. Défaut : Système. */
+  famille?: FamilleCouleur;
 }
 
-export function Coquille({ lateral, entete, ajmani, children, largeur = 'lecture', tiroirOuvert, onFermerTiroir, lateralRepliee = false }: CoquilleProps) {
+export function Coquille({ lateral, entete, ajmani, children, largeur = 'lecture', tiroirOuvert, onFermerTiroir, lateralRepliee = false, famille = 'systeme' }: CoquilleProps) {
   const { ts } = useSocleLangue();
   return (
-    <div data-socle="coquille" data-espace-racine data-espace="poste" data-repliee={lateralRepliee || undefined} className="sc-coquille">
+    <div data-socle="coquille" data-espace-racine data-espace="poste" data-repliee={lateralRepliee || undefined} data-famille-active={famille} className="sc-coquille">
       <a href="#sc-principal" className="sc-evitement" onClick={(e) => { e.preventDefault(); document.getElementById('sc-principal')?.focus(); }}>
         {ts('coquille.evitement')}
       </a>

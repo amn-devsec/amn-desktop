@@ -26,12 +26,14 @@ const K = await chargerRendu<Record<string, any>>( // eslint-disable-line @types
     "import { raccourciAffiche } from '../src/refonte/coquille/touche';",
     "import { delaiAvant, calculerAujourdhui } from '../src/refonte/coquille/aujourdhui';",
     "import { routeEnsemble, ensembleGenerique, PREFIXE_ENSEMBLE } from '../src/refonte/systeme/ensemble';",
+    "import { Coquille } from '../src/socle/coquille/Coquille';",
+    "import { familleDeCouleur, FAMILLES_COULEUR } from '../src/socle/familles';",
   ].join('\n'),
   [
     'BarreLaterale', 'lienAutres', 'ICONES_FAMILLE', 'EPINGLES_MONTRES', 'COLLEGUES_MONTRES', 'EnTete', 'BarreAjmani',
     'choisirLesVisibles', 'placesDeModules', 'MODULES_VISIBLES', 'choisirEpingles', 'EPINGLES_BARRE', 'construireFil',
     'pageSysteme', 'motsPagesSysteme', 'libellePageSysteme', 'libelleDuLieu', 'raccourciAffiche', 'delaiAvant', 'calculerAujourdhui',
-    'routeEnsemble', 'ensembleGenerique', 'PREFIXE_ENSEMBLE',
+    'routeEnsemble', 'ensembleGenerique', 'PREFIXE_ENSEMBLE', 'Coquille', 'familleDeCouleur', 'FAMILLES_COULEUR',
   ],
 );
 const { h, rendre } = K;
@@ -521,6 +523,20 @@ type ModuleCompteurs = {
   declarerCompteurs: (d: unknown) => unknown;
   verifierDeclaration: (v: unknown) => string | null;
 };
+
+await dit('v4 : la coquille pose la famille active (data-famille-active) — Cyber sur ses écrans, la famille de la barre ou de la page, sinon Système — et ses couleurs deviennent --fam-a / --fam-b', () => {
+  assert.equal(K.FAMILLES_COULEUR.length, 11);
+  assert.equal(K.familleDeCouleur(true, 'garde'), 'cyber', 'Cyber l’emporte sur ses écrans (ses propres couleurs)');
+  for (const f of ['jour', 'contacts', 'ecrire', 'argent', 'echanger', 'creer', 'outils', 'garde', 'developpement']) assert.equal(K.familleDeCouleur(false, f), f);
+  for (const f of [null, undefined, '', 'inconnue', 'tous-les-modules']) assert.equal(K.familleDeCouleur(false, f), 'systeme', `${String(f)} → Système`);
+  const rendu = (extra: Record<string, unknown> = {}) => rendre(h(K.Coquille, { lateral: null, entete: null, ajmani: null, tiroirOuvert: false, onFermerTiroir: () => undefined, ...extra }, 'x'));
+  assert.match(rendu(), /^<div data-socle="coquille"[^>]* data-famille-active="systeme" class="sc-coquille">/, 'par défaut : Système');
+  assert.match(rendu({ famille: 'cyber' }), /data-famille-active="cyber"/);
+  const donnees = sansCommentaires(lire('src/refonte/coquille/donnees.ts'));
+  assert.match(donnees, /familleCouleur: familleDeCouleur\(surCyber, familleActive\?\.lateral\.cle \?\? page\?\.famille\),/, 'la coquille calcule la famille de couleur');
+  assert.match(lire('src/refonte/coquille/CoquilleRefonte.tsx'), /famille=\{donnees\.familleCouleur\}/, 'et la pose sur sa racine');
+  assert.match(lire('scripts/apercu/coquille.tsx'), /famille=\{familleDeCouleur\(famille === 'cyber', famille\)\}/, 'l’aperçu aussi');
+});
 
 await dit('compteurs déclarables : ramassés seuls dans src/refonte/compteurs (glob de Vite, repli vide sous esbuild), dans l’ordre des chemins ; jour.ts porte les compteurs d’avant à l’horloge de la minute, cyber.ts celui de Cyber', async () => {
   const sans = await charger<ModuleCompteurs>('src/refonte/coquille/compteurs.ts');
