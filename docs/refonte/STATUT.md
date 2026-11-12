@@ -3,7 +3,7 @@
 > Tenu par le CO. Une session ne modifie que **la section de son lot** dans « 7. Écrans » (une ligne par écran) ; tout le reste est au CO. Règles : [`REGLES.md`](REGLES.md).
 
 - Branche d'intégration : **`claude/refonte-vivante`** (décision du 31 oct., §1.1). Base `main` @ `630ef45`.
-- Dernière mise à jour : 2026-11-12, soir. Seuils de LOT-14 : §1.20. LOT-07 : réglage confirmé. amn-api : Harun, Mohamed suppléant. Dépôt dans `amn-devsec`, toujours public. Reprise après 18h : §1.18.
+- Dernière mise à jour : 2026-11-12, soir. Modules de F1 choisis : §1.21. Seuils de LOT-14 : §1.20. LOT-07 : réglage confirmé. amn-api : Harun, Mohamed suppléant. Reprise après 18h : §1.18.
 - LOT-00 (socle v2) est fusionné (`488cdcc`), avec les 4 commits de S5. **Le socle v3 s'y ajoute avant la construction visuelle des lots** (S0 a ses consignes). D'ici là, chaque lot prépare et construit sa logique : §5.
 - Fusionnés aussi le 1er nov. : T1 (API d'essai, bac à sable, contrôle de fidélité) et les données fictives de SIM (100 jeux, `4fe559b`), avec `check:donnees` en CI (87 contrôles).
 - Gardes locales sur `refonte-vivante` : `typecheck`, `typecheck:business`, `lint` et les 55 contrôles sans navigateur de `editions.yml` verts.
@@ -458,6 +458,18 @@ Où l'on mesure :
 
 Les points faibles d'amn-api que ces essais révèlent vont à Harun et Mohamed, et leur détail reste hors du dépôt public.
 
+### 1.21 Modules de F1 choisis par Harun (12 nov.)
+
+**Intégrés en premier** : `tauxHoraire` (Taux horaire de revient), `echeancier` (Paiement en plusieurs fois), `comparateurDevis` (Comparateur de devis). Les trois sont « prêts à intégrer », sans condition (`docs/atelier/PRET.md` @ `59056ad`). **Le Rétroplanning et les dix autres attendent.** `bonsCadeaux` reste bloqué.
+
+Comment ça se passe (procédure [`INTEGRATION-F1.md`](INTEGRATION-F1.md), adoptée) :
+1. F1 écrit le choix et sa date dans `PRET.md`, et applique le correctif C-003 de T1 (`docs/qualite/constats/C-003-verifier-f1.patch`).
+2. **Après la fusion du socle v4**, F1 repart de la dernière `refonte-vivante` et met les trois modules au socle v4 : néon de leur famille (`--fam-a` / `--fam-b`), tutoiement, briques du socle. Pour chacun, une ligne dans le registre de S5 et une route dans `appRoot.internal.tsx`, rien d'autre hors de `src/ateliers/**`.
+3. T1 teste les trois modules sur le même sha, en une seule passe.
+4. Le CO relit et fusionne **un commit `--no-ff` par module**, pour pouvoir retirer chacun seul.
+
+Édition interne seulement : rien côté édition cliente. Réglage de F1 : Sonnet 5.5, effort élevé. Ordre de lancement : avec S2 et S3, après la fusion du socle v4.
+
 ## 2. Les lots
 
 Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en parallèle, une branche chacun ; **LOT-09 en dernier**. Les chiffres viennent de `03-INDEX.md` : 9 + 16 + 13 + 9 + 17 + 10 + 15 + 16 + 12 + 11 + 14 = **142**. (Le tableau du fichier 00 compte G05 dans LOT-05 ; l'index et les prompts le rangent dans LOT-00. Le CO suit l'index.)
@@ -510,7 +522,7 @@ Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en para
 | S5 | `claude/refonte-s5-modules` | fusionnée, y compris les 4 commits postérieurs (`5410081`) | `b82e50f` | [`rapports/S5.md`](rapports/S5.md) | Prend LOT-03 puis LOT-05 |
 | S6 | `claude/refonte-sec-*` | phase 1 en cours, privée. **Ne pas fusionner sans décision de Harun.** | — | `docs/securite/**`, hors dépôt | Prend LOT-07 puis LOT-10 |
 | S7 | `claude/refonte-creer` | **à créer** | — | — | LOT-06 |
-| F1 | `claude/refonte-atelier-f1` | prête, non fusionnée, rien de branché | `59056ad` | `docs/atelier/PRET.md` | C-003 à appliquer ; [`INTEGRATION-F1.md`](INTEGRATION-F1.md) à valider |
+| F1 | `claude/refonte-atelier-f1` | prête, non fusionnée, rien de branché | `59056ad` | `docs/atelier/PRET.md` | C-003 à appliquer ; 3 modules choisis (§1.21), à intégrer après le socle v4 |
 | T1 | `claude/refonte-qualite-t1`, `claude/refonte-qualite` | **les deux fusionnées** (`97929c1`, `3cc8dff`) | `51a962d`, `f2e243a` | [`../qualite/SANTE.md`](../qualite/SANTE.md) | Passage 2 à faire sur `refonte-vivante` |
 | SIM | `claude/refonte-donnees-fictives`, `claude/refonte-sim-bac-a-sable` | **données fusionnées** (`4fe559b`) + `check:donnees` en CI ; bac à sable non fusionné | `4fe559b`, `95d9765` | [`rapports/DONNEES.md`](rapports/DONNEES.md) | Suite : §1.11 |
 | G0 | — | retirée | — | — | — |
@@ -547,7 +559,7 @@ Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en para
 | **S6** | **oui** | Phase 1 sécurité (privée). Puis LOT-07 `claude/refonte-outils` et LOT-10 `claude/refonte-cyber`, dont les connecteurs de H21 (WhatsApp, SMS) qu'attendent G07 et H13 | fin de la phase 1 ; zips v3 de LOT-07 et LOT-10 ; socle v3 |
 | **T1** | **oui** | Passage 2 sur `refonte-vivante` (paquet client identique, gardes navigateur coquille éteinte puis allumée) ; adapter l'outil de fidélité aux images v3 (dates fictives du 30 oct. 10:42, mardi 3 nov. pour Cyber) | rien (images lot par lot) |
 | **SIM** | **oui, elle enchaîne** | (1) dates des jeux sur les images v3 (10 h 42 le 30 oct., mardi 3 nov. pour Cyber) ; (2) chargeur vers l'API d'essai, La Garde avec S3 ; (3) valeurs attendues des écrans calculés (H09, H04, G08, H25) ; (4) champs manquants signalés par les lots | rien |
-| **F1** | **oui** | Appliquer le correctif C-003 de T1 à son vérificateur ; poursuivre l'Atelier | ton choix des modules à intégrer |
+| **F1** | **après le socle v4** | Correctif C-003 ; intégrer `tauxHoraire`, `echeancier`, `comparateurDevis` (§1.21) | la fusion du socle v4 |
 | **S1 (LOT-09)** | après les lots 01 à 08 et 10 | LOT-09 `claude/refonte-mobile` (inchangé en v3) | — |
 
 **À lancer en premier après la fusion du socle v3**, par vagues (toutes les sessions ont leur zip v3 et leur note de préparation) :
@@ -559,7 +571,7 @@ Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en para
 
 **Prérequis des lots 01 à 10 : les 100 jeux de données, fusionnés (`4fe559b`).** Les lots y lisent `src/refonte/donnees/` ; il leur manque encore, côté données, le chargeur vers l'API et les attendus calculés (SIM, §1.11).
 
-Décisions prises par le CO, par délégation de Harun : les règles du §1.8, l'allumage de la coquille (§1.9), la procédure F1, l'entrée de `ModuleTile` dans le socle (§1.10). Restent à Harun : le choix des modules de F1, la constante « 12 organisations » de G06 (texte de la fiche par défaut), la création de S7.
+Décisions prises par le CO, par délégation de Harun : les règles du §1.8, l'allumage de la coquille (§1.9), la procédure F1, l'entrée de `ModuleTile` dans le socle (§1.10). Restent à Harun (le choix des modules de F1 est fait, §1.21) : la constante « 12 organisations » de G06 (texte de la fiche par défaut), la création de S7.
 
 **Fusion d'un lot** : relu par T1, paquet client identique, gardes vertes, éléments ludiques protégés présents (§1.10). Le CO fusionne dans `refonte-vivante`, jamais dans `main` ; Harun valide le passage dans `main`.
 
