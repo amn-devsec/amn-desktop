@@ -3,7 +3,7 @@
 > Tenu par le CO. Une session ne modifie que **la section de son lot** dans « 7. Écrans » (une ligne par écran) ; tout le reste est au CO. Règles : [`REGLES.md`](REGLES.md).
 
 - Branche d'intégration : **`claude/refonte-vivante`** (décision du 31 oct., §1.1). Base `main` @ `630ef45`.
-- Dernière mise à jour : 2026-11-12. **Aucune distribution** (ni équipe ni clients) : l'application tourne seulement en local sur le poste de Harun, sur données fictives ; serveur reporté, SRV en pause ; guide [`LANCER-EN-LOCAL.md`](LANCER-EN-LOCAL.md) : §1.16. Dossier v4 : §1.14.
+- Dernière mise à jour : 2026-11-12, soir. Fiches de LOT-11 (S8) fusionnées pour relecture de Harun, 7 points tranchés : §1.17. Aucune distribution, serveur reporté : §1.16.
 - LOT-00 (socle v2) est fusionné (`488cdcc`), avec les 4 commits de S5. **Le socle v3 s'y ajoute avant la construction visuelle des lots** (S0 a ses consignes). D'ici là, chaque lot prépare et construit sa logique : §5.
 - Fusionnés aussi le 1er nov. : T1 (API d'essai, bac à sable, contrôle de fidélité) et les données fictives de SIM (100 jeux, `4fe559b`), avec `check:donnees` en CI (87 contrôles).
 - Gardes locales sur `refonte-vivante` : `typecheck`, `typecheck:business`, `lint` et les 55 contrôles sans navigateur de `editions.yml` verts.
@@ -396,6 +396,22 @@ L'espace Cyber est couvert par LOT-10 et LOT-08 (correspondance au §3.1 du plan
 3. **S6 garde la phase 0, avec une seule priorité**, fixée par Harun et transmise en privé. Elle passe avant tout le reste de la phase 0 et avant la phase 1. Rien de cette priorité n'est décrit dans le dépôt.
 4. **Le guide « lancer AMN Business sur mon PC »** est prêt : [`LANCER-EN-LOCAL.md`](LANCER-EN-LOCAL.md). Il est à suivre quand le socle v4 est fusionné, avec la version web construite en local, l'API d'essai en mémoire et les données fictives. Il demande un dossier neuf, sans `.env`, et jamais `npm start`.
 5. Ce qui ne change pas : socle v4 (S0, puis T1, puis fusion), vague 1 (S2, S3), préparation des lots, S8, S9, SIM (son chargeur sert aux essais de Harun) et F1.
+
+### 1.17 Fiches de LOT-11 (S8, 12 nov.) : décisions du CO
+
+Les 7 fiches de l'espace Développement (`DEV-projets`, `DEV-deploiements`, `DEV-serveur`, `DEV-editeur`, `DEV-couts`, `DEV-modeles-sites`, et la proposition `DEV-ensemble`) sont fusionnées dans `refonte-vivante`, pour relecture par Harun : [`fiches/LOT-11/`](fiches/LOT-11/00-COMMUN.md). Rien ne se construit avant cette relecture et la fusion du socle v4.
+
+| # | Point soulevé par S8 | Décision |
+|---|---|---|
+| 1 | Barre latérale des images DEV (13 lignes dépliées, section « ESPACES DE TRAVAIL ») | **Socle §0.1 pour la sous-liste** : 5 lignes au plus, puis « + N autres ». **L'image pour la section** : « ESPACES DE TRAVAIL », juste au-dessus de « SURVEILLANCE », qui contient Développement. S0 la pose. |
+| 2 | 8e hub `/ensemble/developpement` | **Oui** : S0 l'ajoute aux hubs du socle (huit routes exactes au lieu de sept, §1.13 n° 5). |
+| 3 | Famille de `DEV-modeles-sites` | **Développement**, avec une seconde entrée possible dans Créer et produire. |
+| 4 | « Éditeur d'automatisation » (h1) ou « Éditeur de flux » (menu) | **« Éditeur de flux » partout**, comme le brief `07` et la liste de Harun. L'écart avec l'image est noté. |
+| 5 | `DEV-couts` : « 5 connecteurs sur 7 » pour 4 lignes « Local » | **Calculé** depuis les connecteurs réels, jamais repris de l'image (04-A n° 1). |
+| 6 | `DEV-deploiements` : total des étapes ≠ « 1 min 48 » ; cible « Interne » | Total **mesuré de bout en bout**. La cible « Interne » reste **inerte** : aucune distribution, aucun tag `v*`, aucune Release. |
+| 7 | `DEV-editeur` : branches Sinon / Puis | Une extension du format des blocs et du moteur local, **qui revient à S9** (LOT-12 tient le format Quand / Si / Alors). S6 relit, et H20 (LOT-07) s'appuie dessus. S8 construit l'écran sur ce format. |
+
+**Ajouté à la passe finale de S0** : la section « ESPACES DE TRAVAIL » de la barre latérale, et le hub `/ensemble/developpement`.
 
 ## 2. Les lots
 
