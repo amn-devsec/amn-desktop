@@ -153,6 +153,8 @@ jobs:
         run: npm run check:substitutions
       - name: Preuve statique d'isolement de l'édition cliente — graphe d'imports et texte du paquet
         run: npm run check:client-statique
+      - name: Espace Développement (LOT-11) — journal des exécutions, tâches planifiées locales, état des déploiements
+        run: npm run check:developpement
 
       - name: Contrôle de la file d'envoi
         run: npm run check:envoi
