@@ -114,7 +114,7 @@ export function partDuForfait(unites: number, inclus: number | undefined): numbe
   return Math.round((unites * 100) / inclus);
 }
 
-/** Ajmani propose de prévenir quand un forfait dépasse ce seuil (DEV-couts : « 72 % de ton forfait »). Proposition. */
+/** Ajmani propose de prévenir quand un forfait dépasse ce seuil (DEV-couts : « 72 % de ton forfait »). Valeur de départ, modifiable. */
 export const SEUIL_SUGGESTION_FORFAIT = 70;
 
 /** Les six derniers mois, du plus ancien au courant, les mois sans paiement à 0. `mois` = `AAAA-MM`. */

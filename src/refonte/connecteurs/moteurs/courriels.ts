@@ -101,7 +101,7 @@ export function decider(c: Courriel, ctx: ContexteEnvoi): Decision {
 
 /**
  * Pas plus de N courriels automatiques par heure depuis la boîte de l'équipe
- * (proposition : 30), pour ne pas la faire passer pour un envoi de masse.
+ * (valeur de départ : 30, modifiable), pour ne pas la faire passer pour un envoi de masse.
  * Rend ceux qui partent maintenant, dans l'ordre de la file.
  */
 export const MAX_PAR_HEURE = 30;

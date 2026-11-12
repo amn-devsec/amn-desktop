@@ -21,7 +21,7 @@ import type { CleConnecteurs } from './i18n';
 /** Une date du calendrier, `AAAA-MM-JJ`. */
 export type Jour = string;
 
-/** Les 14 catégories du §4 du plan, dans l'ordre du plan. */
+/** Les 14 catégories du §4 du plan, dans l'ordre du plan, puis « evenements » (Webhooks, STATUT §1.22). */
 export type CategorieId =
   | 'messagerie'
   | 'agenda'
@@ -36,7 +36,8 @@ export type CategorieId =
   | 'telephonie'
   | 'signature'
   | 'assistant'
-  | 'comptabilite';
+  | 'comptabilite'
+  | 'evenements';
 
 /** Où le travail se fait. `local` = sur le poste ou sur notre serveur, gratuit. */
 export type Mode = 'local' | 'externe';

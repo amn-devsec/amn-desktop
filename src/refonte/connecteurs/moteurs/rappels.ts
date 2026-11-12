@@ -3,7 +3,7 @@ import { dansLaPlage, dernierCreneau, PLAGE_CLIENTS, PLAGE_EQUIPE, type Plage } 
 /**
  * LES RAPPELS — rendez-vous et échéances, prévenus à l'avance.
  *
- * Par défaut (proposition, réglable) : le client la veille, l'équipe une heure
+ * Par défaut (valeur de départ, modifiable) : le client la veille, l'équipe une heure
  * avant. Un rappel client qui tomberait hors de la plage calme (la nuit, le
  * week-end) est AVANCÉ au dernier moment calme d'avant, jamais repoussé après
  * le rendez-vous. Un rappel d'équipe hors plage n'est pas avancé : il part à
@@ -49,6 +49,7 @@ export function rappelsDus(
   dejaPartis: ReadonlySet<string>,
   maintenant: number,
   regles: readonly RegleRappel[] = REGLES_PAR_DEFAUT,
+  plages: { clients: Plage; equipe: Plage } = { clients: PLAGE_CLIENTS, equipe: PLAGE_EQUIPE },
 ): Rappel[] {
   const r: Rappel[] = [];
   for (const rdv of rdvs) {
@@ -57,7 +58,7 @@ export function rappelsDus(
       if (regle.pour === 'client' && !rdv.clientJoignable) continue;
       const id = `rappel-${rdv.id}-${regle.avantMin}`;
       if (dejaPartis.has(id)) continue;
-      const prevuAt = heureDuRappel(rdv.debutAt, regle);
+      const prevuAt = heureDuRappel(rdv.debutAt, regle, plages);
       if (prevuAt <= maintenant) r.push({ id, rendezVousId: rdv.id, pour: regle.pour, prevuAt });
     }
   }
