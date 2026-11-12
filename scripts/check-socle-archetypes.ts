@@ -350,11 +350,12 @@ const tokenPx = (nom: string): number => {
   return Number(m[1]);
 };
 
-await dit('page : h1 28 px / 600 / -0,02 em / 1,1 ; sous-titre 13,5 px T4 marge 7 ; actions à 9 px, boutons de 31 px', () => {
+await dit('page (v4, 06 §3 règle 3) : h1 30 px / 700 / -0,03 em / 1,1, dégradé #FFF → b ; sous-titre 13,5 px T4 marge 7 ; actions à 9 px, boutons de 31 px', () => {
   const h1 = bloc('.sc-page__titre');
-  assert.match(h1, /font-size:\s*28px/);
-  assert.match(h1, /font-weight:\s*600/);
-  assert.match(h1, /letter-spacing:\s*-0\.02em/);
+  assert.match(h1, /font-size:\s*30px/);
+  assert.match(h1, /font-weight:\s*700/);
+  assert.match(h1, /letter-spacing:\s*-0\.03em/);
+  assert.match(h1, /background:\s*linear-gradient\(100deg, var\(--socle-blanc\) 30%, var\(--fam-b\)\)/);
   assert.match(h1, /line-height:\s*1\.1\b/);
   const sous = bloc('.sc-page__sous-titre');
   assert.match(sous, /font-size:\s*13\.5px/);
@@ -468,7 +469,7 @@ await dit('cartes : 3 colonnes à 14 px (2 sous 1280 px), icône de 38 px teinte
   assert.match(css, /@media \(max-width: 1279\.98px\)\s*\{[^}]*\.sc-grille-cartes\s*\{\s*grid-template-columns:\s*repeat\(var\(--sc-grille-colonnes-etroit, 2\)/);
   const i = bloc('.sc-carte-module__icone');
   assert.match(i, /width:\s*38px[^}]*height:\s*38px/);
-  assert.match(i, /background:\s*color-mix\(in srgb, var\(--fam, var\(--socle-fam-outils\)\) 13%, transparent\)/);
+  assert.match(i, /background:\s*color-mix\(in srgb, var\(--fam, var\(--fam-a\)\) 13%, transparent\)/);
   assert.match(bloc('.sc-carte-module__titre'), /font-size:\s*14px[^}]*font-weight:\s*600/);
   const d = bloc('.sc-carte-module__description');
   assert.match(d, /font-size:\s*12\.5px/);
@@ -501,8 +502,8 @@ await dit('semaine : 46 px par heure, blocs teintés 14 % avec filet de 3 px, au
   assert.match(bloc('.sc-semaine'), /--sc-px-heure:\s*46px/);
   assert.match(bloc('.sc-semaine__jour'), /background-size:\s*100% var\(--sc-px-heure\)/);
   const e = bloc('.sc-semaine__evenement');
-  assert.match(e, /border-left:\s*3px solid var\(--fam, var\(--socle-fam-outils\)\)/);
-  assert.match(e, /background:\s*color-mix\(in srgb, var\(--fam, var\(--socle-fam-outils\)\) 14%, transparent\)/);
+  assert.match(e, /border-left:\s*3px solid var\(--fam, var\(--fam-a\)\)/);
+  assert.match(e, /background:\s*color-mix\(in srgb, var\(--fam, var\(--fam-a\)\) 14%, transparent\)/);
   assert.match(css, /\.sc-semaine__titre-jour\[data-aujourdhui='true'\] \.sc-semaine__numero \{ background: var\(--socle-primaire\); color: var\(--socle-primaire-encre\)/);
   assert.match(bloc('.sc-semaine__maintenant'), /height:\s*2px/);
   assert.match(bloc('.sc-semaine__tete'), /position:\s*sticky/);

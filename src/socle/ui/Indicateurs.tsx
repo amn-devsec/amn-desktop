@@ -78,7 +78,7 @@ export interface AnneauProgressionProps {
 export function AnneauProgression({ valeur, libelle, texte, taille = 44, epaisseur = 4, ton = 'neutre', piste = 'defaut', children, anime = true }: AnneauProgressionProps) {
   const v = borne(valeur);
   // Défauts : pas de style en ligne, la feuille (`.sc-anneau__trait`, `__piste`) décide comme avant.
-  const styleTrait = ton === 'neutre' ? undefined : { stroke: couleurTon(ton) };
+  const styleTrait = ton === 'neutre' ? undefined : ({ '--sc-anneau-c': couleurTon(ton) } as React.CSSProperties);
   const stylePiste = piste === 'anneau' ? { stroke: 'var(--socle-anneau-fond)' } : undefined;
   const r = (taille - epaisseur) / 2;
   const tour = 2 * Math.PI * r;

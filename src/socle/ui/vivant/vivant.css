@@ -51,10 +51,11 @@
   background: var(--sc-v-c, var(--socle-etat-succes));
   /* L'onde (`data-mvt="onde"`) prend la couleur du point. */
   color: var(--sc-v-c, var(--socle-etat-succes));
-  box-shadow: 0 0 0 var(--sc-v-halo) color-mix(in srgb, var(--sc-v-c, var(--socle-etat-succes)) 14%, transparent);
+  /* v4 (06 §3 règle 7) : le halo fixe, et la lueur de sa couleur. */
+  box-shadow: 0 0 0 var(--sc-v-halo) color-mix(in srgb, var(--sc-v-c, var(--socle-etat-succes)) 14%, transparent), 0 0 6px var(--sc-v-c, var(--socle-etat-succes));
 }
 .sc-voyant[data-taille='6'] .sc-voyant__point { width: var(--sc-v-voyant-petit); height: var(--sc-v-voyant-petit); }
-.sc-voyant__point[data-halo='non'] { box-shadow: none; }
+.sc-voyant__point[data-halo='non'] { box-shadow: 0 0 6px var(--sc-v-c, var(--socle-etat-succes)); }
 .sc-voyant__libelle { color: var(--socle-texte-courant); font-size: 12px; line-height: 1.35; }
 
 /* ── Curseur (Caret) ── */
@@ -120,7 +121,13 @@
   transition: background-color 160ms ease-out, border-color 160ms ease-out, color 160ms ease-out;
 }
 .sc-puce:hover .sc-puce__corps { background: var(--socle-survol); color: var(--socle-texte-courant); }
-.sc-puce[aria-checked='true'] .sc-puce__corps { border-color: var(--socle-bord-bouton); background: var(--socle-segment-actif); color: var(--socle-texte-1); font-weight: 600; }
+/* v4 (06 §3 règle 11, sources néon « Tout 14 ») : la puce choisie en dégradé a 28 % → b 14 %, bord a 50 %, encre blanche. */
+.sc-puce[aria-checked='true'] .sc-puce__corps {
+  border-color: color-mix(in srgb, var(--fam-a) 50%, transparent);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--fam-a) 28%, transparent), color-mix(in srgb, var(--fam-b) 14%, transparent));
+  color: var(--socle-blanc);
+  font-weight: 600;
+}
 .sc-puce:focus-visible .sc-puce__corps { outline: 2px solid var(--socle-texte-1); outline-offset: 2px; }
 .sc-puce__compteur { color: var(--socle-texte-3); font-weight: 500; font-variant-numeric: tabular-nums; }
 
@@ -130,7 +137,7 @@
 .sc-jauge__piste,
 .sc-jauge__arc { fill: none; stroke-linecap: round; }
 .sc-jauge__piste { stroke: var(--socle-anneau-fond); }
-.sc-jauge__arc { stroke: var(--sc-v-c); }
+.sc-jauge__arc { stroke: var(--sc-v-c); filter: drop-shadow(0 0 6px color-mix(in srgb, var(--sc-v-c) 67%, transparent)); }
 .sc-jauge__valeur {
   margin-top: -0.7em;
   color: var(--socle-texte-1);
@@ -185,9 +192,12 @@ button.sc-chaleur { min-width: var(--sc-v-cible); min-height: var(--sc-v-cible);
   align-items: center;
   gap: 8px 12px;
   padding: 8px 10px 8px 14px;
-  border: 1px solid var(--socle-bord-suggestion);
+  /* v4 (06 §3 règle 12) : une suggestion d'Ajmani, même en ligne, a son bord en dégradé a → b (sources : 135°). */
+  border: 1px solid transparent;
   border-radius: var(--socle-rayon-sous-carte);
-  background: linear-gradient(180deg, var(--socle-suggestion-haut), var(--socle-suggestion-bas));
+  background:
+    linear-gradient(var(--socle-suggestion-fond), var(--socle-suggestion-fond)) padding-box,
+    linear-gradient(135deg, var(--fam-a), var(--fam-b)) border-box;
 }
 .sc-suggestion-ligne__texte { flex: 1 1 220px; min-width: 0; margin: 0; color: var(--socle-texte-courant); font-size: 12.5px; line-height: 1.45; }
 .sc-suggestion-ligne__actions { display: flex; flex: none; gap: 6px; }

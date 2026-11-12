@@ -294,13 +294,14 @@ await dit('FilterChips : radiogroup nommé, radios, une seule tabulation, aria-c
   assert.match(sansCommentaires(lire(`${REP}/FilterChips.tsx`)), /cleSuivante\(cles, p\.cle, e\.key\)/, 'flèches, Début, Fin');
 });
 
-await dit('FilterChips : 12 px, active fond #242427 (--socle-segment-actif) et 600, focus visible, cible de 34 px', () => {
+await dit('FilterChips : 12 px, active en v4 (dégradé a 28 % → b 14 %, bord a 50 %, blanc, 600), focus visible, cible de 34 px', () => {
   assert.equal(px('--sc-v-puce-texte', vivantCss), 12);
   assert.equal(px('--sc-v-cible', vivantCss), 34);
   assert.match(vivantCss, /\.sc-puce \{[^}]*min-height:\s*var\(--sc-v-cible\)/);
   assert.match(vivantCss, /\.sc-puce__corps \{[^}]*font-size:\s*var\(--sc-v-puce-texte\)/);
-  assert.match(vivantCss, /\.sc-puce\[aria-checked='true'\] \.sc-puce__corps \{[^}]*background:\s*var\(--socle-segment-actif\)[^}]*color:\s*var\(--socle-texte-1\)[^}]*font-weight:\s*600/);
-  assert.equal(jetons(noirBrut).get('--socle-segment-actif'), '#242427');
+  // v4 (06 §3 règle 11, sources néon) : la puce active prend la paire de la famille.
+  assert.match(vivantCss, /\.sc-puce\[aria-checked='true'\] \.sc-puce__corps \{\s*border-color: color-mix\(in srgb, var\(--fam-a\) 50%, transparent\);\s*background: linear-gradient\(135deg, color-mix\(in srgb, var\(--fam-a\) 28%, transparent\), color-mix\(in srgb, var\(--fam-b\) 14%, transparent\)\);\s*color: var\(--socle-blanc\);\s*font-weight: 600;\s*\}/);
+  assert.equal(jetons(noirBrut).get('--socle-blanc'), '#ffffff');
   assert.match(vivantCss, /\.sc-puce:focus-visible \.sc-puce__corps \{\s*outline:\s*2px solid var\(--socle-texte-1\);\s*outline-offset:\s*2px;/);
 });
 
@@ -356,7 +357,9 @@ await dit('InlineSuggestion : groupe « Suggestion d’Ajmani », étincelle ver
   assert.doesNotMatch(r, /sc-avatar|<img|data-variante="primaire"/);
   assert.match(rend(K.InlineSuggestion, { texte: 'x', onOui: () => undefined, onNon: () => undefined, libelleOui: 'Relier', libelleNon: 'Plus tard' }), />Relier<[\s\S]*>Plus tard</);
   assert.match(vivantCss, /\.sc-suggestion-ligne__bouton \{[^}]*min-height:\s*var\(--sc-v-cible\)/);
-  assert.match(vivantCss, /\.sc-suggestion-ligne \{[^}]*border:\s*1px solid var\(--socle-bord-suggestion\)[^}]*background:\s*linear-gradient\(180deg, var\(--socle-suggestion-haut\), var\(--socle-suggestion-bas\)\)/);
+  // v4 (06 §3 règle 12) : le bord en dégradé a → b à 135°, fond #151518 en padding-box.
+  assert.match(vivantCss, /\.sc-suggestion-ligne \{[^}]*border: 1px solid transparent;[^}]*background:\s*linear-gradient\(var\(--socle-suggestion-fond\), var\(--socle-suggestion-fond\)\) padding-box,\s*linear-gradient\(135deg, var\(--fam-a\), var\(--fam-b\)\) border-box;/);
+  assert.equal(jetons(noirBrut).get('--socle-suggestion-fond'), '#151518');
   assert.match(sansCommentaires(lire('src/socle/ui/controles/controles.css')), /\.sc-etincelle \{[^}]*color:\s*var\(--socle-etat-succes\)/);
 });
 

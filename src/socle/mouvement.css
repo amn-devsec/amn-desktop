@@ -225,6 +225,8 @@
 :root[data-ambiance='noir'][data-mouvement='aucun'] [data-mvt='cascade'] > *,
 :root[data-ambiance='noir'][data-mouvement='aucun'] [data-mvt='onde']::after { animation: none; }
 :root[data-ambiance='noir'][data-mouvement='aucun'] [data-mvt-survol] { transition: none; }
+/* v4 (06 §3 règle 15) : les lueurs qui s'allument en fondu s'arrêtent avec le reste. */
+:root[data-ambiance='noir'][data-mouvement='aucun'] :is(.sc-ajmani, .sc-interrupteur, .sc-interrupteur > span, .sc-famille, .sc-module) { transition: none; }
 :root[data-ambiance='noir'][data-mouvement='aucun'] [data-mvt-survol='noeud']:hover { transform: none; }
 
 /* ═══ Le système demande moins d'animations : plus rien ne bouge, quel que soit le réglage ═══ */
@@ -239,4 +241,6 @@
   :root[data-ambiance='noir'][data-mouvement] [data-mvt='onde']::after { animation: none; }
   :root[data-ambiance='noir'] [data-mvt-survol] { transition: none; }
   :root[data-ambiance='noir'] [data-mvt-survol='noeud']:hover { transform: none; }
+  /* v4 (06 §3 règle 15) : les lueurs animées s'arrêtent aussi — l'onde ci-dessus, et les lueurs qui s'allument en fondu. */
+  :root[data-ambiance='noir'] :is(.sc-ajmani, .sc-interrupteur, .sc-interrupteur > span, .sc-famille, .sc-module) { transition: none; }
 }

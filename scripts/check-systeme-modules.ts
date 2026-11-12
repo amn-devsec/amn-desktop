@@ -287,7 +287,7 @@ await dit('mouvement : colonnes en fondu échelonné, cartes de droite en entré
 await dit('cotes lues dans modules.css : titre 28, champ 270 × 38, colonnes de 187 (écart 6), lignes de 21, en-tête de famille 26, colonne droite 300, cartes 218 et 190', () => {
   const css = sansCommentaires(lire('src/refonte/systeme/modules/modules.css'));
   // L'en-tête est le `PageHead` du socle (28 / 600 / −.02 em / 1,1 dans archetypes.css) ; D02 règle sa hauteur et ses contrôles.
-  assert.match(sansCommentaires(lire('src/socle/ui/archetypes/archetypes.css')), /\.sc-page__titre \{[^}]*font-size: 28px; font-weight: 600; letter-spacing: -0\.02em; line-height: 1\.1/);
+  assert.match(sansCommentaires(lire('src/socle/ui/archetypes/archetypes.css')), /\.sc-page__titre \{[^}]*background: linear-gradient\(100deg, var\(--socle-blanc\) 30%, var\(--fam-b\)\);[^}]*color: transparent;\s*font-size: 30px;\s*font-weight: 700;\s*letter-spacing: -0\.03em;\s*line-height: 1\.1;/, 'le h1 v4 (06 §3 règle 3, source D02 : 30 / 700 / -0,03 em, dégradé #FFF → b)');
   assert.match(css, /\.dm-entete\.sc-page__entete \{ height: 70px; flex-wrap: nowrap; gap: 24px; \}/);
   assert.match(css, /\.dm-entete \.sc-page__controles \{ margin-top: 16px; \}/);
   assert.match(vue(), /<header class="sc-page__entete dm-entete"><div class="sc-page__titres"><h1 class="sc-page__titre">Tous les modules<\/h1>/);

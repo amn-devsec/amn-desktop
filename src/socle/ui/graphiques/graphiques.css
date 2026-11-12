@@ -48,6 +48,7 @@
 
 /* ── Courbe ── */
 .sc-g__degrade { stop-color: var(--sc-g-c); }
+.sc-g__degrade-famille { stop-color: var(--fam-a); }
 .sc-g__aire { stroke: none; }
 .sc-g__ligne {
   fill: none;
@@ -57,6 +58,8 @@
   stroke-linejoin: round;
   /* pathLength vaut 1 : un seul trait plein que la couche de mouvement « dessine » (data-mvt="trace"). */
   stroke-dasharray: 1;
+  /* v4 (06 §3 règle 7) : la courbe porte la lueur de sa couleur ; l'aire dessous part de 0,42 (Courbe.tsx). */
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--sc-g-c) 67%, transparent));
 }
 .sc-g__ligne2 {
   fill: none;
@@ -121,7 +124,8 @@
 
 /* ── Barres ── */
 .sc-g__colonne {
-  fill: var(--socle-colonne-graphique);
+  /* v4 (06 §3 règle 8) : une colonne neutre en dégradé de la couleur a de la famille, 50 % → 10 % (Barres.tsx pose le dégradé). */
+  fill: var(--sc-g-neutre, var(--socle-colonne-graphique));
   transform-box: fill-box;
   transform-origin: 50% 100%;
   transition: fill 150ms ease-out;
@@ -129,8 +133,9 @@
 .sc-g__colonne[data-sens='bas'] { transform-origin: 50% 0; }
 /* Une valeur nulle : un filet, plus clair que la colonne, pour qu'on la voie. */
 .sc-g__colonne[data-zero='oui'] { fill: var(--socle-texte-3); }
-.sc-g__colonne[data-actif='oui'] { fill: color-mix(in srgb, var(--sc-g-c) 55%, var(--socle-colonne-graphique)); }
-.sc-g__colonne[data-mise='oui'] { fill: var(--sc-g-c); }
+.sc-g__colonne[data-actif='oui'] { fill: var(--sc-g-mise, var(--sc-g-c)); }
+/* La colonne mise en valeur : pleine (→ 30 %), et sa lueur. */
+.sc-g__colonne[data-mise='oui'] { fill: var(--sc-g-mise, var(--sc-g-c)); filter: drop-shadow(0 0 7px var(--sc-g-c)); }
 .sc-g__valeur {
   fill: var(--socle-texte-1);
   font-family: inherit;
@@ -147,6 +152,8 @@
 .sc-g__segment {
   fill: none;
   stroke-linecap: butt;
+  /* v4 (06 §3 règle 7) : chaque arc porte la lueur de sa couleur (son trait). */
+  filter: drop-shadow(0 0 5px color-mix(in srgb, currentColor 60%, transparent));
 }
 .sc-g__donut-centre {
   position: absolute;
@@ -176,8 +183,9 @@
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-dasharray: 1;
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--sc-g-c) 67%, transparent));
 }
-.sc-g__mini-fin { fill: var(--sc-g-c); }
+.sc-g__mini-fin { fill: var(--sc-g-c); filter: drop-shadow(0 0 5px var(--sc-g-c)); }
 .sc-g__repos { stroke: var(--socle-bord-controle); stroke-width: var(--sc-g-trait); stroke-linecap: round; }
 
 /* ── Pas encore de données ── */

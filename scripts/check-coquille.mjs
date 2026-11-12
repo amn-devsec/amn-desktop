@@ -83,12 +83,16 @@
  *   · les sections ESPACE / SURVEILLANCE (/ ÉPINGLÉS) : libellés 10,5 px en
  *     capitales, 20 px de haut ;
  *   · les familles : 32 px, icône de trait de 15 px en T3, AUCUNE pastille de
- *     couleur ; la famille active : fond `#19191B`, 600, T1, chevron, icône de
- *     la couleur de la famille (la seule teinte de famille de la colonne) ;
+ *     couleur ; la famille active (rendu v4, 06-V4 §3 règle 10) : dégradé de
+ *     sa paire a 24 % → b 8 %, liseré a 38 %, 600, encre blanche, chevron,
+ *     icône de la couleur de la famille (Outils gris, La Garde vert, Cyber
+ *     rouge) ; le dégradé de la ligne active et du module courant sont les
+ *     seules teintes de famille admises en fond dans la colonne ;
  *   · La Garde : « veille » et son voyant ; Cyber : TOUJOURS présent ;
  *   · la sous-liste de la famille ouverte : au plus 5 lignes de 27 px, le
- *     module courant visible et marqué d'un repère blanc 2 × 13 posé sur le
- *     filet, puis « + N autres » ;
+ *     module courant visible, en dégradé a 20 % → transparent, 600, blanc, et
+ *     marqué d'un repère de 3 × 14 en dégradé a → b avec sa lueur, posé sur
+ *     le filet, puis « + N autres » ;
  *   · la carte « Aujourd'hui » : anneau de 34, filet, rendez-vous, présence
  *     sans adresse brute ;
  *   · l'en-tête de 60 px : fil d'Ariane (dernière miette = page), « N en ligne »,
@@ -758,16 +762,16 @@ const V3 = {
   sectionTitre: { taille: 10.5, hauteur: 20, encre: 'rgb(138, 138, 142)', interlettrage: 0.945 }, /* T4 #8a8a8e (`--socle-texte-3`) ; .09em × 10,5 px */
   sousLignes: 5,
   sousLigne: 27,
-  repere: { l: 2, h: 13 },
+  repere: { l: 3, h: 14 }, /* v4 : 3 × 14 en dégradé a → b, lueur a */
   anneau: 34,
   entete: 60,
   cloche: 34,
   ajmani: { h: 46, rayon: 14 },
-  fondActif: 'rgb(25, 25, 27)', /* #19191b */
   t1: 'rgb(237, 237, 237)', /* #ededed */
+  blanc: 'rgb(255, 255, 255)', /* v4 : l'encre de la famille active et du module courant */
   iconeInactive: 'rgb(160, 160, 165)', /* #a0a0a5 — T3 du socle (`--socle-texte-2`) */
 };
-/** Les huit teintes de famille, telles que le navigateur les rend : v4 (06-V4 §2) pour les six teintes d'état, gris d'Outils et de La Garde. */
+/** La teinte de l'icône de la famille active, telle que le navigateur la rend : la couleur a de chaque famille (Outils #7cc4ff, La Garde son vert, Cyber son rouge). */
 const TEINTES_FAMILLES = {
   jour: 'rgb(110, 168, 255)', /* #6ea8ff (v3 #8aa4d6) */
   contacts: 'rgb(79, 227, 193)', /* #4fe3c1 (v3 #6fb7a8) */
@@ -775,15 +779,30 @@ const TEINTES_FAMILLES = {
   argent: 'rgb(94, 230, 168)', /* #5ee6a8 (v3 #8fbf7a) */
   echanger: 'rgb(255, 126, 182)', /* #ff7eb6 (v3 #d98fa8) */
   creer: 'rgb(255, 164, 99)', /* #ffa463 (v3 #d9a27a) */
-  outils: 'rgb(154, 154, 160)',
-  garde: 'rgb(214, 214, 218)',
+  outils: 'rgb(124, 196, 255)', /* #7cc4ff — v4, décision du CO (v3 : le gris #9a9aa0) */
+  garde: 'rgb(94, 230, 168)', /* #5ee6a8 (v3 : le gris #d6d6da) */
+  cyber: 'rgb(255, 107, 122)', /* #ff6b7a (v3 : celui de La Garde) */
+};
+/** Les paires a / b des onze familles (06-V4 §1), par la clé que pose la ligne (`data-famille` de son <li>). */
+const PAIRES = {
+  jour: ['#6ea8ff', '#a58bff'],
+  contacts: ['#4fe3c1', '#6ea8ff'],
+  ecrire: ['#a58bff', '#f08bd6'],
+  argent: ['#5ee6a8', '#ffd166'],
+  echanger: ['#ff7eb6', '#a58bff'],
+  creer: ['#ffa463', '#ff6b7a'],
+  outils: ['#7cc4ff', '#a58bff'],
+  garde: ['#5ee6a8', '#6ea8ff'],
+  cyber: ['#ff6b7a', '#a58bff'],
+  developpement: ['#6ea8ff', '#5ee6a8'],
+  systeme: ['#a58bff', '#6ea8ff'],
 };
 /** Les teintes v3 des mêmes familles : une pastille d'une ancienne teinte reste une pastille (rien n'est assoupli). */
 const TEINTES_FAMILLES_V3 = ['#8aa4d6', '#6fb7a8', '#a79bdb', '#8fbf7a', '#d98fa8', '#d9a27a'];
 /** L'ambre d'avant (`#d09a4a`), celui du socle v3 (ATTENTION `#e0b35a`) et celui de la v4 (`#ffbe5c`, 06-V4 §2), par composantes. */
 const AMBRE_V3 = [...AMBRE, triplet('#e0b35a'), triplet('#ffbe5c')];
-/** Les teintes de famille, v4 et v3, par composantes : pour voir une pastille teintée (`rgba(couleur, .13)`) comme une pleine. */
-const TRIPLETS_FAMILLES = [...Object.values(TEINTES_FAMILLES), ...TEINTES_FAMILLES_V3].map(triplet);
+/** Les teintes de famille, v4 (icônes et les deux couleurs des onze paires) et v3, par composantes : pour voir une pastille teintée (`rgba(couleur, .13)`) comme une pleine. */
+const TRIPLETS_FAMILLES = [...Object.values(TEINTES_FAMILLES), ...Object.values(PAIRES).flat(), ...TEINTES_FAMILLES_V3].map(triplet);
 
 async function mesurerV3(page) {
   return page.evaluate(
@@ -867,7 +886,10 @@ async function mesurerV3(page) {
           icone: icone ? boite(icone) : null,
           couleurIcone: icone ? getComputedStyle(icone).color : null,
           active: f.dataset.active === 'true',
+          paire: li?.dataset.famille ?? null,
           fond: sf.backgroundColor,
+          teintesFond: teintesDe(sf.backgroundImage),
+          teintesOmbre: teintesDe(sf.boxShadow),
           poids: sf.fontWeight,
           couleur: sf.color,
           chevron: Boolean(f.querySelector('.sc-famille__chevron')),
@@ -875,10 +897,12 @@ async function mesurerV3(page) {
         };
       });
       const teintes = TRIPLETS;
-      /* Une pastille de couleur : un nœud des listes au fond teinté d'une famille, plein ou translucide — hors le voyant vivant de La Garde. */
+      /* Une pastille de couleur : un nœud des listes au fond teinté d'une famille, plein ou translucide — hors le voyant vivant de La Garde,
+         et hors la ligne de la famille active et le module courant, dont le dégradé v4 est jugé à part, à la valeur près. */
       const pastilles = [];
       for (const el of aside.querySelectorAll('.sc-nav *')) {
         if (el.closest('.sc-voyant')) continue;
+        if (el.matches('.sc-famille[data-active="true"], .sc-module[aria-current="page"]')) continue;
         if (!vu(el)) continue;
         const se = getComputedStyle(el);
         if (porte(se.backgroundColor, teintes) || porte(se.backgroundImage, teintes)) pastilles.push(el.tagName.toLowerCase() + (el.className ? `.${String(el.className).split(' ')[0]}` : ''));
@@ -912,6 +936,8 @@ async function mesurerV3(page) {
             l: px(sb.width),
             h: px(sb.height),
             couleur: sb.backgroundColor,
+            teintesFond: teintesDe(sb.backgroundImage),
+            teintesOmbre: teintesDe(sb.boxShadow),
             /* Le repère est posé SUR le filet : son bord gauche est celui de la liste (où vit `border-left`). */
             x: px(bc.x + parseFloat(sb.left)),
             filet: bUl.x,
@@ -922,7 +948,17 @@ async function mesurerV3(page) {
           famille: ouverte.closest('li')?.dataset.cle ?? '?',
           n: lignes.length,
           hauteurs: lignes.map((l) => boite(l).h),
-          courant: courant ? { visible: vu(courant) && boite(courant).y >= boiteAside.y && boite(courant).bas <= boiteAside.bas, texte: texte(courant) } : null,
+          courant: courant
+            ? {
+                visible: vu(courant) && boite(courant).y >= boiteAside.y && boite(courant).bas <= boiteAside.bas,
+                texte: texte(courant),
+                teintesFond: teintesDe(getComputedStyle(courant).backgroundImage),
+                fond: getComputedStyle(courant).backgroundColor,
+                encre: getComputedStyle(courant).color,
+                poids: getComputedStyle(courant).fontWeight,
+              }
+            : null,
+          paire: ouverte.closest('li')?.dataset.famille ?? null,
           repere,
           /* « + N autres » : le « + » est une icône de trait de 11 px, le texte dit « N autres ». */
           autres: autres ? { texte: texte(autres), plus: Boolean(autres.querySelector('svg')), h: boite(autres).h } : null,
@@ -1014,6 +1050,17 @@ async function mesurerV3(page) {
  * de La Garde ouvert à l'organisation, personne d'autre en ligne, famille de
  * cinq modules ou moins) : on ne juge alors que ce qui est rendu.
  */
+/** Les teintes non nulles d'une valeur, dans l'ordre, sont-elles exactement celles attendues ([hex, alpha], alpha au centième près) ? */
+function memesTeintes(lues, attendues) {
+  const nonNulles = (lues ?? []).filter(([, , , a]) => a !== 0);
+  if (nonNulles.length !== attendues.length) return false;
+  return attendues.every(([hex, alpha], i) => {
+    const [R, G, B] = triplet(hex);
+    const [r, g, b, a] = nonNulles[i];
+    return r === R && g === G && b === B && Math.abs(a - alpha) <= 0.011;
+  });
+}
+
 function jugerV3(nom, m, exigeant) {
   const f = [];
   const dire = (quoi, attendu, lu) => f.push(`${nom} · ${quoi} : attendu ${attendu}, lu ${lu}`);
@@ -1067,10 +1114,17 @@ function jugerV3(nom, m, exigeant) {
     if (!fa.icone) f.push(`${nom} · famille « ${fa.nom} » sans icône de trait.`);
     else if (fa.icone.l !== V3.icone || fa.icone.h !== V3.icone) dire(`icône de « ${fa.nom} »`, `${V3.icone} × ${V3.icone} px`, `${fa.icone.l} × ${fa.icone.h} px`);
     if (fa.active) {
-      if (fa.fond !== V3.fondActif) dire(`fond de la famille active « ${fa.nom} »`, '#19191b', fa.fond);
+      /* v4 (06-V4 §3 règle 10) : le dégradé de SA paire, a 24 % → b 8 %, et le liseré a 38 % — rien d'autre en fond. */
+      const paire = PAIRES[fa.paire];
+      if (!paire) dire(`paire de la famille active « ${fa.nom} »`, 'une des onze (data-famille de la ligne)', fa.paire);
+      else {
+        if (!memesTeintes(fa.teintesFond, [[paire[0], 0.24], [paire[1], 0.08]])) dire(`fond de la famille active « ${fa.nom} »`, `dégradé ${paire[0]} 24 % → ${paire[1]} 8 %`, JSON.stringify(fa.teintesFond));
+        if (!memesTeintes(fa.teintesOmbre, [[paire[0], 0.38]])) dire(`liseré de la famille active « ${fa.nom} »`, `${paire[0]} à 38 %`, JSON.stringify(fa.teintesOmbre));
+      }
+      if (fa.fond !== 'rgba(0, 0, 0, 0)') dire(`fond plein de la famille active « ${fa.nom} »`, 'aucun (le dégradé seul)', fa.fond);
       if (String(fa.poids) !== '600') dire(`graisse de la famille active « ${fa.nom} »`, 600, fa.poids);
-      if (fa.couleur !== V3.t1) dire(`encre de la famille active « ${fa.nom} »`, 'T1 #ededed', fa.couleur);
-      const teinte = TEINTES_FAMILLES[fa.cle === 'cyber' ? 'garde' : fa.cle];
+      if (fa.couleur !== V3.blanc) dire(`encre de la famille active « ${fa.nom} »`, 'blanc #ffffff (v4)', fa.couleur);
+      const teinte = TEINTES_FAMILLES[fa.cle];
       if (teinte && fa.couleurIcone !== teinte) dire(`icône de la famille active « ${fa.nom} »`, `la teinte de la famille (${teinte})`, fa.couleurIcone);
       /* Le chevron : la famille active se déroule — sauf Cyber hors de ses écrans et La Garde, qui écrivent autre chose à droite. */
       if (!fa.chevron && fa.cle !== 'cyber' && fa.cle !== 'garde') f.push(`${nom} · la famille active « ${fa.nom} » n'a pas son chevron.`);
@@ -1098,9 +1152,17 @@ function jugerV3(nom, m, exigeant) {
       if (actives.some((fa) => fa.cle === m.sous.famille)) f.push(`${nom} · la famille ouverte « ${m.sous.famille} » est active mais aucune de ses lignes n'est le module courant.`);
     } else {
       if (!m.sous.courant.visible) f.push(`${nom} · le module courant « ${m.sous.courant.texte} » n'est pas visible dans la barre.`);
+      /* v4 (06-V4 §3 règle 10) : le module courant en dégradé a 20 % → transparent, blanc, 600 ; le repère 3 × 14 en a → b, lueur a. */
+      const paire = PAIRES[m.sous.paire];
+      const c = m.sous.courant;
+      if (!paire) dire(`paire de la famille ouverte « ${m.sous.famille} »`, 'une des onze (data-famille de la ligne)', m.sous.paire);
+      else if (!memesTeintes(c.teintesFond, [[paire[0], 0.2]])) dire(`fond du module courant « ${c.texte} »`, `dégradé ${paire[0]} 20 % → transparent`, JSON.stringify(c.teintesFond));
+      if (c.fond !== 'rgba(0, 0, 0, 0)') dire(`fond plein du module courant « ${c.texte} »`, 'aucun (le dégradé seul)', c.fond);
+      if (c.encre !== V3.blanc || String(c.poids) !== '600') dire(`encre du module courant « ${c.texte} »`, 'blanc #ffffff, 600', `${c.encre}, ${c.poids}`);
       const r = m.sous.repere;
       if (!r || r.l !== V3.repere.l || r.h !== V3.repere.h) dire('repère du module courant', `${V3.repere.l} × ${V3.repere.h} px`, r ? `${r.l} × ${r.h} px` : 'absent');
-      if (r && r.couleur !== V3.t1) dire('couleur du repère', 'blanc T1', r.couleur);
+      if (r && paire && !memesTeintes(r.teintesFond, [[paire[0], 1], [paire[1], 1]])) dire('dégradé du repère', `${paire[0]} → ${paire[1]}`, JSON.stringify(r.teintesFond));
+      if (r && paire && !memesTeintes(r.teintesOmbre, [[paire[0], 1]])) dire('lueur du repère', `${paire[0]} (10 px)`, JSON.stringify(r.teintesOmbre));
       if (r && (r.filetLargeur !== 1 || Math.abs(r.x - r.filet) > 0.5)) dire('repère posé sur le filet', `x = ${r.filet} px (filet de 1 px)`, `x = ${r.x} px (filet de ${r.filetLargeur} px)`);
     }
     if (m.sous.autres === null) {
@@ -1225,7 +1287,7 @@ if (PAGE) {
     process.exit(1);
   }
   console.log(
-    `\nCoquille v3 : OK — ${path.relative(process.cwd(), fichier)} : une barre de 252 px (16 / 14 / 14), recherche 34 + bouton carré 34, sections ESPACE / SURVEILLANCE / ÉPINGLÉS,\nfamilles de 32 px à icône de 15 sans pastille, La Garde « veille » + voyant, Cyber présent, sous-liste ≤ 5 × 27 px avec repère 2 × 13 sur le filet, « + N autres »,\ncarte « Aujourd'hui » (anneau 34), en-tête 60 (fil, « N en ligne », cloche 34, Garde avec onde), barre Ajmani 46 / rayon 14 (« Entrée pour envoyer » + ⌘J), aucun ambre, une seule ligne active. Réseau : rien de refusé.`,
+    `\nCoquille v3 : OK — ${path.relative(process.cwd(), fichier)} : une barre de 252 px (16 / 14 / 14), recherche 34 + bouton carré 34, sections ESPACE / SURVEILLANCE / ÉPINGLÉS,\nfamilles de 32 px à icône de 15 sans pastille, La Garde « veille » + voyant, Cyber présent, sous-liste ≤ 5 × 27 px avec famille active et module courant en dégradé de leur paire (v4), repère 3 × 14 a → b sur le filet, « + N autres »,\ncarte « Aujourd'hui » (anneau 34), en-tête 60 (fil, « N en ligne », cloche 34, Garde avec onde), barre Ajmani 46 / rayon 14 (« Entrée pour envoyer » + ⌘J), aucun ambre, une seule ligne active. Réseau : rien de refusé.`,
   );
   process.exit(0);
 }

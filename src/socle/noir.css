@@ -31,17 +31,16 @@
   /* ── Fonds ── */
   --socle-fond-page: #0c0c0d;
   --socle-fond-lateral: #101011;
-  --socle-carte-haut: #161617;
-  --socle-carte-bas: #131314;
+  --socle-carte-haut: #19191c;
+  --socle-carte-bas: #111113;
   --socle-encart: #141415;
   --socle-champ: #131314;
   --socle-survol: #1c1c1e;
   --socle-piste: #252528;
-  --socle-halo: radial-gradient(1000px 520px at 85% -10%, rgba(255, 255, 255, 0.045), transparent 70%);
 
   /* ── Bordures ── */
   --socle-bord-lateral: #222224;
-  --socle-bord-carte: #232325;
+  --socle-bord-carte: #2a2a2e;
   --socle-bord-controle: #28282b;
   --socle-bord-entete: #1d1d1f;
   --socle-bord-ligne: #19191b;
@@ -57,7 +56,11 @@
   --socle-primaire-encre: #0c0c0d;
 
   /* ── Rayons ── */
-  --socle-rayon-carte: 14px;
+  --socle-rayon-carte: 16px;
+  /* La barre Ajmani garde ses 14 px (images v3 et v4), sous le rayon des cartes v4. */
+  --socle-rayon-ajmani: 14px;
+  /* Ce qui n'est pas une carte garde aussi 14 px en v4 (sources néon) : boîte de dialogue, toast, info-bulle, palettes, zone vide. */
+  --socle-rayon-boite: 14px;
   --socle-rayon-controle: 9px;
   /* Le bouton (§4) : rayon 9, le même que `--socle-rayon-controle` (STATUT §1.2 : DS avait 10). Le champ fait 10 (`--socle-rayon-champ`). */
   --socle-rayon-bouton: 9px;
@@ -78,9 +81,11 @@
   --socle-fam-echanger: #ff7eb6;
   /* La teinte de SÉLECTION des fiches (MR02 : `#D9A27A` en v3, l'orange `#FFA463` en v4, 06 §2) est cette valeur : employez `--socle-fam-creer`, pas de doublon. */
   --socle-fam-creer: #ffa463;
-  --socle-fam-outils: #9a9aa0;
-  /* La Garde et la supervision : l'icône bouclier, jamais une pastille (01-SOCLE-DESIGN §1). */
-  --socle-fam-garde: #d6d6da;
+  --socle-fam-outils: #7cc4ff;
+  /* La Garde et la supervision : l'icône bouclier, jamais une pastille (01-SOCLE-DESIGN §1). v4 : son vert, celui de sa
+     paire (les sources v4 dessinent son icône active en #5EE6A8). Outils : sa couleur a, #7CC4FF, comme toute famille
+     (décision du CO ; les sources v4 dessinent encore son icône active et ses tuiles de D02 en #9A9AA0, le gris v3). */
+  --socle-fam-garde: #5ee6a8;
 
   /* ── v4 (06-V4-NEON §1) : deux couleurs par famille, a (principal) et b (second), pour les onze familles ──
      Valeurs de `_data/couleurs-familles.json` du dossier v4 ; Développement (absent du fichier) d'après le tableau de 06 ;
@@ -111,6 +116,23 @@
   --fam-a: var(--socle-fam-systeme-a);
   --fam-b: var(--socle-fam-systeme-b);
 
+  /* ── Rendu v4 (06-V4 §3), valeurs des sources néon : surfaces sombres, couleur sur les accents ──
+     Ce qui dépend de la famille (dégradés a → b, lueurs, halos) s'écrit dans les feuilles des briques, sur l'élément même :
+     un jeton déclaré ici se résoudrait avec la paire de la racine (Système), pas avec celle de la famille active. */
+  --socle-blanc: #ffffff;
+  --socle-encre-accent: #0b0b0c;
+  --socle-reflet-carte: rgba(255, 255, 255, 0.065);
+  --socle-ombre-carte: 0 22px 46px -30px rgba(0, 0, 0, 0.95);
+  --socle-verre-haut: #1c1c1f;
+  --socle-verre-bas: #151517;
+  --socle-bord-verre: #303035;
+  --socle-reflet-verre: rgba(255, 255, 255, 0.06);
+  --socle-reflet-principal: rgba(255, 255, 255, 0.35);
+  --socle-ajmani-fond: #121214;
+  --socle-ajmani-fin-bord: rgba(255, 255, 255, 0.07);
+  --socle-suggestion-fond: #151518;
+  --socle-piste-toast: #232325;
+
   /* ── États (v4, 06-V4 §2 : succès #5EE6A8, attention #FFBE5C, danger #FF6B7A, info #6EA8FF, à la place des v3) ── */
   --socle-etat-succes: #5ee6a8;
   --socle-etat-attention: #ffbe5c;
@@ -137,7 +159,6 @@
   --socle-bord-kbd: #333336;
   --socle-kbd: #111112;
   --socle-case-vide: #3a3a3e;
-  --socle-toggle-actif: #2e4327;
   --socle-toggle-inactif: #242427;
   --socle-onglet-compteur: #1c1c1e;
   --socle-segment-actif: #242427;
@@ -180,19 +201,22 @@
   /* Dialogue, toast, palette, panneau « Tous les modules » (H41, H43, G05, D02). */
   --socle-dialogue: #1a1a1c;
   --socle-bord-dialogue: #34343a;
-  --socle-bord-toast: #2c3327;
+  /* Le bord du toast : le succès à 15 % sur le fond du dialogue — v3 #2c3327 (succès v3), v4 #243931 (succès #5ee6a8 ; demande du CO :
+     les sources v4 de H43 dessinent encore #2c3327). L'erreur suit la même règle à 30 % (situations.css). */
+  --socle-bord-toast: #243931;
   --socle-palette-fond: #141416;
   --socle-bord-palette: #34343a;
   --socle-panneau: #111112;
   --socle-bord-panneau: #29292c;
 
-  /* Avatars : la couleur d'une personne ou d'une organisation (lettre seule, jamais un visage). */
-  --socle-avatar-a: #4b4b55;
-  --socle-avatar-m: #5a524a;
-  --socle-avatar-r: #46544f;
-  --socle-avatar-c: #3f4a5c;
-  --socle-avatar-t: #54485c;
-  --socle-avatar-l: #5c4a4a;
+  /* Avatars : la couleur d'une personne ou d'une organisation (lettre seule, jamais un visage). v4 : six dégradés
+     pastel (sources néon), initiales à l'encre sombre `--socle-encre-accent`. */
+  --socle-avatar-a: linear-gradient(135deg, #ff6b7a, #a58bff);
+  --socle-avatar-m: linear-gradient(135deg, #6ea8ff, #4fe3c1);
+  --socle-avatar-r: linear-gradient(135deg, #5ee6a8, #3bb8c9);
+  --socle-avatar-c: linear-gradient(135deg, #7cc4ff, #6e7bff);
+  --socle-avatar-t: linear-gradient(135deg, #c08bff, #ff7eb6);
+  --socle-avatar-l: linear-gradient(135deg, #ffa463, #ff6b7a);
 
   /* Rayons des composants (§4). */
   --socle-rayon-sous-carte: 11px;
@@ -240,7 +264,6 @@
   --socle-lateral-bord-champ: #262628;
   --socle-lateral-bouton-actif: #262628;
   --socle-lateral-bord-actif: #3a3a3e;
-  --socle-lateral-famille-active: #19191b;
   --socle-lateral-sous-actif: #1f1f21;
   --socle-lateral-sous-filet: #262629;
   --socle-lateral-survol: #18181a;
@@ -249,6 +272,8 @@
   --socle-lateral-carte-bas: #141415;
   --socle-lateral-bord-carte: #242426;
   --socle-ajmani-bord-survol: #3a3a3e;
+  /* La barre Ajmani au survol (sources v4, .amn-bar-ajm:hover) : le fond passe à #151516, le bord en dégradé reste. */
+  --socle-ajmani-fond-survol: #151516;
   /* La lueur claire autour du logo « A » (images v3 : +5 niveaux à 1 px du bord, nulle à 5 px). */
   --socle-logo-lueur: rgba(255, 255, 255, 0.07);
   /* Le compteur d'une ligne du répertoire « Tous les modules » (fiche D02, `CountBadge` : 16 px, fond `#26262a`). */
@@ -272,10 +297,10 @@
 
   --color-socle-fond: #0c0c0d;
   --color-socle-creux: #0a0a0b;
-  --color-socle-surface: #131314;
-  --color-socle-eleve: #161617;
+  --color-socle-surface: #111113;
+  --color-socle-eleve: #19191c;
   --color-socle-survol: #1c1c1e;
-  --color-socle-bord: #232325;
+  --color-socle-bord: #2a2a2e;
   --color-socle-bord-fort: #6e6e73;
   --color-socle-texte: #ededed;
   --color-socle-texte-doux: #8a8a8e;
@@ -299,8 +324,8 @@
   --color-fam-echanger-texte: #ff7eb6;
   --color-fam-creer: #ffa463;
   --color-fam-creer-texte: #ffa463;
-  --color-fam-outils: #9a9aa0;
-  --color-fam-outils-texte: #9a9aa0;
+  --color-fam-outils: #7cc4ff;
+  --color-fam-outils-texte: #7cc4ff;
 
   --color-etat-succes: #5ee6a8;
   --color-etat-succes-texte: #5ee6a8;
@@ -331,6 +356,18 @@
 :root[data-ambiance='noir'] :is([data-famille-active='cyber'], [data-famille='cyber']) { --fam-a: var(--socle-fam-cyber-a); --fam-b: var(--socle-fam-cyber-b); }
 :root[data-ambiance='noir'] :is([data-famille-active='developpement'], [data-famille='developpement']) { --fam-a: var(--socle-fam-developpement-a); --fam-b: var(--socle-fam-developpement-b); }
 :root[data-ambiance='noir'] :is([data-famille-active='systeme'], [data-famille='systeme']) { --fam-a: var(--socle-fam-systeme-a); --fam-b: var(--socle-fam-systeme-b); }
+
+/*
+  LES DEUX HALOS DE LA FAMILLE (06-V4 §3, règle 1) — a à 20 % en haut à droite, b à 15 % en bas à gauche.
+  Le jeton se redéclare partout où la paire change : il se résout avec la famille de l'élément, pas avec celle de la racine.
+  Une page le pose sous son fond : `background: var(--socle-halos), var(--socle-fond-page)`.
+*/
+:root[data-ambiance='noir'],
+:root[data-ambiance='noir'] :is([data-famille-active], [data-famille]) {
+  --socle-halos:
+    radial-gradient(900px 480px at 92% -8%, color-mix(in srgb, var(--fam-a) 20%, transparent), transparent 70%),
+    radial-gradient(800px 520px at 32% 112%, color-mix(in srgb, var(--fam-b) 15%, transparent), transparent 70%);
+}
 
 /*
   LES CHIFFRES TABULAIRES, SUR LES NOMBRES SEULEMENT (§2 ; écart C11 du LOT-00).

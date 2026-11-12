@@ -158,7 +158,7 @@ export function Courbe({
           {aire && (
             <defs>
               <linearGradient id={idDegrade} x1="0" y1="0" x2="0" y2="1">
-                <stop className="sc-g__degrade" offset="0" stopOpacity="0.28" />
+                <stop className="sc-g__degrade" offset="0" stopOpacity="0.42" />
                 <stop className="sc-g__degrade" offset="1" stopOpacity="0" />
               </linearGradient>
             </defs>

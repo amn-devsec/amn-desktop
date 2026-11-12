@@ -397,7 +397,7 @@ Un écran qui envoie aux Paramètres passe la rubrique dans l'état de navigatio
 - **Un bloc qui dit sa famille** (`data-famille="argent"`) pose la sienne pour ce qu'il contient.
 - **Par défaut** (hors coquille, page sans famille) : la paire de Système, posée sur la racine noire.
 - Une famille ajoutée (LOT-11) prend l'identifiant `developpement` au registre pour recevoir ses couleurs.
-- Les règles de rendu de 06 § 3 (dégradés, lueurs, barre latérale active…) lisent ces jetons ; elles ne sont pas encore posées.
+- Les règles de rendu de 06 § 3 (dégradés, lueurs, barre latérale active…) lisent ces jetons : voir « v4 : les quinze règles de rendu ».
 
 ## Mise à jour — v4 : couleurs d'état (2026-11-12)
 
@@ -417,3 +417,31 @@ Les huit couleurs d'état de 06-V4 § 2 remplacent les v3 partout dans le socle 
 - Les briques lisent les jetons : aucune n'a changé de règle. `check:socle` refuse toute couleur d'état v3 (hexadécimal ou `rgb()`) dans `src/socle`, `src/refonte/systeme`, `src/refonte/coquille` et `src/refonte/compteurs` ; `check:coquille` reconnaît l'ambre v4 et les teintes v4 (et toujours les v3) dans la colonne.
 - Outils (`#9A9AA0`) et La Garde (`#D6D6DA`) gardent leur gris de pastille d'ici aux règles de rendu de 06 § 3 ; leur paire v4 est en `--socle-fam-outils-a/-b` et `--socle-fam-garde-a/-b`.
 - Restent des teintes dérivées de la v3, qui relèvent des règles de rendu (06 § 3) : le fond de l'interrupteur allumé (`--socle-toggle-actif`, vert sombre ; en v4 un dégradé a → b) et le bord du toast (`--socle-bord-toast`).
+
+## Mise à jour — v4 : les quinze règles de rendu (2026-11-12)
+
+Les règles de 06-V4 § 3 sont portées par les briques et la coquille, aux valeurs des sources néon (`sources-neon/`). Tout ce qui dépend de la famille s'écrit sur l'élément même, en `var(--fam-a)` / `var(--fam-b)` ; aucun lot n'écrit une couleur à la main.
+
+| Règle | Où | Ce que la brique pose |
+|---|---|---|
+| 1. Fond | `--socle-halos` (`noir.css`) | deux halos : a 20 % en haut à droite (900 × 480 à 92 % / -8 %), b 15 % en bas à gauche (800 × 520 à 32 % / 112 %). Le jeton se redéclare là où la paire change (racine, `data-famille-active`, `data-famille`) : il suit la famille de l'élément. Une page : `background: var(--socle-halos), var(--socle-fond-page)`. |
+| 2. Cartes | `[data-socle='carte']`, `.sc-kpi` | dégradé `#19191C → #111113`, bord `#2A2A2E`, rayon 16, reflet + ombre, halo a 8,5 % (b 8,5 % sur la première) dans un coin qui alterne. |
+| 3. Titre de page | `.sc-page__titre` | 30 / 700 / -0,03 em, texte en dégradé `#FFF 30 % → b`. |
+| 4. Grands chiffres | `.sc-kpi__valeur`, `.sc-grand-nombre` | texte en dégradé vertical `#FFF 30 % → a 140 %`. |
+| 5. Bouton principal | `[data-variante='primaire']` | dégradé a → b, encre `#0B0B0C`, ombre de a, reflet. |
+| 6. Bouton secondaire | `[data-variante='secondaire']` | verre `#1C1C1F → #151517`, bord `#303035`. |
+| 7. Pastilles, points, anneaux, courbes, arcs | `.sc-etat`, `.sc-point`, `.sc-anneau`, `.sc-g__ligne`, `.sc-g__segment` | fond 14 %, bord 38 %, point lumineux ; lueur `drop-shadow` de la couleur ; aire sous courbe à 0,42. |
+| 8. Histogrammes | `Barres` | neutres en dégradé de a (50 % → 10 %) ; mise en valeur pleine → 30 % et sa lueur. Ton par défaut : `famille` (`var(--fam-a)`). |
+| 9. Progression | `.sc-barre` | dégradé a → b et lueur ; une barre d'état, sa couleur et sa lueur. |
+| 10. Barre latérale | `coquille.css` | famille active : dégradé a 24 % → b 8 %, liseré a 38 %, blanc, 600 (chaque ligne pose sa paire) ; module courant : a 20 % → transparent ; repère 3 × 14 en a → b avec lueur. |
+| 11. Onglets, segments, puces | `controles.css`, `vivant.css` | soulignement a ; segment actif a 30 % → b 16 % ; puce active a 28 % → b 14 %, bord a 50 %. |
+| 12. Barre Ajmani, suggestion | `.sc-ajmani`, `.sc-suggestion`, `.sc-suggestion-ligne` | bord en dégradé (fond en `padding-box`) ; au survol, le fond de la barre passe à `#151516`. |
+| 13. Avatars | `--socle-avatar-*` | six dégradés pastel, encre `#0B0B0C`. |
+| 14. Tuiles d'icône | `IconTile` | dégradé c 26 % → 6 %, bord c 42 %, lueur ; `part` garde l'aplat mesuré (D02, H41, H43). |
+| 15. Mouvement | `mouvement.css` | `prefers-reduced-motion` et Mouvement « aucun » coupent les transitions et les lueurs animées. |
+
+- **Teintes v3 passées en v4** (demande du CO) : l'icône active d'Outils prend sa couleur a `#7CC4FF` (les sources v4 la dessinent encore `#9A9AA0`) ; La Garde `#5EE6A8` ; Cyber `#FF6B7A` ; l'interrupteur allumé en dégradé a → b avec lueur ; le bord du toast `#243931` (le succès v4 à 15 % sur le fond du dialogue, comme l'erreur à 30 %).
+- Les miroirs `--color-socle-surface` / `-eleve` / `-bord` suivent les cartes v4 (`#111113`, `#19191C`, `#2A2A2E`).
+- Gardent leur rayon 14 (`--socle-rayon-boite`, sources v4) : boîte de dialogue, toast, palettes, zone vide ; la barre Ajmani a le sien (`--socle-rayon-ajmani`).
+- `check:socle` vérifie les quinze règles, valeur pour valeur ; `check:coquille --page` mesure la barre v4 dans le navigateur (dégradés de la paire, repère, lueur).
+

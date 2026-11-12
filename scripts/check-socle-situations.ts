@@ -301,9 +301,12 @@ await dit('tuile d’icône 48 × 48 (rayon 14, fond = la couleur du ton à 13 %
   }
   const briques = sansCommentaires(lire('src/socle/ui/briques-partagees/briques-partagees.css'));
   assert.match(briques, /\.sc-icon-tile\[data-taille='48'\] \{ --sc-tuile: 48px; --sc-tuile-rayon: 14px; --sc-tuile-glyphe: 20px; \}/, '48 × 48, rayon 14, glyphe 20');
-  assert.match(briques, /\.sc-icon-tile \{[^}]*--sc-tuile-part: 13%;[^}]*background: color-mix\(in srgb, var\(--sc-tuile-teinte\) var\(--sc-tuile-part\), transparent\);\s*color: var\(--sc-tuile-teinte\);/, 'fond = la teinte à 13 %, glyphe de la teinte');
-  assert.match(rendre(h(S.EtatHorsConnexion, { onReessayer: sansAction })), /data-taille="48" data-ton="attention" class="sc-icon-tile sc-bloc-etat__icone"/, 'un ton d’état est passé à la brique');
-  assert.match(rendre(h(S.EtatAucunResultat, { terme: V.terme, onEffacer: sansAction })), /data-taille="48" class="sc-icon-tile sc-bloc-etat__icone"/, 'le neutre standard reste le gris T3 teinté à 13 %, par --sc-ton');
+  // Les sources v4 de H43 gardent l'aplat à 13 % : BlocEtat le demande (part 13), sans bord ni lueur.
+  assert.match(briques, /\.sc-icon-tile\[data-part\] \{ border: 0; background: color-mix\(in srgb, var\(--sc-tuile-teinte\) var\(--sc-tuile-part\), transparent\); box-shadow: none; \}/, 'l’aplat d’une part donnée');
+  assert.match(briques, /\.sc-icon-tile\[data-part='13'\] \{ --sc-tuile-part: 13%; \}/, 'fond = la teinte à 13 %');
+  assert.match(sansCommentaires(lire('src/socle/ui/situations/BlocEtat.tsx')), /<IconTile className="sc-bloc-etat__icone"[^>]*part=\{13\}/, 'BlocEtat demande l’aplat de 13 %');
+  assert.match(rendre(h(S.EtatHorsConnexion, { onReessayer: sansAction })), /data-taille="48" data-ton="attention" data-part="13" class="sc-icon-tile sc-bloc-etat__icone"/, 'un ton d’état est passé à la brique');
+  assert.match(rendre(h(S.EtatAucunResultat, { terme: V.terme, onEffacer: sansAction })), /data-taille="48" data-part="13" class="sc-icon-tile sc-bloc-etat__icone"/, 'le neutre standard reste le gris T3 teinté à 13 %, par --sc-ton');
   const racine = bloc('.sc-bloc-etat');
   assert.match(racine, /flex-direction:\s*column/);
   assert.match(racine, /align-items:\s*center/);
@@ -356,8 +359,9 @@ await dit('boîte de confirmation 276 × 148 (19 px de marge, rayon 14, 400 px e
   const [pad] = marge(boite, 'padding');
   const bord = 1;
   assert.equal(pad, 19);
-  assert.equal(jetonNoir('--socle-rayon-carte'), '14px');
-  assert.match(boite, /border-radius:\s*var\(--socle-rayon-carte\)/);
+  // v4 : la boîte garde 14 px (sources néon) ; les cartes, elles, passent à 16.
+  assert.equal(jetonNoir('--socle-rayon-boite'), '14px');
+  assert.match(boite, /border-radius:\s*var\(--socle-rayon-boite\)/);
   assert.match(boite, /width:\s*min\(var\(--sc-dialogue-largeur, 400px\), 100%\)/);
   const titre = px(bloc('.sc-dialogue__titre'), 'line-height');
   const [texteHaut] = marge(bloc('.sc-dialogue__texte'), 'margin');
@@ -376,8 +380,8 @@ await dit('boîte de confirmation 276 × 148 (19 px de marge, rayon 14, 400 px e
   const barre = bloc('.sc-toast__barre');
   assert.equal(px(barre, 'height'), 3);
   assert.equal(px(barre, 'margin-top'), 14);
-  assert.match(barre, /background:\s*var\(--socle-bord-carte\)/);
-  assert.equal(jetonNoir('--socle-bord-carte'), '#232325', 'la piste de la barre');
+  assert.match(barre, /background:\s*var\(--socle-piste-toast\)/);
+  assert.equal(jetonNoir('--socle-piste-toast'), '#232325', 'la piste de la barre (sources v4)');
   assert.match(bloc('.sc-toast__remplissage'), /background:\s*var\(--socle-etat-succes\)/);
   assert.match(bloc('.sc-toast__remplissage'), /transform-origin:\s*left/, 'la barre se vide de droite à gauche');
   assert.match(bloc('.sc-toast-bloc'), /width:\s*min\(var\(--sc-toast-largeur, 340px\)/);
@@ -388,8 +392,8 @@ await dit('tailles compactes v3 : bloc d’état (tuile 36, titre 13,5, texte 12
   // La tuile compacte est l'IconTile de 36 px (rayon 10, glyphe 16) ; son neutre est l'aplat --socle-tag : le `ton="neutre"` de la brique, passé par BlocEtat.
   const briques = sansCommentaires(lire('src/socle/ui/briques-partagees/briques-partagees.css'));
   assert.match(briques, /\.sc-icon-tile\[data-taille='36'\] \{ --sc-tuile: 36px; --sc-tuile-rayon: 10px; --sc-tuile-glyphe: 16px; \}/, '36 × 36, rayon 10, glyphe 16');
-  assert.match(briques, /\.sc-icon-tile\[data-ton='neutre'\] \{ background: var\(--socle-tag\); color: var\(--socle-texte-2\); \}/, 'la tuile neutre est un aplat #1a1a1c (écart T1 H43.2)');
-  assert.match(rendre(h(S.EtatAucunResultat, { terme: V.terme, onEffacer: sansAction, taille: 'compact' })), /data-taille="36" data-ton="neutre" class="sc-icon-tile sc-bloc-etat__icone"/, 'en compact, le neutre passe l’aplat à la brique');
+  assert.match(briques, /\.sc-icon-tile\[data-ton='neutre'\] \{ border: 0; background: var\(--socle-tag\); box-shadow: none; color: var\(--socle-texte-2\); \}/, 'la tuile neutre est un aplat #1a1a1c (écart T1 H43.2), sans bord ni lueur');
+  assert.match(rendre(h(S.EtatAucunResultat, { terme: V.terme, onEffacer: sansAction, taille: 'compact' })), /data-taille="36" data-ton="neutre" data-part="13" class="sc-icon-tile sc-bloc-etat__icone"/, 'en compact, le neutre passe l’aplat à la brique');
   assert.doesNotMatch(css, /\.sc-bloc-etat\[data-taille='compact'\][^{]*\.sc-bloc-etat__icone(\s+svg)?\s*\{/, 'plus de cote locale pour la tuile compacte');
   assert.equal(px(bloc(`.sc-bloc-etat${c} .sc-bloc-etat__titre`), 'font-size'), 13.5);
   assert.equal(px(bloc(`.sc-bloc-etat${c} .sc-bloc-etat__texte`), 'font-size'), 12);
@@ -434,8 +438,9 @@ await dit('planche v3 : 3 × 3 mini-fenêtres de 440 × 239 à x = 44 / 500 / 95
   const page = bloc('.sc-h43');
   const [padHaut, padDroit] = marge(page, 'padding');
   assert.equal(padDroit, 44);
-  assert.match(page, /background:\s*var\(--socle-halo\), var\(--socle-fond-page\)/, 'la lueur d’ambiance de page (§1, écart T1 H43.1)');
-  assert.equal(jetonNoir('--socle-halo'), 'radial-gradient(1000px 520px at 85% -10%, rgba(255, 255, 255, 0.045), transparent 70%)');
+  // v4 (06 §3 règle 1) : les deux halos de la famille, à la place de la lueur d'ambiance v3 (écart T1 H43.1).
+  assert.match(page, /background:\s*var\(--socle-halos\), var\(--socle-fond-page\);/, 'les deux halos de la famille');
+  assert.match(noir, /--socle-halos:\s*radial-gradient\(900px 480px at 92% -8%, color-mix\(in srgb, var\(--fam-a\) 20%, transparent\), transparent 70%\),\s*radial-gradient\(800px 520px at 32% 112%, color-mix\(in srgb, var\(--fam-b\) 15%, transparent\), transparent 70%\);/, 'le jeton des halos');
   const v = (nom: string) => Number(new RegExp(`${nom}:\\s*(\\d+)px`).exec(css)?.[1]);
   const [l, hFen, ecart, barre] = [v('--sc-h43-fenetre-l'), v('--sc-h43-fenetre-h'), v('--sc-h43-ecart'), v('--sc-h43-barre')];
   assert.deepEqual([l, hFen, ecart, barre], [440, 239, 16, 36]);

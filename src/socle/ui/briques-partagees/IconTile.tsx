@@ -10,9 +10,10 @@ import type { Famille } from '../../familles';
  * 42 (H41, aperçu), 44 (`Empty`, état vide), 48 (`BlocEtat` standard). Le rayon et le glyphe suivent la taille dans
  * `briques-partagees.css` (`data-taille`) : la brique ne reçoit jamais une cote à la main.
  *
- * `part` : la part de la couleur de famille dans le fond, en pour cent. Le socle dit 13 ; les images de D02 (10,
- * avec une bordure à 22) et de H41 (14, 18 pour l'aperçu) en diffèrent, et ces écrans gardent leurs pixels :
- * elles passent par ce réglage plutôt que par une feuille locale. `ton` : la couleur d'un état à la place de la
+ * v4 (06 §3 règle 14) : sans `part`, la tuile est teintée par sa couleur — fond en dégradé 26 % → 6 %, bord 42 %, lueur.
+ * `part` (variante officielle, décision du CO) : l'aplat mesuré d'une image, en pour cent — D02 10 (avec une bordure
+ * à 22), H41 14 et 18, H43 13 (`BlocEtat`) : les sources v4 de ces écrans le dessinent toujours ainsi, et ils
+ * passent par ce réglage plutôt que par une feuille locale. `ton` : la couleur d'un état à la place de la
  * famille (`neutre` est l'aplat du §4).
  *
  * Décorative par défaut (le texte voisin dit le module) ; avec `libelle`, elle devient une image nommée.
@@ -47,7 +48,8 @@ export function IconTile({ icone, taille = 26, famille, ton, part, bordure = fal
       data-taille={taille}
       data-famille={famille}
       data-ton={ton}
-      data-part={part && part !== 13 ? part : undefined}
+      // Une part donnée (13 compris) : l'aplat mesuré d'une image ; sans part, le rendu v4 (dégradé 26 → 6 %, bord, lueur).
+      data-part={part ? part : undefined}
       data-bordure={bordure || undefined}
       className={['sc-icon-tile', className].filter(Boolean).join(' ')}
     >

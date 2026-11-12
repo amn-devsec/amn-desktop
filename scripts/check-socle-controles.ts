@@ -23,18 +23,28 @@ await dit('noir.css : les jetons de 01-SOCLE-DESIGN §1 et §4, valeur pour vale
     '--socle-ticket': '#171718', '--socle-bord-ticket': '#262628', '--socle-bord-kanban': '#1e1e20',
     '--socle-suggestion-haut': '#17181a', '--socle-suggestion-bas': '#141415', '--socle-bord-suggestion': '#2c2e32',
     '--socle-tag': '#1a1a1c', '--socle-pilule': '#171718', '--socle-bord-pilule': '#2a2a2d', '--socle-bord-kbd': '#333336', '--socle-kbd': '#111112',
-    '--socle-case-vide': '#3a3a3e', '--socle-toggle-actif': '#2e4327', '--socle-toggle-inactif': '#242427', '--socle-onglet-compteur': '#1c1c1e',
+    // L'interrupteur allumé n'a plus de jeton : un dégradé a → b de la famille, écrit dans controles.css (v4, sources néon).
+    '--socle-case-vide': '#3a3a3e', '--socle-toggle-inactif': '#242427', '--socle-onglet-compteur': '#1c1c1e',
     '--socle-segment-actif': '#242427', '--socle-segment-fond': '#141415', '--socle-anneau-fond': '#1e1e20',
-    '--socle-avatar-a': '#4b4b55', '--socle-avatar-m': '#5a524a', '--socle-avatar-r': '#46544f', '--socle-avatar-c': '#3f4a5c', '--socle-avatar-t': '#54485c', '--socle-avatar-l': '#5c4a4a',
     '--socle-squelette': '#1e1e21', '--socle-squelette-ligne': '#222225', '--socle-squelette-reflet': '#26262a',
-    '--socle-dialogue': '#1a1a1c', '--socle-bord-dialogue': '#34343a', '--socle-bord-toast': '#2c3327',
+    '--socle-dialogue': '#1a1a1c', '--socle-bord-dialogue': '#34343a', '--socle-bord-toast': '#243931',
     '--socle-palette-fond': '#141416', '--socle-bord-palette': '#34343a', '--socle-panneau': '#111112', '--socle-bord-panneau': '#29292c',
   };
   for (const [nom, valeur] of Object.entries(attendu)) assert.equal(j.get(nom), valeur, nom);
+  // Le bord du toast v4 : le succès v4 à 15 % sur le fond du dialogue (au niveau près), plus le #2c3327 du succès v3.
+  {
+    const rgb = (x: string) => [1, 3, 5].map((i) => parseInt(x.slice(i, i + 2), 16));
+    const [s, d, t] = [rgb(j.get('--socle-etat-succes') as string), rgb(j.get('--socle-dialogue') as string), rgb(j.get('--socle-bord-toast') as string)];
+    t.forEach((v, i) => assert.ok(Math.abs(v - (0.15 * s[i] + 0.85 * d[i])) <= 0.5, `bord du toast, composante ${i} : ${v}`));
+  }
+  // Avatars v4 (06 §3 règle 13) : les six dégradés pastel des sources (des dégradés : lus dans le texte de la feuille).
+  for (const [k, a, b] of [['a', '#ff6b7a', '#a58bff'], ['m', '#6ea8ff', '#4fe3c1'], ['r', '#5ee6a8', '#3bb8c9'], ['c', '#7cc4ff', '#6e7bff'], ['t', '#c08bff', '#ff7eb6'], ['l', '#ffa463', '#ff6b7a']]) {
+    assert.match(noir, new RegExp(`--socle-avatar-${k}: linear-gradient\\(135deg, ${a}, ${b}\\);`), `--socle-avatar-${k}`);
+  }
 });
 
 await dit('les encres de texte tiennent 4,5:1 sur toutes les surfaces (le plancher T4 #8a8a8e)', () => {
-  const fonds = ['--socle-fond-page', '--socle-fond-lateral', '--socle-carte-haut', '--socle-carte-bas', '--socle-sous-carte', '--socle-champ', '--socle-ticket', '--socle-tag', '--socle-suggestion-haut', '--socle-suggestion-bas', '--socle-dialogue', '--socle-palette-fond', '--socle-panneau'];
+  const fonds = ['--socle-fond-page', '--socle-fond-lateral', '--socle-carte-haut', '--socle-carte-bas', '--socle-sous-carte', '--socle-champ', '--socle-ticket', '--socle-tag', '--socle-suggestion-haut', '--socle-suggestion-bas', '--socle-suggestion-fond', '--socle-ajmani-fond', '--socle-verre-haut', '--socle-verre-bas', '--socle-dialogue', '--socle-palette-fond', '--socle-panneau'];
   for (const encre of ['--socle-texte-1', '--socle-texte-courant', '--socle-texte-2', '--socle-texte-3'])
     for (const fond of fonds) assert.ok(rapportContraste(val(encre), val(fond)) >= 4.5, `${encre} sur ${fond}`);
   // Le compteur de la pastille de filtre active (gris sur #ededed) : AA.
@@ -288,11 +298,12 @@ const regle = (css: string, selecteur: string): string => {
 };
 
 await dit('§4 Card, Subcard, IconButton, Kpi : rayons, rembourrages et cotes', () => {
-  assert.match(regle(briques, ":root[data-ambiance='noir'] [data-socle='carte']"), /border-radius:\s*var\(--socle-rayon-carte\)[\s\S]*box-shadow:\s*inset 0 1px 0 rgba\(255, 255, 255, 0\.035\)/);
+  // v4 (06 §3 règle 2) : la carte et le Kpi, rayon 16, reflet 6,5 % et ombre portée (le détail : check:socle, les quinze règles).
+  assert.match(regle(briques, ":root[data-ambiance='noir'] :is([data-socle='carte'], .sc-kpi)"), /border-radius:\s*var\(--socle-rayon-carte\)[\s\S]*box-shadow:\s*inset 0 1px 0 var\(--socle-reflet-carte\), var\(--socle-ombre-carte\)/);
   assert.match(briques, /\[data-socle='carte'\]:not\(\[data-sans-marge='true'\]\) \{ padding: 16px 18px; \}/);
   assert.match(briques, /\[data-socle='carte'\]\[data-compacte='true'\]:not\(\[data-sans-marge='true'\]\) \{ padding: 14px 16px; \}/);
   assert.equal(j.get('--socle-rayon-carte'), undefined, 'le rayon est une cote, pas une couleur');
-  assert.match(noir, /--socle-rayon-carte:\s*14px/);
+  assert.match(noir, /--socle-rayon-carte:\s*16px/);
   assert.match(noir, /--socle-rayon-sous-carte:\s*11px/);
   assert.match(regle(controles, '.sc-sous-carte'), /padding:\s*12px 14px[\s\S]*border-radius:\s*var\(--socle-rayon-sous-carte\)[\s\S]*background:\s*var\(--socle-sous-carte\)/);
   assert.match(regle(controles, '.sc-bouton-icone'), /width:\s*34px[\s\S]*height:\s*34px[\s\S]*border:\s*1px solid var\(--socle-bord-bouton\)[\s\S]*border-radius:\s*var\(--socle-rayon-controle\)/);
@@ -316,7 +327,8 @@ await dit('§4 Card, Subcard, IconButton, Kpi : rayons, rembourrages et cotes', 
 });
 
 await dit('§4 StatusPill, Pill, Tag, FlagUrgent, Kbd : fonds, bordures, tailles et rayons', () => {
-  assert.match(regle(briques, '.sc-etat'), /padding:\s*3px 9px[\s\S]*border-radius:\s*var\(--socle-rayon-pastille\)[\s\S]*font-size:\s*11\.5px/);
+  // v4 (sources néon) : 3 × 10 / 8, bordée, 11,5 px / 600.
+  assert.match(regle(briques, '.sc-etat'), /padding:\s*3px 10px 3px 8px[\s\S]*border:\s*1px solid[\s\S]*border-radius:\s*var\(--socle-rayon-pastille\)[\s\S]*font-size:\s*11\.5px;\s*font-weight:\s*600/);
   assert.match(briques, /\.sc-etat::before \{ content: ''; width: 6px; height: 6px;/);
   assert.match(regle(briques, '.sc-etiquette'), /padding:\s*4px 10px[\s\S]*border:\s*1px solid var\(--socle-bord-pilule\)[\s\S]*border-radius:\s*var\(--socle-rayon-pastille\)[\s\S]*background:\s*var\(--socle-pilule\)[\s\S]*font-size:\s*11\.5px/);
   assert.match(regle(controles, '.sc-tag'), /padding:\s*2px 8px[\s\S]*border-radius:\s*var\(--socle-rayon-tag\)[\s\S]*background:\s*var\(--socle-tag\)[\s\S]*color:\s*var\(--socle-texte-2\)[\s\S]*font-size:\s*11px/);
@@ -334,12 +346,16 @@ await dit('§4 Avatar, AvatarStack, Sq, Progress, Check, Toggle : cotes et coule
   assert.match(regle(briques, '.sc-barre'), /height:\s*5px[\s\S]*border-radius:\s*99px[\s\S]*background:\s*var\(--socle-piste\)/);
   assert.match(briques, /\.sc-barre\[data-hauteur='4'\] \{ height: 4px; \}/);
   assert.match(briques, /\.sc-barre\[data-hauteur='8'\] \{ height: 8px; \}/);
-  assert.match(regle(briques, '.sc-barre > span'), /background:\s*linear-gradient\(90deg, var\(--socle-fam-outils\), var\(--socle-texte-1\)\)/);
+  // v4 (06 §3 règle 9) : la progression en dégradé a → b, avec sa lueur.
+  assert.match(regle(briques, '.sc-barre > span'), /background:\s*linear-gradient\(90deg, var\(--fam-a\), var\(--fam-b\)\);\s*box-shadow:\s*0 0 10px color-mix\(in srgb, var\(--fam-a\) 55%, transparent\)/);
   assert.equal(j.get('--socle-piste'), '#252528');
-  assert.equal(j.get('--socle-fam-outils'), '#9a9aa0');
-  for (const t of ['succes', 'attention', 'critique']) assert.match(briques, new RegExp(`\\.sc-barre\\[data-ton='${t}'\\] > span \\{ background: var\\(--socle-etat-${t}\\); \\}`));
+  assert.equal(j.get('--socle-fam-outils'), '#7cc4ff', 'Outils : sa couleur a v4');
+  // Une barre d'état : sa couleur pleine et sa lueur (v4).
+  for (const t of ['succes', 'attention', 'critique']) assert.match(briques, new RegExp(`\\.sc-barre\\[data-ton='${t}'\\] > span \\{ --sc-barre-c: var\\(--socle-etat-${t}\\); \\}`));
+  assert.match(briques, /\.sc-barre\[data-ton\] > span \{ background: var\(--sc-barre-c\); box-shadow: 0 0 10px color-mix\(in srgb, var\(--sc-barre-c\) 55%, transparent\); \}/);
   assert.match(regle(briques, '.sc-case'), /width:\s*18px[\s\S]*height:\s*18px[\s\S]*border:\s*1\.5px solid var\(--socle-case-vide\)[\s\S]*border-radius:\s*99px/);
-  assert.match(briques, /\.sc-case\[aria-checked='true'\] \{ border-color: var\(--socle-primaire\); background: var\(--socle-primaire\); \}/);
+  // v4 (sources néon) : cochée, en dégradé a → b avec sa lueur, coche à l'encre sombre.
+  assert.match(briques, /\.sc-case\[aria-checked='true'\] \{ border-color: transparent; background: linear-gradient\(135deg, var\(--fam-a\), var\(--fam-b\)\); box-shadow: 0 0 12px -2px var\(--fam-a\); color: var\(--socle-encre-accent\); \}/);
   // Corrigé (LOT-06) : 16 px, coche de 11 px.
   assert.match(briques, /\.sc-case\[data-taille='16'\] \{ width: 16px; height: 16px; \}/);
   assert.match(briques, /\.sc-case\[data-taille='16'\] svg \{ width: 11px; height: 11px; \}/);
@@ -350,8 +366,9 @@ await dit('§4 Avatar, AvatarStack, Sq, Progress, Check, Toggle : cotes et coule
   assert.doesNotMatch(rendre(h(K.CaseACocher, { coche: false, libelle: 'x', taille: 18 })), /data-taille/);
   assert.match(regle(controles, '.sc-interrupteur'), /width:\s*34px[\s\S]*height:\s*20px[\s\S]*background:\s*var\(--socle-toggle-inactif\)/);
   assert.match(regle(controles, '.sc-interrupteur > span'), /width:\s*14px[\s\S]*height:\s*14px[\s\S]*background:\s*var\(--socle-texte-3\)/);
-  assert.match(controles, /\.sc-interrupteur\[aria-checked='true'\] \{ background: var\(--socle-toggle-actif\); \}/);
-  assert.match(controles, /\.sc-interrupteur\[aria-checked='true'\] > span \{ background: var\(--socle-texte-1\);/);
+  // v4 (sources néon) : allumé, la piste et la pastille en dégradé a → b, chacune avec sa lueur.
+  assert.match(controles, /\.sc-interrupteur\[aria-checked='true'\] \{ background: linear-gradient\(135deg, var\(--fam-a\), var\(--fam-b\)\); box-shadow: 0 0 12px -3px var\(--fam-a\); \}/);
+  assert.match(controles, /\.sc-interrupteur\[aria-checked='true'\] > span \{ background: linear-gradient\(135deg, var\(--fam-a\), var\(--fam-b\)\); box-shadow: 0 0 10px -2px color-mix\(in srgb, var\(--fam-a\) 70%, transparent\); transform: translateX\(14px\); \}/);
 });
 
 await dit('§4 Field, Tabs, Segmented (et compact), SearchBox (34 et 38) : cotes', () => {
@@ -364,10 +381,10 @@ await dit('§4 Field, Tabs, Segmented (et compact), SearchBox (34 et 38) : cotes
   assert.match(regle(controles, '.sc-onglets'), /gap:\s*26px/);
   assert.match(regle(controles, '.sc-onglet'), /color:\s*var\(--socle-texte-3\)[\s\S]*font-size:\s*13px/);
   assert.match(controles, /\.sc-onglet\[aria-selected='true'\] \{ color: var\(--socle-texte-1\); font-weight: 600; \}/);
-  assert.match(controles, /\.sc-onglet\[aria-selected='true'\]::after \{[^}]*height: 2px; background: var\(--socle-primaire\); \}/);
+  assert.match(controles, /\.sc-onglet\[aria-selected='true'\]::after \{[^}]*height: 2px; background: var\(--fam-a\); \}/, 'v4 : le soulignement de la couleur a');
   assert.match(regle(controles, '.sc-onglet__compteur'), /background:\s*var\(--socle-onglet-compteur\)/);
   assert.match(regle(controles, '.sc-segmente'), /padding:\s*3px[\s\S]*border:\s*1px solid var\(--socle-bord-controle\)[\s\S]*border-radius:\s*var\(--socle-rayon-champ\)[\s\S]*background:\s*var\(--socle-segment-fond\)/);
-  assert.match(controles, /\.sc-segment\[aria-checked='true'\] \{ background: var\(--socle-segment-actif\); color: var\(--socle-texte-1\); font-weight: 600; \}/, 'le segment choisi : fond, T1, et la graisse (repère non chromatique, décision du CO)');
+  assert.match(controles, /\.sc-segment\[aria-checked='true'\] \{\s*background: linear-gradient\(135deg, color-mix\(in srgb, var\(--fam-a\) 30%, transparent\), color-mix\(in srgb, var\(--fam-b\) 16%, transparent\)\);\s*box-shadow: inset 0 0 0 1px color-mix\(in srgb, var\(--fam-a\) 45%, transparent\);\s*color: var\(--socle-blanc\);\s*font-weight: 600;\s*\}/, 'le segment choisi (v4) : dégradé a → b, liseré, encre blanche, et la graisse (repère non chromatique, décision du CO)');
   assert.match(controles, /\.sc-segment__texte::after \{ content: attr\(data-texte\); height: 0; overflow: hidden; font-weight: 600; visibility: hidden;/, 'la largeur de la forme grasse est réservée, hors de l’arbre d’accessibilité');
   assert.match(regle(controles, '.sc-segment'), /font-weight:\s*500/);
   // Désactivé (un fieldset coupé, Réglages › Écran de veille) : l'état se voit comme sur `.sc-selecteur:disabled`, et le survol ne colore plus le segment.
@@ -394,7 +411,9 @@ await dit('§4 Field, Tabs, Segmented (et compact), SearchBox (34 et 38) : cotes
 });
 
 await dit('§4 Empty (EtatVide) : pointillé #2e2e33, rayon 14, icône 44 px, titre 14 / 600, texte 12,5 T4 de 300 px au plus, toujours une action (corrigé)', () => {
-  assert.match(regle(briques, '.sc-vide'), /border:\s*1px dashed var\(--socle-pointille\)[\s\S]*border-radius:\s*var\(--socle-rayon-carte\)/);
+  // v4 : les cartes passent à 16 ; la zone vide garde son rayon 14 (sources v4), comme les boîtes (--socle-rayon-boite).
+  assert.match(regle(briques, '.sc-vide'), /border:\s*1px dashed var\(--socle-pointille\)[\s\S]*border-radius:\s*var\(--socle-rayon-boite\)/);
+  assert.match(noir, /--socle-rayon-boite: 14px;/);
   assert.equal(j.get('--socle-pointille'), '#2e2e33');
   assert.match(regle(briques, '.sc-vide__icone'), /width:\s*44px[\s\S]*height:\s*44px[\s\S]*border-radius:\s*12px/);
   assert.match(regle(briques, '.sc-vide__titre'), /color:\s*var\(--socle-texte-1\)[\s\S]*font-size:\s*14px[\s\S]*font-weight:\s*600/);
@@ -409,7 +428,8 @@ await dit('§4 Empty (EtatVide) : pointillé #2e2e33, rayon 14, icône 44 px, ti
 });
 
 await dit('§4 Suggestion et cartes ludiques : cotes', () => {
-  assert.match(regle(controles, '.sc-suggestion'), /padding:\s*16px 18px[\s\S]*border:\s*1px solid var\(--socle-bord-suggestion\)[\s\S]*border-radius:\s*var\(--socle-rayon-carte\)[\s\S]*linear-gradient\(180deg, var\(--socle-suggestion-haut\), var\(--socle-suggestion-bas\)\)/);
+  // v4 (06 §3 règle 12) : 16 × 18, rayon des cartes, bord en dégradé a → b (padding-box / border-box), ombre de la couleur a.
+  assert.match(regle(controles, '.sc-suggestion'), /padding:\s*16px 18px[\s\S]*border:\s*1px solid transparent[\s\S]*border-radius:\s*var\(--socle-rayon-carte\)[\s\S]*linear-gradient\(var\(--socle-suggestion-fond\), var\(--socle-suggestion-fond\)\) padding-box,\s*linear-gradient\(135deg, var\(--fam-a\), var\(--fam-b\)\) border-box/);
   assert.match(regle(controles, '.sc-suggestion__entete'), /font-size:\s*12px[\s\S]*font-weight:\s*600/);
   assert.match(regle(controles, '.sc-etincelle'), /color:\s*var\(--socle-etat-succes\)/);
   assert.match(regle(controles, '.sc-suggestion__titre'), /color:\s*var\(--socle-texte-1\)[\s\S]*font-size:\s*13px[\s\S]*font-weight:\s*600/);

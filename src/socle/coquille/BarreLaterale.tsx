@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { AnneauProgression, Avatar, CountBadge, LiveDot, Raccourci, type TonVivant } from '../ui';
 import { useSocleLangue } from '../i18n';
+import { estFamilleCouleur } from '../familles';
 import type { CarteAujourdhui, EtatGarde, FamilleLaterale, ModuleLateral } from './types';
 
 /**
@@ -172,7 +173,8 @@ export const BarreLaterale = React.forwardRef<HTMLElement, BarreLateraleProps>(f
       </>
     );
     return (
-      <li key={f.cle} data-famille={f.famille} data-cle={f.cle}>
+      // La paire de couleurs de la ligne (v4) : La Garde et Cyber posent la leur (leur clé), les autres celle de leur teinte.
+      <li key={f.cle} data-famille={f.cle === 'garde' || f.cle === 'cyber' ? f.cle : estFamilleCouleur(f.famille) ? f.famille : 'systeme'} data-cle={f.cle}>
         {aSousListe ? (
           <button
             type="button"

@@ -89,7 +89,8 @@ export function Donut({ segments, libelle, taille = 116, epaisseur = 14, formate
                   transform={`rotate(-90 ${c} ${c})`}
                   strokeDasharray={`${arcs[i].visible} ${tour - arcs[i].visible}`}
                   strokeDashoffset={-(arcs[i].debut + arcs[i].ecart / 2)}
-                  style={{ stroke: couleurTon(s.ton) }}
+                  // `color` aussi : la lueur v4 de l'arc (graphiques.css) prend currentColor.
+                  style={{ stroke: couleurTon(s.ton), color: couleurTon(s.ton) }}
                 />
               ) : null,
             )}

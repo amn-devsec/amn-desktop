@@ -67,7 +67,7 @@ export function BlocEtat({ icone, ton = 'neutre', famille, titre, texte, actions
   const Titre = `h${niveauTitre}` as 'h3';
   return (
     <div role={annonce} data-ton={ton} data-famille={famille} data-taille={taille === 'compact' ? 'compact' : undefined} className={['sc-bloc-etat', className].filter(Boolean).join(' ')}>
-      {icone !== null && <IconTile className="sc-bloc-etat__icone" taille={taille === 'compact' ? 36 : 48} ton={tonTuile(ton, taille)} icone={icone} />}
+      {icone !== null && <IconTile className="sc-bloc-etat__icone" taille={taille === 'compact' ? 36 : 48} ton={tonTuile(ton, taille)} part={13} icone={icone} />}
       <Titre className="sc-bloc-etat__titre">{titre}</Titre>
       {texte && <p className="sc-bloc-etat__texte">{texte}</p>}
       <div className="sc-bloc-etat__actions">{actions}</div>

@@ -1078,7 +1078,7 @@ await dit('feuille : les cotes de la fiche v3 (rubrique 3) — volets 300 / 476 
   assert.match(cssNu, /\.sc-notif__case-boite \{[^}]*width:\s*26px[^}]*height:\s*22px[^}]*dashed/);
   assert.match(cssNu, /\.sc-notif__groupe-titre \{[^}]*height:\s*var\(--sc-notif-groupe\)[^}]*font-size:\s*11px[^}]*letter-spacing:\s*0\.08em/);
   assert.match(cssNu, /\.sc-notif__groupe-nom \{[^}]*text-transform:\s*uppercase/);
-  assert.match(sansCommentaires(lire('src/socle/ui/archetypes/archetypes.css')), /\.sc-page__titre \{[^}]*font-size: 28px; font-weight: 600/, 'le titre est celui du PageHead');
+  assert.match(sansCommentaires(lire('src/socle/ui/archetypes/archetypes.css')), /\.sc-page__titre \{[^}]*background: linear-gradient\(100deg, var\(--socle-blanc\) 30%, var\(--fam-b\)\);[^}]*color: transparent;\s*font-size: 30px;\s*font-weight: 700;\s*letter-spacing: -0\.03em;\s*line-height: 1\.1;/, 'le titre est celui du PageHead (v4, source H40)');
   assert.match(cssNu, /\.sc-notif__entete\.sc-page__entete \{ height: var\(--sc-notif-entete\); flex-wrap: nowrap; gap: 16px; \}/);
   assert.match(cssNu, /\.sc-notif__entete \.sc-page__actions \{ flex-wrap: nowrap; margin-top: 23px; \}/);
   assert.doesNotMatch(cssNu, /\.sc-notif__titre|\.sc-notif__boutons/, 'plus de titre ni de boutons locaux');

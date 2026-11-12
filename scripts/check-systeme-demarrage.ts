@@ -968,7 +968,7 @@ await dit('cotes de H42 : parcours 1108 × 164 (marges 18 / 22, gouttière 212, 
   assert.match(regle('.dem-creneaux'), /repeat\(3, minmax\(0, 1fr\)\)/);
   assert.match(regle('.dem-aide__actions'), /margin-top: auto/);
   // L'en-tête est le `PageHead` du socle : titre 28 / 600 et sous-titre 13,5 lus dans archetypes.css, les cotes propres de H42 ici.
-  assert.match(archetypes, /\.sc-page__titre \{[^}]*font-size: 28px; font-weight: 600/);
+  assert.match(archetypes, /\.sc-page__titre \{[^}]*background: linear-gradient\(100deg, var\(--socle-blanc\) 30%, var\(--fam-b\)\);[^}]*color: transparent;\s*font-size: 30px;\s*font-weight: 700;\s*letter-spacing: -0\.03em;\s*line-height: 1\.1;/, 'le h1 v4 (source H42)');
   assert.match(archetypes, /\.sc-page__sous-titre \{[^}]*font-size: 13\.5px/);
   assert.match(archetypes, /\.sc-page__actions \{[^}]*gap: 9px/);
   assert.match(regle('.dem-entete.sc-page__entete'), /align-items: flex-end; gap: 16px; margin-bottom: 13px/);
@@ -981,7 +981,7 @@ await dit('C11 et C12 : la racine de page ne pose pas les chiffres tabulaires (l
   assert.doesNotMatch(racinePage, /tabular-nums/);
   assert.match(css, /\.sc-nombre \{ font-variant-numeric: tabular-nums; \}/);
   for (const sel of ['.dem-anneau__n', '.dem-anneau__total', '.dem-papier__numero']) assert.match(regle(sel), /tabular-nums/, sel);
-  assert.match(archetypes, /\.sc-page__titre \{[^}]*color: var\(--socle-texte-1\)/, 'le titre de page : T1');
+  assert.match(archetypes, /\.sc-page__titre \{[^}]*background: linear-gradient\(100deg, var\(--socle-blanc\) 30%, var\(--fam-b\)\);[^}]*background-clip: text;\s*color: transparent;/, 'le titre de page porte son encre : le dégradé v4 #FFF → b');
   for (const sel of ['.dem-parcours__pretes', '.dem-etape__titre', '.dem-carte__titre', '.dem-pret__titre', '.dem-papier__titre', '.dem-rempli__terme', '.dem-papier__montant'])
     assert.match(regle(sel), /color: var\(--socle-texte-1\)/, `${sel} : T1`);
   for (const sel of ['.dem-ensuite__titre', '.dem-rempli__texte', '.dem-papier__libelle']) assert.match(regle(sel), /color: var\(--socle-texte-courant\)/, `${sel} : T2`);

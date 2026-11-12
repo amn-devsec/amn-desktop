@@ -292,9 +292,9 @@ await dit('Courbe : alternative textuelle — un tableau sr-only avec les 12 val
   assert.match(html, /<th scope="row">févr\.<\/th><td>5<\/td>/);
 });
 
-await dit('Courbe : la forme du dessin — aire dégradée .28 → 0, ligne tracée, point final cerclé, grille, axes en jeton', () => {
+await dit('Courbe : la forme du dessin — aire dégradée .42 → 0 (v4, 06 §3 règle 7), ligne tracée, point final cerclé, grille, axes en jeton', () => {
   const html = rend(M.Courbe, { donnees: points(JEU, MOIS), libelle: 'Activité' });
-  assert.match(html, /<stop class="sc-g__degrade" offset="0" stop-opacity="0.28"/);
+  assert.match(html, /<stop class="sc-g__degrade" offset="0" stop-opacity="0.42"/);
   assert.match(html, /<stop class="sc-g__degrade" offset="1" stop-opacity="0"/);
   assert.match(html, /<path class="sc-g__ligne" d="M[^"]+" pathLength="1"/);
   assert.match(html, /<path class="sc-g__aire" d="M[^"]+Z" fill="url\(#/);
@@ -464,7 +464,14 @@ await dit('Barres : la plus grande est mise en valeur avec sa valeur au-dessus ;
   const aucune = rend(M.Barres, { donnees: points(MESURES, SEMAINE), libelle: 'Appels', miseEnValeur: null });
   assert.equal(compter(aucune, /data-mise="oui"/g), 0);
   assert.equal(compter(aucune, /sc-g__valeur/g), 0);
-  assert.match(html, /style="--sc-g-c:var\(--socle-etat-info\)"/, 'la mise en valeur est « info » par défaut');
+  // v4 (06 §3 règle 8) : la couleur a de la famille par défaut ; neutres en dégradé 50 % → 10 % de a, mise en valeur pleine → 30 %.
+  assert.match(html, /style="--sc-g-c:var\(--fam-a\);--sc-g-neutre:url\(#([\w-]+)-n\);--sc-g-mise:url\(#\1-m\)"/, 'la mise en valeur est « famille » par défaut');
+  assert.match(html, /<linearGradient id="[\w-]+-n" x1="0" y1="0" x2="0" y2="1"><stop class="sc-g__degrade-famille" offset="0" stop-opacity="0.5"><\/stop><stop class="sc-g__degrade-famille" offset="1" stop-opacity="0.1"><\/stop><\/linearGradient>/);
+  assert.match(html, /<linearGradient id="[\w-]+-m" x1="0" y1="0" x2="0" y2="1"><stop class="sc-g__degrade" offset="0" stop-opacity="1"><\/stop><stop class="sc-g__degrade" offset="1" stop-opacity="0.3"><\/stop><\/linearGradient>/);
+  assert.match(rend(M.Barres, { donnees: points(MESURES, SEMAINE), libelle: 'Appels', ton: 'info' }), /style="--sc-g-c:var\(--socle-etat-info\);/, 'un ton d’état reste possible');
+  const cssG = sansCommentaires(lire(`${REP}/graphiques.css`));
+  assert.match(cssG, /\.sc-g__degrade-famille \{ stop-color: var\(--fam-a\); \}/);
+  assert.match(cssG, /\.sc-g__colonne\[data-mise='oui'\] \{ fill: var\(--sc-g-mise, var\(--sc-g-c\)\); filter: drop-shadow\(0 0 7px var\(--sc-g-c\)\); \}/, 'la lueur de la mise en valeur');
 });
 
 await dit('Barres : étiquettes d’axe en T4 (classe d’axe), colonnes en jeton, une zone cliquable par colonne', () => {
@@ -497,9 +504,10 @@ await dit('Donut : 116 px, épaisseur 14, un cercle par segment, couleurs = jeto
   const cercles = [...html.matchAll(/<circle class="sc-g__segment"[^>]*>/g)].map((m) => m[0]);
   assert.equal(cercles.length, 3);
   for (const c of cercles) assert.match(c, /stroke-width="14"/);
-  assert.match(cercles[0], /style="stroke:var\(--socle-etat-info\)"/);
-  assert.match(cercles[1], /style="stroke:var\(--socle-fam-argent\)"/);
-  assert.match(cercles[2], /style="stroke:var\(--socle-etat-attention\)"/);
+  // `color` suit le trait : la lueur v4 de l'arc (graphiques.css) le lit en currentColor.
+  assert.match(cercles[0], /style="stroke:var\(--socle-etat-info\);color:var\(--socle-etat-info\)"/);
+  assert.match(cercles[1], /style="stroke:var\(--socle-fam-argent\);color:var\(--socle-fam-argent\)"/);
+  assert.match(cercles[2], /style="stroke:var\(--socle-etat-attention\);color:var\(--socle-etat-attention\)"/);
   assert.match(html, /aria-label="Dépenses\. Répartition, parts : 3, total : 10\u202f000\u00a0€"/);
 });
 
@@ -583,7 +591,11 @@ await dit('Anneau : alias de AnneauProgression — 72 px, épaisseur 8, fond --s
 
 await dit('Anneau : un ton d’état colore le trait ; centre libre possible', () => {
   const html = rend(M.Anneau, { valeur: 0.6, libelle: 'x', ton: 'succes' });
-  assert.match(html, /class="sc-anneau__trait"[^>]*style="stroke:var\(--socle-etat-succes\)"/);
+  // v4 : le ton passe par --sc-anneau-c, que la feuille lit pour le trait ET sa lueur (06 §3 règle 7).
+  assert.match(html, /class="sc-anneau__trait"[^>]*style="--sc-anneau-c:var\(--socle-etat-succes\)"/);
+  const briques = sansCommentaires(lire('src/socle/ui/briques.css'));
+  assert.match(briques, /\.sc-anneau \.sc-anneau__trait \{ stroke: var\(--sc-anneau-c, var\(--socle-texte-1\)\);/);
+  assert.match(briques, /\.sc-anneau \.sc-anneau__trait\[style\*='--sc-anneau-c'\] \{ filter: drop-shadow\(0 0 6px color-mix\(in srgb, var\(--sc-anneau-c\) 67%, transparent\)\); \}/);
   assert.match(rend(M.Anneau, { valeur: 0.6, libelle: 'x' }), /<circle class="sc-anneau__trait"[^>]*stroke-dashoffset="[\d.]+"><\/circle>/, 'neutre : pas de style en ligne sur le trait');
   const centre = rend(M.Anneau, { valeur: 3 / 7, libelle: 'x', children: '3/7' });
   assert.match(centre, /sc-anneau__centre">3\/7</);
@@ -651,7 +663,7 @@ await dit('aucune encre « discret » (trait-discret, trait-tres-discret, #77777
   }
   // Et le texte des graphiques prend T1, T2, T3 ou T4 : jamais un fond ni une bordure.
   const texte = [...css.matchAll(/(?:^|[;{\s])(?:color|fill)\s*:\s*([^;}]+)/g)].map((m) => m[1].trim());
-  const permis = /^(var\(--socle-texte-[123]\)|var\(--sc-g-c\)|var\(--socle-carte-bas\)|none|var\(--socle-colonne-graphique\)|color-mix\(in srgb, var\(--sc-g-c\) \d+%, var\(--socle-colonne-graphique\)\))$/;
+  const permis = /^(var\(--socle-texte-[123]\)|var\(--sc-g-c\)|var\(--socle-carte-bas\)|none|var\(--socle-colonne-graphique\)|var\(--sc-g-neutre, var\(--socle-colonne-graphique\)\)|var\(--sc-g-mise, var\(--sc-g-c\)\)|color-mix\(in srgb, var\(--sc-g-c\) \d+%, var\(--socle-colonne-graphique\)\))$/;
   for (const t of texte) assert.ok(permis.test(t), `encre inattendue : ${t}`);
 });
 
@@ -668,7 +680,7 @@ await dit('aucun texte sous 10,5 px : plancher des axes, et toute taille écrite
 
 await dit('la colonne, la grille et le fond d’anneau sont les jetons de la spec', () => {
   assert.match(css, /\.sc-g__grille\s*\{[^}]*stroke:\s*var\(--socle-grille-graphique\)/);
-  assert.match(css, /\.sc-g__colonne\s*\{[^}]*fill:\s*var\(--socle-colonne-graphique\)/);
+  assert.match(css, /\.sc-g__colonne\s*\{[^}]*fill:\s*var\(--sc-g-neutre, var\(--socle-colonne-graphique\)\)/, 'le dégradé v4, la colonne v3 en repli');
   assert.match(css, /\.sc-g__piste\s*\{[^}]*stroke:\s*var\(--socle-anneau-fond\)/);
   assert.match(css, /--sc-g-trait:\s*2px/);
   assert.match(css, /--sc-g-pastille:\s*8px/);

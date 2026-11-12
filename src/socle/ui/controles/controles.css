@@ -106,8 +106,9 @@
   background: var(--socle-texte-3);
   transition: transform 0.18s ease-out, background-color 0.18s ease-out;
 }
-.sc-interrupteur[aria-checked='true'] { background: var(--socle-toggle-actif); }
-.sc-interrupteur[aria-checked='true'] > span { background: var(--socle-texte-1); transform: translateX(14px); }
+/* v4 (sources néon) : allumé, la piste et la pastille en dégradé 135° a → b, chacune avec sa lueur. */
+.sc-interrupteur[aria-checked='true'] { background: linear-gradient(135deg, var(--fam-a), var(--fam-b)); box-shadow: 0 0 12px -3px var(--fam-a); }
+.sc-interrupteur[aria-checked='true'] > span { background: linear-gradient(135deg, var(--fam-a), var(--fam-b)); box-shadow: 0 0 10px -2px color-mix(in srgb, var(--fam-a) 70%, transparent); transform: translateX(14px); }
 .sc-interrupteur:disabled { cursor: not-allowed; opacity: 0.55; }
 /* Zone de clic de 34 × 34 (§7.6, décision du CO), invisible : le dessin de 34 × 20 du § 4 ne change pas. */
 .sc-interrupteur::after { content: ''; position: absolute; top: 50%; left: 50%; width: 34px; height: 34px; transform: translate(-50%, -50%); }
@@ -214,7 +215,7 @@
 }
 .sc-onglet:hover { color: var(--socle-texte-courant); }
 .sc-onglet[aria-selected='true'] { color: var(--socle-texte-1); font-weight: 600; }
-.sc-onglet[aria-selected='true']::after { content: ''; position: absolute; right: 0; bottom: -1px; left: 0; height: 2px; background: var(--socle-primaire); }
+.sc-onglet[aria-selected='true']::after { content: ''; position: absolute; right: 0; bottom: -1px; left: 0; height: 2px; background: var(--fam-a); }
 .sc-onglet__compteur { padding: 1px 7px; border-radius: 99px; background: var(--socle-onglet-compteur); color: var(--socle-texte-2); font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
 
 /* ── Segmenté : conteneur #141415 / #28282b, rayon 10, 3 px ; actif #242427 T1 500 ── */
@@ -223,7 +224,13 @@
 /* Le survol ne répond pas sur un segment désactivé ; `:where` garde la spécificité de `.sc-segment:hover`, pour que le segment
    choisi, déclaré ensuite, reste en T1 même survolé. */
 .sc-segment:hover:where(:not(:disabled)) { color: var(--socle-texte-courant); }
-.sc-segment[aria-checked='true'] { background: var(--socle-segment-actif); color: var(--socle-texte-1); font-weight: 600; }
+/* v4 (06 §3 règle 11, sources néon) : le segment choisi en dégradé a 30 % → b 16 %, liseré a 45 %, encre blanche, 600. */
+.sc-segment[aria-checked='true'] {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--fam-a) 30%, transparent), color-mix(in srgb, var(--fam-b) 16%, transparent));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fam-a) 45%, transparent);
+  color: var(--socle-blanc);
+  font-weight: 600;
+}
 /* Le segment choisi se lit aussi sans la couleur : par sa graisse (600). Chaque libellé réserve la largeur de sa forme grasse
    (copie invisible, hors de l'arbre d'accessibilité) : choisir un segment ne déplace pas ses voisins. */
 .sc-segment__texte { display: inline-flex; flex-direction: column; }
@@ -243,10 +250,13 @@
   flex-direction: column;
   gap: 6px;
   padding: 16px 18px;
-  border: 1px solid var(--socle-bord-suggestion);
+  /* v4 (06 §3 règle 12) : le bord en dégradé a → b (fond en padding-box), l'ombre de la couleur a. */
+  border: 1px solid transparent;
   border-radius: var(--socle-rayon-carte);
-  background: linear-gradient(180deg, var(--socle-suggestion-haut), var(--socle-suggestion-bas));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  background:
+    linear-gradient(var(--socle-suggestion-fond), var(--socle-suggestion-fond)) padding-box,
+    linear-gradient(135deg, var(--fam-a), var(--fam-b)) border-box;
+  box-shadow: 0 18px 40px -26px var(--fam-a);
 }
 .sc-suggestion__entete { display: flex; align-items: center; gap: 7px; margin: 0 0 4px; color: var(--socle-texte-courant); font-size: 12px; font-weight: 600; }
 .sc-etincelle { flex: none; color: var(--socle-etat-succes); }
@@ -278,7 +288,7 @@
 .sc-ludique__serie li { display: flex; flex-direction: column; align-items: center; gap: 5px; }
 .sc-ludique__initiale { color: var(--socle-texte-3); font-size: 10.5px; font-weight: 500; text-transform: uppercase; }
 .sc-case--statique { cursor: default; }
-.sc-case--statique[data-fait='true'] { border-color: var(--socle-primaire); background: var(--socle-primaire); }
+.sc-case--statique[data-fait='true'] { border-color: transparent; background: linear-gradient(135deg, var(--fam-a), var(--fam-b)); box-shadow: 0 0 12px -2px var(--fam-a); color: var(--socle-encre-accent); }
 
 @media (prefers-reduced-motion: reduce) {
   .sc-interrupteur, .sc-interrupteur > span, .sc-filtre, .sc-case { transition: none; }

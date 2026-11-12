@@ -66,17 +66,23 @@ await dit('IconTile : huit tailles, chacune avec son rayon et son glyphe (D02 22
     assert.match(css, new RegExp(`\\.sc-icon-tile\\[data-taille='${taille}'\\] \\{ --sc-tuile: ${taille}px; --sc-tuile-rayon: ${rayon}px; --sc-tuile-glyphe: ${glyphe}px; \\}`), `tuile ${taille}`);
   }
   const base = bloc('.sc-icon-tile');
-  assert.match(base, /--sc-tuile-teinte: var\(--fam, var\(--socle-fam-outils\)\)/);
+  // v4 : sans famille, la tuile prend la couleur a de la famille active (plus le gris d'Outils).
+  assert.match(base, /--sc-tuile-teinte: var\(--fam, var\(--fam-a\)\)/);
   assert.match(base, /--sc-tuile-part: 13%/, 'rgba(famille,.13) : la part du §4');
   assert.match(base, /box-sizing: border-box/);
   assert.match(base, /width: var\(--sc-tuile\);\s*height: var\(--sc-tuile\)/);
   assert.match(base, /border-radius: var\(--sc-tuile-rayon\)/);
-  assert.match(base, /background: color-mix\(in srgb, var\(--sc-tuile-teinte\) var\(--sc-tuile-part\), transparent\)/);
+  // v4 (06 §3 règle 14, sources néon) : fond en dégradé 135° 26 % → 6 %, bord 42 %, lueur de la teinte.
+  assert.match(base, /border: 1px solid color-mix\(in srgb, var\(--sc-tuile-teinte\) 42%, transparent\)/);
+  assert.match(base, /background: linear-gradient\(135deg, color-mix\(in srgb, var\(--sc-tuile-teinte\) 26%, transparent\), color-mix\(in srgb, var\(--sc-tuile-teinte\) 6%, transparent\)\)/);
+  assert.match(base, /box-shadow: 0 0 16px -6px var\(--sc-tuile-teinte\)/);
   assert.match(base, /color: var\(--sc-tuile-teinte\)/);
+  // Une part donnée (variante officielle) : l'aplat mesuré de l'image, sans bord ni lueur.
+  assert.match(css, /\.sc-icon-tile\[data-part\] \{ border: 0; background: color-mix\(in srgb, var\(--sc-tuile-teinte\) var\(--sc-tuile-part\), transparent\); box-shadow: none; \}/);
   assert.match(css, /\.sc-icon-tile > svg \{ width: var\(--sc-tuile-glyphe\); height: var\(--sc-tuile-glyphe\); \}/);
-  for (const part of [10, 14, 18]) assert.match(css, new RegExp(`\\.sc-icon-tile\\[data-part='${part}'\\] \\{ --sc-tuile-part: ${part}%; \\}`), `part ${part}`);
+  for (const part of [10, 13, 14, 18]) assert.match(css, new RegExp(`\\.sc-icon-tile\\[data-part='${part}'\\] \\{ --sc-tuile-part: ${part}%; \\}`), `part ${part}`);
   assert.match(css, /\.sc-icon-tile\[data-bordure='true'\] \{ border: 1px solid color-mix\(in srgb, var\(--sc-tuile-teinte\) 22%, transparent\); \}/, 'la bordure de D02');
-  assert.match(css, /\.sc-icon-tile\[data-ton='neutre'\] \{ background: var\(--socle-tag\); color: var\(--socle-texte-2\); \}/, 'neutre = aplat #1A1A1C');
+  assert.match(css, /\.sc-icon-tile\[data-ton='neutre'\] \{ border: 0; background: var\(--socle-tag\); box-shadow: none; color: var\(--socle-texte-2\); \}/, 'neutre = aplat #1A1A1C');
   assert.equal(noir.get('--socle-tag'), '#1a1a1c');
   for (const ton of ['succes', 'attention', 'critique', 'info']) assert.match(css, new RegExp(`\\.sc-icon-tile\\[data-ton='${ton}'\\] \\{ --sc-tuile-teinte: var\\(--socle-etat-${ton}\\); \\}`), ton);
   assert.match(css, /\.sc-icon-tile\[data-famille='garde'\] \{ --fam: var\(--socle-fam-garde\); \}/);
@@ -161,32 +167,36 @@ await dit('AddModuleTile : pointillé --socle-pointille (#2E2E33, comme Empty), 
   assert.match(css, /\.sc-module-group \+ \.sc-module-group \{ margin-top: var\(--sc-ecart-page, 14px\); \}/);
 });
 
-await dit('PageHead (§3) : h1 28 / 600 / −.02 em / 1,1, sous-titre 13,5 T4 à 7 px, boutons de 31 px à 9 px, contrôles à la place des boutons ; StatusPill (§4) : point 6 + libellé 11,5, fond 10 à 13 %, 3 × 9, rayon 99', () => {
+await dit('PageHead (v4, 06 §3 règle 3) : h1 30 / 700 / −.03 em / 1,1 en dégradé, sous-titre 13,5 T4 à 7 px, boutons de 31 px à 9 px, contrôles à la place des boutons ; StatusPill (v4, règle 6) : point 6 à lueur + libellé 11,5 / 600, fond 14 %, bord 38 %, 3 × 10 / 8, rayon 99', () => {
   const arche = sansCommentaires(lire('src/socle/ui/archetypes/archetypes.css'));
-  assert.match(arche, /\.sc-page__titre \{[^}]*font-size: 28px; font-weight: 600; letter-spacing: -0\.02em; line-height: 1\.1/);
+  assert.match(arche, /\.sc-page__titre \{[^}]*font-size: 30px;\s*font-weight: 700;\s*letter-spacing: -0\.03em;\s*line-height: 1\.1;/);
   assert.match(arche, /\.sc-page__sous-titre \{ margin: 7px 0 0; color: var\(--socle-texte-3\); font-size: 13\.5px/);
   assert.match(arche, /\.sc-page__actions \{[^}]*gap: 9px/);
   assert.match(arche, /\.sc-page__actions \[data-socle='bouton'\] \{ min-height: 31px; \}/);
   assert.match(arche, /\.sc-page__controles \{ display: flex; flex: none; align-items: center; gap: 9px; \}/);
   const briques = sansCommentaires(lire('src/socle/ui/briques.css'));
   const etat = /\.sc-etat \{([^}]*)\}/.exec(briques)?.[1] ?? '';
-  assert.match(etat, /padding: 3px 9px/);
+  assert.match(etat, /padding: 3px 10px 3px 8px/);
+  assert.match(etat, /border: 1px solid color-mix\(in srgb, var\(--etat\) 38%, transparent\)/);
+  assert.match(etat, /font-weight: 600/);
   assert.match(etat, /border-radius: var\(--socle-rayon-pastille\)/);
   assert.match(etat, /font-size: 11\.5px/);
-  const part = Number(/color-mix\(in srgb, var\(--etat\) (\d+)%, transparent\)/.exec(etat)?.[1]);
-  assert.ok(part >= 10 && part <= 13, `fond teinté à ${part} % (10 à 13)`);
-  assert.match(briques, /\.sc-etat::before \{ content: ''; width: 6px; height: 6px; border-radius: 99px; background: var\(--etat\); \}/);
+  const part = Number(/background: color-mix\(in srgb, var\(--etat\) (\d+)%, transparent\)/.exec(etat)?.[1]);
+  assert.equal(part, 14, `fond teinté à ${part} % (v4 : 14)`);
+  assert.match(briques, /\.sc-etat::before \{ content: ''; width: 6px; height: 6px; border-radius: 99px; background: var\(--etat\); box-shadow: 0 0 8px var\(--etat\); \}/);
 });
 
 /* ═══════════════════════  2. Le balisage et les rôles  ═══════════════════════ */
 
-await dit('IconTile : décorative par défaut, image nommée avec `libelle` ; taille, famille, ton, part (13 omise) et bordure en attributs de données', () => {
+await dit('IconTile : décorative par défaut, image nommée avec `libelle` ; taille, famille, ton, part (13 comprise : l’aplat de H43) et bordure en attributs de données', () => {
   const simple = rendre(h(R.IconTile, { icone: glyphe(), famille: 'contacts' }));
   assert.match(simple, /^<span aria-hidden="true" data-taille="26" data-famille="contacts" class="sc-icon-tile"><svg data-glyphe="oui"><\/svg><\/span>$/);
   const nommee = rendre(h(R.IconTile, { icone: glyphe(), taille: 44, ton: 'neutre', libelle: 'Aucun client' }));
   assert.match(nommee, /^<span role="img" aria-label="Aucun client" data-taille="44" data-ton="neutre" class="sc-icon-tile">/);
   assert.match(rendre(h(R.IconTile, { icone: glyphe(), taille: 22, famille: 'argent', part: 10, bordure: true })), /data-taille="22" data-famille="argent" data-part="10" data-bordure="true"/);
-  assert.doesNotMatch(rendre(h(R.IconTile, { icone: glyphe(), part: 13 })), /data-part/, '13 est la part du socle : rien à dire');
+  // v4 : une part donnée, 13 comprise, demande l'aplat ; sans part, le dégradé v4.
+  assert.match(rendre(h(R.IconTile, { icone: glyphe(), part: 13 })), /data-part="13"/, 'la part 13 dit l’aplat de H43');
+  assert.doesNotMatch(rendre(h(R.IconTile, { icone: glyphe() })), /data-part/, 'sans part : le rendu v4');
   assert.match(rendre(h(R.IconTile, { icone: glyphe(), famille: 'garde', className: 'x-tuile' })), /data-famille="garde" class="sc-icon-tile x-tuile"/);
 });
 
@@ -320,7 +330,7 @@ await dit('D02, la barre latérale, H40, H42, H47, H41 et BlocEtat passent par l
   assert.match(sansCommentaires(lire('src/refonte/systeme/recherche/PaletteRecherche.tsx')), /<IconTile\s+className="rc-tuile"\s+taille=\{grande \? 42 : 26\}\s+part=\{grande \? 18 : 14\}/);
   assert.doesNotMatch(sansCommentaires(lire('src/refonte/systeme/recherche/recherche.css')), /\.rc-tuile \{/);
   // BlocEtat emploie la brique pour de vrai : son ton lui est passé, et situations.css ne redéfinit ni cote, ni fond, ni couleur de la tuile.
-  assert.match(sansCommentaires(lire('src/socle/ui/situations/BlocEtat.tsx')), /<IconTile className="sc-bloc-etat__icone" taille=\{taille === 'compact' \? 36 : 48\} ton=\{tonTuile\(ton, taille\)\} icone=\{icone\} \/>/);
+  assert.match(sansCommentaires(lire('src/socle/ui/situations/BlocEtat.tsx')), /<IconTile className="sc-bloc-etat__icone" taille=\{taille === 'compact' \? 36 : 48\} ton=\{tonTuile\(ton, taille\)\} part=\{13\} icone=\{icone\} \/>/);
   const situations = sansCommentaires(lire('src/socle/ui/situations/situations.css'));
   assert.match(situations, /\.sc-bloc-etat__icone \{ --sc-tuile-teinte: var\(--sc-ton\); \}/, 'la teinte du bloc passe par la variable de la brique');
   // Quelle que soit l'écriture du sélecteur (composé `.sc-bloc-etat__icone.sc-icon-tile`, liste, descendant `svg`) et la

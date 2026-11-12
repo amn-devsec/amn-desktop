@@ -58,7 +58,7 @@ const page: React.CSSProperties = {
   overflow: 'hidden',
   padding: '24px 40px',
   backgroundColor: 'var(--socle-fond-page)',
-  backgroundImage: 'var(--socle-halo)',
+  backgroundImage: 'var(--socle-halos)',
   color: 'var(--socle-texte-1)',
 };
 const grille: React.CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gridTemplateRows: 'repeat(3, 246px)', gap: 14, marginTop: 20 };

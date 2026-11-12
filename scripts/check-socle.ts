@@ -403,18 +403,20 @@ const hexOf = (nom: string) => rvb(brut(nom));
 
 await dit('noir.css : les jetons validés par la direction de design, valeur pour valeur', () => {
   const attendu: Record<string, string> = {
-    '--socle-fond-page': '#0c0c0d', '--socle-fond-lateral': '#101011', '--socle-carte-haut': '#161617', '--socle-carte-bas': '#131314', '--socle-encart': '#141415', '--socle-champ': '#131314',
-    '--socle-bord-lateral': '#222224', '--socle-bord-carte': '#232325', '--socle-bord-controle': '#28282b', '--socle-bord-entete': '#1d1d1f', '--socle-bord-ligne': '#19191b',
+    '--socle-fond-page': '#0c0c0d', '--socle-fond-lateral': '#101011', '--socle-carte-haut': '#19191c', '--socle-carte-bas': '#111113', '--socle-encart': '#141415', '--socle-champ': '#131314',
+    // Cartes v4 (06-V4 §3 règle 2) : #19191C → #111113, bord #2A2A2E, rayon 16.
+    '--socle-bord-lateral': '#222224', '--socle-bord-carte': '#2a2a2e', '--socle-bord-controle': '#28282b', '--socle-bord-entete': '#1d1d1f', '--socle-bord-ligne': '#19191b',
     '--socle-texte-1': '#ededed', '--socle-texte-2': '#a0a0a5', '--socle-texte-3': '#8a8a8e', '--socle-trait-discret': '#77777c', '--socle-trait-tres-discret': '#5f5f64',
     '--socle-primaire': '#ededed', '--socle-primaire-encre': '#0c0c0d',
-    // v4 (06-V4 §2) : info, sarcelle, violet, succès, rose, orange à leur valeur v4 ; Outils garde son gris.
-    '--socle-fam-jour': '#6ea8ff', '--socle-fam-contacts': '#4fe3c1', '--socle-fam-ecrire': '#a58bff', '--socle-fam-argent': '#5ee6a8', '--socle-fam-echanger': '#ff7eb6', '--socle-fam-creer': '#ffa463', '--socle-fam-outils': '#9a9aa0',
+    // v4 (06-V4 §2) : info, sarcelle, violet, succès, rose, orange à leur valeur v4 ; Outils prend sa couleur a (décision du CO).
+    '--socle-fam-jour': '#6ea8ff', '--socle-fam-contacts': '#4fe3c1', '--socle-fam-ecrire': '#a58bff', '--socle-fam-argent': '#5ee6a8', '--socle-fam-echanger': '#ff7eb6', '--socle-fam-creer': '#ffa463', '--socle-fam-outils': '#7cc4ff',
     '--socle-etat-succes': '#5ee6a8', '--socle-etat-attention': '#ffbe5c', '--socle-etat-critique': '#ff6b7a', '--socle-etat-info': '#6ea8ff',
-    '--socle-rayon-carte': '14px', '--socle-rayon-controle': '9px', '--socle-rayon-bouton': '9px', '--socle-rayon-pastille': '99px',
+    '--socle-rayon-carte': '16px', '--socle-rayon-ajmani': '14px', '--socle-rayon-controle': '9px', '--socle-rayon-bouton': '9px', '--socle-rayon-pastille': '99px',
     '--socle-largeur-lateral': '252px', '--socle-hauteur-entete': '60px', '--socle-hauteur-ajmani': '46px',
   };
   for (const [nom, valeur] of Object.entries(attendu)) assert.equal(brut(nom), valeur, nom);
-  assert.match(noir, /--socle-halo:\s*radial-gradient\(1000px 520px at 85% -10%, rgba\(255, 255, 255, 0\.045\), transparent 70%\)/);
+  // Le halo blanc de la v3 a disparu : le fond v4 est fait des deux halos de la famille, sur l'élément (06 §3 règle 1).
+  assert.doesNotMatch(noir, /--socle-halo:/, 'plus de halo blanc de la v3');
 });
 
 await dit('v4 (06-V4 §1) : deux couleurs par famille pour les onze familles, valeur pour valeur ; Cyber distinct de La Garde ; la coquille et chaque bloc posent leur paire en --fam-a / --fam-b, Système par défaut', () => {
@@ -436,6 +438,80 @@ await dit('v4 (06-V4 §1) : deux couleurs par famille pour les onze familles, va
   const racine = /:root\[data-ambiance='noir'\] \{([\s\S]*?)\n\}/.exec(sansCommentaires(noir))?.[1] ?? '';
   assert.match(racine, /\n\s*--fam-a: var\(--socle-fam-systeme-a\);\s*\n\s*--fam-b: var\(--socle-fam-systeme-b\);/, 'par défaut : la paire de Système');
   assert.equal([...noir.matchAll(/--socle-fam-[a-z]+-[ab]:\s*#/g)].length, 22, 'onze paires, pas une de plus');
+});
+
+await dit('v4 (06-V4 §3) : les quinze règles de rendu, dans les briques et la coquille, aux valeurs des sources néon ; tout dépend de --fam-a / --fam-b, rien n’est écrit à la main', () => {
+  const lireCss = (f: string) => sansCommentaires(lireSrc(f));
+  const coquille = lireCss('src/socle/coquille/coquille.css');
+  const briques = lireCss('src/socle/ui/briques.css');
+  const controles = lireCss('src/socle/ui/controles/controles.css');
+  const archetypes = lireCss('src/socle/ui/archetypes/archetypes.css');
+  const graphiques = lireCss('src/socle/ui/graphiques/graphiques.css');
+  const vivant = lireCss('src/socle/ui/vivant/vivant.css');
+  const partagees = lireCss('src/socle/ui/briques-partagees/briques-partagees.css');
+  const mouvement = lireCss('src/socle/mouvement.css');
+  const mix = (v: string, p: string) => `color-mix\\(in srgb, var\\(${v}\\) ${p}%, transparent\\)`.replace(/\./g, '\\.');
+  // Les jetons du rendu v4 (sources néon).
+  for (const [nom, valeur] of Object.entries({ '--socle-blanc': '#ffffff', '--socle-encre-accent': '#0b0b0c', '--socle-verre-haut': '#1c1c1f', '--socle-verre-bas': '#151517', '--socle-bord-verre': '#303035', '--socle-ajmani-fond': '#121214', '--socle-suggestion-fond': '#151518' })) assert.equal(brut(nom), valeur, nom);
+  assert.match(noir, /--socle-reflet-carte: rgba\(255, 255, 255, 0\.065\);/);
+  assert.match(noir, /--socle-ombre-carte: 0 22px 46px -30px rgba\(0, 0, 0, 0\.95\);/);
+  // 1. Fond : deux halos de la famille — a à 20 % en haut à droite, b à 15 % en bas à gauche, sur #0c0c0d.
+  // Un seul jeton, redéclaré là où la paire change (racine, data-famille-active, data-famille) : il suit la famille de l'élément.
+  const halos = new RegExp(`:root\\[data-ambiance='noir'\\],\\s*:root\\[data-ambiance='noir'\\] :is\\(\\[data-famille-active\\], \\[data-famille\\]\\) \\{\\s*--socle-halos:\\s*radial-gradient\\(900px 480px at 92% -8%, ${mix('--fam-a', '20')}, transparent 70%\\),\\s*radial-gradient\\(800px 520px at 32% 112%, ${mix('--fam-b', '15')}, transparent 70%\\);\\s*\\}`);
+  assert.match(sansCommentaires(noir), halos, '1 · le jeton des deux halos');
+  assert.match(coquille, /\.sc-coquille \{[^}]*background: var\(--socle-halos\), var\(--socle-fond-page\);/, '1 · le fond de la coquille');
+  assert.equal([...sansCommentaires(lireSrc('src/socle/coquille/coquille.css') + lireSrc('src/socle/ui/situations/situations.css') + lireSrc('src/refonte/systeme/demo/demo.css')).matchAll(/radial-gradient\(900px/g)].length, 0, '1 · la recette ne se recopie pas');
+  // 2. Cartes : dégradé, bord, rayon 16, reflet + ombre, halo 8,5 % de la famille dans un coin qui alterne.
+  assert.match(briques, new RegExp(`:is\\(\\[data-socle='carte'\\], \\.sc-kpi\\) \\{[^}]*radial-gradient\\(440px 160px at var\\(--sc-halo-coin\\), ${mix('--sc-halo-teinte', '8.5')}, transparent 70%\\),\\s*linear-gradient\\(180deg, var\\(--socle-carte-haut\\), var\\(--socle-carte-bas\\)\\);[^}]*border-radius: var\\(--socle-rayon-carte\\);\\s*box-shadow: inset 0 1px 0 var\\(--socle-reflet-carte\\), var\\(--socle-ombre-carte\\);`), '2 · la carte');
+  assert.match(briques, /:nth-child\(3n \+ 2\) \{ --sc-halo-coin: 100% 100%; --sc-halo-teinte: var\(--fam-a\); \}/, '2 · le coin alterne');
+  assert.match(briques, /:nth-child\(3n\) \{ --sc-halo-coin: 100% 0%; --sc-halo-teinte: var\(--fam-a\); \}/);
+  // 3. Titre de page : 30 px, 700, dégradé de texte #FFF → b.
+  assert.match(archetypes, /\.sc-page__titre \{[^}]*background: linear-gradient\(100deg, var\(--socle-blanc\) 30%, var\(--fam-b\)\);[^}]*background-clip: text;[^}]*color: transparent;[^}]*font-size: 30px;[^}]*font-weight: 700;/, '3 · le h1');
+  // 4. Grands chiffres : dégradé vertical #FFF → a (la valeur du Kpi, .sc-grand-nombre).
+  assert.match(briques, /\.sc-kpi__valeur > span:first-child,\s*\.sc-grand-nombre \{[^}]*background: linear-gradient\(180deg, var\(--socle-blanc\) 30%, var\(--fam-a\) 140%\);[^}]*background-clip: text;[^}]*color: transparent;/, '4 · les grands chiffres');
+  // 5. Bouton principal a → b, encre #0B0B0C, ombre a ; secondaire en verre.
+  assert.match(briques, new RegExp(`\\[data-variante='primaire'\\] \\{\\s*background: linear-gradient\\(135deg, var\\(--fam-a\\), var\\(--fam-b\\)\\);\\s*color: var\\(--socle-encre-accent\\);\\s*box-shadow: 0 10px 24px -10px ${mix('--fam-a', '85')}, inset 0 1px 0 var\\(--socle-reflet-principal\\);`), '5 · le bouton principal');
+  assert.match(briques, /\[data-variante='secondaire'\] \{[^}]*border-color: var\(--socle-bord-verre\);\s*background: linear-gradient\(180deg, var\(--socle-verre-haut\), var\(--socle-verre-bas\)\);\s*box-shadow: inset 0 1px 0 var\(--socle-reflet-verre\);/, '5 · le bouton secondaire');
+  // 6. Pastilles d'état : fond 14 %, bord 38 %, texte de la couleur, 600 ; le point a sa lueur.
+  assert.match(briques, new RegExp(`\\.sc-etat \\{[^}]*border: 1px solid ${mix('--etat', '38')};[^}]*background: ${mix('--etat', '14')};\\s*color: var\\(--etat\\);[^}]*font-weight: 600;`), '6 · la pastille');
+  assert.match(briques, /\.sc-etat::before \{[^}]*box-shadow: 0 0 8px var\(--etat\);/);
+  // 7. Points, anneaux, courbes, arcs : la lueur de leur couleur ; aire sous courbe à 0,42.
+  assert.match(briques, /\.sc-point \{[^}]*box-shadow: 0 0 6px var\(--fam, var\(--fam-a\)\);/, '7 · le point');
+  assert.match(vivant, /\.sc-voyant__point \{[^}]*, 0 0 6px var\(--sc-v-c, var\(--socle-etat-succes\)\);/, '7 · le voyant');
+  assert.match(briques, /\.sc-anneau \.sc-anneau__trait\[style\*='--sc-anneau-c'\] \{ filter: drop-shadow\(0 0 6px color-mix\(in srgb, var\(--sc-anneau-c\) 67%, transparent\)\); \}/, '7 · l’anneau');
+  assert.match(graphiques, /\.sc-g__ligne \{[^}]*filter: drop-shadow\(0 0 6px color-mix\(in srgb, var\(--sc-g-c\) 67%, transparent\)\);/, '7 · la courbe');
+  assert.match(graphiques, /\.sc-g__segment \{[^}]*filter: drop-shadow\(/, '7 · l’arc de donut');
+  assert.match(lireSrc('src/socle/ui/graphiques/Courbe.tsx'), /<stop className="sc-g__degrade" offset="0" stopOpacity="0\.42" \/>/, '7 · l’aire à 0,42');
+  // 8. Histogrammes : neutres en dégradé 50 % → 10 %, mise en valeur pleine → 30 % et sa lueur.
+  const barres = lireSrc('src/socle/ui/graphiques/Barres.tsx');
+  assert.match(barres, /<stop className="sc-g__degrade-famille" offset="0" stopOpacity="0\.5" \/>\s*<stop className="sc-g__degrade-famille" offset="1" stopOpacity="0\.1" \/>/, '8 · neutres 50 → 10 % de la couleur a de la famille');
+  assert.match(graphiques, /\.sc-g__degrade-famille \{ stop-color: var\(--fam-a\); \}/, '8 · les neutres prennent a');
+  assert.match(barres, /offset="0" stopOpacity="1" \/>\s*<stop className="sc-g__degrade" offset="1" stopOpacity="0\.3" \/>/, '8 · mise en valeur → 30 %');
+  assert.match(graphiques, /\.sc-g__colonne \{[^}]*fill: var\(--sc-g-neutre, var\(--socle-colonne-graphique\)\);/);
+  assert.match(graphiques, /\.sc-g__colonne\[data-mise='oui'\] \{ fill: var\(--sc-g-mise, var\(--sc-g-c\)\); filter: drop-shadow\(0 0 7px var\(--sc-g-c\)\); \}/);
+  // 9. Barres de progression : dégradé a → b et sa lueur.
+  assert.match(briques, new RegExp(`\\.sc-barre > span \\{[^}]*background: linear-gradient\\(90deg, var\\(--fam-a\\), var\\(--fam-b\\)\\);\\s*box-shadow: 0 0 10px ${mix('--fam-a', '55')};`), '9 · la progression');
+  // 10. Barre latérale : famille active a 24 % → b 8 % + liseré a 38 % ; module actif a 20 % → transparent ; repère 3 × 14 a → b avec lueur.
+  assert.match(coquille, new RegExp(`\\.sc-coquille \\.sc-famille\\[data-active='true'\\] \\{\\s*background: linear-gradient\\(90deg, ${mix('--fam-a', '24')}, ${mix('--fam-b', '8')}\\);\\s*box-shadow: inset 0 0 0 1px ${mix('--fam-a', '38')};\\s*color: var\\(--socle-blanc\\);`), '10 · la famille active');
+  assert.match(coquille, new RegExp(`\\.sc-coquille \\.sc-module\\[aria-current='page'\\] \\{\\s*background: linear-gradient\\(90deg, ${mix('--fam-a', '20')}, transparent\\);\\s*color: var\\(--socle-blanc\\);\\s*font-weight: 600;`), '10 · le module actif');
+  assert.match(coquille, /\.sc-module\[aria-current='page'\]::before \{[^}]*width: 3px;\s*height: 14px;[^}]*background: linear-gradient\(180deg, var\(--fam-a\), var\(--fam-b\)\);\s*box-shadow: 0 0 10px var\(--fam-a\);/, '10 · le repère');
+  // 11. Onglets : soulignement a ; segments : a 30 % → b 16 % avec liseré.
+  assert.match(controles, /\.sc-onglet\[aria-selected='true'\]::after \{[^}]*background: var\(--fam-a\); \}/, '11 · l’onglet');
+  assert.match(controles, new RegExp(`\\.sc-segment\\[aria-checked='true'\\] \\{\\s*background: linear-gradient\\(135deg, ${mix('--fam-a', '30')}, ${mix('--fam-b', '16')}\\);\\s*box-shadow: inset 0 0 0 1px ${mix('--fam-a', '45')};\\s*color: var\\(--socle-blanc\\);`), '11 · le segment');
+  // 12. Barre et suggestion d'Ajmani : bord en dégradé a → b (padding-box / border-box).
+  assert.match(coquille, /\.sc-ajmani \{[^}]*border: 1px solid transparent;[^}]*--sc-ajmani-fond: var\(--socle-ajmani-fond\);\s*background:\s*linear-gradient\(var\(--sc-ajmani-fond\), var\(--sc-ajmani-fond\)\) padding-box,\s*linear-gradient\(90deg, color-mix\(in srgb, var\(--fam-a\) 65%, transparent\), color-mix\(in srgb, var\(--fam-b\) 30%, transparent\) 45%, var\(--socle-ajmani-fin-bord\)\) border-box;/, '12 · la barre Ajmani');
+  assert.match(controles, /\.sc-suggestion \{[^}]*border: 1px solid transparent;[^}]*background:\s*linear-gradient\(var\(--socle-suggestion-fond\), var\(--socle-suggestion-fond\)\) padding-box,\s*linear-gradient\(135deg, var\(--fam-a\), var\(--fam-b\)\) border-box;\s*box-shadow: 0 18px 40px -26px var\(--fam-a\);/, '12 · la suggestion');
+  // 13. Avatars : les six dégradés pastel des sources, initiales à l'encre sombre.
+  const avatars: Record<string, [string, string]> = { a: ['#ff6b7a', '#a58bff'], m: ['#6ea8ff', '#4fe3c1'], r: ['#5ee6a8', '#3bb8c9'], c: ['#7cc4ff', '#6e7bff'], t: ['#c08bff', '#ff7eb6'], l: ['#ffa463', '#ff6b7a'] };
+  for (const [k, [a, b]] of Object.entries(avatars)) assert.match(noir, new RegExp(`--socle-avatar-${k}: linear-gradient\\(135deg, ${a}, ${b}\\);`), `13 · avatar ${k}`);
+  assert.match(briques, /\.sc-avatar \{[^}]*color: var\(--socle-encre-accent\);/);
+  // 14. Tuiles d'icône : teintées par leur couleur, fond 26 % → 6 %, bord 42 %.
+  assert.match(partagees, new RegExp(`\\.sc-icon-tile \\{[^}]*--sc-tuile-teinte: var\\(--fam, var\\(--fam-a\\)\\);[^}]*border: 1px solid ${mix('--sc-tuile-teinte', '42')};[^}]*background: linear-gradient\\(135deg, ${mix('--sc-tuile-teinte', '26')}, ${mix('--sc-tuile-teinte', '6')}\\);`), '14 · la tuile d’icône');
+  // 15. Mouvement inchangé ; le système (moins d'animations) et Mouvement « aucun » coupent aussi les lueurs animées.
+  assert.match(mouvement, /@media \(prefers-reduced-motion: reduce\) \{[\s\S]*\[data-mvt='onde'\]::after[^{]*\{ animation: none; \}[\s\S]*:is\(\.sc-ajmani, \.sc-interrupteur, \.sc-interrupteur > span, \.sc-famille, \.sc-module\) \{ transition: none; \}/, '15 · le système coupe l’onde et les lueurs en fondu');
+  assert.match(mouvement, /\[data-mouvement='aucun'\] :is\(\.sc-ajmani, \.sc-interrupteur, \.sc-interrupteur > span, \.sc-famille, \.sc-module\) \{ transition: none; \}/, '15 · Mouvement « aucun » aussi');
+  // Plus de gris par défaut : sans famille, c'est la paire de la famille active.
+  for (const [nom, css] of Object.entries({ briques, partagees, archetypes })) assert.doesNotMatch(css, /var\(--fam, var\(--socle-fam-outils\)\)/, `${nom} : le gris d’Outils n’est plus la teinte par défaut`);
 });
 
 await dit('v4 (06-V4 §2) : les huit couleurs d’état v3 ne restent nulle part dans le socle (jetons, feuilles, briques, coquille, écrans de LOT-00), ni en hexadécimal ni en rgb()', () => {
@@ -486,8 +562,8 @@ const lu = (jeton: string) => assert.ok(TOUTES_LES_FEUILLES.includes(`var(${jeto
 
 await dit('§1.2 conformes : fond, latéral, carte, champ, cinq bordures, T1, plancher T4, sept familles, états, gabarits 252 et 60', () => {
   const conformes: Record<string, string> = {
-    '--socle-fond-page': '#0c0c0d', '--socle-fond-lateral': '#101011', '--socle-carte-haut': '#161617', '--socle-carte-bas': '#131314', '--socle-champ': '#131314',
-    '--socle-bord-carte': '#232325', '--socle-bord-entete': '#1d1d1f', '--socle-bord-ligne': '#19191b', '--socle-bord-lateral': '#222224', '--socle-bord-controle': '#28282b',
+    '--socle-fond-page': '#0c0c0d', '--socle-fond-lateral': '#101011', '--socle-carte-haut': '#19191c', '--socle-carte-bas': '#111113', '--socle-champ': '#131314',
+    '--socle-bord-carte': '#2a2a2e', '--socle-bord-entete': '#1d1d1f', '--socle-bord-ligne': '#19191b', '--socle-bord-lateral': '#222224', '--socle-bord-controle': '#28282b',
     '--socle-texte-1': '#ededed', '--socle-texte-3': '#8a8a8e',
     '--socle-etat-succes': '#5ee6a8', '--socle-etat-critique': '#ff6b7a', '--socle-etat-info': '#6ea8ff',
     '--socle-largeur-lateral': '252px', '--socle-hauteur-entete': '60px',
@@ -516,9 +592,12 @@ await dit('§1.2 bordure de champ #5a5a60 (--socle-bord-champ), posée sur le ch
   assert.match(FEUILLES_SOCLE.controles, /\.sc-champ__controle,\s*\.sc-selecteur \{[^}]*border: 1px solid var\(--socle-bord-champ\)/);
 });
 
-await dit('§1.2 la 8e famille « La Garde et la supervision » #d6d6da (--socle-fam-garde), sur l’icône bouclier de la famille active, jamais en pastille', () => {
-  assert.equal(brut('--socle-fam-garde'), '#d6d6da');
-  assert.match(FEUILLES_SOCLE.coquille, /\[data-cle='garde'\] > \.sc-famille\[data-active='true'\] \.sc-famille__icone,\s*\[data-cle='cyber'\][^{]*\{ color: var\(--socle-fam-garde\); \}/);
+await dit('§1.2 la 8e famille « La Garde et la supervision » (v4 : son vert #5ee6a8, --socle-fam-garde), sur l’icône bouclier de la famille active, jamais en pastille ; Cyber, son rouge', () => {
+  assert.equal(brut('--socle-fam-garde'), '#5ee6a8', 'v4 : les sources dessinent l’icône active de La Garde en #5EE6A8');
+  assert.equal(brut('--socle-fam-outils'), '#7cc4ff', 'Outils : sa couleur a v4 (décision du CO), plus le gris v3 #9a9aa0');
+  assert.doesNotMatch(TOUTES_LES_FEUILLES, /#9a9aa0/i, 'plus le gris v3 d’Outils nulle part dans les feuilles du socle');
+  assert.match(FEUILLES_SOCLE.coquille, /\[data-famille='garde'\] > \.sc-famille\[data-active='true'\] \.sc-famille__icone \{ color: var\(--socle-fam-garde\); \}/);
+  assert.match(FEUILLES_SOCLE.coquille, /\[data-famille='cyber'\] > \.sc-famille\[data-active='true'\] \.sc-famille__icone \{ color: var\(--socle-fam-cyber-a\); \}/, 'Cyber : sa propre couleur, plus celle de La Garde');
   for (const [, declarations] of TOUTES_LES_FEUILLES.matchAll(/\{([^}]*--socle-fam-garde[^}]*)\}/g)) {
     assert.doesNotMatch(declarations, /background[^;]*--socle-fam-garde/, 'la teinte de La Garde ne fait jamais un fond (pastille)');
   }
@@ -543,7 +622,9 @@ await dit('§1.2 bordures #212123 (sous-carte), #2e2e31 (bouton secondaire) et l
   assert.equal(brut('--socle-bord-bouton'), '#2e2e31');
   assert.equal(brut('--socle-pointille'), '#2e2e33');
   lu('--socle-bord-sous-carte');
-  assert.match(FEUILLES_SOCLE.briques, /\[data-variante='secondaire'\] \{[^}]*border-color: var\(--socle-bord-bouton\)/);
+  // Le bouton secondaire v4 est en verre (06 §3 règle 5) : bord #303035 ; #2e2e31 reste le bord des autres contrôles.
+  assert.match(FEUILLES_SOCLE.briques, /\[data-variante='secondaire'\] \{[^}]*border-color: var\(--socle-bord-verre\)/);
+  lu('--socle-bord-bouton');
   assert.match(TOUTES_LES_FEUILLES, /border: 1px dashed var\(--socle-pointille\)/, 'le pointillé est posé en `dashed`');
 });
 
@@ -557,8 +638,8 @@ const U = await charger<Record<string, unknown>>({ code: `export { ${COMPOSANTS_
 await dit('§1.2 composants du §4 cités comme manquants — Toggle, Tabs, Segmented, Table, Ticket, colonne de kanban, Donut, graphiques, TimelineItem, cartes ludiques, Suggestion — exportés par src/socle/ui, aux valeurs du §4', () => {
   for (const nom of COMPOSANTS_1_2) assert.equal(typeof U[nom], 'function', `${nom} n’est pas exporté par src/socle/ui`);
   assert.match(FEUILLES_SOCLE.controles, /\.sc-interrupteur \{[^}]*width: 34px;[^}]*height: 20px;[^}]*background: var\(--socle-toggle-inactif\)/, 'Toggle 34 × 20');
-  assert.match(FEUILLES_SOCLE.controles, /\.sc-interrupteur\[aria-checked='true'\] \{ background: var\(--socle-toggle-actif\); \}/, 'Toggle actif #2e4327');
-  assert.match(FEUILLES_SOCLE.controles, /\.sc-onglet\[aria-selected='true'\]::after \{[^}]*height: 2px;[^}]*background: var\(--socle-primaire\)/, 'Tabs : filet 2 px #ededed');
+  assert.match(FEUILLES_SOCLE.controles, /\.sc-interrupteur\[aria-checked='true'\] \{ background: linear-gradient\(135deg, var\(--fam-a\), var\(--fam-b\)\); box-shadow: 0 0 12px -3px var\(--fam-a\); \}/, 'Toggle actif v4 : dégradé a → b et sa lueur');
+  assert.match(FEUILLES_SOCLE.controles, /\.sc-onglet\[aria-selected='true'\]::after \{[^}]*height: 2px;[^}]*background: var\(--fam-a\)/, 'Tabs v4 : filet 2 px de la couleur a');
   assert.match(FEUILLES_SOCLE.controles, /\.sc-segmente \{[^}]*padding: 3px;[^}]*border: 1px solid var\(--socle-bord-controle\);[^}]*border-radius: var\(--socle-rayon-champ\);[^}]*background: var\(--socle-segment-fond\)/, 'Segmented : #141415, #28282b, rayon 10, 3 px');
   assert.match(FEUILLES_SOCLE.archetypes, /border-radius: var\(--socle-rayon-ticket\);[^}]*background: var\(--socle-ticket\)/, 'Ticket : rayon 12, fond #171718');
   assert.match(FEUILLES_SOCLE.archetypes, /border: 1px solid var\(--socle-bord-kanban\);\s*border-radius: var\(--socle-rayon-kanban\)/, 'colonne de kanban : #1e1e20, rayon 14');

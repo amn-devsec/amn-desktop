@@ -719,7 +719,8 @@ await dit('cotes de la feuille (v3) : 862 × 642 à 88 px, champ 61, portée 43,
   assert.match(briques, /\.sc-icon-tile\[data-taille='42'\] \{ --sc-tuile: 42px; --sc-tuile-rayon: 10px;/);
   assert.match(briques, /\.sc-icon-tile\[data-part='14'\] \{ --sc-tuile-part: 14%; \}/);
   assert.match(briques, /\.sc-icon-tile\[data-part='18'\] \{ --sc-tuile-part: 18%; \}/);
-  assert.match(briques, /\.sc-icon-tile \{[^}]*background: color-mix\(in srgb, var\(--sc-tuile-teinte\) var\(--sc-tuile-part\), transparent\)/);
+  // v4 : la tuile par défaut est en dégradé ; une part donnée (H41 : 14 et 18, sources v4) garde l'aplat, sans bord ni lueur.
+  assert.match(briques, /\.sc-icon-tile\[data-part\] \{ border: 0; background: color-mix\(in srgb, var\(--sc-tuile-teinte\) var\(--sc-tuile-part\), transparent\); box-shadow: none; \}/);
   assert.doesNotMatch(css, /\.rc-tuile \{/, 'plus de tuile locale');
   assert.match(bloc('.rc-apercu__corps'), /padding:\s*16px 20px 14px/);
   assert.match(bloc('.rc-chiffre'), /height:\s*72px/);

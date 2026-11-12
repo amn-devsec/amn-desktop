@@ -67,7 +67,7 @@
   align-items: center;
   text-align: center;
 }
-.sc-bloc-etat[data-ton='famille'] { --sc-ton: var(--fam, var(--socle-fam-outils)); }
+.sc-bloc-etat[data-ton='famille'] { --sc-ton: var(--fam, var(--fam-a)); }
 .sc-bloc-etat[data-ton='attention'] { --sc-ton: var(--socle-etat-attention); }
 .sc-bloc-etat[data-ton='neutre'] { --sc-ton: var(--socle-texte-2); }
 .sc-bloc-etat[data-ton='critique'] { --sc-ton: var(--socle-etat-critique); }
@@ -168,7 +168,7 @@
   width: min(var(--sc-dialogue-largeur, 400px), 100%);
   padding: 19px;
   border: 1px solid var(--socle-bord-dialogue);
-  border-radius: var(--socle-rayon-carte);
+  border-radius: var(--socle-rayon-boite);
   background: var(--socle-dialogue);
   color: var(--socle-texte-1);
   outline: none;
@@ -221,7 +221,7 @@
   gap: 12px;
   padding: 14px 17px 14px 18px;
   border: 1px solid var(--socle-bord-toast);
-  border-radius: var(--socle-rayon-carte);
+  border-radius: var(--socle-rayon-boite);
   background: var(--socle-dialogue);
   color: var(--socle-texte-1);
 }
@@ -272,7 +272,8 @@
   margin-top: 14px;
   overflow: hidden;
   border-radius: 99px;
-  background: var(--socle-bord-carte);
+  /* La piste : #232325, comme dans les sources v4 (le bord des cartes est passé à #2a2a2e). */
+  background: var(--socle-piste-toast);
 }
 .sc-toast__remplissage {
   display: block;
@@ -457,7 +458,7 @@
 
 /* ══ La planche H43 « États et messages » (v3) : /dev/etats, développement seulement, sans coquille ══
 
-  Coordonnées ABSOLUES (1440 × 900) : fond #0c0c0d et la lueur d'ambiance de page (`--socle-halo`, §1 : écart T1
+  Coordonnées ABSOLUES (1440 × 900) : fond #0c0c0d et les deux halos de la famille (v4, 06 §3 règle 1 ; en v3, la lueur d'ambiance, écart T1
   H43.1), marges 29 / 44 / 30. En-tête : « SYSTÈME · RÉFÉRENCE » (11 px, .1em, T4), h1 28 px / 600, phrase 13,5 px T4,
   trois pilules de règle à droite, bas alignés. Grille : 3 × 3 mini-fenêtres de 440 × 239 à x = 44 / 500 / 956 et
   y = 120 / 375 / 631, écart 16 (bas à y = 870). Mini-fenêtre : barre de titre de 36 px + filet, puis la situation
@@ -476,7 +477,8 @@
   box-sizing: border-box;
   min-height: 100vh;
   padding: 29px 44px 30px;
-  background: var(--socle-halo), var(--socle-fond-page);
+  /* v4 (06 §3 règle 1) : les deux halos de la famille, comme la coquille. */
+  background: var(--socle-halos), var(--socle-fond-page);
   color: var(--socle-texte-1);
 }
 .sc-h43__entete { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; width: min(1352px, 100%); margin: 0 auto; }

@@ -30,7 +30,8 @@
   grid-template-columns: var(--sd-sommaire) minmax(0, 1fr);
   min-height: 100vh;
   background-color: var(--socle-fond-page);
-  background-image: var(--socle-halo);
+  /* v4 (06 §3 règle 1) : les deux halos de la famille. */
+  background-image: var(--socle-halos);
   color: var(--socle-texte-1);
   font-size: 13.5px;
   line-height: 1.5;
@@ -208,7 +209,8 @@
   border: 1px solid var(--socle-bord-carte);
   border-radius: var(--socle-rayon-carte);
   background-color: var(--socle-fond-page);
-  background-image: var(--socle-halo);
+  /* v4 (06 §3 règle 1) : les deux halos de la famille. */
+  background-image: var(--socle-halos);
 }
 
 /* ═══ Étroit : le sommaire passe en haut ═══ */

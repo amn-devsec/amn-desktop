@@ -19,7 +19,8 @@
   min-width: 0;
   min-height: 0;
   overflow: hidden;
-  background: var(--socle-halo), var(--socle-fond-page);
+  /* v4 (06 §3 règle 1) : deux halos de la famille active — a à 20 % en haut à droite, b à 15 % en bas à gauche. */
+  background: var(--socle-halos), var(--socle-fond-page);
   color: var(--socle-texte-1);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   /* Les chiffres tabulaires : sur les nombres seulement (noir.css, écart C11). */
@@ -183,8 +184,16 @@
 }
 .sc-famille__icone { flex: none; color: var(--socle-texte-2); transition: color 150ms ease-out; }
 .sc-famille:hover { background: var(--socle-lateral-survol); color: var(--socle-texte-1); }
-.sc-famille[data-active='true'] { background: var(--socle-lateral-famille-active); color: var(--socle-texte-1); font-weight: 600; }
-/* La teinte de la famille : sur l'icône de la famille active, et nulle part ailleurs. */
+.sc-famille[data-active='true'] { color: var(--socle-texte-1); font-weight: 600; }
+/* v4 (06 §3 règle 10) : la famille active en dégradé a 24 % → b 8 %, liseré a 38 %, encre blanche. Chaque ligne pose sa
+   paire (`data-famille` de son <li>) : La Garde et Cyber ont la leur. */
+.sc-coquille .sc-famille[data-active='true'] {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--fam-a) 24%, transparent), color-mix(in srgb, var(--fam-b) 8%, transparent));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fam-a) 38%, transparent);
+  color: var(--socle-blanc);
+}
+/* La teinte de la famille : sur l'icône de la famille active, et nulle part ailleurs (sources v4 : la couleur de la famille ;
+   Outils, son gris ; La Garde, son vert ; Cyber, son rouge). */
 [data-famille='jour'] > .sc-famille[data-active='true'] .sc-famille__icone { color: var(--socle-fam-jour); }
 [data-famille='contacts'] > .sc-famille[data-active='true'] .sc-famille__icone { color: var(--socle-fam-contacts); }
 [data-famille='ecrire'] > .sc-famille[data-active='true'] .sc-famille__icone { color: var(--socle-fam-ecrire); }
@@ -192,8 +201,8 @@
 [data-famille='echanger'] > .sc-famille[data-active='true'] .sc-famille__icone { color: var(--socle-fam-echanger); }
 [data-famille='creer'] > .sc-famille[data-active='true'] .sc-famille__icone { color: var(--socle-fam-creer); }
 [data-famille='outils'] > .sc-famille[data-active='true'] .sc-famille__icone { color: var(--socle-fam-outils); }
-[data-cle='garde'] > .sc-famille[data-active='true'] .sc-famille__icone,
-[data-cle='cyber'] > .sc-famille[data-active='true'] .sc-famille__icone { color: var(--socle-fam-garde); }
+[data-famille='garde'] > .sc-famille[data-active='true'] .sc-famille__icone { color: var(--socle-fam-garde); }
+[data-famille='cyber'] > .sc-famille[data-active='true'] .sc-famille__icone { color: var(--socle-fam-cyber-a); }
 .sc-famille__nom { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sc-famille__chevron { flex: none; margin-right: -1px; color: var(--socle-texte-3); }
 /* La Garde : « veille » et son voyant vivant, dans l'état de la pire situation ouverte. */
@@ -226,16 +235,22 @@
   transition: background-color 150ms ease-out, color 150ms ease-out;
 }
 .sc-module:hover { background: var(--socle-lateral-survol); color: var(--socle-texte-1); }
-.sc-module[aria-current='page'] { background: var(--socle-lateral-sous-actif); color: var(--socle-texte-1); font-weight: 500; }
+/* v4 (06 §3 règle 10) : le module actif en dégradé a 20 % → transparent, 600, blanc ; repère de 3 × 14 en dégradé a → b, avec sa lueur. */
+.sc-coquille .sc-module[aria-current='page'] {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--fam-a) 20%, transparent), transparent);
+  color: var(--socle-blanc);
+  font-weight: 600;
+}
 .sc-module[aria-current='page']::before {
   content: '';
   position: absolute;
   top: 50%;
   left: -13px;
-  width: 2px;
-  height: 13px;
-  border-radius: 1px;
-  background: var(--socle-texte-1);
+  width: 3px;
+  height: 14px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--fam-a), var(--fam-b));
+  box-shadow: 0 0 10px var(--fam-a);
   transform: translateY(-50%);
 }
 .sc-module__nom { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -355,10 +370,11 @@
   height: 16px;
   padding: 0 4px;
   border-radius: 99px;
-  background: var(--socle-primaire);
+  /* v4 (sources néon) : la pastille de la cloche en dégradé 135° a → b, encre sombre. */
+  background: linear-gradient(135deg, var(--fam-a), var(--fam-b));
   /* L'anneau de 2 px de la couleur du fond, hors de la pastille de 16 px. */
   box-shadow: 0 0 0 2px var(--socle-fond-page);
-  color: var(--socle-primaire-encre);
+  color: var(--socle-encre-accent);
   font-size: 10px;
   font-weight: 700;
   line-height: 16px;
@@ -374,7 +390,7 @@
   overflow-y: auto;
   padding: 14px;
   border: 1px solid var(--socle-bord-carte);
-  border-radius: var(--socle-rayon-carte);
+  border-radius: var(--socle-rayon-boite);
   background: linear-gradient(180deg, var(--socle-carte-haut), var(--socle-carte-bas));
   box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
 }
@@ -411,16 +427,21 @@
   align-items: center;
   gap: 12px;
   padding: 0 18px;
-  border: 1px solid var(--socle-bord-controle);
-  border-radius: var(--socle-rayon-carte);
-  background: var(--socle-champ);
+  /* v4 (06 §3 règle 12) : un bord en dégradé a → b (fond en padding-box, dégradé en border-box) et l'ombre de la famille. */
+  border: 1px solid transparent;
+  border-radius: var(--socle-rayon-ajmani);
+  --sc-ajmani-fond: var(--socle-ajmani-fond);
+  background:
+    linear-gradient(var(--sc-ajmani-fond), var(--sc-ajmani-fond)) padding-box,
+    linear-gradient(90deg, color-mix(in srgb, var(--fam-a) 65%, transparent), color-mix(in srgb, var(--fam-b) 30%, transparent) 45%, var(--socle-ajmani-fin-bord)) border-box;
+  box-shadow: 0 14px 34px -22px color-mix(in srgb, var(--fam-a) 80%, transparent);
   color: var(--socle-texte-3);
   font-size: 13.5px;
   text-align: left;
   cursor: text;
-  transition: border-color 150ms ease-out;
+  transition: box-shadow 150ms ease-out;
 }
-.sc-ajmani:hover { border-color: var(--socle-ajmani-bord-survol); }
+.sc-ajmani:hover { --sc-ajmani-fond: var(--socle-ajmani-fond-survol); }
 .sc-ajmani .sc-ajmani__etincelle { color: var(--socle-texte-2); }
 .sc-ajmani__curseur.sc-curseur { margin: 0 -8px 0 2px; background: var(--socle-texte-2); }
 .sc-ajmani__texte { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -445,7 +466,7 @@
   flex-direction: column;
   overflow: hidden;
   border: 1px solid var(--socle-bord-controle);
-  border-radius: var(--socle-rayon-carte);
+  border-radius: var(--socle-rayon-boite);
   background: linear-gradient(180deg, var(--socle-carte-haut), var(--socle-carte-bas));
   box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6);
   color: var(--socle-texte-1);

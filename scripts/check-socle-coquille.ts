@@ -111,8 +111,18 @@ await dit('familles : 32 px, une icône de trait lucide de 15 px en T3 par famil
   const css = sansCommentaires(lire('src/socle/coquille/coquille.css'));
   assert.match(css, /\.sc-famille \{[^}]*height: 32px;[^}]*padding: 0 10px;[^}]*color: var\(--socle-texte-courant\);[^}]*font-size: 13px;/);
   assert.match(css, /\.sc-famille__icone \{[^}]*color: var\(--socle-texte-2\)/, 'icône en T3');
-  assert.match(css, /\.sc-famille\[data-active='true'\] \{[^}]*background: var\(--socle-lateral-famille-active\);[^}]*color: var\(--socle-texte-1\);[^}]*font-weight: 600;/);
+  assert.match(css, /\.sc-famille\[data-active='true'\] \{ color: var\(--socle-texte-1\); font-weight: 600; \}/);
+  // v4 (06 §3 règle 10) : la famille active en dégradé a 24 % → b 8 %, liseré a 38 %, encre blanche (la paire de sa ligne).
+  assert.match(css, /\.sc-coquille \.sc-famille\[data-active='true'\] \{\s*background: linear-gradient\(90deg, color-mix\(in srgb, var\(--fam-a\) 24%, transparent\), color-mix\(in srgb, var\(--fam-b\) 8%, transparent\)\);\s*box-shadow: inset 0 0 0 1px color-mix\(in srgb, var\(--fam-a\) 38%, transparent\);\s*color: var\(--socle-blanc\);\s*\}/);
   assert.match(css, /\[data-famille='jour'\] > \.sc-famille\[data-active='true'\] \.sc-famille__icone \{ color: var\(--socle-fam-jour\); \}/);
+  // v4 : Outils prend sa couleur a (décision du CO), La Garde son vert, Cyber son rouge.
+  assert.match(css, /\[data-famille='outils'\] > \.sc-famille\[data-active='true'\] \.sc-famille__icone \{ color: var\(--socle-fam-outils\); \}/);
+  assert.match(css, /\[data-famille='garde'\] > \.sc-famille\[data-active='true'\] \.sc-famille__icone \{ color: var\(--socle-fam-garde\); \}/);
+  assert.match(css, /\[data-famille='cyber'\] > \.sc-famille\[data-active='true'\] \.sc-famille__icone \{ color: var\(--socle-fam-cyber-a\); \}/);
+  const noirJ = sansCommentaires(lire('src/socle/noir.css'));
+  for (const [j, v] of [['outils', '#7cc4ff'], ['garde', '#5ee6a8'], ['cyber-a', '#ff6b7a']]) assert.match(noirJ, new RegExp(`--socle-fam-${j}: ${v};`), `--socle-fam-${j}`);
+  assert.match(r, /<li data-famille="jour" data-cle="jour">/, 'la ligne pose la paire de sa famille');
+  assert.doesNotMatch(noirJ, /--socle-lateral-famille-active/, 'plus le fond v3 de la famille active');
   assert.match(r, /data-cle="jour">[\s\S]*?lucide-chevron-down/, 'la famille ouverte a son chevron');
 });
 
@@ -138,14 +148,16 @@ await dit('sous-liste : « Vue d’ensemble » d’abord (sauf Ma journée), au 
   const css = sansCommentaires(lire('src/socle/coquille/coquille.css'));
   assert.match(css, /\.sc-module \{[^}]*height: 27px;[^}]*color: var\(--socle-texte-2\);[^}]*font-size: 12\.5px;/);
   assert.match(css, /\.sc-sous \{[^}]*border-left: 1px solid var\(--socle-lateral-sous-filet\)/);
-  assert.match(css, /\.sc-module\[aria-current='page'\] \{[^}]*background: var\(--socle-lateral-sous-actif\);[^}]*color: var\(--socle-texte-1\);[^}]*font-weight: 500;/);
+  // v4 (06 §3 règle 10) : le module actif en dégradé a 20 % → transparent, blanc, 600 ; plus de fond v3.
+  assert.match(css, /\.sc-coquille \.sc-module\[aria-current='page'\] \{\s*background: linear-gradient\(90deg, color-mix\(in srgb, var\(--fam-a\) 20%, transparent\), transparent\);\s*color: var\(--socle-blanc\);\s*font-weight: 600;\s*\}/);
+  assert.doesNotMatch(css, /\.sc-module\[aria-current='page'\] \{[^}]*--socle-lateral-sous-actif/);
   assert.match(css, /\.sc-module--autres \{[^}]*color: var\(--socle-texte-3\)/);
 });
 
-await dit('le repère actif : une barre blanche de 2 × 13 px posée sur le filet, en face du module courant', () => {
+await dit('le repère actif (v4) : une barre de 3 × 14 px en dégradé a → b avec sa lueur, posée sur le filet, en face du module courant', () => {
   const css = sansCommentaires(lire('src/socle/coquille/coquille.css'));
   const bloc = /\.sc-module\[aria-current='page'\]::before \{([^}]*)\}/.exec(css)?.[1] ?? '';
-  for (const re of [/position: absolute/, /left: -13px/, /width: 2px/, /height: 13px/, /background: var\(--socle-texte-1\)/]) assert.match(bloc, re);
+  for (const re of [/position: absolute/, /left: -13px/, /width: 3px;/, /height: 14px;/, /border-radius: 2px;/, /background: linear-gradient\(180deg, var\(--fam-a\), var\(--fam-b\)\);/, /box-shadow: 0 0 10px var\(--fam-a\);/, /transform: translateY\(-50%\)/]) assert.match(bloc, re);
   // Le filet est à 12 px de padding + 1 px de bord à gauche de la ligne : -13 px le pose dessus.
   assert.match(css, /\.sc-sous \{[^}]*padding-left: 12px;/);
 });
@@ -271,11 +283,11 @@ await dit('le haut : logo 28 px, « Espace de l’équipe », le bouton « repli
   assert.match(css, /\.sc-coquille\[data-repliee='true'\] \.sc-menu \{ display: inline-flex; \}/, 'et l’en-tête la redéplie');
 });
 
-await dit('les cotes v3 : barre 252, dégradé, filet #1f1f21, padding 16/14/14, survol #18181a en 150 ms ; en-tête 60 ; barre Ajmani 46, rayon 14', () => {
+await dit('les cotes : barre 252, dégradé, filet #1f1f21, padding 16/14/14, survol #18181a en 150 ms ; en-tête 60 ; barre Ajmani 46, rayon 14 (cartes 16 en v4)', () => {
   const css = sansCommentaires(lire('src/socle/coquille/coquille.css'));
   const noir = sansCommentaires(lire('src/socle/noir.css'));
   assert.match(css, /\.sc-lateral \{[^}]*padding: 16px 14px 14px;[^}]*border-right: 1px solid var\(--socle-lateral-filet\);[^}]*background: linear-gradient\(180deg, var\(--socle-lateral-haut\), var\(--socle-lateral-bas\)\)/);
-  for (const [jeton, valeur] of [['lateral-haut', '#111112'], ['lateral-bas', '#0f0f10'], ['lateral-filet', '#1f1f21'], ['lateral-famille-active', '#19191b'], ['lateral-sous-actif', '#1f1f21'], ['lateral-sous-filet', '#262629'], ['lateral-survol', '#18181a'], ['lateral-bord-carte', '#242426'], ['ajmani-bord-survol', '#3a3a3e'], ['largeur-lateral', '252px'], ['hauteur-entete', '60px'], ['hauteur-ajmani', '46px'], ['rayon-carte', '14px']]) {
+  for (const [jeton, valeur] of [['lateral-haut', '#111112'], ['lateral-bas', '#0f0f10'], ['lateral-filet', '#1f1f21'], ['lateral-sous-actif', '#1f1f21'], ['lateral-sous-filet', '#262629'], ['lateral-survol', '#18181a'], ['lateral-bord-carte', '#242426'], ['ajmani-bord-survol', '#3a3a3e'], ['largeur-lateral', '252px'], ['hauteur-entete', '60px'], ['hauteur-ajmani', '46px'], ['rayon-carte', '16px'], ['rayon-ajmani', '14px'], ['ajmani-fond-survol', '#151516']]) {
     assert.match(noir, new RegExp(`--socle-${jeton}: ${valeur};`), `--socle-${jeton}`);
   }
   for (const sel of ['sc-famille', 'sc-module', 'sc-epingle']) {
@@ -284,8 +296,10 @@ await dit('les cotes v3 : barre 252, dégradé, filet #1f1f21, padding 16/14/14,
   }
   assert.match(css, /\.sc-principal \{[^}]*padding: 24px 40px 0/);
   assert.match(css, /\.sc-pied-page \{[^}]*padding: 12px 40px 20px/);
-  assert.match(css, /\.sc-ajmani \{[^}]*height: var\(--socle-hauteur-ajmani\);[^}]*border-radius: var\(--socle-rayon-carte\);/);
-  assert.match(css, /\.sc-ajmani:hover \{ border-color: var\(--socle-ajmani-bord-survol\); \}/);
+  assert.match(css, /\.sc-ajmani \{[^}]*height: var\(--socle-hauteur-ajmani\);[^}]*border-radius: var\(--socle-rayon-ajmani\);/);
+  // v4 : au survol, le fond passe à #151516 (sources, .amn-bar-ajm:hover) ; le bord en dégradé reste.
+  assert.match(css, /\.sc-ajmani \{[^}]*--sc-ajmani-fond: var\(--socle-ajmani-fond\);\s*background:\s*linear-gradient\(var\(--sc-ajmani-fond\), var\(--sc-ajmani-fond\)\) padding-box,/);
+  assert.match(css, /\.sc-ajmani:hover \{ --sc-ajmani-fond: var\(--socle-ajmani-fond-survol\); \}/);
   assert.match(css, /\.sc-ajmani__envoi \{[^}]*color: var\(--socle-texte-3\);[^}]*font-size: 11\.5px;/);
 });
 
