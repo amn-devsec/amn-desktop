@@ -3,7 +3,7 @@
 > Tenu par le CO. Une session ne modifie que **la section de son lot** dans « 7. Écrans » (une ligne par écran) ; tout le reste est au CO. Règles : [`REGLES.md`](REGLES.md).
 
 - Branche d'intégration : **`claude/refonte-vivante`** (décision du 31 oct., §1.1). Base `main` @ `630ef45`.
-- Dernière mise à jour : 2026-11-12, soir. LOT-12 préparation fusionnée : §1.22. Modules de F1 : §1.21. Seuils de LOT-14 : §1.20. Reprise après 18h : §1.18.
+- Dernière mise à jour : 2026-11-12, soir. Fiches de LOT-11 relues par Harun : §1.23. LOT-12 préparation fusionnée : §1.22. Modules de F1 : §1.21. Seuils de LOT-14 : §1.20.
 - LOT-00 (socle v2) est fusionné (`488cdcc`), avec les 4 commits de S5. **Le socle v3 s'y ajoute avant la construction visuelle des lots** (S0 a ses consignes). D'ici là, chaque lot prépare et construit sa logique : §5.
 - Fusionnés aussi le 1er nov. : T1 (API d'essai, bac à sable, contrôle de fidélité) et les données fictives de SIM (100 jeux, `4fe559b`), avec `check:donnees` en CI (87 contrôles).
 - Gardes locales sur `refonte-vivante` : `typecheck`, `typecheck:business`, `lint` et les 55 contrôles sans navigateur de `editions.yml` verts.
@@ -483,6 +483,14 @@ Fusionnée (`4254e7a`) : le modèle des connecteurs, les moteurs locaux, le form
 | 5 | Section LOT-12 dans §7 | **Oui, courte** : état, sha, gardes et dépendances, sans table d'écrans. S9 la crée et y touche seul. |
 
 **Espace Développement** : Harun a répondu directement à S8 sur ses 8 questions (S8 transmet au CO). Les modèles de sites ajoutés restent **sur le poste** pour l'instant. Leur partage attend le serveur (LOT-13).
+
+### 1.23 Fiches de LOT-11 relues par Harun (12 nov., soir)
+
+Les 8 décisions de Harun sont en tête de `fiches/LOT-11/00-COMMUN.md`, et les fiches y sont alignées (`ae801d6`, fusionnée). Il n'y a plus de relecture en attente. Le seul point laissé au CO :
+
+- **Confirmation avant « Revenir »** : Préproduction, Interne et Serveur AMN suivent la règle de la production, avec une ligne de confirmation. Seules les versions d'essai (Aperçu) n'en demandent pas. **Décidé par le CO**, comme S8 le propose.
+
+**Étape 3 de S8 (les écrans)** : feu vert **dès la fusion du socle v4**. Elle n'attend plus que cela : les fiches sont relues et le modèle des connecteurs est fusionné (§1.22).
 
 ## 2. Les lots
 
