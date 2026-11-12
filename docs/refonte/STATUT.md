@@ -3,7 +3,7 @@
 > Tenu par le CO. Une session ne modifie que **la section de son lot** dans « 7. Écrans » (une ligne par écran) ; tout le reste est au CO. Règles : [`REGLES.md`](REGLES.md).
 
 - Branche d'intégration : **`claude/refonte-vivante`** (décision du 31 oct., §1.1). Base `main` @ `630ef45`.
-- Dernière mise à jour : 2026-11-12, soir. Tags `v*` protégés et workflow de publication désactivé (Harun). LOT-11 étape 2 fusionnée : §1.19. Reprise après 18h : §1.18.
+- Dernière mise à jour : 2026-11-12, soir. Dépôt passé dans l'organisation `amn-devsec`, toujours public, option A ouverte (§8 sur le dépôt public). Tags `v*` protégés. LOT-11 étape 2 : §1.19. Reprise après 18h : §1.18.
 - LOT-00 (socle v2) est fusionné (`488cdcc`), avec les 4 commits de S5. **Le socle v3 s'y ajoute avant la construction visuelle des lots** (S0 a ses consignes). D'ici là, chaque lot prépare et construit sa logique : §5.
 - Fusionnés aussi le 1er nov. : T1 (API d'essai, bac à sable, contrôle de fidélité) et les données fictives de SIM (100 jeux, `4fe559b`), avec `check:donnees` en CI (87 contrôles).
 - Gardes locales sur `refonte-vivante` : `typecheck`, `typecheck:business`, `lint` et les 55 contrôles sans navigateur de `editions.yml` verts.
@@ -817,7 +817,7 @@ Brief : `07-ESPACE-DEV.md`. Entrée de barre latérale au-dessus de « Surveilla
 
 ### Le dépôt est public
 
-`aaronsyaa-dev/amn-desktop` est **public**. Rien qui décrive une faille de sécurité n'y est poussé (documents, commentaires, commits, noms de branche) ; `docs/securite/` est ignoré par `.gitignore`. La règle 4 du dossier de construction dit la même chose. Les images des maquettes et le dossier `AMN-refonte-CO` restent hors dépôt. Des documents déjà publiés sur `main` décrivent des mécanismes de détection (`docs/nuit-2026-08-28.md`, `docs/audit-soc.md`, `docs/casser-2026-09-04.md`) : à faire relire par S6, et/ou passer le dépôt en privé. **À trancher par Harun.**
+`amn-devsec/amn-desktop` (ancienne adresse `aaronsyaa-dev/amn-desktop`, redirigée) est **public**. Rien qui décrive une faille de sécurité n'y est poussé (documents, commentaires, commits, noms de branche) ; `docs/securite/` est ignoré par `.gitignore`. La règle 4 du dossier de construction dit la même chose. Les images des maquettes et le dossier `AMN-refonte-CO` restent hors dépôt. Des documents déjà publiés sur `main` décrivent des mécanismes de détection (`docs/nuit-2026-08-28.md`, `docs/audit-soc.md`, `docs/casser-2026-09-04.md`) : à faire relire par S6, et/ou passer le dépôt en privé. **À trancher par Harun.** **12 nov. (Harun)** : le dépôt a changé d'organisation (`amn-devsec`, `amn-api` aussi). Il **reste public**, vérifié en navigation privée. Ce n'est pas l'option A, et le passage en privé reste ouvert. Jusque-là, la règle tient : rien d'exploitable dans les documents du dépôt.
 
 ### Niveau d'un module
 

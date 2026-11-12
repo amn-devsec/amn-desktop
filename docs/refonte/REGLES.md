@@ -32,7 +32,7 @@ cliente ne doit **jamais** changer pendant ce chantier.
 
 ## Sécurité : le dépôt est public
 
-`aaronsyaa-dev/amn-desktop` est **public**. **Rien qui décrive une faille de
+`amn-devsec/amn-desktop` (ancienne adresse `aaronsyaa-dev/amn-desktop`, redirigée) est **public**. **Rien qui décrive une faille de
 sécurité n'y est poussé.** Cela couvre :
 
 - les documents (rapports, constats, tickets) ;

@@ -6,7 +6,7 @@
 
 - **Windows**, avec **PowerShell** (toutes les commandes ci-dessous s'y tapent).
 - **Node.js 22** : `node -v` doit afficher `v22.…`. Sinon, installe la version 22 LTS depuis nodejs.org.
-- **Git**, et ton accès GitHub aux deux dépôts `amn-desktop` et `amn-api`.
+- **Git**, et ton accès GitHub aux deux dépôts `amn-desktop` et `amn-api` de l'organisation `amn-devsec`.
 - Environ 3 Go libres et 20 minutes la première fois.
 
 ## Règle de sécurité, avant tout
@@ -18,9 +18,11 @@
 ```powershell
 mkdir C:\AMN-essai
 cd C:\AMN-essai
-git clone -b claude/refonte-vivante https://github.com/aaronsyaa-dev/amn-desktop.git
-git clone https://github.com/aaronsyaa-dev/amn-api.git
+git clone -b claude/refonte-vivante https://github.com/amn-devsec/amn-desktop.git
+git clone https://github.com/amn-devsec/amn-api.git
 ```
+
+Les deux dépôts sont maintenant dans l'organisation `amn-devsec`. Les anciennes adresses `aaronsyaa-dev/…` redirigent aussi.
 
 Les deux dossiers doivent être côte à côte : `C:\AMN-essai\amn-desktop` et `C:\AMN-essai\amn-api`.
 
