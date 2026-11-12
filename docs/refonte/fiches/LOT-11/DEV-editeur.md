@@ -61,7 +61,7 @@ Puces : « Test sur 3 courriels : réussi » · « Dernière exécution : il y a
 - **Test** : rejoue le flux sur les **n derniers éléments réels** du déclencheur (*Proposition* : 3 courriels), **sans effet** (aucun contact créé, aucun courriel envoyé, aucune tâche) ; résultat « réussi » si chaque élément suit un chemin complet sans erreur, sinon « n sur 3 en erreur ».
 - **« Dernière exécution : il y a n min »** = dernière exécution réelle (journal des exécutions, `src/refonte/developpement/journal.ts`).
 - **« Tous les jours à 08:00 »** = déclencheur planifié local (`src/refonte/developpement/planification.ts` : prochaine heure de passage, jours, rattrapage d'un passage manqué au réveil du poste).
-- **Temps gagné** (suggestion) = exécutions du mois × durée de référence de chaque action (règle de H20, *proposition, durées à valider avec le dirigeant*), arrondi à l'heure (« environ 3 h »).
+- **Temps gagné** (suggestion) = exécutions du mois × durée de référence de chaque action (règle de H20 ; **estimations de S8 gardées par Harun le 12 nov.**, qu'il ajustera plus tard, action par action : elles restent un réglage, jamais écrites en dur dans un écran), arrondi à l'heure (« environ 3 h »).
 - **Par défaut aucun flux n'est actif** (règle de H20) : un flux créé, dupliqué ou proposé par Ajmani arrive « En pause ».
 - **Garde-fous** (repris de H20, *propositions*) : une réponse automatique par expéditeur et par flux tous les 7 jours au plus ; pause automatique après 3 échecs de suite ; un flux n'a jamais plus de droits que la personne qui l'a créé.
 - **Textes envoyés à un client** (bloc « Répondre avec le modèle ») : au **vouvoiement**, pris dans les modèles de MX06.
@@ -97,7 +97,7 @@ Puces : « Test sur 3 courriels : réussi » · « Dernière exécution : il y a
 ## 11. Adaptation (fenêtre réduite, mobile)
 - Sous 1280 px : la colonne droite devient un tiroir (bouton « Blocs ») ; le canevas prend toute la largeur, zoom ajusté.
 - Sous 900 px : le canevas devient une liste indentée des blocs (lecture et test), l'édition reste sur grand écran.
-- Mobile (LOT-09) : *Proposition* : liste des flux, interrupteur actif / pause, résultat de la dernière exécution.
+- Mobile (LOT-09) : **lecture seule** (décision de Harun, 12 nov.) : liste des flux, état actif ou en pause, résultat de la dernière exécution ; pas d'interrupteur ni d'édition.
 
 ## 12. Critères de réussite
 - [ ] Identique à `images/DEV-editeur.png` à ± 2 px : carte 752 × 661, canevas 714 × 595, blocs de 204 aux positions du §3, colonne droite 340 de large.

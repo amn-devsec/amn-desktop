@@ -43,7 +43,7 @@ Pastilles : « Local » (succès), « Payant » (orange), « À brancher » (gri
 
 **Plafond et alertes** : « Plafond et alertes » · « 14 € » « sur 40 € » · « Prévenir à » « 80 % » · « Au plafond » « Tout s'arrête ».
 
-**Suggestion d'Ajmani** : « Les SMS atteignent 72 % de ton forfait. Je te préviens avant la fin du mois, ou tu préfères passer en payant ? » · « Me prévenir ».
+**Suggestion d'Ajmani** : « Les SMS atteignent 72 % de ton forfait. Je te préviens avant la fin du mois, ou tu préfères payer au-delà du forfait ? » (l'image dit « passer en payant », reformulé par Harun le 12 nov.) · « Me prévenir ».
 
 **À brancher plus tard** : « À brancher plus tard » · « Signature électronique » « payant » · « Export comptable » « local ».
 
@@ -62,7 +62,7 @@ Toutes les valeurs viennent du modèle de LOT-12. Les règles ci-dessous sont de
 - **Coût « tout en API »** = pour chaque connecteur, consommation du mois × tarif de son équivalent API (catalogue de LOT-12) ; « environ » et arrondi à l'euro. **Économisé** = coût « tout en API » − payé (ici 96 − 14 = 82). Si un tarif manque, pas d'estimation : la phrase et la pastille disparaissent (jamais un chiffre deviné).
 - **« n connecteurs sur m tournent gratuitement »** : **calculé depuis les connecteurs réels, jamais repris de l'image** (décision du CO, `STATUT.md` §1.17 n° 5 ; 04-A n° 1). n = connecteurs branchés en mode local ; m = connecteurs du tableau. Sur les données de l'image, cela donne « 4 sur 7 », pas « 5 sur 7 ».
 - **Consommation** : « n envois », « n événements », « n paiements » (compteurs du mois) ; « n sur m » quand le connecteur a une limite (quota de la boîte d'envoi, forfait inclus) ; barre = n / m. « à la demande » pour l'assistant local (pas de compteur utile).
-- **Plafond** : réglage mensuel en euros (défaut *Proposition* : à saisir à la première activation d'un connecteur payant). **Prévenir à** = seuil en % du plafond (défaut 80 %), une notification H40 une fois par mois. **Au plafond** = tous les connecteurs en mode API passent à « arrêté » jusqu'au 1er du mois suivant ; ceux qui ont une version locale y repassent, les autres attendent. « Tout s'arrête » = tout ce qui est payant.
+- **Plafond** (décision de Harun, 12 nov.) : réglage mensuel en euros, **sans valeur imposée** : le montant est **demandé au premier branchement d'un outil payant** (étape du parcours de H21, avant l'activation). Les « 40 € » de l'image sont un exemple. **Prévenir à** = seuil en % du plafond (**80 %**, réglable), une notification H40 une fois par mois. **Au plafond** = tous les connecteurs en mode API passent à « arrêté » jusqu'au 1er du mois suivant ; ceux qui ont une version locale y repassent, les autres attendent. « Tout s'arrête » = tout ce qui est payant.
 - **Payé sur 6 mois** = payé par mois civil, du plus ancien au mois en cours (en succès).
 - **À brancher plus tard** = catalogue de LOT-12, catégories encore non branchées, avec le mode disponible (« local » s'il existe une version gratuite, sinon « payant »).
 
@@ -76,7 +76,7 @@ Toutes les valeurs viennent du modèle de LOT-12. Les règles ci-dessous sont de
 - **Mouvement** : arcs tracés depuis 0, barres qui poussent, barres de consommation remplies (900 ms). Aucune animation continue hors curseur de la barre Ajmani. `prefers-reduced-motion` coupe tout.
 
 ## 8. États
-- **Tout en local** (aucun connecteur payant) : « 0 € payés ce mois », anneau 100 % « fait seul », la carte du plafond dit « Aucun outil payant : rien à plafonner. » ; pas de suggestion.
+- **Tout en local** (aucun connecteur payant) : « 0 € payés ce mois », anneau 100 % « fait seul », la carte du plafond dit « Aucun outil payant : rien à plafonner. » ; pas de suggestion. Aucun plafond n'est demandé tant qu'aucun outil payant n'est branché.
 - **Seuil atteint** : anneau du plafond en attention, pastille « 80 % du plafond atteint ».
 - **Plafond atteint** : anneau plein en attention, bandeau « Le plafond de 40 € est atteint : les outils payants sont arrêtés jusqu'au 1er. » + « Relever le plafond » (avec confirmation) ; les lignes payantes passent « arrêté ».
 - **Tarif inconnu** : la ligne affiche « tarif à relever » et l'économie n'est pas calculée.
@@ -89,13 +89,13 @@ Toutes les valeurs viennent du modèle de LOT-12. Les règles ci-dessous sont de
 - Ce qu'on ne fait pas : pas d'alerte anxiogène sous le seuil, pas de compte à rebours, pas de publicité pour un outil payant.
 
 ## 10. Ajmani
-- **Suggestion** : déclencheur = un connecteur à forfait dont la consommation dépasse 70 % de la quantité incluse avant le 20 du mois (*Proposition*). Elle propose d'abord de **prévenir** (gratuit), et seulement ensuite de passer en payant.
+- **Suggestion** : déclencheur = un connecteur à forfait dont la consommation dépasse 70 % de la quantité incluse avant le 20 du mois (*Proposition*). Elle propose d'abord de **prévenir** (gratuit), et seulement ensuite de payer au-delà du forfait.
 - Barre ⌘J, invites : « Combien m'a coûté le mois dernier ? », « Mets les SMS en local », « Baisse le plafond à 30 € ».
 
 ## 11. Adaptation (fenêtre réduite, mobile)
 - Sous 1280 px : la colonne droite passe sous le tableau ; le bandeau garde ses trois parties, les barres de 6 mois passent sous l'anneau.
 - Sous 900 px : tableau en cartes (une par connecteur).
-- Mobile (LOT-09) : *Proposition* : payé, plafond et alertes en lecture.
+- Mobile (LOT-09) : **lecture seule** (décision de Harun, 12 nov.) : payé, plafond et alertes ; aucune bascule de mode ni réglage du plafond.
 
 ## 12. Critères de réussite
 - [ ] Identique à `images/DEV-couts.png` à ± 2 px : bandeau 1108 × 165, tableau 732 × 480 (lignes de 49), colonne droite 360 de large.
@@ -110,5 +110,5 @@ Toutes les valeurs viennent du modèle de LOT-12. Les règles ci-dessous sont de
 - **« 5 connecteurs sur 7 »** ne correspond pas aux 4 lignes « Local » de la maquette : le chiffre se calcule (§6), l'écart avec l'image est noté dans `STATUT.md`.
 - « Paiements (Stripe) » est « Payant » mais ne compte pas dans « 14 € » (commission seule).
 - « Courriels en masse » est « Local » avec une limite (« 220 sur 500 ») : la limite est celle de la boîte d'envoi, pas un forfait payant.
-- La suggestion dit « passer en payant » pour les SMS déjà « Payant » : il s'agit de payer **au-delà du forfait** (à l'usage). Libellé à confirmer par Harun.
+- La suggestion de l'image dit « passer en payant » pour les SMS déjà « Payant » : le texte retenu par Harun est « payer au-delà du forfait » (§4).
 - Montants, quantités et noms d'outils sont fictifs ; les tarifs réels viennent du catalogue de LOT-12.

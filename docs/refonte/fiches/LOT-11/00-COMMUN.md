@@ -17,6 +17,21 @@
 
 Sous-modules réutilisés, **avec leur fiche et leur lot** (une seconde entrée dans l'espace, rien de plus) : H20 Automatisations, H21 Connecteurs, H24 Coffre-fort (LOT-07), H03 Missions et tickets (LOT-01), ME05 Base de connaissances (LOT-03), MO03 Sauvegardes (LOT-07). Précédent validé : MO02 et CY07, « un seul module, deux entrées de menu » (`PLAN-10NOV.md` §3).
 
+## Décisions de Harun (relecture du 12 nov.)
+
+| # | Question | Décision | Fiche |
+|---|---|---|---|
+| 1 | Vue d'ensemble sans image | **Validée** telle que proposée | DEV-ensemble |
+| 2 | Confirmation de « Revenir » | **Une ligne en production, aucune sur les versions d'essai** | DEV-deploiements |
+| 3 | Modèles de sites ajoutés | **Sur ce poste** ; phrase « Il reste sur cet ordinateur. » ; partage avec l'équipe = évolution (demande le serveur) | DEV-modeles-sites |
+| 4 | Plafond mensuel | **Aucune valeur imposée** ; montant demandé au premier branchement d'un outil payant ; alerte à 80 % | DEV-couts |
+| 5 | Suggestion SMS | « **payer au-delà du forfait** » | DEV-couts |
+| 6 | Temps gagné | **Estimations de S8 gardées**, ajustées plus tard par Harun | DEV-editeur |
+| 7 | Textes des 8 modèles livrés | **Relus par Harun avant leur entrée**, sans bloquer la construction | DEV-modeles-sites |
+| 8 | Téléphone | **Lecture seule** partout ; mises en ligne, retours arrière et redémarrages sur l'ordinateur | toutes |
+
+Décisions du CO déjà reportées : `STATUT.md` §1.17 et §1.19 (barre latérale, « Éditeur de flux », comptes calculés, famille des modèles de sites, 8e hub, format Sinon / Puis par S9, « Redémarrer » secondaire et inerte).
+
 ## 1. Coquille commune aux images `DEV-*`
 
 - **En-tête** standard : fil d'Ariane « Développement / <écran> » (13.5 px, T3 puis T1), pile d'avatars « 3 en ligne », cloche avec compteur, pastille « La Garde veille, tout est en ordre ». Rien de propre au lot.

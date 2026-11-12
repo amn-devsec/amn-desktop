@@ -64,7 +64,7 @@ Un modèle ajouté par l'équipe porte l'étiquette « Ajouté » (orange).
 - Messages : « Code copié (61 lignes) » ; si la copie automatique est refusée : « Sélectionné : fais Ctrl+C » (prototype : « faites »).
 
 **Dialogue d'ajout**
-- « Ajouter un modèle » · « Colle le code complet d'une page. Il reste dans ce navigateur, sur cet ordinateur. » (prototype : « Collez … ») · « Nom » (indicatif « Ex. Garage Dumont ») · « Secteur » (indicatif « Ex. Artisan ») · « Code HTML » (indicatif « <!doctype html> ... ») · « Annuler » · « Enregistrer ».
+- « Ajouter un modèle » · « Colle le code complet d'une page. Il reste sur cet ordinateur. » (prototype : « Collez le code complet d'une page. Il reste dans ce navigateur, sur cet ordinateur. » ; « navigateur » retiré : dans AMN Business, le modèle est gardé par l'application, sur le poste) · « Nom » (indicatif « Ex. Garage Dumont ») · « Secteur » (indicatif « Ex. Artisan ») · « Code HTML » (indicatif « <!doctype html> ... ») · « Annuler » · « Enregistrer ».
 - Messages : « Modèle ajouté » ; si l'enregistrement local échoue : « Ajouté pour cette session seulement ».
 
 ## 5. Composants du socle utilisés
@@ -77,8 +77,8 @@ Un modèle ajouté par l'équipe porte l'étiquette « Ajouté » (orange).
 
 ## 6. Données et règles de calcul
 - **Modèle** : identifiant, nom, secteur, étiquettes (3 au plus), code HTML complet (un seul fichier, aucune ressource externe), origine (`livré` ou `ajouté`), date d'ajout et auteur pour un modèle ajouté.
-- **Modèles livrés** : *Proposition* : un fichier HTML par modèle dans un dossier de contenu du lot, lus par un catalogue (jamais écrits dans un composant). Leur texte est relu par Harun (contenu public, au vouvoiement). Ils ne chargent rien de l'extérieur (vérifié par la garde du lot, *Proposition*).
-- **Modèles ajoutés** : stockés **sur le poste** (« Il reste dans ce navigateur, sur cet ordinateur. »), comme le prototype. *À trancher par Harun* : les partager avec l'équipe (collection synchronisée) changerait la phrase du dialogue.
+- **Modèles livrés** : *Proposition* : un fichier HTML par modèle dans un dossier de contenu du lot, lus par un catalogue (jamais écrits dans un composant). Leur texte est **relu par Harun avant leur entrée dans l'application** (contenu public, au vouvoiement) ; cette relecture ne bloque pas la construction de l'écran (décision de Harun, 12 nov.). Ils ne chargent rien de l'extérieur (vérifié par la garde du lot, *Proposition*).
+- **Modèles ajoutés** (décision de Harun, 12 nov.) : gardés **sur ce poste** pour l'instant (« Il reste sur cet ordinateur. »). **Évolution prévue** : les partager avec l'équipe ; cela demande le serveur (LOT-13, reporté) et changera la phrase du dialogue.
 - **Puces** : « Tous » + un secteur par valeur distincte, triés par ordre alphabétique (français), avec leur compte ; un secteur ajouté apparaît seul.
 - **Recherche** : chaque mot tapé (séparé par des espaces) doit se trouver dans « nom + secteur + étiquettes », sans tenir compte des majuscules (*Proposition* : ni des accents). Combinée à la puce active.
 - **Compte** : « n modèles » / « 1 modèle » après filtre.
@@ -114,7 +114,7 @@ Sans objet (bibliothèque d'outils). Ce qu'on ne fait pas : pas de « modèle le
 ## 11. Adaptation (fenêtre réduite, mobile)
 - La grille est fluide (`minmax(290px, 1fr)`) : 3 colonnes à 1440, 2 puis 1 en dessous.
 - Sous 820 px (prototype) : la barre du haut de la fiche passe sur deux lignes ; « Téléphone » prend toute la largeur ; le dialogue empile ses deux champs.
-- Mobile (LOT-09) : consultation et copie ; *Proposition* : pas d'ajout de modèle depuis le téléphone.
+- Mobile (LOT-09) : **lecture seule** (décision de Harun, 12 nov.) : consultation, aperçu et copie du code ; pas d'ajout de modèle depuis le téléphone.
 
 ## 12. Critères de réussite
 - [ ] Même comportement que le prototype `sources-neon/DEV-modeles-sites.html` (recherche, puces, compte, fiche, copie, repli de copie, ajout, Échap).

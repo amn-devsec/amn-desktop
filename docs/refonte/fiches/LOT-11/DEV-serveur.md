@@ -14,7 +14,7 @@ Savoir en un regard que **notre serveur va bien** : sa charge (processeur, mémo
 
 ## 3. Disposition par zones
 Coordonnées relatives à la zone principale, relevées sur l'image, à ± 2 px.
-- **Z1 En-tête de page** : h1 « Serveur et santé », sous-titre ; secondaire « Journal » (icône liste) puis **primaire** « Redémarrer » (icône lecture), 36 px, y = 44.
+- **Z1 En-tête de page** : h1 « Serveur et santé », sous-titre ; secondaire « Journal » (icône liste) puis **secondaire** « Redémarrer » (icône lecture), 36 px, y = 44 : primaire sur l'image, rétrogradé par le CO (`STATUT.md` §1.19 n° 7) ; la page n'a donc pas de bouton primaire.
 - **Z2 Quatre jauges** : cartes **267 × 117** à x = 40 / 321 / 601 / 882, y = 97 (écart 14). Dans chacune : anneau de 88 px (épaisseur 8, arc en dégradé avec lueur, pourcentage 17 px / 600 au centre) à gauche ; à droite libellé en capitales 11 px `letter-spacing:.09em` T4, valeur 24 px / 700 en dégradé (avec « sur 8 » 12.5 px T3 accolé), ligne 12.5 px T3.
 - **Z3 Charge sur 24 heures** : carte **742 × 199** à (40, 230) : titre 15 px / 600, légende à droite (point + « Processeur », point + « Mémoire »), graphique ≈ 700 × 110 (deux courbes lissées, aire sous courbe 0,42 → 0, point final vivant sur la mémoire), repères horaires 11 px T4 dessous.
 - **Z4 Services** : carte **742 × 315** à (40, 443) : titre + ligne à droite ; 3 × 2 tuiles **225 × 105** à x = 61 / 298 / 536, y = 495 / 612 (écarts 13 et 12). Tuile : point d'état + nom 13.5 px / 600, détail 12.5 px T3, disponibilité 16 px / 700 en couleur d'état en bas à gauche, bouton secondaire « Relancer » (≈ 86 × 36) en bas à droite. Tuile en attention : bordure attention à 38 %.
@@ -73,7 +73,7 @@ Chaque tuile : « Relancer ».
 - Clic sur une jauge : la courbe montre cette mesure seule sur 24 h (un second clic revient aux deux).
 - Survol de la courbe : valeurs et heure.
 - **« Relancer »** (un service) : confirmation en une ligne « Relancer <service> ? Il sera indisponible quelques secondes. » + « Relancer » ; l'action est demandée à amn-api ; la tuile passe « en relance » puis revient. Droit d'administration exigé.
-- **« Redémarrer »** (tout le serveur) : confirmation plus explicite (« Redémarrer le serveur ? Les 6 services seront coupés environ une minute. ») ; jamais sans confirmation. *Proposition* : à rétrograder en bouton secondaire si le CO préfère qu'une action rare et sensible ne soit pas le primaire de la page.
+- **« Redémarrer »** (tout le serveur) : bouton secondaire, confirmation explicite (« Redémarrer le serveur ? Les 6 services seront coupés environ une minute. ») ; jamais sans confirmation ; **inerte tant que LOT-13 est en pause** (décision du CO, §1.19 n° 7).
 - **« Journal »** : journal du serveur (monospace, filtrable par service) ; aucune adresse ni secret n'y figure, les lignes sont filtrées côté serveur.
 - Clic sur la carte Sauvegardes : ouvre MO03. Clic sur « La Garde H24 » : ouvre N03.
 - **« Oui, surveiller »** : crée une alerte « disque à 80 % » (notification H40) ; la suggestion disparaît.
@@ -98,7 +98,7 @@ Chaque tuile : « Relancer ».
 ## 11. Adaptation (fenêtre réduite, mobile)
 - Sous 1280 px : jauges en 2 × 2 ; colonne droite sous les services (3 cartes côte à côte).
 - Sous 900 px : une carte par rangée ; tuiles de service en 2 colonnes.
-- Mobile (LOT-09) : *Proposition* : jauges et états des services en lecture, « Relancer » avec confirmation ; « Redémarrer » réservé au poste.
+- Mobile (LOT-09) : **lecture seule** (décision de Harun, 12 nov.) : jauges, services et sauvegardes ; « Relancer » et « Redémarrer » restent sur l'ordinateur.
 
 ## 12. Critères de réussite
 - [ ] Identique à `images/DEV-serveur.png` à ± 2 px : jauges 267 × 117, charge 742 × 199, services 742 × 315 (tuiles 225 × 105), colonne droite 350 de large.
@@ -111,6 +111,6 @@ Chaque tuile : « Relancer ».
 ## 13. Pièges
 - « COÛT DU MOIS · EXEMPLE » : le suffixe est une annotation de maquette.
 - « 9 € » est un exemple, pas un tarif : la décision serveur n'est pas prise (achat décidé en décembre).
-- « Redémarrer » est primaire sur l'image : action rare et lourde, toujours confirmée.
+- « Redémarrer » est primaire sur l'image : il devient secondaire (décision du CO), toujours confirmé ; écart noté.
 - Ne pas confondre la disponibilité d'un **service** (cet écran) et celle d'un **site client** (MO02 / CY07).
 - « Reverse proxy » et « Postgres » sont des noms de service, pas des détails de configuration : ne rien ajouter (version, port, adresse).
