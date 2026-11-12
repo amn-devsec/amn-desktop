@@ -54,7 +54,7 @@ const DECOUVRIR = [puce('logbook'), puce('loyalty'), puce('postPlanner')];
 
 export default function Apercu() {
   return (
-    <ApercuBureau fil={['Espace', 'Tous les modules']} tousLesModules ajmani="Dites ce que vous voulez faire, je trouve le bon module">
+    <ApercuBureau fil={['Espace', 'Tous les modules']} tousLesModules ajmani="Dis ce que tu veux faire, je trouve le bon module">
       <VueTousLesModules
         familles={familles}
         correspondre={(q) => correspondancesDe(q, catalogue, 'fr')}

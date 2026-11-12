@@ -18,7 +18,7 @@ const rien = () => undefined;
 
 export default function Apercu() {
   return (
-    <IdleScreen ouvert libelle="Écran de veille. Appuyez sur une touche pour reprendre." onReprendre={rien}>
+    <IdleScreen ouvert libelle="Écran de veille. Appuie sur une touche pour reprendre." onReprendre={rien}>
       <VueVeille
         produit="AMN Business"
         maintenant={new Date(2026, 9, 30, 10, 42)}

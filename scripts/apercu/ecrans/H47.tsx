@@ -28,7 +28,7 @@ const CARTES: CarteMetier[] = [
 
 export default function Apercu() {
   return (
-    <ApercuBureau famille="jour" sousPage="accueil" fil={['Ma journée', 'Démarrage', 'Votre métier']} ajmani="Décrivez votre activité en une phrase, Ajmani compose l'espace">
+    <ApercuBureau famille="jour" sousPage="accueil" fil={['Ma journée', 'Démarrage', 'Ton métier']} ajmani="Décris ton activité en une phrase, Ajmani compose l'espace">
       <VueMetier
         choix="conseil"
         taille="2-5"

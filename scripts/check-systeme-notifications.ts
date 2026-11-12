@@ -655,15 +655,15 @@ await dit('messages privés : un par correspondant, type « mention », lien ver
     { email: 'nul@exemple.test', nom: 'Nul', nombre: 0, apercu: '', date: J(29, 9, 0) },
   ], t);
   assert.equal(un.type, 'mention');
-  assert.equal(un.titre, 'Alice vous a écrit');
-  assert.equal(trois.titre, 'Bruno vous a envoyé 3 messages');
+  assert.equal(un.titre, 'Alice t’a écrit');
+  assert.equal(trois.titre, 'Bruno t’a envoyé 3 messages');
   assert.equal(un.detail, '« Peux-tu regarder ? »');
   assert.ok(trois.detail.length < 100 && trois.detail.endsWith('… »'));
   assert.equal(un.vers.route, '/messages-prives?avec=alice%40exemple.test');
   assert.doesNotMatch(un.id, /alice|exemple/);
   assert.equal(un.date, J(29, 8, 2), 'la date est celle du message');
   assert.equal(un.module, 'dm');
-  assert.equal(sources.messagesVersNotifications([{ email: 'a@exemple.test', nom: 'A', nombre: 1, apercu: '', date: J(29, 8, 2) }], t)[0].detail, 'Ouvrez la conversation.');
+  assert.equal(sources.messagesVersNotifications([{ email: 'a@exemple.test', nom: 'A', nombre: 1, apercu: '', date: J(29, 8, 2) }], t)[0].detail, 'Ouvre la conversation.');
 });
 
 await dit('rendez-vous : seulement ceux qui commencent dans l’heure, « dans N min » recalculé, l’heure en détail, l’échéance posée', () => {
@@ -757,7 +757,7 @@ await dit('rendu : trois volets — l’anneau et le point d’Ajmani à gauche,
   assert.ok(html.indexOf('sc-notif__volet--gauche') < html.indexOf('class="sc-notif__fil"'));
   assert.ok(html.indexOf('class="sc-notif__fil"') < html.indexOf('sc-notif__volet--droit'));
   const g = gauche(html);
-  assert.match(g, /<h2[^>]*>Votre journée<\/h2>/);
+  assert.match(g, /<h2[^>]*>Ta journée<\/h2>/);
   assert.match(g, /<time class="sc-notif__journee-heure sc-mono"[^>]*>11:00<\/time>/);
   assert.match(g, /<h2[^>]*>Le point d’Ajmani<\/h2>/);
   const d = droite(html);
@@ -768,7 +768,7 @@ await dit('rendu : trois volets — l’anneau et le point d’Ajmani à gauche,
 
 await dit('rendu : l’anneau — piste, heures calmes, temps écoulé, 24 graduations, un rayon par notification du jour, aiguille et point vivant', () => {
   const g = gauche(vue());
-  assert.match(g, /role="group"[^>]*aria-label="Votre journée sur 24 heures\u00a0: 5 notifications aujourd’hui, 4 à voir\."/);
+  assert.match(g, /role="group"[^>]*aria-label="Ta journée sur 24 heures\u00a0: 5 notifications aujourd’hui, 4 à voir\."/);
   assert.equal(compter(g, /class="sc-notif__rayon"[^>]*role="button" tabindex="0"/g), 1, 'les rayons : un seul arrêt de tabulation, les flèches font le reste');
   assert.equal(compter(g, /class="sc-notif__rayon"[^>]*role="button" tabindex="-1"/g), 4);
   assert.match(g, /role="button" tabindex="0" aria-label="08:02 · Titre a4"/);
@@ -950,7 +950,7 @@ await dit('rendu : la suggestion « Moins de bruit » (seul second bouton blanc)
   const sugg = droite(vue({ suggestion: { categorie: 'rendez-vous', jours: 14 } }));
   assert.match(sugg, /Suggestion d’Ajmani/);
   assert.match(sugg, />Moins de bruit</);
-  assert.match(sugg, /Vous laissez les rendez-vous de côté depuis 2 semaines\. Je les range dans le résumé du matin\u00a0\?/);
+  assert.match(sugg, /Tu laisses les rendez-vous de côté depuis 2 semaines\. Je les range dans le résumé du matin\u00a0\?/);
   assert.match(sugg, />Passer en résumé</);
   assert.match(sugg, />Garder</);
   assert.match(sugg, /<svg[^>]*class="sc-etincelle/);
@@ -973,24 +973,24 @@ await dit('états : vide, filtre vide, chargement (squelettes de 46 px, puces sa
   const vide = fil(vue({ notifications: [], compteurs: modele.compteurs([]) }));
   assert.match(vide, /class="sc-bloc-etat"/, 'modèle 1 de H43');
   assert.match(vide, /Rien de nouveau/);
-  assert.match(vide, /Vous êtes à jour\. Les prochaines notifications apparaîtront ici\./);
+  assert.match(vide, /Tu es à jour\. Les prochaines notifications apparaîtront ici\./);
   assert.match(vide, />Régler mes notifications</);
   assert.equal(compter(vide, /class="sc-notif__ligne"/g), 0);
 
   const sansMention = HUIT.filter((n: any) => n.type !== 'mention');
   const filtreVide = fil(vue({ notifications: sansMention, compteurs: modele.compteurs(sansMention), filtreInitial: 'mentions' }));
-  assert.match(filtreVide, /Personne ne vous a mentionné pour l’instant\./);
+  assert.match(filtreVide, /Personne ne t’a mentionné pour l’instant\./);
   assert.match(filtreVide, />Voir toutes les notifications</);
   assert.match(fil(vue({ notifications: HUIT.filter((n: any) => n.lue), compteurs: modele.compteurs(HUIT.filter((n: any) => n.lue)), filtreInitial: 'urgent' })), /Rien d’urgent pour l’instant\./);
 
   const charge = vue({ statut: 'chargement', notifications: [] });
   assert.equal(compter(charge, /class="sc-notif__squelette-ligne"/g), 9);
-  assert.match(charge, /role="status"[^>]*aria-busy="true"[^>]*aria-label="Chargement de vos notifications"|aria-busy="true"[^>]*role="status"/);
+  assert.match(charge, /role="status"[^>]*aria-busy="true"[^>]*aria-label="Chargement de tes notifications"|aria-busy="true"[^>]*role="status"/);
   assert.equal(compter(charge, /sc-puce__compteur/g), 0, 'les puces sont visibles, sans compteur');
   assert.equal(compter(charge, /role="radio"/g), 4 + 3);
   assert.equal(compter(charge, /role="checkbox"/g), 15, 'les réglages s’affichent tout de suite (locaux)');
   assert.match(gauche(charge), /data-chargement="true"/, 'l’anneau en squelette : la piste seule');
-  assert.match(gauche(charge), /role="img" aria-label="Chargement de vos notifications"/);
+  assert.match(gauche(charge), /role="img" aria-label="Chargement de tes notifications"/);
   assert.equal(compter(gauche(charge), /class="sc-notif__rayon"/g), 0);
 
   const erreur = vue({ statut: 'erreur', notifications: [] });
@@ -1042,7 +1042,7 @@ await dit('textes : fr et en ont les mêmes clés et paramètres, aucun point d�
   }
   assert.equal(fr['matrice.titre'], 'Par type');
   assert.equal(fr['toast.reportee'], `Reportée${NBSP}: {quand}`);
-  assert.equal(fr['page.ajmani'], `Demandez à Ajmani, par exemple${NBSP}: «${NBSP}reporte tout ce qui n’est pas urgent à demain${NBSP}»`);
+  assert.equal(fr['page.ajmani'], `Demande à Ajmani, par exemple${NBSP}: «${NBSP}reporte tout ce qui n’est pas urgent à demain${NBSP}»`);
 });
 
 /* ═════════════════════════════ la feuille de style ═════════════════════════════ */

@@ -9,7 +9,7 @@
  *   2. la règle d'or : Entrée dans le champ n'exécute jamais un N1, N2 ou N3 ; un seul bouton primaire, au verbe précis ;
  *   3. les niveaux et le délai d'annulation de 10 s (horloge à la main) ;
  *   4. l'historique (5 demandes, 30 jours, par compte, effaçable, sans secret) et le journal (200 au plus, sans secret) ;
- *   5. les quatre lignes « Ou lancez », le parcours au clavier, les états et leurs délais ;
+ *   5. les quatre lignes « Ou lance », le parcours au clavier, les états et leurs délais ;
  *   6. le rendu statique de la palette (rôles ARIA, étincelle sans lettre, pied en minuscules, quatre lignes) ;
  *   7. les sources : cotes de `palette.css`, calque fixe z-index ≥ 50, Échap, aucune couleur en dur, aucune encre
  *      « discret » en texte, aucun avatar ni mascotte, aucun nom d'exemple de la fiche, étanchéité des éditions.
@@ -261,7 +261,7 @@ await dit('créer une facture (N1) : demande le client, puis les lignes, puis r�
   assert.ok(sansClient.lignes.length >= 3);
   const sansLignes = analyser('Créer une facture pour Cabinet Orsini');
   assert.equal(sansLignes.genre, 'question');
-  assert.match(lire_(sansLignes), /Que voulez-vous facturer à \*\*Cabinet Orsini\*\*/);
+  assert.match(lire_(sansLignes), /Que veux-tu facturer à \*\*Cabinet Orsini\*\*/);
   assert.equal(sansLignes.lignes[0].effet.texte, 'Créer une facture pour Cabinet Orsini sans lignes');
   const recap = analyser('Créer une facture pour Cabinet Orsini : 2 jours de conseil à 400 €, 3 heures de formation à 90 €');
   assert.equal(recap.genre, 'brouillon');
@@ -317,7 +317,7 @@ await dit('résumer (N0) : cinq lignes au plus, chacune avec son lien ; les mess
   assert.equal(lire_(vide), 'Rien à signaler pour le moment.');
   const messages = analyser('Résumer mes messages non lus');
   assert.equal(messages.boutons[0].effet.type, 'demander');
-  assert.match(lire_(messages), /Je ne peux pas lire vos messages d’ici/);
+  assert.match(lire_(messages), /Je ne peux pas lire tes messages d’ici/);
 });
 
 await dit('point à la Garde (N0) : une phrase, une pastille d’état, « Ouvrir La Garde » ; droits et faits manquants', () => {
@@ -351,7 +351,7 @@ await dit('ce qui n’est pas reconnu : « Demander à Ajmani » (délégué), p
   assert.equal(r.lignes.length, 3);
   assert.equal(r.lignes[0].id, 'demander');
   assert.deepEqual(r.lignes[0].effet, { type: 'demander', texte: 'quelle est la meilleure saison pour planter des tulipes' });
-  assert.match(lire_(r), /^Je n’ai pas compris « quelle est la meilleure saison pour planter des tulipes ». Voulez-vous plutôt :$/);
+  assert.match(lire_(r), /^Je n’ai pas compris « quelle est la meilleure saison pour planter des tulipes ». Tu veux plutôt :$/);
 });
 
 await dit('Ajmani ne déclenche JAMAIS un paiement, un remboursement ni un virement : il renvoie vers la facturation', () => {
@@ -632,11 +632,11 @@ await dit('journal : qui, la phrase demandée, ce qui a été fait, quand, le r�
   assert.equal(typeof J.lireJournal, 'function');
 });
 
-/* ═══ 5. Lignes « Ou lancez », clavier, états ═══ */
+/* ═══ 5. Lignes « Ou lance », clavier, états ═══ */
 
 const FAMILLES = [null, 'jour', 'contacts', 'ecrire', 'argent', 'echanger', 'creer', 'outils', 'garde'];
 
-await dit('« Ou lancez » : toujours quatre lignes, sans doublon, deux selon l’écran puis deux selon l’usage ; les mots tapés réordonnent sans vider', () => {
+await dit('« Ou lance » : toujours quatre lignes, sans doublon, deux selon l’écran puis deux selon l’usage ; les mots tapés réordonnent sans vider', () => {
   const libelle = (cle: string) => fr(cle);
   for (const famille of FAMILLES) {
     for (const usage of [{}, { relancer: 9, resumer: 4 }, { 'creer-facture': 5, garde: 2, 'compte-rendu': 1 }]) {
@@ -653,14 +653,14 @@ await dit('« Ou lancez » : toujours quatre lignes, sans doublon, deux selon l�
   // Les quatre lignes par défaut sont celles de la fiche, dans l'ordre.
   const defaut = L.lignesLancer({ famille: 'jour', usage: {} });
   assert.deepEqual(defaut.map((x: { titre: string }) => fr(x.titre)), ['Créer une facture', 'Trouver un module ou un client', 'Demander un point à la Garde', 'Rédiger un compte rendu']);
-  assert.deepEqual(defaut.map((x: { sous: string }) => fr(x.sous)), ['Pour un client existant', 'Recherche dans tout l’espace', 'État de la supervision', 'À partir de vos notes']);
+  assert.deepEqual(defaut.map((x: { sous: string }) => fr(x.sous)), ['Pour un client existant', 'Recherche dans tout l’espace', 'État de la supervision', 'À partir de tes notes']);
   // Échanger : les invites de la fiche, sans nom propre.
   assert.deepEqual(L.lignesLancer({ famille: 'echanger', usage: {} }).slice(0, 2).map((x: { titre: string }) => fr(x.titre)), ['Résumer mes messages non lus', 'Rédiger une annonce']);
   assert.ok(L.lignesLancer({ famille: 'jour', usage: {} }).find((x: { id: string }) => x.id === 'garde').reservee, 'La Garde est réservée aux administrateurs');
   assert.equal(L.NOMBRE_LIGNES, 4);
 });
 
-await dit('clavier : ↓ champ → lignes de la réponse → boutons → « Ou lancez » ; ↑ remonte ; ← → entre boutons ; une ligne désactivée est sautée', () => {
+await dit('clavier : ↓ champ → lignes de la réponse → boutons → « Ou lance » ; ↑ remonte ; ← → entre boutons ; une ligne désactivée est sautée', () => {
   const cibles = [
     { zone: 'reponse', id: 'r1' }, { zone: 'bouton', id: 'b1' }, { zone: 'bouton', id: 'b2' }, { zone: 'bouton', id: 'b3' },
     { zone: 'lancer', id: 'l1' }, { zone: 'lancer', id: 'l2', desactivee: true }, { zone: 'lancer', id: 'l3' },
@@ -759,11 +759,11 @@ await dit('rendu : l’étincelle verte dans une tuile 30 × 30 — jamais une l
   assert.doesNotMatch(html, /data-tourne/);
 });
 
-await dit('rendu : « ⌘J » (Ctrl J hors macOS), libellé « Ajmani propose », pied en minuscules, quatre lignes « Ou lancez » de la fiche', () => {
+await dit('rendu : « ⌘J » (Ctrl J hors macOS), libellé « Ajmani propose », pied en minuscules, quatre lignes « Ou lance » de la fiche', () => {
   const html = rendre();
   matche(html, /<kbd[^>]*>(⌘J|Ctrl J)<\/kbd>/);
   matche(html, /<p class="ajp-section">(Ajmani propose|Récent|Suggéré ici)<\/p>/);
-  matche(html, /<p class="ajp-section">Ou lancez<\/p>/);
+  matche(html, /<p class="ajp-section">Ou lance<\/p>/);
   const pied = /<footer class="ajp-pied">([\s\S]*?)<\/footer>/.exec(html)?.[1] ?? '';
   const lignes = [...pied.matchAll(/<p>([^<]*)<\/p>/g)].map((m) => m[1]);
   assert.deepEqual(lignes, ['↑ ↓ pour naviguer', '↵ pour valider', 'Entrée seule n’envoie jamais', 'échap pour fermer']);
@@ -771,9 +771,9 @@ await dit('rendu : « ⌘J » (Ctrl J hors macOS), libellé « Ajmani propose »
   for (const l of lignes.filter((x) => !x.startsWith('Entrée'))) assert.equal(l.replace(/^[^\p{L}]*/u, '')[0], l.replace(/^[^\p{L}]*/u, '')[0].toLowerCase(), `« ${l} » commence par une minuscule`);
   assert.doesNotMatch(pied, /<svg|<img/, 'les glyphes ↑ ↓ ↵ sont du texte, pas des icônes');
   const lancer = /<ul[^>]*class="ajp-lancer__liste"[^>]*>([\s\S]*?)<\/ul>/.exec(html)?.[1] ?? '';
-  assert.equal(compter(lancer, /role="option"/g), 4, 'quatre lignes « Ou lancez »');
+  assert.equal(compter(lancer, /role="option"/g), 4, 'quatre lignes « Ou lance »');
   assert.deepEqual([...lancer.matchAll(/class="ajp-ligne__titre">([^<]*)</g)].map((m) => m[1]), ['Créer une facture', 'Trouver un module ou un client', 'Demander un point à la Garde', 'Rédiger un compte rendu']);
-  assert.deepEqual([...lancer.matchAll(/class="ajp-ligne__sous">([^<]*)</g)].map((m) => m[1]), ['Pour un client existant', 'Recherche dans tout l’espace', 'État de la supervision', 'À partir de vos notes']);
+  assert.deepEqual([...lancer.matchAll(/class="ajp-ligne__sous">([^<]*)</g)].map((m) => m[1]), ['Pour un client existant', 'Recherche dans tout l’espace', 'État de la supervision', 'À partir de tes notes']);
   assert.equal(compter(lancer, /ajp-ligne__fleche/g), 4);
 });
 
@@ -793,7 +793,7 @@ await dit('rendu : une proposition — phrase aux faits en gras, UN seul bouton 
   assert.ok(compter(rendre({ initial: { texte: '', reponse: null } }, {}, { attentes: [{ cle: 'a', titre: 'Un devis attend', route: '/clients' }] }), /data-variante="primaire"/g) <= 1);
 });
 
-await dit('rendu v3 : actions proposées cochées, aperçu dépliable avec mise en garde, décision et sceau, « Ensuite » à la place de « Ou lancez »', () => {
+await dit('rendu v3 : actions proposées cochées, aperçu dépliable avec mise en garde, décision et sceau, « Ensuite » à la place de « Ou lance »', () => {
   const don = { relances: [{ factureId: 'f-1', le: '2026-03-09T09:00:00', palier: 'rappel' }], luesA: '2026-03-18T10:42:00', modules: [...modules, { cle: 'reminders', libelle: 'Relances', route: '/relances' }] };
   const texte = 'Relance les factures en retard, ton courtois';
   const reponse = I.analyser(texte, env(don));
@@ -815,19 +815,19 @@ await dit('rendu v3 : actions proposées cochées, aperçu dépliable avec mise 
   const decision = /<div class="ajp-decision">([\s\S]*?)<\/p><\/div>/.exec(html)?.[1] ?? '';
   assert.equal(compter(html, /data-variante="primaire"/g), 1);
   matche(decision, /Préparer les 3 relances[\s\S]*Modifier[\s\S]*Annuler/);
-  matche(decision, /class="ajp-sceau__titre">Rien ne part sans votre accord<[\s\S]*class="ajp-sceau__detail">vous l’envoyez depuis Relances</);
+  matche(decision, /class="ajp-sceau__titre">Rien ne part sans ton accord<[\s\S]*class="ajp-sceau__detail">tu l’envoies depuis Relances</);
   assert.doesNotMatch(html, /Envoyer|10 s pour annuler/, 'Ajmani prépare, il n’envoie rien');
-  // « Ensuite, si vous voulez » remplace « Ou lancez ».
-  matche(html, /<p class="ajp-section">Ensuite, si vous voulez<\/p>/);
+  // « Ensuite, si tu veux » remplace « Ou lance ».
+  matche(html, /<p class="ajp-section">Ensuite, si tu veux<\/p>/);
   assert.deepEqual([...html.matchAll(/class="ajp-suite"[^>]*>[\s\S]*?<span>([^<]*)<\/span>/g)].map((m) => m[1]), ['Créer une tâche de suivi', 'Prévoir un appel dans l’agenda', 'Ouvrir Relances']);
-  assert.doesNotMatch(html, /Ou lancez/);
+  assert.doesNotMatch(html, />Ou lance</);
   // Sans texte de relance branché, l'aperçu renvoie à Relances, rien n'est inventé.
   matche(rendre({ initial: { texte, reponse } }, {}, don), /Le texte de cette relance se lit dans Relances\./);
   // La facture porte une adresse : « e-mail ».
   const avecCourriel = { ...don, factures: factures.map((f) => ({ ...f, courriel: true })) };
   matche(rendre({ initial: { texte, reponse: I.analyser(texte, env(avecCourriel)) } }, {}, avecCourriel), /class="ajp-action__canal"><svg[\s\S]*?<\/svg>e-mail</);
-  // Champ vide : « Ou lancez » revient.
-  matche(rendre({ initial: { texte: '', reponse: null } }), /<p class="ajp-section">Ou lancez<\/p>/);
+  // Champ vide : « Ou lance » revient.
+  matche(rendre({ initial: { texte: '', reponse: null } }), /<p class="ajp-section">Ou lance<\/p>/);
 });
 
 await dit('rendu : les états — réflexion (deux squelettes), rien trouvé, non comprise, déjà fait, erreur, hors ligne, droits', () => {
@@ -840,7 +840,7 @@ await dit('rendu : les états — réflexion (deux squelettes), rien trouvé, no
   matche(rien, /Je n’ai trouvé aucune facture en retard pour <strong>Cabinet Orsini<\/strong>\./);
   matche(rien, /data-etat="rien-trouve"/);
   const non = rendre({ initial: { texte: 'zzz', reponse: analyser('zzz') } });
-  matche(non, /Je n’ai pas compris « zzz »\. Voulez-vous plutôt :/);
+  matche(non, /Je n’ai pas compris « zzz »\. Tu veux plutôt :/);
   assert.equal(compter(/<ul[^>]*class="ajp-liste"[^>]*>([\s\S]*?)<\/ul>/.exec(non)?.[1] ?? '', /role="option"/g), 3);
   const deja = rendre({ initial: { texte: 'Relancer Studio Verlaine', reponse: analyser('Relancer Studio Verlaine', { relances: [{ factureId: 'f-1', le: '2026-03-12T09:00:00Z', palier: 'ferme' }] }) } });
   matche(deja, /La relance de <strong>T-0102<\/strong> est déjà notée au 12 mars\./);
@@ -1001,7 +1001,7 @@ await dit('Ajmani n’a ni visage, ni avatar, ni mascotte, ni image : seul le no
   assert.doesNotMatch(sansCommentaires(lire(`${DOSSIER}/PaletteAjmaniRefonte.tsx`)), /<span className="ajp-tuile"[^>]*>\s*[A-Za-z]/, 'la tuile ne contient pas de lettre');
 });
 
-await dit('ton d’Ajmani : vouvoiement, jamais de point d’exclamation ni de « Bien sûr », fr et en de même clés', () => {
+await dit('ton d’Ajmani : tutoiement (v4, 06 §4), jamais de point d’exclamation ni de « Bien sûr », fr et en de même clés', () => {
   const { en, fr: fra } = M.dictionnaires;
   assert.deepEqual(Object.keys(en).sort(), Object.keys(fra).sort());
   for (const [langue, dico] of [['en', en], ['fr', fra]] as const) {
@@ -1009,14 +1009,15 @@ await dit('ton d’Ajmani : vouvoiement, jamais de point d’exclamation ni de �
       assert.ok(texte.trim().length > 0, `${langue}.${cle} vide`);
       assert.ok(!texte.includes('!'), `${langue}.${cle} : point d'exclamation`);
       assert.doesNotMatch(texte, /bien s[uû]r|\bcertainement\b|of course|sure thing/i, `${langue}.${cle}`);
-      if (langue === 'fr') assert.doesNotMatch(texte, /(?<!\p{L})(tu|toi)(?!\p{L})|(?<!\p{L})(peux|veux|as|es)-tu(?!\p{L})/iu, `fr.${cle} : tutoiement`);
+      // v4 : l'interface tutoie — ni « vous / votre / vos », ni impératif en « -ez » (« rendez-vous » est un nom).
+      if (langue === 'fr') assert.doesNotMatch(texte.replace(/[Rr]endez-vous/g, ''), /(?<!\p{L})(vous|votre|vos)(?!\p{L})|(?<![\p{L}’'-])(?!chez\b|assez\b)\p{L}+ez(?!\p{L})/iu, `fr.${cle} : vouvoiement`);
     }
   }
   // Les paramètres sont les mêmes d'une langue à l'autre.
   const params = (t: string) => [...t.matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort().join(',');
   for (const cle of Object.keys(en)) assert.equal(params(en[cle]), params(fra[cle]), cle);
   // Les textes de la fiche, mot pour mot.
-  assert.equal(fra['phrase.nonComprise'], 'Je n’ai pas compris « {texte} ». Voulez-vous plutôt :');
+  assert.equal(fra['phrase.nonComprise'], 'Je n’ai pas compris « {texte} ». Tu veux plutôt :');
   assert.equal(fra['erreur.reponse'], 'Ajmani n’a pas pu répondre. Rien n’a été modifié.');
   assert.equal(fra['horsligne.bandeau'], 'Hors ligne : Ajmani reprendra dès que la connexion reviendra.');
   assert.equal(fra['reflexion.texte'], 'Ajmani prépare une proposition…');

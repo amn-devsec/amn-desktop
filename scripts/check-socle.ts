@@ -912,7 +912,7 @@ await dit('en-tête : fil d’Ariane en liste, dernière miette = page courante,
 await dit('barre Ajmani : une barre de texte avec ⌘J — l’étincelle pour seul dessin, ni image, ni avatar', () => {
   const r = rendreK(hk(K.BarreAjmani, { onOuvrir: () => undefined, raccourci: '⌘J' }));
   assert.match(r, /^<button[^>]*aria-haspopup="dialog"[^>]*aria-keyshortcuts="Control\+J Meta\+J"/);
-  assert.match(r, /Demandez à Ajmani, ou dites ce que vous voulez faire/);
+  assert.match(r, /Demande à Ajmani, ou dis ce que tu veux faire/);
   assert.match(r, /<kbd class="sc-kbd">⌘J<\/kbd>/);
   assert.equal((r.match(/<svg/g) ?? []).length, 1, 'un seul dessin');
   assert.match(r, /<svg[^>]*class="sc-etincelle/, 'et c’est l’étincelle');

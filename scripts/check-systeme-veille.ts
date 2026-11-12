@@ -131,9 +131,9 @@ await dit('les textes de la maquette, mot pour mot (aperçu de l’image : verro
   const t = texte(vue({ verrouApresMin: 15, verrouille: true }));
   for (const s of [
     '12', '18', '00', '06', 'A', 'Produit', 'Espace verrouillé', '10:42', 'Vendredi 30 octobre', 'La Garde veille', '·', 'tout est en ordre', 'prochaine ronde', '12:30',
-    'Bougez la souris ou appuyez sur une touche pour reprendre', 'Veille après 5 min · verrouillage après 15 min', 'Réglages · Écran de veille',
+    'Bouge la souris ou appuie sur une touche pour reprendre', 'Veille après 5 min · verrouillage après 15 min', 'Réglages · Écran de veille',
   ]) assert.ok(t.includes(s), `« ${s} » absent`);
-  assert.equal(M.dictionnaires.fr.calque, 'Écran de veille. Appuyez sur une touche pour reprendre.');
+  assert.equal(M.dictionnaires.fr.calque, 'Écran de veille. Appuie sur une touche pour reprendre.');
   // Le nom de la marque est celui de l'édition, jamais une chaîne figée.
   assert.match(sansCommentaires(lire(`${DIR}/EcranDeVeille.tsx`)), /produit=\{EDITION_PRODUCT_NAME\}/);
 });
@@ -154,7 +154,7 @@ await dit('les états de la pastille : orange, rouge sans détail et point fixe,
   assert.match(ok, /class="ve-pastille" data-etat="calme" role="status"/);
   assert.match(ok, /data-ton="ok"[\s\S]*?data-mvt="onde"/, 'au vert, le point vit');
   const orange = vue({ etat: 'attention' });
-  assert.match(texte(orange), /La Garde veille · un point demande votre attention · prochaine ronde 12:30/);
+  assert.match(texte(orange), /La Garde veille · un point demande ton attention · prochaine ronde 12:30/);
   assert.match(orange, /data-ton="attention"/);
   assert.doesNotMatch(extraire(orange, /<p class="ve-pastille"[\s\S]*?<\/p>/), /data-mvt="onde"/, 'à l’orange, point fixe');
   const rouge = vue({ etat: 'critique' });
@@ -373,7 +373,7 @@ await dit('le calque : portail vers <body>, au-dessus de toute la pile (z-index)
   };
   parcourir('src');
   assert.ok(zVeille > zMax * 1000, `veille ${zVeille}, le plus haut ailleurs ${zMax}`);
-  assert.equal(M.dictionnaires.fr.calque, 'Écran de veille. Appuyez sur une touche pour reprendre.');
+  assert.equal(M.dictionnaires.fr.calque, 'Écran de veille. Appuie sur une touche pour reprendre.');
 });
 
 await dit('lecteur d’écran : seuls l’heure, le jour et l’état de La Garde sont lus ; le reste est décoratif', () => {

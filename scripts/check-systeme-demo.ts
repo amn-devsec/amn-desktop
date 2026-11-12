@@ -367,7 +367,7 @@ await dit('aucun nom propre d’exemple : ni les noms de la maquette ni de perso
   for (let t = 0; t < 6; t += 1) assert.ok(html.includes(`data-teinte="${t}"`), `la teinte d’avatar ${t} n’est pas montrée`);
 });
 
-await dit('français : vouvoiement, aucun point d’exclamation, aucun émoji, dans les sources et dans le rendu', () => {
+await dit('français : tutoiement (v4, 06 §4), aucun point d’exclamation, aucun émoji, dans les sources et dans le rendu', () => {
   const emoji = /\p{Extended_Pictographic}/u;
   const sansSignesDeClavier = (s: string) => s.replace(/[⌘·§→−–—…]/g, '');
   for (const f of FICHIERS) {
@@ -385,7 +385,7 @@ await dit('français : vouvoiement, aucun point d’exclamation, aucun émoji, d
     }
   }
   for (const [cle, v] of Object.entries(fr)) {
-    assert.ok(!/(?<![\p{L}])(tu|toi|tes)(?![\p{L}])|(?<![\p{L}])t['’][\p{L}]/iu.test(v), `fr « ${cle} » : tutoiement`);
+    assert.ok(!/(?<![\p{L}])(vous|votre|vos)(?![\p{L}])|(?<![\p{L}’'-])(?!chez\b|assez\b)\p{L}+ez(?![\p{L}])/iu.test(v.replace(/[Rr]endez-vous/g, '')), `fr « ${cle} » : vouvoiement`);
     assert.ok(!/'/.test(v), `fr « ${cle} » : apostrophe droite (utiliser ’)`);
     assert.deepEqual([...v.matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort(), [...en[cle].matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort(), `fr « ${cle} » : mêmes paramètres que l’anglais`);
   }

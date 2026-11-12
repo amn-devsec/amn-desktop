@@ -8,5 +8,5 @@ import React from 'react';
 import { ApercuBureau } from '../coquille';
 
 export default function Apercu() {
-  return <ApercuBureau famille="jour" sousPage="accueil" fil={['Ma journée', 'Notifications']} ajmani="Demandez à Ajmani, par exemple : « reporte tout ce qui n'est pas urgent à demain »" />;
+  return <ApercuBureau famille="jour" sousPage="accueil" fil={['Ma journée', 'Notifications']} ajmani="Demande à Ajmani, par exemple : « reporte tout ce qui n'est pas urgent à demain »" />;
 }

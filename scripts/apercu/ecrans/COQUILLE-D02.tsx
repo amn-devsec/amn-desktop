@@ -9,5 +9,5 @@ import React from 'react';
 import { ApercuBureau } from '../coquille';
 
 export default function Apercu() {
-  return <ApercuBureau fil={['Espace', 'Tous les modules']} tousLesModules ajmani="Dites ce que vous voulez faire, je trouve le bon module" />;
+  return <ApercuBureau fil={['Espace', 'Tous les modules']} tousLesModules ajmani="Dis ce que tu veux faire, je trouve le bon module" />;
 }

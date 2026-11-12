@@ -8,7 +8,7 @@ import { definirMots } from '../../../socle/mots';
  *
  * Les libellés des étapes 2, 3 et 5 vivent avec le modèle de métier (`modeles.ts`) ; ici, les étapes communes
  * (1, 4, 6) et tout le reste. Aucun nom propre : `{prenom}`, `{etape}`, `{n}` sont des variables.
- * Le ton : vouvoiement, sans pression, sans point d'exclamation.
+ * Le ton : tutoiement (v4, `src/socle/mots/voix.ts`), sans pression, sans point d'exclamation.
  */
 const EN = {
   /* ── H42 · en-tête ── */
@@ -192,12 +192,12 @@ const EN = {
 const FR: Record<keyof typeof EN, string> = {
   /* ── H42 · en-tête ── */
   'titre': 'Démarrage',
-  'sous': 'Votre espace se prépare avec vous, sans pression',
-  'sous.prenom': 'Bienvenue {prenom}, votre espace se prépare avec vous, sans pression',
+  'sous': 'Ton espace se prépare avec toi, sans pression',
+  'sous.prenom': 'Bienvenue {prenom}, ton espace se prépare avec toi, sans pression',
   'plusTard': 'Plus tard',
   'reprendreVisite': 'Reprendre la visite',
   'allerAccueil': 'Aller à l’accueil',
-  'ajmani.barre': 'Demandez à Ajmani, par exemple : « invite mon équipe »',
+  'ajmani.barre': 'Demande à Ajmani, par exemple : « invite mon équipe »',
 
   /* ── H42 · le parcours ── */
   'etapes.liste': 'Étapes de la mise en route',
@@ -218,17 +218,17 @@ const FR: Record<keyof typeof EN, string> = {
   'noeud.afaire': '{etape}, à faire : l’afficher',
 
   /* ── H42 · étapes communes ── */
-  'etape.metier.titre': 'Choisir votre métier',
+  'etape.metier.titre': 'Choisir ton métier',
   'etape.metier.sous': 'Pour activer les bons modules',
-  'etape.metier.texte': 'Choisissez le métier le plus proche : on active les bons modules, vous n’avez rien d’autre à régler. Comptez une minute.',
+  'etape.metier.texte': 'Choisis le métier le plus proche : on active les bons modules, tu n’as rien d’autre à régler. Compte une minute.',
   'etape.metier.action': 'Choisir',
-  'etape.equipe.titre': 'Inviter votre équipe',
+  'etape.equipe.titre': 'Inviter ton équipe',
   'etape.equipe.sous': 'Chacun garde ses accès',
-  'etape.equipe.texte': 'Invitez les personnes avec qui vous travaillez. Chacun garde ses accès, vous choisissez son rôle.',
+  'etape.equipe.texte': 'Invite les personnes avec qui tu travailles. Chacun garde ses accès, tu choisis son rôle.',
   'etape.equipe.action': 'Inviter',
   'etape.mobile.titre': 'Installer l’application mobile',
-  'etape.mobile.sous': 'Vos tâches dans la poche',
-  'etape.mobile.texte': 'Ouvrez le lien sur votre téléphone, ou scannez le code. Le lien est le même pour tout le monde et ne porte rien de personnel.',
+  'etape.mobile.sous': 'Tes tâches dans la poche',
+  'etape.mobile.texte': 'Ouvre le lien sur ton téléphone, ou scanne le code. Le lien est le même pour tout le monde et ne porte rien de personnel.',
   'etape.mobile.action': 'Obtenir le lien',
   'etape.admin': 'Réservé aux administrateurs',
 
@@ -236,12 +236,12 @@ const FR: Record<keyof typeof EN, string> = {
   'panneau.etape': 'Étape {n} sur {total}',
   'panneau.conseillee': '· conseillée maintenant',
   'panneau.afaire': '· à faire',
-  'panneau.rempli': 'Déjà rempli pour vous',
+  'panneau.rempli': 'Déjà rempli pour toi',
   'panneau.plusTard': 'Plus tard',
   'panneau.pasPourMoi': 'Pas pour moi',
   'panneau.dejaFait': 'C’est déjà fait',
-  'panneau.ajmani': 'Rien ne part chez {client} sans votre accord.',
-  'panneau.ajmani.sans': 'Rien ne part sans votre accord.',
+  'panneau.ajmani': 'Rien ne part chez {client} sans ton accord.',
+  'panneau.ajmani.sans': 'Rien ne part sans ton accord.',
   'panneau.retiree': 'Étape retirée',
   'panneau.annuler': 'Annuler',
   'panneau.retirees.une': '1 étape retirée',
@@ -250,7 +250,7 @@ const FR: Record<keyof typeof EN, string> = {
   'rempli.client.terme': 'Client',
   'rempli.client.suite': '{client}, ajouté à l’étape {n}',
   'rempli.lignes.terme': 'Lignes types',
-  'rempli.lignes.suite': 'celles de votre métier, modifiables',
+  'rempli.lignes.suite': 'celles de ton métier, modifiables',
   'ensuite.titre': 'Ensuite : {etape}',
   'ensuite.inviter': 'Ensuite : inviter {noms}',
   'ensuite.et': 'et',
@@ -261,9 +261,9 @@ const FR: Record<keyof typeof EN, string> = {
   'savoir.chercher': 'chercher',
   'savoir.ajmani': 'Ajmani',
   'savoir.raccourcis': 'raccourcis',
-  'pret': 'Votre espace est prêt, {prenom}',
-  'pret.sans': 'Votre espace est prêt',
-  'texte.tout': 'Tout est en place. Vous pouvez compter sur Ajmani pour la suite.',
+  'pret': 'Ton espace est prêt, {prenom}',
+  'pret.sans': 'Ton espace est prêt',
+  'texte.tout': 'Tout est en place. Tu peux compter sur Ajmani pour la suite.',
 
   /* ── H42 · le papier (aperçu, rien n'est enregistré) ── */
   'papier.libelle': 'Aperçu du brouillon',
@@ -278,17 +278,17 @@ const FR: Record<keyof typeof EN, string> = {
   'dejaPret.modules.titre': '{n} modules activés',
   'dejaPret.modules.sous': '{metier}, {n} dans la barre',
   'dejaPret.clients.titre': '{n} clients ajoutés',
-  'dejaPret.clients.sous': 'dans vos contacts',
-  'dejaPret.garde.titre': 'La Garde veille sur vos accès',
+  'dejaPret.clients.sous': 'dans tes contacts',
+  'dejaPret.garde.titre': 'La Garde veille sur tes accès',
   'dejaPret.garde.sous': 'chaque connexion est notée',
 
   /* ── H42 · l'accompagnement ── */
-  'aide.referent.titre': '{nom} vous accompagne',
+  'aide.referent.titre': '{nom} t’accompagne',
   'aide.referent.sous': 'de l’équipe AMN · répond sous {n} min',
-  'aide.equipe.titre': 'L’équipe AMN vous répond',
+  'aide.equipe.titre': 'L’équipe AMN te répond',
   'aide.equipe.sous': 'par écrit, depuis l’assistance',
-  'aide.texte': 'Un appel de 15 minutes pour faire le tour ensemble, ou une question par écrit. Comme vous préférez.',
-  'aide.texte.equipe': 'Une question par écrit, ou un appel à convenir ensemble. Comme vous préférez.',
+  'aide.texte': 'Un appel de 15 minutes pour faire le tour ensemble, ou une question par écrit. Comme tu préfères.',
+  'aide.texte.equipe': 'Une question par écrit, ou un appel à convenir ensemble. Comme tu préfères.',
   'aide.creneaux': 'Créneaux libres aujourd’hui',
   'aide.reserver': 'Réserver {heure}',
   'aide.ecrire': 'Lui écrire',
@@ -296,30 +296,30 @@ const FR: Record<keyof typeof EN, string> = {
   'aide.reserve': 'Rendez-vous avec {nom} à {heure}',
 
   /* ── H42 · états ── */
-  'chargement': 'Chargement de votre progression',
-  'erreur': 'Votre progression n’a pas pu être chargée.',
+  'chargement': 'Chargement de ta progression',
+  'erreur': 'Ta progression n’a pas pu être chargée.',
   'erreur.reessayer': 'Réessayer',
   'horsLigne': 'Disponible au retour du réseau',
 
   /* ── H42 · le lien de l'application mobile ── */
   'lien.titre': 'Installer l’application mobile',
-  'lien.texte': 'Ouvrez ce lien sur votre téléphone, ou scannez le code. Le lien est le même pour tout le monde et ne porte rien de personnel.',
-  'lien.qr': 'Code à scanner avec votre téléphone',
+  'lien.texte': 'Ouvre ce lien sur ton téléphone, ou scanne le code. Le lien est le même pour tout le monde et ne porte rien de personnel.',
+  'lien.qr': 'Code à scanner avec ton téléphone',
   'lien.champ': 'Lien vers l’application',
   'lien.copier': 'Copier le lien',
   'lien.copie': 'Lien copié',
   'lien.fermer': 'Fermer',
-  'lien.indisponible': 'Aucune adresse publique n’est encore réglée pour cette application : on ne peut donc pas donner de lien. Votre prestataire la règle une seule fois, sur le serveur.',
+  'lien.indisponible': 'Aucune adresse publique n’est encore réglée pour cette application : on ne peut donc pas donner de lien. Ton prestataire la règle une seule fois, sur le serveur.',
 
   /* ── H47 · en-tête ── */
-  'metier.titre': 'Quel est votre métier ?',
-  'metier.sous': 'Choisissez le plus proche : on active les bons modules, vous n’avez rien d’autre à régler',
+  'metier.titre': 'Quel est ton métier ?',
+  'metier.sous': 'Choisis le plus proche : on active les bons modules, tu n’as rien d’autre à régler',
   'metier.passer': 'Passer',
   'metier.continuer': 'Continuer',
   'metier.continuer.avec': 'Continuer avec {metier}',
-  'metier.continuer.info': 'Choisissez un métier ou utilisez Passer',
-  'metier.miette': 'Votre métier',
-  'metier.ajmani': 'Décrivez votre activité en une phrase, Ajmani compose l’espace',
+  'metier.continuer.info': 'Choisis un métier ou utilise Passer',
+  'metier.miette': 'Ton métier',
+  'metier.ajmani': 'Décris ton activité en une phrase, Ajmani compose l’espace',
 
   /* ── H47 · les cartes de métier ── */
   'metier.grille': 'Familles de métiers',
@@ -331,21 +331,21 @@ const FR: Record<keyof typeof EN, string> = {
   'carte.dernier': 'Au moins un module reste activé',
 
   /* ── H47 · « Votre espace, demain matin » ── */
-  'barre.titre': 'Votre barre latérale',
-  'apercu.titre': 'Votre espace, demain matin',
+  'barre.titre': 'Ta barre latérale',
+  'apercu.titre': 'Ton espace, demain matin',
   'apercu.avec': 'aperçu avec {metier}',
-  'apercu.phrase': '{nombre} modules dans votre barre, {autres} autres prêts à servir. Tout se change plus tard.',
-  'apercu.phrase.sans': '{nombre} modules dans votre barre. Tout se change plus tard.',
-  'apercu.phrase.un': 'Un module dans votre barre, {autres} autres prêts à servir. Tout se change plus tard.',
-  'apercu.phrase.un.sans': 'Un module dans votre barre. Tout se change plus tard.',
+  'apercu.phrase': '{nombre} modules dans ta barre, {autres} autres prêts à servir. Tout se change plus tard.',
+  'apercu.phrase.sans': '{nombre} modules dans ta barre. Tout se change plus tard.',
+  'apercu.phrase.un': 'Un module dans ta barre, {autres} autres prêts à servir. Tout se change plus tard.',
+  'apercu.phrase.un.sans': 'Un module dans ta barre. Tout se change plus tard.',
   'nombre.2': 'Deux',
   'nombre.3': 'Trois',
   'nombre.4': 'Quatre',
   'nombre.5': 'Cinq',
   'nombre.6': 'Six',
-  'apercu.exemple.aide': 'Des exemples livrés avec le métier, pas vos données',
+  'apercu.exemple.aide': 'Des exemples livrés avec le métier, pas tes données',
   'apercu.mention': 'Les {n} modules restent dans « Tous les modules », rien n’est supprimé.',
-  'apercu.vide': 'Choisissez un métier pour voir votre espace',
+  'apercu.vide': 'Choisis un métier pour voir ton espace',
 
   /* ── H47 · la taille de l'équipe ── */
   'taille.titre': 'Combien êtes-vous ?',
@@ -357,15 +357,15 @@ const FR: Record<keyof typeof EN, string> = {
 
   /* ── H47 · « Pas dans la liste ? » ── */
   'decrire.titre': 'Pas dans la liste ?',
-  'decrire.texte': 'Décrivez votre activité en une phrase, Ajmani compose l’espace.',
+  'decrire.texte': 'Décris ton activité en une phrase, Ajmani compose l’espace.',
   'decrire.bouton': 'Décrire mon activité',
-  'decrire.champ': 'Décrivez votre activité en une phrase',
+  'decrire.champ': 'Décris ton activité en une phrase',
   'decrire.placeholder': 'Par exemple : je répare des vélos et j’en vends quelques-uns',
   'decrire.composer': 'Composer l’espace',
   'decrire.fermer': 'Échap pour fermer',
-  'decrire.envoye': 'Ajmani vous répond dans son panneau. Choisissez ensuite le métier le plus proche ci-dessus.',
+  'decrire.envoye': 'Ajmani te répond dans son panneau. Choisis ensuite le métier le plus proche ci-dessus.',
   'decrire.consigne': 'Voici mon activité : « {phrase} ». Parmi ces huit familles de métiers, laquelle est la plus proche : {familles} ? Liste ensuite les modules à activer. Ne modifie rien toi-même : je ferai le choix dans la page.',
-  'erreur.enregistrement': 'Votre choix n’a pas pu être enregistré.',
+  'erreur.enregistrement': 'Ton choix n’a pas pu être enregistré.',
 };
 
 export const { useMots, traduire } = definirMots(EN, FR);

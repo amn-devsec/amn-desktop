@@ -86,7 +86,7 @@ await dit('la carte : marque, titre « Connexion » (aucun compte mémorisé sur
   const html = vue();
   assert.equal(compter(html, /<h1[ >]/g), 1);
   assert.match(html, /<h1 id="cx-titre" class="cx-titre">Connexion<\/h1>/);
-  assert.match(html, />Tout votre travail, sous une seule main\.</);
+  assert.match(html, />Tout ton travail, sous une seule main\.</);
   assert.match(html, /aria-labelledby="cx-titre"/);
 });
 
@@ -112,13 +112,13 @@ await dit('le pied : l’édition SANS numéro de version, la pastille qui ne di
   assert.doesNotMatch(html, /tous les services sont en ligne/, 'aucun point d’état public : pas de statut inventé');
   assert.doesNotMatch(html, /<dl|cx-chiffres|H24|>101</, 'les indicateurs de l’ancienne colonne ont disparu');
   assert.match(html, /aria-expanded="false" class="cx-lien-aide cx-focus"[\s\S]*?Un souci pour entrer \? Écrire à l’équipe/);
-  assert.match(html, /Pas encore de compte \?[\s\S]*?Demandez un accès à l’équipe/);
+  assert.match(html, /Pas encore de compte \?[\s\S]*?Demande un accès à l’équipe/);
 });
 
 await dit('états : hors ligne (pastille orange et encart « Réessayer »), erreur annoncée, double vérification et oubli exclusifs', () => {
   const hl = vue({ enLigne: false });
-  assert.match(hl, /class="cx-etat" data-ton="attention"[\s\S]*?Hors connexion[\s\S]*?reconnectez-vous au réseau/);
-  assert.match(hl, /Vous êtes hors connexion\. Reconnectez-vous au réseau pour ouvrir votre espace\.[\s\S]*?>Réessayer</);
+  assert.match(hl, /class="cx-etat" data-ton="attention"[\s\S]*?Hors connexion[\s\S]*?reconnecte-toi au réseau/);
+  assert.match(hl, /Tu es hors connexion\. Reconnecte-toi au réseau pour ouvrir ton espace\.[\s\S]*?>Réessayer</);
   const err = vue({ message: 'Identifiants refusés', invalide: true });
   assert.match(err, /role="alert" class="cx-erreur"/);
   assert.match(err, /aria-invalid="true"/);

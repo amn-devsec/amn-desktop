@@ -23,7 +23,7 @@ import './palette.css';
  * LA PALETTE ⌘J D'AJMANI — G05 : « Ajmani, palette ⌘J ouverte ».
  *
  * Un champ, une proposition, quatre lignes « Ou lancez », une aide au clavier. Ajmani n'a ni visage ni avatar : sa
- * seule marque est son nom et l'étincelle verte. Le ton est celui de la charte (vouvoiement, phrases courtes,
+ * seule marque est son nom et l'étincelle verte. Le ton est celui de la charte (tutoiement, phrases courtes,
  * chiffres exacts, jamais de point d'exclamation).
  *
  * LA RÈGLE D'OR. Entrée dans le champ ne confirme jamais un N1, N2 ou N3 : elle demande une proposition. Seul un

@@ -8,7 +8,7 @@
  *
  * Typographie française (fiche H43, règles d'écriture) : guillemets « » avec espaces insécables
  * (U+00A0) à l'intérieur, espace insécable avant « ? » et « : », apostrophe typographique comme
- * partout dans le socle. Aucun point d'exclamation, aucun code d'erreur, vouvoiement.
+ * partout dans le socle. Aucun point d'exclamation, aucun code d'erreur, tutoiement (v4, guide de voix `voix.ts`).
  */
 export const EN_SITUATIONS = {
   'etat.vide.titre': 'No {objet} yet',
@@ -75,34 +75,34 @@ export const EN_SITUATIONS = {
 
 export const FR_SITUATIONS: Record<keyof typeof EN_SITUATIONS, string> = {
   'etat.vide.titre': 'Aucun {objet} pour l’instant',
-  'etat.vide.texte': 'Ajoutez votre premier {objet} ou importez un fichier.',
-  'etat.vide.texteSeul': 'Ajoutez votre premier {objet}.',
+  'etat.vide.texte': 'Ajoute ton premier {objet} ou importe un fichier.',
+  'etat.vide.texteSeul': 'Ajoute ton premier {objet}.',
   'etat.vide.texteLecture': 'Rien n’a encore été ajouté ici. L’aide explique comment faire.',
   'etat.vide.ajouter': 'Ajouter',
   'etat.vide.importer': 'Importer',
   'etat.vide.aide': 'Voir l’aide',
 
-  'etat.hors.titre': 'Vous êtes hors connexion',
-  'etat.hors.texte': 'Vos modifications sont gardées sur cet appareil et partiront dès le retour du réseau.',
+  'etat.hors.titre': 'Tu es hors connexion',
+  'etat.hors.texte': 'Tes modifications sont gardées sur cet appareil et partiront dès le retour du réseau.',
   'etat.hors.reessayer': 'Réessayer',
 
   'etat.acces.titre': 'Cette page est réservée',
-  'etat.acces.texte': 'Demandez l’accès à {prenom}, il reçoit votre demande tout de suite.',
+  'etat.acces.texte': 'Demande l’accès à {prenom}, il reçoit ta demande tout de suite.',
   'etat.acces.demander': 'Demander l’accès',
   'etat.acces.envoye': 'Demande envoyée',
   'etat.acces.prevenu': '{prenom} a été prévenu.',
 
   'etat.aucun.titre': 'Rien pour «\u00A0{terme}\u00A0»',
-  'etat.aucun.proche': 'Vouliez-vous dire {proche}\u00A0? Sinon, essayez un autre mot.',
-  'etat.aucun.sans': 'Essayez un autre mot ou effacez la recherche.',
+  'etat.aucun.proche': 'Tu voulais dire {proche}\u00A0? Sinon, essaie un autre mot.',
+  'etat.aucun.sans': 'Essaie un autre mot ou efface la recherche.',
   'etat.aucun.voir': 'Voir {proche}',
   'etat.aucun.effacer': 'Effacer la recherche',
 
   'etat.erreur.titre': 'Les {objets} n’ont pas pu être chargés',
-  'etat.erreur.texte': 'Rien n’est perdu. Réessayez dans un instant.',
+  'etat.erreur.texte': 'Rien n’est perdu. Réessaie dans un instant.',
   'etat.erreur.reessayer': 'Réessayer',
 
-  'chargement.legende': 'Chargement de vos {objets}',
+  'chargement.legende': 'Chargement de tes {objets}',
   'chargement.long': 'C’est plus long que d’habitude',
   'chargement.reessayer': 'Réessayer',
 
@@ -110,13 +110,13 @@ export const FR_SITUATIONS: Record<keyof typeof EN_SITUATIONS, string> = {
 
   'toast.annuler': 'Annuler',
   'toast.disparait': 'Disparaît dans {n} s',
-  'toast.erreur': 'Votre modification n’a pas pu être enregistrée.',
+  'toast.erreur': 'Ta modification n’a pas pu être enregistrée.',
   'toast.reessayer': 'Réessayer',
   'toast.fermer': 'Fermer la notification',
 
   'avis.pile': 'Personnes sur cette page',
   'avis.phrase': '{prenom} modifie aussi cette page',
-  'avis.fusion.avant': 'Vos changements et les siens sont ',
+  'avis.fusion.avant': 'Tes changements et les siens sont ',
   'avis.fusion.mot': 'fusionnés',
   'avis.fusion.apres': '. Rien n’est écrasé, une copie est gardée.',
   'avis.differences': 'Différences',

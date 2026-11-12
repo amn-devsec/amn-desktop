@@ -101,7 +101,7 @@ const FR: Record<keyof typeof EN, string> = {
   'erreur.courbe': 'Dernières valeurs connues de la courbe, grisées',
 
   'confirmation.titre': 'Supprimer « {nom} » ?',
-  'confirmation.texte': 'Le {objet} ira dans la corbeille pendant 30 jours. Vous pourrez le restaurer.',
+  'confirmation.texte': 'Le {objet} ira dans la corbeille pendant 30 jours. Tu pourras le restaurer.',
   'confirmation.action': 'À la corbeille',
   'succes.titre': 'Facture envoyée à {client}',
 };

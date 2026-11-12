@@ -475,3 +475,13 @@ export default declarerCompteurs({ famille: 'developpement', useCompteurs, useSi
 - À 900 px de haut, une famille dépliée et trois épinglés, la colonne dépasse : elle défile (comme avant), la carte « Aujourd'hui » s'atteint en descendant.
 - `check:socle-coquille` (présence, section, sous-liste, signaux, déclaration), `check:substitutions` (huit hubs) et `check:coquille --page` (dans le navigateur : seule ligne d'ESPACES DE TRAVAIL, juste avant SURVEILLANCE, icône, signaux dits) le tiennent.
 
+## Mise à jour — v4 : tutoiement et guide de voix (2026-11-12)
+
+L'interface tutoie (06-V4 §4) : la coquille, les mots du socle (`src/socle/i18n.ts`, `src/socle/mots/*`) et les neuf écrans de LOT-00 (`src/refonte/systeme/*`), ainsi que leurs aperçus. Les textes des maquettes viennent de `_data/tutoiement.json` ; les autres suivent les mêmes tournures (« Demande à Ajmani, ou dis ce que tu veux faire », « Rien ne part sans ton accord », « Tu voulais dire … ? Sinon, essaie un autre mot. », « Réessaie dans un instant »).
+
+- **Vouvoiement gardé** : tout texte destiné à un client (courriels, devis, factures, relances, réponses automatiques, page publique, messages reçus). Dans LOT-00 : le brouillon de relance montré par l'aperçu de G05.
+- **Restent aussi** : « Combien êtes-vous ? » (H47, le pluriel désigne l'équipe), et les mots reconnus dans la saisie d'Ajmani (`relancez`, `trouvez`, `validez`…, à côté de leurs formes tutoyées) : ce sont des mots que la personne peut taper, pas des textes affichés. `VERBES_VAGUES` gagne « valide » et « confirme ».
+- La clé `recents.vous` de D02 devient `recents.toi`.
+- **Le guide de voix** (PLAN-10NOV §7) : `src/socle/mots/voix.ts`. Les règles (tutoiement, vouvoiement des textes clients, phrases courtes, aucun reproche, aucune urgence inventée, aucun point d'exclamation, aucun code d'erreur), les tournures (`TOURNURES` : ce que l'on n'écrit pas, ce que l'on écrit à la place, un exemple), `ecartsDeVoix(texte, zone)` (« interface » ou « client »), les encouragements (`ENCOURAGEMENTS`, `encouragement(n)` : une phrase, sans confettis ni son) ; les salutations restent celles de `src/lib/homeGreetings.ts` (neutres par défaut).
+- Les gardes des écrans de LOT-00 exigent désormais le tutoiement là où elles exigeaient le vouvoiement (`check:systeme-ajmani`, `check:systeme-demarrage`, `check:systeme-demo`) ; leurs textes attendus sont passés au tutoiement mot pour mot.
+

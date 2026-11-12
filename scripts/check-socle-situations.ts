@@ -96,21 +96,21 @@ const boutons = (html: string) => [...html.matchAll(/<button[^>]*>([\s\S]*?)<\/b
 await dit('modèle 1 : « Aucun {objet} pour l’instant », texte, « Ajouter » + « Importer » — l’objet est une variable', () => {
   const t = texte(rendus.vide);
   assert.ok(t.includes(typo(`Aucun ${V.objet} pour l'instant`)), t);
-  assert.ok(t.includes(`Ajoutez votre premier ${V.objet} ou importez un fichier.`), t);
+  assert.ok(t.includes(`Ajoute ton premier ${V.objet} ou importe un fichier.`), t);
   assert.deepEqual(boutons(rendus.vide), ['Ajouter', 'Importer']);
   assert.match(rendus.vide, /data-ton="famille"[^>]*data-famille="contacts"/);
   // Sans import possible : un seul bouton primaire, et le texte ne parle plus d'importer.
   assert.deepEqual(boutons(rendus.videSeul), ['Ajouter']);
   assert.ok(!/importez/.test(texte(rendus.videSeul)));
-  assert.ok(texte(rendus.videSeul).includes(`Ajoutez votre premier ${V.objet}.`));
+  assert.ok(texte(rendus.videSeul).includes(`Ajoute ton premier ${V.objet}.`));
   // Un module en lecture seule garde une action.
   assert.deepEqual(boutons(rendus.videLecture), [typo("Voir l'aide")]);
 });
 
 await dit('modèle 3 : hors connexion — titre, texte sur 3 lignes, « Réessayer »', () => {
   const t = texte(rendus.hors);
-  assert.ok(t.includes('Vous êtes hors connexion'));
-  assert.ok(t.includes('Vos modifications sont gardées sur cet appareil et partiront dès le retour du réseau.'));
+  assert.ok(t.includes('Tu es hors connexion'));
+  assert.ok(t.includes('Tes modifications sont gardées sur cet appareil et partiront dès le retour du réseau.'));
   assert.deepEqual(boutons(rendus.hors), ['Réessayer']);
   assert.match(rendus.hors, /data-ton="attention"/);
 });
@@ -118,7 +118,7 @@ await dit('modèle 3 : hors connexion — titre, texte sur 3 lignes, « Réessay
 await dit('modèle 4 : accès non autorisé — {prénom} en variable, rien du contenu de la page, « Demande envoyée » ensuite', () => {
   const t = texte(rendus.acces);
   assert.ok(t.includes('Cette page est réservée'));
-  assert.ok(t.includes(typo(`Demandez l'accès à ${V.prenom}, il reçoit votre demande tout de suite.`)), t);
+  assert.ok(t.includes(typo(`Demande l'accès à ${V.prenom}, il reçoit ta demande tout de suite.`)), t);
   assert.deepEqual(boutons(rendus.acces), [typo("Demander l'accès")]);
   const e = texte(rendus.accesEnvoye);
   assert.ok(e.includes(`${V.prenom} a été prévenu.`), e);
@@ -129,10 +129,10 @@ await dit('modèle 4 : accès non autorisé — {prénom} en variable, rien du c
 await dit('modèle 5 : aucun résultat — guillemets français et espaces insécables, proposition proche ou « Effacer la recherche »', () => {
   const t = texte(rendus.aucunProche);
   assert.ok(t.includes(`Rien pour «${NBSP}${V.terme}${NBSP}»`), t);
-  assert.ok(t.includes(`Vouliez-vous dire ${V.proche}${NBSP}? Sinon, essayez un autre mot.`), t);
+  assert.ok(t.includes(`Tu voulais dire ${V.proche}${NBSP}? Sinon, essaie un autre mot.`), t);
   assert.deepEqual(boutons(rendus.aucunProche), [`Voir ${V.proche}`]);
   const s = texte(rendus.aucunSans);
-  assert.ok(s.includes('Essayez un autre mot ou effacez la recherche.'), s);
+  assert.ok(s.includes('Essaie un autre mot ou efface la recherche.'), s);
   assert.deepEqual(boutons(rendus.aucunSans), ['Effacer la recherche']);
 });
 
@@ -140,7 +140,7 @@ await dit('erreur de chargement (rubrique 8, modèle 9) : ton critique, titre sa
   const t = texte(rendus.erreur);
   assert.ok(t.includes(typo(`Les ${V.objets} n'ont pas pu être chargés`)), t);
   assert.ok(!t.includes('chargés.'), 'un titre de modèle ne finit pas par un point (v3)');
-  assert.ok(t.includes(typo("Rien n'est perdu. Réessayez dans un instant.")), t);
+  assert.ok(t.includes(typo("Rien n'est perdu. Réessaie dans un instant.")), t);
   assert.deepEqual(boutons(rendus.erreur), ['Réessayer']);
   assert.match(rendus.erreur, /role="alert"[^>]*data-ton="critique"/);
   const f = texte(rendre(h(S.EtatErreurChargement, { objets: 'prévisions', genre: 'feminin', onReessayer: sansAction, apres: 'nouvel essai dans 20 s', taille: 'compact' })));
@@ -148,8 +148,8 @@ await dit('erreur de chargement (rubrique 8, modèle 9) : ton critique, titre sa
   assert.ok(f.includes('nouvel essai dans 20 s'), 'ce qui suit « Réessayer » sur la même ligne');
 });
 
-await dit('modèle 2 : « Chargement de vos {objets} » ; modèle 6 et 7 : boutons et détail de la fiche', () => {
-  assert.ok(texte(rendus.chargement).includes(`Chargement de vos ${V.objets}`));
+await dit('modèle 2 : « Chargement de tes {objets} » ; modèle 6 et 7 : boutons et détail de la fiche', () => {
+  assert.ok(texte(rendus.chargement).includes(`Chargement de tes ${V.objets}`));
   const d = dialogue();
   assert.deepEqual(boutons(d), ['Annuler', 'À la corbeille']);
   assert.ok(texte(d).includes(`Supprimer «${NBSP}${V.nom}${NBSP}»${NBSP}?`));
@@ -160,7 +160,7 @@ await dit('modèle 2 : « Chargement de vos {objets} » ; modèle 6 et 7 : bouto
 await dit('modèle 8 : « {prénom} modifie aussi cette page », « fusionnés » en gras, « Différences » + « Garder les deux »', () => {
   const t = texte(avis);
   assert.ok(t.includes(`${V.prenom} modifie aussi cette page`), t);
-  assert.ok(t.includes(typo("Vos changements et les siens sont fusionnés. Rien n'est écrasé, une copie est gardée.")), t);
+  assert.ok(t.includes(typo("Tes changements et les siens sont fusionnés. Rien n'est écrasé, une copie est gardée.")), t);
   assert.match(avis, /<b>fusionnés<\/b>/);
   assert.deepEqual(boutons(avis), ['Différences', 'Garder les deux']);
   assert.equal(attr(avis, 'aria-label'), 'Personnes sur cette page', 'la pile d’avatars est nommée, pas épelée');
@@ -814,7 +814,7 @@ await dit('planche v3 : neuf mini-fenêtres en situation (numéros 1 à 8 inchan
   // Les situations : chacune avec ses pièces v3.
   for (const marque of ['data-taille="compact"', 'sc-squelette-chiffres', 'data-compact="true"', 'sc-hors-bandeau', 'sc-en-attente', 'sc-h43__fantome', 'sc-porte-ajmani', 'sc-h43__voile', 'sc-collab-bandeau', 'sc-curseur-pair', 'sc-fusion-pied', 'sc-perime__mention', 'sc-h43__courbe']) assert.ok(html.includes(marque), `« ${marque} » absent`);
   assert.equal([...html.matchAll(/data-taille="compact"/g)].length >= 4, true, 'quatre blocs d’état compacts (1, 4, 5, 9)');
-  assert.match(html, /role="status"[^>]*aria-busy="true"[^>]*aria-label="Chargement de vos factures"/);
+  assert.match(html, /role="status"[^>]*aria-busy="true"[^>]*aria-label="Chargement de tes factures"/);
   assert.ok(t.includes(typo("Connecté en tant que Robin · rien de la page n'est montré")));
   assert.ok(t.includes(typo("Demander à Ajmani : « exmple »")));
   assert.ok(t.includes(typo("Fusionnés, rien n'est écrasé · copie gardée")));
@@ -838,7 +838,7 @@ await dit('planche v3 : neuf mini-fenêtres en situation (numéros 1 à 8 inchan
     prenomCollaborateur: 'Eli', noms: ['Zoé', 'Eli'], titrePage: 'Page Essai', paragraphe: 'Texte.', debutModifie: 'Mot : ', passageModifie: 'passage', objetsErreur: 'rapports', genreErreur: 'masculin', heureDerniere: '09:00', courbe: [0, 1], prochainEssai: 60,
   } }));
   const u = texte(autre);
-  for (const attendu of [`Aucun projet pour l'instant`, 'Chargement de vos projets', `Rien pour «${NBSP}qqq${NBSP}»`, 'Atelier Essai', 'Noa', `Supprimer «${NBSP}Fiche Essai${NBSP}»${NBSP}?`, 'Facture envoyée à Essai SA', 'Eli modifie aussi cette page', "Hors ligne · 1 message en attente d'envoi", "Les rapports n'ont pas pu être chargés", 'nouvel essai dans 60 s', 'dernière valeur connue · 09:00']) {
+  for (const attendu of [`Aucun projet pour l'instant`, 'Chargement de tes projets', `Rien pour «${NBSP}qqq${NBSP}»`, 'Atelier Essai', 'Noa', `Supprimer «${NBSP}Fiche Essai${NBSP}»${NBSP}?`, 'Facture envoyée à Essai SA', 'Eli modifie aussi cette page', "Hors ligne · 1 message en attente d'envoi", "Les rapports n'ont pas pu être chargés", 'nouvel essai dans 60 s', 'dernière valeur connue · 09:00']) {
     assert.ok(u.includes(typo(attendu)), `« ${attendu} » absent`);
   }
   assert.match(html, /scaleX\(0\.75\)/, 'la barre du toast dit le temps restant (6 s sur 8)');

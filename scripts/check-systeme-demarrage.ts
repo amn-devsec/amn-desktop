@@ -193,16 +193,16 @@ await dit('étapes 2, 3 et 5 de chaque métier : textes fr et en, destination qu
     assert.ok(connues.has(m.etapes.devis.mesure as string), `${m.id} : mesure inconnue`);
   }
   const d = R.ETAPES_PAR_DEFAUT;
-  assert.equal(d.client.titre.fr, 'Ajouter vos clients');
-  assert.equal(d.devis.titre.fr, 'Créer votre premier devis');
-  assert.equal(d.devis.sous.fr, 'Ajmani vous guide, 2 minutes');
+  assert.equal(d.client.titre.fr, 'Ajouter tes clients');
+  assert.equal(d.devis.titre.fr, 'Créer ton premier devis');
+  assert.equal(d.devis.sous.fr, 'Ajmani te guide, 2 minutes');
   assert.equal(d.devis.action.fr, 'Créer le devis');
-  assert.equal(d.devis.texte.fr, 'Je prépare un devis type pour votre métier, vous n’avez qu’à relire et ajuster. Comptez deux minutes.');
-  assert.equal(d.paiement.titre.fr, 'Connecter vos encaissements');
+  assert.equal(d.devis.texte.fr, 'Je prépare un devis type pour ton métier, tu n’as qu’à relire et ajuster. Compte deux minutes.');
+  assert.equal(d.paiement.titre.fr, 'Connecter tes encaissements');
   assert.deepEqual([d.client.duree, d.devis.duree, d.paiement.duree], [2, 2, 3]);
   assert.equal(d.paiement.action.fr, 'Connecter');
-  assert.equal(MODELES.find((m) => m.id === 'association')?.etapes.client.titre.fr, 'Ajouter votre premier membre');
-  assert.equal(MODELES.find((m) => m.id === 'association')?.etapes.devis.titre.fr, 'Annoncer votre première activité');
+  assert.equal(MODELES.find((m) => m.id === 'association')?.etapes.client.titre.fr, 'Ajouter ton premier membre');
+  assert.equal(MODELES.find((m) => m.id === 'association')?.etapes.devis.titre.fr, 'Annoncer ta première activité');
   assert.equal(R.etapesDuMetier(null), d);
 });
 
@@ -338,9 +338,9 @@ await dit('le compte, les durées et l’étape suivante : « 2 sur 6 prêtes »
   const tout = calc({ ...base, memoire: { faites: ['paiement', 'mobile'], retirees: [] } });
   assert.deepEqual([tout.n, tout.total, tout.tout, tout.ratio, tout.conseillee, tout.suivante, tout.minutesRestantes, tout.texte], [6, 6, true, 1, null, null, 0, 'tout']);
   assert.equal(tout.etapes.some((e: any) => e.conseillee), false, 'à 6/6, plus aucune étape conseillée');
-  assert.equal(R.traduire('fr', 'texte.tout'), 'Tout est en place. Vous pouvez compter sur Ajmani pour la suite.');
-  assert.equal(R.traduire('fr', 'pret', { prenom: 'Camille' }), 'Votre espace est prêt, Camille');
-  assert.equal(R.traduire('fr', 'sous.prenom', { prenom: 'Camille' }), 'Bienvenue Camille, votre espace se prépare avec vous, sans pression');
+  assert.equal(R.traduire('fr', 'texte.tout'), 'Tout est en place. Tu peux compter sur Ajmani pour la suite.');
+  assert.equal(R.traduire('fr', 'pret', { prenom: 'Camille' }), 'Ton espace est prêt, Camille');
+  assert.equal(R.traduire('fr', 'sous.prenom', { prenom: 'Camille' }), 'Bienvenue Camille, ton espace se prépare avec toi, sans pression');
   const retire = calc({ donnees: { ...DV, clients: 1 }, memoire: { faites: [], retirees: ['equipe'] } });
   assert.deepEqual([retire.total, retire.suivante, retire.etapes.map((e: any) => e.rang).join('')], [5, 'paiement', '12345'], 'une étape retirée sort du rang et du total');
 });
@@ -363,7 +363,7 @@ await dit('ce que la page montre vient des vraies données, ligne par ligne : m�
   assert.deepEqual(v.resumes, { metier: 'Conseil et services', client: '4 enregistrés' });
   assert.deepEqual(v.rempli.devis, [
     { terme: 'Client', suite: 'Client exemple, ajouté à l’étape 2' },
-    { terme: 'Lignes types', suite: 'celles de votre métier, modifiables' },
+    { terme: 'Lignes types', suite: 'celles de ton métier, modifiables' },
   ]);
   assert.equal(v.brouillon.client, 'Client exemple');
   assert.equal(v.brouillon.lignes.length, conseil.devisType.length);
@@ -372,8 +372,8 @@ await dit('ce que la page montre vient des vraies données, ligne par ligne : m�
   assert.equal(v.brouillon.totaux, undefined);
   assert.deepEqual(v.pret.map((l: any) => [l.id, l.titre, l.sous]), [
     ['modules', '9 modules activés', 'Conseil et services, 6 dans la barre'],
-    ['clients', '4 clients ajoutés', 'dans vos contacts'],
-    ['garde', 'La Garde veille sur vos accès', 'chaque connexion est notée'],
+    ['clients', '4 clients ajoutés', 'dans tes contacts'],
+    ['garde', 'La Garde veille sur tes accès', 'chaque connexion est notée'],
   ]);
   assert.ok(!v.pret.some((l: any) => l.id === 'sauvegarde'), 'aucune ligne sur la sauvegarde : le poste n’en sait rien');
   const vide = R.presentationDemarrage({ calcul: calc({ metier: null }), metier: null, modele: null, effectifs: { clients: 0, membres: 1 }, premierClient: null, langue: 'fr' });
@@ -416,7 +416,7 @@ await dit('« Pas pour moi » : l’étape sort de la liste ET du total (« 2/5 
   assert.deepEqual([toutRetire.total, toutRetire.tout, toutRetire.ratio], [0, true, 1]);
 });
 
-await dit('« Seul » masque l’étape « Inviter votre équipe » (5 étapes) ; « 2 à 5 », « 6 à 20 » et « Plus » la gardent', () => {
+await dit('« Seul » masque l’étape « Inviter ton équipe » (5 étapes) ; « 2 à 5 », « 6 à 20 » et « Plus » la gardent', () => {
   assert.ok(!ids(calc({ metier: { ...artisan, taille: 'seul' } })).includes('equipe'));
   assert.equal(calc({ metier: { ...artisan, taille: 'seul' } }).total, 5);
   for (const t of ['2-5', '6-20', 'plus']) assert.ok(ids(calc({ metier: { ...artisan, taille: t } })).includes('equipe'), t);
@@ -431,7 +431,7 @@ await dit('« Passer » à l’étape 1 : l’étape est « passée », comptée
   const e = passe.etapes.find((x: any) => x.id === 'metier');
   assert.deepEqual([e.faite, e.passee], [true, true]);
   assert.equal(passe.n, 1);
-  assert.equal(passe.etapes.find((x: any) => x.id === 'client').libelle.titre.fr, 'Ajouter vos clients', 'jeu général : les textes de la maquette');
+  assert.equal(passe.etapes.find((x: any) => x.id === 'client').libelle.titre.fr, 'Ajouter tes clients', 'jeu général : les textes de la maquette');
   assert.equal(calc({ metier: null }).etapes[0].faite, false);
 });
 
@@ -440,12 +440,12 @@ await dit('les étapes 2, 3 et 5 suivent le métier : une association annonce (�
   const asso = calc({ metier: metier('association'), donnees: { ...DV, quotes: 5 } });
   const devisAsso = asso.etapes.find((e: any) => e.id === 'devis');
   assert.deepEqual([devisAsso.manuelle, devisAsso.faite, devisAsso.vers], [true, false, '/annonces'], 'des devis ne cochent pas une annonce');
-  assert.equal(devisAsso.libelle.titre.fr, 'Annoncer votre première activité');
+  assert.equal(devisAsso.libelle.titre.fr, 'Annoncer ta première activité');
   const startup = calc({ metier: metier('startup'), donnees: { ...DV, tasks: 1 } }).etapes.find((e: any) => e.id === 'devis');
   assert.deepEqual([startup.faite, startup.manuelle], [true, false]);
   const sante = calc({ metier: metier('sante'), donnees: { ...DV, appointments: 1, tasks: 4 } }).etapes.find((e: any) => e.id === 'devis');
   assert.equal(sante.faite, true);
-  assert.equal(sante.libelle.titre.fr, 'Planifier votre premier rendez-vous');
+  assert.equal(sante.libelle.titre.fr, 'Planifier ton premier rendez-vous');
 });
 
 await dit('le prénom : le profil d’abord, puis le compte ; une boîte partagée ou un nom à chiffres ne se salue pas', () => {
@@ -482,45 +482,49 @@ await dit('la mémoire de Démarrage se garde par compte (amn.demarrage.faites.<
 
 /* ═════════════════════════ Les mots ═════════════════════════ */
 
-await dit('français et anglais disent les mêmes clés ; les textes de la fiche sont exacts ; vouvoiement, aucun point d’exclamation, rien qui presse', () => {
+await dit('français et anglais disent les mêmes clés ; les textes de la fiche sont exacts ; tutoiement (v4, 06 §4), aucun point d’exclamation, rien qui presse', () => {
   assert.deepEqual(Object.keys(R.MOTS_FR).sort(), Object.keys(R.MOTS_EN).sort());
   const fr = R.MOTS_FR as Record<string, string>;
   const attendu: Record<string, string> = {
-    'titre': 'Démarrage', 'sous': 'Votre espace se prépare avec vous, sans pression', 'plusTard': 'Plus tard', 'reprendreVisite': 'Reprendre la visite',
-    'sous.prenom': 'Bienvenue {prenom}, votre espace se prépare avec vous, sans pression', 'allerAccueil': 'Aller à l’accueil',
+    'titre': 'Démarrage', 'sous': 'Ton espace se prépare avec toi, sans pression', 'plusTard': 'Plus tard', 'reprendreVisite': 'Reprendre la visite',
+    'sous.prenom': 'Bienvenue {prenom}, ton espace se prépare avec toi, sans pression', 'allerAccueil': 'Aller à l’accueil',
     'resume.pretes': '{n} sur {total} prêtes', 'resume.duree': 'environ {n} min', 'resume.reste': 'pour le reste',
     'statut.maintenant': 'maintenant · {n} min', 'statut.ensuite': 'ensuite · {n} min', 'statut.duree': '{n} min',
-    'panneau.etape': 'Étape {n} sur {total}', 'panneau.conseillee': '· conseillée maintenant', 'panneau.rempli': 'Déjà rempli pour vous', 'panneau.plusTard': 'Plus tard',
-    'panneau.pasPourMoi': 'Pas pour moi', 'panneau.ajmani': 'Rien ne part chez {client} sans votre accord.', 'panneau.retiree': 'Étape retirée', 'panneau.annuler': 'Annuler',
-    'rempli.client.terme': 'Client', 'rempli.client.suite': '{client}, ajouté à l’étape {n}', 'rempli.lignes.terme': 'Lignes types', 'rempli.lignes.suite': 'celles de votre métier, modifiables',
+    'panneau.etape': 'Étape {n} sur {total}', 'panneau.conseillee': '· conseillée maintenant', 'panneau.rempli': 'Déjà rempli pour toi', 'panneau.plusTard': 'Plus tard',
+    'panneau.pasPourMoi': 'Pas pour moi', 'panneau.ajmani': 'Rien ne part chez {client} sans ton accord.', 'panneau.retiree': 'Étape retirée', 'panneau.annuler': 'Annuler',
+    'rempli.client.terme': 'Client', 'rempli.client.suite': '{client}, ajouté à l’étape {n}', 'rempli.lignes.terme': 'Lignes types', 'rempli.lignes.suite': 'celles de ton métier, modifiables',
     'ensuite.titre': 'Ensuite : {etape}', 'ensuite.inviter': 'Ensuite : inviter {noms}', 'savoir.titre': 'Bon à savoir', 'savoir.chercher': 'chercher', 'savoir.ajmani': 'Ajmani',
     'papier.statut': 'Brouillon', 'papier.titre': 'Devis', 'papier.pour': 'Pour', 'papier.note': 'Prérempli par Ajmani, à relire',
     'dejaPret.titre': 'Déjà prêt', 'dejaPret.sous': 'sans rien faire', 'dejaPret.modules.titre': '{n} modules activés', 'dejaPret.modules.sous': '{metier}, {n} dans la barre',
-    'dejaPret.garde.titre': 'La Garde veille sur vos accès', 'dejaPret.garde.sous': 'chaque connexion est notée',
-    'aide.referent.titre': '{nom} vous accompagne', 'aide.referent.sous': 'de l’équipe AMN · répond sous {n} min', 'aide.equipe.titre': 'L’équipe AMN vous répond',
-    'aide.texte': 'Un appel de 15 minutes pour faire le tour ensemble, ou une question par écrit. Comme vous préférez.', 'aide.creneaux': 'Créneaux libres aujourd’hui',
+    'dejaPret.garde.titre': 'La Garde veille sur tes accès', 'dejaPret.garde.sous': 'chaque connexion est notée',
+    'aide.referent.titre': '{nom} t’accompagne', 'aide.referent.sous': 'de l’équipe AMN · répond sous {n} min', 'aide.equipe.titre': 'L’équipe AMN te répond',
+    'aide.texte': 'Un appel de 15 minutes pour faire le tour ensemble, ou une question par écrit. Comme tu préfères.', 'aide.creneaux': 'Créneaux libres aujourd’hui',
     'aide.reserver': 'Réserver {heure}', 'aide.ecrire': 'Lui écrire', 'aide.reserve': 'Rendez-vous avec {nom} à {heure}',
-    'etape.metier.titre': 'Choisir votre métier', 'etape.metier.sous': 'Pour activer les bons modules', 'etape.equipe.titre': 'Inviter votre équipe', 'etape.equipe.sous': 'Chacun garde ses accès',
-    'etape.mobile.titre': 'Installer l’application mobile', 'etape.mobile.sous': 'Vos tâches dans la poche', 'etape.mobile.action': 'Obtenir le lien', 'etape.equipe.action': 'Inviter',
-    'erreur': 'Votre progression n’a pas pu être chargée.', 'erreur.reessayer': 'Réessayer', 'horsLigne': 'Disponible au retour du réseau', 'etape.admin': 'Réservé aux administrateurs',
-    'metier.titre': 'Quel est votre métier ?', 'metier.sous': 'Choisissez le plus proche : on active les bons modules, vous n’avez rien d’autre à régler', 'metier.passer': 'Passer',
-    'metier.continuer.avec': 'Continuer avec {metier}', 'metier.continuer': 'Continuer', 'metier.continuer.info': 'Choisissez un métier ou utilisez Passer', 'metier.miette': 'Votre métier',
-    'metier.ajmani': 'Décrivez votre activité en une phrase, Ajmani compose l’espace', 'carte.autres': '+ {n} autres modules, {total} en tout',
+    'etape.metier.titre': 'Choisir ton métier', 'etape.metier.sous': 'Pour activer les bons modules', 'etape.equipe.titre': 'Inviter ton équipe', 'etape.equipe.sous': 'Chacun garde ses accès',
+    'etape.mobile.titre': 'Installer l’application mobile', 'etape.mobile.sous': 'Tes tâches dans la poche', 'etape.mobile.action': 'Obtenir le lien', 'etape.equipe.action': 'Inviter',
+    'erreur': 'Ta progression n’a pas pu être chargée.', 'erreur.reessayer': 'Réessayer', 'horsLigne': 'Disponible au retour du réseau', 'etape.admin': 'Réservé aux administrateurs',
+    'metier.titre': 'Quel est ton métier ?', 'metier.sous': 'Choisis le plus proche : on active les bons modules, tu n’as rien d’autre à régler', 'metier.passer': 'Passer',
+    'metier.continuer.avec': 'Continuer avec {metier}', 'metier.continuer': 'Continuer', 'metier.continuer.info': 'Choisis un métier ou utilise Passer', 'metier.miette': 'Ton métier',
+    'metier.ajmani': 'Décris ton activité en une phrase, Ajmani compose l’espace', 'carte.autres': '+ {n} autres modules, {total} en tout',
     'taille.titre': 'Combien êtes-vous ?', 'taille.aide': 'Pour préparer les accès et les rôles', 'taille.seul': 'Seul', 'taille.2-5': '2 à 5', 'taille.6-20': '6 à 20', 'taille.plus': 'Plus',
-    'barre.titre': 'Votre barre latérale', 'apercu.titre': 'Votre espace, demain matin', 'apercu.avec': 'aperçu avec {metier}',
-    'apercu.phrase': '{nombre} modules dans votre barre, {autres} autres prêts à servir. Tout se change plus tard.', 'nombre.6': 'Six',
-    'apercu.mention': 'Les {n} modules restent dans « Tous les modules », rien n’est supprimé.', 'apercu.vide': 'Choisissez un métier pour voir votre espace',
-    'decrire.titre': 'Pas dans la liste ?', 'decrire.texte': 'Décrivez votre activité en une phrase, Ajmani compose l’espace.', 'decrire.bouton': 'Décrire mon activité',
-    'decrire.champ': 'Décrivez votre activité en une phrase', 'decrire.composer': 'Composer l’espace', 'erreur.enregistrement': 'Votre choix n’a pas pu être enregistré.',
+    'barre.titre': 'Ta barre latérale', 'apercu.titre': 'Ton espace, demain matin', 'apercu.avec': 'aperçu avec {metier}',
+    'apercu.phrase': '{nombre} modules dans ta barre, {autres} autres prêts à servir. Tout se change plus tard.', 'nombre.6': 'Six',
+    'apercu.mention': 'Les {n} modules restent dans « Tous les modules », rien n’est supprimé.', 'apercu.vide': 'Choisis un métier pour voir ton espace',
+    'decrire.titre': 'Pas dans la liste ?', 'decrire.texte': 'Décris ton activité en une phrase, Ajmani compose l’espace.', 'decrire.bouton': 'Décrire mon activité',
+    'decrire.champ': 'Décris ton activité en une phrase', 'decrire.composer': 'Composer l’espace', 'erreur.enregistrement': 'Ton choix n’a pas pu être enregistré.',
   };
   for (const [k, v] of Object.entries(attendu)) assert.equal(fr[k], v, k);
-  const aAjmani = new Set(['decrire.consigne']);
+  // v4 : l'interface tutoie. Seul « Combien êtes-vous ? » garde « vous » : il parle de l'équipe (pluriel).
+  const vouvoiement = (t: string) => /(?<![\p{L}])(vous|votre|vos)(?![\p{L}])|(?<![\p{L}’'-])(?!chez\b|assez\b)\p{L}+ez(?![\p{L}])/iu.test(t.replace(/[Rr]endez-vous/g, '').replace(/Combien êtes-vous[\u00a0\u202f ]?\?/g, ''));
   for (const [k, t] of [...Object.entries(R.MOTS_FR), ...Object.entries(R.MOTS_EN)] as [string, string][]) {
     assert.doesNotMatch(t, /!/, `${k} : point d’exclamation`);
     assert.doesNotMatch(t, /en retard|\blate\b|overdue|urgent|dépêch|compte à rebours|countdown|expire/i, `${k} : ça presse`);
   }
-  for (const [k, t] of Object.entries(fr)) if (!aAjmani.has(k)) assert.doesNotMatch(t, /(?<![\p{L}])(tu|ton|ta|tes|toi)(?![\p{L}])/iu, `${k} : tutoiement`);
-  for (const m of MODELES) for (const t of [m.nom.fr, m.description.fr, ...m.apercu.flatMap((c) => [c.titre.fr, c.detail.fr, c.etiquette.fr]), ...Object.values(m.etapes).flatMap((e) => [e.titre.fr, e.sous.fr, e.action.fr])]) assert.doesNotMatch(t, /!/, t);
+  for (const [k, t] of Object.entries(fr)) assert.ok(!vouvoiement(t), `${k} : vouvoiement (« ${t} »)`);
+  for (const m of MODELES) for (const t of [m.nom.fr, m.description.fr, ...m.apercu.flatMap((c) => [c.titre.fr, c.detail.fr, c.etiquette.fr]), ...Object.values(m.etapes).flatMap((e) => [e.titre.fr, e.sous.fr, e.action.fr])]) {
+    assert.doesNotMatch(t, /!/, t);
+    assert.ok(!vouvoiement(t), `modèle ${m.id ?? m.nom.fr} : vouvoiement (« ${t} »)`);
+  }
 });
 
 /* ═════════════════════════ Le rendu statique ═════════════════════════ */
@@ -542,8 +546,8 @@ await dit('H42 · 2 sur 6 : un h1, l’anneau de 74 px à 33 % (« 2 » et « /6
   const html = vueDem();
   assert.equal(compter(html, /<h1[ >]/g), 1);
   assert.match(html, />Démarrage<\/h1>/);
-  assert.match(html, />Bienvenue Camille, votre espace se prépare avec vous, sans pression</);
-  assert.match(vueDem({ prenom: '' }), />Votre espace se prépare avec vous, sans pression</);
+  assert.match(html, />Bienvenue Camille, ton espace se prépare avec toi, sans pression</);
+  assert.match(vueDem({ prenom: '' }), />Ton espace se prépare avec toi, sans pression</);
   assert.match(html, /role="progressbar"[^>]*aria-valuenow="33"/);
   assert.match(html, /width:74px;height:74px/);
   assert.match(html, /class="dem-anneau__n">2<\/span><span class="dem-anneau__total">\/6</);
@@ -560,8 +564,8 @@ await dit('H42 · 2 sur 6 : un h1, l’anneau de 74 px à 33 % (« 2 » et « /6
   assert.match(n[2], />maintenant · 2 min</);
   assert.match(n[3], />ensuite · 1 min</);
   assert.match(n[4], />3 min</);
-  assert.match(n[1], /aria-label="Ajouter vos clients, faite : la revoir"/);
-  assert.match(n[3], /aria-label="Inviter votre équipe, à faire : l’afficher"/);
+  assert.match(n[1], /aria-label="Ajouter tes clients, faite : la revoir"/);
+  assert.match(n[3], /aria-label="Inviter ton équipe, à faire : l’afficher"/);
   assert.match(n[1], /data-lien="flux"/, 'la liaison qui s’écoule mène à l’étape conseillée');
   assert.match(n[2], /data-lien="attente"/);
   assert.equal(compter(html, /data-mvt="flux"/g), 1);
@@ -579,23 +583,23 @@ await dit('H42 · en-tête : « Plus tard » et « Reprendre la visite » en sec
   assert.doesNotMatch(sansCommentaires(lireSource('VueDemarrage.tsx')), /taille="petit"/);
 });
 
-await dit('H42 · la carte de l’étape : « Étape 3 sur 6 · conseillée maintenant », le titre, le texte, « Déjà rempli pour vous », « Créer le devis » primaire, « Plus tard », « Pas pour moi », la ligne d’Ajmani, « Ensuite », « Bon à savoir »', () => {
-  const rempli = { devis: [{ terme: 'Client', suite: 'Client exemple, ajouté à l’étape 2' }, { terme: 'Lignes types', suite: 'celles de votre métier, modifiables' }] };
+await dit('H42 · la carte de l’étape : « Étape 3 sur 6 · conseillée maintenant », le titre, le texte, « Déjà rempli pour toi », « Créer le devis » primaire, « Plus tard », « Pas pour moi », la ligne d’Ajmani, « Ensuite », « Bon à savoir »', () => {
+  const rempli = { devis: [{ terme: 'Client', suite: 'Client exemple, ajouté à l’étape 2' }, { terme: 'Lignes types', suite: 'celles de ton métier, modifiables' }] };
   const html = carteEtape(vueDem({ rempli, client: 'Client exemple' }));
   assert.match(html, />Étape 3 sur 6</);
   assert.match(html, />· conseillée maintenant</);
-  assert.match(html, /<h2 class="dem-etape__titre">Créer votre premier devis<\/h2>/);
-  assert.match(html, /Je prépare un devis type pour votre métier, vous n’avez qu’à relire et ajuster\. Comptez deux minutes\./);
-  assert.match(html, />Déjà rempli pour vous</);
+  assert.match(html, /<h2 class="dem-etape__titre">Créer ton premier devis<\/h2>/);
+  assert.match(html, /Je prépare un devis type pour ton métier, tu n’as qu’à relire et ajuster\. Compte deux minutes\./);
+  assert.match(html, />Déjà rempli pour toi</);
   assert.equal(compter(html, /class="dem-rempli__ligne"/g), 2);
   assert.match(html, /<span class="dem-rempli__terme">Client<\/span> · Client exemple, ajouté à l’étape 2/);
   assert.match(bouton(html, 'Créer le devis').attrs, /data-variante="primaire"/);
   assert.match(bouton(html, 'Plus tard').attrs, /data-variante="secondaire"/);
   assert.match(bouton(html, 'Pas pour moi').attrs, /class="dem-lien dem-lien--action sc-focus"/);
   assert.doesNotMatch(html, /C’est déjà fait/, 'un devis se détecte : pas de marquage à la main');
-  assert.match(html, />Rien ne part chez Client exemple sans votre accord\.</);
-  assert.match(carteEtape(vueDem()), />Rien ne part sans votre accord\.</);
-  assert.match(html, />Ensuite : inviter votre équipe</);
+  assert.match(html, />Rien ne part chez Client exemple sans ton accord\.</);
+  assert.match(carteEtape(vueDem()), />Rien ne part sans ton accord\.</);
+  assert.match(html, />Ensuite : inviter ton équipe</);
   assert.match(html, />chacun garde ses accès · 1 min</);
   assert.match(carteEtape(vueDem({ aInviter: ['Camille', 'Sacha'] })), />Ensuite : inviter Camille et Sacha</);
   assert.match(html, />Bon à savoir</);
@@ -603,7 +607,7 @@ await dit('H42 · la carte de l’étape : « Étape 3 sur 6 · conseillée main
   for (const k of ['⌘K', '⌘J', '\\?']) assert.match(html, new RegExp(`<kbd[^>]*>${k}</kbd>`));
   assert.match(carteEtape(vueDem({ mac: false })), /<kbd[^>]*>Ctrl K<\/kbd>/);
   assert.doesNotMatch(html, /créer, partout|Créer, partout/i, '« N » n’existe pas');
-  assert.doesNotMatch(vueDem({ rempli: {} }), /Déjà rempli pour vous/, 'rien de connu : pas de liste');
+  assert.doesNotMatch(vueDem({ rempli: {} }), /Déjà rempli pour toi/, 'rien de connu : pas de liste');
 });
 
 await dit('H42 · le papier : un aperçu (« Brouillon », « Devis », « Pour … », lignes) ; les montants, le numéro et les totaux n’apparaissent que s’ils sont donnés ; l’étape 6 montre le code', () => {
@@ -624,21 +628,21 @@ await dit('H42 · le papier : un aperçu (« Brouillon », « Devis », « Pour 
   const mobile = calc({ donnees: { clients: 1, quotes: 1, tasks: 0, appointments: 0, membres: 2 }, memoire: { faites: ['metier', 'paiement'], retirees: [] } });
   assert.equal(mobile.conseillee, 'mobile');
   const m = carteEtape(vueDem({ calcul: mobile, lienMobile: 'https://exemple.test/app' }));
-  assert.match(m, /<svg[^>]*role="img"[^>]*aria-label="Code à scanner avec votre téléphone"/);
+  assert.match(m, /<svg[^>]*role="img"[^>]*aria-label="Code à scanner avec ton téléphone"/);
   assert.match(m, />C’est déjà fait</, 'l’étape 6 se marque à la main');
 });
 
-await dit('H42 · « Déjà prêt » (titre T1, « sans rien faire », coches vertes) et l’accompagnement : sans référent, « L’équipe AMN vous répond » sans créneau ni primaire ; avec, trois créneaux et « Réserver »', () => {
-  const pret = [{ id: 'garde', icone: 'garde', titre: 'La Garde veille sur vos accès', sous: 'chaque connexion est notée' }];
+await dit('H42 · « Déjà prêt » (titre T1, « sans rien faire », coches vertes) et l’accompagnement : sans référent, « L’équipe AMN te répond » sans créneau ni primaire ; avec, trois créneaux et « Réserver »', () => {
+  const pret = [{ id: 'garde', icone: 'garde', titre: 'La Garde veille sur tes accès', sous: 'chaque connexion est notée' }];
   const html = vueDem({ pret });
   assert.match(html, /<h2 class="dem-carte__titre">Déjà prêt<\/h2><span class="dem-pret__sans">sans rien faire<\/span>/);
   assert.equal(compter(html, /class="dem-pret__ligne"/g), 1);
   assert.doesNotMatch(vueDem(), /Déjà prêt/, 'rien de vrai : pas de carte');
-  assert.match(html, /<h2 class="dem-carte__titre">L’équipe AMN vous répond<\/h2>/);
+  assert.match(html, /<h2 class="dem-carte__titre">L’équipe AMN te répond<\/h2>/);
   assert.doesNotMatch(html, /role="radiogroup"|Réserver/);
   assert.match(bouton(html, 'Écrire à l’équipe').attrs, /data-variante="secondaire"/);
   const avec = vueDem({ pret, referent: REFERENT });
-  assert.match(avec, /<h2 class="dem-carte__titre">Sacha vous accompagne<\/h2>/);
+  assert.match(avec, /<h2 class="dem-carte__titre">Sacha t’accompagne<\/h2>/);
   assert.match(avec, />de l’équipe AMN · répond sous 10 min</);
   assert.match(avec, /role="radiogroup" aria-labelledby="dem-aide-creneaux"/);
   assert.equal(compter(avec, /class="dem-creneau sc-focus sc-nombre"/g), 3);
@@ -648,19 +652,19 @@ await dit('H42 · « Déjà prêt » (titre T1, « sans rien faire », coches ve
   assert.equal(primaires(avec), 2, 'fiche rubrique 12 : un primaire dans la carte de l’étape, un dans l’accompagnement');
 });
 
-await dit('H42 · 6 sur 6 : anneau plein, nœuds tous faits, « Votre espace est prêt », « Aller à l’accueil » seul primaire, « Plus tard » disparaît', () => {
+await dit('H42 · 6 sur 6 : anneau plein, nœuds tous faits, « Ton espace est prêt », « Aller à l’accueil » seul primaire, « Plus tard » disparaît', () => {
   const tout = calc({ donnees: { clients: 1, quotes: 1, tasks: 0, appointments: 0, membres: 2 }, memoire: { faites: ['metier', 'paiement', 'mobile'], retirees: [] } });
   const html = vueDem({ calcul: tout });
   assert.match(html, /aria-valuenow="100"/);
   assert.match(html, /class="dem-anneau__n">6<\/span><span class="dem-anneau__total">\/6</);
   assert.equal(compter(html, /data-forme="faite"/g), 6);
-  assert.match(html, />Votre espace est prêt, Camille<\/h2>/);
-  assert.match(html, /Tout est en place\. Vous pouvez compter sur Ajmani pour la suite\./);
+  assert.match(html, />Ton espace est prêt, Camille<\/h2>/);
+  assert.match(html, /Tout est en place\. Tu peux compter sur Ajmani pour la suite\./);
   assert.match(bouton(html, 'Aller à l’accueil').attrs, /data-variante="primaire"/);
   assert.equal(primaires(html), 1);
   assert.doesNotMatch(html, />Plus tard</);
   assert.match(html, />plus rien à faire</);
-  assert.match(vueDem({ calcul: tout, prenom: '' }), />Votre espace est prêt<\/h2>/);
+  assert.match(vueDem({ calcul: tout, prenom: '' }), />Ton espace est prêt<\/h2>/);
 });
 
 await dit('H42 · « Seul » : cinq nœuds, « 2/5 » ; une étape retirée : « 1 étape retirée · Les remettre »', () => {
@@ -668,7 +672,7 @@ await dit('H42 · « Seul » : cinq nœuds, « 2/5 » ; une étape retirée : «
   const html = vueDem({ calcul: seul });
   assert.equal(noeuds(html).length, 5);
   assert.match(html, /class="dem-anneau__total">\/5</);
-  assert.doesNotMatch(html, />Inviter votre équipe</);
+  assert.doesNotMatch(html, />Inviter ton équipe</);
   assert.match(html, />Étape 3 sur 5</);
   const retiree = vueDem({ calcul: calc({ memoire: R.retirerEtape(R.MEMOIRE_VIDE, 'mobile') }) });
   assert.match(retiree, /1 étape retirée/);
@@ -678,7 +682,7 @@ await dit('H42 · « Seul » : cinq nœuds, « 2/5 » ; une étape retirée : «
 
 await dit('H42 · chargement : squelettes du parcours (six ronds), de la carte et des deux cartes de droite, région annoncée, aucun primaire, la page garde son h1', () => {
   const html = vueDem({ etat: 'chargement' });
-  assert.match(html, /role="status"[^>]*aria-busy="true"[^>]*aria-label="Chargement de votre progression"|aria-busy="true"[^>]*role="status"/);
+  assert.match(html, /role="status"[^>]*aria-busy="true"[^>]*aria-label="Chargement de ta progression"|aria-busy="true"[^>]*role="status"/);
   assert.equal(compter(html, /class="dem-route__etape dem-squelette-noeud"/g), 6);
   assert.match(html, /height:233px/);
   assert.match(html, /height:239px/);
@@ -688,10 +692,10 @@ await dit('H42 · chargement : squelettes du parcours (six ronds), de la carte e
   assert.match(rendre(h(R.SqueletteDemarrage)), /dem-surface/);
 });
 
-await dit('H42 · erreur : le bandeau « Votre progression n’a pas pu être chargée. » et « Réessayer » dans la carte de l’étape ; le parcours et les boutons restent', () => {
+await dit('H42 · erreur : le bandeau « Ta progression n’a pas pu être chargée. » et « Réessayer » dans la carte de l’étape ; le parcours et les boutons restent', () => {
   const html = vueDem({ etat: 'erreur' });
   assert.match(carteEtape(html), /role="alert"/);
-  assert.match(html, /Votre progression n’a pas pu être chargée\./);
+  assert.match(html, /Ta progression n’a pas pu être chargée\./);
   assert.match(html, />Réessayer</);
   assert.equal(noeuds(html).length, 6);
   assert.equal(primaires(html), 1);
@@ -752,22 +756,22 @@ const choisi = (id: string, s: Record<string, unknown> = {}) => ({
 const vueMet = (s: Record<string, unknown> = {}): string => rendre(h(R.VueMetier, propsMet(s)));
 const cartesHtml = (html: string): string[] => html.split('<div class="met-carte"').slice(1).map((x) => x.split('<p class="met-carte__pied">')[0]);
 
-await dit('H47 · premier affichage : un h1, un groupe radio de huit cartes non choisies, « Continuer » grisé et seul primaire, la bande dit « Choisissez un métier pour voir votre espace »', () => {
+await dit('H47 · premier affichage : un h1, un groupe radio de huit cartes non choisies, « Continuer » grisé et seul primaire, la bande dit « Choisis un métier pour voir ton espace »', () => {
   const html = vueMet();
   assert.equal(compter(html, /<h1[ >]/g), 1);
-  assert.match(html, />Quel est votre métier \?<\/h1>/);
-  assert.match(html, />Choisissez le plus proche : on active les bons modules, vous n’avez rien d’autre à régler</);
+  assert.match(html, />Quel est ton métier \?<\/h1>/);
+  assert.match(html, />Choisis le plus proche : on active les bons modules, tu n’as rien d’autre à régler</);
   assert.match(html, /role="radiogroup"[^>]*aria-label="Familles de métiers"/);
   assert.equal(compter(html, /role="radio" aria-checked="false"[^>]*class="met-carte__choix/g), 8);
   assert.equal(compter(html, /aria-checked="true"[^>]*class="met-carte__choix/g), 0);
   assert.equal(compter(html, /met-carte__coche/g), 0);
   assert.equal(compter(html, /role="radio"[^>]*tabindex="0"[^>]*class="met-carte__choix/g), 1, 'une seule carte dans l’ordre de tabulation');
-  assert.match(html, /<span title="Choisissez un métier ou utilisez Passer"><button/);
+  assert.match(html, /<span title="Choisis un métier ou utilise Passer"><button/);
   assert.match(bouton(html, 'Continuer').attrs, /data-variante="primaire"[^>]*disabled=""/);
   assert.match(bouton(html, 'Passer').attrs, /data-variante="secondaire"/);
   assert.equal(primaires(html), 1);
   assert.equal(compter(html, /role="switch"/g), 0, 'aucun interrupteur tant qu’aucune carte n’est choisie');
-  assert.match(html, />Choisissez un métier pour voir votre espace</);
+  assert.match(html, />Choisis un métier pour voir ton espace</);
   assert.match(html, /class="met-barre__squelette"/);
   assert.match(html, />Les 101 modules restent dans « Tous les modules », rien n’est supprimé\.</);
   for (const m of MODELES) {
@@ -791,24 +795,24 @@ await dit('H47 · une carte choisie : « Continuer avec {métier} » seul primai
   for (const x of c) assert.equal(compter(x, /class="met-carte__module"/g), 4);
   for (const m of MODELES) assert.match(html, new RegExp(`\\+ ${m.modules.length - 4} autres modules, ${m.modules.length} en tout`), m.id);
   assert.match(html, /role="img" aria-label="Composition par famille"/);
-  assert.doesNotMatch(html, /Choisissez un métier ou utilisez Passer/);
+  assert.doesNotMatch(html, /Choisis un métier ou utilise Passer/);
   const off = vueMet(choisi('conseil', { cartes: cartesDe('conseil', new Set(['clients'])) }));
   assert.match(off, /role="switch" aria-checked="false" aria-label="Module contracts dans la barre"/, 'un module éteint reste dans la liste : il n’est pas supprimé');
   assert.match(vueMet({ choix: 'artisan', cartes: [{ id: 'artisan', lignes: [], bande: [], autres: 0, total: 4 }] }), />4 modules en tout</);
 });
 
-await dit('H47 · « Votre espace, demain matin » : barre miniature groupée par famille, « aperçu avec … », « Six modules dans votre barre, N autres prêts à servir », trois exemples du modèle, encarts seulement s’ils existent', () => {
+await dit('H47 · « Ton espace, demain matin » : barre miniature groupée par famille, « aperçu avec … », « Six modules dans ta barre, N autres prêts à servir », trois exemples du modèle, encarts seulement s’ils existent', () => {
   const html = vueMet(choisi('conseil'));
-  assert.match(html, /role="group" aria-label="Votre barre latérale"/);
+  assert.match(html, /role="group" aria-label="Ta barre latérale"/);
   assert.match(html, /class="met-barre__famille"><svg[\s\S]*?<\/svg>L’argent<\/span>/);
   assert.equal(compter(html, /<ul class="met-barre__modules"><li>Module A<\/li><li>Module B<\/li><\/ul>/g), 1);
-  assert.match(html, />Votre espace, demain matin</);
+  assert.match(html, />Ton espace, demain matin</);
   assert.match(html, />aperçu avec Conseil et services</);
-  assert.match(html, />Six modules dans votre barre, 4 autres prêts à servir\. Tout se change plus tard\.</);
-  assert.match(vueMet(choisi('conseil', { dansLaBarre: 3, autresPrets: 0 })), />Trois modules dans votre barre\. Tout se change plus tard\.</);
-  assert.match(vueMet(choisi('conseil', { dansLaBarre: 1, autresPrets: 0 })), />Un module dans votre barre\. Tout se change plus tard\.</);
+  assert.match(html, />Six modules dans ta barre, 4 autres prêts à servir\. Tout se change plus tard\.</);
+  assert.match(vueMet(choisi('conseil', { dansLaBarre: 3, autresPrets: 0 })), />Trois modules dans ta barre\. Tout se change plus tard\.</);
+  assert.match(vueMet(choisi('conseil', { dansLaBarre: 1, autresPrets: 0 })), />Un module dans ta barre\. Tout se change plus tard\.</);
   assert.equal(compter(html, /class="met-apercu__carte"/g), 3);
-  assert.match(html, /class="met-apercu__cartes" title="Des exemples livrés avec le métier, pas vos données"/);
+  assert.match(html, /class="met-apercu__cartes" title="Des exemples livrés avec le métier, pas tes données"/);
   assert.doesNotMatch(html, /met-extras/, 'aucun encart sans donnée du modèle');
   const extras = vueMet(choisi('conseil', { extras: [{ icone: 'automatisations', titre: 'X automatisations', detail: 'détail' }] }));
   assert.equal(compter(extras, /class="met-extra"/g), 1);
@@ -828,11 +832,11 @@ await dit('H47 · « Combien êtes-vous ? » : un groupe radio de quatre options
 await dit('H47 · « Pas dans la liste ? » : replié, « Décrire mon activité » secondaire ; déplié, « Composer l’espace » est le seul primaire (« Continuer » passe en secondaire) ; hors ligne, grisé avec son info-bulle', () => {
   const ferme = vueMet(choisi('commerce'));
   assert.match(ferme, />Pas dans la liste \?</);
-  assert.match(ferme, />Décrivez votre activité en une phrase, Ajmani compose l’espace\.</);
+  assert.match(ferme, />Décris ton activité en une phrase, Ajmani compose l’espace\.</);
   assert.match(bouton(ferme, 'Décrire mon activité').attrs, /data-variante="secondaire"[^>]*aria-expanded="false"/);
   assert.doesNotMatch(ferme, /Composer l’espace/);
   const ouvert = vueMet(choisi('commerce', { decrireOuvert: true, phrase: 'x' }));
-  assert.match(ouvert, /Décrivez votre activité en une phrase/);
+  assert.match(ouvert, /Décris ton activité en une phrase/);
   assert.match(bouton(ouvert, 'Composer l’espace').attrs, /data-variante="primaire"/);
   assert.equal(primaires(ouvert), 1);
   assert.match(bouton(ouvert, 'Continuer avec Commerce').attrs, /data-variante="secondaire"/);
@@ -841,7 +845,7 @@ await dit('H47 · « Pas dans la liste ? » : replié, « Décrire mon activité
   assert.match(bouton(hors, 'Décrire mon activité').attrs, /disabled=""/);
   assert.match(bouton(vueMet(choisi('commerce', { decrireOuvert: true, phrase: 'x', horsLigne: true })), 'Composer l’espace').attrs, /disabled=""/);
   assert.match(bouton(vueMet(choisi('commerce', { decrireOuvert: true, phrase: '  ' })), 'Composer l’espace').attrs, /disabled=""/, 'sans phrase, rien à composer');
-  assert.match(vueMet({ composeEnvoye: true }), /role="status"[^>]*>Ajmani vous répond dans son panneau/);
+  assert.match(vueMet({ composeEnvoye: true }), /role="status"[^>]*>Ajmani te répond dans son panneau/);
 });
 
 await dit('H47 · en-tête : « Passer » et « Continuer avec … » au gabarit de H40 (31 px, pas le petit bouton) (C13)', () => {
@@ -850,10 +854,10 @@ await dit('H47 · en-tête : « Passer » et « Continuer avec … » au gabarit
   assert.doesNotMatch(e, /data-taille="petit"/);
 });
 
-await dit('H47 · erreur d’enregistrement : « Votre choix n’a pas pu être enregistré. » et « Réessayer », les choix de la page restent', () => {
+await dit('H47 · erreur d’enregistrement : « Ton choix n’a pas pu être enregistré. » et « Réessayer », les choix de la page restent', () => {
   const html = vueMet(choisi('artisan', { erreurEnregistrement: true }));
   assert.match(html, /role="alert"/);
-  assert.match(html, /Votre choix n’a pas pu être enregistré\./);
+  assert.match(html, /Ton choix n’a pas pu être enregistré\./);
   assert.match(html, />Réessayer</);
   assert.equal(compter(html, /aria-checked="true"[^>]*class="met-carte__choix/g), 1);
   assert.equal(primaires(html), 1);
@@ -1059,7 +1063,7 @@ await dit('aucun nom d’exemple des fiches dans les sources ; « Stripe » n’
     if (f !== 'modeles.ts') assert.doesNotMatch(src, /stripe/i, `${f} : Stripe hors du libellé par défaut`);
   }
   const modeles = sansCommentaires(lireSource('modeles.ts'));
-  for (const [ligne] of modeles.matchAll(/^.*stripe.*$/gim)) assert.match(ligne, /^\s*(sous|texte): L\('(Stripe ou votre banque|Reliez Stripe ou votre banque)[^']*', '(Stripe or your bank|Link Stripe or your bank)[^']*'\),$/);
+  for (const [ligne] of modeles.matchAll(/^.*stripe.*$/gim)) assert.match(ligne, /^\s*(sous|texte): L\('(Stripe ou ta banque|Relie Stripe ou ta banque)[^']*', '(Stripe or your bank|Link Stripe or your bank)[^']*'\),$/);
   assert.equal(compter(modeles, /stripe/gi), 4);
 });
 

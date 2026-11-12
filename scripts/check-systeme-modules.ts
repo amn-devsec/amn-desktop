@@ -213,7 +213,7 @@ await dit('rendu : un h1, le sous-titre compté, le segmenté à quatre niveaux 
   const html = vue();
   assert.equal(compter(html, /<h1[ >]/g), 1);
   assert.match(html, /<h1[^>]*>Tous les modules<\/h1>/);
-  assert.match(html, />17 modules en 8 familles · tapez pour trouver, Entrée pour ouvrir</);
+  assert.match(html, />17 modules en 8 familles · tape pour trouver, Entrée pour ouvrir</);
   assert.match(html, /role="radiogroup" aria-label="Niveau"/);
   for (const t of ['Tous 17', 'Essentiels 8', 'Courants 9', 'Avancés 0']) assert.match(html, new RegExp(`>${t}<`), t);
   assert.match(html, /placeholder="Un module ou une action"/);
@@ -254,22 +254,22 @@ await dit('sélection clavier : fond choisi et ↵ ; recherche : les lignes sans
   assert.match(vide, />Demander à Ajmani</);
 });
 
-await dit('colonne droite : Épinglés (⌘1 à ⌘n), Récents (« vous »), À découvrir (« Essayer », « x sur N » et sa barre)', () => {
+await dit('colonne droite : Épinglés (⌘1 à ⌘n), Récents (« toi »), À découvrir (« Essayer », « x sur N » et sa barre)', () => {
   const html = vue();
   assert.match(html, />Épinglés</);
   assert.match(html, /<kbd class="sc-kbd">⌘1<\/kbd><span>à<\/span><kbd class="sc-kbd">⌘2<\/kbd>/);
   assert.match(html, /aria-label="Ouvrir Puce p1 \(⌘1\)"/);
-  assert.match(html, />Récents<[\s\S]*?>vous</);
+  assert.match(html, />Récents<[\s\S]*?>toi</);
   assert.match(html, />il y a 4 min</);
   assert.match(html, />12 min</);
   assert.match(html, />À découvrir<[\s\S]*?>jamais ouverts</);
   assert.equal(compter(html, />Essayer</g), 3);
-  assert.match(html, /Vous en avez ouvert <b class="dm-chiffres">7 sur 17<\/b>/);
+  assert.match(html, /Tu en as ouvert <b class="dm-chiffres">7 sur 17<\/b>/);
   assert.match(html, /data-mvt="remplit" style="width:41.2%"/);
   assert.doesNotMatch(html, /ce mois/, 'pas de « +N ce mois » : le journal ne garde pas la date de première ouverture');
   const sansRecents = vue({ recents: [], epingles: [] });
   assert.doesNotMatch(sansRecents, />Récents</, 'récents vides : la carte se masque');
-  assert.match(sansRecents, /Épinglez vos modules préférés/);
+  assert.match(sansRecents, /Épingle tes modules préférés/);
   assert.doesNotMatch(sansRecents, /⌘1/);
 });
 

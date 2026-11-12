@@ -34,18 +34,18 @@ const EN = {
 } as const;
 
 const FR: Record<keyof typeof EN, string> = {
-  calque: 'Écran de veille. Appuyez sur une touche pour reprendre.',
+  calque: 'Écran de veille. Appuie sur une touche pour reprendre.',
   verrou: 'Espace verrouillé',
   'garde.nom': 'État de La Garde',
   garde: 'La Garde veille',
   'etat.calme': 'tout est en ordre',
-  'etat.attention': 'un point demande votre attention',
+  'etat.attention': 'un point demande ton attention',
   'etat.critique': 'une alerte critique',
   horsLigne: 'Hors connexion',
   'horsLigne.texte': 'La Garde reprend au retour du réseau',
   inconnu: 'La Garde ne répond pas',
   ronde: 'prochaine ronde',
-  reprendre: 'Bougez la souris ou appuyez sur une touche pour reprendre',
+  reprendre: 'Bouge la souris ou appuie sur une touche pour reprendre',
   'pied.veille': 'Veille après {n} min',
   'pied.verrou': 'verrouillage après {n} min',
   'pied.reglages': 'Réglages · Écran de veille',

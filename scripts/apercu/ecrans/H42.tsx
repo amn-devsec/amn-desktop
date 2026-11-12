@@ -21,7 +21,7 @@ const calcul = calculerEtapes({
 
 export default function Apercu() {
   return (
-    <ApercuBureau famille="jour" sousPage="accueil" fil={['Ma journée', 'Démarrage']} ajmani="Demandez à Ajmani, par exemple : « invite Mohamed et Riyad »">
+    <ApercuBureau famille="jour" sousPage="accueil" fil={['Ma journée', 'Démarrage']} ajmani="Demande à Ajmani, par exemple : « invite Mohamed et Riyad »">
       <VueDemarrage
         etat="pret"
         calcul={calcul}
@@ -33,7 +33,7 @@ export default function Apercu() {
         rempli={{
           devis: [
             { terme: 'Client', suite: 'Menna Conseil, ajouté à l’étape 2' },
-            { terme: 'Lignes types', suite: 'celles de votre métier, modifiables' },
+            { terme: 'Lignes types', suite: 'celles de ton métier, modifiables' },
             { terme: 'Conditions', suite: 'paiement à 30 jours, TVA 20 %' },
           ],
         }}
@@ -55,8 +55,8 @@ export default function Apercu() {
         client="Menna"
         pret={[
           { id: 'modules', icone: 'modules', titre: '20 modules activés', sous: 'Conseil et services, 6 dans la barre' },
-          { id: 'clients', icone: 'clients', titre: '7 clients importés', sous: 'depuis votre fichier Excel' },
-          { id: 'garde', icone: 'garde', titre: 'La Garde veille sur vos accès', sous: 'chaque connexion est notée' },
+          { id: 'clients', icone: 'clients', titre: '7 clients importés', sous: 'depuis ton fichier Excel' },
+          { id: 'garde', icone: 'garde', titre: 'La Garde veille sur tes accès', sous: 'chaque connexion est notée' },
           { id: 'sauvegarde', icone: 'sauvegarde', titre: 'Sauvegarde chaque nuit', sous: 'à 2:00, gardée 30 jours' },
         ]}
         aInviter={['Mohamed', 'Riyad']}

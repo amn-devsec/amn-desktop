@@ -560,7 +560,7 @@ function CarteRecents({ recents: liste }: { recents: readonly { module: ModulePu
         <h2 id="dm-recents" className="dm-carte__titre">
           {tm('recents')}
         </h2>
-        <span className="dm-carte__aside">{tm('recents.vous')}</span>
+        <span className="dm-carte__aside">{tm('recents.toi')}</span>
       </header>
       <ul className="dm-recents__liste">
         {liste.map(({ module, moment }, i) => (

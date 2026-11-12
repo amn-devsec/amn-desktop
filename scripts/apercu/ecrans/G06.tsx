@@ -1,6 +1,6 @@
 /**
  * APERÇU « G06 » — Connexion (v3), sur les vrais composants de présentation (`VueConnexion`, `CadreConnexion`) :
- * la vue « connexion » au repos, l'adresse FICTIVE `vous@exemple.test` saisie, l'horloge figée au moment des
+ * la vue « connexion » au repos, l'adresse FICTIVE `toi@exemple.test` saisie, l'horloge figée au moment des
  * maquettes (vendredi 30 octobre 2026, 08:57). Aucune logique d'authentification n'est montée ici.
  *
  *   npm run apercu -- G06
@@ -28,7 +28,7 @@ export default function Apercu() {
           invalide={false}
           ids={{ erreur: 'e', aideEmail: 'a', maj: 'm' }}
           connexion={{
-            email: 'vous@exemple.test',
+            email: 'toi@exemple.test',
             onEmail: rien,
             mdp: '',
             onMdp: rien,

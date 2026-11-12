@@ -96,28 +96,28 @@ export interface ModeleMetier {
 /** Les trois étapes de la maquette : celles d'un artisan, et le repli quand aucun métier n'est choisi. */
 export const ETAPES_PAR_DEFAUT: EtapesModele = {
   client: {
-    titre: L('Ajouter vos clients', 'Add your clients'),
+    titre: L('Ajouter tes clients', 'Add your clients'),
     sous: L('Ou importer un fichier en 1 clic', 'Or import a file in one click'),
     action: L('Ajouter un client', 'Add a client'),
     vers: '/clients',
-    texte: L('Ajoutez un premier client, ou importez votre fichier en un clic. Il servira à votre premier devis.', 'Add a first client, or import your file in one click. It will be used for your first quote.'),
+    texte: L('Ajoute un premier client, ou importe ton fichier en un clic. Il servira à ton premier devis.', 'Add a first client, or import your file in one click. It will be used for your first quote.'),
     duree: 2,
   },
   devis: {
-    titre: L('Créer votre premier devis', 'Create your first quote'),
-    sous: L('Ajmani vous guide, 2 minutes', 'Ajmani guides you, 2 minutes'),
+    titre: L('Créer ton premier devis', 'Create your first quote'),
+    sous: L('Ajmani te guide, 2 minutes', 'Ajmani guides you, 2 minutes'),
     action: L('Créer le devis', 'Create the quote'),
     vers: '/clients',
     mesure: 'quotes',
-    texte: L('Je prépare un devis type pour votre métier, vous n’avez qu’à relire et ajuster. Comptez deux minutes.', 'I prepare a standard quote for your trade, you only have to review and adjust it. Allow two minutes.'),
+    texte: L('Je prépare un devis type pour ton métier, tu n’as qu’à relire et ajuster. Compte deux minutes.', 'I prepare a standard quote for your trade, you only have to review and adjust it. Allow two minutes.'),
     duree: 2,
   },
   paiement: {
-    titre: L('Connecter vos encaissements', 'Connect your payments'),
-    sous: L('Stripe ou votre banque, pour voir ce qui arrive', 'Stripe or your bank, to see what comes in'),
+    titre: L('Connecter tes encaissements', 'Connect your payments'),
+    sous: L('Stripe ou ta banque, pour voir ce qui arrive', 'Stripe or your bank, to see what comes in'),
     action: L('Connecter', 'Connect'),
     vers: '/facturation',
-    texte: L('Reliez Stripe ou votre banque pour voir vos encaissements arriver. Seules des valeurs masquées s’affichent ici.', 'Link Stripe or your bank to see your payments come in. Only masked values are shown here.'),
+    texte: L('Relie Stripe ou ta banque pour voir tes encaissements arriver. Seules des valeurs masquées s’affichent ici.', 'Link Stripe or your bank to see your payments come in. Only masked values are shown here.'),
     duree: 3,
   },
 };
@@ -181,8 +181,8 @@ export const MODELES: readonly ModeleMetier[] = [
     etapes: {
       ...ETAPES_PAR_DEFAUT,
       devis: {
-        titre: L('Préparer votre premier devis', 'Prepare your first quote'),
-        sous: L('Pour vos clients professionnels', 'For your business customers'),
+        titre: L('Préparer ton premier devis', 'Prepare your first quote'),
+        sous: L('Pour tes clients professionnels', 'For your business customers'),
         action: L('Créer un devis', 'Create a quote'),
         vers: '/clients',
         mesure: 'quotes',
@@ -203,7 +203,7 @@ export const MODELES: readonly ModeleMetier[] = [
     etapes: {
       ...ETAPES_PAR_DEFAUT,
       devis: {
-        titre: L('Créer votre première tâche', 'Create your first task'),
+        titre: L('Créer ta première tâche', 'Create your first task'),
         sous: L('Ce qui compte cette semaine', 'What matters this week'),
         action: L('Créer une tâche', 'Create a task'),
         vers: '/tasks',
@@ -243,21 +243,21 @@ export const MODELES: readonly ModeleMetier[] = [
     ],
     etapes: {
       client: {
-        titre: L('Ajouter votre premier contact', 'Add your first contact'),
+        titre: L('Ajouter ton premier contact', 'Add your first contact'),
         sous: L('Ou importer un fichier en 1 clic', 'Or import a file in one click'),
         action: L('Ajouter un contact', 'Add a contact'),
         vers: '/clients',
       },
       devis: {
-        titre: L('Ajouter votre première tâche', 'Add your first task'),
+        titre: L('Ajouter ta première tâche', 'Add your first task'),
         sous: L('Pour ne plus rien oublier', 'So nothing slips your mind'),
         action: L('Ajouter une tâche', 'Add a task'),
         vers: '/tasks',
         mesure: 'tasks',
       },
       paiement: {
-        titre: L('Suivre votre budget', 'Follow your budget'),
-        sous: L('Pour voir ce qu’il vous reste', 'To see what you have left'),
+        titre: L('Suivre ton budget', 'Follow your budget'),
+        sous: L('Pour voir ce qu’il te reste', 'To see what you have left'),
         action: L('Voir le budget', 'See the budget'),
         vers: '/personnel/budget',
       },
@@ -278,21 +278,21 @@ export const MODELES: readonly ModeleMetier[] = [
     ],
     etapes: {
       client: {
-        titre: L('Ajouter votre premier dossier', 'Add your first record'),
+        titre: L('Ajouter ton premier dossier', 'Add your first record'),
         sous: L('Ou importer un fichier en 1 clic', 'Or import a file in one click'),
         action: L('Ajouter un dossier', 'Add a record'),
         vers: '/clients',
       },
       devis: {
-        titre: L('Planifier votre premier rendez-vous', 'Plan your first appointment'),
+        titre: L('Planifier ton premier rendez-vous', 'Plan your first appointment'),
         sous: L('Les rappels suivent ensuite', 'Reminders follow from there'),
         action: L('Planifier', 'Plan'),
         vers: '/agenda',
         mesure: 'appointments',
       },
       paiement: {
-        titre: L('Connecter votre banque', 'Connect your bank'),
-        sous: L('Pour voir vos encaissements', 'To see what you collect'),
+        titre: L('Connecter ta banque', 'Connect your bank'),
+        sous: L('Pour voir tes encaissements', 'To see what you collect'),
         action: L('Connecter', 'Connect'),
         vers: '/facturation',
       },
@@ -312,20 +312,20 @@ export const MODELES: readonly ModeleMetier[] = [
     ],
     etapes: {
       client: {
-        titre: L('Ajouter votre premier membre', 'Add your first member'),
+        titre: L('Ajouter ton premier membre', 'Add your first member'),
         sous: L('Ou importer un fichier en 1 clic', 'Or import a file in one click'),
         action: L('Ajouter un membre', 'Add a member'),
         vers: '/clients',
       },
       devis: {
-        titre: L('Annoncer votre première activité', 'Announce your first activity'),
-        sous: L('Vos membres sont prévenus', 'Your members are told'),
+        titre: L('Annoncer ta première activité', 'Announce your first activity'),
+        sous: L('Tes membres sont prévenus', 'Your members are told'),
         action: L('Annoncer', 'Announce'),
         vers: '/annonces',
         mesure: 'manuel',
       },
       paiement: {
-        titre: L('Recevoir vos premiers dons', 'Receive your first donations'),
+        titre: L('Recevoir tes premiers dons', 'Receive your first donations'),
         sous: L('Pour suivre ce qui arrive', 'To follow what comes in'),
         action: L('Voir les dons', 'See donations'),
         vers: '/dons',

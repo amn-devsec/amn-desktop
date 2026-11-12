@@ -422,7 +422,7 @@ await dit('mots : fr et en ont les mêmes clés et les mêmes {paramètres}, san
     assert.ok(!/'/.test(fr[cle]), `${cle} : apostrophe droite dans le français`);
   }
   assert.equal(fr['aucun.titre'], 'Rien pour «\u00a0{texte}\u00a0»');
-  assert.equal(fr['pied.astuce'], 'Astuce\u00a0: tapez «\u00a0>\u00a0» pour ne voir que les actions');
+  assert.equal(fr['pied.astuce'], 'Astuce\u00a0: tape «\u00a0>\u00a0» pour ne voir que les actions');
   assert.equal(mots.traduire('fr', 'compteur.n', { n: 9, ms: 12 }), '9 résultats en 12 ms');
   assert.equal(fr['portee.changer'], 'changer de groupe');
   assert.deepEqual(['tout', 'actions', 'clients', 'documents', 'modules'].map((g) => fr[`groupe.${g}`]), ['Tout', 'Actions', 'Clients', 'Documents', 'Modules']);
@@ -485,7 +485,7 @@ await dit('palette : le Raccourci ↵ n’est que sur la ligne sélectionnée, �
   assert.doesNotMatch(tout, /onglet|⌘↵|nouvelle fenêtre/i);
   assert.match(tout, /↑↓ pour naviguer/);
   assert.match(tout, /↵ pour ouvrir/);
-  assert.match(tout, /Astuce\u00a0: tapez «\u00a0&gt;\u00a0» pour ne voir que les actions/);
+  assert.match(tout, /Astuce\u00a0: tape «\u00a0&gt;\u00a0» pour ne voir que les actions/);
   // Le compteur du champ : le nombre de lignes et la durée mesurée (« 9 résultats en 12 ms »), puis ⇥ « changer de groupe ».
   let t = 0;
   const horloge = () => (t += 6);
@@ -521,7 +521,7 @@ await dit('palette : saisie vide → RÉCENTS puis ACTIONS de la page ; sans « 
   assert.ok(r.indexOf('Récents<') < r.indexOf('Actions<'));
   assert.match(r, /Nouvelle tâche/);
   assert.doesNotMatch(r, /Demander à Ajmani/);
-  assert.match(vue({ texteInitial: '' }), /Tapez un nom, une page ou «\u00a0&gt;\u00a0» pour voir les actions/);
+  assert.match(vue({ texteInitial: '' }), /Tape un nom, une page ou «\u00a0&gt;\u00a0» pour voir les actions/);
 });
 
 await dit('palette : mode « > » → une seule liste d’actions', () => {
@@ -641,13 +641,13 @@ await dit('état chargement : trois squelettes de ligne par groupe attendu, apr�
 await dit('état aucun résultat : « Rien pour … », Demander à Ajmani reste en premier, bouton vers le proche ou « Effacer »', () => {
   const sans = vue({ texteInitial: 'qqqqqqq' });
   assert.match(sans, /Rien pour «\u00a0qqqqqqq\u00a0»/);
-  assert.match(sans, /Essayez un autre mot ou effacez la recherche\./);
+  assert.match(sans, /Essaie un autre mot ou efface la recherche\./);
   assert.match(sans, /Effacer la recherche/);
   assert.equal(compter(sans, /role="option"/g), 1);
   assert.match(sans, /role="option"[^>]*aria-selected="true"[\s\S]*?Demander à Ajmani\u00a0: «\u00a0qqqqqqq\u00a0»/);
   assert.match(sans, /role="status" class="sr-only">Aucun résultat</);
   const proche = vue({ texteInitial: 'orkidee' });
-  assert.match(proche, /Vouliez-vous dire Orchidée Conseil\u202f\? Sinon, essayez un autre mot\./);
+  assert.match(proche, /Tu voulais dire Orchidée Conseil\u202f\? Sinon, essaie un autre mot\./);
   assert.match(proche, /Voir Orchidée Conseil/);
   assert.match(proche, /data-variante="primaire"/);
 });

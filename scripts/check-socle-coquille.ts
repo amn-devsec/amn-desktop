@@ -223,7 +223,7 @@ await dit('où est un collègue : le libellé du module (catalogue) ou de la pag
   const sys = (c: string) => K.libellePageSysteme(c, 'fr');
   assert.equal(K.libelleDuLieu('/facturation/F-12', catalogue, sys), 'Facturation');
   assert.equal(K.libelleDuLieu('/notifications', catalogue, sys), 'Notifications');
-  assert.equal(K.libelleDuLieu('/demarrage/metier', catalogue, sys), 'Votre métier');
+  assert.equal(K.libelleDuLieu('/demarrage/metier', catalogue, sys), 'Ton métier');
   assert.equal(K.libelleDuLieu('/outils/mon-reglage', catalogue, sys), null);
   assert.equal(K.libelleDuLieu('/tous-les-modules', catalogue, sys), 'Tous les modules');
   const glue = sansCommentaires(lire('src/refonte/coquille/aujourdhui/useAujourdhui.ts'));
@@ -241,7 +241,7 @@ await dit('fil d’Ariane : « Famille / Page », libellés du registre ou de la
   };
   assert.equal(fil('/notifications'), 'Ma journée / Notifications');
   assert.equal(fil('/demarrage'), 'Ma journée / Démarrage');
-  assert.equal(fil('/demarrage/metier'), 'Ma journée / Démarrage / Votre métier');
+  assert.equal(fil('/demarrage/metier'), 'Ma journée / Démarrage / Ton métier');
   assert.equal(fil('/tous-les-modules'), 'Espace / Tous les modules');
   assert.equal(K.pageSysteme('/demarrage/metier', mots).miettes[0].vers, '/demarrage', 'Démarrage est un lien');
   for (const p of ['/notifications', '/demarrage', '/demarrage/metier']) {

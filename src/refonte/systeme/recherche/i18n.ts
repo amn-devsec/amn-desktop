@@ -180,7 +180,7 @@ const FR: Readonly<Record<keyof typeof EN, string>> = {
 
   'pied.naviguer': '↑↓ pour naviguer',
   'pied.ouvrir': '↵ pour ouvrir',
-  'pied.astuce': 'Astuce : tapez « > » pour ne voir que les actions',
+  'pied.astuce': 'Astuce : tape « > » pour ne voir que les actions',
 
   'apercu.titre': 'Aperçu',
   'apercu.depuis': 'Client depuis {mois}',
@@ -222,10 +222,10 @@ const FR: Readonly<Record<keyof typeof EN, string>> = {
   'apercu.ecrire': 'Écrire',
   'apercu.demander': 'Demander',
 
-  'vide.invite': 'Tapez un nom, une page ou « > » pour voir les actions.',
+  'vide.invite': 'Tape un nom, une page ou « > » pour voir les actions.',
   'aucun.titre': 'Rien pour « {texte} »',
-  'aucun.proche': 'Vouliez-vous dire {nom} ? Sinon, essayez un autre mot.',
-  'aucun.sans': 'Essayez un autre mot ou effacez la recherche.',
+  'aucun.proche': 'Tu voulais dire {nom} ? Sinon, essaie un autre mot.',
+  'aucun.sans': 'Essaie un autre mot ou efface la recherche.',
   'aucun.voir': 'Voir {nom}',
   'aucun.effacer': 'Effacer la recherche',
 

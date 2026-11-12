@@ -12,7 +12,7 @@ import { MouvementSection } from '../../../src/edition/socle.internal';
 
 export default function Apercu() {
   return (
-    <ApercuBureau famille="outils" sousPage="parametres" fil={['Outils et réglages', 'Paramètres']} ajmani="Demandez à Ajmani, par exemple : « coupe les animations »">
+    <ApercuBureau famille="outils" sousPage="parametres" fil={['Outils et réglages', 'Paramètres']} ajmani="Demande à Ajmani, par exemple : « coupe les animations »">
       <div style={{ display: 'grid', gap: 16, maxWidth: 720 }}>
         <MouvementSection />
       </div>
