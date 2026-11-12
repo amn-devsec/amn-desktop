@@ -22,10 +22,11 @@ export function formaterPourcent(valeur: number, locale: Locale = 'fr-FR'): stri
   return new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 0 }).format(v);
 }
 
-/** Un montant : sans décimales s'il est rond (« 1 250 € »), avec deux sinon (« 1 250,50 € ») ; jamais « -0 € ». */
+/** Un montant : sans décimales s'il est rond (« 1 250 € »), avec deux sinon (« 1 250,50 € ») ; jamais « -0 € » ni « -0,00 € ». */
 export function formaterMontant(valeur: number, devise = 'EUR', locale: Locale = 'fr-FR'): string {
   if (!Number.isFinite(valeur)) return TIRET_ABSENT;
-  const v = valeur === 0 ? 0 : valeur;
+  // Moins d'un demi-centime s'affiche zéro : on pose 0 (sans signe), le reste garde l'arrondi d'Intl.
+  const v = Math.abs(valeur) < 0.005 ? 0 : valeur;
   const rond = Number.isInteger(v);
   return new Intl.NumberFormat(locale, { style: 'currency', currency: devise, minimumFractionDigits: rond ? 0 : 2, maximumFractionDigits: 2 }).format(v);
 }

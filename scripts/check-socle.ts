@@ -558,11 +558,12 @@ const GRIS_DECOR = /socle-decor-|#121213|#17171a|#3e3e44/i;
 const SELECTEUR_ETAT = /\.sc-etat|\[data-etat|\[data-ton|\[data-niveau|\.sc-severite|\.sc-voyant|\.sc-tag\b|\.sc-urgent|\.sc-kpi__variation|--etat|--fam/;
 const PROP_TEINTE = /^(--fam|--etat(-[\w-]+)?|--sc-ton|--sc-tuile-teinte)$/;
 
-/** Chaque déclaration `prop: valeur` d'une feuille, avec le sélecteur de sa règle (les blocs imbriqués d'un @media sont lus comme les autres). */
+/** Chaque déclaration `prop: valeur` d'une feuille, avec le sélecteur ENTIER de sa règle, liste comprise, sur une ligne
+ *  (les blocs imbriqués d'un @media sont lus comme les autres) : un état écrit sur la première ligne d'une liste compte. */
 function declarationsCss(css: string): { selecteur: string; prop: string; valeur: string }[] {
   const out: { selecteur: string; prop: string; valeur: string }[] = [];
   for (const m of sansCommentaires(css).matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
-    const selecteur = m[1].trim().split('\n').pop()?.trim() ?? '';
+    const selecteur = m[1].trim().replace(/\s+/g, ' ');
     for (const d of m[2].split(';')) {
       const i = d.indexOf(':');
       if (i > 0) out.push({ selecteur, prop: d.slice(0, i).trim(), valeur: d.slice(i + 1).trim() });
@@ -582,7 +583,7 @@ await dit('« discret », « très discret », les gris de décor et les hachure
     for (const d of declarationsCss(lireSrc(f))) {
       if (!GRIS_DECOR.test(d.valeur)) continue;
       const teinte = PROP_TEINTE.test(d.prop);
-      const texteSvg = /^(fill|stroke)$/.test(d.prop) && /(^|[\s>+~])(text|tspan)(\b|[.:[#])/.test(d.selecteur);
+      const texteSvg = /^(fill|stroke)$/.test(d.prop) && /(^|[\s>+~,(])(text|tspan)(\b|[.:[#])/.test(d.selecteur);
       const etat = /^(background|background-color|background-image|border|border-color|border-top|border-right|border-bottom|border-left|outline|outline-color|box-shadow|fill|stroke)$/.test(d.prop) && SELECTEUR_ETAT.test(d.selecteur);
       assert.ok(!(teinte || texteSvg || etat), `${f} : ${d.selecteur} { ${d.prop}: ${d.valeur} } (un gris de décor sur un état ou un texte)`);
     }

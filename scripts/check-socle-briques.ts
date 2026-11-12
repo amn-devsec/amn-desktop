@@ -33,6 +33,11 @@ const bloc = (selecteur: string): string => {
   return m[1];
 };
 const compter = (s: string, re: RegExp): number => (s.match(re) ?? []).length;
+/** Toutes les feuilles du socle (`src/socle/**.css`), chemins relatifs à la racine du dépôt. */
+const feuillesDuSocle = (rep = 'src/socle'): string[] =>
+  fs.readdirSync(path.join(racine, rep), { withFileTypes: true }).flatMap((e) =>
+    e.isDirectory() ? feuillesDuSocle(`${rep}/${e.name}`) : e.name.endsWith('.css') ? [`${rep}/${e.name}`] : [],
+  );
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type Composant = (props: any) => unknown;
@@ -313,7 +318,13 @@ await dit('D02, la barre latérale, H40, H42, H47, H41 et BlocEtat passent par l
   assert.match(sansCommentaires(lire('src/socle/ui/situations/BlocEtat.tsx')), /<IconTile className="sc-bloc-etat__icone" taille=\{taille === 'compact' \? 36 : 48\} ton=\{tonTuile\(ton, taille\)\} icone=\{icone\} \/>/);
   const situations = sansCommentaires(lire('src/socle/ui/situations/situations.css'));
   assert.match(situations, /\.sc-bloc-etat__icone \{ --sc-tuile-teinte: var\(--sc-ton\); \}/, 'la teinte du bloc passe par la variable de la brique');
-  assert.doesNotMatch(situations, /\.sc-bloc-etat__icone(\s+svg)? \{[^}]*(width|height|border-radius|background|color):/, 'situations.css redéfinit la tuile');
+  // Quelle que soit l'écriture du sélecteur (composé `.sc-bloc-etat__icone.sc-icon-tile`, liste, descendant `svg`) et la
+  // feuille du socle : aucune règle qui nomme la tuile de BlocEtat ne pose de cote, de rayon, de fond ni de couleur.
+  for (const f of feuillesDuSocle()) {
+    for (const m of sansCommentaires(lire(f)).matchAll(/([^{}]*sc-bloc-etat__icone[^{}]*)\{([^}]*)\}/g)) {
+      assert.doesNotMatch(m[2], /(?:^|[;\s])(?:min-|max-)?(?:width|height|border-radius|background(?:-color|-image)?|color)\s*:/, `${f} redéfinit la tuile de BlocEtat : « ${m[1].trim()} »`);
+    }
+  }
   assert.doesNotMatch(situations, /\.sc-bloc-etat\[data-taille='compact'\][^{]*\.sc-bloc-etat__icone(\s+svg)?\s*\{/, 'plus de cote compacte locale pour la tuile');
 });
 

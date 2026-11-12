@@ -295,6 +295,10 @@ await dit('tuile d’icône 48 × 48 (rayon 14, fond = la couleur du ton à 13 %
   const icone = bloc('.sc-bloc-etat__icone');
   assert.match(icone, /--sc-tuile-teinte:\s*var\(--sc-ton\)/, 'la tuile prend la teinte du bloc par la variable de la brique');
   assert.doesNotMatch(icone, /width|height|border-radius|background|color:/, 'ses cotes et son fond sont ceux de l’IconTile du socle');
+  // Et sous toute autre écriture du sélecteur (composé, liste, descendant) : aucune règle qui nomme la tuile ne la redessine.
+  for (const m of css.matchAll(/([^{}]*sc-bloc-etat__icone[^{}]*)\{([^}]*)\}/g)) {
+    assert.doesNotMatch(m[2], /(?:^|[;\s])(?:min-|max-)?(?:width|height|border-radius|background(?:-color|-image)?|color)\s*:/, `situations.css redessine la tuile : « ${m[1].trim()} »`);
+  }
   const briques = sansCommentaires(lire('src/socle/ui/briques-partagees/briques-partagees.css'));
   assert.match(briques, /\.sc-icon-tile\[data-taille='48'\] \{ --sc-tuile: 48px; --sc-tuile-rayon: 14px; --sc-tuile-glyphe: 20px; \}/, '48 × 48, rayon 14, glyphe 20');
   assert.match(briques, /\.sc-icon-tile \{[^}]*--sc-tuile-part: 13%;[^}]*background: color-mix\(in srgb, var\(--sc-tuile-teinte\) var\(--sc-tuile-part\), transparent\);\s*color: var\(--sc-tuile-teinte\);/, 'fond = la teinte à 13 %, glyphe de la teinte');

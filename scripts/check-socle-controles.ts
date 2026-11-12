@@ -277,6 +277,14 @@ await dit('§4 Card, Subcard, IconButton, Kpi : rayons, rembourrages et cotes', 
   // 84 à 92 px, jamais plus : la variation ne passe pas sous la valeur, elle s'ellipse (une seconde ligne ferait 94 px).
   assert.match(regle(briques, '.sc-kpi__valeur'), /flex-wrap:\s*nowrap/, 'la valeur et sa variation sur une ligne');
   assert.match(regle(briques, '.sc-kpi__variation'), /min-width:\s*0;\s*overflow:\s*hidden[\s\S]*text-overflow:\s*ellipsis;\s*white-space:\s*nowrap/, 'la variation s’ellipse');
+  // Une variation coupée se relit toujours : l'infobulle de la tuile porte la variation, puis la phrase entière s'il y en a une.
+  const seule = rendre(h(K.TuileKpi, { libelle: 'Objectif', valeur: 3, variation: 'Fixé à la revue hebdo' }));
+  assert.match(seule, /title="Fixé à la revue hebdo"/, 'sans detail, l’infobulle redit la variation');
+  const avec = rendre(h(K.TuileKpi, { libelle: 'CA', valeur: 7, variation: '+12 %', detail: 'En hausse de 12 %.', onClick: () => undefined }));
+  assert.match(avec, /title="\+12 % — En hausse de 12 %\."/, 'avec detail, la variation puis la phrase');
+  assert.doesNotMatch(rendre(h(K.TuileKpi, { libelle: 'CA', valeur: 7 })), /title=/, 'rien à redire, pas d’infobulle');
+  // Avec une mini-courbe (70 px à 16 px du bord), la valeur et sa variation s'arrêtent avant elle.
+  assert.match(briques, /\.sc-kpi:has\(> \.sc-kpi__droite\) \.sc-kpi__valeur \{ max-width: calc\(100% - 86px\); \}/, 'aucun texte sous la mini-courbe');
 });
 
 await dit('§4 StatusPill, Pill, Tag, FlagUrgent, Kbd : fonds, bordures, tailles et rayons', () => {
@@ -335,8 +343,12 @@ await dit('§4 Field, Tabs, Segmented (et compact), SearchBox (34 et 38) : cotes
   assert.match(regle(controles, '.sc-segment'), /font-weight:\s*500/);
   // Désactivé (un fieldset coupé, Réglages › Écran de veille) : l'état se voit comme sur `.sc-selecteur:disabled`, et le survol ne colore plus le segment.
   assert.match(controles, /\.sc-segment:disabled \{ cursor: not-allowed; opacity: 0\.6; \}/, 'un segment désactivé se voit');
-  assert.match(controles, /\.sc-segment:hover:not\(:disabled\) \{ color: var\(--socle-texte-courant\); \}/, 'le survol épargne un segment désactivé');
+  assert.match(controles, /\.sc-segment:hover:where\(:not\(:disabled\)\) \{ color: var\(--socle-texte-courant\); \}/, 'le survol épargne un segment désactivé, sans gagner de spécificité');
   assert.doesNotMatch(controles, /\.sc-segment:hover \{/, 'pas de survol sans :not(:disabled)');
+  // Le segment choisi reste en T1 au survol : aucune règle de survol plus spécifique que `.sc-segment[aria-checked='true']`
+  // (un `:not()` hors `:where()` compte), et la règle du choisi vient APRÈS celle du survol (à spécificité égale, l'ordre tranche).
+  assert.doesNotMatch(controles, /\.sc-segment:hover:(?!where\()[^{]*\{[^}]*color/, 'un survol plus spécifique que le segment choisi');
+  assert.ok(controles.indexOf(".sc-segment:hover:where(") < controles.indexOf(".sc-segment[aria-checked='true'] {"), 'la règle du segment choisi suit celle du survol');
   // Ajouté (LOT-06) : le segmenté compact, 26 px.
   assert.match(controles, /\.sc-segmente\[data-taille='compact'\] \{ padding: 2px; border-radius: var\(--socle-rayon-controle\); \}/);
   assert.match(controles, /\.sc-segmente\[data-taille='compact'\] \.sc-segment \{ padding: 3px 9px; border-radius: 6px; font-size: 12px; line-height: 14px; \}/);

@@ -369,14 +369,23 @@ async function mesurerBureau(page) {
     });
     /* La coquille du poste ne doit pas être rendue en même temps que celle d'un bureau. */
     const rails = [...document.querySelectorAll('[data-coquille]')].filter(vu).length;
-    /* Ni ambre ni rouge dans la coquille : le signal vit dans la pièce, pas dans ses murs. Par composantes (rgb ou rgba). */
-    const porte = (v, triplets) => {
-      for (const m of String(v ?? '').matchAll(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/g)) {
-        if (m[4] !== undefined && Number(m[4]) === 0) continue;
-        if (triplets.some(([r, g, b]) => Number(m[1]) === r && Number(m[2]) === g && Number(m[3]) === b)) return true;
+    /* Ni ambre ni rouge dans la coquille : le signal vit dans la pièce, pas dans ses murs. Par composantes, quelle que soit l'alpha (sauf 0). */
+    const illisibles = new Set();
+    /* Les teintes d'une valeur calculée, par composantes [r, g, b, alpha] : `rgb()` / `rgba()`, et `color(srgb …)` — l'écriture
+       que Chromium donne d'un `color-mix(in srgb, …)`. Toute autre écriture (`oklch()`, `oklab()`, `lab()`, `lch()`, `color()`
+       d'un autre espace) ne se compare pas aux triplets : elle est notée illisible et refusée par prudence. */
+    const teintesDe = (v) => {
+      const s = String(v ?? '');
+      if (/\b(?:oklch|oklab|lab|lch)\(|\bcolor\((?!srgb\s)/.test(s)) illisibles.add(s.slice(0, 80));
+      const out = [];
+      for (const m of s.matchAll(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/g)) out.push([+m[1], +m[2], +m[3], m[4] === undefined ? 1 : +m[4]]);
+      for (const m of s.matchAll(/color\(srgb\s+([-\d.e]+)\s+([-\d.e]+)\s+([-\d.e]+)(?:\s*\/\s*([\d.]+)(%?))?\)/g)) {
+        const a = m[4] === undefined ? 1 : +m[4] / (m[5] ? 100 : 1);
+        out.push([Math.round(+m[1] * 255), Math.round(+m[2] * 255), Math.round(+m[3] * 255), a]);
       }
-      return false;
+      return out;
     };
+    const porte = (v, triplets) => teintesDe(v).some(([r, g, b, a]) => a !== 0 && triplets.some(([R, G, B]) => r === R && g === G && b === B));
     const signaux = { ambre: [], rouge: [] };
     for (const el of racine.querySelectorAll('*')) {
       if (main && main.contains(el)) continue;
@@ -402,6 +411,7 @@ async function mesurerBureau(page) {
       colonnes: colonnes.length,
       rails,
       signaux,
+      illisibles: [...illisibles],
     };
   }, [AMBRE, ROUGES]);
 }
@@ -441,6 +451,7 @@ function jugerBureau(nom, attendu, m) {
   if (m.colonnes > 0) f.push(`${nom} · ${m.colonnes} colonne(s) de navigation à côté de la coquille du bureau : une barre écrite à la main.`);
   if (m.signaux.ambre.length) f.push(`${nom} · ambre dans la coquille (${m.signaux.ambre.slice(0, 3).join(', ')}) : le signal vit dans la pièce, pas dans ses murs.`);
   if (m.signaux.rouge.length) f.push(`${nom} · rouge dans la coquille (${m.signaux.rouge.slice(0, 3).join(', ')}) : le critique est dit une fois, par l'écran, jamais par la barre.`);
+  if (m.illisibles.length) f.push(`${nom} · ${m.illisibles.length} teinte(s) en écriture non reconnue dans la coquille (${m.illisibles.slice(0, 2).join(' ; ')}) : refusée(s) par prudence, l'ambre ou le rouge y serait invisible.`);
   return f;
 }
 
@@ -534,13 +545,22 @@ async function mesurer(page) {
     );
 
     /* L'ambre : fond, encre, bordure, ombre, remplissage SVG — opaque ou translucide (par composantes). */
-    const porteTeinte = (v, triplets) => {
-      for (const m of String(v ?? '').matchAll(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/g)) {
-        if (m[4] !== undefined && Number(m[4]) === 0) continue;
-        if (triplets.some(([r, g, b]) => Number(m[1]) === r && Number(m[2]) === g && Number(m[3]) === b)) return true;
+    const illisibles = new Set();
+    /* Les teintes d'une valeur calculée, par composantes [r, g, b, alpha] : `rgb()` / `rgba()`, et `color(srgb …)` — l'écriture
+       que Chromium donne d'un `color-mix(in srgb, …)`. Toute autre écriture (`oklch()`, `oklab()`, `lab()`, `lch()`, `color()`
+       d'un autre espace) ne se compare pas aux triplets : elle est notée illisible et refusée par prudence. */
+    const teintesDe = (v) => {
+      const s = String(v ?? '');
+      if (/\b(?:oklch|oklab|lab|lch)\(|\bcolor\((?!srgb\s)/.test(s)) illisibles.add(s.slice(0, 80));
+      const out = [];
+      for (const m of s.matchAll(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/g)) out.push([+m[1], +m[2], +m[3], m[4] === undefined ? 1 : +m[4]]);
+      for (const m of s.matchAll(/color\(srgb\s+([-\d.e]+)\s+([-\d.e]+)\s+([-\d.e]+)(?:\s*\/\s*([\d.]+)(%?))?\)/g)) {
+        const a = m[4] === undefined ? 1 : +m[4] / (m[5] ? 100 : 1);
+        out.push([Math.round(+m[1] * 255), Math.round(+m[2] * 255), Math.round(+m[3] * 255), a]);
       }
-      return false;
+      return out;
     };
+    const porteTeinte = (v, triplets) => teintesDe(v).some(([r, g, b, a]) => a !== 0 && triplets.some(([R, G, B]) => r === R && g === G && b === B));
     const porte = (v) => porteTeinte(v, AMBRE);
     const ambre = [];
     for (const el of coquille.querySelectorAll('*')) {
@@ -609,6 +629,7 @@ async function mesurer(page) {
       marquesSansDegrade: marques.filter((m) => !degrade(m)).length,
       peintes: peintes.length,
       ambre,
+      illisibles: [...illisibles],
     };
   }, AMBRE);
 }
@@ -709,6 +730,9 @@ function juger(nom, m) {
       `${nom} · ${m.ambre.length} nœud(s) ambre dans la colonne (${m.ambre.slice(0, 4).join(', ')}). Le paquet a arbitré : plus aucun ambre dans la coquille, ni tuile, ni pastille, ni marqueur.`,
     );
   }
+  if (m.illisibles.length > 0) {
+    f.push(`${nom} · ${m.illisibles.length} teinte(s) en écriture non reconnue dans la colonne (${m.illisibles.slice(0, 2).join(' ; ')}) : refusée(s) par prudence, l'ambre y serait invisible.`);
+  }
 
   return f;
 }
@@ -772,14 +796,23 @@ async function mesurerV3(page) {
         return { l: px(r.width), h: px(r.height), x: px(r.left), y: px(r.top), droite: px(r.right), bas: px(r.bottom) };
       };
       const texte = (el) => (el?.textContent ?? '').replace(/\s+/g, ' ').trim();
-      /* Une valeur calculée porte-t-elle une des teintes ? Par composantes : rgb ou rgba, quelle que soit l'alpha (sauf 0). */
-      const porte = (v, triplets) => {
-        for (const m of String(v ?? '').matchAll(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/g)) {
-          if (m[4] !== undefined && Number(m[4]) === 0) continue;
-          if (triplets.some(([r, g, b]) => Number(m[1]) === r && Number(m[2]) === g && Number(m[3]) === b)) return true;
+      /* Une valeur calculée porte-t-elle une des teintes ? Par composantes, quelle que soit l'alpha (sauf 0). */
+      const illisibles = new Set();
+      /* Les teintes d'une valeur calculée, par composantes [r, g, b, alpha] : `rgb()` / `rgba()`, et `color(srgb …)` — l'écriture
+         que Chromium donne d'un `color-mix(in srgb, …)`. Toute autre écriture (`oklch()`, `oklab()`, `lab()`, `lch()`, `color()`
+         d'un autre espace) ne se compare pas aux triplets : elle est notée illisible et refusée par prudence. */
+      const teintesDe = (v) => {
+        const s = String(v ?? '');
+        if (/\b(?:oklch|oklab|lab|lch)\(|\bcolor\((?!srgb\s)/.test(s)) illisibles.add(s.slice(0, 80));
+        const out = [];
+        for (const m of s.matchAll(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/g)) out.push([+m[1], +m[2], +m[3], m[4] === undefined ? 1 : +m[4]]);
+        for (const m of s.matchAll(/color\(srgb\s+([-\d.e]+)\s+([-\d.e]+)\s+([-\d.e]+)(?:\s*\/\s*([\d.]+)(%?))?\)/g)) {
+          const a = m[4] === undefined ? 1 : +m[4] / (m[5] ? 100 : 1);
+          out.push([Math.round(+m[1] * 255), Math.round(+m[2] * 255), Math.round(+m[3] * 255), a]);
         }
-        return false;
+        return out;
       };
+      const porte = (v, triplets) => teintesDe(v).some(([r, g, b, a]) => a !== 0 && triplets.some(([R, G, B]) => r === R && g === G && b === B));
 
       const laterales = [...document.querySelectorAll('[data-socle="lateral"]')].filter(vu);
       /* Une seconde colonne de navigation à côté de la barre v3 : une barre écrite à la main (même règle qu'avant). */
@@ -962,6 +995,7 @@ async function mesurerV3(page) {
         enTete,
         ajmani,
         ambre,
+        illisibles: [...illisibles],
         actives: aside.querySelectorAll('[aria-current="page"]').length,
       };
     },
@@ -1117,6 +1151,7 @@ function jugerV3(nom, m, exigeant) {
 
   /* Aucun ambre ; une seule ligne active. */
   if (m.ambre.length > 0) f.push(`${nom} · ${m.ambre.length} nœud(s) ambre dans la colonne (${m.ambre.slice(0, 4).join(', ')}). Aucun ambre dans la barre v3.`);
+  if (m.illisibles?.length > 0) f.push(`${nom} · ${m.illisibles.length} teinte(s) en écriture non reconnue dans la colonne (${m.illisibles.slice(0, 2).join(' ; ')}) : refusée(s) par prudence, l'ambre ou une pastille y serait invisible.`);
   if (m.actives !== 1) dire('lignes actives (aria-current="page") dans la barre', 1, m.actives);
 
   return f;

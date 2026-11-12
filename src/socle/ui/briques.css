@@ -239,6 +239,8 @@
 .sc-kpi[data-hauteur='92'] { min-height: 92px; }
 .sc-kpi { position: relative; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035); }
 .sc-kpi__droite { position: absolute; right: 16px; bottom: 14px; display: flex; align-items: flex-end; }
+/* Avec une mini-courbe (70 px à 16 px du bord), la valeur et sa variation s'arrêtent avant elle : aucun texte ne passe dessous. */
+.sc-kpi:has(> .sc-kpi__droite) .sc-kpi__valeur { max-width: calc(100% - 86px); }
 button.sc-kpi { width: 100%; cursor: pointer; transition: border-color 0.15s; }
 button.sc-kpi:hover { border-color: var(--color-socle-bord-fort); }
 .sc-kpi__label {

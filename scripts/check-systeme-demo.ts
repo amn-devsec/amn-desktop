@@ -319,6 +319,9 @@ await dit('aucune encre « discret » en texte : ni dans la feuille, ni dans la 
   }
   // Le sélecteur de l'avatar pose du T1 sur la couleur d'avatar : lisible.
   assert.match(css, /\[data-genre='avatar'\] \.sd-jeton__echantillon \{[^}]*color: var\(--socle-texte-1\)/);
+  // Les rangées : les pièces légendées s'alignent par le bas (leurs légendes sur une ligne), une pièce posée seule garde le haut.
+  assert.match(css, /\.sd-rangee \{[^}]*align-items: flex-end;/, 'les légendes d’une rangée s’alignent');
+  assert.match(css, /\.sd-rangee > :not\(\.sd-cas\) \{ align-self: flex-start; \}/, 'une pièce sans légende reste en haut de sa rangée');
 });
 
 await dit('demo.css : aucune couleur en dur (ni hex, ni rgb, ni hsl), tout par var(--socle-…) ; chaque --socle-* existe, chaque --sd-* est défini', () => {

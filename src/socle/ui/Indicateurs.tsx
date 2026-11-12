@@ -136,6 +136,8 @@ export interface TuileKpiProps {
 }
 
 export function TuileKpi({ libelle, valeur, variation, detail, ton = 'neutre', barre, libelleBarre, famille, hauteur = 84, droite, onClick, ...aria }: TuileKpiProps) {
+  // La variation tient sur une ligne et s'ellipse (§4 : 84 à 92 px) : l'infobulle redonne toujours la phrase entière.
+  const infobulle = [variation, detail].filter(Boolean).join(' — ') || undefined;
   const contenu = (
     <>
       <span className="sc-kpi__label">
@@ -157,13 +159,13 @@ export function TuileKpi({ libelle, valeur, variation, detail, ton = 'neutre', b
   );
   if (onClick) {
     return (
-      <button type="button" data-socle="kpi" data-famille={famille} data-hauteur={hauteur === 84 ? undefined : hauteur} onClick={onClick} aria-label={aria['aria-label']} title={detail} className="sc-kpi sc-focus">
+      <button type="button" data-socle="kpi" data-famille={famille} data-hauteur={hauteur === 84 ? undefined : hauteur} onClick={onClick} aria-label={aria['aria-label']} title={infobulle} className="sc-kpi sc-focus">
         {contenu}
       </button>
     );
   }
   return (
-    <div data-socle="kpi" data-famille={famille} data-hauteur={hauteur === 84 ? undefined : hauteur} aria-label={aria['aria-label']} title={detail} className="sc-kpi">
+    <div data-socle="kpi" data-famille={famille} data-hauteur={hauteur === 84 ? undefined : hauteur} aria-label={aria['aria-label']} title={infobulle} className="sc-kpi">
       {contenu}
     </div>
   );

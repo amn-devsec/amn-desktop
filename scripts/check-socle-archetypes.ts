@@ -309,6 +309,10 @@ await dit('formats : à la française — espace avant % et €, virgule décima
   assert.equal(norm(F.formaterMontant(1250)), '1 250 €');
   assert.equal(norm(F.formaterMontant(1250.5)), '1 250,50 €');
   assert.equal(norm(F.formaterMontant(-0)), '0 €');
+  // Moins d'un demi-centime, positif ou négatif : « 0 € », comme formaterEuro ; un demi-centime s'arrondit (Intl).
+  for (const v of [-0.001, -0.004, 0.004, -0.0049]) assert.equal(norm(F.formaterMontant(v)), '0 €', `formaterMontant(${v})`);
+  assert.equal(norm(F.formaterMontant(-0.005)), '-0,01 €');
+  assert.equal(norm(F.formaterMontant(-12.5)), '-12,50 €');
   assert.equal(F.formaterHeure(new Date(2031, 0, 1, 9, 5)), '09:05');
   assert.equal(F.formaterDate(new Date(2031, 0, 3), { weekday: 'long' }), new Intl.DateTimeFormat('fr-FR', { weekday: 'long' }).format(new Date(2031, 0, 3)));
   assert.notEqual(F.formaterDate(new Date(2031, 0, 3), { weekday: 'long' }, 'en-US'), F.formaterDate(new Date(2031, 0, 3), { weekday: 'long' }), 'la langue vient de l’argument');

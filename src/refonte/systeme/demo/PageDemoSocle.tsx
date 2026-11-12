@@ -777,10 +777,10 @@ function SectionKpi() {
       <Bloc titre={tm('kpi.courbe')}>
         <div className="sd-grille" style={{ '--sd-min': '260px' } as React.CSSProperties}>
           <Cas legende={`84 px · ${tm('kpi.avecCourbe')}`}>
-            <TuileKpi libelle={tm('kpi.libelle')} valeur={formaterEuro(8450)} variation={tm('kpi.variation')} ton="succes" droite={<MiniCourbe valeurs={TENDANCE} libelle={tm('kpi.libelle')} ton="succes" />} />
+            <TuileKpi libelle={tm('kpi.libelle')} valeur={formaterEuro(8450)} variation={tm('kpi.hausseCourte')} ton="succes" detail={tm('kpi.detail')} droite={<MiniCourbe valeurs={TENDANCE} libelle={tm('kpi.libelle')} ton="succes" />} />
           </Cas>
           <Cas legende={`92 px · ${tm('kpi.avecCourbe')}`}>
-            <TuileKpi libelle={tm('kpi.libelle')} valeur={formaterEuro(8450)} variation={tm('kpi.baisse')} ton="critique" hauteur={92} droite={<MiniCourbe valeurs={TENDANCE_BAISSE} libelle={tm('kpi.libelle')} ton="critique" />} />
+            <TuileKpi libelle={tm('kpi.libelle')} valeur={formaterEuro(8450)} variation={tm('kpi.baisseCourte')} ton="critique" hauteur={92} droite={<MiniCourbe valeurs={TENDANCE_BAISSE} libelle={tm('kpi.libelle')} ton="critique" />} />
           </Cas>
         </div>
       </Bloc>
@@ -1524,7 +1524,7 @@ function SectionGabarit() {
             primaire={{ libelle: tm('bouton.nouveau'), icone: <Plus />, raccourci: '⌘N' }}
           />
           <RangeeKpi libelle={tm('gabarit.kpi')}>
-            <TuileKpi libelle={tm('kpi.libelle')} valeur={formaterEuro(12480)} variation={tm('kpi.variation')} ton="succes" droite={<MiniCourbe valeurs={TENDANCE} libelle={tm('kpi.libelle')} ton="succes" />} />
+            <TuileKpi libelle={tm('kpi.libelle')} valeur={formaterEuro(8450)} droite={<MiniCourbe valeurs={TENDANCE} libelle={tm('kpi.libelle')} ton="succes" />} />
             <TuileKpi libelle={tm('kpi.libelle')} valeur="37" variation={tm('kpi.variation')} ton="info" />
             <TuileKpi libelle={tm('kpi.libelle')} valeur="72 %" barre={0.72} libelleBarre={tm('progression.libelle')} />
             <TuileKpi libelle={tm('kpi.libelle')} valeur="4" variation={tm('kpi.baisse')} ton="critique" />

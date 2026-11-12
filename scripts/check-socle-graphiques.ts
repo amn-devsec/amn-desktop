@@ -762,6 +762,10 @@ await dit('src/socle/formats.ts (LOT-06, point 6) : les formats importables depu
     assert.equal((F.formaterMontant as (n: number) => string)(v), F.TIRET_ABSENT, `formaterMontant(${v})`);
   }
   assert.equal(sansBlancs((F.formaterMontant as (n: number) => string)(-0)), sansBlancs('0 €'));
+  for (const v of [-0.001, -0.004]) {
+    assert.equal(sansBlancs((F.formaterMontant as (n: number) => string)(v)), sansBlancs('0 €'), `formaterMontant(${v}) : jamais « -0,00 € »`);
+    assert.equal(sansBlancs((F.formaterMontant as (n: number) => string)(v)), sansBlancs((F.formaterEuro as (n: number) => string)(v)), `formaterMontant(${v}) = formaterEuro(${v})`);
+  }
   for (const d of ['pas une date', Number.NaN]) {
     assert.equal((F.formaterDate as (d: string | number) => string)(d), F.TIRET_ABSENT, `formaterDate(${d})`);
     assert.equal((F.formaterHeure as (d: string | number) => string)(d), F.TIRET_ABSENT, `formaterHeure(${d})`);
