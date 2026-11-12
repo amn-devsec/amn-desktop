@@ -24,10 +24,10 @@ import { IconTile, type IconTileProps } from './IconTile';
 export type VarianteModuleTile = 'standard' | 'ligne';
 
 /**
- * Où mène une tuile : une route (`vers` — un lien, qui peut aussi prévenir par `onClick`) ou une action seule
- * (`onClick` — un bouton). Sans l'un ni l'autre, la tuile serait un bouton inerte : le type le refuse.
+ * Où mène une tuile : une route (`vers` — un lien) OU une action (`onClick` — un bouton), jamais les deux (décision
+ * du CO) ni aucun (un bouton inerte) : le type refuse l'un et l'autre cas.
  */
-export type CibleTuile = { vers: string; onClick?: () => void } | { vers?: undefined; onClick: () => void };
+export type CibleTuile = { vers: string; onClick?: never } | { vers?: never; onClick: () => void };
 
 export interface ModuleTileBase {
   nom: string;
@@ -74,7 +74,7 @@ export function ModuleTile({ nom, icone, famille, sousTexte, accessoire, variant
   );
   if (vers) {
     return (
-      <Link to={vers} onClick={onClick} {...commun}>
+      <Link to={vers} {...commun}>
         {contenu}
       </Link>
     );
@@ -112,7 +112,7 @@ export function AddModuleTile({ libelle, vers, onClick, variante = 'standard', c
   );
   if (vers) {
     return (
-      <Link to={vers} onClick={onClick} {...commun}>
+      <Link to={vers} {...commun}>
         {contenu}
       </Link>
     );
@@ -133,13 +133,13 @@ export interface ModuleGroupGridProps {
   children: React.ReactNode;
   /** Le nombre de colonnes (3 par défaut). */
   colonnes?: number;
-  /** Avec `onAjouter` ou `versAjouter`, une `AddModuleTile` ferme la grille. */
-  onAjouter?: () => void;
-  versAjouter?: string;
   libelleAjouter?: string;
   variante?: VarianteModuleTile;
   className?: string;
 }
+
+/** Avec `onAjouter` OU `versAjouter` (jamais les deux), une `AddModuleTile` ferme la grille ; sans eux, rien. */
+export type AjoutGroupe = { onAjouter?: undefined; versAjouter?: undefined } | { onAjouter: () => void; versAjouter?: never } | { versAjouter: string; onAjouter?: never };
 
 /**
  * LA GRILLE D'UN GROUPE DE MODULES (`ModuleGroupGrid`, F10, F30, F50) — un titre de groupe en capitales avec son
@@ -147,7 +147,7 @@ export interface ModuleGroupGridProps {
  * position quand on donne `onAjouter` ou `versAjouter`. PROVISOIRE : les fiches F10–F70 diront la largeur des
  * colonnes et l'écart entre groupes (14 px ici, l'écart de page du socle).
  */
-export function ModuleGroupGrid({ titre, effectif, children, colonnes = 3, onAjouter, versAjouter, libelleAjouter, variante = 'standard', className }: ModuleGroupGridProps) {
+export function ModuleGroupGrid({ titre, effectif, children, colonnes = 3, onAjouter, versAjouter, libelleAjouter, variante = 'standard', className }: ModuleGroupGridProps & AjoutGroupe) {
   const { ts } = useSocleLangue();
   const id = React.useId();
   const n = effectif ?? React.Children.toArray(children).filter(Boolean).length;
@@ -164,7 +164,7 @@ export function ModuleGroupGrid({ titre, effectif, children, colonnes = 3, onAjo
       <div className="sc-module-group__grille" style={{ '--sc-module-colonnes': colonnes } as React.CSSProperties}>
         {children}
         {versAjouter ? (
-          <AddModuleTile libelle={libelleAjouter} vers={versAjouter} onClick={onAjouter} variante={variante} />
+          <AddModuleTile libelle={libelleAjouter} vers={versAjouter} variante={variante} />
         ) : (
           onAjouter && <AddModuleTile libelle={libelleAjouter} onClick={onAjouter} variante={variante} />
         )}

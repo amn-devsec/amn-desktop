@@ -484,7 +484,7 @@ await dit('situations.css : aucune couleur en dur hors des jetons --sc-…, chaq
   const connus = new Set([
     ...[...noir.matchAll(/(--[\w-]+):/g)].map((m) => m[1]),
     ...[...css.matchAll(/(--[\w-]+):/g)].map((m) => m[1]),
-    '--fam', // posé par [data-famille] dans src/index.css
+    '--fam', // posé par [data-famille] dans src/socle/theme.css
   ]);
   // Une variable lue avec un repli (`var(--sc-toast-bas, …)`) peut être posée plus tard, par la coquille ou en ligne.
   for (const [, nom] of css.matchAll(/var\((--[\w-]+)\s*\)/g)) assert.ok(connus.has(nom), `${nom} : jeton inconnu`);

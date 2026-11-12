@@ -707,7 +707,7 @@ await dit('animation d’entrée : la couche de mouvement commune (§0.2) — da
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)\s*\{[^}]*\.sc-g \*\s*\{[^}]*animation:\s*none/);
   const couche = sansCommentaires(lire('src/socle/mouvement.css'));
   assert.match(couche, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\[data-mvt\][^{]*\{\s*animation:\s*none/);
-  assert.match(sansCommentaires(lire('src/index.css')), /:root\[data-mouvement='aucun'\] \*[\s\S]*?animation-duration:\s*0\.01ms !important/);
+  assert.match(sansCommentaires(lire('src/socle/theme.css')), /:root\[data-mouvement='aucun'\] \*[\s\S]*?animation-duration:\s*0\.01ms !important/);
 });
 
 /** Ce qu'un fichier hors du socle n'a pas le droit d'importer : le groupe des graphiques et ses mots (le balayeur ci-dessous et la preuve sur `src/socle/formats.ts` lisent la même règle). */

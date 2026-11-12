@@ -40,19 +40,23 @@ export function ramasserCompteurs(fichiers: FichierCompteurs[]): CompteursRamass
     if (raison) ecartes.push({ chemin: f.chemin, raison });
     else {
       const d = f.declaration as DeclarationCompteurs;
-      declarations.push({ chemin: f.chemin, famille: d.famille, useCompteurs: d.useCompteurs });
+      declarations.push({ chemin: f.chemin, famille: d.famille, useCompteurs: d.useCompteurs, ...(d.useRepli ? { useRepli: d.useRepli } : {}) });
     }
   }
   return { declarations, ecartes };
 }
 
-/** Additionne les compteurs de plusieurs déclarations, adresse par adresse ; une valeur qui n'est pas un nombre fini ne compte pas. Pur. */
-export function fusionnerCompteurs(parts: Record<string, number>[]): Record<string, number> {
+/**
+ * Les compteurs de plusieurs déclarations, adresse par adresse, SANS addition : la déclaration du module l'emporte
+ * (la première dans l'ordre des chemins, si deux donnent la même adresse), et un compteur de repli ne remplit qu'une
+ * adresse qu'aucune déclaration ne donne — un zéro déclaré compte. Une valeur qui n'est pas un nombre fini ne compte pas. Pur.
+ */
+export function fusionnerCompteurs(parts: Record<string, number>[], replis: Record<string, number>[] = []): Record<string, number> {
   const total: Record<string, number> = {};
-  for (const part of parts) {
-    for (const [adresse, n] of Object.entries(part)) {
-      if (!Number.isFinite(n)) continue;
-      total[adresse] = (total[adresse] ?? 0) + n;
+  for (const source of [...parts, ...replis]) {
+    for (const [adresse, n] of Object.entries(source)) {
+      if (!Number.isFinite(n) || Object.hasOwn(total, adresse)) continue;
+      total[adresse] = n;
     }
   }
   return total;
@@ -76,9 +80,14 @@ export const COMPTEURS_DECLARES: CompteursRamasses = ramasserCompteurs(lireDecla
  */
 export function useCompteursDe(declarations: readonly DeclarationCompteurs[]): Record<string, number> {
   const parts: Record<string, number>[] = [];
-  for (const d of declarations) parts.push(d.useCompteurs());
+  const replis: Record<string, number>[] = [];
+  for (const d of declarations) {
+    parts.push(d.useCompteurs());
+    if (d.useRepli) replis.push(d.useRepli());
+  }
+  const toutes = [...parts, ...replis];
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  return useMemo(() => fusionnerCompteurs(parts), parts);
+  return useMemo(() => fusionnerCompteurs(parts, replis), toutes);
 }
 
 /** Tous les compteurs déclarés, fusionnés par adresse : la source des pastilles de la barre latérale. */

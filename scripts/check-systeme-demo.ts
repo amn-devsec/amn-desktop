@@ -142,9 +142,9 @@ await dit('le réglage Mouvement : quatre boutons qui appellent ecrireMouvement(
 });
 
 await dit('pas d’interrupteur « thème clair » : ce thème ne redéfinit aucun jeton --socle-* (les briques noires n’en changeraient pas)', () => {
-  const index = lire('src/index.css');
+  const index = lire('src/socle/theme.css');
   const bloc = /:root\[data-theme='clair'\] \{([\s\S]*?)\n\}/.exec(index)?.[1];
-  assert.ok(bloc, 'le bloc du thème clair est introuvable dans src/index.css');
+  assert.ok(bloc, 'le bloc du thème clair est introuvable dans src/socle/theme.css');
   assert.ok(!/(^|[\s;{])--socle-[\w-]+\s*:/.test(bloc as string), 'le thème clair redéfinit un jeton --socle-* : il faut alors reposer l’interrupteur');
   assert.ok(!/data-theme|dataset\.theme/.test(pageSansCommentaires.replace(/Pas d'interrupteur[\s\S]*?$/m, '')), 'la page touche à data-theme sans que rien ne change');
 });

@@ -42,7 +42,7 @@ const fabrique = (id: string, n: number): Famille => ({
   teinte: 'jour',
   vers: `/ensemble/${id}`,
   garde: false,
-  modules: Array.from({ length: n }, (_, i) => ({ id: `${id}-${i}`, nom: `Module ${id}${i}`, vers: `/${id}/${i}`, niveau: niveaux[i % 4], badge: i % 3, personnes: [], active: true, verrouille: false, nouveau: false, cles: [`${id}${i}`] })),
+  modules: Array.from({ length: n }, (_, i) => ({ id: `${id}-${i}`, nom: `Module ${id}${i}`, vers: `/${id}/${i}`, niveau: niveaux[i % 4], badge: i % 3, personnes: [], active: true, verrouille: false, nouveau: false, critique: false, cles: [`${id}${i}`] })),
 });
 const familles = [fabrique('a', 12), fabrique('b', 5), fabrique('c', 20)];
 
@@ -163,6 +163,8 @@ const R = await chargerVue<any>(`
   import { renderToStaticMarkup } from 'react-dom/server.browser';
   import { MemoryRouter } from 'react-router-dom';
   export { VueTousLesModules } from '../src/refonte/systeme/modules/VueTousLesModules';
+  export { estCritique } from '../src/refonte/systeme/modules/repertoire';
+  export { REGISTRE_MODULES } from '../src/refonte/modules/registre';
   export { h };
   export const rendre = (el) => renderToStaticMarkup(h(MemoryRouter, null, el));
 `);
@@ -189,6 +191,23 @@ const vue = (sur: Record<string, unknown> = {}): string =>
     }),
   );
 const compter = (html: string, re: RegExp): number => (html.match(re) ?? []).length;
+
+await dit('le chiffre rouge d’Alertes (fiche D02) : D02 lit le drapeau « critique » du registre (posé par S5), sur l’entrée ou sur une vue ; sans drapeau, rien ne change', () => {
+  assert.equal(R.estCritique({ id: 'alertes', critique: true, vues: [] }), true);
+  assert.equal(R.estCritique({ id: 'alertes', vues: [{ id: 'garde-pile' }, { id: 'alertes', critique: true }] }), true);
+  assert.equal(R.estCritique({ id: 'alertes', critique: 'oui', vues: [{ critique: 1 }] }), false, 'un booléen vrai seulement');
+  assert.equal(R.estCritique({ id: 'notes', vues: [{ id: 'notes' }] }), false);
+  assert.equal(R.estCritique(null), false);
+  const avec = huit.map((f, i) => (i === 7 ? { ...f, modules: f.modules.map((m, j) => (j === 0 ? { ...m, badge: 1, critique: true } : m)) } : f));
+  const html = vue({ familles: avec });
+  assert.equal(compter(html, /data-critique="true"/g), 1, 'une seule ligne critique, celle qui porte le drapeau');
+  assert.match(html, /data-critique="true" title="1 alerte critique">1<span class="sr-only"> 1 alerte critique<\/span>/, 'le mot du socle le dit');
+  assert.equal(compter(vue(), /data-critique/g), 0, 'sans drapeau : aucun chiffre rouge');
+  // Le registre réel ne porte pas encore le drapeau : D02 reste tel quel jusqu'à ce que S5 le pose.
+  const critiques = R.REGISTRE_MODULES.familles.flatMap((f: any) => f.entrees).filter((e: any) => R.estCritique(e)).map((e: any) => e.id);
+  console.log(`      registre : ${critiques.length ? `drapeau critique sur ${critiques.join(', ')}` : 'aucun drapeau critique posé (attendu de S5)'}`);
+  assert.match(lire('src/refonte/systeme/modules/VueTousLesModules.tsx'), /<CountBadge n=\{m\.badge\} critique=\{m\.critique\} libelle=\{m\.critique \? undefined : tm\('ligne\.badge', \{ n: m\.badge \}\)\} \/>/);
+});
 
 await dit('rendu : un h1, le sous-titre compté, le segmenté à quatre niveaux avec les comptes du répertoire, le champ « / »', () => {
   const html = vue();

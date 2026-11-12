@@ -170,11 +170,38 @@ await dit('Navigation au clavier : suivant, précédent, début, fin, en boucle'
   assert.equal(K.cleSuivante(cles, 'z', 'ArrowRight'), null);
 });
 
+await dit('zones de clic de 34 px (§7.6, décision du CO) sans changer le dessin : interrupteur, cases, segments, boutons de PageHead', () => {
+  const controles = sansCommentaires(lire('src/socle/ui/controles/controles.css'));
+  const briques = sansCommentaires(lire('src/socle/ui/briques.css'));
+  const archetypes = sansCommentaires(lire('src/socle/ui/archetypes/archetypes.css'));
+  // Une zone invisible : un ::after sans fond, sans bordure ni ombre, posé en absolu sur son contrôle.
+  const invisible = (regle: string) => assert.doesNotMatch(regle, /background|border|box-shadow|outline|color/, `zone de clic peinte : ${regle}`);
+  for (const [css, sel, attendu] of [
+    [controles, '.sc-interrupteur::after', /content: '';\s*position: absolute; top: 50%; left: 50%; width: 34px; height: 34px; transform: translate\(-50%, -50%\);/],
+    [briques, '.sc-case::after', /content: '';\s*position: absolute; top: 50%; left: 50%; width: 34px; height: 34px; transform: translate\(-50%, -50%\);/],
+    [controles, '.sc-segment::after', /content: '';\s*position: absolute; top: 50%; left: 50%; width: max\(100%, 34px\); height: max\(100%, 34px\); transform: translate\(-50%, -50%\);/],
+    [archetypes, ".sc-page__actions [data-socle='bouton']::after", /content: '';\s*position: absolute; top: 50%; right: 0; left: 0; height: 34px; transform: translateY\(-50%\);/],
+  ] as const) {
+    const r = new RegExp(`${sel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} \\{([^}]*)\\}`).exec(css)?.[1] ?? '';
+    assert.match(r, attendu, `${sel} : zone de 34 px`);
+    invisible(r);
+  }
+  // Les contrôles qui la portent sont positionnés (sinon la zone se poserait ailleurs), et leur dessin ne bouge pas.
+  assert.match(controles, /\.sc-interrupteur \{[^}]*position: relative;[^}]*width: 34px;[^}]*height: 20px;/);
+  assert.match(briques, /\.sc-case \{ position: relative; \}/);
+  assert.match(controles, /\.sc-segment \{ position: relative; \}/);
+  assert.match(briques, /\.sc-case \{[^}]*width: 18px;[^}]*height: 18px;/);
+  assert.match(archetypes, /\.sc-page__actions \[data-socle='bouton'\] \{ min-height: 31px; \}/);
+  assert.match(lire('src/socle/ui/Bouton.tsx'), /'relative inline-flex/, 'le bouton est positionné');
+});
+
 await dit('Segmenté : radiogroup, choix unique annoncé', () => {
   const r = rendre(h(K.Segmente, { libelle: 'Taille', valeur: 'b', onChange: () => undefined, options: [{ cle: 'a', libelle: 'Seul·e' }, { cle: 'b', libelle: '2 à 5' }] }));
   assert.match(r, /role="radiogroup"/);
   assert.equal((r.match(/role="radio"/g) ?? []).length, 2);
-  assert.match(r, /aria-checked="true"[^>]*>2 à 5/);
+  assert.match(r, /aria-checked="true"[^>]*><span class="sc-segment__texte" data-texte="2 à 5">2 à 5<\/span><\/button>/);
+  // Le libellé réserve la largeur de sa forme grasse : sa copie est le texte même, lue par la feuille (attr), jamais par l'arbre d'accessibilité.
+  assert.equal((r.match(/<span class="sc-segment__texte" data-texte="([^"]*)">\1<\/span>/g) ?? []).length, 2, 'chaque segment porte sa copie exacte');
 });
 
 await dit('Suggestion d’Ajmani : étincelle décorative, titre, deux boutons, jamais d’avatar', () => {
@@ -339,7 +366,8 @@ await dit('§4 Field, Tabs, Segmented (et compact), SearchBox (34 et 38) : cotes
   assert.match(controles, /\.sc-onglet\[aria-selected='true'\]::after \{[^}]*height: 2px; background: var\(--socle-primaire\); \}/);
   assert.match(regle(controles, '.sc-onglet__compteur'), /background:\s*var\(--socle-onglet-compteur\)/);
   assert.match(regle(controles, '.sc-segmente'), /padding:\s*3px[\s\S]*border:\s*1px solid var\(--socle-bord-controle\)[\s\S]*border-radius:\s*var\(--socle-rayon-champ\)[\s\S]*background:\s*var\(--socle-segment-fond\)/);
-  assert.match(controles, /\.sc-segment\[aria-checked='true'\] \{ background: var\(--socle-segment-actif\); color: var\(--socle-texte-1\); \}/);
+  assert.match(controles, /\.sc-segment\[aria-checked='true'\] \{ background: var\(--socle-segment-actif\); color: var\(--socle-texte-1\); font-weight: 600; \}/, 'le segment choisi : fond, T1, et la graisse (repère non chromatique, décision du CO)');
+  assert.match(controles, /\.sc-segment__texte::after \{ content: attr\(data-texte\); height: 0; overflow: hidden; font-weight: 600; visibility: hidden;/, 'la largeur de la forme grasse est réservée, hors de l’arbre d’accessibilité');
   assert.match(regle(controles, '.sc-segment'), /font-weight:\s*500/);
   // Désactivé (un fieldset coupé, Réglages › Écran de veille) : l'état se voit comme sur `.sc-selecteur:disabled`, et le survol ne colore plus le segment.
   assert.match(controles, /\.sc-segment:disabled \{ cursor: not-allowed; opacity: 0\.6; \}/, 'un segment désactivé se voit');

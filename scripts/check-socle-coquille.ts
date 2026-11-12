@@ -326,7 +326,7 @@ await dit('La Garde : « La Garde » (jamais tronqué), « veille » et le voyan
 
 await dit('vue d’ensemble : Ma journée → Accueil, La Garde → sa salle, les autres → la page générique /ensemble/<famille>', () => {
   assert.equal(K.routeEnsemble('jour'), '/');
-  assert.equal(K.routeEnsemble('garde'), '/garde');
+  assert.equal(K.routeEnsemble('garde'), `${K.PREFIXE_ENSEMBLE}/garde`, 'le hub F70 : /ensemble/garde (STATUT § 1.8), la Salle /garde ne change pas');
   assert.equal(K.routeEnsemble('argent'), `${K.PREFIXE_ENSEMBLE}/argent`);
   assert.equal(K.ensembleGenerique('argent'), true);
   assert.equal(K.ensembleGenerique('jour'), false);
@@ -450,12 +450,16 @@ await dit('un seul calcul : construireFil (S2) n’est appelé que dans calculer
   for (const acces of [/useCollection<LigneTache>\('tasks'\)/, /useCollection<JourPriorites>\('dailyPriorities'\)/, /useCollection<\{ ticks: string\[\] \}>\('routines'\)/, /useAppointments\(\)/, /useRegards\(\)/, /useAuth\(\)/, /setInterval\(\(\) => setMaintenant\(new Date\(\)\), 60_000\)/]) assert.match(hook, acces, `${acces}`);
 });
 
-await dit('FournisseurAujourdhui : monté une fois dans la coque interne (AppLayout, par @edition/coquille), autour de CoquilleRefonte ; côté cliente, un jumeau inerte', () => {
+await dit('FournisseurAujourdhui : monté une fois dans la coque interne (AppLayout, par @edition/coquille), au-dessus des DEUX coquilles (décision du CO) ; côté cliente, un jumeau inerte', () => {
   const layout = lire('src/components/AppLayout.tsx');
   assert.match(layout, /import \{[^}]*\bFournisseurAujourdhui\b[^}]*\} from '@edition\/coquille';/);
   assert.equal((layout.match(/<FournisseurAujourdhui>/g) ?? []).length, 1);
-  assert.match(layout, /<FournisseurAujourdhui>\s*(\{\/\*[^]*?\*\/\}\s*)?<CoquilleRefonte /, 'juste au-dessus de CoquilleRefonte');
-  assert.match(layout, /<\/CoquilleRefonte>\s*<\/FournisseurAujourdhui>/);
+  // Au-dessus des deux coquilles : il ouvre juste avant le choix `coquille ? … : …` et ferme juste après lui, hors des bureaux.
+  assert.match(layout, /\) : \(\s*(\/\*[^]*?\*\/\s*)?<FournisseurAujourdhui>\s*\{coquille \? \(/, 'il enveloppe le choix entre les deux coquilles');
+  const dedans = layout.slice(layout.indexOf('<FournisseurAujourdhui>'), layout.indexOf('</FournisseurAujourdhui>'));
+  assert.ok(dedans.includes('<CoquilleRefonte ') && dedans.includes('<Sidebar ') && dedans.includes('<StatusRail'), 'la nouvelle coquille ET l’ancienne (Sidebar, StatusRail) sont dedans');
+  assert.ok(!dedans.includes('<CadreBureau'), 'les bureaux n’en ont pas besoin : ils restent dehors');
+  assert.match(layout, /\)\}\s*<\/FournisseurAujourdhui>\s*\)\}\s*<\/div>/, 'il ferme juste après le choix des coquilles');
   assert.doesNotMatch(sansCommentaires(layout), /from '[^']*(refonte|socle)\//, 'AppLayout passe par la couture, jamais par src/refonte ni src/socle');
   assert.match(lire('src/edition/coquille.internal.tsx'), /export \{ FournisseurAujourdhui \} from '\.\.\/refonte\/coquille\/aujourdhui';/);
   const cliente = lire('src/edition/coquille.business.tsx');
@@ -512,8 +516,8 @@ const DOSSIER_COMPTEURS = 'src/refonte/compteurs';
 type ModuleCompteurs = {
   COMPTEURS_DECLARES: { declarations: { chemin: string; famille: string; useCompteurs: () => Record<string, number> }[]; ecartes: { chemin: string; raison: string }[] };
   ramasserCompteurs: (f: { chemin: string; declaration: unknown }[]) => ModuleCompteurs['COMPTEURS_DECLARES'];
-  fusionnerCompteurs: (parts: Record<string, number>[]) => Record<string, number>;
-  useCompteursDe: (d: { famille: string; useCompteurs: () => Record<string, number> }[]) => Record<string, number>;
+  fusionnerCompteurs: (parts: Record<string, number>[], replis?: Record<string, number>[]) => Record<string, number>;
+  useCompteursDe: (d: { famille: string; useCompteurs: () => Record<string, number>; useRepli?: () => Record<string, number> }[]) => Record<string, number>;
   declarerCompteurs: (d: unknown) => unknown;
   verifierDeclaration: (v: unknown) => string | null;
 };
@@ -529,13 +533,16 @@ await dit('compteurs déclarables : ramassés seuls dans src/refonte/compteurs (
   for (const d of avec.COMPTEURS_DECLARES.declarations) assert.equal(typeof d.useCompteurs, 'function', d.chemin);
   for (const f of fichiers) {
     const src = sansCommentaires(lire(`${DOSSIER_COMPTEURS}/${f}`));
-    assert.match(src, /export default declarerCompteurs\(\{ famille: '[a-z]+', useCompteurs \}\);/, `${f} exporte par défaut declarerCompteurs(...)`);
+    assert.match(src, /export default declarerCompteurs\(\{ famille: '[a-z]+', useCompteurs(?:, useRepli: \w+)? \}\);/, `${f} exporte par défaut declarerCompteurs(...)`);
     assert.match(src, /from '\.\.\/coquille\/declarerCompteurs'/, `${f} importe declarerCompteurs sans passer par compteurs.ts (pas de cycle)`);
   }
   // Les chiffres d’avant, mot pour mot : la première déclaration reprend le calcul que la coquille faisait en dur.
   const jour = sansCommentaires(lire(`${DOSSIER_COMPTEURS}/jour.ts`));
+  // L'activité non vue n'est plus mêlée aux compteurs du module : c'est le REPLI de jour.ts (décision du CO).
+  assert.doesNotMatch(jour, /\.\.\.unseen/, 'jour.ts : l’activité non vue n’est plus dans les compteurs du module');
+  assert.match(jour, /function useActiviteNonVue\(\): Record<string, number> \{\s*return useActivity\(\)\.unseen;\s*\}/, 'jour.ts : le repli est l’activité non vue');
+  assert.match(jour, /export default declarerCompteurs\(\{ famille: 'jour', useCompteurs, useRepli: useActiviteNonVue \}\);/);
   for (const re of [
-    /\.\.\.unseen,/,
     /'\/agenda': appointments\.filter\(\(a\) => a\.status === 'scheduled' && isoDay\(new Date\(a\.startAt\)\) === aujourdhui && appointmentEnd\(a\) > maintenant\)\.length,/,
     /'\/tasks': taches\.filter\(\(t\) => \(t\.status === 'todo' \|\| t\.status === 'doing'\) && \(t\.assigneeEmail \?\? ''\)\.toLowerCase\(\) === moi\)\.length,/,
     /'\/relances': invoices\.filter\(\(f\) => isOverdue\(f, aujourdhui, invoices\)\)\.length,/,
@@ -546,7 +553,7 @@ await dit('compteurs déclarables : ramassés seuls dans src/refonte/compteurs (
   assert.match(jour, /import \{ useMaintenant \} from '\.\.\/\.\.\/bureaux\/donnees\/useSupervisor';/, 'jour.ts : l’horloge vient de useMaintenant');
   assert.match(jour, /const tic = useMaintenant\(60_000\);/, 'jour.ts : l’horloge est lue à la minute');
   assert.match(jour, /const maintenant = new Date\(tic\);/, 'jour.ts : « maintenant » vient de l’horloge, pas d’un new Date() figé dans le memo');
-  assert.match(jour, /\}, \[unseen, appointments, taches, invoices, priorites, moi, tic\]\);/, 'jour.ts : le memo rejoue à chaque minute (tic en dépendance)');
+  assert.match(jour, /\}, \[appointments, taches, invoices, priorites, moi, tic\]\);/, 'jour.ts : le memo rejoue à chaque minute (tic en dépendance)');
   const cyber = sansCommentaires(lire(`${DOSSIER_COMPTEURS}/cyber.ts`));
   assert.match(cyber, /const alertes = modele\.pret \? modele\.alertes\.length : null;/, 'Cyber : rien tant que la source n’a pas répondu');
   assert.match(cyber, /if \(alertes !== null\) compteurs\['\/cyber'\] = alertes;/);
@@ -556,7 +563,7 @@ await dit('compteurs déclarables : ramassés seuls dans src/refonte/compteurs (
   for (const re of [/'\/agenda':/, /'\/tasks':/, /'\/relances':/, /'\/priorites':/, /useCyber\(/, /useActivity\(/, /\.\.\.unseen/]) assert.doesNotMatch(donnees, re, `plus de compteur en dur dans donnees.ts (${re})`);
 });
 
-await dit('ramasserCompteurs / fusionnerCompteurs (purs) : une déclaration inconnue ou mal formée est écartée avec sa raison, les autres restent ; l’ordre est celui des chemins ; les adresses s’additionnent', async () => {
+await dit('ramasserCompteurs / fusionnerCompteurs (purs) : une déclaration inconnue ou mal formée est écartée avec sa raison, les autres restent ; l’ordre est celui des chemins ; rien ne s’additionne, la déclaration du module l’emporte sur le repli', async () => {
   const m = await charger<ModuleCompteurs>({ code: "export * from '../src/refonte/coquille/compteurs'; export * from '../src/refonte/coquille/declarerCompteurs';" });
   const ok = (famille: string, compteurs: Record<string, number>) => m.declarerCompteurs({ famille, useCompteurs: () => compteurs });
   const r = m.ramasserCompteurs([
@@ -573,7 +580,15 @@ await dit('ramasserCompteurs / fusionnerCompteurs (purs) : une déclaration inco
   assert.equal(m.verifierDeclaration(ok('garde', {})), null);
   assert.equal(m.verifierDeclaration(ok('cyber', {})), null);
   assert.match(m.verifierDeclaration({ famille: 'soc', useCompteurs: () => ({}) }) ?? '', /famille inconnue : soc/);
-  assert.deepEqual(m.fusionnerCompteurs([{ '/a': 1, '/b': 2 }, { '/b': 3, '/c': 0 }, { '/d': Number.NaN, '/e': Number.POSITIVE_INFINITY }]), { '/a': 1, '/b': 5, '/c': 0 });
+  assert.match(m.verifierDeclaration({ famille: 'jour', useCompteurs: () => ({}), useRepli: 3 }) ?? '', /useRepli n’est pas une fonction/);
+  const repli = () => ({ '/stock': 9 });
+  const r2 = m.ramasserCompteurs([{ chemin: 'compteurs/jour.ts', declaration: m.declarerCompteurs({ famille: 'jour', useCompteurs: () => ({}), useRepli: repli }) }]);
+  assert.equal((r2.declarations[0] as { useRepli?: unknown }).useRepli, repli, 'le repli est gardé au ramassage');
+  // Deux déclarations sur une adresse : la première (ordre des chemins) l'emporte, rien ne s'additionne.
+  assert.deepEqual(m.fusionnerCompteurs([{ '/a': 1, '/b': 2 }, { '/b': 3, '/c': 0 }, { '/d': Number.NaN, '/e': Number.POSITIVE_INFINITY }]), { '/a': 1, '/b': 2, '/c': 0 });
+  // Le repli (l'activité non vue) ne remplit que les adresses qu'aucune déclaration ne donne ; un zéro déclaré l'emporte aussi.
+  assert.deepEqual(m.fusionnerCompteurs([{ '/stock': 6, '/agenda': 0 }], [{ '/stock': 4, '/agenda': 2, '/notes': 3, '/x': Number.NaN }]), { '/stock': 6, '/agenda': 0, '/notes': 3 });
+  assert.deepEqual(m.fusionnerCompteurs([], [{ '/notes': 3 }, { '/notes': 5 }]), { '/notes': 3 }, 'entre deux replis, le premier');
   assert.deepEqual(m.fusionnerCompteurs([]), {});
 });
 
@@ -590,14 +605,24 @@ await dit('useCompteursDe : chaque hook déclaré est appelé à chaque rendu, d
       return v;
     },
   });
-  const liste = [decl('jour', { '/agenda': 3, '/tasks': 2 }), decl('creer', { '/stock': 6, '/tasks': 1 }), decl('cyber', { '/cyber': 5 })];
+  const repli = (nom: string, compteurs: Record<string, number>) => () => {
+    appels.push(nom);
+    const [v] = m.useState(compteurs);
+    return v;
+  };
+  const liste = [
+    { ...decl('jour', { '/agenda': 3, '/tasks': 2 }), useRepli: repli('jour:repli', { '/stock': 4, '/notes': 7 }) },
+    decl('creer', { '/stock': 6, '/tasks': 1 }),
+    decl('cyber', { '/cyber': 5 }),
+  ];
   const Barre = () => {
     const c = m.useCompteursDe(liste);
     return m.h('pre', null, JSON.stringify(c));
   };
   const html = m.rendre(m.h(Barre));
-  assert.equal(html, '<pre>{&quot;/agenda&quot;:3,&quot;/tasks&quot;:3,&quot;/stock&quot;:6,&quot;/cyber&quot;:5}</pre>');
-  assert.deepEqual(appels, ['jour', 'creer', 'cyber'], 'dans l’ordre, une fois chacun par rendu');
+  // « /tasks » : la première déclaration l'emporte (pas 3) ; « /stock » : le module (6), pas le repli (4) ; « /notes » : le repli seul.
+  assert.equal(html, '<pre>{&quot;/agenda&quot;:3,&quot;/tasks&quot;:2,&quot;/stock&quot;:6,&quot;/cyber&quot;:5,&quot;/notes&quot;:7}</pre>');
+  assert.deepEqual(appels, ['jour', 'jour:repli', 'creer', 'cyber'], 'dans l’ordre, une fois chacun par rendu, le repli juste après son module');
   assert.equal(m.rendre(m.h(() => m.h('i', null, JSON.stringify(m.useCompteursDe([]))))), '<i>{}</i>', 'sans déclaration : aucune pastille, rien ne casse');
 });
 

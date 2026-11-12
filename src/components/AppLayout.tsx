@@ -167,11 +167,13 @@ export function AppLayout() {
               <LocalSessionBanner />
               {bureau ? (
                 <CadreBureau bureau={bureau} />
-              ) : coquille ? (
+              ) : (
+              /* « Aujourd'hui » : un seul calcul, au-dessus des DEUX coquilles (décision du CO) — la barre latérale et
+                 l'Accueil le lisent, nouvelle coquille allumée ou non ; basculer le drapeau ne le remonte pas. */
+              <FournisseurAujourdhui>
+              {coquille ? (
               <>
               <SourceEnAttente />
-              {/* « Aujourd'hui » : un seul calcul, partagé par la barre latérale et l'Accueil (monté une fois, ici). */}
-              <FournisseurAujourdhui>
               {/* La nouvelle coquille : une navigation, un fil d'Ariane, ⌘K, ⌘J. L'écran est le même. */}
               <CoquilleRefonte largeur={isControl ? 'pleine' : 'lecture'}>
                 <div className={isControl ? 'control-ground control-edge control-dense' : undefined}>
@@ -187,7 +189,6 @@ export function AppLayout() {
                   </motion.div>
                 </div>
               </CoquilleRefonte>
-              </FournisseurAujourdhui>
               </>
               ) : (
               <>
@@ -268,6 +269,8 @@ export function AppLayout() {
                 space={spaceForPath(location.pathname)}
               />
               </>
+              )}
+              </FournisseurAujourdhui>
               )}
             </div>
               {/* ⌘E / Ctrl E partout : la palette d'espaces, et « ? » dans un bureau. */}

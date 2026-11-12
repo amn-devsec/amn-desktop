@@ -28,6 +28,16 @@ export interface SourcesRepertoire {
   nomGarde: string;
 }
 
+/**
+ * Le drapeau `critique` du registre (décision du CO : posé par S5, propriétaire du registre, lu par D02), sur l'entrée
+ * ou sur l'une de ses vues. Tant que le registre ne le porte pas, aucune ligne n'est critique et rien ne change. Pur.
+ */
+export function estCritique(entree: unknown): boolean {
+  if (!entree || typeof entree !== 'object') return false;
+  const e = entree as { critique?: unknown; vues?: readonly unknown[] };
+  return e.critique === true || (Array.isArray(e.vues) && e.vues.some((v) => Boolean(v) && typeof v === 'object' && (v as { critique?: unknown }).critique === true));
+}
+
 export function lireRepertoire(s: SourcesRepertoire): FamilleRepertoire[] {
   return REGISTRE_MODULES.familles
     .map((famille): FamilleRepertoire => ({
@@ -53,6 +63,7 @@ export function lireRepertoire(s: SourcesRepertoire): FamilleRepertoire[] {
             active: actives.length > 0,
             verrouille: actives.length === 0 && vues.some((v) => s.estVerrouille(v.key)),
             nouveau: entree.vues.some((v) => Boolean(v.nouveau)),
+            critique: estCritique(entree),
             cles: vues.map((v) => v.key),
           };
         })

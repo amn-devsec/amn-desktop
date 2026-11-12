@@ -32,6 +32,8 @@ export interface ModuleRepertoire {
   verrouille: boolean;
   /** Un écran neuf déclaré au registre. */
   nouveau: boolean;
+  /** Le compteur dit une alerte critique : chiffre rouge (fiche D02 : Alertes). Lu au registre, drapeau `critique`. */
+  critique: boolean;
   /** Les clés du catalogue de ses vues (pour les épingles et le journal des ouvertures). */
   cles: string[];
 }

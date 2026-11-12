@@ -35,9 +35,10 @@ import type { Journee, TypeAlerte } from './scenes';
  * `tuiles.ts`.
  *
  * Les accès que ce calcul lit déjà (tâches, priorités du jour, rendez-vous,
- * factures, clients) sont repris de `useAujourdhui().acces` : une seule
- * instance de chaque hook d'accès, pas d'abonnement ni d'effet d'import en
- * double à chaque montage de l'Accueil.
+ * factures, clients) sont repris de `useAujourdhui().acces` : une instance de
+ * moins de chaque hook d'accès à chaque montage de l'Accueil (l'instance
+ * inactive de `useCalculAujourdhui`, que la règle des hooks impose, reste
+ * montée avec son effet d'import).
  */
 
 /** Les modules qu'on ouvre peu : un par jour, à tour de rôle (il n'existe pas de trace des visites). */

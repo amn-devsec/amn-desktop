@@ -117,7 +117,9 @@ export function Segmente({ libelle, options, valeur, onChange, taille = 'normale
             }}
             className="sc-segment sc-focus"
           >
-            {o.libelle}
+            <span className="sc-segment__texte" data-texte={o.libelle}>
+              {o.libelle}
+            </span>
           </button>
         );
       })}

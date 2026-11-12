@@ -92,7 +92,13 @@ await esbuild.build({
 
 // Tailwind 4 : les classes réellement écrites dans src/, compilées depuis la feuille de l'app.
 const feuille = path.join(racine, 'src/index.css');
-const compilateur = await compile(fs.readFileSync(feuille, 'utf8'), { base: path.dirname(feuille), onDependency: () => undefined });
+// Les coutures CSS (`@import '@edition/socle-theme.css'`) se résolvent comme sous Vite : l'aperçu est l'édition interne.
+const coutures = JSON.parse(fs.readFileSync(path.join(racine, 'tsconfig.json'), 'utf8').replace(/^\s*\/\/.*$/gm, '')).compilerOptions.paths as Record<string, string[]>;
+const compilateur = await compile(fs.readFileSync(feuille, 'utf8'), {
+  base: path.dirname(feuille),
+  onDependency: () => undefined,
+  customCssResolver: async (id: string) => (id.startsWith('@edition/') && coutures[id] ? path.join(racine, coutures[id][0]) : undefined),
+});
 const scanner = new Scanner({ sources: [{ base: path.join(racine, 'src'), pattern: '**/*', negated: false }] });
 const tailwind = compilateur.build(scanner.scan());
 // Les polices et images de la feuille compilée : esbuild les recopie à côté.

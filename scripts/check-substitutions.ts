@@ -337,13 +337,16 @@ await dit('fauteDeModule (pur) : la clé déclarée est celle de la garde de la 
 
 const reel = await charger<any>(`
   export { REGISTRE_SUBSTITUTIONS as registre } from '../src/refonte/substitutions/registre';
+  import { HUBS } from '../src/refonte/substitutions/hubs';
+  export const hubs = HUBS.map((h) => h.route);
 `);
 
 await dit('le registre réel se ramasse sans faute ; chaque route déclarée existe dans appRoot.internal.tsx ; une seule déclaration par route ; la clé module est celle de la garde d’origine', () => {
   assert.deepEqual(reel.registre.fautes, []);
   const vues = new Set<string>();
   for (const s of reel.registre.substitutions) {
-    assert.ok(ROUTES.has(s.route), `${s.source} › ${s.route} : route absente de appRoot.internal.tsx`);
+    // Une route de appRoot.internal.tsx, ou la route exacte d'un des sept hubs (sur l'origine /ensemble/:famille).
+    assert.ok(ROUTES.has(s.route) || reel.hubs.includes(s.route), `${s.source} › ${s.route} : route absente de appRoot.internal.tsx`);
     assert.ok(!vues.has(s.route), `${s.route} déclarée deux fois`);
     vues.add(s.route);
     const faute = fauteDeModule(s, ORIGINES);
@@ -379,6 +382,8 @@ await dit('chaque fichier de déclaration n’importe que src/refonte/<lot>/ (et
 const A = await charger<any>(`
   export { assemblerSubstitutions, trouverSubstitution } from '../src/refonte/substitutions/registre';
   export { declarerSubstitutions } from '../src/refonte/substitutions/declarer';
+  export { HUBS, ROUTE_GENERIQUE_HUBS, fauteDeHub } from '../src/refonte/substitutions/hubs';
+  export { routeEnsemble } from '../src/refonte/systeme/ensemble';
 `);
 const Composant = () => null;
 
@@ -390,6 +395,31 @@ await dit('assembler : une route déclarée deux fois est une faute qui nomme le
   assert.equal(r.substitutions.length, 1);
   assert.equal(r.substitutions[0].lot, 'jour');
   assert.deepEqual(r.fautes, ['declarations/outils.tsx › /tasks : route déjà substituée par declarations/jour.tsx']);
+});
+
+await dit('hubs F10 à F70 : sept routes exactes, une par lot ; la route générique /ensemble/:famille ne se déclare pas ; un lot ne déclare que son hub', () => {
+  assert.equal(A.HUBS.length, 7);
+  assert.deepEqual(A.HUBS.map((h: any) => h.fiche), ['F10', 'F20', 'F30', 'F40', 'F50', 'F60', 'F70']);
+  assert.deepEqual(A.HUBS.map((h: any) => h.route), ['contacts', 'ecrire', 'argent', 'echanger', 'creer', 'outils', 'garde'].map((f) => `/ensemble/${f}`));
+  assert.equal(new Set(A.HUBS.map((h: any) => h.lot)).size, 7, 'un hub par lot');
+  assert.ok(ROUTES.has(A.ROUTE_GENERIQUE_HUBS), `${A.ROUTE_GENERIQUE_HUBS} est la route d'origine des hubs (appRoot.internal.tsx)`);
+  for (const h of A.HUBS) {
+    assert.equal(A.routeEnsemble(h.famille), h.route, `la « Vue d'ensemble » de ${h.famille} mène à son hub`);
+    // Un hub déclaré par son lot est trouvé sur sa route exacte ; les six autres restent l'écran d'origine (le repli).
+    const r = A.assemblerSubstitutions([{ chemin: `declarations/${h.lot}.tsx`, declaration: A.declarerSubstitutions(h.lot, [{ route: h.route, composant: Composant }]) }]);
+    assert.deepEqual(r.fautes, [], `${h.fiche} déclaré par ${h.lot}`);
+    assert.equal(A.trouverSubstitution(h.route, { support: false, coquille: true }, r)?.lot, h.lot);
+    for (const autre of A.HUBS.filter((x: any) => x !== h)) assert.equal(A.trouverSubstitution(autre.route, { support: false, coquille: true }, r), undefined);
+  }
+  const r = A.assemblerSubstitutions([
+    { chemin: 'declarations/contacts.tsx', declaration: A.declarerSubstitutions('contacts', [{ route: '/ensemble/:famille', composant: Composant }]) },
+    { chemin: 'declarations/argent.tsx', declaration: A.declarerSubstitutions('argent', [{ route: '/ensemble/contacts', composant: Composant }]) },
+    { chemin: 'declarations/jour.tsx', declaration: A.declarerSubstitutions('jour', [{ route: '/ensemble/jour', composant: Composant }]) },
+  ]);
+  assert.equal(r.substitutions.length, 0, 'aucune des trois n’est retenue');
+  assert.match(r.fautes[0], /contacts\.tsx › \/ensemble\/:famille : la route générique des hubs ne se déclare pas — déclarez la route exacte de votre hub \(\/ensemble\/contacts\)/);
+  assert.match(r.fautes[1], /argent\.tsx › \/ensemble\/contacts : le hub F10 appartient au lot « contacts », pas à « argent »/);
+  assert.match(r.fautes[2], /jour\.tsx › \/ensemble\/jour : n'est pas l'un des sept hubs/);
 });
 
 await dit('assembler : une déclaration mal formée est une faute, jamais une exception ; un fichier sans export ne déclare rien', () => {

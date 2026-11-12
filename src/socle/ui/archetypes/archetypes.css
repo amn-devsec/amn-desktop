@@ -59,6 +59,8 @@
 .sc-page__sous-titre { margin: 7px 0 0; color: var(--socle-texte-3); font-size: 13.5px; line-height: 1.4; }
 .sc-page__actions { display: flex; flex: none; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 9px; }
 .sc-page__actions [data-socle='bouton'] { min-height: 31px; }
+/* Zone de clic de 34 px de haut (§7.6, décision du CO), invisible : le bouton garde ses 31 px dessinés. */
+.sc-page__actions [data-socle='bouton']::after { content: ''; position: absolute; top: 50%; right: 0; left: 0; height: 34px; transform: translateY(-50%); }
 /* « Des contrôles à la place des boutons » (D02) : un segmenté, un champ ; chaque écran règle leur marge dans sa feuille. */
 .sc-page__controles { display: flex; flex: none; align-items: center; gap: 9px; }
 

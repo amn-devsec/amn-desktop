@@ -15,13 +15,18 @@
  *     exception comptée comprise) ;
  *   · la liste des fichiers atteints hors node_modules est écrite dans la sortie, pour relecture.
  *
- * Ce contrôle garantit les IMPORTS. Les feuilles CSS sont chargées vides ici : une fuite de CSS (le bloc
- * socle de `src/index.css`, constat C-001 de T1) n'est pas ce qu'il mesure ; elle est RAPPORTÉE à part,
- * sans faire échouer, et reste au CO.
+ * Ce contrôle garantit les IMPORTS, et le CSS : les feuilles sont chargées vides par esbuild, puis la feuille de
+ * l'app (`src/index.css`) est COMPILÉE par Tailwind comme Vite le ferait pour l'édition cliente (la couture
+ * `@edition/socle-theme.css` résolue vers son jumeau `.business`) : la feuille compilée ne porte aucune
+ * référence au socle de la refonte (constat C-001 de T1, fermé : le socle vit dans `src/socle/theme.css`).
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import * as esbuild from 'esbuild';
+// Livrés avec @tailwindcss/vite (même version) : le compilateur que Vite utilise pour l'app.
+// eslint-disable-next-line import/no-unresolved
+import { compile } from '@tailwindcss/node';
+import { Scanner } from '@tailwindcss/oxide';
 import { editionAliases } from '../vite.edition.ts';
 import { FORBIDDEN, REQUIRED, maskAllowed, createAllowanceBudget } from './business-bundle-rules.mjs';
 import { racine } from './lib/essai-socle.ts';
@@ -198,13 +203,30 @@ for (const regle of REQUIRED) {
   if (!texteMinuscule.includes(regle.pattern.toLowerCase())) fautes.push(`marqueur attendu absent « ${regle.pattern} » (${regle.why}) : ce n’est pas l’édition livrée`);
 }
 
-// 4. Le CSS, rapporté à part (hors du périmètre de ce contrôle : C-001 est au CO).
+// 4. Le CSS. Une référence au socle de la refonte : un jeton (`--color-socle-`, `--color-fam-`, `--color-etat-`), une règle de
+//    famille ou du réglage Mouvement, une classe `.socle-` / `.fam-` / `.etat-`.
+const REFERENCE_SOCLE = /--color-socle-|--color-fam-|--color-etat-|\[data-famille=|\[data-mouvement=|\.socle-|\.fam-|\.etat-/g;
 const feuilles = horsModules.filter((f) => f.endsWith('.css'));
 for (const f of feuilles) {
-  const css = fs.readFileSync(path.join(racine, f), 'utf8');
-  const socle = (css.match(/--color-socle-|\[data-famille=|\[data-mouvement=|\.socle-|\.fam-|\.etat-/g) ?? []).length;
-  if (socle > 0) notes.push(`${f} est atteint par le paquet client et contient ${socle} référence(s) au socle (constat C-001 de T1, au CO) : chargé vide ici, non mesuré`);
+  const socle = (fs.readFileSync(path.join(racine, f), 'utf8').match(REFERENCE_SOCLE) ?? []).length;
+  if (socle > 0) fautes.push(`${f} est atteint par le paquet client et contient ${socle} référence(s) au socle de la refonte : sa place est src/socle/theme.css, par la couture @edition/socle-theme.css`);
 }
+if (!feuilles.includes('src/index.css')) fautes.push('src/index.css n’est pas atteint par le paquet client : l’entrée n’est pas la bonne');
+// Et la feuille COMPILÉE, comme Vite la construit pour l'édition cliente : la couture résolue vers son jumeau `.business`
+// (vide), les classes réellement écrites dans src/ — dont celles du socle, que Tailwind ne doit plus savoir produire.
+const feuilleApp = path.join(racine, 'src/index.css');
+const tailwindClient = await compile(fs.readFileSync(feuilleApp, 'utf8'), {
+  base: path.dirname(feuilleApp),
+  onDependency: () => undefined,
+  customCssResolver: async (id: string) => (alias[id] && id.endsWith('.css') ? alias[id] : undefined),
+});
+const compilee = tailwindClient.build(new Scanner({ sources: [{ base: path.join(racine, 'src'), pattern: '**/*', negated: false }] }).scan());
+const dansCompilee = (compilee.match(REFERENCE_SOCLE) ?? []).length;
+if (dansCompilee > 0) fautes.push(`la feuille cliente compilée par Tailwind porte ${dansCompilee} référence(s) au socle de la refonte (C-001)`);
+if (!/@import '@edition\/socle-theme\.css';/.test(fs.readFileSync(feuilleApp, 'utf8'))) fautes.push('src/index.css n’importe plus la couture @edition/socle-theme.css : le socle interne manquerait à l’édition interne');
+const jumeau = fs.readFileSync(alias['@edition/socle-theme.css'], 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').trim();
+if (jumeau !== '') fautes.push(`le jumeau cliente de @edition/socle-theme.css n’est pas vide : « ${jumeau.slice(0, 60)} »`);
+notes.push(`feuille cliente compilée par Tailwind : ${Math.round(compilee.length / 1024)} Ko, ${dansCompilee} référence au socle de la refonte`);
 
 // 5. La sortie.
 const liste = horsModules.join('\n');

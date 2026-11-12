@@ -109,6 +109,8 @@
 .sc-interrupteur[aria-checked='true'] { background: var(--socle-toggle-actif); }
 .sc-interrupteur[aria-checked='true'] > span { background: var(--socle-texte-1); transform: translateX(14px); }
 .sc-interrupteur:disabled { cursor: not-allowed; opacity: 0.55; }
+/* Zone de clic de 34 × 34 (§7.6, décision du CO), invisible : le dessin de 34 × 20 du § 4 ne change pas. */
+.sc-interrupteur::after { content: ''; position: absolute; top: 50%; left: 50%; width: 34px; height: 34px; transform: translate(-50%, -50%); }
 
 /* ── Bouton-icône : 34 × 34, rayon 9, bordure #2e2e31, icône 15 px ── */
 .sc-bouton-icone {
@@ -221,7 +223,14 @@
 /* Le survol ne répond pas sur un segment désactivé ; `:where` garde la spécificité de `.sc-segment:hover`, pour que le segment
    choisi, déclaré ensuite, reste en T1 même survolé. */
 .sc-segment:hover:where(:not(:disabled)) { color: var(--socle-texte-courant); }
-.sc-segment[aria-checked='true'] { background: var(--socle-segment-actif); color: var(--socle-texte-1); }
+.sc-segment[aria-checked='true'] { background: var(--socle-segment-actif); color: var(--socle-texte-1); font-weight: 600; }
+/* Le segment choisi se lit aussi sans la couleur : par sa graisse (600). Chaque libellé réserve la largeur de sa forme grasse
+   (copie invisible, hors de l'arbre d'accessibilité) : choisir un segment ne déplace pas ses voisins. */
+.sc-segment__texte { display: inline-flex; flex-direction: column; }
+.sc-segment__texte::after { content: attr(data-texte); height: 0; overflow: hidden; font-weight: 600; visibility: hidden; pointer-events: none; user-select: none; }
+/* Zone de clic de 34 px de haut au moins (§7.6), invisible : la cote du segment ne change pas. */
+.sc-segment { position: relative; }
+.sc-segment::after { content: ''; position: absolute; top: 50%; left: 50%; width: max(100%, 34px); height: max(100%, 34px); transform: translate(-50%, -50%); }
 /* Désactivé (un fieldset coupé) : l'état se voit, comme sur le sélecteur voisin, et le survol ne répond plus. */
 .sc-segment:disabled { cursor: not-allowed; opacity: 0.6; }
 /* Compact (LOT-06) : 26 px de haut — rembourrage 2, segments 12 px, 3 × 9, rayon 9 ; mêmes couleurs. */

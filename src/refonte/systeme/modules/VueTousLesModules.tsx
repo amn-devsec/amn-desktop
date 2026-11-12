@@ -457,7 +457,8 @@ function Ligne({
               <span className="sr-only">{tm('ligne.verrou')}</span>
             </span>
           )}
-          <CountBadge n={m.badge} libelle={tm('ligne.badge', { n: m.badge })} />
+          {/* Une alerte critique (drapeau du registre) : chiffre rouge, et le mot du socle (« 1 alerte critique ») le dit. */}
+          <CountBadge n={m.badge} critique={m.critique} libelle={m.critique ? undefined : tm('ligne.badge', { n: m.badge })} />
           {m.personnes.length > 0 && (
             <span className="dm-presents">
               {m.personnes.slice(0, 2).map((n) => (

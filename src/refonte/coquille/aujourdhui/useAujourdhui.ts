@@ -30,13 +30,16 @@ import { calculerAujourdhui, type AujourdhuiCalcule } from './calculer';
  * priorité du jour, cocher une tâche ; et, sur ce poste, les retouches du fil
  * (masquer, ajouter, cocher une ligne à soi), rangées pour la journée.
  *
- * UNE SEULE INSTANCE : `FournisseurAujourdhui` (monté une fois dans la coque
- * interne, `AppLayout`) calcule et partage l'objet ; la barre latérale et
- * l'Accueil le lisent par `useAujourdhui()`. Cocher une ligne à l'Accueil met
- * la carte de la barre à jour sans second calcul. Sans fournisseur (contrôles,
- * aperçus), `useAujourdhui()` calcule localement. Les accès lus pour ce calcul
- * sont exposés tels quels (`acces`) : l'Accueil les reprend de là et n'en monte
- * pas une seconde instance (abonnements et effet d'import en double).
+ * UN SEUL CALCUL : `FournisseurAujourdhui` (monté une fois dans la coque
+ * interne, `AppLayout`, au-dessus des deux coquilles) calcule et partage
+ * l'objet ; la barre latérale et l'Accueil le lisent par `useAujourdhui()`,
+ * nouvelle coquille allumée ou non. Cocher une ligne à l'Accueil met la carte
+ * de la barre à jour sans second calcul. Sans fournisseur (contrôles,
+ * aperçus), `useAujourdhui()` calcule localement. Règle des hooks : chaque
+ * consommateur garde une instance INACTIVE de `useCalculAujourdhui` (ses
+ * hooks d'accès sont appelés, effet d'import compris ; rien n'est calculé).
+ * Les accès lus pour le calcul sont exposés tels quels (`acces`) : l'Accueil
+ * les reprend de là plutôt que d'en monter une instance de plus.
  */
 
 export interface PersonneAujourdhui {

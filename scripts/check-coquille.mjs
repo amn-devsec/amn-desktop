@@ -112,7 +112,8 @@
  *          node scripts/check-coquille.mjs <dossier-du-bundle> [port]
  *
  *      `AMN_EDITION=interne` choisit la liste d'écrans interne et les bureaux,
- *      puis fait le SECOND PASSAGE, coquille v3 allumée (interne seulement : le
+ *      puis fait le SECOND PASSAGE, coquille v3 allumée (écrans internes ET
+ *      bureaux, qui gardent leur propre coquille ; interne seulement : le
  *      drapeau n'existe pas dans l'édition cliente). `AMN_COQUILLE=eteinte` ou
  *      `AMN_COQUILLE=allumee` ne fait qu'un des deux passages — pour isoler
  *      une faute du second, lancer `eteinte` puis `allumee` ; `allumee` hors de
@@ -1317,6 +1318,18 @@ try {
       const m = await mesurerV3(page);
       mesuresV3 += 1;
       fautes.push(...jugerV3(`${nom} (coquille v3)`, m, false));
+    }
+    /* Les bureaux aussi, coquille allumée (décision du CO) : ils gardent LEUR coquille (`CadreBureau`, jamais la barre
+       v3 en plus), et les mêmes mesures que coquille éteinte — barres, une entrée courante, ni ambre ni rouge. */
+    for (const [nom, route, bureau] of ECRANS_BUREAUX) {
+      const cible = await resoudre(page, route);
+      await page.goto(APP + cible, { waitUntil: 'networkidle' }).catch(() => undefined);
+      await page.waitForTimeout(900);
+      const m = await mesurerBureau(page);
+      mesuresV3 += 1;
+      fautes.push(...jugerBureau(`${nom} (coquille v3 allumée)`, bureau, m));
+      const barresV3 = await page.evaluate(() => [...document.querySelectorAll('[data-socle="lateral"]')].filter((el) => el.getBoundingClientRect().width > 0).length);
+      if (barresV3 > 0) fautes.push(`${nom} (coquille v3 allumée) · la barre latérale v3 est rendue en même temps que la coquille du bureau.`);
     }
     await page.evaluate(() => {
       window.localStorage.removeItem('amn.coquille');

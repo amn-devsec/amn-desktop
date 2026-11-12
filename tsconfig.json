@@ -36,6 +36,7 @@
       "@edition/navigation": ["src/edition/navigation.internal.tsx"],
       "@edition/coquille": ["src/edition/coquille.internal.tsx"],
       "@edition/substitutions": ["src/edition/substitutions.internal.tsx"],
+      "@edition/socle-theme.css": ["src/edition/socle-theme.internal.css"],
       "@edition/mainExclusive": ["src/main/exclusive.internal.ts"],
       "@edition/preloadExclusive": ["src/preload.exclusive.internal.ts"]
     }

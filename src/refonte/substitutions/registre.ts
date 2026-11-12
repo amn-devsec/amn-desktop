@@ -1,5 +1,6 @@
 import { matchPath } from 'react-router-dom';
 import type { DeclarationSubstitutions, Substitution } from './declarer';
+import { fauteDeHub } from './hubs';
 
 /**
  * LE REGISTRE DES SUBSTITUTIONS — ce que `declarations/` déclare, ramassé seul.
@@ -60,7 +61,7 @@ export function assemblerSubstitutions(fichiers: readonly FichierSubstitutions[]
       continue;
     }
     for (const s of d.substitutions) {
-      const faute = fauteDeSubstitution(s, chemin);
+      const faute = fauteDeSubstitution(s, chemin) ?? fauteDeHub(s.route, d.lot, chemin);
       if (faute) {
         fautes.push(faute);
         continue;

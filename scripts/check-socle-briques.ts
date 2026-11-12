@@ -236,9 +236,14 @@ await dit('AddModuleTile et ModuleGroupGrid : « + Ajouter un module » en lien 
   const sans = rendre(h(R.ModuleGroupGrid, { titre: 'Un seul', effectif: 1 }, tuiles[0]));
   assert.doesNotMatch(sans, /sc-add-module-tile/);
   assert.match(sans, /<span aria-hidden="true">1<\/span><span class="sr-only"> 1 module<\/span>/);
-  // Une tuile sans `vers` ni `onClick` serait un bouton inerte : le type le refuse (CibleTuile), pour ModuleTile et AddModuleTile.
+  // Une tuile mène à une route OU à une action : sans l'un ni l'autre (bouton inerte), ou avec les deux (décision du CO),
+  // le type le refuse (CibleTuile), pour ModuleTile et AddModuleTile ; la grille, de même, pour onAjouter / versAjouter.
   const src = sansCommentaires(lire(`${REP}/ModuleTile.tsx`));
-  assert.match(src, /export type CibleTuile = \{ vers: string; onClick\?: \(\) => void \} \| \{ vers\?: undefined; onClick: \(\) => void \};/);
+  assert.match(src, /export type CibleTuile = \{ vers: string; onClick\?: never \} \| \{ vers\?: never; onClick: \(\) => void \};/);
+  assert.match(src, /export type AjoutGroupe = \{ onAjouter\?: undefined; versAjouter\?: undefined \} \| \{ onAjouter: \(\) => void; versAjouter\?: never \} \| \{ versAjouter: string; onAjouter\?: never \};/);
+  assert.match(src, /export function ModuleGroupGrid\([^)]*\): ModuleGroupGridProps & AjoutGroupe\)|\}: ModuleGroupGridProps & AjoutGroupe\) \{/, 'la grille prend AjoutGroupe');
+  assert.equal(compter(src, /<Link to=\{vers\} \{\.\.\.commun\}>/g), 2, 'un lien ne reçoit jamais onClick');
+  assert.doesNotMatch(src, /<Link[^>]*onClick/, 'aucun lien avec onClick');
   assert.match(src, /export type ModuleTileProps = ModuleTileBase & CibleTuile;/);
   assert.match(src, /export type AddModuleTileProps = AddModuleTileBase & CibleTuile;/);
 });

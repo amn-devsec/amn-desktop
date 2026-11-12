@@ -309,6 +309,9 @@ button.sc-kpi:hover { border-color: var(--color-socle-bord-fort); }
 .sc-case[aria-checked='true'] { border-color: var(--socle-primaire); background: var(--socle-primaire); }
 .sc-case:hover:not([aria-disabled='true']) { border-color: var(--socle-texte-1); }
 .sc-case[aria-disabled='true'] { cursor: default; opacity: 0.7; }
+/* Zone de clic de 34 × 34 (§7.6, décision du CO), invisible : les cases de 16, 18 et 24 px gardent leur dessin. */
+.sc-case { position: relative; }
+.sc-case::after { content: ''; position: absolute; top: 50%; left: 50%; width: 34px; height: 34px; transform: translate(-50%, -50%); }
 
 /* ── Ligne de tâche : 60 px, filet #19191b ── */
 .sc-ligne {

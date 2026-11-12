@@ -5,7 +5,7 @@
  * quoi que ce soit, là où `check:contraste` demande un build servi et une
  * session.
  *
- *   1. LES CONTRASTES, lus dans `src/index.css` (jamais recopiés ici — la
+ *   1. LES CONTRASTES, lus dans `src/socle/theme.css` (jamais recopiés ici — la
  *      faute que `check:encres` traque), pour le graphite ET le thème clair :
  *        · les trois encres ≥ 4,5:1 sur chacune des cinq surfaces ;
  *        · chaque famille et chaque état : la base ≥ 3:1 (un trait, WCAG
@@ -56,9 +56,12 @@ const dit = async (nom: string, fn: () => void | Promise<void>) => {
 
 /* ── 1. Les jetons ────────────────────────────────────────────────────────── */
 
-const feuille = fs.readFileSync(path.join(racine, 'src/index.css'), 'utf8');
+// Le socle de la feuille commune vit dans `src/socle/theme.css`, chargé par la couture `@edition/socle-theme.css` (interne
+// seulement) que `src/index.css` importe ; l'édition cliente n'en voit rien (C-001, `check:client-statique`).
+const feuille = fs.readFileSync(path.join(racine, 'src/socle/theme.css'), 'utf8');
+const feuilleCommune = fs.readFileSync(path.join(racine, 'src/index.css'), 'utf8');
 const debutSocle = feuille.indexOf('LE SOCLE DE LA REFONTE (S0)');
-assert.ok(debutSocle > 0, 'bloc du socle introuvable dans src/index.css');
+assert.ok(debutSocle > 0, 'bloc du socle introuvable dans src/socle/theme.css');
 
 /** Le contenu entre l'accolade qui suit `apres` et l'accolade fermante appariée. */
 function bloc(apres: string, depuis = debutSocle): string {
@@ -866,7 +869,11 @@ await dit('éditions : rien de la coquille n’entre dans le paquet cliente ; so
 await dit('le noir, les briques et la coquille ne se chargent qu’en édition interne (Ambiance.tsx), jamais depuis index.css', () => {
   const ambiance = lireSrc('src/refonte/accueil/Ambiance.tsx');
   for (const css of ['socle/noir.css', 'socle/ui/briques.css', 'socle/coquille/coquille.css']) assert.ok(ambiance.includes(css), `Ambiance.tsx ne charge pas ${css}`);
-  assert.ok(!/noir\.css|briques\.css|coquille\.css|data-ambiance/.test(feuille), 'index.css (partagé) porte le noir');
+  // Ni la feuille commune ni le socle qu'elle importe (même l'édition interne le charge avant l'ambiance) ne portent le noir.
+  for (const [nom, css] of [['index.css', feuilleCommune], ['src/socle/theme.css', feuille]] as const) assert.ok(!/noir\.css|briques\.css|coquille\.css|data-ambiance/.test(css), `${nom} porte le noir`);
+  // C-001 : la feuille commune ne porte aucun jeton du socle, elle n'importe que sa couture (interne : le socle ; cliente : rien).
+  assert.ok(!/--color-socle-|--color-fam-|--color-etat-|\[data-famille=|\[data-mouvement=/.test(feuilleCommune), 'src/index.css porte un jeton ou une règle du socle');
+  assert.match(feuilleCommune, /@import '@edition\/socle-theme\.css';/, 'src/index.css importe la couture du socle');
 });
 
 const drapeau = await charger<{ lireCoquille: () => boolean; ecrireCoquille: (a: boolean) => void; CLE_COQUILLE: string }>('src/refonte/coquille/drapeau.ts');

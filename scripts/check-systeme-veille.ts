@@ -295,7 +295,7 @@ await dit('la surface « Écran de veille » des Réglages : interne seulement, 
   /* « Veille après » : un segmenté de quatre délais, 5 min choisi. */
   assert.match(html, /<div role="radiogroup" aria-label="Veille après" class="sc-segmente">/);
   assert.equal(compter(html, /role="radio"/g), 4);
-  assert.match(html, /role="radio" aria-checked="true" tabindex="0"[^>]*>5 min</);
+  assert.match(html, /role="radio" aria-checked="true" tabindex="0"[^>]*><span class="sc-segment__texte" data-texte="5 min">5 min<\/span>/);
   assert.equal(compter(html, /aria-checked="true"/g), 2, 'l’interrupteur et un seul délai');
   /* « Verrouiller l'espace après » : une liste de quatre choix, 15 min choisi, « Jamais » dernier, l'aide honnête. */
   assert.match(html, /<label for="[^"]+" class="sc-champ__etiquette">Verrouiller l’espace après<\/label>/);

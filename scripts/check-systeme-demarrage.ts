@@ -820,7 +820,7 @@ await dit('H47 · « Combien êtes-vous ? » : un groupe radio de quatre options
   assert.match(html, />Combien êtes-vous \?</);
   assert.match(html, />Pour préparer les accès et les rôles</);
   assert.match(html, /role="radiogroup"[^>]*aria-label="Combien êtes-vous \?"/);
-  for (const t of ['Seul', '2 à 5', '6 à 20', 'Plus']) assert.match(html, new RegExp(`>${t}</button>`));
+  for (const t of ['Seul', '2 à 5', '6 à 20', 'Plus']) assert.match(html, new RegExp(`>${t}</span></button>`));
   assert.match(bouton(html, '2 à 5').attrs, /aria-checked="true"/);
   assert.equal(boutons(vueMet({ taille: 'seul' })).filter((b) => b.texte === 'Seul' && /aria-checked="true"/.test(b.attrs)).length, 1);
 });
