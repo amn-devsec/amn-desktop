@@ -187,7 +187,6 @@
   --socle-connexion-pastille: rgba(19, 19, 20, 0.9);
   /* La vignette sombre des bords (image G06 : 12 → 7 niveaux du bord de l'ellipse aux coins). */
   --socle-connexion-vignette: rgba(0, 0, 0, 0.42);
-  --socle-connexion-survol: #ffffff;
   --socle-logo-haut: #ebebec;
   --socle-logo-bas: #bfbfc3;
   --socle-bord-carte-active: #3a3a3e;
@@ -341,24 +340,26 @@
 
 /*
   LA PAIRE DE COULEURS DE LA FAMILLE (v4, 06-V4-NEON §1) — `--fam-a` / `--fam-b`, que les briques lisent.
-  La coquille pose la famille active sur sa racine (`data-famille-active`, `Coquille`) ; un bloc qui dit sa famille
+  La coquille pose la famille active sur sa racine (`data-famille-active`, `Coquille`), et sur celle du document tant
+  qu'elle est montée : ce qui s'ouvre dans `document.body` (palettes, dialogues, toasts) la reçoit ; un bloc qui dit sa famille
   (`data-famille`) pose la sienne pour ce qu'il contient. Ailleurs : la paire de Système, posée sur la racine.
   Aucun lot n'écrit une de ces couleurs à la main : il lit `var(--fam-a)` et `var(--fam-b)`.
 */
-:root[data-ambiance='noir'] :is([data-famille-active='jour'], [data-famille='jour']) { --fam-a: var(--socle-fam-jour-a); --fam-b: var(--socle-fam-jour-b); }
-:root[data-ambiance='noir'] :is([data-famille-active='contacts'], [data-famille='contacts']) { --fam-a: var(--socle-fam-contacts-a); --fam-b: var(--socle-fam-contacts-b); }
-:root[data-ambiance='noir'] :is([data-famille-active='ecrire'], [data-famille='ecrire']) { --fam-a: var(--socle-fam-ecrire-a); --fam-b: var(--socle-fam-ecrire-b); }
-:root[data-ambiance='noir'] :is([data-famille-active='argent'], [data-famille='argent']) { --fam-a: var(--socle-fam-argent-a); --fam-b: var(--socle-fam-argent-b); }
-:root[data-ambiance='noir'] :is([data-famille-active='echanger'], [data-famille='echanger']) { --fam-a: var(--socle-fam-echanger-a); --fam-b: var(--socle-fam-echanger-b); }
-:root[data-ambiance='noir'] :is([data-famille-active='creer'], [data-famille='creer']) { --fam-a: var(--socle-fam-creer-a); --fam-b: var(--socle-fam-creer-b); }
-:root[data-ambiance='noir'] :is([data-famille-active='outils'], [data-famille='outils']) { --fam-a: var(--socle-fam-outils-a); --fam-b: var(--socle-fam-outils-b); }
-:root[data-ambiance='noir'] :is([data-famille-active='garde'], [data-famille='garde']) { --fam-a: var(--socle-fam-garde-a); --fam-b: var(--socle-fam-garde-b); }
-:root[data-ambiance='noir'] :is([data-famille-active='cyber'], [data-famille='cyber']) { --fam-a: var(--socle-fam-cyber-a); --fam-b: var(--socle-fam-cyber-b); }
-:root[data-ambiance='noir'] :is([data-famille-active='developpement'], [data-famille='developpement']) { --fam-a: var(--socle-fam-developpement-a); --fam-b: var(--socle-fam-developpement-b); }
-:root[data-ambiance='noir'] :is([data-famille-active='systeme'], [data-famille='systeme']) { --fam-a: var(--socle-fam-systeme-a); --fam-b: var(--socle-fam-systeme-b); }
+:root[data-ambiance='noir'][data-famille-active='jour'], :root[data-ambiance='noir'] :is([data-famille-active='jour'], [data-famille='jour']) { --fam-a: var(--socle-fam-jour-a); --fam-b: var(--socle-fam-jour-b); }
+:root[data-ambiance='noir'][data-famille-active='contacts'], :root[data-ambiance='noir'] :is([data-famille-active='contacts'], [data-famille='contacts']) { --fam-a: var(--socle-fam-contacts-a); --fam-b: var(--socle-fam-contacts-b); }
+:root[data-ambiance='noir'][data-famille-active='ecrire'], :root[data-ambiance='noir'] :is([data-famille-active='ecrire'], [data-famille='ecrire']) { --fam-a: var(--socle-fam-ecrire-a); --fam-b: var(--socle-fam-ecrire-b); }
+:root[data-ambiance='noir'][data-famille-active='argent'], :root[data-ambiance='noir'] :is([data-famille-active='argent'], [data-famille='argent']) { --fam-a: var(--socle-fam-argent-a); --fam-b: var(--socle-fam-argent-b); }
+:root[data-ambiance='noir'][data-famille-active='echanger'], :root[data-ambiance='noir'] :is([data-famille-active='echanger'], [data-famille='echanger']) { --fam-a: var(--socle-fam-echanger-a); --fam-b: var(--socle-fam-echanger-b); }
+:root[data-ambiance='noir'][data-famille-active='creer'], :root[data-ambiance='noir'] :is([data-famille-active='creer'], [data-famille='creer']) { --fam-a: var(--socle-fam-creer-a); --fam-b: var(--socle-fam-creer-b); }
+:root[data-ambiance='noir'][data-famille-active='outils'], :root[data-ambiance='noir'] :is([data-famille-active='outils'], [data-famille='outils']) { --fam-a: var(--socle-fam-outils-a); --fam-b: var(--socle-fam-outils-b); }
+:root[data-ambiance='noir'][data-famille-active='garde'], :root[data-ambiance='noir'] :is([data-famille-active='garde'], [data-famille='garde']) { --fam-a: var(--socle-fam-garde-a); --fam-b: var(--socle-fam-garde-b); }
+:root[data-ambiance='noir'][data-famille-active='cyber'], :root[data-ambiance='noir'] :is([data-famille-active='cyber'], [data-famille='cyber']) { --fam-a: var(--socle-fam-cyber-a); --fam-b: var(--socle-fam-cyber-b); }
+:root[data-ambiance='noir'][data-famille-active='developpement'], :root[data-ambiance='noir'] :is([data-famille-active='developpement'], [data-famille='developpement']) { --fam-a: var(--socle-fam-developpement-a); --fam-b: var(--socle-fam-developpement-b); }
+:root[data-ambiance='noir'][data-famille-active='systeme'], :root[data-ambiance='noir'] :is([data-famille-active='systeme'], [data-famille='systeme']) { --fam-a: var(--socle-fam-systeme-a); --fam-b: var(--socle-fam-systeme-b); }
 
 /*
-  LES DEUX HALOS DE LA FAMILLE (06-V4 §3, règle 1) — a à 20 % en haut à droite, b à 15 % en bas à gauche.
+  LES HALOS DE LA FAMILLE (06-V4 §3, règle 1) — a à 20 % en haut à droite, b à 15 % en bas à gauche ; et, comme les
+  sources néon (140 pages sur 143), un troisième, b à 6 %, à gauche à mi-hauteur.
   Le jeton se redéclare partout où la paire change : il se résout avec la famille de l'élément, pas avec celle de la racine.
   Une page le pose sous son fond : `background: var(--socle-halos), var(--socle-fond-page)`.
 */
@@ -366,7 +367,23 @@
 :root[data-ambiance='noir'] :is([data-famille-active], [data-famille]) {
   --socle-halos:
     radial-gradient(900px 480px at 92% -8%, color-mix(in srgb, var(--fam-a) 20%, transparent), transparent 70%),
-    radial-gradient(800px 520px at 32% 112%, color-mix(in srgb, var(--fam-b) 15%, transparent), transparent 70%);
+    radial-gradient(800px 520px at 32% 112%, color-mix(in srgb, var(--fam-b) 15%, transparent), transparent 70%),
+    radial-gradient(520px 340px at 0% 45%, color-mix(in srgb, var(--fam-b) 6%, transparent), transparent 70%);
+  /* Le voile des pages pleines (sources néon : D02, G06, G09, H43, mobile) : a à 20 % et b à 16 %, posé PAR-DESSUS en écran. */
+  --socle-halos-ecran:
+    radial-gradient(820px 440px at 94% -8%, color-mix(in srgb, var(--fam-a) 20%, transparent), transparent 70%),
+    radial-gradient(760px 460px at 20% 112%, color-mix(in srgb, var(--fam-b) 16%, transparent), transparent 70%);
+}
+
+/* Une page pleine porte `sc-halos-ecran` : le voile la couvre, en mode écran, sans prendre le clic ni passer devant les calques. */
+:root[data-ambiance='noir'] .sc-halos-ecran::after {
+  position: fixed;
+  z-index: 1;
+  inset: 0;
+  content: '';
+  background: var(--socle-halos-ecran);
+  mix-blend-mode: screen;
+  pointer-events: none;
 }
 
 /*

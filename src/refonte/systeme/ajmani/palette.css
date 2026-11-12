@@ -195,7 +195,7 @@
 }
 /* La cible de la case fait 34 px : un halo transparent prend le clic autour du disque de 18. */
 .ajp-coche::after { position: absolute; inset: -8px; content: ''; }
-.ajp-coche[aria-checked='true'] { border-color: var(--socle-primaire); background: var(--socle-primaire); }
+.ajp-coche[aria-checked='true'] { border-color: transparent; background: linear-gradient(135deg, var(--fam-a), var(--fam-b)); box-shadow: 0 0 12px -2px var(--fam-a); color: var(--socle-encre-accent); }
 .ajp-coche svg { width: 11px; height: 11px; }
 .ajp-coche:focus-visible { outline: 2px solid var(--socle-texte-1); outline-offset: 2px; }
 .ajp-action__mono {

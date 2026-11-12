@@ -137,6 +137,9 @@ await dit('cotes lues dans connexion.css : carte 404 (34 / 32 / 24, rayon 20), c
   assert.match(css, /\.cx-centre \{[^}]*padding: 135px 16px 120px/);
   assert.match(css, /\.cx-champ \{[^}]*height: 52px;[^}]*border-radius: 12px/);
   assert.match(css, /\.cx-valider \{[^}]*height: 48px;[^}]*border-radius: 12px;[^}]*font-size: 14\.5px;[^}]*font-weight: 600/);
+  // v4 (06 §3 règle 5, source G06) : le bouton principal en dégradé a → b, encre sombre, ombre de a ; blanc au survol.
+  assert.match(css, /\.cx-valider \{[^}]*background: linear-gradient\(135deg, var\(--fam-a\), var\(--fam-b\)\);\s*box-shadow: 0 10px 24px -10px color-mix\(in srgb, var\(--fam-a\) 85%, transparent\), inset 0 1px 0 var\(--socle-reflet-principal\);\s*color: var\(--socle-encre-accent\);/);
+  assert.match(css, /\.cx-valider:hover:not\(:disabled\) \{ background: var\(--socle-blanc\); \}/);
   assert.match(css, /\.cx-etat \{[^}]*height: 36px;[^}]*border-radius: 99px;[^}]*background: var\(--socle-connexion-pastille\)/);
   assert.match(css, /\.cx-marque__logo \{[^}]*width: 30px;[^}]*height: 30px;[^}]*border-radius: 8px/);
   assert.match(css, /\.cx-carte__logo \{[^}]*width: 56px;[^}]*height: 56px;[^}]*border-radius: 15px/);

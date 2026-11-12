@@ -29,6 +29,15 @@ export interface CoquilleProps {
 
 export function Coquille({ lateral, entete, ajmani, children, largeur = 'lecture', tiroirOuvert, onFermerTiroir, lateralRepliee = false, famille = 'systeme' }: CoquilleProps) {
   const { ts } = useSocleLangue();
+  // La famille active vaut aussi pour ce qui s'ouvre hors de la coquille, dans `document.body` (palettes ⌘K et ⌘J,
+  // dialogues, toasts) : la racine du document la porte tant que la coquille est montée (v4, sources néon).
+  React.useEffect(() => {
+    const racine = document.documentElement;
+    racine.dataset.familleActive = famille;
+    return () => {
+      if (racine.dataset.familleActive === famille) delete racine.dataset.familleActive;
+    };
+  }, [famille]);
   return (
     <div data-socle="coquille" data-espace-racine data-espace="poste" data-repliee={lateralRepliee || undefined} data-famille-active={famille} className="sc-coquille">
       <a href="#sc-principal" className="sc-evitement" onClick={(e) => { e.preventDefault(); document.getElementById('sc-principal')?.focus(); }}>

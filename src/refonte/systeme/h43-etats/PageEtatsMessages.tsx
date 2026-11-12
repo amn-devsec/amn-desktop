@@ -77,7 +77,7 @@ export function PageEtatsMessages({ exemple = EXEMPLE_H43 }: PageEtatsMessagesPr
   const euros = new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
   const e = exemple;
   return (
-    <main className="sc-h43" data-refonte-police="inter">
+    <main className="sc-h43 sc-halos-ecran" data-refonte-police="inter">
       <header className="sc-h43__entete">
         <div className="sc-h43__titres">
           <p className="sc-h43__etiquette">{tm('entete.etiquette')}</p>

@@ -440,7 +440,7 @@ await dit('planche v3 : 3 × 3 mini-fenêtres de 440 × 239 à x = 44 / 500 / 95
   assert.equal(padDroit, 44);
   // v4 (06 §3 règle 1) : les deux halos de la famille, à la place de la lueur d'ambiance v3 (écart T1 H43.1).
   assert.match(page, /background:\s*var\(--socle-halos\), var\(--socle-fond-page\);/, 'les deux halos de la famille');
-  assert.match(noir, /--socle-halos:\s*radial-gradient\(900px 480px at 92% -8%, color-mix\(in srgb, var\(--fam-a\) 20%, transparent\), transparent 70%\),\s*radial-gradient\(800px 520px at 32% 112%, color-mix\(in srgb, var\(--fam-b\) 15%, transparent\), transparent 70%\);/, 'le jeton des halos');
+  assert.match(noir, /--socle-halos:\s*radial-gradient\(900px 480px at 92% -8%, color-mix\(in srgb, var\(--fam-a\) 20%, transparent\), transparent 70%\),\s*radial-gradient\(800px 520px at 32% 112%, color-mix\(in srgb, var\(--fam-b\) 15%, transparent\), transparent 70%\),\s*radial-gradient\(520px 340px at 0% 45%, color-mix\(in srgb, var\(--fam-b\) 6%, transparent\), transparent 70%\);/, 'le jeton des halos');
   const v = (nom: string) => Number(new RegExp(`${nom}:\\s*(\\d+)px`).exec(css)?.[1]);
   const [l, hFen, ecart, barre] = [v('--sc-h43-fenetre-l'), v('--sc-h43-fenetre-h'), v('--sc-h43-ecart'), v('--sc-h43-barre')];
   assert.deepEqual([l, hFen, ecart, barre], [440, 239, 16, 36]);
@@ -810,7 +810,7 @@ await dit('planche v3 : neuf mini-fenêtres en situation (numéros 1 à 8 inchan
   for (const c of ['Client', 'Contact', 'Dernier échange']) assert.ok(t.includes(c), c);
   assert.equal([...html.matchAll(/<h1[ >]/g)].length, 1);
   assert.ok(!/<nav|role="navigation"|sc-coquille|sc-lateral/.test(html), 'page sans coquille');
-  assert.match(html, /<main class="sc-h43" data-refonte-police="inter">/);
+  assert.match(html, /<main class="sc-h43 sc-halos-ecran" data-refonte-police="inter">/);
   // Les situations : chacune avec ses pièces v3.
   for (const marque of ['data-taille="compact"', 'sc-squelette-chiffres', 'data-compact="true"', 'sc-hors-bandeau', 'sc-en-attente', 'sc-h43__fantome', 'sc-porte-ajmani', 'sc-h43__voile', 'sc-collab-bandeau', 'sc-curseur-pair', 'sc-fusion-pied', 'sc-perime__mention', 'sc-h43__courbe']) assert.ok(html.includes(marque), `« ${marque} » absent`);
   assert.equal([...html.matchAll(/data-taille="compact"/g)].length >= 4, true, 'quatre blocs d’état compacts (1, 4, 5, 9)');

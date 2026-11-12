@@ -233,7 +233,7 @@ export function VueTousLesModules({
   const tabulable = ligneParId(choisie) ? choisie : premiere;
 
   return (
-    <div className="dm-page" data-refonte-police="inter">
+    <div className="dm-page sc-halos-ecran" data-refonte-police="inter">
       <PageHead
         className="dm-entete"
         titre={tm('titre')}

@@ -313,6 +313,8 @@ await dit('la surface « Écran de veille » des Réglages : interne seulement, 
 await dit('le mouvement passe par la couche commune et s’arrête avec elle (balayage 60 s, halo 3,6 s, point vivant, entrée échelonnée, dérive)', () => {
   const css = sansCommentaires(lire(`${DIR}/veille.css`));
   assert.doesNotMatch(css, /@keyframes|animation\s*:/, 'aucune animation propre : la couche commune seulement');
+  // v4 (source G09) : l'instant porte la couleur a de la famille.
+  assert.match(css, /\.ve-instant \{ fill: var\(--fam-a\); \}/);
   assert.match(css, /\.ve-balayage\[data-mvt='balayage'\] \{[^}]*--sc-mvt-balayage: 60s;/);
   assert.match(css, /\.ve-repere__point \{ --sc-mvt-voyant: 3600ms;/);
   const html = vue();

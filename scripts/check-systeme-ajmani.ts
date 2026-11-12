@@ -878,6 +878,10 @@ const dans = (nom: string): number => Number(new RegExp(`${nom}:\\s*([\\d.]+)px`
 /** Le bloc d'une règle, cherchée en début de ligne (`.ajp-ligne {` et non `.ajp-liste .ajp-ligne {`). */
 const bloc = (selecteur: string): string => new RegExp(`(?:^|\\n)${selecteur.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} \\{[^}]*\\}`).exec(cssNu)?.[0] ?? '';
 
+await dit('palette.css (v4, source G05) : la case d’une action cochée est celle du socle — dégradé a → b de la famille active, sa lueur, encre sombre', () => {
+  assert.equal(bloc(".ajp-coche[aria-checked='true']").trim(), ".ajp-coche[aria-checked='true'] { border-color: transparent; background: linear-gradient(135deg, var(--fam-a), var(--fam-b)); box-shadow: 0 0 12px -2px var(--fam-a); color: var(--socle-encre-accent); }");
+});
+
 await dit('palette.css : les cotes v3 — 682 de large bord compris, haut à 80, champ 63, décision 60, suites 81, bouton 31, ligne 54, pied 37, rayon 18', () => {
   assert.equal(dans('--sc-ajp-largeur'), 682);
   assert.equal(dans('--sc-ajp-hauteur-repos'), 502);

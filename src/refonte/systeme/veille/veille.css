@@ -83,7 +83,8 @@
 .ve-trait[data-etat='avenir'] { stroke: var(--socle-veille-heure-avenir); }
 .ve-trait[data-etat='encours'] { stroke: var(--socle-texte-1); stroke-width: 2.2; stroke-linecap: round; }
 .ve-arc { stroke: var(--socle-veille-arc); stroke-width: 1.2; }
-.ve-instant { fill: var(--socle-texte-1); }
+/* v4 (source G09) : l'instant porte la couleur a de la famille ; son anneau clair reste. */
+.ve-instant { fill: var(--fam-a); }
 .ve-instant__halo { fill: var(--socle-veille-halo); }
 .ve-etiquette {
   position: absolute;

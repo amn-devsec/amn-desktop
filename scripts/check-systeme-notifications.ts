@@ -1071,6 +1071,8 @@ await dit('feuille : les cotes de la fiche v3 (rubrique 3) — volets 300 / 476 
   assert.match(cssNu, /grid-template-rows:\s*minmax\(0, 1fr\)/, 'les volets ne dépassent jamais la hauteur de la zone');
   assert.match(cssNu, /\.sc-notif__volet--droit > \.sc-suggestion,\s*\.sc-notif__volet--droit > \.sc-notif__astuce \{[^}]*flex:\s*1/, 'la suggestion s’étire jusqu’au bas du fil');
   assert.match(cssNu, /\.sc-notif__point-ajmani \{[^}]*flex:\s*1/);
+  // v4 (06 §3 règle 12, source H40) : « Le point d’Ajmani » est une suggestion d’Ajmani — bord en dégradé a → b, ombre de a.
+  assert.match(cssNu, /\.sc-notif__point-ajmani \{[^}]*border-color: transparent;\s*background:\s*linear-gradient\(var\(--socle-suggestion-fond\), var\(--socle-suggestion-fond\)\) padding-box,\s*linear-gradient\(135deg, var\(--fam-a\), var\(--fam-b\)\) border-box;\s*box-shadow: 0 18px 40px -26px var\(--fam-a\);/);
   assert.match(cssNu, /\.sc-notif__ligne \{[^}]*height:\s*var\(--sc-notif-ligne\)/);
   assert.match(cssNu, /\.sc-notif__tuile \{[^}]*width:\s*var\(--sc-notif-tuile\)[^}]*height:\s*var\(--sc-notif-tuile\)[^}]*13%/);
   assert.match(cssNu, /\.sc-notif__point \{[^}]*width:\s*var\(--sc-notif-point\)/);

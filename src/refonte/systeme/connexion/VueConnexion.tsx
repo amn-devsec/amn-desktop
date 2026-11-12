@@ -288,7 +288,7 @@ export function VueConnexion(p: VueConnexionProps) {
     <motion.main
       data-connexion
       data-refonte-police="inter"
-      className="cx"
+      className="cx sc-halos-ecran"
       initial={{ opacity: 0 }}
       animate={{ opacity: parti ? 0 : 1 }}
       transition={{ duration: parti ? 0.4 : 0.18 }}

@@ -71,7 +71,7 @@ function Calque({ libelle, onReprendre, children }: { libelle: string; onReprend
       aria-modal="true"
       aria-label={libelle}
       tabIndex={-1}
-      className="ve"
+      className="ve sc-halos-ecran"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}

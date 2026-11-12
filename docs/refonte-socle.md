@@ -491,3 +491,12 @@ L'interface tutoie (06-V4 §4) : la coquille, les mots du socle (`src/socle/i18n
 - **`check:voix`** tient aussi le guide de voix : les tournures et leurs exemples, la règle client, les encouragements, et tous les mots du socle (`i18n`, `mots/*`) passés au guide.
 - Les deux gardes tournent dans le workflow des éditions.
 
+## Mise à jour — v4 : captures comparées aux images v4 (point 9, 2026-11-12)
+
+Les 9 écrans et les 4 aperçus en coquille, capturés et comparés aux images v4 (tableau et écarts : STATUT §7, LOT-00). Corrections trouvées par la comparaison, toutes d'après les sources néon :
+
+- **La famille active vaut aussi en portail** : la coquille la pose aussi sur la racine du document tant qu'elle est montée (`document.documentElement.dataset.familleActive`), et `noir.css` lit la paire sur `:root[data-famille-active]`. Les palettes ⌘K et ⌘J, les dialogues et les toasts, rendus dans `document.body`, prennent la paire de la famille active (avant : celle de Système).
+- **Le troisième halo** (140 pages sur 143) : b à 6 %, 520 × 340 à 0 % / 45 %, dans `--socle-halos`.
+- **Le voile des pages pleines** (D02, G06, G09, H43, et les écrans mobiles) : `--socle-halos-ecran` (a à 20 %, 820 × 440 à 94 % / -8 % ; b à 16 %, 760 × 460 à 20 % / 112 %), posé par-dessus en mode écran par la classe `sc-halos-ecran` (fixe, z-index 1, sans prendre le clic, sous les calques).
+- **Les écrans hors coquille** : le bouton principal de G06 en dégradé a → b ; l'instant de G09 dans la couleur a ; la case cochée de la palette d'Ajmani (G05) est celle du socle ; « Le point d'Ajmani » de H40 a le bord dégradé des suggestions.
+

@@ -457,8 +457,19 @@ await dit('v4 (06-V4 §3) : les quinze règles de rendu, dans les briques et la 
   assert.match(noir, /--socle-ombre-carte: 0 22px 46px -30px rgba\(0, 0, 0, 0\.95\);/);
   // 1. Fond : deux halos de la famille — a à 20 % en haut à droite, b à 15 % en bas à gauche, sur #0c0c0d.
   // Un seul jeton, redéclaré là où la paire change (racine, data-famille-active, data-famille) : il suit la famille de l'élément.
-  const halos = new RegExp(`:root\\[data-ambiance='noir'\\],\\s*:root\\[data-ambiance='noir'\\] :is\\(\\[data-famille-active\\], \\[data-famille\\]\\) \\{\\s*--socle-halos:\\s*radial-gradient\\(900px 480px at 92% -8%, ${mix('--fam-a', '20')}, transparent 70%\\),\\s*radial-gradient\\(800px 520px at 32% 112%, ${mix('--fam-b', '15')}, transparent 70%\\);\\s*\\}`);
-  assert.match(sansCommentaires(noir), halos, '1 · le jeton des deux halos');
+  // Et le troisième des sources néon (140 pages sur 143) : b à 6 %, 520 × 340 à 0 % / 45 %.
+  const halos = new RegExp(`:root\\[data-ambiance='noir'\\],\\s*:root\\[data-ambiance='noir'\\] :is\\(\\[data-famille-active\\], \\[data-famille\\]\\) \\{\\s*--socle-halos:\\s*radial-gradient\\(900px 480px at 92% -8%, ${mix('--fam-a', '20')}, transparent 70%\\),\\s*radial-gradient\\(800px 520px at 32% 112%, ${mix('--fam-b', '15')}, transparent 70%\\),\\s*radial-gradient\\(520px 340px at 0% 45%, ${mix('--fam-b', '6')}, transparent 70%\\);\\s*--socle-halos-ecran:\\s*radial-gradient\\(820px 440px at 94% -8%, ${mix('--fam-a', '20')}, transparent 70%\\),\\s*radial-gradient\\(760px 460px at 20% 112%, ${mix('--fam-b', '16')}, transparent 70%\\);\\s*\\}`);
+  assert.match(sansCommentaires(noir), halos, '1 · le jeton des halos, et le voile des pages pleines');
+  // Le voile des pages pleines : par-dessus, en mode écran, sans prendre le clic, sous les calques (z-index 1).
+  assert.match(sansCommentaires(noir), /:root\[data-ambiance='noir'\] \.sc-halos-ecran::after \{\s*position: fixed;\s*z-index: 1;\s*inset: 0;\s*content: '';\s*background: var\(--socle-halos-ecran\);\s*mix-blend-mode: screen;\s*pointer-events: none;\s*\}/);
+  for (const [f, racine] of [['src/refonte/systeme/modules/VueTousLesModules.tsx', 'className="dm-page sc-halos-ecran"'], ['src/refonte/systeme/connexion/VueConnexion.tsx', 'className="cx sc-halos-ecran"'], ['src/refonte/systeme/veille/IdleScreen.tsx', 'className="ve sc-halos-ecran"'], ['src/refonte/systeme/h43-etats/PageEtatsMessages.tsx', 'className="sc-h43 sc-halos-ecran"']]) {
+    assert.ok(lireSrc(f).includes(racine), `${f} : la page pleine porte le voile (sources D02, G06, G09, H43)`);
+  }
+  // La famille active vaut aussi à la racine du document (portails : palettes, dialogues, toasts).
+  for (const f of ['jour', 'contacts', 'ecrire', 'argent', 'echanger', 'creer', 'outils', 'garde', 'cyber', 'developpement', 'systeme']) {
+    assert.match(sansCommentaires(noir), new RegExp(`:root\\[data-ambiance='noir'\\]\\[data-famille-active='${f}'\\], :root\\[data-ambiance='noir'\\] :is\\(\\[data-famille-active='${f}'\\], \\[data-famille='${f}'\\]\\) \\{ --fam-a: var\\(--socle-fam-${f}-a\\); --fam-b: var\\(--socle-fam-${f}-b\\); \\}`), `la paire de ${f} sur la racine aussi`);
+  }
+  assert.match(sansCommentaires(lireSrc('src/socle/coquille/Coquille.tsx')), /React\.useEffect\(\(\) => \{\s*const racine = document\.documentElement;\s*racine\.dataset\.familleActive = famille;\s*return \(\) => \{\s*if \(racine\.dataset\.familleActive === famille\) delete racine\.dataset\.familleActive;\s*\};\s*\}, \[famille\]\);/, 'la coquille pose sa famille sur la racine du document, et l’ôte en partant');
   assert.match(coquille, /\.sc-coquille \{[^}]*background: var\(--socle-halos\), var\(--socle-fond-page\);/, '1 · le fond de la coquille');
   assert.equal([...sansCommentaires(lireSrc('src/socle/coquille/coquille.css') + lireSrc('src/socle/ui/situations/situations.css') + lireSrc('src/refonte/systeme/demo/demo.css')).matchAll(/radial-gradient\(900px/g)].length, 0, '1 · la recette ne se recopie pas');
   // 2. Cartes : dégradé, bord, rayon 16, reflet + ombre, halo 8,5 % de la famille dans un coin qui alterne.
