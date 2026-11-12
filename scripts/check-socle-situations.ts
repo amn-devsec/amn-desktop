@@ -80,7 +80,7 @@ const dialogue = (extra: Record<string, unknown> = {}) =>
       onAnnuler: sansAction,
       onConfirmer: sansAction,
       titre: `Supprimer «${NBSP}${V.nom}${NBSP}»${NBSP}?`,
-      texte: `Le ${V.objet} ira dans la corbeille pendant 30 jours. Vous pourrez le restaurer.`,
+      texte: `Le ${V.objet} ira dans la corbeille pendant 30 jours. Tu pourras le restaurer.`,
       libelleAction: 'À la corbeille',
       ...extra,
     }),

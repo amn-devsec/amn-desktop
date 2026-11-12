@@ -485,3 +485,9 @@ L'interface tutoie (06-V4 §4) : la coquille, les mots du socle (`src/socle/i18n
 - **Le guide de voix** (PLAN-10NOV §7) : `src/socle/mots/voix.ts`. Les règles (tutoiement, vouvoiement des textes clients, phrases courtes, aucun reproche, aucune urgence inventée, aucun point d'exclamation, aucun code d'erreur), les tournures (`TOURNURES` : ce que l'on n'écrit pas, ce que l'on écrit à la place, un exemple), `ecartsDeVoix(texte, zone)` (« interface » ou « client »), les encouragements (`ENCOURAGEMENTS`, `encouragement(n)` : une phrase, sans confettis ni son) ; les salutations restent celles de `src/lib/homeGreetings.ts` (neutres par défaut).
 - Les gardes des écrans de LOT-00 exigent désormais le tutoiement là où elles exigeaient le vouvoiement (`check:systeme-ajmani`, `check:systeme-demarrage`, `check:systeme-demo`) ; leurs textes attendus sont passés au tutoiement mot pour mot.
 
+### Les gardes du tutoiement (point 8)
+
+- **`check:tutoiement`** (`scripts/check-tutoiement.ts`) : dans le **périmètre** passé au tutoiement (`src/socle`, `src/refonte/coquille`, `src/refonte/compteurs`, `src/refonte/systeme`, `scripts/apercu`), chaque chaîne du code (commentaires exclus) est lue avec le guide de voix : aucun « vous », « votre », « vos », aucun impératif en « -ez ». Ses listes, écrites dans la garde, chacune avec sa raison : les **zones client** (textes destinés à un client, qui doivent vouvoyer : le brouillon de relance de G05), les **lexiques de saisie** (mots qu'Ajmani reconnaît, chacun avec sa forme tutoyée à côté), les **citations** (le guide de voix lui-même). Un lot qui passe ses écrans au tutoiement ajoute son dossier à `PERIMETRE`.
+- **`check:voix`** tient aussi le guide de voix : les tournures et leurs exemples, la règle client, les encouragements, et tous les mots du socle (`i18n`, `mots/*`) passés au guide.
+- Les deux gardes tournent dans le workflow des éditions.
+
