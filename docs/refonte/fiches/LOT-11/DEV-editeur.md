@@ -10,12 +10,12 @@ Poser une automatisation en **blocs** (Quand / Si / Alors / Sinon / Puis), la **
 ## 2. Nouveau ou re-habillage ?
 - **Existant réutilisé** : le moteur « si X alors Y » (`src/state/useAutomations.ts`, collection `automations`, déclencheurs `formAnswer`, `invoiceOverdue`, `ticketOpened`, `prospectWon`, `stockLow` ; actions `task`, `logbook`), exécuté par `AutomationsRunner` dans la mise en page ; la liste et les interrupteurs de `AutomationsScreen` (`/outils/automatisations`, fiche H20, LOT-07). Les règles du bureau Supervisor (`src/bureaux/donnees/regles.ts`, QUAND / ALORS / SAUF) sont un second moteur, à ne pas dupliquer.
 - **Nouveau (à créer)** : (a) le **canevas** en blocs reliés (Quand, Si, Alors, Sinon, Puis) avec leur étiquette de mode ; (b) la palette « Ajouter un bloc » ; (c) le choix « Comment ça tourne » (Local ou API) ; (d) « Tester » sur des éléments réels, sans effet ; (e) les puces « Test sur n … : réussi » et « Dernière exécution » ; (f) la suggestion d'Ajmani.
-- **À confirmer dans le code** : le moteur actuel ne connaît qu'**un** déclencheur et **une** action par règle ; les branches Sinon et les suites Puis supposent d'étendre le modèle (`AutomationData`) — en accord avec S6 (LOT-07, propriétaire de H20) ; le déclencheur « Un courriel arrive » dépend de la boîte de l'équipe (connecteur Messagerie, LOT-12) ; « Répondre avec le modèle » réutilise MX06 Réponses automatiques (LOT-05).
+- **À confirmer dans le code** : le moteur actuel ne connaît qu'**un** déclencheur et **une** action par règle ; les branches Sinon et les suites Puis sont une **extension du format des blocs Quand / Si / Alors**, qui revient à **S9** (LOT-12) ; S6 relit, H20 s'appuie dessus, et cet écran se construit sur ce format (`STATUT.md` §1.17 n° 7) ; le déclencheur « Un courriel arrive » dépend de la boîte de l'équipe (connecteur Messagerie, LOT-12) ; « Répondre avec le modèle » réutilise MX06 Réponses automatiques (LOT-05).
 - **Mode API** : dépend du modèle des connecteurs (**LOT-12**) et du plafond de DEV-couts.
 
 ## 3. Disposition par zones
 Coordonnées relatives à la zone principale, relevées sur l'image, à ± 2 px.
-- **Z1 En-tête de page** : h1 « Éditeur d'automatisation » (voir §13), sous-titre ; secondaire « Tester » (icône lecture) puis **primaire** « Enregistrer » (icône coche), 36 px, y = 44.
+- **Z1 En-tête de page** : h1 « Éditeur de flux » (l'image dit « Éditeur d'automatisation », voir §13), sous-titre ; secondaire « Tester » (icône lecture) puis **primaire** « Enregistrer » (icône coche), 36 px, y = 44.
 - **Z2 Carte du flux** : **752 × 661** à (40, 97). Ligne de titre (nom du flux 15 px / 600 à gauche, état et compteur 12.5 px T4 à droite). **Canevas** **714 × 595** à (59, 146) : fond plus sombre, grille de points tous les 20 px, rayon 12.
   - **Blocs** de **204** px de large, rayon 12, bord teinté de la couleur du type avec lueur : en-tête (tuile 24 px, type en capitales 11 px / 700 teinté, étiquette « Local » à droite), titre 14 px / 600 T1, détail 12.5 px T3 sur 1 ou 2 lignes.
   - Positions : QUAND (80, 195) 204 × 114 · SI (306, 195) 204 × 97 · ALORS (532, 195) 204 × 114 · SINON (306, 379) 204 × 97 · PUIS (532, 379) 204 × 97 · PUIS (532, 539) 204 × 97.
@@ -26,7 +26,7 @@ Coordonnées relatives à la zone principale, relevées sur l'image, à ± 2 px.
 - **Barre latérale** : famille Développement, module actif « Éditeur de flux ».
 
 ## 4. Contenu affiché (textes exacts)
-**En-tête** : « Éditeur d'automatisation » · « Tu poses des blocs, l'application s'occupe du reste · 9 flux sur 12 tournent seuls » · « Tester » · « Enregistrer ».
+**En-tête** : « Éditeur de flux » (image : « Éditeur d'automatisation ») · « Tu poses des blocs, l'application s'occupe du reste · 9 flux sur 12 tournent seuls » · « Tester » · « Enregistrer ».
 
 **Carte du flux** : « Demande de devis par courriel » · « actif · 38 exécutions ce mois ».
 | Type | Couleur | Mode | Titre | Détail |
@@ -109,8 +109,8 @@ Puces : « Test sur 3 courriels : réussi » · « Dernière exécution : il y a
 - [ ] `typecheck`, `lint`, `check:socle`, `check:developpement` verts.
 
 ## 13. Pièges
-- **Titre** : l'image dit « Éditeur d'automatisation » dans le h1 mais « Éditeur de flux » dans la barre latérale et le fil d'Ariane. Proposition : garder les deux comme sur l'image (le module s'appelle « Éditeur de flux », la page « Éditeur d'automatisation ») ; à trancher par Harun.
+- **Titre** : l'image dit « Éditeur d'automatisation » dans le h1. **Décision du CO** (`STATUT.md` §1.17 n° 4) : « Éditeur de flux » partout, h1 compris, comme le brief `07` ; écart avec l'image noté dans `STATUT.md`.
 - « contact@ » est un exemple tronqué : l'adresse vient de la boîte branchée, jamais du code.
 - L'étiquette « Local » est par bloc, le choix « Comment ça tourne » est par flux : ne pas les confondre.
-- Ne pas créer un troisième moteur : étendre celui de H20 avec S6, par le CO.
+- Ne pas créer un troisième moteur ni un second format : le format des blocs est celui de S9 (LOT-12), partagé avec H20.
 - Les réponses envoyées aux clients restent au vouvoiement.

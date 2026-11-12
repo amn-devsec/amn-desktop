@@ -25,7 +25,7 @@ Coordonnées relatives à la zone principale, relevées sur l'image, à ± 2 px.
 - **Barre latérale** : famille Développement, module actif « Coûts et API ».
 
 ## 4. Contenu affiché (textes exacts)
-**En-tête** : « Coûts et API » · « 14 € payés ce mois · 5 connecteurs sur 7 tournent gratuitement » · « Brancher un outil ».
+**En-tête** : « Coûts et API » · « 14 € payés ce mois · 5 connecteurs sur 7 tournent gratuitement » (les deux comptes sont **calculés**, voir §6) · « Brancher un outil ».
 
 **Bandeau** : « 82 % » « fait seul » · « Local, gratuit » · « API payantes » · « PAYÉ CE MOIS » · « 14 € » · « sur un plafond de 40 € » · « 82 € économisés ce mois » · « Tout en API payantes, ce mois coûterait environ 96 €. » · « PAYÉ, SUR 6 MOIS » · « juin » · « nov. ».
 
@@ -60,7 +60,7 @@ Toutes les valeurs viennent du modèle de LOT-12. Les règles ci-dessous sont de
 - **Payé ce mois** = somme des coûts facturés du mois des connecteurs en mode API. Les **commissions** prélevées sur un paiement (Stripe) ne s'y ajoutent pas : elles sont déjà retenues sur l'encaissement et visibles dans L'argent ; la ligne affiche « commission seule ».
 - **Part faite seul** = opérations du mois exécutées en local / toutes les opérations du mois, arrondie à l'entier. *À confirmer* : la définition d'une « opération » par connecteur (un envoi, un événement, un paiement, une demande à l'assistant).
 - **Coût « tout en API »** = pour chaque connecteur, consommation du mois × tarif de son équivalent API (catalogue de LOT-12) ; « environ » et arrondi à l'euro. **Économisé** = coût « tout en API » − payé (ici 96 − 14 = 82). Si un tarif manque, pas d'estimation : la phrase et la pastille disparaissent (jamais un chiffre deviné).
-- **« n connecteurs sur m tournent gratuitement »** : *à trancher*. Sur l'image, 4 lignes sont « Local », 2 « Payant », 1 « À brancher », mais le sous-titre dit « 5 sur 7 ». Proposition : compter les connecteurs **branchés en mode local** (ici 4) ; sinon « gratuits » = non payants (local + non branchés, ici 5). Voir §13.
+- **« n connecteurs sur m tournent gratuitement »** : **calculé depuis les connecteurs réels, jamais repris de l'image** (décision du CO, `STATUT.md` §1.17 n° 5 ; 04-A n° 1). n = connecteurs branchés en mode local ; m = connecteurs du tableau. Sur les données de l'image, cela donne « 4 sur 7 », pas « 5 sur 7 ».
 - **Consommation** : « n envois », « n événements », « n paiements » (compteurs du mois) ; « n sur m » quand le connecteur a une limite (quota de la boîte d'envoi, forfait inclus) ; barre = n / m. « à la demande » pour l'assistant local (pas de compteur utile).
 - **Plafond** : réglage mensuel en euros (défaut *Proposition* : à saisir à la première activation d'un connecteur payant). **Prévenir à** = seuil en % du plafond (défaut 80 %), une notification H40 une fois par mois. **Au plafond** = tous les connecteurs en mode API passent à « arrêté » jusqu'au 1er du mois suivant ; ceux qui ont une version locale y repassent, les autres attendent. « Tout s'arrête » = tout ce qui est payant.
 - **Payé sur 6 mois** = payé par mois civil, du plus ancien au mois en cours (en succès).
@@ -107,7 +107,7 @@ Toutes les valeurs viennent du modèle de LOT-12. Les règles ci-dessous sont de
 - [ ] `typecheck`, `lint`, `check:socle`, `check:developpement` verts.
 
 ## 13. Pièges
-- **« 5 connecteurs sur 7 »** ne correspond pas aux 4 lignes « Local » de la maquette : règle à trancher (voir §6), écart à noter dans `STATUT.md`.
+- **« 5 connecteurs sur 7 »** ne correspond pas aux 4 lignes « Local » de la maquette : le chiffre se calcule (§6), l'écart avec l'image est noté dans `STATUT.md`.
 - « Paiements (Stripe) » est « Payant » mais ne compte pas dans « 14 € » (commission seule).
 - « Courriels en masse » est « Local » avec une limite (« 220 sur 500 ») : la limite est celle de la boîte d'envoi, pas un forfait payant.
 - La suggestion dit « passer en payant » pour les SMS déjà « Payant » : il s'agit de payer **au-delà du forfait** (à l'usage). Libellé à confirmer par Harun.

@@ -801,17 +801,17 @@ Lire `05-CYBER-MODELE-COMMUN.md` : consentement d'abord (accord signé, périmè
 
 ### LOT-11 · Développement — `claude/refonte-developpement` — 7 images (6 écrans), plus une vue d'ensemble à proposer
 
-Brief : `07-ESPACE-DEV.md`. Entrée de barre latérale au-dessus de « Surveillance ». Fiches écrites par S8 le 12 nov. : [`fiches/LOT-11/`](fiches/LOT-11/00-COMMUN.md), **à relire par Harun**. Construction au feu vert du CO (socle v4 fusionné, fiches relues). Préparation : [`preparation/LOT-11-developpement.md`](preparation/LOT-11-developpement.md) (inventaire, dépendances, 7 constats pour le CO au §5) ; logique pure dans `src/refonte/developpement/` (journal des exécutions, tâches planifiées locales, état des déploiements), garde `check:developpement` (51 contrôles, en CI).
+Brief : `07-ESPACE-DEV.md`. Entrée de barre latérale au-dessus de « Surveillance ». Fiches écrites par S8 le 12 nov. : [`fiches/LOT-11/`](fiches/LOT-11/00-COMMUN.md), **à relire par Harun**, alignées sur les décisions du CO (§1.17) ; barre latérale : section « ESPACES DE TRAVAIL » de l'image, sous-liste du socle §0.1 (5 lignes, puis « + N autres »). Construction au feu vert du CO (socle v4 fusionné, fiches relues). Préparation : [`preparation/LOT-11-developpement.md`](preparation/LOT-11-developpement.md) (inventaire, dépendances, 7 constats pour le CO au §5) ; logique pure dans `src/refonte/developpement/` (journal des exécutions, tâches planifiées locales, état des déploiements), garde `check:developpement` (51 contrôles, en CI).
 
 | ID | Écran | Type | État | Écart / note |
 |---|---|---|---|---|
-| DEV-ensemble | Développement · Vue d'ensemble | nouveau | fiche proposée | aucune image : sur le modèle des hubs ; demande un 8e hub dans `HUBS` du socle (`/ensemble/developpement`) |
+| DEV-ensemble | Développement · Vue d'ensemble | nouveau | fiche proposée | aucune image : sur le modèle des hubs ; 8e hub `/ensemble/developpement` accepté (§1.17 n° 2), posé par S0 |
 | DEV-projets | Développement · Projets de code | nouveau | fiche écrite | attend le connecteur Code (LOT-12) |
-| DEV-deploiements | Développement · Déploiements | mixte | fiche écrite | attend le connecteur Hébergement (LOT-12) ; logique pure livrée (`deploiements.ts`) ; durées d'étapes de la maquette (113 s) ≠ total (1 min 48) ; cible « Interne » inerte avant DIST |
+| DEV-deploiements | Développement · Déploiements | mixte | fiche écrite | attend le connecteur Hébergement (LOT-12) ; logique pure livrée (`deploiements.ts`) ; total mesuré de bout en bout (étapes de l'image : 113 s ≠ 1 min 48) ; cible « Interne » inerte (§1.17 n° 6) |
 | DEV-serveur | Développement · Serveur et santé | nouveau | fiche écrite | lié à LOT-13 (reporté) : état « serveur non branché » |
-| DEV-editeur | Développement · Éditeur de flux | mixte | fiche écrite | moteur de H20 à étendre avec S6 (branches Sinon / Puis) ; logique livrée (`journal.ts`, `planification.ts`) ; mode API : LOT-12 ; h1 « Éditeur d'automatisation » ≠ menu « Éditeur de flux » (à trancher) |
-| DEV-couts | Développement · Coûts et API | nouveau | fiche écrite | modèle de LOT-12 (S9) ; « 5 connecteurs sur 7 » ≠ 4 lignes « Local » (à trancher) |
-| DEV-modeles-sites | Développement · Modèles de sites (et vue code) | nouveau | fiche écrite | prototype v3 gris, parcours « Créer et produire » : famille à trancher par le CO ; néon et tutoiement à appliquer |
+| DEV-editeur | Développement · Éditeur de flux | mixte | fiche écrite | logique livrée (`journal.ts`, `planification.ts`) ; format des blocs avec Sinon / Puis : S9, relu par S6 (§1.17 n° 7) ; mode API : LOT-12 ; écart : « Éditeur de flux » partout, l'image dit « Éditeur d'automatisation » en h1 (§1.17 n° 4) |
+| DEV-couts | Développement · Coûts et API | nouveau | fiche écrite | modèle de LOT-12 (S9) ; comptes calculés depuis les connecteurs réels (§1.17 n° 5) ; écart : l'image dit « 5 sur 7 » pour 4 lignes « Local » |
+| DEV-modeles-sites | Développement · Modèles de sites (et vue code) | nouveau | fiche écrite | famille Développement, seconde entrée possible dans Créer et produire (§1.17 n° 3) ; prototype v3 gris : néon et tutoiement à appliquer |
 
 ## 8. Références
 
