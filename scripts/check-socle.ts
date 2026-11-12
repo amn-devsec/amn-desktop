@@ -407,8 +407,9 @@ await dit('noir.css : les jetons validés par la direction de design, valeur pou
     '--socle-bord-lateral': '#222224', '--socle-bord-carte': '#232325', '--socle-bord-controle': '#28282b', '--socle-bord-entete': '#1d1d1f', '--socle-bord-ligne': '#19191b',
     '--socle-texte-1': '#ededed', '--socle-texte-2': '#a0a0a5', '--socle-texte-3': '#8a8a8e', '--socle-trait-discret': '#77777c', '--socle-trait-tres-discret': '#5f5f64',
     '--socle-primaire': '#ededed', '--socle-primaire-encre': '#0c0c0d',
-    '--socle-fam-jour': '#8aa4d6', '--socle-fam-contacts': '#6fb7a8', '--socle-fam-ecrire': '#a79bdb', '--socle-fam-argent': '#8fbf7a', '--socle-fam-echanger': '#d98fa8', '--socle-fam-creer': '#d9a27a', '--socle-fam-outils': '#9a9aa0',
-    '--socle-etat-succes': '#8fbf7a', '--socle-etat-attention': '#e0b35a', '--socle-etat-critique': '#e08a80', '--socle-etat-info': '#8aa4d6',
+    // v4 (06-V4 §2) : info, sarcelle, violet, succès, rose, orange à leur valeur v4 ; Outils garde son gris.
+    '--socle-fam-jour': '#6ea8ff', '--socle-fam-contacts': '#4fe3c1', '--socle-fam-ecrire': '#a58bff', '--socle-fam-argent': '#5ee6a8', '--socle-fam-echanger': '#ff7eb6', '--socle-fam-creer': '#ffa463', '--socle-fam-outils': '#9a9aa0',
+    '--socle-etat-succes': '#5ee6a8', '--socle-etat-attention': '#ffbe5c', '--socle-etat-critique': '#ff6b7a', '--socle-etat-info': '#6ea8ff',
     '--socle-rayon-carte': '14px', '--socle-rayon-controle': '9px', '--socle-rayon-bouton': '9px', '--socle-rayon-pastille': '99px',
     '--socle-largeur-lateral': '252px', '--socle-hauteur-entete': '60px', '--socle-hauteur-ajmani': '46px',
   };
@@ -435,6 +436,23 @@ await dit('v4 (06-V4 §1) : deux couleurs par famille pour les onze familles, va
   const racine = /:root\[data-ambiance='noir'\] \{([\s\S]*?)\n\}/.exec(sansCommentaires(noir))?.[1] ?? '';
   assert.match(racine, /\n\s*--fam-a: var\(--socle-fam-systeme-a\);\s*\n\s*--fam-b: var\(--socle-fam-systeme-b\);/, 'par défaut : la paire de Système');
   assert.equal([...noir.matchAll(/--socle-fam-[a-z]+-[ab]:\s*#/g)].length, 22, 'onze paires, pas une de plus');
+});
+
+await dit('v4 (06-V4 §2) : les huit couleurs d’état v3 ne restent nulle part dans le socle (jetons, feuilles, briques, coquille, écrans de LOT-00), ni en hexadécimal ni en rgb()', () => {
+  const V3 = ['8fbf7a', '8aa4d6', 'e0b35a', 'e08a80', '6fb7a8', 'a79bdb', 'd98fa8', 'd9a27a'];
+  const TRIPLETS = ['143, 191, 122', '138, 164, 214', '224, 179, 90', '224, 138, 128', '111, 183, 168', '167, 155, 219', '217, 143, 168', '217, 162, 122'];
+  const hex = new RegExp(`#(?:${V3.join('|')})\\b`, 'i');
+  const rgb = new RegExp(`rgba?\\(\\s*(?:${TRIPLETS.map((t) => t.replace(/, /g, ',\\s*')).join('|')})`, 'i');
+  const fichiers = [...fichiersSous('src/socle'), ...fichiersSous('src/refonte/systeme'), ...fichiersSous('src/refonte/coquille'), ...fichiersSous('src/refonte/compteurs')]
+    .filter((f) => /\.(css|tsx?)$/.test(f));
+  assert.ok(fichiers.length > 50, `${fichiers.length} fichiers relus`);
+  for (const f of fichiers) {
+    const src = lireSrc(f);
+    // La seule mention permise : la teinte de sélection de la fiche MR02, citée en v3 à côté de sa valeur v4.
+    const lu = f === 'src/socle/noir.css' ? src.replace(/MR02 : `#D9A27A` en v3/, '') : src;
+    assert.doesNotMatch(lu, hex, `${f} : une couleur d’état v3 (${lu.match(hex)?.[0]})`);
+    assert.doesNotMatch(lu, rgb, `${f} : une couleur d’état v3 en rgb (${lu.match(rgb)?.[0]})`);
+  }
 });
 
 await dit('noir.css : les noms du socle S0 disent la même chose que les jetons bruts', () => {
@@ -471,17 +489,17 @@ await dit('§1.2 conformes : fond, latéral, carte, champ, cinq bordures, T1, pl
     '--socle-fond-page': '#0c0c0d', '--socle-fond-lateral': '#101011', '--socle-carte-haut': '#161617', '--socle-carte-bas': '#131314', '--socle-champ': '#131314',
     '--socle-bord-carte': '#232325', '--socle-bord-entete': '#1d1d1f', '--socle-bord-ligne': '#19191b', '--socle-bord-lateral': '#222224', '--socle-bord-controle': '#28282b',
     '--socle-texte-1': '#ededed', '--socle-texte-3': '#8a8a8e',
-    '--socle-etat-succes': '#8fbf7a', '--socle-etat-critique': '#e08a80', '--socle-etat-info': '#8aa4d6',
+    '--socle-etat-succes': '#5ee6a8', '--socle-etat-critique': '#ff6b7a', '--socle-etat-info': '#6ea8ff',
     '--socle-largeur-lateral': '252px', '--socle-hauteur-entete': '60px',
   };
   for (const [nom, valeur] of Object.entries(conformes)) assert.equal(brut(nom), valeur, nom);
   assert.equal(['jour', 'contacts', 'ecrire', 'argent', 'echanger', 'creer', 'outils'].filter((f) => /^#[0-9a-f]{6}$/.test(brut(`--socle-fam-${f}`))).length, 7, 'sept familles');
 });
 
-await dit('§1.2 ATTENTION vaut #e0b35a (le socle), et plus la couleur de la famille Créer', () => {
-  assert.equal(brut('--socle-etat-attention'), '#e0b35a');
-  assert.equal(brut('--color-etat-attention'), '#e0b35a');
-  assert.notEqual(brut('--socle-etat-attention'), brut('--socle-fam-creer'), 'ATTENTION ne doit pas être #d9a27a (Créer)');
+await dit('§1.2 ATTENTION vaut #ffbe5c (v4, 06-V4 §2 ; #e0b35a en v3), et plus la couleur de la famille Créer', () => {
+  assert.equal(brut('--socle-etat-attention'), '#ffbe5c');
+  assert.equal(brut('--color-etat-attention'), '#ffbe5c');
+  assert.notEqual(brut('--socle-etat-attention'), brut('--socle-fam-creer'), 'ATTENTION ne doit pas être #ffa463 (Créer)');
   lu('--socle-etat-attention');
 });
 
@@ -635,10 +653,10 @@ await dit('gris de décor (B15), hachures et pointillés d’état, teinte de s�
   assert.match(sans, /--socle-pointille:\s*#2e2e33;/, 'le pointillé gris des zones vides reste');
   // Les hachures sont faites des couleurs d'état ou de T4 : aucune couleur écrite en dur dans un motif.
   for (const [, nom, valeur] of sans.matchAll(/(--socle-(?:hachure|pointille)-[\w-]+):\s*([^;]+);/g)) assert.ok(!/#[0-9a-f]{3,8}|rgba?\(/i.test(valeur), `${nom} écrit une couleur en dur`);
-  // La teinte de sélection #D9A27A des fiches = --socle-fam-creer, documentée là, sans jeton en double.
-  assert.match(noir, /teinte de SÉLECTION[^\n]*#D9A27A[^\n]*--socle-fam-creer[^\n]*\n\s*--socle-fam-creer: #d9a27a;/);
-  const d9 = [...sans.matchAll(/(--[\w-]+):\s*#d9a27a;/gi)].map((m) => m[1]);
-  assert.deepEqual(d9.sort(), ['--color-fam-creer', '--color-fam-creer-texte', '--socle-fam-creer']);
+  // La teinte de sélection des fiches (MR02 #D9A27A en v3, l'orange #FFA463 en v4) = --socle-fam-creer, documentée là, sans jeton en double.
+  assert.match(noir, /teinte de SÉLECTION[^\n]*#D9A27A[^\n]*#FFA463[^\n]*--socle-fam-creer[^\n]*\n\s*--socle-fam-creer: #ffa463;/);
+  const d9 = [...sans.matchAll(/(--[\w-]+):\s*#ffa463;/gi)].map((m) => m[1]);
+  assert.deepEqual(d9.sort(), ['--color-fam-creer', '--color-fam-creer-texte', '--socle-fam-creer', '--socle-fam-creer-a']);
   assert.ok(!/--socle-selection/.test(sans), 'pas de jeton de sélection en double');
 });
 

@@ -58,8 +58,8 @@ export interface SeverityProps {
 }
 
 /**
- * UN NIVEAU — en capitales monospace, 11 px / 600 : CRITIQUE `#e08a80`, MOYEN `#e0b35a`, FAIBLE et INFO
- * `#8aa4d6`, OK `#8fbf7a`. Le mot dit le niveau ; la couleur ne fait que le redire.
+ * UN NIVEAU — en capitales monospace, 11 px / 600 : CRITIQUE `#ff6b7a`, MOYEN `#ffbe5c`, FAIBLE et INFO
+ * `#6ea8ff`, OK `#5ee6a8`. Le mot dit le niveau ; la couleur ne fait que le redire.
  */
 export function Severity({ niveau, children, className = '' }: SeverityProps) {
   const { ts } = useSocleLangue();

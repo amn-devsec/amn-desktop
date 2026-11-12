@@ -767,21 +767,23 @@ const V3 = {
   t1: 'rgb(237, 237, 237)', /* #ededed */
   iconeInactive: 'rgb(160, 160, 165)', /* #a0a0a5 — T3 du socle (`--socle-texte-2`) */
 };
-/** Les huit teintes de famille (§1), telles que le navigateur les rend. */
+/** Les huit teintes de famille, telles que le navigateur les rend : v4 (06-V4 §2) pour les six teintes d'état, gris d'Outils et de La Garde. */
 const TEINTES_FAMILLES = {
-  jour: 'rgb(138, 164, 214)',
-  contacts: 'rgb(111, 183, 168)',
-  ecrire: 'rgb(167, 155, 219)',
-  argent: 'rgb(143, 191, 122)',
-  echanger: 'rgb(217, 143, 168)',
-  creer: 'rgb(217, 162, 122)',
+  jour: 'rgb(110, 168, 255)', /* #6ea8ff (v3 #8aa4d6) */
+  contacts: 'rgb(79, 227, 193)', /* #4fe3c1 (v3 #6fb7a8) */
+  ecrire: 'rgb(165, 139, 255)', /* #a58bff (v3 #a79bdb) */
+  argent: 'rgb(94, 230, 168)', /* #5ee6a8 (v3 #8fbf7a) */
+  echanger: 'rgb(255, 126, 182)', /* #ff7eb6 (v3 #d98fa8) */
+  creer: 'rgb(255, 164, 99)', /* #ffa463 (v3 #d9a27a) */
   outils: 'rgb(154, 154, 160)',
   garde: 'rgb(214, 214, 218)',
 };
-/** L'ambre d'avant (`#d09a4a`) et celui du socle v3 (ATTENTION `#e0b35a`), par composantes. */
-const AMBRE_V3 = [...AMBRE, triplet('#e0b35a')];
-/** Les teintes de famille, par composantes : pour voir une pastille teintée (`rgba(couleur, .13)`) comme une pleine. */
-const TRIPLETS_FAMILLES = Object.values(TEINTES_FAMILLES).map(triplet);
+/** Les teintes v3 des mêmes familles : une pastille d'une ancienne teinte reste une pastille (rien n'est assoupli). */
+const TEINTES_FAMILLES_V3 = ['#8aa4d6', '#6fb7a8', '#a79bdb', '#8fbf7a', '#d98fa8', '#d9a27a'];
+/** L'ambre d'avant (`#d09a4a`), celui du socle v3 (ATTENTION `#e0b35a`) et celui de la v4 (`#ffbe5c`, 06-V4 §2), par composantes. */
+const AMBRE_V3 = [...AMBRE, triplet('#e0b35a'), triplet('#ffbe5c')];
+/** Les teintes de famille, v4 et v3, par composantes : pour voir une pastille teintée (`rgba(couleur, .13)`) comme une pleine. */
+const TRIPLETS_FAMILLES = [...Object.values(TEINTES_FAMILLES), ...TEINTES_FAMILLES_V3].map(triplet);
 
 async function mesurerV3(page) {
   return page.evaluate(

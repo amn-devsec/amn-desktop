@@ -1,7 +1,7 @@
 /**
  * Les tons d'état des composants « vivant » (§0.4) — un NOM, jamais une couleur. La feuille `vivant.css`
- * traduit chaque nom en `var(--socle-etat-…)` (noir.css) par `data-ton` : ok `#8fbf7a`, attention `#e0b35a`,
- * critique `#e08a80`, info `#8aa4d6`. « neutre » est l'encre principale (T1) ou, pour un lien, T3.
+ * traduit chaque nom en `var(--socle-etat-…)` (noir.css) par `data-ton` : ok `#5ee6a8`, attention `#ffbe5c`,
+ * critique `#ff6b7a`, info `#6ea8ff`. « neutre » est l'encre principale (T1) ou, pour un lien, T3.
  */
 export type TonVivant = 'ok' | 'attention' | 'critique' | 'info';
 export type TonVivantNeutre = TonVivant | 'neutre';

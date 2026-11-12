@@ -16,7 +16,8 @@ await dit('noir.css : les jetons de 01-SOCLE-DESIGN §1 et §4, valeur pour vale
   const attendu: Record<string, string> = {
     '--socle-fond-page': '#0c0c0d', '--socle-fond-lateral': '#101011', '--socle-bord-lateral': '#222224',
     '--socle-texte-1': '#ededed', '--socle-texte-courant': '#c4c4c8', '--socle-texte-2': '#a0a0a5', '--socle-texte-3': '#8a8a8e',
-    '--socle-etat-succes': '#8fbf7a', '--socle-etat-attention': '#e0b35a', '--socle-etat-critique': '#e08a80', '--socle-etat-info': '#8aa4d6',
+    // Les couleurs d'état v4 (06-V4 §2), à la place des v3.
+    '--socle-etat-succes': '#5ee6a8', '--socle-etat-attention': '#ffbe5c', '--socle-etat-critique': '#ff6b7a', '--socle-etat-info': '#6ea8ff',
     '--socle-sous-carte': '#111112', '--socle-bord-sous-carte': '#212123', '--socle-bord-bouton': '#2e2e31', '--socle-bord-champ': '#5a5a60',
     '--socle-bord-controle': '#28282b', '--socle-bord-entete': '#1d1d1f', '--socle-bord-ligne': '#19191b', '--socle-pointille': '#2e2e33',
     '--socle-ticket': '#171718', '--socle-bord-ticket': '#262628', '--socle-bord-kanban': '#1e1e20',

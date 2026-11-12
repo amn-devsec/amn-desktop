@@ -275,7 +275,7 @@ await dit('Severity : le mot dit le niveau (fr et en), en capitales monospace 11
   const couleurs: Record<string, string> = { critique: 'critique', moyen: 'attention', faible: 'info', info: 'info', ok: 'succes' };
   for (const [n, etat] of Object.entries(couleurs)) assert.match(vivantCss, new RegExp(`\\.sc-severite\\[data-niveau='${n}'\\][^{]*\\{ --sc-v-c: var\\(--socle-etat-${etat}\\); \\}`), n);
   const j = jetons(noirBrut);
-  assert.deepEqual(['critique', 'attention', 'info', 'succes'].map((e) => j.get(`--socle-etat-${e}`)), ['#e08a80', '#e0b35a', '#8aa4d6', '#8fbf7a']);
+  assert.deepEqual(['critique', 'attention', 'info', 'succes'].map((e) => j.get(`--socle-etat-${e}`)), ['#ff6b7a', '#ffbe5c', '#6ea8ff', '#5ee6a8'], 'les couleurs d’état v4 (06-V4 §2)');
 });
 
 const PUCES = [{ cle: 'tout', libelle: 'Tout', compteur: 12 }, { cle: 'critique', libelle: 'Critiques', compteur: 2 }, { cle: 'faible', libelle: 'Faibles' }];

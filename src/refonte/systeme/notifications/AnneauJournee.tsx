@@ -8,7 +8,7 @@ import { heureHorloge, importanceDe, minutesDuJour, type Journee, type Notificat
 /**
  * L'ANNEAU DE LA JOURNÉE (H40, v3 — `DayRing`) : 24 heures en un cadran, le composant propre à cet écran.
  *
- *   · la piste (rayon 76, 12 px, `#1c1c1e`) ; l'arc des HEURES CALMES (le réglage, `#8aa4d6` à .26) ; l'arc du TEMPS
+ *   · la piste (rayon 76, 12 px, `#1c1c1e`) ; l'arc des HEURES CALMES (le réglage, `#6ea8ff` à .26) ; l'arc du TEMPS
  *     ÉCOULÉ depuis la fin des heures calmes (`#3a3a3e`), qui se dessine à l'ouverture ;
  *   · 24 graduations à l'intérieur (les 4 cardinales plus longues, en `#5f5f64`), « 0 h », « 6 h », « 12 h », « 18 h »
  *     en monospace 10,5 px T4 ;

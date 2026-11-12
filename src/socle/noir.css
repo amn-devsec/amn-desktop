@@ -68,14 +68,16 @@
   --socle-hauteur-entete: 60px;
   --socle-hauteur-ajmani: 46px;
 
-  /* ── Familles : de petites pastilles de 7 à 8 px, rien de plus ── */
-  --socle-fam-jour: #8aa4d6;
-  --socle-fam-contacts: #6fb7a8;
-  --socle-fam-ecrire: #a79bdb;
-  --socle-fam-argent: #8fbf7a;
-  --socle-fam-echanger: #d98fa8;
-  /* La teinte de SÉLECTION des fiches (MR02 : `#D9A27A`) est cette valeur : employez `--socle-fam-creer`, pas de doublon. */
-  --socle-fam-creer: #d9a27a;
+  /* ── Familles : de petites pastilles de 7 à 8 px, rien de plus ──
+     Couleurs v4 (06-V4 §2 : les teintes v3 sarcelle, violet, rose, orange, succès et info remplacées partout) ; Outils et
+     La Garde gardent leur gris d'ici aux règles de rendu de 06 §3 (leur paire v4 est plus bas). */
+  --socle-fam-jour: #6ea8ff;
+  --socle-fam-contacts: #4fe3c1;
+  --socle-fam-ecrire: #a58bff;
+  --socle-fam-argent: #5ee6a8;
+  --socle-fam-echanger: #ff7eb6;
+  /* La teinte de SÉLECTION des fiches (MR02 : `#D9A27A` en v3, l'orange `#FFA463` en v4, 06 §2) est cette valeur : employez `--socle-fam-creer`, pas de doublon. */
+  --socle-fam-creer: #ffa463;
   --socle-fam-outils: #9a9aa0;
   /* La Garde et la supervision : l'icône bouclier, jamais une pastille (01-SOCLE-DESIGN §1). */
   --socle-fam-garde: #d6d6da;
@@ -109,11 +111,11 @@
   --fam-a: var(--socle-fam-systeme-a);
   --fam-b: var(--socle-fam-systeme-b);
 
-  /* ── États ── */
-  --socle-etat-succes: #8fbf7a;
-  --socle-etat-attention: #e0b35a;
-  --socle-etat-critique: #e08a80;
-  --socle-etat-info: #8aa4d6;
+  /* ── États (v4, 06-V4 §2 : succès #5EE6A8, attention #FFBE5C, danger #FF6B7A, info #6EA8FF, à la place des v3) ── */
+  --socle-etat-succes: #5ee6a8;
+  --socle-etat-attention: #ffbe5c;
+  --socle-etat-critique: #ff6b7a;
+  --socle-etat-info: #6ea8ff;
 
   /* ── LOT-00 : les valeurs exactes des 127 maquettes (01-SOCLE-DESIGN, §1 et §4) ──
      Texte : T1 `texte-1`, T2 `texte-courant`, T3 `texte-2`, T4 `texte-3` (le plancher). */
@@ -285,29 +287,29 @@
   --color-socle-voile: rgba(0, 0, 0, 0.66);
 
   /* Sur ce fond, la base d'une famille est déjà lisible en texte (≥ 7:1). */
-  --color-fam-jour: #8aa4d6;
-  --color-fam-jour-texte: #8aa4d6;
-  --color-fam-contacts: #6fb7a8;
-  --color-fam-contacts-texte: #6fb7a8;
-  --color-fam-ecrire: #a79bdb;
-  --color-fam-ecrire-texte: #a79bdb;
-  --color-fam-argent: #8fbf7a;
-  --color-fam-argent-texte: #8fbf7a;
-  --color-fam-echanger: #d98fa8;
-  --color-fam-echanger-texte: #d98fa8;
-  --color-fam-creer: #d9a27a;
-  --color-fam-creer-texte: #d9a27a;
+  --color-fam-jour: #6ea8ff;
+  --color-fam-jour-texte: #6ea8ff;
+  --color-fam-contacts: #4fe3c1;
+  --color-fam-contacts-texte: #4fe3c1;
+  --color-fam-ecrire: #a58bff;
+  --color-fam-ecrire-texte: #a58bff;
+  --color-fam-argent: #5ee6a8;
+  --color-fam-argent-texte: #5ee6a8;
+  --color-fam-echanger: #ff7eb6;
+  --color-fam-echanger-texte: #ff7eb6;
+  --color-fam-creer: #ffa463;
+  --color-fam-creer-texte: #ffa463;
   --color-fam-outils: #9a9aa0;
   --color-fam-outils-texte: #9a9aa0;
 
-  --color-etat-succes: #8fbf7a;
-  --color-etat-succes-texte: #8fbf7a;
-  --color-etat-attention: #e0b35a;
-  --color-etat-attention-texte: #e0b35a;
-  --color-etat-danger: #e08a80;
-  --color-etat-danger-texte: #e08a80;
-  --color-etat-info: #8aa4d6;
-  --color-etat-info-texte: #8aa4d6;
+  --color-etat-succes: #5ee6a8;
+  --color-etat-succes-texte: #5ee6a8;
+  --color-etat-attention: #ffbe5c;
+  --color-etat-attention-texte: #ffbe5c;
+  --color-etat-danger: #ff6b7a;
+  --color-etat-danger-texte: #ff6b7a;
+  --color-etat-info: #6ea8ff;
+  --color-etat-info-texte: #6ea8ff;
   --color-etat-info-fond: color-mix(in srgb, var(--color-etat-info) 14%, transparent);
   --color-etat-info-bord: color-mix(in srgb, var(--color-etat-info) 40%, transparent);
 }

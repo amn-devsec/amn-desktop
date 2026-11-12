@@ -302,7 +302,7 @@ Les noms `amn-fade` et `amn-in` de la fiche D02 sont `data-mvt="fondu"` et `data
 
 - `Mono` (`src/socle/ui/Mono.tsx`, exporté par `src/socle/ui`) : la donnée technique « en MONO » des fiches — `<Mono>10:42:07</Mono>`, `<Mono as="time" dateTime="…">`, `<Mono as="code">`, `taille` de 11 à 18 px (bornée, ±Infinity compris ; la borne l'emporte sur un `style.fontSize` de l'appelant ; NaN hérite du parent) ; la couleur vient du parent. C'est `.sc-mono` de `noir.css` (`--socle-police-mono`, chiffres tabulaires, sans ligatures).
 - `src/socle/formats.ts` : `formaterNombre`, `formaterPourcent` (déjà en pour cent), `formaterRatio` (0 à 1), `formaterEuro`, `formaterMontant`, `formaterDate`, `formaterHeure`, `dateIso`, importables depuis tout code interne (`import { formaterEuro } from '../../socle/formats'`) — `check:socle-graphiques` interdit d'importer `src/socle/ui/graphiques/*` hors du socle ; ce module neutre réexporte les deux sources sans rien recopier. Une valeur illisible (NaN, ±Infinity, date invalide) donne « — » sur chaque export (jamais « NaN € », « 0 % » pour un ratio inconnu ni une exception), sauf `dateIso` qui rend « » ; jamais « -0 € ».
-- Jetons ajoutés dans `noir.css` : `--socle-decor-1/2/3` (illustrations seulement), `--socle-hachure-attention` / `--socle-hachure-grise` (`background-image`), `--socle-pointille-ok` / `--socle-pointille-attention` (`border`) ; la teinte de sélection `#D9A27A` des fiches est `--socle-fam-creer`.
+- Jetons ajoutés dans `noir.css` : `--socle-decor-1/2/3` (illustrations seulement), `--socle-hachure-attention` / `--socle-hachure-grise` (`background-image`), `--socle-pointille-ok` / `--socle-pointille-attention` (`border`) ; la teinte de sélection `#FFA463` des fiches est `--socle-fam-creer`.
 
 ## « Aujourd'hui » et compteurs de la barre latérale (socle v3)
 
@@ -398,3 +398,22 @@ Un écran qui envoie aux Paramètres passe la rubrique dans l'état de navigatio
 - **Par défaut** (hors coquille, page sans famille) : la paire de Système, posée sur la racine noire.
 - Une famille ajoutée (LOT-11) prend l'identifiant `developpement` au registre pour recevoir ses couleurs.
 - Les règles de rendu de 06 § 3 (dégradés, lueurs, barre latérale active…) lisent ces jetons ; elles ne sont pas encore posées.
+
+## Mise à jour — v4 : couleurs d'état (2026-11-12)
+
+Les huit couleurs d'état de 06-V4 § 2 remplacent les v3 partout dans le socle (`noir.css` : `--socle-etat-*`, `--color-etat-*`, et les teintes de famille qui les portaient, `--socle-fam-*` / `--color-fam-*`) :
+
+| Rôle | v3 | v4 |
+|---|---|---|
+| succès | `#8FBF7A` | `#5EE6A8` |
+| info | `#8AA4D6` | `#6EA8FF` |
+| attention | `#E0B35A` | `#FFBE5C` |
+| danger (critique) | `#E08A80` | `#FF6B7A` |
+| sarcelle (Contacts) | `#6FB7A8` | `#4FE3C1` |
+| violet (Écrire) | `#A79BDB` | `#A58BFF` |
+| rose (Échanger) | `#D98FA8` | `#FF7EB6` |
+| orange (Créer, teinte de sélection) | `#D9A27A` | `#FFA463` |
+
+- Les briques lisent les jetons : aucune n'a changé de règle. `check:socle` refuse toute couleur d'état v3 (hexadécimal ou `rgb()`) dans `src/socle`, `src/refonte/systeme`, `src/refonte/coquille` et `src/refonte/compteurs` ; `check:coquille` reconnaît l'ambre v4 et les teintes v4 (et toujours les v3) dans la colonne.
+- Outils (`#9A9AA0`) et La Garde (`#D6D6DA`) gardent leur gris de pastille d'ici aux règles de rendu de 06 § 3 ; leur paire v4 est en `--socle-fam-outils-a/-b` et `--socle-fam-garde-a/-b`.
+- Restent des teintes dérivées de la v3, qui relèvent des règles de rendu (06 § 3) : le fond de l'interrupteur allumé (`--socle-toggle-actif`, vert sombre ; en v4 un dégradé a → b) et le bord du toast (`--socle-bord-toast`).
