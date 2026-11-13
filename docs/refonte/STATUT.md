@@ -3,7 +3,7 @@
 > Tenu par le CO. Une session ne modifie que **la section de son lot** dans « 7. Écrans » (une ligne par écran) ; tout le reste est au CO. Règles : [`REGLES.md`](REGLES.md).
 
 - Branche d'intégration : **`claude/refonte-vivante`** (décision du 31 oct., §1.1). Base `main` @ `630ef45`.
-- Dernière mise à jour : 2026-11-13. Passe finale v4 de S0 terminée (`888f7a0`), passage 2 de T1 lancé : §1.25. Qui travaille sans le socle v4 : §1.24.
+- Dernière mise à jour : 2026-11-13. LOT-12 terminé côté S9, fusionné : §1.26. Passe finale v4 de S0 terminée, passage 2 de T1 : §1.25.
 - LOT-00 (socle v2) est fusionné (`488cdcc`), avec les 4 commits de S5. **Le socle v3 s'y ajoute avant la construction visuelle des lots** (S0 a ses consignes). D'ici là, chaque lot prépare et construit sa logique : §5.
 - Fusionnés aussi le 1er nov. : T1 (API d'essai, bac à sable, contrôle de fidélité) et les données fictives de SIM (100 jeux, `4fe559b`), avec `check:donnees` en CI (87 contrôles).
 - Gardes locales sur `refonte-vivante` : `typecheck`, `typecheck:business`, `lint` et les 55 contrôles sans navigateur de `editions.yml` verts.
@@ -524,6 +524,14 @@ Points 5 à 9 poussés sur `claude/refonte-socle` @ `888f7a0` : section « ESPAC
 Les écarts restants viennent des données d'exemple, des pages derrière les palettes, des méthodes de connexion absentes (G06) et des lignes du registre de D02. Ce sont des **écarts gardés**.
 
 **Passage 2 de T1 : feu vert** sur `888f7a0`, prompt de T1 du 11 nov. (`PROMPTS-11NOV.md`), avec les vérifications ci-dessus. T1 confirme aussi que les 5 échecs connus de S0 (migration, encres, xss, visite, support) échouent **à l'identique sur `main`**. Ensuite seulement : la fusion du socle v4 et l'allumage de la coquille (§1.9).
+
+### 1.26 LOT-12 terminé côté S9 (`b90df75`)
+
+Fusionnée (`refonte-vivante`, après `6d51dcb`), et tout reste vert après la fusion : `check:connecteurs` (100 contrôles), les typechecks des deux éditions, lint, `check:navigation` et `check:developpement`. Les décisions du §1.22 sont appliquées, et il ne reste aucune question ouverte. **S9 est en pause.**
+
+Ce qui reste, hors S9 :
+- **La couture du moteur de H20** : S6, dans LOT-07 (§1.22 n° 4).
+- **Le relevé des tarifs pour H21** : S6, dans LOT-07, au moment de construire H21. Chaque prix est relevé sur la page officielle de l'outil, avec la date du relevé, et il est montré comme « indicatif au <date> ». Aucun prix n'est inventé.
 
 ## 2. Les lots
 
