@@ -3,7 +3,7 @@
 > Tenu par le CO. Une session ne modifie que **la section de son lot** dans « 7. Écrans » (une ligne par écran) ; tout le reste est au CO. Règles : [`REGLES.md`](REGLES.md).
 
 - Branche d'intégration : **`claude/refonte-vivante`** (décision du 31 oct., §1.1). Base `main` @ `630ef45`.
-- Dernière mise à jour : 2026-11-12, soir. Qui travaille sans le socle v4, par priorité : §1.24 et `PROMPTS-12NOV.md`. Seuils de LOT-14 validés : §1.20.
+- Dernière mise à jour : 2026-11-13. Passe finale v4 de S0 terminée (`888f7a0`), passage 2 de T1 lancé : §1.25. Qui travaille sans le socle v4 : §1.24.
 - LOT-00 (socle v2) est fusionné (`488cdcc`), avec les 4 commits de S5. **Le socle v3 s'y ajoute avant la construction visuelle des lots** (S0 a ses consignes). D'ici là, chaque lot prépare et construit sa logique : §5.
 - Fusionnés aussi le 1er nov. : T1 (API d'essai, bac à sable, contrôle de fidélité) et les données fictives de SIM (100 jeux, `4fe559b`), avec `check:donnees` en CI (87 contrôles).
 - Gardes locales sur `refonte-vivante` : `typecheck`, `typecheck:business`, `lint` et les 55 contrôles sans navigateur de `editions.yml` verts.
@@ -506,6 +506,24 @@ Prompts : [`PROMPTS-12NOV.md`](PROMPTS-12NOV.md), qui remplacent ceux du 6 nov. 
 | 5 | **S7** | mise à jour de sa préparation de LOT-06 pour la v4 | Sonnet 5.5, moyen |
 
 **Attendent, sans rien consommer** : T1 (passage 2, quand S0 a poussé le point 9), S2, S3, F1 et S8 étape 3 (après la fusion du socle v4), SRV (en pause).
+
+### 1.25 Passe finale v4 de S0 terminée (`888f7a0`) : réponses du CO, passage 2 de T1
+
+Points 5 à 9 poussés sur `claude/refonte-socle` @ `888f7a0` : section « ESPACES DE TRAVAIL » et 8e hub, tutoiement (guide de voix `src/socle/mots/voix.ts`), `check:tutoiement`, captures comparées aux images v4. Relu par le CO :
+- aucun conflit avec `refonte-vivante` ;
+- aucun fichier `*.business.*` changé depuis `db7e33b` ;
+- `src/screens/**` est intact ;
+- aucun secret.
+
+| # | Question de S0 | Décision |
+|---|---|---|
+| 1 | Troisième halo et voile des pages pleines (absents de 06 §3, mais dessinés par `sources-neon/`) | **Acceptés.** Les sources font partie du dossier v4 et 06 ne les contredit pas. Deux conditions, vérifiées par T1 : le texte reste lisible (AA, plancher T4), et les lueurs animées s'arrêtent quand le mouvement est réduit. |
+| 2 | La famille active posée sur la racine du document pendant que la coquille est affichée | **Accepté**, à deux conditions : l'attribut disparaît quand la coquille est éteinte ou démontée, et il n'existe jamais dans l'édition cliente. T1 le vérifie. |
+| 3 | Point de l'horloge de G09 : couleur principale, sans le dégradé de la source | **Accepté.** Sur un disque de 10 px, le dégradé ne se voit pas. |
+
+Les écarts restants viennent des données d'exemple, des pages derrière les palettes, des méthodes de connexion absentes (G06) et des lignes du registre de D02. Ce sont des **écarts gardés**.
+
+**Passage 2 de T1 : feu vert** sur `888f7a0`, prompt de T1 du 11 nov. (`PROMPTS-11NOV.md`), avec les vérifications ci-dessus. T1 confirme aussi que les 5 échecs connus de S0 (migration, encres, xss, visite, support) échouent **à l'identique sur `main`**. Ensuite seulement : la fusion du socle v4 et l'allumage de la coquille (§1.9).
 
 ## 2. Les lots
 
