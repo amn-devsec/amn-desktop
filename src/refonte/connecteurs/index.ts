@@ -14,6 +14,8 @@ export * from './couts';
 export * from './flux';
 export * from './automatisations';
 export * from './amnApi';
+export * from './demandes';
+export * from './reglages';
 export * from './adaptateurs';
 export * from './i18n';
 export * as moteurs from './moteurs';

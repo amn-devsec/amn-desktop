@@ -8,7 +8,7 @@ import { contientUnMot } from '../flux';
  * essayées par priorité ; aucune ne répond → « À lire ». Un expéditeur connu
  * sans règle qui réponde va dans « Clients ».
  *
- * Les mots par défaut sont une proposition, réglable par l'équipe.
+ * Les mots par défaut sont un point de départ, modifiable par l'équipe.
  */
 
 export interface RegleTri {

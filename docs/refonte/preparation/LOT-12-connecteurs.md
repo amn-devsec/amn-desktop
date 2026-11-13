@@ -6,7 +6,7 @@
 
 ## 1. En bref
 
-- **Livré** : `src/refonte/connecteurs/` (le modèle et les moteurs locaux, purs, sans React ni réseau) et `scripts/check-connecteurs.ts` (`npm run check:connecteurs`, **93 contrôles**, ajouté à `editions.yml`).
+- **Livré** : `src/refonte/connecteurs/` (le modèle et les moteurs locaux, purs, sans React ni réseau) et `scripts/check-connecteurs.ts` (`npm run check:connecteurs`, **100 contrôles**, ajouté à `editions.yml`).
 - **Aucun écran** : H21 reste à LOT-07 (S6), DEV-couts et DEV-editeur à LOT-11 (S8). Ils lisent ce module.
 - **Local d'abord** : chacune des 14 catégories du §4 a une version locale ; un connecteur arrêté rend la main au local (`modeDeCategorie`), l'écran reste utilisable.
 - **Jamais deviné** : aucun tarif n'est écrit. Tous les services sont « à relever » ; tant qu'un tarif n'est pas relevé (source https + date), le connecteur **ne peut pas s'activer**. Le relevé se fait dans `tarifs.ts`, au moment de construire H21.
@@ -26,6 +26,8 @@
 | `automatisations.ts` | Le flux rangé dans une règle du moteur H20 (branches Sinon et Puis), conversion dans les deux sens, plan d'exécution pour le moteur étendu. |
 | `moteurs/` | `temps` (heure de Paris), `planificateur` (+ plages calmes), `courriels`, `relances`, `rappels`, `tri`, `rapports`, `sauvegardes`. |
 | `amnApi.ts` | La liste « Demandé à amn-api ». |
+| `demandes.ts` | « Demander un connecteur » pour un outil hors catalogue (Notion). |
+| `reglages.ts` | Les valeurs de départ des moteurs, réunies et modifiables. |
 | `adaptateurs.ts` | Le jeu `connecteurs` de SIM traduit en prises. |
 | `i18n.ts`, `langue.ts` | Les textes (fr typé contre en) et le crochet `useConnecteursLangue` (seul fichier qui touche à React). |
 
@@ -52,7 +54,7 @@ Refus nommés (et traduits) : tarif à relever, tarif périmé, droit interdit, 
 
 **Banque** : lecture seule, toujours ; la catégorie interdit `ajout`, `ecriture`, `envoi` (vérifié).
 
-### Catalogue (14 catégories, ordre du plan)
+### Catalogue (14 catégories dans l'ordre du plan, puis « Événements reçus »)
 
 | Catégorie | Version locale | Dispo. | Déjà dans le dépôt | Chez nous | Services (tous « à relever ») |
 |---|---|---|---|---|---|
@@ -70,6 +72,7 @@ Refus nommés (et traduits) : tarif à relever, tarif périmé, droit interdit, 
 | Signature | signature simple | prête | `SignatureScreen`, `SignatureDistanceScreen` | — | Yousign, Docusign |
 | Assistant | modèles locaux | prête | `OllamaSection`, `preload.exclusive.internal.ts` | — | API d'un modèle en ligne |
 | Comptabilité | export FEC | prête | `lib/fec.ts` | — | logiciel comptable en ligne |
+| Événements reçus (hors §4, décision du CO §1.22) | événements reçus par notre serveur | à construire | — | Webhooks | — |
 
 La garde vérifie que chaque fichier cité existe : si l'un bouge, elle le dit.
 
@@ -123,7 +126,7 @@ La baie d'exemple de la fiche (8 branchées dont Gmail à reconnecter, 2 libres 
 **Ce que le moteur étendu appelle** : `planDExecution(regleId, flux, sourceId, evenement, { instances })` rend les étapes de la branche choisie, dans l'ordre, avec leur identifiant et leur mode réel (un bloc API dont le service est arrêté passe en local). `evenementDepuisSource` fait d'une `Source` de `sourcesPour` l'événement que lit le SI. `defautsDeLAutomation` signale une règle abîmée.
 
 **Pour S6 (intégration à H20) :**
-1. `useAutomations` et `AutomationsRunner` sont aussi montés par l'édition cliente (`BusinessLayout`). Ils ne doivent pas importer `src/refonte/**` : passer par une couture `@edition/*` (jumeau `.business` vide), ou le CO déplace `automatisations.ts` et `flux.ts` (purs, sans dépendance) vers un endroit neutre. **Question au CO.**
+1. `useAutomations` et `AutomationsRunner` sont aussi montés par l'édition cliente (`BusinessLayout`). **Décidé (§1.22)** : une couture `@edition/*`, le `.business` garde le comportement actuel à l'identique, le `.internal` branche `automatisations.ts` ; S6 la pose dans LOT-07.
 2. Élargir le type `trigger` à `'flux'` ; pour une règle `'flux'`, H20 affiche `flux.nom` au lieu du libellé du déclencheur.
 3. Les nouvelles actions (créer le contact, répondre, classer, prévenir…) écrivent ailleurs que `tasks` et `logbook` : `useAutomationsParRegle` devra les compter.
 4. `Source` n'a ni montant ni expéditeur : un SI « montant » ou « expéditeur connu » sur un déclencheur existant attend ces champs.
@@ -167,14 +170,18 @@ Même liste dans `amnApi.ts`. Rien de ceci n'est contourné dans ce dépôt.
 3. `npm run check:connecteurs` : la garde refuse une source non https, une date future, un montant négatif, une formule incomplète, une option inconnue ou une brique « chez nous ».
 4. Au-delà de 90 jours, l'écran invite à revérifier ; au-delà de 365 jours, l'activation est refusée jusqu'au nouveau relevé.
 
-## 9. Questions au CO
+## 9. Décisions du CO (STATUT §1.22), appliquées
 
-1. **Notion et Webhooks** (prises d'exemple de H21) n'ont pas de catégorie au §4. Proposition : Webhooks = la brique « événements reçus » d'amn-api, affichée comme prise « chez nous » ; Notion = « Demander un connecteur » tant que le §4 ne l'ajoute pas.
-2. **Prise arrêtée** : H21 dessine « libre » mais pas « arrêtée ». Proposition : même dessin que libre, avec « arrêtée le … » à la place de « libre, à brancher ».
-3. **Valeurs par défaut** à valider par Harun : plage clients (lun.–ven. 08:00–19:00), plage équipe (07:30–21:00), 7 jours entre relances, 30 courriels par heure, rotation 7 / 4 / 6, seuil de suggestion à 70 % du forfait.
-4. **Couture pour le moteur H20** : voir §5 bis, point 1.
-5. **Section LOT-12 dans `STATUT.md` § 7** : elle n'existe pas (le lot n'a pas d'écran). Je n'y ai pas touché ; au CO de dire s'il en faut une.
+| # | Question | Décision | Dans le modèle |
+|---|---|---|---|
+| 1 | Notion et Webhooks | Webhooks = brique « événements reçus » d'amn-api, prise « chez nous » ; Notion par « Demander un connecteur » | catégorie `evenements` (hors §4, en 15e position) avec l'option `webhooks` ; `demandes.ts` (`OUTILS_A_DEMANDER`, `demanderUnConnecteur` : lecture seule, une demande par outil et par jour) |
+| 2 | Prise arrêtée | même dessin que libre, « arrêtée le … » | `dessinDePrise`, `texteDEtat` (clé `prise.arretee-le`) |
+| 3 | Valeurs par défaut | adoptées comme valeurs de départ, modifiables | `reglages.ts` : `VALEURS_DE_DEPART`, `avecValeursDeDepart`, `defautsDesReglages` ; chaque moteur prend la valeur réglée en paramètre |
+| 4 | Moteur de H20 | couture `@edition/*`, jumeau `.business` à l'identique, posée par S6 dans LOT-07 | rien à changer ici : `automatisations.ts` est pur, le `.internal` l'importe |
+| 5 | Section LOT-12 au §7 | oui, courte | faite |
+
+Les modèles de sites ajoutés restent sur le poste ; leur partage attend le serveur (LOT-13). Rien à faire dans ce lot.
 
 ## 10. Gardes
 
-`typecheck`, `typecheck:business`, `lint`, `check:donnees`, `check:connecteurs` (93), plus `check:accueils`, `check:socle`, `check:moments` : verts (détail dans `docs/refonte/rapports/S9-connecteurs.md`).
+`typecheck`, `typecheck:business`, `lint`, `check:donnees`, `check:connecteurs` (100), plus `check:accueils`, `check:socle`, `check:moments` : verts (détail dans `docs/refonte/rapports/S9-connecteurs.md`).

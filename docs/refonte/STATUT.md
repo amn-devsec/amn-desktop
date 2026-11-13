@@ -895,6 +895,18 @@ Brief : `07-ESPACE-DEV.md`. Entrée de barre latérale au-dessus de « Surveilla
 | DEV-couts | Développement · Coûts et API | nouveau | fiche écrite | modèle de LOT-12 (S9) ; comptes calculés depuis les connecteurs réels (§1.17 n° 5) ; écart : l'image dit « 5 sur 7 » pour 4 lignes « Local » |
 | DEV-modeles-sites | Développement · Modèles de sites (et vue code) | nouveau | fiche écrite | famille Développement, seconde entrée possible dans Créer et produire (§1.17 n° 3) ; prototype v3 gris : néon et tutoiement à appliquer |
 
+### LOT-12 · Connecteurs et autonomie — `claude/refonte-connecteurs` — aucun écran
+
+Tenue par S9. Pas d'écran à soi : H21 est à LOT-07 (S6), DEV-couts et DEV-editeur à LOT-11 (S8).
+
+- **État** : préparation fusionnée (`890522d`, dans `4254e7a`, §1.22). Décisions du §1.22 appliquées dans le modèle : prise Webhooks « chez nous » (catégorie « Événements reçus »), « Demander un connecteur » pour Notion, prise arrêtée dessinée comme libre avec « arrêtée le … », valeurs de départ réunies et modifiables (`reglages.ts`). Branche : voir le dernier message de S9.
+- **Contenu** : `src/refonte/connecteurs/` (catalogue, tarifs à relever, cycle en 3 clics, règles de H21 et de DEV-couts, flux Quand / Si / Alors rangés dans le moteur de H20, moteurs locaux, liste « Demandé à amn-api »). Note : [`preparation/LOT-12-connecteurs.md`](preparation/LOT-12-connecteurs.md).
+- **Gardes** : `check:connecteurs` (100 contrôles, en CI), plus typecheck des deux éditions, lint, `check:donnees`.
+- **Dépendances** :
+  - S6 (LOT-07) : la couture `@edition/*` du moteur de H20 (jumeau `.business` à l'identique) ; l'écran H21 ; le relevé des tarifs au moment de construire H21.
+  - S8 (LOT-11) : DEV-couts et DEV-editeur, construits sur ce modèle.
+  - amn-api (hors dépôt) : clés côté serveur, retour d'autorisation, envoi SMTP, tâches planifiées, compteurs et plafond, lecture IMAP, événements reçus, sauvegarde nocturne. Chaque point a son repli local.
+
 ## 8. Références
 
 ### Le dépôt est public

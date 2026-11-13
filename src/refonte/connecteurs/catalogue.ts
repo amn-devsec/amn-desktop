@@ -1,7 +1,8 @@
 import type { Categorie, CategorieId, Droit, OptionConnecteur } from './types';
 
 /**
- * LE CATALOGUE — les 14 catégories du §4 de PLAN-10NOV, local d'abord.
+ * LE CATALOGUE — les 14 catégories du §4 de PLAN-10NOV, local d'abord, puis
+ * « Événements reçus » (Webhooks), ajoutée par le CO (STATUT §1.22).
  *
  * Chaque catégorie a TOUJOURS une version locale (gratuite, sur le poste ou
  * sur notre serveur). Ses options sont des prises de H21 :
@@ -245,9 +246,27 @@ export const CATALOGUE: readonly Categorie[] = [
     options: [option('logiciel-comptable', 'Logiciel comptable en ligne', ['ecriture'])],
     droitsInterdits: [],
   },
+  // Hors §4 : décision du CO (STATUT §1.22). Les webhooks sont la brique « événements reçus »
+  // d'amn-api, affichée comme une prise « chez nous ». Aucun service externe : rien à payer.
+  {
+    id: 'evenements',
+    nom: 'categorie.evenements',
+    local: {
+      nom: 'local.evenements.nom',
+      description: 'local.evenements.description',
+      disponibilite: 'a-construire',
+      existant: [],
+      attendDAmnApi: ['webhooks-entrants'],
+    },
+    options: [chezNous('webhooks', 'Webhooks', ['reception'])],
+    droitsInterdits: ['ajout', 'ecriture', 'envoi'],
+  },
 ];
 
-/** L'ordre du plan, pour les listes par catégorie (DEV-couts). */
+/** Les catégories du §4 du plan (les 14 premières) ; les suivantes viennent d'une décision du CO. */
+export const NOMBRE_DE_CATEGORIES_DU_PLAN = 14;
+
+/** L'ordre du catalogue, pour les listes par catégorie (DEV-couts). */
 export const ORDRE_DES_CATEGORIES: readonly CategorieId[] = CATALOGUE.map((c) => c.id);
 
 export function categorie(id: CategorieId): Categorie {

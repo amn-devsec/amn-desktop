@@ -120,8 +120,20 @@ const ORDRE_DU_PLAN = [
   'notifications', 'sms', 'whatsapp', 'telephonie', 'signature', 'assistant', 'comptabilite',
 ];
 
-dit('les 14 catégories du §4 du plan, dans son ordre, sans doublon', () => {
-  assert.deepEqual(K.CATALOGUE.map((c: any) => c.id), ORDRE_DU_PLAN);
+dit('les 14 catégories du §4 du plan, dans son ordre, puis « Événements reçus » (décision du CO, §1.22)', () => {
+  assert.equal(K.NOMBRE_DE_CATEGORIES_DU_PLAN, 14);
+  assert.deepEqual(K.CATALOGUE.map((c: any) => c.id), [...ORDRE_DU_PLAN, 'evenements']);
+});
+
+dit('Webhooks : une prise « chez nous », en réception seule, qui attend les événements reçus d’amn-api', () => {
+  const ev = K.categorie('evenements');
+  assert.deepEqual(ev.options.map((o: any) => [o.id, o.nature, [...o.droits]]), [['webhooks', 'chez-nous', ['reception']]]);
+  assert.deepEqual([...ev.local.attendDAmnApi], ['webhooks-entrants']);
+  for (const d of ['ajout', 'ecriture', 'envoi']) assert.ok(ev.droitsInterdits.includes(d), d);
+  const { fini } = activerJusquAuBout(K.instanceLibre('evenements', 'webhooks', 7), 0, ctx());
+  assert.equal(K.modeDeCategorie('evenements', [fini.instance]), 'local');
+  assert.equal(K.pastille('evenements', [fini.instance]), 'local');
+  assert.equal(K.pastille('evenements', []), 'a-brancher');
 });
 
 dit('chaque catégorie a une version locale décrite, avec une disponibilité connue', () => {
@@ -142,9 +154,9 @@ dit('ce qu’une version locale attend d’amn-api est dans la liste « Demandé
   for (const c of K.CATALOGUE) for (const a of c.local.attendDAmnApi) assert.ok(ids.has(a), `${c.id} : ${a}`);
 });
 
-dit('chaque catégorie a au moins un service externe facultatif ; identifiants uniques', () => {
+dit('chaque catégorie du plan a au moins un service externe facultatif ; identifiants uniques', () => {
   for (const c of K.CATALOGUE) {
-    assert.ok(c.options.some((o: any) => o.nature === 'service'), c.id);
+    if (ORDRE_DU_PLAN.includes(c.id)) assert.ok(c.options.some((o: any) => o.nature === 'service'), c.id);
     const ids = c.options.map((o: any) => o.id);
     assert.equal(new Set(ids).size, ids.length, c.id);
   }
@@ -213,6 +225,7 @@ dit('fraîcheur : frais jusqu’à 90 jours, ancien jusqu’à 365, périmé au-
 section('Cycle : coût avant, trois clics, plafond, retour au local');
 
 const catalogueEssai = K.catalogueTarife([releveValide]);
+const FR_DICT = K.DICTIONNAIRES_CONNECTEURS.fr;
 const ctxEssai = (sur: Record<string, unknown> = {}) => ctx({ catalogue: catalogueEssai, ...sur });
 
 dit('les parcours tiennent en trois clics au plus (activer 3, arrêter 2, reconnecter 2)', () => {
@@ -396,6 +409,17 @@ dit('droits accordés : 4 en lecture seule, 2 en lecture et écriture, 2 en envo
   assert.deepEqual(g['lecture-seule'], ['paiement', 'hebergement', 'messagerie', 'hebergement']);
   assert.deepEqual(g['lecture-ecriture'], ['agenda', 'whatsapp']);
   assert.deepEqual(g['envoi-reception'], ['notifications', 'sms']);
+});
+
+dit('dessin des prises : branchée, débranchée (câble qui pend), libre ; une prise arrêtée se dessine libre, « arrêtée le … »', () => {
+  const d = BAIE.map((i: any) => K.dessinDePrise(K.etatDePrise(i, MAINTENANT)));
+  assert.deepEqual(d, ['branchee', 'branchee', 'branchee', 'debranchee', 'branchee', 'branchee', 'branchee', 'branchee', 'libre', 'libre']);
+  const arretee = ok(K.arreter(BAIE[1], 'volontaire', ctx({ maintenant: paris('2026-11-10', '09:00') }))).instance;
+  assert.equal(K.dessinDePrise(K.etatDePrise(arretee, MAINTENANT)), 'libre');
+  assert.deepEqual(K.texteDEtat(arretee, MAINTENANT), { cle: 'prise.arretee-le', date: '2026-11-10' });
+  assert.deepEqual(K.texteDEtat(BAIE[8], MAINTENANT), { cle: 'prise.libre' });
+  assert.ok(K.correspondALaPuce(K.etatDePrise(arretee, MAINTENANT), 'libres'));
+  for (const i of BAIE) assert.ok(FR_DICT[K.texteDEtat(i, MAINTENANT).cle], K.numeroDePrise(i.prise));
 });
 
 dit('dernière erreur : Gmail ; aucune erreur → null', () => {
@@ -907,6 +931,65 @@ dit('sauvegardes : à jour, due, en retard ; rotation 7 jours, 4 semaines, 6 moi
   const garde = [...sauvegardes.aConserver(copies)].map((id: string) => Number(id.slice(1))).sort((a, b) => a - b);
   assert.deepEqual(garde, [0, 1, 2, 3, 4, 5, 6, 11, 12, 18, 43, 73, 104, 135]);
   assert.deepEqual([...sauvegardes.aConserver([])], []);
+});
+
+/* ─────────────── Décisions du CO (§1.22) : demandes et réglages ─────────────── */
+section('Demander un connecteur, valeurs de départ modifiables');
+
+dit('Notion passe par « Demander un connecteur » : lecture seule, une demande par outil et par jour', () => {
+  assert.deepEqual(K.OUTILS_A_DEMANDER.map((o: any) => o.id), ['notion']);
+  const r = ok(K.demanderUnConnecteur('Notion', 'aaron@equipe.exemple.test', MAINTENANT));
+  assert.deepEqual(r, { id: 'demande-notion-2026-11-12', outilId: 'notion', nom: 'Notion', droits: ['lecture'], parEmail: 'aaron@equipe.exemple.test', at: MAINTENANT });
+  assert.equal(ok(K.demanderUnConnecteur('  notion ', 'riyad@equipe.exemple.test', MAINTENANT + H)).id, r.id);
+  assert.equal(ok(K.demanderUnConnecteur('Mon Outil Été', 'x@equipe.exemple.test', MAINTENANT)).outilId, 'mon-outil-ete');
+});
+
+dit('une demande pour un outil déjà au catalogue renvoie à « Brancher » ; un nom vide ou trop long est refusé', () => {
+  assert.equal(K.demanderUnConnecteur('Stripe', 'x@equipe.exemple.test', MAINTENANT).raison, 'deja-au-catalogue');
+  assert.equal(K.demanderUnConnecteur('Webhooks', 'x@equipe.exemple.test', MAINTENANT).raison, 'deja-au-catalogue');
+  assert.equal(K.demanderUnConnecteur(' !? ', 'x@equipe.exemple.test', MAINTENANT).raison, 'nom-invalide');
+  assert.equal(K.demanderUnConnecteur('x'.repeat(61), 'x@equipe.exemple.test', MAINTENANT).raison, 'nom-invalide');
+});
+
+dit('valeurs de départ adoptées : 08:00–19:00 en semaine, 07:30–21:00, 7 jours, 30 par heure, 7 / 4 / 6, 70 %', () => {
+  const v = K.VALEURS_DE_DEPART;
+  assert.deepEqual(v.plageClients, { jours: [1, 2, 3, 4, 5], debut: '08:00', fin: '19:00' });
+  assert.deepEqual(v.plageEquipe, { jours: [1, 2, 3, 4, 5, 6, 7], debut: '07:30', fin: '21:00' });
+  assert.equal(v.delaiEntreRelancesJours, 7);
+  assert.equal(v.maxCourrielsParHeure, 30);
+  assert.deepEqual(v.rotationSauvegardes, { quotidiennes: 7, hebdomadaires: 4, mensuelles: 6 });
+  assert.equal(v.seuilSuggestionForfaitPct, 70);
+  assert.deepEqual(K.defautsDesReglages(v), []);
+  assert.deepEqual(K.avecValeursDeDepart(), v);
+});
+
+dit('modifiables : un réglage changé l’emporte, le reste garde sa valeur de départ, une valeur absurde est nommée', () => {
+  const r = K.avecValeursDeDepart({ delaiEntreRelancesJours: 10, rotationSauvegardes: { mensuelles: 12 } });
+  assert.equal(r.delaiEntreRelancesJours, 10);
+  assert.deepEqual(r.rotationSauvegardes, { quotidiennes: 7, hebdomadaires: 4, mensuelles: 12 });
+  assert.equal(r.maxCourrielsParHeure, 30);
+  const mauvais = K.avecValeursDeDepart({
+    plageClients: { jours: [], debut: '08:00', fin: '19:00' },
+    plageEquipe: { jours: [1], debut: '21:00', fin: '07:30' },
+    delaiEntreRelancesJours: 0,
+    maxCourrielsParHeure: 2.5,
+    rotationSauvegardes: { quotidiennes: 0 },
+    seuilSuggestionForfaitPct: 150,
+  });
+  assert.deepEqual(K.defautsDesReglages(mauvais), ['plage-clients', 'plage-equipe', 'delai-relances', 'max-courriels', 'rotation', 'seuil-forfait']);
+});
+
+dit('les moteurs prennent les réglages changés : relances, envois, rappels, rotation', () => {
+  const r = K.avecValeursDeDepart({ delaiEntreRelancesJours: 3, maxCourrielsParHeure: 5, plageClients: { jours: [1, 2, 3, 4, 5, 6, 7], debut: '08:00', fin: '20:00' }, rotationSauvegardes: { quotidiennes: 2, hebdomadaires: 0, mensuelles: 0 } });
+  const f = facture('a', '2026-10-01', { derniereRelance: { palier: 'ferme', le: '2026-11-08' } });
+  assert.equal(relances.relancesDuJour([f], AUJ).length, 0);
+  assert.equal(relances.relancesDuJour([f], AUJ, r.delaiEntreRelancesJours).length, 1);
+  assert.equal(courriels.lotDeLHeure(Array.from({ length: 9 }, (_, i) => ({ id: `${i}` })), 0, r.maxCourrielsParHeure).length, 5);
+  const samedi = paris('2026-11-14', '10:00');
+  assert.deepEqual(courriels.decider(COURRIEL, { ...ctxEnvoi({ maintenant: samedi }), plage: r.plageClients }), { statut: 'envoyer' });
+  assert.equal(rappels.heureDuRappel(RDV_LUNDI.debutAt, { avantMin: 1440, pour: 'client' }, { clients: r.plageClients, equipe: r.plageEquipe }), paris('2026-11-15', '09:00'));
+  const copies = Array.from({ length: 10 }, (_, i) => ({ id: `s${i}`, at: paris(temps.ajouterJours(AUJ, -i), '02:00') }));
+  assert.deepEqual([...sauvegardes.aConserver(copies, r.rotationSauvegardes)].sort(), ['s0', 's1']);
 });
 
 /* ───────────────────────── Textes : deux voix ───────────────────────── */

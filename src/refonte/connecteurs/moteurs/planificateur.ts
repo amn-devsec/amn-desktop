@@ -67,7 +67,7 @@ export function occurrenceAExecuter(p: Planification, etat: { dernierPassageAt: 
 
 /**
  * Une plage d'envoi : on n'écrit pas à un client la nuit ni le week-end, et on
- * ne réveille pas l'équipe. Valeurs par défaut : proposition, réglables.
+ * ne réveille pas l'équipe. Valeurs de départ adoptées (STATUT §1.22), modifiables : `reglages.ts`.
  */
 export interface Plage {
   jours: readonly number[];
@@ -75,9 +75,9 @@ export interface Plage {
   fin: string;
 }
 
-/** Textes aux clients : du lundi au vendredi, de 08:00 à 19:00 (proposition). */
+/** Textes aux clients : du lundi au vendredi, de 08:00 à 19:00 (valeur de départ). */
 export const PLAGE_CLIENTS: Plage = { jours: [1, 2, 3, 4, 5], debut: '08:00', fin: '19:00' };
-/** Notifications à l'équipe : tous les jours, de 07:30 à 21:00 (proposition). */
+/** Notifications à l'équipe : tous les jours, de 07:30 à 21:00 (valeur de départ). */
 export const PLAGE_EQUIPE: Plage = { jours: [1, 2, 3, 4, 5, 6, 7], debut: '07:30', fin: '21:00' };
 
 export function dansLaPlage(ms: number, plage: Plage): boolean {

@@ -1,3 +1,4 @@
+import type { CleConnecteurs } from './i18n';
 import type { CategorieId, ConnecteurInstance, Droit } from './types';
 
 /**
@@ -32,6 +33,31 @@ export function etatDePrise(i: ConnecteurInstance, maintenant: number): EtatDePr
   if (i.synchroEnCours) return 'synchro';
   if (i.derniereSynchroAt === null || maintenant - i.derniereSynchroAt > RETARD_SYNCHRO_MS) return 'synchro-en-retard';
   return 'branche';
+}
+
+/**
+ * Le dessin de la prise sur la baie (H21) :
+ *   · `branchee`   : fiche pleine, câble relié au bus ;
+ *   · `debranchee` : fiche vide, câble qui pend du bus (à reconnecter, en erreur) ;
+ *   · `libre`      : pointillé, sans câble. Une prise ARRÊTÉE se dessine ainsi, avec
+ *                    « arrêtée le … » à la place de « libre, à brancher » (STATUT §1.22).
+ */
+export type DessinDePrise = 'branchee' | 'debranchee' | 'libre';
+
+export function dessinDePrise(e: EtatDePrise): DessinDePrise {
+  if (e === 'branche' || e === 'synchro' || e === 'synchro-en-retard') return 'branchee';
+  if (e === 'a-reconnecter' || e === 'en-erreur') return 'debranchee';
+  return 'libre';
+}
+
+/** La clé du texte d'état sous le nom de la prise ; `date` (jour) pour une prise arrêtée. */
+export function texteDEtat(i: ConnecteurInstance, maintenant: number): { cle: CleConnecteurs; date?: string } {
+  const e = etatDePrise(i, maintenant);
+  if (e === 'arrete') {
+    const jour = i.changeAt === null ? undefined : new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Paris', year: 'numeric', month: '2-digit', day: '2-digit' }).format(i.changeAt);
+    return { cle: 'prise.arretee-le', date: jour };
+  }
+  return { cle: `prise.${e}` as CleConnecteurs };
 }
 
 /** Une prise est « branchée » quand un service y est relié, en forme ou non. */

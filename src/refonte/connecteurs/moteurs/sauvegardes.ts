@@ -8,7 +8,7 @@ import { ajouterJours, jourIsoDe, partiesParis } from './temps';
  *
  *   · une sauvegarde par jour par défaut ; « en retard » au-delà d'une fois et demie ;
  *   · rotation « grand-père, père, fils » : la plus récente de chacun des 7
- *     derniers jours, des 4 dernières semaines et des 6 derniers mois (proposition).
+ *     derniers jours, des 4 dernières semaines et des 6 derniers mois (valeur de départ, modifiable).
  *
  * La copie chiffrée hors du poste, la nuit, poste fermé, est demandée à
  * amn-api (`amnApi.ts`, « sauvegarde-serveur »).

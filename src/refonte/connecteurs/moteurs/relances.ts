@@ -9,7 +9,7 @@ import type { Jour } from '../types';
  * moteur décide, chaque jour, QUELLES factures relancer, sans harceler :
  *
  *   · jamais une facture payée, en litige, ou pas encore échue ;
- *   · jamais deux relances à moins de 7 jours d'écart (proposition) ;
+ *   · jamais deux relances à moins de 7 jours d'écart (valeur de départ, modifiable) ;
  *   · « rappel » et « relance ferme » peuvent être préparés et envoyés seuls ;
  *   · « mise en demeure » et « dernier avis » attendent TOUJOURS une personne :
  *     ce moteur ne les envoie jamais de lui-même (même règle que `RemindersScreen`).
