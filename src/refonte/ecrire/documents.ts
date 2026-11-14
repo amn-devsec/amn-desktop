@@ -119,6 +119,8 @@ export interface FaitReleve {
   repere: number | null;
   verifiePar?: string | null;
   verifieLe?: Jour | null;
+  /** Version où ce fait est apparu (« ajouté en v3 », image v4). */
+  ajouteEnVersion?: number | null;
 }
 
 export type EtatDuFait = 'verifie' | 'a-verifier' | 'sans-repere';

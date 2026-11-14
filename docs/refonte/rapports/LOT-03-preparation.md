@@ -3,7 +3,7 @@
 ## Résumé (5 lignes au plus)
 
 1. Logique pure du lot dans `src/refonte/ecrire/` (14 fichiers, sans React ni brique du socle) : série d'écriture unique, pages, file de relecture, documents, signatures (dont relances automatiques), modèles, journal privé, rédaction, archives, base de connaissances avec réponse sourcée d'Ajmani, vue d'ensemble.
-2. Garde `check:ecrire` : **94 contrôles** (cas des fiches, rejeu sur les jeux fictifs aux 4 volumes, structure), dans `package.json` et `editions.yml`.
+2. Garde `check:ecrire` : **99 contrôles** (cas des fiches, rejeu sur les jeux fictifs aux 4 volumes, structure), dans `package.json` et `editions.yml`.
 3. Textes fr/en au tutoiement (≈ 100 clés) ; ce qui part chez un client reste au vouvoiement. Note de préparation `preparation/LOT-03-ecrire.md` ; section LOT-03 du `STATUT.md` à jour.
 4. Dossier v4 lu (fiches, `06`, `tutoiement.json`). **Les images v4 n'ont pas été ouvertes** : la fidélité à ± 2 px reste à vérifier à la construction.
 5. Six questions pour le CO (note §6), dont ME04 Archives : aucun module n'existe, il faut une collection.
@@ -73,7 +73,7 @@ Aucun fichier `*.business.*`, aucun fichier du socle, `src/screens/**`, `src/ass
 | `check:moments` | OK |
 | `check:navigation` | OK |
 | `check:donnees` | OK |
-| `check:ecrire` (nouveau, dans `editions.yml`) | OK, 94 contrôles |
+| `check:ecrire` (nouveau, dans `editions.yml`) | OK, 99 contrôles |
 | `check:ancres` (hors `editions.yml`) | **échoue** : `PageDemoSocle.tsx:148` et `Coquille.tsx:29` (code du socle fusionné, `href="#…"`). Rien du lot. |
 | `check:contacts`, `check:developpement`, `check:connecteurs`, `check:langue`, `check:modules`, `check:garde-refonte`, `check:ecrans`, `check:barre`, `check:calques` | OK |
 

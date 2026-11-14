@@ -932,7 +932,7 @@ Préparation par S1 (14 nov., `claude/refonte-contacts`) : note [`preparation/LO
 | ME04 | Écrire · Archives | mixte | en cours (préparation) | préparation : **aucun module existant** ; logique `archives.ts` ; collection à décider (note §6, 2) |
 | ME05 | Écrire · Base de connaissances | mixte | en cours (préparation) | préparation : `KnowledgeScreen` `/knowledge` (titre, texte, date) ; logique `connaissances.ts` dont la réponse sourcée d'Ajmani |
 
-Préparation par S5 (14 nov., `claude/refonte-ecrire`) : note [`preparation/LOT-03-ecrire.md`](preparation/LOT-03-ecrire.md), logique dans `src/refonte/ecrire/`, garde `check:ecrire` (94 contrôles), rapport [`rapports/LOT-03-preparation.md`](rapports/LOT-03-preparation.md). Aucun écran visuel. Dossier v4 lu (fiches, `06`, `tutoiement.json`) ; **les images v4 n'ont pas été ouvertes**. La série d'écriture est une seule règle pour F20, H10 et ME01 (« Proposition » de F20 §9, à valider). La note épinglée d'un client, source demandée par H41, est dans `pages.ts`.
+Préparation par S5 (14 nov., `claude/refonte-ecrire`) : note [`preparation/LOT-03-ecrire.md`](preparation/LOT-03-ecrire.md), logique dans `src/refonte/ecrire/`, garde `check:ecrire` (99 contrôles), rapport [`rapports/LOT-03-preparation.md`](rapports/LOT-03-preparation.md). Aucun écran visuel. Dossier v4 lu (fiches, `06`, `tutoiement.json`) ; **les images v4 n'ont pas été ouvertes**. La série d'écriture est une seule règle pour F20, H10 et ME01 (« Proposition » de F20 §9, à valider). La note épinglée d'un client, source demandée par H41, est dans `pages.ts`.
 
 **Manque au socle**
 - `ModuleTile` (hauteur 50), `ModuleGroupGrid`, `AddModuleTile` pour F20 ; `ShortcutList` ; `SuggestionCompact` (cités, à confirmer par S0).
