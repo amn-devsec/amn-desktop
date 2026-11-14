@@ -13,8 +13,8 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 | Session | Identifiant | État | Prochain geste |
 |---|---|---|---|
 | S0 Socle | `session_01SJe828c2W5EnkMY4fhFY6z` | attend l'accord direct de Harun | sa liste, §1.38 |
-| T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | `check:fidelite` par lot (aperçu + application) | LOT-11 en mesure ; puis LOT-03 (dès ME05), LOT-02 |
-| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **LOT-02 accepté par T1** (13/13) ; zones de clic faites (`41d78356`) | corriger les imports de graphiques (`check:socle-graphiques`) → contrôle court T1 → fusion |
+| T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | `check:fidelite` par lot (aperçu + application) | test au clic réel des cibles de LOT-02 (7 routes) ; LOT-03 dès ME05 ; sonde courte de LOT-11 `5523167` |
+| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **LOT-02 fusionné** (13/13) | réserve sur les cibles : attendre le test au clic réel de T1, puis corriger ce qui reste |
 | S2 | `session_014ZkF6SeGRNi6NR3uEsjM5q` | préparation de LOT-01 finie ; **sans zips v4** | en pause jusqu'aux zips |
 | S3 | `session_01FBSpK6n1yYtYXYyxbLAuBV` | attend l'accord de Harun (`check:encres`) ; **sans zips v4** | correctif d'`equipes.ts`, puis LOT-08 |
 | S5 | `session_012jWErBSSkcoVaU3iN895bQ` | LOT-03 complet, mise en page acceptée ; ME05 encore dans l'ancien bureau | retirer `/knowledge` et `/decisions` du Supervisor → T1 → fusion ; puis LOT-05 |
@@ -40,7 +40,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 | Jour | Construits | Livrés (cumul) | Livrés depuis la veille | Lots préparés | Lots finis | Note |
 |---|---|---|---|---|---|---|
-| 14 nov. | 57 / 153 | 31 (LOT-00 9, LOT-06 15, LOT-11 7) | 31 | 8 / 13 | 2 / 13 (LOT-06, LOT-11) ; LOT-00 attend l'allumage | LOT-02 (13) accepté par T1, retenu sur un import de graphiques (S1 corrige). Les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. |
+| 14 nov. | 57 / 153 | 44 (LOT-00 9, LOT-06 15, LOT-11 7, LOT-02 13) | 44 | 8 / 13 | 3 / 13 (LOT-06, LOT-11, LOT-02) ; LOT-00 attend l'allumage | LOT-02 fusionné avec une réserve sur les cibles (test au clic réel par T1). Les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. |
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
@@ -51,6 +51,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 - 14 nov., 10h15 : **LOT-06 fusionné** (`e1615090`, 15 écrans), **premier lot livré** de la vague de construction. T1 l'a accepté : fidélité sur l'aperçu, les 15 écrans justifiés ; structure sur l'application, les 12 routes montées dans la coquille v4, rien de coupé à 390 px. Suites demandées à S7 : relire 6 écrans au-dessus de 15 % en disposition (H17, MR01, MR10, H16, MR05, MR04) ; zones de clic de 34 px (§1.39) ; l'état vide de H17 (« Le livre de marque d’ · ») ; les entrées de registre de ses 3 écrans neufs. T1 fixe les valeurs acceptées de LOT-06.
 - 14 nov., 10h00 : **LOT-06 complet** (S7, `277263a`, 15 sur 15). S7 et S8 butent tous deux sur `check:systeme-demarrage` (« le registre ne doit pas bouger », qui perd les fonctions des écrans neufs). Le correctif est sur la branche LOT-03 de S5 et arrive avec sa fusion. Ordre : LOT-03, puis S7 et S8 déclarent leurs écrans neufs, puis LOT-06 et LOT-11.
 - 14 nov., 10h00 : méthode de `check:fidelite` (§1.40). La fidélité se mesure sur l'aperçu statique, rempli avec les jeux de SIM ; l'application sert à la structure. Pas de collection nouvelle dans l'API d'essai.
+- 14 nov., 11h10 : **LOT-02 Contacts fusionné** (S1 `850f940b`, T1 `a3184509` et `e705a8eb`) : troisième lot livré, 13 écrans. Fidélité, structure et paquet client sont bons. **Réserve sur les cibles** (réversible, la coquille n'est pas allumée) : la sonde de T1 ne confirme pas le « 0 sous 34 px » sur 7 routes (pastilles de F10, points de H06, MC01, MC04, MC06, H05 Mosaïque, MC02 recherche). T1 fait un test au clic réel, puis S1 corrige. Fusionnés avec : suite de LOT-06 (S7 `e580cbb3`, T1 `d3d8b455`), zones de 36 px de LOT-11 (S8 `5523167`). Gardes : seuls les échecs connus.
 - 14 nov., 11h05 : zones de clic, règle commune §1.41 : 36 px, et le centre de l'élément ne doit jamais renvoyer un voisin. Bord des zones du socle à 34 px : ajouté à la liste de S0.
 - 14 nov., 11h00 : **LOT-11 Développement fusionné** (S8 `f363811`, T1 `026759b1`), deuxième lot livré : 7 écrans dans les seuils, DEV-modeles-sites justifié (image v3), paquet client identique. Reste « Relancer » 72×26 sur le serveur (S8). Gardes : seuls les échecs connus.
 - 14 nov., 10h55 : **LOT-02 accepté par T1, fusion retenue** : la fusion d'essai rend `check:socle-graphiques` rouge (5 fichiers de `src/refonte/contacts/` importent `socle/ui/graphiques`). Correctif demandé à S1 : `formaterEuro` depuis `socle/formats`, `MiniCourbe` depuis l'index `socle/ui`. La garde de S0 n'est pas touchée.
