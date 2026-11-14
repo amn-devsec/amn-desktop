@@ -197,7 +197,7 @@ button.cr-rail__noeud { cursor: pointer; }
 .cr-bilan { display: flex; align-items: center; gap: 12px; margin: 0 14px 8px; padding: 10px 14px; border-radius: var(--socle-rayon-sous-carte); background: var(--socle-sous-carte); border: 1px solid var(--socle-bord-sous-carte); }
 .cr-bilan b { display: block; font-size: 13px; font-weight: 500; color: var(--socle-texte-1); }
 .cr-bilan small { font-size: 12px; color: var(--socle-texte-3); }
-.cr-bilan__anneau { width: 30px; height: 30px; border-radius: 50%; background: conic-gradient(var(--fam-a) calc(var(--pct) * 1%), var(--socle-anneau-fond) 0); -webkit-mask: radial-gradient(circle 11px, transparent 98%, #000 100%); mask: radial-gradient(circle 11px, transparent 98%, #000 100%); }
+.cr-bilan__anneau { width: 30px; height: 30px; border-radius: 50%; background: conic-gradient(var(--fam-a) calc(var(--pct) * 1%), var(--socle-anneau-fond) 0); -webkit-mask: radial-gradient(circle 11px, transparent 98%, rgb(255 255 255) 100%); mask: radial-gradient(circle 11px, transparent 98%, rgb(255 255 255) 100%); }
 .cr-agenda__jour { margin: 10px 18px 2px; font-size: 11px; letter-spacing: .08em; font-weight: 500; color: var(--socle-texte-3); }
 .cr-agenda__ligne { display: grid; grid-template-columns: 44px 1fr 22px; gap: 8px; align-items: center; min-height: 39px; padding: 0 18px; }
 .cr-agenda__texte { border-left: 2px solid var(--fam-a); padding-left: 10px; display: flex; flex-direction: column; }
