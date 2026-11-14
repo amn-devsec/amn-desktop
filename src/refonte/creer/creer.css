@@ -346,7 +346,7 @@ button.cr-rail__noeud { cursor: pointer; }
 .cr-ajmani-carte { padding: 14px 16px; border-radius: var(--socle-rayon-carte); border: 1px solid transparent; background: linear-gradient(var(--socle-carte-bas), var(--socle-carte-bas)) padding-box, linear-gradient(135deg, var(--fam-a), var(--fam-b)) border-box; }
 .cr-ajmani-carte b { display: block; font-size: 14px; color: var(--socle-texte-1); }
 .cr-ajmani-carte p { margin: 6px 0 12px; font-size: 13px; line-height: 18px; color: var(--socle-texte-2); }
-.cr-ajmani-carte div { display: flex; gap: 8px; }
+.cr-ajmani-carte__actions { display: flex; gap: 8px; }
 .cr-bouton-plein { border: 0; border-radius: var(--socle-rayon-bouton); background: linear-gradient(135deg, var(--fam-a), var(--fam-b)); color: var(--socle-primaire-encre); font: inherit; font-size: 13px; font-weight: 600; padding: 7px 16px; cursor: pointer; box-shadow: 0 4px 14px color-mix(in srgb, var(--fam-a) 40%, transparent); }
 .cr-frise { padding-bottom: 8px; }
 .cr-frise > header .sc-segmente, .cr-frise > header [data-socle='segmente'] { margin-left: 0; }

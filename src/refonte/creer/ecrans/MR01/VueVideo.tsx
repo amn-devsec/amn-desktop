@@ -116,7 +116,10 @@ export function VueVideo(p: VueVideoProps) {
             <section className="cr-ajmani-carte">
               <b>{tm('suggestion.titre')}</b>
               <p>{tm('suggestion.texte')}</p>
-              <div><button type="button" className="cr-bouton-plein" onClick={p.onPreparer}>{tm('suggestion.preparer')}</button><button type="button" className="cr-bouton-verre" onClick={p.onNon}>{tm('suggestion.non')}</button></div>
+              <div className="cr-ajmani-carte__actions">
+                <button type="button" className="cr-bouton-plein" onClick={p.onPreparer}>{tm('suggestion.preparer')}</button>
+                <button type="button" className="cr-bouton-verre" onClick={p.onNon}>{tm('suggestion.non')}</button>
+              </div>
             </section>
           )}
         </aside>
