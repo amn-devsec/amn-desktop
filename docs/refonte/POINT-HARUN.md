@@ -1,23 +1,39 @@
 # Point pour Harun
 
-> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 03h30 UTC.
+> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 03h40 UTC.
 
-**⚠ Zips v4** : **SIM a confirmé qu'il ne les a pas. DS et S1 ont écrit la même chose dans leur rapport** (j'attends leur confirmation). Ils continuent sans attendre, mais leurs textes ne sont pas comparés aux fiches v4 tant qu'ils n'ont pas les zips. Il leur faut les 5 zips : `AMN-v4-1-docs.zip` et `AMN-v4-2` à `5-images.zip`.
+**⚠ Zips v4** : **SIM a confirmé qu'il ne les a pas. DS et S1 ont écrit la même chose dans leur rapport** (j'attends leur confirmation). La solution durable est le dépôt privé décrit plus bas. Elle évite de redonner les zips à chaque session.
 
-**Fait** : le chargeur de données fictives de SIM est fusionné : `LANCER-EN-LOCAL.md` étape 4 montre comment remplir l'application sur ton PC. Préparations fusionnées pour LOT-02 (S1), LOT-03 (S5), LOT-04 (DS), LOT-06 (S7), LOT-11 (S8) et LOT-12 (S9), toutes gardes vertes. Passe finale du socle v4 terminée (S0).
+## Programme de test du jour
 
-**En cours** : T1 vérifie le socle v4 (passage 2). SIM complète ses jeux (numérotation, Créer, Développement). S0 répare deux contrôles cassés par le socle. S5 déplace des modules dans le registre, puis prépare LOT-05. S6 prépare LOT-07.
+**Pas encore.** Le premier test commence dès la fusion du socle v4, qui attend le verdict de T1. Tu y trouveras ce qui est nouveau, comment le lancer (`LANCER-EN-LOCAL.md`, déjà prêt, données de SIM comprises), une liste de 5 à 10 essais, et où me donner tes retours : dans notre conversation, tout simplement.
 
-**Bloqué** : rien. La fusion du socle v4 attend le verdict de T1.
+**Fait** : préparations fusionnées pour LOT-02, 03, 04, 06, 11 et 12, et chargeur de données fictives. Toutes les gardes de ces fusions sont vertes, aucune nouvelle garde rouge.
+
+**En cours** :
+- T1 vérifie le socle v4, puis fera la comparaison automatique aux images.
+- S0 répare deux contrôles cassés par le socle.
+- SIM complète ses jeux.
+- S5 prépare LOT-05.
+- S6 prépare LOT-07.
+
+**Bloqué** : rien.
 
 ## À décider par Harun
 
-1. **Nouvelles données partagées** (produits, interlocuteurs, archives, données plus riches de Créer) : elles changent amn-api. Recommandation : oui, en une fois avec Mohamed, après le socle v4.
-2. **TVA** : arrondi par ligne ou par taux, et régime par défaut. J'ai mis la règle actuelle (par ligne), et les encaissements pour les services, à titre provisoire. Recommandation : faire valider par un comptable.
-3. **Redémarrage d'amn-api** : la dernière étape de sécurité de S6 l'attend. Recommandation : pas d'urgence tant que rien n'est distribué.
-4. **Serveur (LOT-13)** : en pause. Recommandation : en décembre, comme prévu.
-5. **Dépôt en privé** : question ouverte. Recommandation : oui, avant d'y ajouter des fichiers sensibles.
+1. **Nouvelles données partagées** (produits, interlocuteurs, archives, données plus riches de Créer). Elles changent amn-api, et 92 des 100 jeux fictifs n'y ont pas encore de place. Recommandation : oui, en une fois avec Mohamed, après le socle v4.
+2. **TVA** : la règle provisoire est l'arrondi par ligne, avec les encaissements pour les services. Recommandation : faire valider par un comptable.
+3. **Redémarrage d'amn-api**, qu'attend la dernière étape de sécurité de S6. Recommandation : pas d'urgence tant que rien n'est distribué.
+4. **Serveur (LOT-13)** : en pause. Recommandation : en décembre.
+5. **Dépôt amn-desktop en privé** : question ouverte. Recommandation : oui.
 
 ## À créer par Harun
 
-- Rien.
+**Le dépôt privé du dossier v4** : 5 minutes, une seule fois.
+
+1. Sur github.com, dans l'organisation **amn-devsec** : **New repository**. Nom : `amn-refonte-dossier`. Visibilité : **Private**. Coche « Add a README ».
+2. Toujours dans amn-devsec : **Settings › GitHub Apps › Claude › Configure**. Dans « Repository access », si « Only select repositories » est coché, ajoute `amn-refonte-dossier`, puis Save. Si « All repositories » est coché, il n'y a rien à faire.
+3. Écris-moi « dépôt créé ». **Je dépose moi-même le dossier v4** dans ce dépôt privé, à partir de ma copie décompressée : 603 fichiers, 94 Mo, aucun au-dessus de 25 Mo. Tu n'as donc rien à envoyer.
+4. Ensuite, je vérifie qu'une session le lit vraiment, puis je dis à chaque session de l'ajouter et de le lire. Plus aucun zip à donner à la main.
+
+Rien de secret dans ce dossier, et il ne va jamais dans le dépôt public.

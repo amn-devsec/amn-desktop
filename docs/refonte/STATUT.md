@@ -11,7 +11,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 | Session | Identifiant | État | Prochain geste |
 |---|---|---|---|
 | S0 Socle | `session_01SJe828c2W5EnkMY4fhFY6z` | passe finale v4 finie (`888f7a0`) ; corrige `ancres` et `avoirs` | puis ce que T1 signale |
-| T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | passage 2 sur `888f7a0` en cours | son verdict → fusion du socle v4 et allumage (§1.9) |
+| T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | passage 2 sur `888f7a0` en cours (avec le delta d'`ancres` et `avoirs` de S0) | son verdict → fusion du socle v4 et allumage (§1.9) ; puis `check:fidelite` (§1.30) |
 | S6 Sécurité | `session_01RHV8Xq2txWkfjAusKvq9DG` | LOT-07 en préparation ; une étape de sécurité attend amn-api | couture H20, tarifs H21 (§1.26) |
 | SIM | `session_011UF2ufZg9moGv2rRZFRuf7` | chargeur livré et fusionné (`5f0a900`) ; **sans dossier v4** | numérotation, champs de LOT-06, puis jeux de LOT-11 |
 | DS | `session_01TZGDvVWristJnnPK59rruY` | préparation de LOT-04 fusionnée (§1.29) ; **sans dossier v4** | relire ses points [fiche] dès qu'il a les zips |
@@ -33,6 +33,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov. : test quotidien avec Harun, dossier v4 dans un dépôt privé, `check:fidelite` confié à T1 avec un seuil provisoire (2 points au-dessus de l'accepté, 15 % pour un écran nouveau) (§1.30).
 - 14 nov. : données fictives de SIM fusionnées (`f820c70`, 106 contrôles) : chargeur vers l'API d'essai (127.0.0.1, `@exemple.test`), dates à 10:42, attendus, scénarios de charge, partenaires. Jeux de LOT-11 commandés à SIM dès maintenant. `LANCER-EN-LOCAL.md` étape 4 à jour.
 - 14 nov. : registre, 11 vues déplacées vers `creer` par S5 (`bb54c03`), fusionné : 101 entrées, 142 vues. LOT-04 (Commandes, Boutique) et LOT-07 (terrain, stock) prévenus par le CO. Régressions `ancres` et `avoirs` confiées à S0, `encres` à S3.
 - 14 nov. : LOT-04 et LOT-03 préparations fusionnées (`baff3a3`). TVA par ligne comme `money.ts` (provisoire), régime de TVA réglable (provisoire), numérotation existante, archives sans nouvelle collection (§1.29).
@@ -642,6 +643,16 @@ Fusionnées (`baff3a3`). Seul conflit : deux ajouts côte à côte dans `edition
 | 4 | Contrat arrivant à échéance | « À renouveler » à l'approche de l'échéance, sinon « Signé ». |
 | 5 | Menu « / » (14 annoncées, 13 listées) | On suit la liste : **13**. L'écart avec la fiche est noté. |
 | 6 | Dictée (tuile de F20) | **Oui** : la tuile ouvre la barre ⌘J avec la commande vocale existante, sans toucher à `src/assistant/**`. |
+
+### 1.30 Trois améliorations validées par Harun (14 nov.)
+
+1. **Test quotidien avec Harun.** Chaque jour, en tête de `POINT-HARUN.md` : un « Programme de test du jour », avec ce qui est nouveau, comment le lancer (`LANCER-EN-LOCAL.md`, données de SIM), 5 à 10 essais précis et où noter les retours. Harun donne ses retours au CO dans leur conversation. Le CO en fait des tâches, consignées dans la section du lot concerné, et les distribue. **Premier test dès la fusion du socle v4.**
+2. **Dossier v4 privé et lisible par les sessions.** Un dépôt privé séparé, `amn-devsec/amn-refonte-dossier`, jamais le dépôt public. **Vérifié par le CO le 14 nov.** : l'accès GitHub des sessions voit déjà des dépôts privés d'`amn-devsec` (`amn-api`, avec droit d'écriture). Un nouveau dépôt privé y sera donc lisible, si l'application GitHub de Claude y a accès. Chaque session l'ajoute (`add_repo`), puis le lit. Étapes pour Harun : `POINT-HARUN.md`, « À créer par Harun ». Le dossier ne contient rien de secret.
+3. **Comparaison automatique aux images v4** (`check:fidelite`), **confiée à T1**, qui a déjà l'outil de fidélité, après son passage 2. Pour chaque écran livré : une capture, l'écart brut à l'image v4, et une ligne dans la section du lot. **Seuil provisoire, révisable par Harun** :
+   - un écran déjà mesuré échoue si son écart monte de plus de 2 points au-dessus de sa valeur acceptée ;
+   - un écran nouveau échoue au-dessus de 15 %, sauf écart justifié et écrit dans `docs/qualite/fidelite/justifies-LOT-xx.json` (données d'exemple, lignes du registre, pages derrière les palettes, méthodes de connexion absentes).
+   
+   Les images n'entrent jamais dans le dépôt public. La garde lit le dossier privé par `AMN_DOSSIER_V4`, et T1 et les sessions de lot la lancent avant chaque fusion. Dans GitHub Actions, seuls ses tests unitaires tournent : y lire le dépôt privé demanderait un secret, que le CO ne propose pas. **Passée sur chaque lot avant fusion.**
 
 ## 2. Les lots
 
