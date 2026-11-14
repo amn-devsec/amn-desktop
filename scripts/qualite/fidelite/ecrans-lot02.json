@@ -1,0 +1,208 @@
+{
+  "lot": "LOT-02",
+  "_": "Les 13 écrans de LOT-02 (Mes contacts et clients), claude/refonte-contacts. Mesure sur l'aperçu statique du lot (§1.40) ; la route sert aux contrôles de structure sur l'application (G04, la fiche d'un client, n'a pas de route fixe : aperçu seulement).",
+  "defaut": {
+    "mac": true,
+    "date": "2026-10-30T10:42:00+01:00",
+    "stockage": {
+      "amn.coquille": "noir"
+    }
+  },
+  "ecrans": [
+    {
+      "id": "F10",
+      "route": "#/ensemble/contacts",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "H05",
+      "route": "#/clients",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "H06",
+      "route": "#/pipeline",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "G04",
+      "route": "#/clients",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "H44",
+      "route": "#/avis",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "H45",
+      "route": "#/fournisseurs",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "MC01",
+      "route": "#/pipeline-commercial",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "MC02",
+      "route": "#/fidelite",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "MC03",
+      "route": "#/contacts/fiches",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "MC04",
+      "route": "#/trombinoscope",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "MC05",
+      "route": "#/partenaires",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "MC06",
+      "route": "#/rendez-vous-clients",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "MC07",
+      "route": "#/relances",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    }
+  ]
+}
