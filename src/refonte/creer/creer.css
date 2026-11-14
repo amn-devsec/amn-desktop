@@ -508,7 +508,7 @@ button.cr-rail__noeud { cursor: pointer; }
 .cr-fiche[data-statut='Hors service'] { border-color: color-mix(in srgb, var(--socle-etat-critique) 35%, var(--socle-bord-carte)); }
 .cr-fiche > header { display: flex; align-items: center; gap: 8px; }
 .cr-fiche > header i { width: 12px; height: 12px; border-radius: 50%; background: var(--socle-fond-page); border: 1px solid var(--socle-bord-carte); }
-.cr-fiche > header small { font-size: 11px; letter-spacing: .1em; color: var(--socle-texte-3); }
+.cr-fiche > header small { font-size: 11px; letter-spacing: .1em; color: var(--socle-texte-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .cr-fiche > header .cr-pastille { margin-left: auto; font-size: 11px; padding: 1px 8px; }
 .cr-pastille[data-ton='succes'] { color: var(--socle-etat-succes); background: color-mix(in srgb, var(--socle-etat-succes) 14%, transparent); border-color: color-mix(in srgb, var(--socle-etat-succes) 38%, transparent); }
 .cr-pastille[data-ton='critique'] { color: var(--socle-etat-critique); background: color-mix(in srgb, var(--socle-etat-critique) 14%, transparent); border-color: color-mix(in srgb, var(--socle-etat-critique) 38%, transparent); }
@@ -1004,3 +1004,9 @@ button.cr-ph-case { cursor: pointer; }
 .cr-apercu__reperes i:nth-child(2) { top: 14px; right: 14px; border-width: 1.5px 1.5px 0 0; }
 .cr-apercu__reperes i:nth-child(3) { bottom: 14px; left: 14px; border-width: 0 0 1.5px 1.5px; }
 .cr-apercu__reperes i:nth-child(4) { bottom: 14px; right: 14px; border-width: 0 1.5px 1.5px 0; }
+
+/* MR04 : l'encoche de la fiche, à la jonction du pied pointillé */
+.cr-fiche footer { position: relative; }
+.cr-fiche footer::before, .cr-fiche footer::after { content: ''; position: absolute; top: -6px; width: 11px; height: 11px; border-radius: 50%; background: var(--socle-fond-page); border: 1px solid var(--socle-bord-carte); box-sizing: border-box; }
+.cr-fiche footer::before { left: -6px; }
+.cr-fiche footer::after { right: -6px; }
