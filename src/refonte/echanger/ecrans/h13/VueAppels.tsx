@@ -88,7 +88,7 @@ function IconeDeSalle({ genre }: { genre: SalleVue['genre'] }) {
   return genre === 'garde' ? <Lock size={14} aria-hidden /> : genre === 'standard' ? <PhoneCall size={14} aria-hidden /> : <Video size={14} aria-hidden />;
 }
 
-function Salle({ s, libelles, onAction }: { s: SalleVue; libelles: Record<string, string>; onAction?: () => void }) {
+function Salle({ s, onAction }: { s: SalleVue; onAction?: () => void }) {
   return (
     <section className="ex-h13__salle" data-genre={s.genre} data-ton={s.ton} data-fermee={s.fermee ? 'oui' : undefined} aria-label={s.nom}>
       <header>
@@ -296,7 +296,7 @@ export function VueAppels(p: VueAppelsProps) {
                 </header>
                 <div className="ex-h13__plan">
                   {p.salles.plan.map((s) => (
-                    <Salle key={s.id} s={s} libelles={l} />
+                    <Salle key={s.id} s={s} />
                   ))}
                 </div>
               </section>

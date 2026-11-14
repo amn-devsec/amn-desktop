@@ -276,7 +276,7 @@ export function VueAnnonces(p: VueAnnoncesProps) {
                   </p>
                 </div>
                 {p.presque.epingle && (
-                  <button type="button" className="ex-h14__epingle-ligne ex-cible" aria-label={l.presqueOuvrir} onClick={() => a.onOuvrir?.(p.presque!.epingle!.id)}>
+                  <button type="button" className="ex-h14__epingle-ligne ex-cible" aria-label={l.presqueOuvrir} onClick={() => a.onOuvrir?.(p.presque?.epingle?.id ?? '')}>
                     <MapPin size={13} aria-hidden />
                     <span>{p.presque.epingle.titre}</span>
                     <ChevronRight size={13} aria-hidden />

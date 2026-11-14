@@ -96,8 +96,6 @@ const jourCourt = (j: Jour, langue: Langue) => {
   const m = MOIS_COURTS[langue][Number(j.slice(5, 7)) - 1];
   return langue === 'fr' ? `${Number(j.slice(8, 10))} ${m}` : `${m} ${Number(j.slice(8, 10))}`;
 };
-/** Le canal dans une phrase : « par courriel », « par WhatsApp » (les noms propres gardent leur casse). */
-const canalEnPhrase = (c: CanalDeMessage, l: Langue) => (c === 'courriel' ? dire(l, 'canal.courriel').toLowerCase() : dire(l, `canal.${c}` as never));
 
 /** Un texte sur une seule ligne : les retours et les espaces multiples deviennent une espace, la casse reste. */
 const uneLigne = (t: string) => t.replace(/\s+/g, ' ').trim();

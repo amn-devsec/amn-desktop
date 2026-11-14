@@ -40,10 +40,6 @@ export interface EntreesPartages {
 const JOURS: Record<Langue, readonly string[]> = { fr: ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.'], en: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] };
 const JOURS_LONGS: Record<Langue, readonly string[]> = { fr: ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'], en: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] };
 const MOIS: Record<Langue, readonly string[]> = { fr: ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'], en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] };
-const hhmm = (i: Instant) => {
-  const p = partiesParis(i);
-  return `${String(Math.floor(p.minutes / 60)).padStart(2, '0')}:${String(p.minutes % 60).padStart(2, '0')}`;
-};
 
 export function composerPartages(e: EntreesPartages): Pick<VuePartagesProps, 'sousTitre' | 'reglages' | 'onglets' | 'cartes' | 'transferts' | 'protection' | 'suggestion' | 'astuce'> {
   const l = e.langue;

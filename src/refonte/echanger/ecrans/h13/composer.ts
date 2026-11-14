@@ -127,8 +127,9 @@ export function composerAppels(e: EntreesAppels): Pick<VueAppelsProps, 'sousTitr
     const quand = j === auj ? heure(a.moment.at) : ecartJours(j, auj) === 1 ? t('hier', { heure: heure(a.moment.at) }) : `${Number(j.slice(8, 10))}/${j.slice(5, 7)} ${heure(a.moment.at)}`;
     return a.moment.lieu ? `${a.moment.lieu} · ${quand}` : `${t(`sens.${a.sens}`)} · ${quand}`;
   };
-  const lignesVue: LigneAppelVue[] = visibles.map((x) => {
-    const a = parId.get(x.id)!;
+  const lignesVue: LigneAppelVue[] = visibles.map((x): LigneAppelVue | null => {
+    const a = parId.get(x.id);
+    if (!a) return null;
     const etiquettes: LigneAppelVue['etiquettes'] = [
       ...(x.decisions ? [{ texte: t(x.decisions <= 1 ? 'decisions.1' : 'decisions.n', { n: x.decisions }) }] : []),
       ...(x.taches ? [{ texte: t(x.taches <= 1 ? 'taches.1' : 'taches.n', { n: x.taches }) }] : []),
@@ -150,7 +151,7 @@ export function composerAppels(e: EntreesAppels): Pick<VueAppelsProps, 'sousTitr
             ? { genre: 'bouton', libelle: t('creerTaches'), primaire: true, onClick: e.actions?.onCreerTaches ? () => e.actions?.onCreerTaches?.(x.id) : undefined }
             : null,
     };
-  });
+  }).filter((x): x is LigneAppelVue => x !== null);
 
   const r = rappelsDuJour(e.appels, auj);
   const parts = [e.enLigneAvec ? t('sous.ligne', { nom: e.enLigneAvec }) : '', [enSalle.length ? t('sous.salle') : '', std.enAttente ? t('sous.attend', { nom: e.file[0]?.nom ?? '' }) : ''].filter(Boolean).join(', ')].filter(Boolean);

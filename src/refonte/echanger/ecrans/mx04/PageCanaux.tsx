@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useOutlet } from 'react-router-dom';
 import { useAuth } from '../../../../auth/AuthContext';
 import { useProfiles } from '../../../../state/ProfilesContext';
 import { uid, useCollection, useSync } from '../../../../state/SyncContext';
@@ -16,8 +16,8 @@ import { VueCanaux } from './VueCanaux';
  * dernière lecture par canal), pas de réactions par icônes (les réactions de l'équipe sont des émojis), pas de fils de réponses ni
  * de résumé d'Ajmani, pas de carte « Urgent » (aucun lien ticket-canal), pas de « en train d'écrire » ni de statut des messages
  * directs (pas de signal). « général » ouvre la messagerie d'équipe (`/team`), qui garde ses fils, ses réactions et ses
- * épingles. Créer un canal et écrire dedans gardent la logique de l'écran d'origine ; dissoudre un canal n'a pas de place
- * dans la fiche v4 (à décider par le CO).
+ * épingles. Créer un canal et écrire dedans gardent la logique de l'écran d'origine ; « Parcourir les canaux » passe la main à l'écran d'origine
+ * (`useOutlet`) : dissoudre un canal, absent de la fiche v4, y reste, avec sa confirmation (décision du CO).
  */
 interface GroupeData {
   name: string;
@@ -36,6 +36,8 @@ const GENERAL = '__general';
 export default function PageCanaux() {
   const { tm, langue } = useMots();
   const navigate = useNavigate();
+  const origine = useOutlet();
+  const [passee, setPassee] = useState(false);
   const { user, role } = useAuth();
   const { upsert } = useSync();
   const { profileFor } = useProfiles();
@@ -61,6 +63,7 @@ export default function PageCanaux() {
   );
   const messages: MessageAffichable[] = useMemo(() => brutsMessages.map((m) => ({ id: m.id, canalId: m.groupId, auteurEmail: m.authorEmail, at: m.createdAt, texte: m.body })), [brutsMessages]);
 
+  if (passee && origine) return <>{origine}</>;
   const v = composerCanaux({ langue, maintenant, moi, role: role ?? '', nom: nomDe, canaux, messages, evenements: [], directs: [], frappes: [], canalId, filOuvertId: null, brouillon: texte, avecReactions: false, peutTache: false });
   const envoyer = async () => {
     const corps = texte.trim();
@@ -89,6 +92,7 @@ export default function PageCanaux() {
         actions={{
           onCanal: (id) => (id === GENERAL ? navigate('/team') : setCanalId(id)),
           onNouveauCanal: () => setCreation(true),
+          onParcourir: origine ? () => setPassee(true) : undefined,
           onValeur: setTexte,
           onEnvoyer: () => void envoyer(),
         }}

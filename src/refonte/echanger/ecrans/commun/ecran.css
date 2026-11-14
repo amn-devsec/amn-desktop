@@ -109,7 +109,7 @@
 
 /*
  * LES CIBLES (décision du CO, STATUT §1.39) : le dessin des fiches v4 est gardé, mais toute cible a une zone de clic
- * INVISIBLE de 34 px au moins, comme le socle le fait pour PageHead et l'interrupteur (::after centré, sans changer la mise en page).
+ * INVISIBLE de 36 px au moins, comme le socle le fait pour PageHead et l'interrupteur (::after centré, sans changer la mise en page).
  */
 .ex-page :is([data-socle='bouton'], .sc-puce, button.ex-puce, .ex-cible) {
   position: relative;
@@ -119,8 +119,8 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: max(100%, 34px);
-  height: max(100%, 34px);
+  width: max(100%, 36px);
+  height: max(100%, 36px);
   transform: translate(-50%, -50%);
 }
 

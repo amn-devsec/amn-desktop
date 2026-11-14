@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { useOutlet } from 'react-router-dom';
 import { useAuth } from '../../../../auth/AuthContext';
 import { isAdminRole } from '../../../../auth/roles';
 import { useProfiles } from '../../../../state/ProfilesContext';
@@ -14,7 +15,8 @@ import { VueSondages } from './VueSondages';
  * question, les options, qui a voté quoi (sans l'heure), le caractère anonyme, la clôture, l'équipe comme destinataires. Ce
  * qu'il ne sait pas n'est pas montré (STATUT §1.27 n° 4) : pas de « Votes en direct » (aucune heure de vote), pas de type de
  * réponse autre qu'un choix, de clients, de visibilité des résultats, de date de clôture, de brouillon d'Ajmani ni de lien de
- * partage. Créer, voter (une barre se clique tant qu'on n'a pas voté) et clore gardent la logique de l'écran d'origine.
+ * partage. « Tous les sondages » passe la main à l'écran d'origine (`useOutlet`) : la suppression d'un sondage, absente
+ * de la fiche v4, y reste, avec sa confirmation (décision du CO). Créer, voter (une barre se clique tant qu'on n'a pas voté) et clore gardent la logique de l'écran d'origine.
  */
 interface SondageData {
   question: string;
@@ -33,6 +35,8 @@ export default function PageSondages() {
   const { profileFor } = useProfiles();
   const { membres } = useMembers();
   const brutes = useCollection<SondageData>('polls');
+  const origine = useOutlet();
+  const [passee, setPassee] = useState(false);
   const [choisiId, setChoisiId] = useState<string | null>(null);
   const [question, setQuestion] = useState('');
   const [options, setOptions] = useState<string[]>(['', '']);
@@ -79,6 +83,7 @@ export default function PageSondages() {
     if (s) void upsert('polls', id, { ...s, closedAt: new Date().toISOString() });
   };
 
+  if (passee && origine) return <>{origine}</>;
   const v = composerSondages({ langue, maintenant, moi, nom, sondages, choisiId, editeur: { question, options, anonyme, ajmani: null, extras: null }, actions: { onVoter: voter } });
   return (
     <VueSondages
@@ -87,8 +92,9 @@ export default function PageSondages() {
       libelles={libellesDe(tm as never)}
       actions={{
         onPuce: setChoisiId,
+        onTous: origine ? () => setPassee(true) : undefined,
         onAutre: setChoisiId,
-        onClore: v.resultat && v.resultat.peutClore && (brut(v.resultat.id)?.createdBy === moi || isAdminRole(role)) ? () => clore(v.resultat!.id) : undefined,
+        onClore: v.resultat && v.resultat.peutClore && (brut(v.resultat.id)?.createdBy === moi || isAdminRole(role)) ? () => clore(v.resultat?.id ?? '') : undefined,
         onQuestion: setQuestion,
         onOption: (i, val) => setOptions((o) => o.map((x, j) => (j === i ? val : x))),
         onRetirerOption: (i) => setOptions((o) => (o.length > 2 ? o.filter((_, j) => j !== i) : o.map((x, j) => (j === i ? '' : x)))),
