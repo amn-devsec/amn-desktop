@@ -63,12 +63,9 @@ Lecture seule dans d'autres zones : `src/refonte/connecteurs/` (S9) est **import
 
 ## Points à trancher (CO, Harun)
 
-1. **Valeurs de relance : fiche ≠ CO.** Fiche et image : **5 jours** entre deux relances, plage **9:00–18:00**. CO (§1.22) : **7 jours**, **08:00–19:00**. Le code lit celles du CO ; 5 jours est un réglage permis (3 à 14). Pour suivre la fiche, changer `VALEURS_DE_DEPART` chez S9.
-2. **§1.28 point 4 à corriger** : « un message par client et par jour » n'est plus la règle ; la fiche dit **une relance par client et par semaine glissante**. Le plafond de 3 est confirmé.
-3. **SIM** : jeu « fidélité » (paliers 500 / 1 500 → 800 / 1 800, avis et recommandations) et jeu « clients » (statut affiché : « Impayé » dès 7 jours, « Nouveau »). Les autres manques sont dans `STATUT.md`, section LOT-02.
-4. **Échelles de l'intérêt (H06)** : la fiche donne les poids et la fraîcheur, pas l'échelle des trois autres signaux. `ECHELLES` est un choix de la session, à valider par Harun.
-5. **Un identifiant de messagerie (G07)** manque au modèle des interlocuteurs : `moyenDeJoindre` rend l'adresse faute de mieux.
-6. Restent les décisions déjà prises par le CO et en attente de Harun : collection d'interlocuteurs (MC03).
+Réglés par le CO le 14 nov. (`STATUT.md` §1.31) : la fiche l'emporte (5 jours, 9:00–18:00, réglable de 3 à 14, une seule source `connecteurs/reglages.ts`) ; une relance par client et par semaine glissante, plafond de 3 ; jeux de SIM « fidélité » et « statut des clients » commandés ; messagerie = G07 ; échelles de l'intérêt (H06) adoptées à titre provisoire.
+
+Restent : la collection d'interlocuteurs (MC03, décision de Harun), et un identifiant de messagerie (G07) dans le modèle des interlocuteurs.
 
 ## Ce qui n'a pas été vérifié
 
