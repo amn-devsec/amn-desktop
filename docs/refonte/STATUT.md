@@ -4,7 +4,7 @@
 
 ## REPRISE (à lire en premier après une compaction ; tenu par le CO, réécrit à chaque tour)
 
-Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `87d86b0`.
+Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `dabcd1e`.
 
 **Avoirs** : SIM a refait sa branche par-dessus le retrait (`7570fef`, fusionnée). Les avoirs sont désormais facultatifs (`construireMonde({ avoirs: true })`). Quand DS les lit, SIM passe `avoirs` à `true` par défaut, une ligne dans `monde.ts`.
 
@@ -23,8 +23,6 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 | S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | en pause ; ses jeux sont livrés par SIM | feu vert de l'étape 3 au socle v4 |
 | S9 | `session_01C5DAVygXYax6Q7g436TPQx` | LOT-12 fini, valeurs de MC07 fusionnées (`bcdc65f`) | rien |
 | S2, S3 (première tâche : `check:encres`), F1 | `session_014ZkF6SeGRNi6NR3uEsjM5q`, `session_01FBSpK6n1yYtYXYyxbLAuBV`, `session_01VZHqP3gvzrtnpgsTrrKguV` | arrêtées | relancer au socle v4 (prompts : `PROMPTS-11NOV.md`, §1.21) |
-
-**Fusion en attente** : `541b2bd` (SIM), après les adaptations de S1, DS et S5.
 
 **À dire au prochain message** : à T1, (a) La Garde dans l'API d'essai demande une base sur fichier (SIM), (b) comparer le paquet client de `claude/refonte-outils` @ `f52ef5d` (`AutomationsRunner.tsx` partagé) avant sa fusion.
 
@@ -46,6 +44,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov. : jeux de SIM `541b2bd` fusionnés avec les adaptations de S1 (`c06c8f3`), DS (`d99a197`) et S5 (`17a89e7`, `76a1ed8`), en une passe (`dabcd1e`). Gardes lues avant le push : contacts 93, argent 70, ecrire 99, echanger 94, donnees 116 ; aucune garde nouvelle rouge.
 - 14 nov. : jeux de SIM `541b2bd` (fidélité de MC02, statut H05, liste de LOT-03, règlements partiels, remises, MR08) **pas encore fusionnés**. Ils rendent `check:contacts`, `check:argent` et `check:ecrire` rouges, par des changements commandés. S1, DS et S5 adaptent leur logique, puis le CO fusionne quand les trois sont verts dessus.
 - 14 nov. : arbitrage S6 / S9. S6 étend le modèle des connecteurs (zone de S9, en pause) pour les devises et les plafonds : champs facultatifs seulement, aucune somme mêlant € et $, `check:connecteurs` étendu sans rien assouplir, une ligne dans le rapport de S9.
 - 14 nov. : LOT-03 et LOT-05 complétés d'après les images v4 (S5, `0804131`, `425e4ad`), fusionnés (`d41501a`). Écarts image/texte : tutoiement dans l'interface (F20, MX05) ; humeur et énergie de ME01 comme l'image, bandeau de série non codé tant que la fiche n'a pas de règle ; compteurs de H10 et F40 calculés depuis les données, jamais repris de l'image.
