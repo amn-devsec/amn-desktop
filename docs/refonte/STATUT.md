@@ -24,7 +24,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 | S9 | `session_01C5DAVygXYax6Q7g436TPQx` | LOT-12 fini, valeurs de MC07 fusionnées (`bcdc65f`) | rien |
 | S2, S3 (première tâche : `check:encres`), F1 — **relancés le 14 nov., 08h** | `session_014ZkF6SeGRNi6NR3uEsjM5q`, `session_01FBSpK6n1yYtYXYyxbLAuBV`, `session_01VZHqP3gvzrtnpgsTrrKguV` | arrêtées | relancer au socle v4 (prompts : `PROMPTS-11NOV.md`, §1.21) |
 
-**À dire au prochain message** : à T1, (a) La Garde dans l'API d'essai demande une base sur fichier (SIM), (b) comparer le paquet client de `claude/refonte-outils` @ `f52ef5d` (`AutomationsRunner.tsx` partagé) avant sa fusion.
+**À dire au prochain message** : à DS, la place des modules de F1 est corrigée (MA03 ↔ H07, §1.33 n° 4) ; à T1, (a) La Garde dans l'API d'essai demande une base sur fichier (SIM), (b) comparer le paquet client de `claude/refonte-outils` @ `f52ef5d` (`AutomationsRunner.tsx` partagé) avant sa fusion.
 
 **Décisions provisoires en cours** (révisables par Harun) : arrondi et régime de TVA, seuils de l'argent (§1.29) ; valeurs de départ des connecteurs (§1.22 n° 3) ; plafonds de relance 3 et 1 par jour (§1.28 n° 4) ; seuils de charge (validés, §1.20). Liste « À décider par Harun » : `POINT-HARUN.md`.
 
@@ -44,6 +44,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov., 08h30 : Atelier F1 (`e10a601`). Fusion d'essai faite en local : `check:socle-archetypes` rouge, donc **annulée avant le push**. L'intégration complète (branche de F1, déclarations au registre, correctif hors zone) est confiée à S5, sur `claude/refonte-atelier-integration`. tauxHoraire passe en « courant ». Place des modules corrigée (§1.33 n° 4). F1 se met en pause.
 - 14 nov., 08h20 : LOT-01 préparation fusionnée (S2). La série suit la clôture des priorités ; S2 peut modifier une ligne de `calculer.ts` du socle, puisque S0 est bloqué ; moment `defi.tenu` accepté (§1.36).
 - 14 nov., 08h : DS demande l'accord direct de Harun avant de construire, et n'a pas accès à amn-api : ses captures passent par l'aperçu statique, comme pour S0, et T1 garde les captures sur API. La session de S3 a refusé l'édition d'`equipes.ts` (C-007) : il faut l'accord de Harun. S3 n'a pas les zips v4. Lignes à coller dans `POINT-HARUN.md`.
 - 14 nov., 08h : **socle v4 fusionné** (`a76c201`) après le feu vert de T1. La coquille n'est pas allumée par défaut (conditions de T1, §1.35). Feu vert à la construction des écrans pour tous les lots préparés.
@@ -718,7 +719,7 @@ Fusionné (`74bb0d4`). Gardes lues avant le push : `check:argent` (69), les type
 | 1 | TVA par taux (fiche) ou par ligne | Reste **par ligne** (§1.29 n° 1, provisoire). Aucun écart sur l'exemple de H07 ni sur les jeux. La question va à Harun et à un comptable. |
 | 2 | Relances : « J+7 » de la fiche contre le 8e jour du moteur ; étapes successives | On garde **le moteur unique** (le palier s'ouvre après le seuil) : `src/lib/relances.ts` sert aussi l'édition cliente. L'écart d'un jour est noté, **provisoire, révisable par Harun**. La condition d'étape de MA04 (relance 2 après relance 1) **s'ajoute** dans la couche de la refonte. |
 | 3 | Modèle de mise en demeure | Il se règle dans l'**identité de facturation** (H18). Pas de modèle par défaut : l'étape reste vide tant qu'un modèle validé par un juriste n'est pas posé. La validation revient à Harun. |
-| 4 | Place des modules de F1 | Comme le propose DS, **provisoire** : Taux horaire de revient dans MA12, Paiement en plusieurs fois dans H07, Comparateur de devis dans MA03. Par des liens, F1 garde ses modules. |
+| 4 | Place des modules de F1 | **Corrigé le 14 nov. sur la remarque de F1** : Taux horaire de revient dans MA12 (Tarifs et remises), Paiement en plusieurs fois dans **MA03** (Paiements en ligne), Comparateur de devis dans **H07** (Devis). Ce sont des liens : F1 garde ses modules. |
 | 5 | Deux « séries » de même nom | **La définition de G03** (aucune facture en retard laissée « non traitée » à 23 h 59). F30 renvoie à G03, donc F30 la suit. |
 | 6 | TVA récupérable | **Deux chiffres distincts**, chacun nommé : indicatif dans H08 (dépenses justifiées), déclaratif dans MA08. |
 | 7 | Période de TVA | Un réglage, mensuel ou trimestriel. **Mensuel par défaut**, comme les jeux ; le trimestre est la somme des mois. **Provisoire**, à valider par un comptable. |
