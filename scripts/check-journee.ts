@@ -204,6 +204,18 @@ await dit('la collection `dailyPriorities` se lit sans reconstruire la règle', 
   assert.equal(L.jourDeParis('2026-10-29T23:30:00.000Z'), '2026-10-30');
 });
 
+await dit('une seule série : « Aujourd’hui » (N01 et la carte) lit la règle du lot, pas celle des routines (STATUT §1.36 n° 1)', () => {
+  const src = code('src/refonte/coquille/aujourdhui/calculer.ts');
+  assert.ok(/serieDeLaJournee/.test(src) && !/meilleureSerie/.test(src), 'calculer.ts doit lire serieDeLaJournee');
+  assert.ok(/journee\/serie/.test(src), 'calculer.ts importe la règle du lot');
+});
+
+await dit('le moment « defi.tenu » existe au catalogue, ton « fête », famille Ma journée', () => {
+  const src = code('src/socle/moments.ts');
+  assert.ok(/'defi\.tenu': \{ defiId: string \}/.test(src));
+  assert.ok(/'defi\.tenu': \{ famille: 'jour', ton: 'fete' \}/.test(src));
+});
+
 /* ── 2. Les écrans calculés, comparés à SIM ──────────────────────────────── */
 console.log('\nLOT-01 — H04, G08, H25 face aux valeurs attendues de SIM\n');
 

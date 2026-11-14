@@ -1,6 +1,6 @@
 # Point pour Harun
 
-> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 08h00 UTC.
+> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 08h20 UTC., 08h00 UTC.
 
 **Compteurs** (14 nov.) : **écrans construits 9 / 153, livrés 9** (LOT-00, avec le socle v4) · **lots préparés 8 / 13**, lots finis 0 / 13 (LOT-00 attend l'allumage de la nouvelle coquille) · **écrans livrés depuis la veille : 9**. La courbe : `STATUT.md`, « Vitesse ».
 
@@ -34,7 +34,7 @@ Pourquoi : S0 refuse de pousser sur un simple message d'une autre session et veu
 
 **Tes retours** : écris-les-moi dans notre conversation, en vrac. J'en fais des tâches et je les distribue.
 
-**En cours** : la construction des écrans démarre pour tous les lots préparés (LOT-02 à 06, LOT-11). S6 continue de préparer LOT-07, et T1 adapte ses gardes à la nouvelle coquille.
+**En cours** : S1, S5, S7 et S8 construisent leurs écrans : 4 poussés (F20, F50, H15, H16) et 2 commités chez S8. Ils seront livrés après la vérification de T1. F1 intègre ses trois modules. S2 prépare LOT-01, SIM ajoute les priorités du jour. T1 adapte ses gardes à la nouvelle coquille. DS, S3, S0 et S6 attendent ton accord ou les zips v4.
 
 **Bloqué** : l'allumage de la coquille par défaut, qui attend S0 et S3 (tes lignes ci-dessus) et une correction de T1. La construction de LOT-01, LOT-07 et LOT-08 attend les zips v4.
 
@@ -45,7 +45,8 @@ Pourquoi : S0 refuse de pousser sur un simple message d'une autre session et veu
 3. **Redémarrage d'amn-api** : la dernière étape de sécurité de S6 l'attend. Recommandation : pas d'urgence.
 4. **Serveur (LOT-13)** : en pause. Recommandation : en décembre.
 5. **Dépôt amn-desktop en privé** : question ouverte. Recommandation : oui.
-6. **Limite d'utilisation** : jusqu'à 8 sessions vont construire en même temps. Recommandation : laisse-les tourner. Si la limite se resserre, dis-moi lesquelles mettre en pause (je propose de garder S1, DS et S5).
+6. **Fournisseurs des 7 options génériques des connecteurs (H21)** : S6 demande quel outil nommer pour chacune (messagerie, agenda, paiement, etc.). Nommer un fournisseur, c'est un choix d'achat. Recommandation : garder des libellés génériques jusqu'au serveur (décembre), sans rien nommer.
+7. **Limite d'utilisation** : jusqu'à 8 sessions vont construire en même temps. Recommandation : laisse-les tourner. Si la limite se resserre, dis-moi lesquelles mettre en pause (je propose de garder S1, DS et S5).
 
 ## À créer par Harun
 
