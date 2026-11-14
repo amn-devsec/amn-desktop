@@ -9,8 +9,8 @@
  */
 
 import { totauxDeFacture, totauxDeLignes } from './argent';
-import { compter, ecartJours, graineDe, hasard, jourDe, type Jour } from './outils';
-import type { CompteFidelite, Contexte, Devis, Evenement, Facture, FicheClient, Prospect, Relance } from './types';
+import { ajouterJours, compter, ecartJours, graineDe, hasard, jourDe, type Jour } from './outils';
+import type { CompteFidelite, Avis, Contexte, Devis, Evenement, Facture, FicheClient, Prospect, Relance } from './types';
 
 const nomDe = (c: FicheClient): string => c.company || c.name;
 const euros = (cents: number): string => `${(cents / 100).toLocaleString('fr-FR', { minimumFractionDigits: cents % 100 ? 2 : 0, maximumFractionDigits: 2 })} €`;
@@ -102,24 +102,34 @@ export function genererRelances(
     .map((r, i) => ({ ...r, id: `rl-${String(i + 1).padStart(4, '0')}` }));
 }
 
-export function genererFidelite(ctx: Contexte, clients: readonly FicheClient[], factures: readonly Facture[]): CompteFidelite[] {
+export function genererFidelite(ctx: Contexte, clients: readonly FicheClient[], factures: readonly Facture[], avis: readonly Avis[] = []): CompteFidelite[] {
   const h = hasard(graineDe(ctx.graine, 'fidelite'));
   const cap = compter(ctx.volumes.fidelite, [0, 5, 20, 120]);
   const depuis: Jour = `${Number(ctx.aujourdhui.slice(0, 4)) - 1}${ctx.aujourdhui.slice(4)}`;
+  const dans = (j: Jour): boolean => j >= depuis && j <= ctx.aujourdhui;
   const comptes: CompteFidelite[] = [];
   for (const c of clients) {
-    const payees = factures.filter((f) => f.clientId === c.id && f.status === 'paid' && f.paidAt >= depuis);
-    if (payees.length === 0) continue;
-    const points = payees.reduce((s, f) => s + Math.floor(totauxDeFacture(f).ttcCents / 100), 0); // 1 point par euro encaissé
-    const niveau: CompteFidelite['niveau'] = points >= 1500 ? 'Or' : points >= 500 ? 'Argent' : 'Bronze';
-    const derniere = payees.map((f) => f.paidAt).sort().pop() as Jour;
+    const payees = factures.filter((f) => f.clientId === c.id && f.status === 'paid' && dans(f.paidAt));
+    const sesAvis = avis.filter((a) => a.clientId === c.id && dans(a.date));
+    // MC02 : un client qui en a recommandé un autre (un client sur sept, dans l'année) ; le tirage est propre à chaque client.
+    const recommandations: Jour[] = h.chance(0.14) ? [ajouterJours(ctx.aujourdhui, -h.entier(3, 330))] : [];
+    if (payees.length === 0 && sesAvis.length === 0 && recommandations.length === 0) continue;
+    // Les règles de la fiche : 1 € payé = 1 point (TTC, arrondi à l'euro inférieur), un avis = 50, une recommandation = 200 ;
+    // Bronze dès 0, Argent dès 800, Or dès 1 800.
+    const points = payees.reduce((s, f) => s + Math.floor(totauxDeFacture(f).ttcCents / 100), 0) + sesAvis.length * 50 + recommandations.length * 200;
+    const niveau: CompteFidelite['niveau'] = points >= 1800 ? 'Or' : points >= 800 ? 'Argent' : 'Bronze';
+    const derniere = [...payees.map((f) => f.paidAt), ...sesAvis.map((a) => a.date), ...recommandations].sort().pop() as Jour;
     const avantages: CompteFidelite['avantages'] = [];
     if (niveau !== 'Bronze') {
       avantages.push({ id: `av-${c.id}-1`, libelle: 'Remise de 5 % sur la prochaine prestation', valeurCents: 5000, statut: 'Offert', le: derniere });
       if (h.chance(0.5)) avantages.push({ id: `av-${c.id}-2`, libelle: 'Heure de conseil offerte', valeurCents: 9000, statut: h.choix(['Utilisé', 'Expiré'] as const), le: derniere });
     }
-    comptes.push({ clientId: c.id, clientNom: nomDe(c), points, niveau, derniereActiviteLe: derniere, avantages });
+    comptes.push({ clientId: c.id, clientNom: nomDe(c), points, niveau, derniereActiviteLe: derniere, recommandations, avantages });
   }
   // Un échantillon représentatif (pas les `cap` plus gros comptes, qui seraient tous « Or »), classé par points.
-  return h.melanger(comptes).slice(0, cap).sort((a, b) => b.points - a.points);
+  const melanges = h.melanger(comptes);
+  // Chaque palier est représenté dès que les clients le permettent : on met d'abord un compte de chaque niveau.
+  const garantis = (['Or', 'Argent', 'Bronze'] as const).map((n) => melanges.find((x) => x.niveau === n)).filter((x): x is CompteFidelite => x !== undefined);
+  const choisis = [...garantis, ...melanges.filter((x) => !garantis.includes(x))].slice(0, cap);
+  return choisis.sort((a, b) => b.points - a.points);
 }

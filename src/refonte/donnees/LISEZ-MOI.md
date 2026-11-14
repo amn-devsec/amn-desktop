@@ -31,7 +31,7 @@ const mixte = construireMonde({ volume: 'normal', volumes: { factures: 'vide', c
 | `normal` | le cas des maquettes | 48 / 70 / ≈ 270 |
 | `beaucoup` | défilement, pagination, performance | 300 / 700 / ≈ 1 750 |
 
-`construireMonde` assemble les 109 jeux en quelques centaines de millisecondes, même au volume `beaucoup`.
+`construireMonde` assemble les 114 jeux en quelques centaines de millisecondes, même au volume `beaucoup`.
 
 ## Conventions
 
@@ -44,7 +44,7 @@ const mixte = construireMonde({ volume: 'normal', volumes: { factures: 'vide', c
 
 ## Catalogue des jeux
 
-Les 109 jeux sont dans `types.ts` (`NOMS_DES_JEUX`, 25) et `types-suite.ts` (`NOMS_DES_JEUX_SUITE`, 84). Fiches = celles de `AMN-refonte-CO/lots/`.
+Les 114 jeux sont dans `types.ts` (`NOMS_DES_JEUX`, 25) et `types-suite.ts` (`NOMS_DES_JEUX_SUITE`, 89). Fiches = celles de `AMN-refonte-CO/lots/`.
 
 | Lot | Jeux | Fichier |
 |---|---|---|
@@ -52,9 +52,9 @@ Les 109 jeux sont dans `types.ts` (`NOMS_DES_JEUX`, 25) et `types-suite.ts` (`NO
 | Ma journée | `taches`, `evenements`, `projets`, `tickets`, `notes`, `rappels`, `habitudes` ; planning de l'équipe : `creneaux` ; défis : `defis` | `ma-journee.ts`, `complements.ts` |
 | Contacts | `clients`, `interlocuteurs`, `prospects`, `fournisseurs`, `achats`, `avis`, `relances`, `fidelite` ; `partenaires` | `contacts.ts`, `complements.ts` |
 | L'argent | `devis`, `factures`, `avoirs`, `paiements`, `depenses`, `abonnements`, `contrats`, `comptes`, `mouvements`, `enveloppes` ; TVA et impôts : `echeancesFiscales` ; paie : `bulletins` ; tarifs : `prestations` | `argent.ts`, `complements.ts` |
-| Écrire | `fichiers`, `signatures`, `pages`, `modeles`, `journal`, `textes`, `archives`, `connaissances` | `ecrire.ts` |
+| Écrire | `fichiers`, `signatures`, `pages`, `modeles`, `journal`, `textes`, `archives`, `connaissances`, `reglesArchivage`, `demandesRelecture` | `ecrire.ts` |
 | Échanger | `conversations`, `messages`, `canaux`, `annonces`, `courriels`, `salles`, `appels`, `reunions`, `partages`, `sondages`, `reponsesAuto` | `echanger.ts` |
-| Créer | `articles`, `produits`, `commandes`, `chantiers`, `dossiersPhotos`, `marque`, `videos`, `pagesPubliques`, `etapesTournee`, `equipements`, `ressources`, `reservations`, `vehicules`, `modelesControle`, `controles`, `ecarts` | `creer.ts` |
+| Créer | `articles`, `produits`, `commandes`, `chantiers`, `dossiersPhotos`, `marque`, `videos`, `pagesPubliques`, `etapesTournee`, `equipements`, `ressources`, `reservations`, `vehicules`, `modelesControle`, `controles`, `ecarts` ; boutique en ligne (MR08) : `entonnoirBoutique`, `paniers`, `sessionsBoutique` | `creer.ts`, `boutique.ts` |
 | Outils | `corbeille`, `aide`, `secrets` (masqués), `sites`, `trackers`, `sauvegardes`, `operations`, `raccourcis`, `automatisations`, `connecteurs`, `notifications`, `modelesMetier`, `usagesCalculs` | `boite-outils.ts` |
 | La Garde | `organisations`, `actifs`, `alertes`, `incidents`, `vulnerabilites`, `rondes`, `evenementsSecurite`, `journalAcces`, `criteresMaturite`, `offresCyber` | `garde.ts` |
 | Développement (LOT-11) | `depots`, `deploiements`, `deploiementsPlanifies`, `executions`, `tachesPlanifiees`, `mesuresServeur`, `servicesServeur`, `paiementsConnecteurs` ; `connecteurs` complétés (mode, modèle de coût, consommation, payé) | `developpement.ts` |

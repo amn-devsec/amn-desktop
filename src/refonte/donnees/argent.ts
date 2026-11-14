@@ -17,7 +17,7 @@ import {
   ajouterJours, arrondir, centimes, compter, debutDeMois, ecartJours, graineDe, hasard, instantParis, iso, lundiDe, tva, type Hasard, type Jour,
 } from './outils';
 import type {
-  Abonnement, CompteBancaire, Contexte, Contrat, Depense, Devis, Enveloppe, Facture, FicheClient, Membre, Mouvement, Paiement,
+  Abonnement, CompteBancaire, Contexte, Contrat, Depense, Devis, Enveloppe, Facture, LigneFacturee, FicheClient, Membre, Mouvement, Paiement,
 } from './types';
 import type { InvoiceLine } from '../../shared/api';
 
@@ -58,13 +58,14 @@ export function statutAffiche(f: Pick<Facture, 'status' | 'dueAt'>, aujourdhui: 
 /** Les taux de TVA des lignes : surtout 20 %, un peu de 10 % (travaux, restauration) et de 5,5 % (livres, alimentation). */
 const tauxDeTva = (h: Hasard): number => h.pondere([[20, 86], [10, 9], [5.5, 5]] as const);
 
-function lignesAleatoires(h: Hasard, nombre: number): InvoiceLine[] {
+function lignesAleatoires(h: Hasard, nombre: number): LigneFacturee[] {
   const uniques = PRESTATIONS.filter((p) => p[2] === null);
   return h.echantillon(uniques, nombre).map(([libelle, prix], k) => ({
     id: `l-${k + 1}`,
     label: libelle,
     quantity: h.pondere([[1, 7], [2, 2], [3, 1]] as const),
     unitPriceCents: arrondir(centimes(prix * h.choix([0.9, 1, 1, 1.1])), 1000),
+    prixGrilleCents: arrondir(centimes(prix), 1000),
     vatRate: tauxDeTva(h),
   }));
 }
@@ -75,7 +76,7 @@ function lignesAleatoires(h: Hasard, nombre: number): InvoiceLine[] {
  * tantôt une prestation ponctuelle. C'est ce mélange qui donne des factures de
  * 54 € comme de 5 000 €, et des niveaux de fidélité variés.
  */
-function lignesFacture(h: Hasard): InvoiceLine[] {
+function lignesFacture(h: Hasard): LigneFacturee[] {
   if (!h.chance(0.45)) return lignesAleatoires(h, h.entier(1, 2));
   const recurrentes = PRESTATIONS.filter((p) => p[2] === 'mois');
   return h.echantillon(recurrentes, h.entier(1, 2)).map(([libelle, prix], k) => ({
@@ -83,6 +84,7 @@ function lignesFacture(h: Hasard): InvoiceLine[] {
     label: libelle,
     quantity: h.pondere([[1, 5], [2, 2], [3, 2], [6, 1]] as const),
     unitPriceCents: centimes(prix),
+    prixGrilleCents: centimes(prix),
     vatRate: tauxDeTva(h),
   }));
 }
@@ -147,7 +149,7 @@ export function genererFactures(ctx: Contexte, clients: readonly FicheClient[], 
   const profil = new Map<number, 'ponctuel' | 'tardif' | 'lent'>();
   for (const c of clients) profil.set(c.id, h.pondere([['ponctuel', 70], ['tardif', 22], ['lent', 8]] as const));
 
-  const fabriquer = (c: FicheClient, lignes: InvoiceLine[], emisLe: Jour, quoteId: number | null, brouillon: boolean): Omit<Facture, 'number' | 'id'> => {
+  const fabriquer = (c: FicheClient, lignes: LigneFacturee[], emisLe: Jour, quoteId: number | null, brouillon: boolean): Omit<Facture, 'number' | 'id'> => {
     const delai = h.pondere([[termeJours, 7], [15, 1], [45, 1], [0, 1]] as const);
     const echeance = ajouterJours(emisLe, delai);
     const p = profil.get(c.id) ?? 'ponctuel';
@@ -302,9 +304,9 @@ export function genererFactures(ctx: Contexte, clients: readonly FicheClient[], 
  * Sur une facture réglée, un avoir total ou partiel est un crédit à rembourser ou à reporter ; sur une facture encore due, un
  * avoir PARTIEL (jamais total : la facture reste due) baisse le reste dû, et `soldeCents` le dit.
  */
-export function genererAvoirs(ctx: Contexte, factures: Facture[]): Facture[] {
+export function genererAvoirs(ctx: Contexte, factures: Facture[], paiements: readonly Paiement[] = []): Facture[] {
   const h = hasard(graineDe(ctx.graine, 'avoirs'));
-  const eligibles = factures.filter((f) => (f.status === 'paid' || f.status === 'issued') && f.issuedAt !== '' && f.issuedAt <= ajouterJours(ctx.aujourdhui, -5) && (f.kind ?? 'invoice') === 'invoice');
+  const eligibles = factures.filter((f) => (f.status === 'paid' || f.status === 'issued') && f.issuedAt !== '' && f.issuedAt <= ajouterJours(ctx.aujourdhui, -5) && (f.kind ?? 'invoice') === 'invoice' && !paiements.some((p) => p.factureId === f.id && p.etat === 'réussi'));
   const n = Math.min(compter(ctx.volumes.avoirs, [0, 1, 4, 30]), eligibles.length);
   if (n === 0) return [];
   // Un tiers sur des factures encore dues (avoir partiel), le reste sur des factures réglées.
@@ -350,7 +352,8 @@ export function genererAvoirs(ctx: Contexte, factures: Facture[]): Facture[] {
   for (const f of factures) {
     if (f.status !== 'issued') continue;
     const repris = avoirs.filter((a) => a.creditNoteFor === f.id).reduce((s, a) => s + totauxDeFacture(a).ttcCents, 0);
-    f.soldeCents = Math.max(0, totauxDeFacture(f).ttcCents - repris);
+    const regle = paiements.filter((p) => p.factureId === f.id && p.etat === 'réussi').reduce((s, p) => s + p.montantCents, 0);
+    f.soldeCents = Math.max(0, totauxDeFacture(f).ttcCents - repris - regle);
   }
   return avoirs.sort((a, b) => b.issuedAt.localeCompare(a.issuedAt) || b.number.localeCompare(a.number));
 }
@@ -392,7 +395,23 @@ export function genererPaiements(ctx: Contexte, factures: readonly Facture[]): P
     k += 1;
     liste.push({ id: `pay-${String(k).padStart(4, '0')}`, factureId: f.id, clientId: f.clientId, clientNom: f.clientNom, moyen: 'virement', montantCents: totauxDeFacture(f).ttcCents, fraisCents: 0, etat: 'en attente', date: iso(instantParis(ajouterJours(ctx.aujourdhui, -1), '17:45')), reference: ref() });
   }
-  return liste.sort((a, b) => b.date.localeCompare(a.date)).slice(0, cap);
+  const base = liste.sort((a, b) => b.date.localeCompare(a.date)).slice(0, cap);
+  // Des règlements partiels (G03, MA03) : une facture encore due dont le client a déjà versé une partie. Ils s'ajoutent hors plafond,
+  // pour que le reste dû (`soldeCents`) corresponde toujours aux règlements présents.
+  const enAttente = new Set(base.filter((p) => p.etat === 'en attente').map((p) => p.factureId));
+  const eligibles = factures.filter((f) => f.status === 'issued' && f.issuedAt !== '' && f.issuedAt <= ajouterJours(ctx.aujourdhui, -3) && !enAttente.has(f.id));
+  const nPartiels = Math.min(eligibles.length, compter(ctx.volumes.paiements, [0, 1, 4, 30]));
+  const partiels: Paiement[] = [];
+  h.melanger(eligibles).slice(0, nPartiels).forEach((f) => {
+    const ttc = totauxDeFacture(f).ttcCents;
+    const montant = Math.max(100, Math.round((ttc * (0.3 + h.entier(0, 3) * 0.1)) / 100) * 100);
+    if (montant >= ttc) return;
+    const jour = [ajouterJours(f.issuedAt, 2 + h.entier(0, 20)), ajouterJours(ctx.aujourdhui, -1)].sort()[0];
+    k += 1;
+    partiels.push({ id: `pay-${String(k).padStart(4, '0')}`, factureId: f.id, clientId: f.clientId, clientNom: f.clientNom, moyen: 'virement', montantCents: montant, fraisCents: 0, etat: 'réussi', date: iso(Math.min(instantParis(jour, '10:30'), ctx.maintenant - 60 * 60_000)), reference: ref() });
+    f.soldeCents = Math.max(0, f.soldeCents - montant);
+  });
+  return [...base, ...partiels].sort((a, b) => b.date.localeCompare(a.date));
 }
 
 /* ------------------------------- Dépenses ------------------------------- */

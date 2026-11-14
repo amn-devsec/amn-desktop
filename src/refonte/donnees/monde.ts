@@ -16,7 +16,8 @@ import { genererAide, genererAutomatisations, genererConnecteurs, genererCorbeil
 import { genererBulletins, genererCreneaux, genererDefis, genererEcheances, genererPartenaires, genererPrestations, netMensuelMoyen } from './complements';
 import { genererAccords, genererAlertesVeille, genererCampagnes, genererConstats, genererDocumentsCyber, genererDossiersConformite, genererFuites, genererLogiciels, genererMissions, genererOutilsCyber, genererParcSecurite } from './cyber';
 import { genererAnnonces, genererAppels, genererCanaux, genererConversations, genererCourriels, genererPartages, genererReponsesAuto, genererReunions, genererSalles, genererSondages } from './echanger';
-import { genererArchives, genererConnaissances, genererFichiers, genererJournal, genererModeles, genererPages, genererSignatures, genererTextes } from './ecrire';
+import { genererArchives, genererConnaissances, genererDemandesRelecture, genererFichiers, genererJournal, genererModeles, genererPages, genererReglesArchivage, genererSignatures, genererTextes } from './ecrire';
+import { genererEntonnoir, genererPaniers, genererSessions } from './boutique';
 import { genererDeploiements, genererDeploiementsPlanifies, genererDepots, genererExecutions, genererMesuresServeur, genererPaiementsConnecteurs, genererServicesServeur, genererTachesPlanifiees } from './developpement';
 import { genererActifs, genererAlertes, genererCriteres, genererEvenementsSecurite, genererIncidents, genererJournalAcces, genererOffres, genererOrganisations, genererRondes, genererVulnerabilites, poserEtats } from './garde';
 import { genererArticles, genererChantiers, genererCommandes, genererControles, genererDossiersPhotos, genererEquipements, genererEtapesTournee, genererMarque, genererModelesControle, genererPagesPubliques, genererProduits, genererRessources, genererReservations, genererVehicules, genererVideos } from './creer';
@@ -72,7 +73,7 @@ export function construireMonde(options: OptionsMonde = {}): Monde {
   const factures = genererFactures(ctx, clients, devis, entreprise.identite.paymentTermDays);
   const paiements = genererPaiements(ctx, factures);
   // Les avoirs baissent le reste dû de certaines factures (soldeCents) : ils précèdent la trésorerie et la TVA.
-  const avoirs = options.avoirs ? genererAvoirs(ctx, factures) : [];
+  const avoirs = options.avoirs ? genererAvoirs(ctx, factures, paiements) : [];
 
   const { projets, cibles } = genererProjets(ctx, equipe, clients);
   const taches = genererTaches(ctx, equipe, clients, projets, cibles);
@@ -100,7 +101,7 @@ export function construireMonde(options: OptionsMonde = {}): Monde {
   const partenaires = genererPartenaires(ctx, equipe, fournisseurs);
   const interlocuteurs = genererInterlocuteurs(ctx, clients, fournisseurs, prospects, partenaires);
   const relances = genererRelances(ctx, entreprise.reglages, clients, factures, devis, evenements, prospects);
-  const fidelite = genererFidelite(ctx, clients, factures);
+  const fidelite = genererFidelite(ctx, clients, factures, avis);
 
   /* ----------------------------- La suite ----------------------------- */
 
@@ -120,6 +121,8 @@ export function construireMonde(options: OptionsMonde = {}): Monde {
   const textes = genererTextes(ctx, equipe, interlocuteurs, factures);
   const archives = genererArchives(ctx, equipe, fichiers, factures);
   const connaissances = genererConnaissances(ctx, equipe);
+  const reglesArchivage = genererReglesArchivage(ctx);
+  const demandesRelecture = genererDemandesRelecture(ctx, equipe, pages, fichiers);
 
   // Échanger.
   const { conversations, messages } = genererConversations(ctx, equipe, clients, factures);
@@ -143,6 +146,15 @@ export function construireMonde(options: OptionsMonde = {}): Monde {
   const videos = genererVideos(ctx, equipe);
   const pagesPubliques = genererPagesPubliques(ctx, equipe);
   const etapesTournee = genererEtapesTournee(ctx, equipe, clients, commandes);
+  // MR08 : l'entonnoir se lit dans les commandes ; l'objectif du trimestre dépasse un peu le chiffre d'affaires déjà fait.
+  const entonnoirBoutique = genererEntonnoir(ctx, commandes);
+  const paniers = genererPaniers(ctx, clients, commandes);
+  const sessionsBoutique = genererSessions(ctx);
+  {
+    const debutTrimestre = `${ctx.aujourdhui.slice(0, 4)}-${String(Math.floor((Number(ctx.aujourdhui.slice(5, 7)) - 1) / 3) * 3 + 1).padStart(2, '0')}-01`;
+    const ca = commandes.filter((c) => c.creeLe >= debutTrimestre).reduce((t, c) => t + c.lignes.reduce((x, l) => x + l.prixCents * l.quantite, 0), 0);
+    entreprise.reglages.objectifBoutiqueTrimestreCents = Math.max(100_000, Math.ceil((ca * 1.3) / 50_000) * 50_000);
+  }
   const equipements = genererEquipements(ctx, equipe);
   const ressources = genererRessources(ctx);
   const reservations = genererReservations(ctx, equipe, clients, ressources);
@@ -205,9 +217,10 @@ export function construireMonde(options: OptionsMonde = {}): Monde {
   return {
     contexte: ctx, entreprise, equipe, taches, evenements, projets, tickets, notes, rappels, habitudes, clients, interlocuteurs, prospects,
     fournisseurs, achats, avis, relances, fidelite, devis, factures, paiements, depenses, abonnements, contrats, comptes, mouvements, enveloppes,
+    entonnoirBoutique, paniers, sessionsBoutique,
     depots, deploiements, deploiementsPlanifies, executions, tachesPlanifiees, mesuresServeur, servicesServeur, paiementsConnecteurs,
     avoirs, echeancesFiscales, bulletins, prestations, partenaires, creneaux, defis,
-    pages, fichiers, signatures, modeles, journal, textes, archives, connaissances,
+    pages, fichiers, signatures, modeles, journal, textes, archives, connaissances, reglesArchivage, demandesRelecture,
     conversations, messages, canaux, annonces, courriels, salles, appels, reunions, partages, sondages, reponsesAuto,
     articles, produits, commandes, chantiers, dossiersPhotos, marque, videos, pagesPubliques, etapesTournee, equipements, ressources, reservations,
     vehicules, modelesControle, controles, ecarts,
