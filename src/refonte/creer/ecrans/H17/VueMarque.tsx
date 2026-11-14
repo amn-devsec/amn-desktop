@@ -30,6 +30,7 @@ function Logo({ nom, monogramme, taille = 40 }: { nom: string; monogramme: strin
 
 export function VueMarque(p: VueMarqueProps) {
   const { tm, langue } = useMots();
+  const nomPropre = p.nom.trim();
   const [actif, setActif] = useState<ChapitreId>('logo');
   const [copie, setCopie] = useState<string | null>(null);
   const m = p.marque;
@@ -55,7 +56,7 @@ export function VueMarque(p: VueMarqueProps) {
     <div className="cr-page" data-famille="creer" data-ecran="H17">
       <PageHead
         titre={tm('titre')}
-        sousTitre={tm('sous', { nom: p.nom })}
+        sousTitre={nomPropre ? tm('sous', { nom: nomPropre, de: /^[aeiouyàâäéèêëîïôöùûüh]/i.test(nomPropre) ? `d’${nomPropre}` : `de ${nomPropre}` }) : tm('sous.sansNom')}
         secondaires={[{ libelle: tm('importer'), onClick: p.onImporter ?? (() => undefined) }]}
         primaire={{ libelle: tm('exporter'), onClick: p.onExporter ?? (() => undefined), disabled: m.logos.length === 0 }}
       />

@@ -4,6 +4,7 @@ import { definirMots } from '../../../../socle/mots';
 const EN = {
   'titre': 'Visuals and brand',
   'sous': 'The brand book of {nom} · everything each visual needs to look like us',
+  'sous.sansNom': 'The brand book · everything each visual needs to look like us',
   'importer': 'Import my brand',
   'exporter': 'Export the full kit',
   'livre': 'Brand book',
@@ -55,7 +56,8 @@ const EN = {
 
 const FR: Readonly<Record<keyof typeof EN, string>> = {
   'titre': 'Visuels et marque',
-  'sous': 'Le livre de marque d’{nom} · tout ce qu’il faut pour que chaque visuel nous ressemble',
+  'sous': 'Le livre de marque {de} · tout ce qu’il faut pour que chaque visuel nous ressemble',
+  'sous.sansNom': 'Le livre de marque · tout ce qu’il faut pour que chaque visuel nous ressemble',
   'importer': 'Importer ma marque',
   'exporter': 'Exporter le kit complet',
   'livre': 'Livre de marque',
