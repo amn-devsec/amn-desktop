@@ -149,6 +149,8 @@ jobs:
         run: npm run check:contacts
       - name: Connecteurs et autonomie (LOT-12) — local d'abord, coût avant, trois clics, aucune clé, moteurs locaux
         run: npm run check:connecteurs
+      - name: Écrire et retenir (LOT-03) — série d'écriture, relecture, documents, signatures, journal, archives, connaissances
+        run: npm run check:ecrire
 
       - name: Contrôle de la file d'envoi
         run: npm run check:envoi
