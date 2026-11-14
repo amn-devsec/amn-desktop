@@ -1,5 +1,4 @@
-import { ajouterJours, ecartJours, jourDe, type Jour } from './commun';
-import { totauxDocument, type FactureLue } from './facturation';
+import { ecartJours, joursOuvresAvant, type Jour } from './commun';
 
 /**
  * BANQUE (MA10), en LECTURE SEULE — décision confirmée par Harun (STATUT §1.5 n° 1).
@@ -50,31 +49,55 @@ export function preparerOrdre(e: { beneficiaire: string; ibanFin: string; montan
   return { ok: true, ordre: { beneficiaire: e.beneficiaire.trim(), ibanFin: e.ibanFin, montantCents: e.montantCents, reference: e.reference.trim(), echeance: e.echeance, emis: false, aExecuterDansTaBanque: true } };
 }
 
-/** Écart de dates toléré pour proposer un rapprochement : 5 jours (valeur de départ, §1.29 n° 3). */
-export const FENETRE_RAPPROCHEMENT_JOURS = 5;
-
-/**
- * Les rapprochements à PROPOSER (jamais faits seuls) : un encaissement « à vérifier »
- * et une facture payée du même montant TTC, à 5 jours près.
- */
-export function suggestionsDeRapprochement(
-  mouvements: readonly { id: string; montantCents: number; date: Jour; rapprochement: string }[],
-  factures: readonly FactureLue[],
-): { mouvementId: string; factureId: string }[] {
-  const sortie: { mouvementId: string; factureId: string }[] = [];
-  const prises = new Set<string>();
-  for (const m of mouvements) {
-    if (m.rapprochement !== 'à vérifier' || m.montantCents <= 0) continue;
-    const f = factures.find(
-      (x) => !prises.has(x.id) && x.status === 'paid' && x.paidAt && totauxDocument(x.lines).ttcCents === m.montantCents && Math.abs(ecartJours(jourDe(x.paidAt), m.date)) <= FENETRE_RAPPROCHEMENT_JOURS,
-    );
-    if (f) {
-      prises.add(f.id);
-      sortie.push({ mouvementId: m.id, factureId: f.id });
-    }
-  }
-  return sortie;
+/** MA10 : « Rapprochés » = mouvements rapprochés ÷ mouvements du mois, arrondi à l'entier INFÉRIEUR (92 ÷ 96 → 95 %). */
+export function partRapprochee(mouvements: readonly { rapprochement: string }[]): { rapproches: number; total: number; aVerifier: number; pourcentage: number } {
+  const total = mouvements.length;
+  const r = mouvements.filter((m) => m.rapprochement === 'rapproché').length;
+  return { rapproches: r, total, aVerifier: total - r, pourcentage: total === 0 ? 100 : Math.floor((r / total) * 100) };
 }
 
-/** Le jour où un ordre préparé devrait être exécuté pour arriver à temps : 2 jours avant l'échéance (valeur de départ, §1.29 n° 3). */
-export const dateLimiteDeLOrdre = (echeance: Jour): Jour => ajouterJours(echeance, -2);
+export type Confiance = 'exact' | 'probable' | 'a-verifier';
+
+/**
+ * MA10 : la pièce PROPOSÉE pour un mouvement d'entrée « à vérifier » — jamais appliquée
+ * seule. Une facture ouverte dont le solde dû égale le montant AU CENTIME, émise avant
+ * le mouvement, et :
+ *   · la référence (numéro) dans le libellé → « exact » ;
+ *   · sinon le nom du client dans le libellé → « probable » ;
+ *   · sinon une relance récente de ce client → « à vérifier » ;
+ *   · sinon rien.
+ */
+export function proposerAssociation(
+  m: { montantCents: number; date: Jour; libelle: string },
+  facturesOuvertes: readonly { id: string; number: string; issuedAt: string; resteCents: number; clientNom: string }[],
+  clientsRelancesRecemment: ReadonlySet<string> = new Set(),
+): { factureId: string; confiance: Confiance } | null {
+  if (m.montantCents <= 0) return null;
+  const lib = m.libelle.toLowerCase();
+  const candidates = facturesOuvertes.filter((f) => f.resteCents === m.montantCents && f.issuedAt && f.issuedAt <= m.date);
+  const niveau = (f: (typeof candidates)[number]): Confiance | null =>
+    f.number && lib.includes(f.number.toLowerCase()) ? 'exact' : f.clientNom && lib.includes(f.clientNom.toLowerCase()) ? 'probable' : clientsRelancesRecemment.has(f.clientNom) ? 'a-verifier' : null;
+  const ordre: Confiance[] = ['exact', 'probable', 'a-verifier'];
+  const notees = candidates.map((f) => ({ f, c: niveau(f) })).filter((x): x is { f: (typeof candidates)[number]; c: Confiance } => x.c !== null);
+  notees.sort((a, b) => ordre.indexOf(a.c) - ordre.indexOf(b.c));
+  return notees[0] ? { factureId: notees[0].f.id, confiance: notees[0].c } : null;
+}
+
+/** G03 « Avant de relancer » : tolérances du mouvement non rapproché qui ressemble au paiement d'une facture. */
+export const TOLERANCE_PAIEMENT_CENTS = 50;
+export const FENETRE_PAIEMENT_JOURS = 30;
+
+/**
+ * G03 : un mouvement d'entrée non rapproché du montant de la facture à ± 0,50 €, dans
+ * les 30 derniers jours. S'il existe, aucune relance ne part tant que ce n'est pas vérifié.
+ */
+export function mouvementQuiRessemble<M extends { montantCents: number; date: Jour; rapprochement: string }>(resteCents: number, mouvements: readonly M[], aujourdhui: Jour): M | null {
+  return (
+    mouvements.find(
+      (m) => m.rapprochement !== 'rapproché' && m.montantCents > 0 && Math.abs(m.montantCents - resteCents) <= TOLERANCE_PAIEMENT_CENTS && ecartJours(m.date, aujourdhui) >= 0 && ecartJours(m.date, aujourdhui) <= FENETRE_PAIEMENT_JOURS,
+    ) ?? null
+  );
+}
+
+/** Le jour où passer un ordre préparé pour qu'il arrive à temps : 2 jours OUVRÉS avant l'échéance (MA08). */
+export const dateLimiteDeLOrdre = (echeance: Jour): Jour => joursOuvresAvant(echeance, 2);

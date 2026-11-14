@@ -1,4 +1,4 @@
-import { moisDe, type Mois } from './commun';
+import { arrondi, ecartJours, jourDuMois, moisDe, moisSuivant, type Jour, type Mois } from './commun';
 import { tvaDepuisTTC } from './tva';
 
 /**
@@ -54,3 +54,32 @@ export function notesARembourser(depenses: readonly DepenseLue[]): { email: stri
   }
   return [...par.entries()].map(([email, v]) => ({ email, ...v })).sort((a, b) => b.montantCents - a.montantCents || a.email.localeCompare(b.email));
 }
+
+/** H08 : la date limite pour justifier les dépenses d'un mois = le 5 du mois suivant (réglage lié à la clôture de MA02). */
+export const JOUR_LIMITE_JUSTIFICATIF = 5;
+export const dateLimiteJustificatif = (mois: Mois, jour = JOUR_LIMITE_JUSTIFICATIF): Jour => jourDuMois(moisSuivant(mois), jour);
+
+/** Les jours qui restent avant la date limite (l'anneau de H08) ; négatif = dépassée (« depuis le 5 nov. », orange, jamais rouge plein). */
+export const joursAvantLimite = (mois: Mois, aujourdhui: Jour): number => ecartJours(aujourdhui, dateLimiteJustificatif(mois));
+
+/** « Mois justifié » : dépenses justifiées ÷ dépenses du mois, en % entier (44 sur 48 = 92 %). */
+export function moisJustifie(depenses: readonly DepenseLue[], mois: Mois): { justifiees: number; total: number; pourcentage: number } {
+  const du = depenses.filter((d) => moisDe(d.spentAt) === mois);
+  const j = du.filter((d) => d.justificatif.statut === 'justifié').length;
+  return { justifiees: j, total: du.length, pourcentage: du.length === 0 ? 100 : arrondi((j / du.length) * 100) };
+}
+
+/** Tolérances de la lecture d'un reçu (H08) : même montant à ± 0,50 €, à ± 3 jours. */
+export const TOLERANCE_RECU_CENTS = 50;
+export const TOLERANCE_RECU_JOURS = 3;
+
+/** Les dépenses à justifier qui correspondent à un reçu lu ; plusieurs = la liste est proposée. Aucune validation sans clic. */
+export function depensesPourUnRecu(recu: { montantCents: number; date: Jour }, depenses: readonly DepenseLue[]): DepenseLue[] {
+  return depenses.filter(
+    (d) => d.justificatif.statut === 'à justifier' && Math.abs(d.amountCents - recu.montantCents) <= TOLERANCE_RECU_CENTS && Math.abs(ecartJours(d.spentAt, recu.date)) <= TOLERANCE_RECU_JOURS,
+  );
+}
+
+/** Suggestion de H08 : un abonnement non utilisé depuis 30 jours ou plus ; économie annuelle = coût mensuel × 12. */
+export const economieAnnuelle = (coutMensuelCents: number): number => coutMensuelCents * 12;
+export const nonUtiliseDepuis = (dernierUsage: Jour, aujourdhui: Jour): boolean => ecartJours(dernierUsage, aujourdhui) >= 30;

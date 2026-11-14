@@ -891,32 +891,32 @@ Préparation par S5 (14 nov., `claude/refonte-ecrire`) : note [`preparation/LOT-
 
 ### LOT-04 · L'argent — `claude/refonte-argent` — 17 écrans
 
-Préparation par DS (14 nov.) : logique pure `src/refonte/argent/` et `check:argent` (53 propriétés, cas écrits à l'avance, rejeu sur les jeux de SIM). Note : [`preparation/LOT-04-argent.md`](preparation/LOT-04-argent.md). Aucun écran avant la fusion du socle v4. **Dossier v4 non disponible pendant la préparation** : les points marqués [fiche] sont à relire avec les fiches.
+Préparation par DS (14 nov.) : logique pure `src/refonte/argent/` (18 fichiers) et `check:argent` (69 propriétés : cas écrits à l'avance, dont les exemples chiffrés des fiches ; rejeu sur les jeux de SIM). Note : [`preparation/LOT-04-argent.md`](preparation/LOT-04-argent.md). Aucun écran avant la fusion du socle v4. **Relue avec le dossier v4** (17 fiches) : les points [fiche] sont levés ; décisions du CO appliquées (§1.28 n° 2, §1.29) ; écarts restants au §5 de la note.
 
 | ID | Écran | Type | État | Écart / note |
 |---|---|---|---|---|
-| F30 | Argent · Vue d'ensemble | nouveau | en cours (préparation) | logique prête : impayés, TVA du mois, trésorerie, revenu récurrent ; hub `/ensemble/argent` (S0) |
-| G03 | Argent · Facturation | mixte | en cours (préparation) | `facturation.ts` : totaux par taux, reste dû (avoirs, règlements partiels), statut, numérotation, mentions |
-| H07 | Argent · Devis | mixte | en cours (préparation) | `devis.ts` : état, transformation, **devis prérempli** (source de H41 et H42), devis → facture, acompte ; place du Comparateur de devis (F1) |
-| H08 | Argent · Dépenses | mixte | en cours (préparation) | `depenses.ts` : HT et TVA depuis un TTC, catégories, justificatifs |
-| H09 | Argent · Prévisions | mixte | en cours (préparation) | `tresorerie.ts` : projection 12 semaines, scénarios attendu et prudent, point bas, besoin ; **attendus de SIM non livrés** |
-| MA07 | Argent · Trésorerie | mixte | en cours (préparation) | `tresorerie.ts`, `banque.soldeTotal` ; quels comptes comptent (à trancher) |
-| MA04 | Argent · Impayés | mixte | en cours (préparation) | `impayes.ts` : tranches, priorités, pénalités, indemnité de 40 €, relance préparée au vouvoiement, jamais envoyée |
-| MA01 | Argent · Contrats | mixte | en cours (préparation) | rien de propre au lot ; règles de renouvellement [fiche] |
-| MA02 | Argent · Comptabilité | mixte | en cours (préparation) | FEC existant repris ; `banque.suggestionsDeRapprochement` |
-| MA03 | Argent · Paiements en ligne | mixte | en cours (préparation) | `connecteurs.etatPaiementsEnLigne` (lecture du modèle de S9), `devis.acompte` |
-| MA05 | Argent · Notes de frais | mixte | en cours (préparation) | `depenses.notesARembourser` ; remboursement préparé (`banque.preparerOrdre`) |
-| MA06 | Argent · Budget | mixte | en cours (préparation) | `budget.ts` : consommé, projection, seuil de 80 % |
-| MA08 | Argent · TVA et impôts | mixte | en cours (préparation) | `tva.ts` : débits ou encaissements, crédit, échéances ; « à valider par un comptable » sur chaque résultat |
-| MA09 | Argent · Abonnements récurrents | mixte | en cours (préparation) | `abonnements.ts` : revenu récurrent, attrition, prochain prélèvement |
-| MA10 | Argent · Banque | mixte | en cours (préparation) | `banque.ts` : **lecture seule**, ordre préparé, IBAN jamais complet ; `connecteurs.etatBanque` |
-| MA11 | Argent · Paie | mixte | en cours (préparation) | `paie.ts` : cotisations fictives à 46 % du net, montants masqués par défaut |
-| MA12 | Argent · Tarifs et remises | mixte | en cours (préparation) | `tarifs.ts` : marge, marge pondérée, remises (alerte sous le coût) ; place du Taux horaire (F1) |
+| F30 | Argent · Vue d'ensemble | nouveau | en cours (préparation) | `ensemble.ts` : rivière du mois, objectif d'encaissement ; définition de la « série » à trancher (G03 ≠ F30) |
+| G03 | Argent · Facturation | mixte | en cours (préparation) | `facturation.ts` : six stations (dont « Vue »), reste dû, numérotation existante, mentions, paiement à vérifier avant relance |
+| H07 | Argent · Devis | mixte | en cours (préparation) | `devis.ts` : états de la fiche (signé, facturé), **devis prérempli** (H41, H42), écart de version ; TVA par ligne (CO) au lieu de par taux (fiche) |
+| H08 | Argent · Dépenses | mixte | en cours (préparation) | `depenses.ts` : justificatifs avant le 5, reçu rapproché, TVA récupérable des seules dépenses justifiées |
+| H09 | Argent · Prévisions | mixte | en cours (préparation) | `tresorerie.ts` : 90 jours, trois scénarios par hypothèses, ce qui pèse le plus, seuil de confort ; **attendus de SIM non livrés** |
+| MA07 | Argent · Trésorerie | mixte | en cours (préparation) | même moteur que H09 ; compte courant par défaut, épargne à part ; autonomie, bande d'incertitude |
+| MA04 | Argent · Impayés | mixte | en cours (préparation) | `impayes.ts` : colonnes d'âge, échelle de relance sur les seuils de `relances.ts` ; aucun calcul de pénalités (fiche) ; mise en demeure sans modèle par défaut |
+| MA01 | Argent · Contrats | mixte | en cours (préparation) | `contrats.ts` : à renouveler dans le préavis de 60 jours, jamais pour un tacite ; révision |
+| MA02 | Argent · Comptabilité | mixte | en cours (préparation) | `comptabilite.ts` : soldes du 512, résultat indicatif, 8 points calculés ; FEC existant |
+| MA03 | Argent · Paiements en ligne | mixte | en cours (préparation) | `paiements.ts` : réussite, frais, par moyen ; état « à brancher » (S9, H21) |
+| MA05 | Argent · Notes de frais | mixte | en cours (préparation) | sommes dues par personne ; remboursement préparé |
+| MA06 | Argent · Budget | mixte | en cours (préparation) | `budget.ts` : presque plein dès 90 %, payé, dépassé ; bandeau |
+| MA08 | Argent · TVA et impôts | mixte | en cours (préparation) | `tva.ts` : débits ou encaissements, prochaine échéance, 2 jours ouvrés, mis de côté ; période trimestrielle à confirmer |
+| MA09 | Argent · Abonnements récurrents | mixte | en cours (préparation) | `abonnements.ts` : revenu récurrent, résiliations, prélèvements des 15 jours |
+| MA10 | Argent · Banque | mixte | en cours (préparation) | `banque.ts` : **lecture seule**, pièce proposée jamais appliquée seule, ordre préparé |
+| MA11 | Argent · Paie | mixte | en cours (préparation) | `paie.ts` : montants masqués par défaut ; aucune cotisation calculée à l'écran (les 46 % ne servent qu'aux jeux) |
+| MA12 | Argent · Tarifs et remises | mixte | en cours (préparation) | `tarifs.ts` : marge entière, objectif 55 %, remise au-delà de 5 % avec accord ; place des modules de F1 à décider |
 
 **Manque au socle** (à vérifier sur la liste v4) :
 - brique « montant masqué / révélé » (MA11, aussi G09) ;
-- graphique de solde projeté avec ligne zéro, point bas marqué et zone sous zéro (H09, MA07) ;
-- tableau ou barres par tranche d'âge des impayés (MA04).
+- graphique à trois scénarios avec seuil et zone « sous le seuil » (H09, MA07) ;
+- surfaces nommées par les fiches : `AgingBoard`, `DunningLadder`, `HypothesisRuler`, `DeadlineCountdown`, `VatWaterfall`, `FiscalMatrix`, `GoalCard`.
 
 **Manque aux données** (à commander à SIM) :
 - règlements partiels (plusieurs paiements par facture) et avoirs ;

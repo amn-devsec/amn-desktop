@@ -57,14 +57,14 @@ async function charger<T>(code: string): Promise<T> {
   return (await import(`data:text/javascript;charset=utf-8;base64,${Buffer.from(construit.outputFiles[0].text, 'utf8').toString('base64')}`)) as T;
 }
 
-const MODULES = ['commun', 'facturation', 'devis', 'depenses', 'impayes', 'tva', 'abonnements', 'budget', 'tarifs', 'tresorerie', 'banque', 'paie', 'connecteurs', 'i18n'] as const;
+const MODULES = ['commun', 'facturation', 'devis', 'depenses', 'impayes', 'tva', 'abonnements', 'budget', 'tarifs', 'tresorerie', 'banque', 'paie', 'connecteurs', 'contrats', 'paiements', 'comptabilite', 'ensemble', 'i18n'] as const;
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const M = await charger<any>(
   MODULES.map((f) => `export * as ${f} from '../src/refonte/argent/${f}';`).join('\n') +
-    "\nexport * as monde from '../src/refonte/donnees';\nexport { netDueCents, nextNumber } from '../src/state/useInvoices';\nexport { documentTotals } from '../src/lib/money';",
+    "\nexport * as monde from '../src/refonte/donnees';\nexport { netDueCents, nextNumber } from '../src/state/useInvoices';\nexport { ECHELLE, paliereDe } from '../src/lib/relances';\nexport { documentTotals } from '../src/lib/money';",
 );
-const { commun: C, facturation: F, devis: DV, depenses: DP, impayes: IM, tva: TV, abonnements: AB, budget: BU, tarifs: TA, tresorerie: TR, banque: BA, paie: PA, connecteurs: CO, i18n: I, monde } = M;
+const { commun: C, facturation: F, devis: DV, depenses: DP, impayes: IM, tva: TV, abonnements: AB, budget: BU, tarifs: TA, tresorerie: TR, banque: BA, paie: PA, connecteurs: CO, contrats: CT, paiements: PM, comptabilite: CP, ensemble: EN, i18n: I, monde } = M;
 
 /* ── Fabriques de cas ─────────────────────────────────────────────────────── */
 
@@ -91,6 +91,7 @@ const facture = (o: Record<string, unknown>) => ({
   ...o,
 });
 const AUJ = '2026-10-30'; // vendredi 30 octobre 2026, le jour des maquettes
+const ETATS_DEVIS = ['brouillon', 'envoye', 'vu', 'signe', 'refuse', 'expire', 'annule', 'facture'];
 
 console.log('L’argent — facturation\n');
 
@@ -164,13 +165,17 @@ await dit('reste dû : TTC − avoirs émis − paiements réussis, jamais néga
   assert.equal(F.resteDu(av, { factures: [f, av], paiements: [] }), 0, 'un avoir n’est jamais dû');
 });
 
-await dit('statut d’une facture : en retard au lendemain de l’échéance (pas le jour même), partiellement payée, soldée', () => {
+await dit('statut d’une facture (G03) : en retard au lendemain de l’échéance (pas le jour même), vue, soldée ; un acompte ne change pas la station', () => {
   const f = facture({});
   const ctx = (paiements: unknown[] = []) => ({ factures: [f], paiements });
   assert.equal(F.statutFacture(f, AUJ, ctx()), 'en-retard');
   assert.equal(F.joursDeRetard(f, AUJ), 10);
   assert.equal(F.statutFacture(facture({ dueAt: AUJ }), AUJ, { factures: [], paiements: [] }), 'envoyee');
-  assert.equal(F.statutFacture(facture({ dueAt: '2026-11-15' }), AUJ, { factures: [], paiements: [{ factureId: 'fa-x', montantCents: 26_356, etat: 'réussi' }] }), 'partiellement-payee');
+  // G03 n'a que six stations : un paiement partiel laisse la facture « Envoyée » (ou « Vue »), avec son reste dû.
+  assert.equal(F.statutFacture(facture({ dueAt: '2026-11-15' }), AUJ, { factures: [], paiements: [{ factureId: 'fa-x', montantCents: 26_356, etat: 'réussi' }] }), 'envoyee');
+  assert.equal(F.statutFacture(facture({ dueAt: '2026-11-15', vues: 2 }), AUJ, { factures: [], paiements: [] }), 'vue');
+  assert.equal(F.statutFacture(facture({ vues: 2 }), AUJ, ctx()), 'en-retard', 'le retard l’emporte sur « Vue »');
+  assert.deepEqual([F.graviteRetard(30), F.graviteRetard(31)], ['orange', 'rouge']);
   assert.equal(F.statutFacture(f, AUJ, ctx([{ factureId: 'fa-x', montantCents: 26_356, etat: 'réussi' }])), 'en-retard');
   assert.equal(F.statutFacture(f, AUJ, ctx([{ factureId: 'fa-x', montantCents: 126_356, etat: 'réussi' }])), 'payee');
   assert.equal(F.statutFacture(facture({ status: 'paid' }), AUJ, ctx()), 'payee');
@@ -216,12 +221,9 @@ await dit('mentions : celles qui manquent sont listées ; « valable juridiqueme
 
 console.log('\nL’argent — impayés\n');
 
-await dit('pénalités : 1 000,00 € × 13,15 %/an × 30 jours = 10,81 € ; indemnité forfaitaire de 40 € par facture entre professionnels', () => {
-  // 100 000 × 0,1315 × 30 / 365 = 1 080,82 centimes → 1 081. Le taux est un paramètre (ici un taux d’exemple), jamais écrit en dur.
-  assert.equal(IM.penalitesDeRetard(100_000, 30, 13.15), 1_081);
-  assert.equal(IM.penalitesDeRetard(100_000, 0, 13.15), 0);
-  assert.equal(IM.penalitesDeRetard(0, 30, 13.15), 0);
-  assert.equal(IM.INDEMNITE_RECOUVREMENT_CENTS, 4_000);
+await dit('MA04 est informatif : aucun calcul de pénalités ni d’indemnité dans la zone (fiche v4) ; seul le taux reste un réglage', () => {
+  for (const nom of Object.keys(IM)) assert.doesNotMatch(nom, /penalitesDe|indemnite/i, `impayes.${nom}`);
+  assert.match(I.traduire('fr', 'impayes.aucunePenalite'), /pénalit/i);
 });
 
 await dit('taux des pénalités par défaut : le minimum légal, trois fois le taux d’intérêt légal (3 × 3,71 % = 11,13 %), présenté comme tel', () => {
@@ -246,16 +248,68 @@ await dit('délai moyen de paiement : (10 + 20 + 45) / 3 = 25 jours ; rien de pa
   assert.equal(IM.delaiMoyenDePaiement([facture({})]), null);
 });
 
-await dit('priorités : le palier le plus dur d’abord, puis le plus gros montant ; paliers repris de src/lib/relances.ts', () => {
+await dit('échelle de relance (MA04) : 7, 21, 45 jours lus dans src/lib/relances.ts (un seul moteur, §1.28 n° 2) ; chaque étape après son seuil ; mise en demeure avec l’accord d’un administrateur', () => {
+  assert.deepEqual(IM.POLITIQUE_PAR_DEFAUT, { relance1: 7, relance2: 21, miseEnDemeure: 45 });
+  const seuil = (p: string) => M.ECHELLE.find((e: any) => e.palier === p).auDela;
+  assert.deepEqual(IM.POLITIQUE_PAR_DEFAUT, { relance1: seuil('ferme'), relance2: seuil('mise-en-demeure'), miseEnDemeure: seuil('dernier-avis') });
+  // Comme paliereDe (strictement au-delà) : relance 1 au 8e jour, relance 2 au 22e, mise en demeure au 46e.
+  assert.equal(IM.etapeSuivante(7, 0), null);
+  assert.deepEqual(IM.etapeSuivante(8, 0), { etape: 'relance-1', accordRequis: false });
+  assert.equal(M.paliereDe(8), 'ferme');
+  assert.equal(IM.etapeSuivante(21, 1), null);
+  assert.deepEqual(IM.etapeSuivante(22, 1), { etape: 'relance-2', accordRequis: false });
+  assert.equal(IM.etapeSuivante(45, 2), null);
+  assert.deepEqual(IM.etapeSuivante(46, 2), { etape: 'mise-en-demeure', accordRequis: true });
+  assert.equal(IM.etapeSuivante(60, 1)?.etape, 'relance-2', 'une étape ne se saute jamais');
+  assert.deepEqual([0, 1, 2, 5].map((n) => IM.etapeFaite(n)), ['a-relancer', 'relance-1', 'relance-2', 'relance-2']);
+  assert.equal(IM.etapeFaite(2, true), 'mise-en-demeure');
+  // Carte : « Appeler » à partir de la relance 2 ou au-delà de 30 jours.
+  assert.deepEqual([IM.actionDeCarte(30, 1), IM.actionDeCarte(31, 0), IM.actionDeCarte(10, 2)], ['relancer', 'appeler', 'appeler']);
+  assert.deepEqual(IM.etatDeRelance({ objetId: 'a', etat: 'prête', nbEnvoyees: 1 }), { cle: 'relance.prete', n: 1 });
+  assert.deepEqual(IM.etatDeRelance({ objetId: 'a', etat: 'envoyée', nbEnvoyees: 2 }), { cle: 'relance.envoyee', n: 2 });
+  assert.deepEqual(IM.etatDeRelance(undefined), { cle: 'relance.aucune', n: 0 });
+});
+
+await dit('colonnes de retard : toujours quatre, même vides ; retard décroissant, puis « relance prête » d’abord à retard égal', () => {
   const mk = (id: string, dueAt: string, ht: number) => facture({ id, dueAt, lines: [ligne(1, ht, 0)] });
-  const p = IM.prioritesDeRelance([mk('petit-vieux', '2026-09-01', 1_000), mk('gros-recent', '2026-10-25', 90_000), mk('moyen-vieux', '2026-09-02', 50_000)], AUJ, { paiements: [] });
-  // Au 30/10 : échue le 02/09 → 58 jours, le 01/09 → 59 jours (au-delà de 45 : dernier avis) ; le 25/10 → 5 jours (rappel).
-  assert.deepEqual(p.map((x: any) => [x.facture.id, x.palier, x.joursRetard]), [['moyen-vieux', 'dernier-avis', 58], ['petit-vieux', 'dernier-avis', 59], ['gros-recent', 'rappel', 5]]);
+  const fs = [mk('a', '2026-10-20', 10_000), mk('b', '2026-10-10', 5_000), mk('c', '2026-10-20', 7_000)];
+  const col = IM.colonnesDeRetard(fs, AUJ, { paiements: [], relances: [{ objetId: 'c', etat: 'prête', nbEnvoyees: 1 }] });
+  assert.deepEqual(col.map((x: any) => [x.tranche, x.nombre, x.montantCents]), [['0-30', 3, 22_000], ['31-60', 0, 0], ['61-90', 0, 0], ['90+', 0, 0]]);
+  assert.deepEqual(col[0].cartes.map((x: any) => [x.facture.id, x.joursRetard, x.relancePrete]), [['b', 20, false], ['c', 10, true], ['a', 10, false]]);
+});
+
+await dit('objectif zéro impayé (MA04) : 6 120 € récupérés, 2 840 € en retard → 68 % ; plan en deux échéances de 640 € → 320 € le 05/11 et 320 € le 20/11', () => {
+  // 612 000 ÷ 896 000 = 68,3 % → 68.
+  assert.deepEqual(IM.objectifZeroImpaye(612_000, 284_000), { totalCents: 896_000, pourcentage: 68 });
+  assert.equal(IM.objectifZeroImpaye(0, 0).pourcentage, 100);
+  // Plus de 30 jours et au moins 2 relances ; au 14/10, les 5 et 20 du mois suivant ; le centime impair va à la seconde.
+  assert.deepEqual(IM.planEnDeuxEcheances({ joursRetard: 31, nbEnvoyees: 2, resteCents: 64_000 }, '2026-10-14'), { echeances: [{ date: '2026-11-05', montantCents: 32_000 }, { date: '2026-11-20', montantCents: 32_000 }] });
+  assert.deepEqual(IM.planEnDeuxEcheances({ joursRetard: 31, nbEnvoyees: 2, resteCents: 1_001 }, '2026-12-14')?.echeances.map((e: any) => [e.date, e.montantCents]), [['2027-01-05', 500], ['2027-01-20', 501]]);
+  assert.equal(IM.planEnDeuxEcheances({ joursRetard: 30, nbEnvoyees: 2, resteCents: 64_000 }, '2026-10-14'), null);
+  assert.equal(IM.planEnDeuxEcheances({ joursRetard: 40, nbEnvoyees: 1, resteCents: 64_000 }, '2026-10-14'), null);
+  // Délais comparés : 25 j contre 31 j → 6 de mieux.
+  assert.deepEqual(IM.comparerDelais(25, 31), { sens: 'mieux', jours: 6 });
+  assert.deepEqual(IM.comparerDelais(31, 25), { sens: 'plus', jours: 6 });
+  assert.equal(IM.comparerDelais(null, 25), null);
 });
 
 await dit('relance préparée : vouvoiement, montant et échéance au format français, jamais envoyée', () => {
+  // Échue le 20/10, 10 jours au 30/10, aucune relance envoyée → relance 1.
   const r = IM.preparerRelance(facture({}), AUJ, { paiements: [] }, 'fr');
-  assert.equal(r.palier, 'ferme');
+  assert.equal(r.etape, 'relance-1');
+  assert.equal(r.joursRetard, 10);
+  assert.equal(IM.preparerRelance(facture({ dueAt: '2026-10-25' }), AUJ, { paiements: [] }, 'fr'), null, 'avant J+7, rien n’est préparé');
+  // Mise en demeure : jamais sans l’accord d’un administrateur.
+  const vieille = facture({ dueAt: '2026-09-01' });
+  assert.deepEqual(IM.preparerRelance(vieille, AUJ, { paiements: [], nbEnvoyees: 2 }, 'fr'), { accordRequis: true });
+  // Aucun modèle de mise en demeure par défaut (MA04 : à valider par un juriste) : il vient du réglage.
+  assert.deepEqual(IM.preparerRelance(vieille, AUJ, { paiements: [], nbEnvoyees: 2, accordAdministrateur: true }, 'fr'), { modeleRequis: true });
+  assert.equal('client.relance.mise-en-demeure' in I.dictionnaires.fr, false);
+  const modele = 'Modèle validé : facture {numero}, {montant}, échue le {echeance}, {jours} jours, {inconnu}.';
+  const md = IM.preparerRelance(vieille, AUJ, { paiements: [], nbEnvoyees: 2, accordAdministrateur: true, modeleMiseEnDemeure: modele }, 'fr');
+  assert.equal(md.etape, 'mise-en-demeure');
+  assert.equal(md.envoyee, false);
+  assert.equal(md.texte, 'Modèle validé : facture F-2026-0001, 1\u202f263,56\u00a0€, échue le 01/09/2026, 59 jours, {inconnu}.');
   assert.equal(r.envoyee, false);
   assert.match(r.texte, /vous|votre/i);
   assert.doesNotMatch(r.texte, /\btu\b|\bton\b|\bta\b|\btes\b|\btoi\b/i);
@@ -360,29 +414,63 @@ await dit('dépenses : à justifier 1 ligne pour 55,00 € ; par catégorie en o
   assert.equal(DP.htDepuisTTC(12_000, 20), 10_000);
 });
 
-await dit('budget : 420 € sur 500 € le 30/10 → 84 %, attention, projection 434 € ; 50 € sur 200 € le 10 → 25 %, projection 155 € ; dépassé', () => {
-  const env = (prevuCents: number) => ({ id: 'en', nom: 'Matériel', prevuCents, categories: ['materiel'], mois: '2026-10' });
-  const dep = (montant: number, jour: string) => ({ ...DEPENSES_OCT[0], id: `x${montant}${jour}`, amountCents: montant, spentAt: jour });
-  const a = BU.etatEnveloppe(env(50_000), [dep(42_000, '2026-10-03'), dep(9_999, '2026-09-30')], '2026-10-30');
-  assert.deepEqual([a.consommeCents, a.resteCents, a.pourcentage, a.projectionCents, a.etat], [42_000, 8_000, 84, 43_400, 'attention']);
-  const b = BU.etatEnveloppe(env(20_000), [dep(5_000, '2026-10-02')], '2026-10-10');
-  assert.deepEqual([b.pourcentage, b.projectionCents, b.etat], [25, 15_500, 'ok']);
-  const c = BU.etatEnveloppe(env(20_000), [dep(21_000, '2026-10-02')], '2026-10-10');
-  assert.deepEqual([c.resteCents, c.etat], [-1_000, 'depasse']);
-  // Projection au-dessus du prévu, consommation encore sous 80 % → attention.
-  assert.equal(BU.etatEnveloppe(env(20_000), [dep(10_000, '2026-10-02')], '2026-10-10').etat, 'attention');
-  // Un mois terminé : la projection vaut le consommé.
-  assert.equal(BU.etatEnveloppe(env(50_000), [dep(42_000, '2026-10-03')], '2026-11-02').projectionCents, 42_000);
+/* MA06, le mois d’octobre de la maquette : six enveloppes, 6 600 € prévus, 5 331 € dépensés.
+ *   Matériel 1 776 / 2 400 → 74 % ; Marketing 1 180 / 1 000 → 118 %, dépassé de 180 € ; Logiciels 819 / 900 → 91 %, presque plein ;
+ *   Formation 416 / 800 → 52 % ; Déplacements 240 / 600 → 40 % ; Assurances 900 / 900, paiement unique → payé.
+ *   Bandeau : 5 331 / 6 600 → 80,8 % → 81 %, reste 1 269 € ; 497 € prévus demain → il te restera environ 772 €. */
+const ENVELOPPES = [
+  ['materiel', 240_000, 177_600],
+  ['marketing', 100_000, 118_000],
+  ['logiciels', 90_000, 81_900],
+  ['formation', 80_000, 41_600],
+  ['deplacements', 60_000, 24_000],
+  ['assurances', 90_000, 90_000],
+] as const;
+
+await dit('budget (MA06) : 74 %, 118 % dépassé de 180 €, 91 % presque plein, assurances payées ; bandeau 81 %, reste 1 269 €, environ 772 € après demain', () => {
+  const env = (id: string, prevuCents: number) => ({ id, nom: id, prevuCents, categories: [id], mois: '2026-10', paiementUnique: id === 'assurances' });
+  const dep = (category: string, montant: number) => ({ amountCents: montant, spentAt: '2026-10-12', category });
+  const etats = ENVELOPPES.map(([id, prevu, depense]) => BU.etatEnveloppe(env(id, prevu), [dep(id, depense), { ...dep(id, 9_999), spentAt: '2026-09-30' }]));
+  assert.deepEqual(etats.map((e: any) => [e.pourcentage, e.etat]), [[74, 'dans-le-budget'], [118, 'depasse'], [91, 'presque-plein'], [52, 'dans-le-budget'], [40, 'dans-le-budget'], [100, 'paye']]);
+  assert.equal(etats[1].debordementCents, 18_000);
+  assert.equal(etats[1].resteCents, -18_000);
+  assert.equal(etats[0].resteCents, 62_400);
+  // Sans « paiement unique », une enveloppe consommée pile est presque pleine, pas payée.
+  assert.equal(BU.etatEnveloppe({ ...env('assurances', 90_000), paiementUnique: false }, [dep('assurances', 90_000)]).etat, 'presque-plein');
+  // Seuil « presque plein » réglable (90 % par défaut).
+  assert.equal(BU.SEUIL_PRESQUE_PLEIN_PCT, 90);
+  assert.equal(BU.etatEnveloppe(env('materiel', 240_000), [dep('materiel', 177_600)], 70).etat, 'presque-plein');
+  const b = BU.bandeauBudget(ENVELOPPES.map(([, prevuCents]) => ({ prevuCents })), ENVELOPPES.map(([, , d]) => d), 49_700);
+  assert.deepEqual(b, { budgetCents: 660_000, depenseCents: 533_100, pourcentage: 81, resteCents: 126_900, resteApresPrevuCents: 77_200 });
 });
 
-await dit('abonnements : revenu mensuel 163,00 € (actifs et paiements échoués), annuel 1 956,00 €, attrition d’octobre 25 %', () => {
-  const ab = (id: string, etat: string, montant: number, depuis: string, resilieLe: string | null = null) => ({ id, clientNom: id, plan: 'p', montantMensuelCents: montant, depuis, jourPrelevement: 15, etat, resilieLe, prochainPrelevementLe: null });
-  const liste = [ab('A', 'Actif', 8_900, '2026-01-01'), ab('B', 'Résilié', 3_000, '2026-02-01', '2026-10-12'), ab('C', 'Actif', 4_900, '2026-10-05'), ab('D', 'Résilié', 3_000, '2025-05-01', '2026-09-20'), ab('E', 'En pause', 12_000, '2026-03-01'), ab('F', 'Paiement échoué', 2_500, '2026-04-01')];
+await dit('budget : jamais « 100 % » sous le prévu (99), au moins 101 % au-dessus ; avancée du mois 30/31 ; barre H08 neutre, orange dès 85 %, rouge au-delà de 100 %', () => {
+  assert.deepEqual([BU.pourcentageAffiche(99_950, 100_000), BU.pourcentageAffiche(100_000, 100_000), BU.pourcentageAffiche(100_050, 100_000), BU.pourcentageAffiche(0, 0), BU.pourcentageAffiche(1, 0)], [99, 100, 101, 0, 101]);
+  assert.equal(BU.avanceeDuMois('2026-10', '2026-10-30'), 30 / 31);
+  assert.equal(BU.avanceeDuMois('2026-10', '2026-11-02'), 1);
+  assert.deepEqual([84, 85, 100, 101].map(BU.couleurBudgetGlobal), ['neutre', 'orange', 'orange', 'rouge']);
+  assert.equal(BU.moisSousLeBudget([{ depenseCents: 100, budgetCents: 100 }, { depenseCents: 101, budgetCents: 100 }, { depenseCents: 0, budgetCents: 100 }]), 2);
+  // Rééquilibrage : l’enveloppe la moins consommée au regard du mois donne (Déplacements, 40 %) ; dépassées et pleines exclues.
+  const avecDepense = ENVELOPPES.map(([id, prevuCents, depenseCents]) => ({ id, prevuCents, depenseCents }));
+  assert.equal(BU.enveloppeDonneuse(avecDepense, 30 / 31)?.id, 'deplacements');
+  assert.equal(BU.enveloppeDonneuse([{ id: 'x', prevuCents: 100, depenseCents: 120 }], 0.5), null);
+});
+
+await dit('abonnements (MA09) : revenu mensuel 163,00 € (actifs et paiements échoués), annuel 1 956,00 €, 3 abonnés, 1 résiliation en octobre ; prélèvements 23 sur 24 → 96 %', () => {
+  const ab = (id: string, etat: string, montant: number, jourPrelevement = 15, resilieLe: string | null = null) => ({ id, clientNom: id, montantMensuelCents: montant, jourPrelevement, etat, resilieLe });
+  const liste = [ab('A', 'Actif', 8_900), ab('B', 'Résilié', 3_000, 15, '2026-10-12'), ab('C', 'Actif', 4_900, 3), ab('D', 'Résilié', 3_000, 15, '2026-09-20'), ab('E', 'En pause', 12_000), ab('F', 'Paiement échoué', 2_500, 15)];
   assert.equal(AB.revenuMensuelRecurrent(liste), 16_300);
   assert.equal(AB.revenuAnnuelRecurrent(liste), 195_600);
-  // Au 1er octobre : A, B, E, F (D résilié avant, C pas encore) = 4 ; résilié dans le mois : B → 25,0 %.
-  assert.equal(AB.attritionDuMois(liste, '2026-10'), 25);
-  assert.equal(AB.attritionDuMois([], '2026-10'), null);
+  assert.equal(AB.abonnes(liste), 3);
+  assert.equal(AB.resiliationsDuMois(liste, '2026-10'), 1);
+  assert.deepEqual(AB.tauxDePrelevement(23, 24), { reussis: 23, tentes: 24, pourcentage: 96 });
+  assert.equal(AB.tauxDePrelevement(0, 0).pourcentage, null);
+  // Objectif : 3 120 € sur 4 000 € → 78 %, il reste 880 €.
+  assert.deepEqual(AB.versObjectif(312_000, 400_000), { pourcentage: 78, resteCents: 88_000 });
+  // Les 15 prochains jours au 01/11 : C le 03/11 (49 €) ; A et F (à réessayer) le 15/11 (89 + 25 = 114 €).
+  assert.deepEqual(AB.prochainsPrelevements(liste, '2026-11-01').map((x: any) => [x.date, x.montantCents, x.abonnements.length]), [['2026-11-03', 4_900, 1], ['2026-11-15', 11_400, 2]]);
+  // Hors « à réessayer », seuls les actifs.
+  assert.deepEqual(AB.prelevementsAVenir(liste, '2026-11-01', '2026-11-16').map((x: any) => x.abonnement.id), ['C', 'A']);
 });
 
 await dit('prochain prélèvement : strictement après aujourd’hui, ramené au dernier jour d’un mois court', () => {
@@ -394,17 +482,30 @@ await dit('prochain prélèvement : strictement après aujourd’hui, ramené au
   assert.equal(AB.prochainPrelevement('2026-12-20', 5), '2027-01-05');
 });
 
-await dit('tarifs : marge 62,0 % ; remise 15 % → 1 020,00 € ; remise de 250 € → 950,00 € ; remise de 70 % sous le coût ; marge pondérée 47,5 %', () => {
-  assert.equal(TA.margePct(120_000, 45_600), 62);
+await dit('tarifs (MA12) : 2 400 € pour 900 € de coût → 62,5 → 63 % ; 72 € pour 35 € → 51 % ; objectif 55 % ; remise au-delà de 5 % → accord requis', () => {
+  assert.equal(TA.margePct(240_000, 90_000), 63);
+  assert.equal(TA.margePct(7_200, 3_500), 51);
   assert.equal(TA.margePct(120_000, null), null);
   assert.equal(TA.margePct(0, 0), null);
-  assert.deepEqual(TA.appliquerRemise(120_000, { type: 'pct', valeur: 15 }, 45_600), { prixCents: 102_000, remiseCents: 18_000, sousLeCout: false });
-  assert.deepEqual(TA.appliquerRemise(120_000, { type: 'montant', cents: 25_000 }, 45_600), { prixCents: 95_000, remiseCents: 25_000, sousLeCout: false });
-  assert.deepEqual(TA.appliquerRemise(120_000, { type: 'pct', valeur: 70 }, 45_600), { prixCents: 36_000, remiseCents: 84_000, sousLeCout: true });
-  assert.deepEqual(TA.appliquerRemise(10_000, { type: 'montant', cents: 25_000 }, null), { prixCents: 0, remiseCents: 10_000, sousLeCout: false });
-  // A : 100 € (coût 40 €) vendu 3 fois ; B : 500 € (coût 300 €) vendu 1 fois → (180 + 200) / 800 = 47,5 %.
-  const p = (id: string, prixCents: number, coutCents: number | null, ventesMois: number, etat = 'active') => ({ id, nom: id, prixCents, coutCents, ventesMois, etat, historique: [] });
-  assert.equal(TA.margeMoyennePonderee([p('A', 10_000, 4_000, 3), p('B', 50_000, 30_000, 1), p('C', 9_000, null, 5), p('D', 7_000, 1_000, 4, 'archivée')]), 47.5);
+  assert.equal(TA.OBJECTIF_MARGE_PCT, 55);
+  assert.deepEqual([TA.couleurMarge(63), TA.couleurMarge(55), TA.couleurMarge(51), TA.couleurMarge(35), TA.couleurMarge(34), TA.couleurMarge(-2), TA.couleurMarge(null)], ['verte', 'verte', 'orange', 'orange', 'rouge', 'rouge', null]);
+  assert.equal(TA.margeParVente(7_200, 3_500), 3_700);
+  assert.deepEqual(TA.appliquerRemise(120_000, { type: 'pct', valeur: 15 }, 45_600), { prixCents: 102_000, remiseCents: 18_000, sousLeCout: false, accordRequis: true });
+  assert.deepEqual(TA.appliquerRemise(120_000, { type: 'pct', valeur: 5 }, 45_600), { prixCents: 114_000, remiseCents: 6_000, sousLeCout: false, accordRequis: false });
+  assert.deepEqual(TA.appliquerRemise(120_000, { type: 'montant', cents: 25_000 }, 45_600), { prixCents: 95_000, remiseCents: 25_000, sousLeCout: false, accordRequis: true });
+  assert.deepEqual(TA.appliquerRemise(120_000, { type: 'pct', valeur: 70 }, 45_600), { prixCents: 36_000, remiseCents: 84_000, sousLeCout: true, accordRequis: true });
+  assert.deepEqual(TA.appliquerRemise(10_000, { type: 'montant', cents: 25_000 }, null), { prixCents: 0, remiseCents: 10_000, sousLeCout: false, accordRequis: true });
+});
+
+await dit('tarifs : 41 € de plus sur 7 ventes → 287 € sur un mois ; suggestion +10 % à l’euro supérieur (65 € → 72 €) ; marge pondérée (180 + 200) / 800 = 47,5 → 48 %', () => {
+  assert.equal(TA.effetSurUnMois(6_500, 10_600, 7), 28_700);
+  assert.equal(TA.prixSuggere(6_500), 7_200);
+  assert.equal(TA.prixSuggere(10_000), 11_000);
+  // A : 100 € (coût 40 €) vendu 3 fois ; B : 500 € (coût 300 €) vendu 1 fois ; C sans coût, D archivée : exclues.
+  const p = (id: string, prixCents: number, coutCents: number | null, ventesMois: number, etat = 'active') => ({ id, nom: id, prixCents, coutCents, ventesMois, etat });
+  assert.equal(TA.margeMoyennePonderee([p('A', 10_000, 4_000, 3), p('B', 50_000, 30_000, 1), p('C', 9_000, null, 5), p('D', 7_000, 1_000, 4, 'archivée')]), 48);
+  assert.equal(TA.margeMoyennePonderee([]), null);
+  assert.equal(TA.remisesAccordees([{ prixGrilleCents: 10_000, prixFactureCents: 9_000, quantite: 2 }, { prixGrilleCents: 5_000, prixFactureCents: 6_000, quantite: 1 }]), 2_000);
   assert.equal(TA.variationPct(10_000, 11_500), 15);
 });
 
@@ -423,12 +524,14 @@ await dit('paie : cotisations fictives = 46 % du net — 2 150,00 € → 989,00
 
 console.log('\nL’argent — devis\n');
 
-await dit('devis : brouillon, envoyé, vu, accepté, refusé, expiré (au lendemain de la validité)', () => {
+await dit('devis (H07) : brouillon, envoyé, vu, signé, facturé, refusé, annulé, expiré (au lendemain de la validité)', () => {
   const d = (o: Record<string, unknown>) => ({ id: 1, status: 'sent', validiteJusquau: '2026-11-15', vuAt: null, ...o });
   assert.equal(DV.etatDevis(d({ status: 'draft' }), AUJ), 'brouillon');
   assert.equal(DV.etatDevis(d({}), AUJ), 'envoye');
   assert.equal(DV.etatDevis(d({ vuAt: '2026-10-29T10:00:00Z' }), AUJ), 'vu');
-  assert.equal(DV.etatDevis(d({ status: 'accepted', validiteJusquau: '2026-01-01' }), AUJ), 'accepte');
+  assert.equal(DV.etatDevis(d({ status: 'accepted', validiteJusquau: '2026-01-01' }), AUJ), 'signe');
+  assert.equal(DV.etatDevis(d({ status: 'accepted', factureId: 'fa-1' }), AUJ), 'facture');
+  assert.equal(DV.etatDevis(d({ status: 'cancelled' }), AUJ), 'annule');
   assert.equal(DV.etatDevis(d({ status: 'refused' }), AUJ), 'refuse');
   assert.equal(DV.etatDevis(d({ validiteJusquau: AUJ }), AUJ), 'envoye');
   assert.equal(DV.etatDevis(d({ validiteJusquau: '2026-10-29' }), AUJ), 'expire');
@@ -441,7 +544,7 @@ await dit('taux de transformation : 5 acceptés sur 10 tranchés (3 refusés, 2 
   assert.equal(DV.tauxDeTransformation([d('sent')], AUJ), null);
 });
 
-await dit('devis prérempli (H41, H42) : « maintenance » × 3 → D-2026-0013, valable jusqu’au 29/11, 267,00 € HT, 320,40 € TTC', () => {
+await dit('devis prérempli (H41, H42) : « maintenance » × 3 → D-2026-13, valable jusqu’au 29/11, 267,00 € HT, 320,40 € TTC', () => {
   const prestations = [
     { id: 'p1', nom: 'Site vitrine, 5 pages', prixCents: 180_000, unite: 'forfait', etat: 'active' },
     { id: 'p2', nom: 'Maintenance mensuelle', prixCents: 8_900, unite: 'mois', etat: 'active' },
@@ -450,8 +553,9 @@ await dit('devis prérempli (H41, H42) : « maintenance » × 3 → D-2026-0013,
   const trouvee = DV.chercherPrestation('mainténance', prestations);
   assert.equal(trouvee?.id, 'p2', 'sans accent ni casse, et jamais une prestation archivée');
   assert.equal(DV.chercherPrestation('rien de tel', prestations), null);
-  const d = DV.devisPrerempli({ prestation: trouvee, quantite: 3, client: { id: 7, nom: 'Atelier Exemple' }, aujourdhui: AUJ, numeros: ['D-2026-0012', 'D-2026-0003', 'D-2025-0099'] });
-  assert.equal(d.numero, 'D-2026-0013');
+  const d = DV.devisPrerempli({ prestation: trouvee, quantite: 3, client: { id: 7, nom: 'Atelier Exemple' }, aujourdhui: AUJ, numeros: ['D-2026-12', 'D-2026-3', 'D-2025-99'] });
+  // H07 numérote les devis sans zéros (« D-2026-114 »).
+  assert.equal(d.numero, 'D-2026-13');
   assert.equal(d.status, 'draft');
   assert.equal(d.validiteJusquau, '2026-11-29');
   assert.equal(d.clientId, 7);
@@ -472,46 +576,102 @@ await dit('devis → facture : mêmes lignes, lien au devis, brouillon sans num�
   assert.throws(() => DV.devisVersFacture({ ...d, status: 'refused' }));
 });
 
+await dit('devis de la fiche H07 : 3 200 + 1 400 + 900 + 12 × 108 € à 20 % → HT 6 796 €, TVA 1 359,20 €, TTC 8 155,20 € ; acompte 30 % 2 446,56 € ; écart avec la v1 − 172,80 €', () => {
+  const t = F.totauxDocument([ligne(1, 320_000, 20, 'Refonte'), ligne(1, 140_000, 20, 'Contenus'), ligne(1, 90_000, 20, 'Formation'), ligne(12, 10_800, 20, 'Maintenance')]);
+  assert.deepEqual([t.htCents, t.tvaCents, t.ttcCents], [679_600, 135_920, 815_520]);
+  assert.equal(DV.acompte(815_520, 30), 244_656);
+  assert.equal(DV.acompte(815_520, 140), 815_520, 'un acompte ne dépasse jamais le total');
+  assert.equal(DV.ecartDeVersion(815_520, 832_800), -17_280);
+  assert.equal(DV.ecartDeVersion(815_520, 815_520), null);
+  assert.equal(DV.VALIDITE_JOURS, 30);
+});
+
 console.log('\nL’argent — trésorerie prévisionnelle (H09, MA07)\n');
 
-/* Départ : 1 000,00 € le vendredi 30/10/2026. Flux :
+/* Départ : 1 000,00 € le vendredi 30/10/2026, horizon de 90 jours (H09 : 30, 90 ou 180) → du 31/10 au 28/01/2027. Flux :
  *   30/10 + 999,00 (aujourd’hui : déjà dans le solde, ignoré) ;
- *   02/11 + 500,00 attendu ; 03/11 − 1 200,00 loyer ; 05/11 + 300,00 incertain (facture en retard) ; 20/11 − 400,00 TVA ;
- *   05/02/2027 − 50,00 (au-delà de 12 semaines : hors horizon).
- * Scénario attendu : 1 000 → 1 500 (02/11) → 300 (03/11) → 600 (05/11) → 200 (20/11). Point bas 200,00 € le 20/11, jamais sous zéro.
- * Scénario prudent (sans les incertains) : 1 000 → 1 500 → 300 → − 100 (20/11). Sous zéro le 20/11, besoin 100,00 €. */
+ *   02/11 + 500,00 ; 03/11 − 1 200,00 loyer ; 05/11 + 300,00 incertain (facture en retard) ; 20/11 − 400,00 TVA ;
+ *   05/02/2027 − 50,00 (hors horizon).
+ * Deux hypothèses : H1 retard des encaissements {prudent 20 j, central 0, ambitieux 0} ; H2 volume {prudent − 10 %, central 0, ambitieux + 20 %}.
+ *   Central : 1 000 → 1 500 (02/11) → 300 (03/11) → 600 (05/11) → 200 (20/11). Point bas 200,00 € le 20/11, fin 200,00 €.
+ *   Prudent : entrées 450 et 270, décalées au 22/11 et au 25/11 : 1 000 → − 200 (03/11, sous zéro) → − 600 (20/11, point bas)
+ *             → − 150 (22/11) → 120 (25/11). Fin 120,00 €, besoin 600,00 €.
+ *   Ambitieux : entrées 600 et 360 : 1 000 → 1 600 → 400 → 760 → 360. Fin 360,00 €.
+ *   Ce qui pèse : H2 seule → − 80,00 € / + 160,00 € ; H1 seule → 0 / 0 (le retard reste dans l’horizon). */
 const FLUX = [
   { date: '2026-10-30', montantCents: 99_900, libelle: 'déjà là', certitude: 'attendu' },
   { date: '2026-11-02', montantCents: 50_000, libelle: 'Règlement', certitude: 'attendu' },
-  { date: '2026-11-03', montantCents: -120_000, libelle: 'Loyer', certitude: 'attendu' },
+  { date: '2026-11-03', montantCents: -120_000, libelle: 'Loyer', certitude: 'attendu', recurrent: true },
   { date: '2026-11-05', montantCents: 30_000, libelle: 'Facture en retard', certitude: 'incertain' },
-  { date: '2026-11-20', montantCents: -40_000, libelle: 'TVA', certitude: 'attendu' },
+  { date: '2026-11-20', montantCents: -40_000, libelle: 'TVA', certitude: 'attendu', fiscal: true },
   { date: '2027-02-05', montantCents: -5_000, libelle: 'Lointain', certitude: 'attendu' },
 ];
+const HYPOTHESES = [
+  TR.retardDesEncaissements('h1', 'Retard des encaissements', { prudent: 20, central: 0, ambitieux: 0 }),
+  TR.variationDesEncaissements('h2', 'Volume des ventes', { prudent: -10, central: 0, ambitieux: 20 }),
+];
+const DEPART = { soldeDepartCents: 100_000, aujourdhui: AUJ, flux: FLUX };
 
-await dit('projection attendue : point bas 200,00 € le 20/11, jamais sous zéro ; solde à 12 semaines 200,00 €', () => {
-  const p = TR.projeter({ soldeDepartCents: 100_000, aujourdhui: AUJ, flux: FLUX, semaines: 12, scenario: 'attendu' });
-  assert.equal(p.jours.length, 84);
+await dit('projection centrale : 90 jours (31/10 → 28/01), point bas 200,00 € le 20/11, jamais sous zéro, fin 200,00 €', () => {
+  const p = TR.projeter(DEPART);
+  assert.equal(TR.HORIZON_JOURS_PAR_DEFAUT, 90);
+  assert.equal(p.jours.length, 90);
   assert.equal(p.jours[0].date, '2026-10-31');
-  assert.equal(p.jours.at(-1).date, '2027-01-22');
+  assert.equal(p.jours.at(-1).date, '2027-01-28');
   const sur = (d: string) => p.jours.find((j: any) => j.date === d).soldeCents;
   assert.deepEqual([sur('2026-11-01'), sur('2026-11-02'), sur('2026-11-03'), sur('2026-11-05'), sur('2026-11-20')], [100_000, 150_000, 30_000, 60_000, 20_000]);
   assert.deepEqual(p.pointBas, { date: '2026-11-20', soldeCents: 20_000 });
   assert.equal(p.sousZeroLe, null);
   assert.equal(p.besoinCents, 0);
   assert.equal(p.soldeFinCents, 20_000);
+  assert.equal(TR.projeter({ ...DEPART, horizonJours: 30 }).jours.length, 30);
 });
 
-await dit('projection prudente : sans les encaissements incertains — sous zéro le 20/11, besoin de 100,00 €', () => {
-  const p = TR.projeter({ soldeDepartCents: 100_000, aujourdhui: AUJ, flux: FLUX, semaines: 12, scenario: 'prudent' });
-  assert.deepEqual(p.pointBas, { date: '2026-11-20', soldeCents: -10_000 });
-  assert.equal(p.sousZeroLe, '2026-11-20');
-  assert.equal(p.besoinCents, 10_000);
+await dit('trois scénarios (H09) : central 200,00 €, prudent 120,00 € (sous zéro le 03/11, point bas − 600,00 € le 20/11), ambitieux 360,00 €', () => {
+  const s = TR.projeterScenarios({ ...DEPART, hypotheses: HYPOTHESES });
+  assert.deepEqual(TR.SCENARIOS, ['central', 'prudent', 'ambitieux']);
+  assert.equal(s.central.soldeFinCents, 20_000);
+  assert.equal(s.prudent.soldeFinCents, 12_000);
+  assert.equal(s.prudent.sousZeroLe, '2026-11-03');
+  assert.deepEqual(s.prudent.pointBas, { date: '2026-11-20', soldeCents: -60_000 });
+  assert.equal(s.prudent.besoinCents, 60_000);
+  assert.equal(s.ambitieux.soldeFinCents, 36_000);
+  // Les hypothèses ne modifient jamais les mouvements d’origine.
+  assert.equal(FLUX[1].montantCents, 50_000);
+  assert.equal(FLUX[1].date, '2026-11-02');
+});
+
+await dit('ce qui pèse le plus : le volume (− 80,00 € / + 160,00 €) avant le retard (0 / 0) ; seuils : creux de 22 jours dès le 03/11, ou « reste sous » 250,00 € depuis le 20/11', () => {
+  const c = TR.ceQuiPeseLePlus({ ...DEPART, hypotheses: HYPOTHESES });
+  assert.deepEqual(c.map((x: any) => [x.id, x.versPrudentCents, x.versAmbitieuxCents]), [['h2', -8_000, 16_000], ['h1', 0, 0]]);
+  const s = TR.projeterScenarios({ ...DEPART, hypotheses: HYPOTHESES });
+  // Prudent, seuil 0 : sous zéro du 03/11 au 24/11 inclus (22 jours), puis au-dessus → creux court.
+  assert.deepEqual(TR.passageSousLeSeuil(s.prudent, 0), { type: 'creux-court', debut: '2026-11-03', jours: 22 });
+  // Central, seuil de confort 250,00 € : sous le seuil à partir du 20/11 jusqu’à la fin.
+  assert.deepEqual(TR.passageSousLeSeuil(s.central, 25_000), { type: 'reste-sous', depuis: '2026-11-20' });
+  assert.deepEqual(TR.passageSousLeSeuil(s.ambitieux, 0), { type: 'au-dessus' });
+});
+
+await dit('MA07 : variation de la semaine + 1 280 € ; autonomie 18 420 € ÷ 4 383,33 € = 4,2 mois, santé 70 (bonne) ; bande ± 680 € à J+16 ; 22 213,40 € → 22 200 €', () => {
+  assert.equal(TR.variationDeLaSemaine(1_842_000, 1_714_000), 128_000);
+  // Charges des 3 derniers mois : 4 300, 4 400, 4 450 € → moyenne 4 383,33 €. 18 420 ÷ 4 383,33 = 4,20 → 4,2 mois ; 4,2 ÷ 6 = 70 %.
+  const a = TR.autonomie(1_842_000, [990_000, 430_000, 440_000, 445_000]);
+  assert.deepEqual(a, { mois: 4.2, confortable: true, sante: 70, libelle: 'bonne', reserve: 100, reserveAtteinte: true });
+  assert.equal(TR.autonomie(100_000, []), null);
+  // 2 mois → 2 ÷ 6 = 33 → fragile ; 3 mois → 50 → correcte (et confortable).
+  assert.deepEqual([TR.autonomie(200_000, [100_000])?.libelle, TR.autonomie(300_000, [100_000])?.libelle, TR.autonomie(300_000, [100_000])?.confortable], ['fragile', 'correcte', true]);
+  assert.equal(TR.bandeIncertitude(16), 68_000);
+  assert.equal(TR.bandeIncertitude(0), 0);
+  assert.equal(C.arrondirCentaine(2_221_340), 2_220_000);
+  assert.equal(TR.dans30Jours(TR.projeter(DEPART)), 20_000);
+  assert.deepEqual([TR.couleurPointBas(20_000, 100_000, 25_000), TR.couleurPointBas(20_000, 100_000, null), TR.couleurPointBas(120_000, 100_000, 0)], ['rouge', 'orange', null]);
+  // Achat décalable avant le point bas : ni le loyer (récurrent), ni la TVA (fiscale) → aucun ici.
+  assert.equal(TR.achatDecalable(FLUX, AUJ, '2026-11-20'), null);
+  assert.equal(TR.achatDecalable([...FLUX, { date: '2026-11-10', montantCents: -30_000, libelle: 'Écran', certitude: 'attendu' }], AUJ, '2026-11-20')?.libelle, 'Écran');
 });
 
 await dit('clôtures par semaine (du lundi au dimanche) : 1 000,00 / 600,00 / 600,00 / 200,00 €', () => {
-  const p = TR.projeter({ soldeDepartCents: 100_000, aujourdhui: AUJ, flux: FLUX, semaines: 12, scenario: 'attendu' });
-  const s = TR.parSemaine(p);
+  const s = TR.parSemaine(TR.projeter(DEPART));
   assert.deepEqual(s.slice(0, 4).map((x: any) => [x.lundi, x.soldeFinCents, x.entreesCents, x.sortiesCents]), [
     ['2026-10-26', 100_000, 0, 0],
     ['2026-11-02', 60_000, 80_000, -120_000],
@@ -549,14 +709,30 @@ await dit('ordre préparé : jamais émis, à exécuter dans ta banque ; pas d�
   assert.equal(BA.preparerOrdre({ beneficiaire: 'X', ibanFin: 'FR7600000000000000000000000', montantCents: 100, reference: 'r', echeance: AUJ }).ok, false);
   assert.equal(BA.preparerOrdre({ beneficiaire: 'X', ibanFin: '1234', montantCents: 0, reference: 'r', echeance: AUJ }).ok, false);
   assert.equal(BA.preparerOrdre({ beneficiaire: '', ibanFin: '1234', montantCents: 100, reference: 'r', echeance: AUJ }).ok, false);
-  // Pour arriver le 20/11, l’ordre est à passer au plus tard le 18/11 (proposition : 2 jours).
+  // Pour arriver à l’échéance, l’ordre est à passer 2 jours OUVRÉS avant (MA08) : ven. 20/11 → mer. 18/11 ; lun. 23/11 → jeu. 19/11.
   assert.equal(BA.dateLimiteDeLOrdre('2026-11-20'), '2026-11-18');
+  assert.equal(BA.dateLimiteDeLOrdre('2026-11-23'), '2026-11-19');
 });
 
-await dit('rapprochement : un encaissement de 1 263,56 € le 07/10 propose la facture réglée le 05/10, pas celle du 01/09', () => {
-  const mvt = [{ id: 'm1', montantCents: 126_356, date: '2026-10-07', rapprochement: 'à vérifier' }, { id: 'm2', montantCents: 126_356, date: '2026-10-07', rapprochement: 'rapproché' }];
-  const fs = [facture({ id: 'ok', status: 'paid', paidAt: '2026-10-05' }), facture({ id: 'vieux', status: 'paid', paidAt: '2026-09-01' })];
-  assert.deepEqual(BA.suggestionsDeRapprochement(mvt, fs).map((s: any) => [s.mouvementId, s.factureId]), [['m1', 'ok']]);
+await dit('rapprochement (MA10) : 92 sur 96 → 95 % ; une pièce proposée au centime près — exacte, probable, à vérifier — jamais appliquée seule', () => {
+  const mv = (n: number, rapprochement: string) => Array.from({ length: n }, () => ({ rapprochement }));
+  assert.deepEqual(BA.partRapprochee([...mv(92, 'rapproché'), ...mv(4, 'à vérifier')]), { rapproches: 92, total: 96, aVerifier: 4, pourcentage: 95 });
+  assert.equal(BA.partRapprochee([]).pourcentage, 100);
+  const ouvertes = [
+    { id: 'f1', number: '2026-0041', issuedAt: '2026-10-01', resteCents: 126_356, clientNom: 'Atelier Exemple' },
+    { id: 'f2', number: '2026-0042', issuedAt: '2026-10-02', resteCents: 48_000, clientNom: 'Studio Fictif' },
+    { id: 'f3', number: '2026-0050', issuedAt: '2026-11-02', resteCents: 48_000, clientNom: 'Studio Fictif' },
+  ];
+  assert.deepEqual(BA.proposerAssociation({ montantCents: 126_356, date: '2026-10-07', libelle: 'VIR 2026-0041 ATELIER' }, ouvertes), { factureId: 'f1', confiance: 'exact' });
+  assert.deepEqual(BA.proposerAssociation({ montantCents: 48_000, date: '2026-10-20', libelle: 'VIR STUDIO FICTIF' }, ouvertes), { factureId: 'f2', confiance: 'probable' });
+  assert.deepEqual(BA.proposerAssociation({ montantCents: 48_000, date: '2026-10-20', libelle: 'VIR SEPA' }, ouvertes, new Set(['Studio Fictif'])), { factureId: 'f2', confiance: 'a-verifier' });
+  assert.equal(BA.proposerAssociation({ montantCents: 48_000, date: '2026-10-20', libelle: 'VIR SEPA' }, ouvertes), null);
+  assert.equal(BA.proposerAssociation({ montantCents: 126_357, date: '2026-10-07', libelle: 'VIR 2026-0041' }, ouvertes), null, 'au centime près');
+  assert.equal(BA.proposerAssociation({ montantCents: -126_356, date: '2026-10-07', libelle: 'VIR 2026-0041' }, ouvertes), null, 'une sortie n’est jamais rapprochée d’une facture');
+  // G03 « Avant de relancer » : un mouvement non rapproché à ± 0,50 € dans les 30 derniers jours.
+  const mvts = [{ id: 'a', montantCents: 126_320, date: '2026-10-25', rapprochement: 'à vérifier' }, { id: 'b', montantCents: 126_356, date: '2026-09-20', rapprochement: 'à vérifier' }, { id: 'c', montantCents: 126_356, date: '2026-10-28', rapprochement: 'rapproché' }];
+  assert.equal(BA.mouvementQuiRessemble(126_356, mvts, AUJ)?.id, 'a');
+  assert.equal(BA.mouvementQuiRessemble(126_356, mvts.slice(1), AUJ), null);
   assert.equal(BA.soldeTotal([{ soldeCents: 1_000 }, { soldeCents: 2_500 }]), 3_500);
 });
 
@@ -580,6 +756,86 @@ await dit('connecteurs (modèle de S9, lecture seule) : paiements en ligne à br
   assert.deepEqual(CO.etatPaiementsEnLigne([inst('paiement', 'stripe', 'connecte', ['lecture'])]), { mode: 'externe', aBrancher: false, ouConfigurer: 'H21' });
   assert.deepEqual(CO.etatBanque([inst('banque', 'agregateur-dsp2', 'connecte', ['lecture'])]), { mode: 'externe', aBrancher: false, ouConfigurer: 'H21', lectureSeule: true });
   assert.equal(CO.etatBanque([]).lectureSeule, true);
+});
+
+console.log('\nL’argent — TVA à venir, justificatifs, contrats, paiements en ligne, comptabilité, vue d’ensemble\n');
+
+await dit('MA08 : prochaine échéance le 20/11 → dans 21 jours, à payer le 18/11 ; mis de côté 3 270 / 3 850 € → 85 % ; préparation 91 sur 99 → 91 % (jamais arrondi vers le haut)', () => {
+  const e = (id: string, echeanceLe: string, paiement = 'À payer') => ({ id, intitule: id, famille: 'TVA', echeanceLe, montantCents: 10_000, paiement });
+  const r = TV.prochaineEcheance([e('payee', '2026-11-02', 'Payée'), e('passee', '2026-10-15'), e('tva', '2026-11-20'), e('plus-tard', '2026-12-20')], AUJ);
+  assert.deepEqual([r.echeance.id, r.jours, r.payerLe], ['tva', 21, '2026-11-18']);
+  assert.equal(TV.prochaineEcheance([], AUJ), null);
+  assert.equal(TV.partMiseDeCote(327_000, 385_000), 85);
+  assert.equal(TV.partMiseDeCote(1, 0), null);
+  assert.deepEqual([TV.preparationPct(91, 99), TV.preparationPct(98, 99), TV.preparationPct(99, 99), TV.preparationPct(0, 0)], [91, 98, 100, 0]);
+  // H08 : la TVA récupérable ne compte que les dépenses justifiées (d1 : 20,00 €) ; d2 est à justifier, d3 est de septembre.
+  assert.equal(TV.tvaRecuperable(DEPENSES_OCT, '2026-10'), 2_000);
+});
+
+await dit('H08 : justificatifs d’octobre avant le 05/11 (dans 6 jours) ; 44 sur 48 → 92 % ; un reçu de 54,80 € le 20/10 trouve la dépense de 55,00 € du 18/10', () => {
+  assert.equal(DP.dateLimiteJustificatif('2026-10'), '2026-11-05');
+  assert.equal(DP.joursAvantLimite('2026-10', AUJ), 6);
+  assert.equal(DP.joursAvantLimite('2026-10', '2026-11-07'), -2);
+  const d = (statut: string) => ({ ...DEPENSES_OCT[0], justificatif: { statut, fichier: null } });
+  assert.deepEqual(DP.moisJustifie([...Array(44).fill(0).map(() => d('justifié')), ...Array(4).fill(0).map(() => d('à justifier'))], '2026-10'), { justifiees: 44, total: 48, pourcentage: 92 });
+  assert.equal(DP.moisJustifie([], '2026-10').pourcentage, 100);
+  assert.deepEqual(DP.depensesPourUnRecu({ montantCents: 5_480, date: '2026-10-20' }, DEPENSES_OCT).map((x: any) => x.id), ['d2']);
+  assert.deepEqual(DP.depensesPourUnRecu({ montantCents: 5_420, date: '2026-10-20' }, DEPENSES_OCT), [], 'au-delà de 0,50 € d’écart');
+  assert.deepEqual(DP.depensesPourUnRecu({ montantCents: 5_500, date: '2026-10-22' }, DEPENSES_OCT), [], 'au-delà de 3 jours');
+  assert.equal(DP.economieAnnuelle(2_900), 34_800);
+  assert.deepEqual([DP.nonUtiliseDepuis('2026-09-30', AUJ), DP.nonUtiliseDepuis('2026-10-01', AUJ)], [true, false]);
+});
+
+await dit('contrats (MA01) : échéance du 15/11 → 16 jours, préavis écoulé 44 sur 60 → 73 % ; tacite jamais « à renouveler » ; 2 800 € révisés de 4 % → 2 912 € ; frise du 01/07/2026 au 01/07/2027', () => {
+  const c = (o: Record<string, unknown>) => ({ periode: 'Mensuel', valeurParPeriodeCents: 25_000, debutLe: '2025-11-15', echeanceLe: '2026-11-15', reconduction: 'manuelle', etat: 'Actif', ...o });
+  assert.equal(CT.PREAVIS_PAR_DEFAUT_JOURS, 60);
+  assert.equal(CT.etatContrat(c({}), AUJ), 'a-renouveler');
+  assert.equal(CT.etatContrat(c({ reconduction: 'tacite' }), AUJ), 'actif');
+  assert.equal(CT.etatContrat(c({ echeanceLe: '2027-03-01' }), AUJ), 'actif');
+  assert.equal(CT.etatContrat(c({ etat: 'Brouillon' }), AUJ), 'brouillon');
+  assert.equal(CT.etatContrat(c({ etat: 'Terminé' }), AUJ), 'termine');
+  assert.deepEqual(CT.compteARebours(c({}), AUJ), { jours: 16, preavisEcoule: 44, preavis: 60, pourcentage: 73 });
+  assert.deepEqual([CT.valeurAnnualisee(c({})), CT.valeurAnnualisee(c({ periode: 'Trimestriel' })), CT.valeurAnnualisee(c({ periode: 'Annuel' }))], [300_000, 100_000, 25_000]);
+  // Valeur annuelle : actifs et à renouveler (300 + 1 000 €) ; brouillon et terminé exclus.
+  assert.equal(CT.valeurAnnuelle([c({}), c({ periode: 'Trimestriel', reconduction: 'tacite' }), c({ etat: 'Brouillon' }), c({ etat: 'Terminé' })], AUJ), 400_000);
+  assert.equal(CT.valeurRevisee(280_000, 4), 291_200);
+  assert.deepEqual(CT.fenetreDeLaFrise(AUJ), { debut: '2026-07-01', fin: '2027-07-01' });
+});
+
+await dit('paiements en ligne (MA03) : 41 paiements dont 1 échoué → 98 % ; 182 € de frais sur 9 640 € → 1,9 % ; carte 23 sur 24 → 96 % ; barres en racine', () => {
+  const pa = (etat: string, montantCents = 24_100, fraisCents = 455, moyen = 'Virement', date = '2026-10-12T10:00:00Z') => ({ moyen, montantCents, fraisCents, etat, date });
+  const liste = [...Array(40).fill(0).map(() => pa('réussi')), pa('échoué', 9_000, 0), pa('remboursé', 50_000, 0), pa('réussi', 99_999, 99, 'Virement', '2026-09-30T23:00:00Z')];
+  assert.deepEqual(PM.bilanDuMois(liste, '2026-10'), { total: 41, reussis: 40, enAttente: 0, echoues: 1, tauxReussite: 98, encaisseCents: 964_000, fraisCents: 18_200, partFrais: 1.9 });
+  const cartes = [...Array(23).fill(0).map(() => pa('réussi', 1_000, 0, 'Carte')), pa('échoué', 1_000, 0, 'Carte'), pa('en attente', 1_000, 0, 'Prélèvement')];
+  assert.deepEqual(PM.parMoyen(cartes, '2026-10'), [{ moyen: 'Carte', total: 24, reussis: 23, taux: 96 }, { moyen: 'Prélèvement', total: 1, reussis: 0, taux: 0 }]);
+  assert.deepEqual([PM.hauteurDeBarre(25_000, 100_000), PM.hauteurDeBarre(100_000, 100_000), PM.hauteurDeBarre(0, 100_000), PM.hauteurDeBarre(5, 0)], [38, 76, 0, 0]);
+});
+
+await dit('comptabilité (MA02) : 12 400 € de CA HT, 5 840 € de charges → 6 560 €, 53 % ; soldes courants du 512 ; 6 points sur 8 → encore 2', () => {
+  assert.deepEqual(CP.resultatIndicatif(1_240_000, 584_000), { resultatCents: 656_000, marge: 53 });
+  assert.deepEqual(CP.resultatIndicatif(0, 10_000), { resultatCents: -10_000, marge: null });
+  assert.deepEqual(CP.soldesCourants(100_000, [{ debitCents: 50_000, creditCents: 0 }, { debitCents: 0, creditCents: 120_000 }, { debitCents: 30_000, creditCents: 0 }]), [150_000, 30_000, 60_000]);
+  assert.deepEqual([CP.variationMensuelle(109_000, 100_000), CP.variationMensuelle(97_000, 100_000), CP.variationMensuelle(1, 0)], [9, -3, null]);
+  const points = { ecrituresSaisies: true, numerotationSansTrou: true, releveImporte: true, aucunMouvementAVerifier: false, aucunJustificatifManquant: false, tvaCalculee: true, fecGenere: true, envoiAuComptable: true };
+  assert.deepEqual(CP.pretPourLeComptable(points), { faits: 6, total: 8, restants: 2 });
+});
+
+await dit('vue d’ensemble (F30) : 5 clients nommés, le reste groupé ; solde au bout = au 1er + entrées − sorties, le réel s’il s’en écarte de plus de 1 € ; objectif atteint le jour du dépassement', () => {
+  const r = EN.regrouper(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'A'].map((nom, i) => ({ nom, montantCents: (i + 1) * 1_000 })));
+  // A = 1 000 + 8 000 = 9 000 ; G 7 000, F 6 000, E 5 000, D 4 000 ; reste C 3 000 + B 2 000.
+  assert.deepEqual(r.nommes.map((x: any) => [x.nom, x.montantCents]), [['A', 9_000], ['G', 7_000], ['F', 6_000], ['E', 5_000], ['D', 4_000]]);
+  assert.deepEqual(r.autres, { nombre: 2, montantCents: 5_000 });
+  const m = (date: string, montantCents: number, categorie: string, rapprochement = 'rapproché', reel = true, clientNom?: string) => ({ date, montantCents, libelle: categorie, categorie, rapprochement, reel, clientNom });
+  const mvts = [m('2026-10-05', 120_000, 'Ventes', 'rapproché', true, 'Atelier'), m('2026-10-06', 30_000, 'Ventes', 'à vérifier'), m('2026-10-03', -50_000, 'Loyer'), m('2026-10-28', -9_000, 'Logiciels'), m('2026-11-02', 99_000, 'Ventes'), m('2026-10-29', -1_000, 'Logiciels', 'rapproché', false)];
+  const v = EN.riviereDuMois(mvts, '2026-10', 200_000, 261_000);
+  assert.deepEqual([v.entreesCents, v.sortiesCents, v.soldeAuBoutCents, v.ecartCents], [120_000, 59_000, 261_000, 0]);
+  assert.deepEqual(v.sorties.nommes.map((x: any) => [x.nom, x.montantCents]), [['Loyer', 50_000], ['Logiciels', 9_000]]);
+  const w = EN.riviereDuMois(mvts, '2026-10', 200_000, 300_000);
+  assert.deepEqual([w.soldeAuBoutCents, w.ecartCents], [300_000, 39_000]);
+  assert.deepEqual([EN.riviereDuMois(mvts, '2026-10', 200_000, 261_100).ecartCents], [0], 'un écart de 1 € pile ne s’affiche pas');
+  assert.deepEqual(EN.objectifEncaissement([{ date: '2026-10-20', montantCents: 60_000 }, { date: '2026-10-05', montantCents: 50_000 }], 100_000), { pourcentage: 100, atteintLe: '2026-10-20' });
+  assert.deepEqual(EN.objectifEncaissement([{ date: '2026-10-05', montantCents: 50_000 }], 100_000), { pourcentage: 50, atteintLe: null });
+  assert.equal(EN.objectifEncaissement([], null), null);
 });
 
 /* ── Les jeux fictifs de SIM ──────────────────────────────────────────────── */
@@ -678,12 +934,13 @@ await dit('trésorerie sur les jeux : solde final = départ + flux de l’horizo
 await dit('devis, budget, tarifs, impayés et banque sur les jeux : aucun NaN, comptes cohérents, banque en lecture seule', () => {
   for (const { nom, m } of MONDES) {
     const auj = m.contexte.aujourdhui;
-    for (const d of m.devis) assert.ok(['brouillon', 'envoye', 'vu', 'accepte', 'refuse', 'expire'].includes(DV.etatDevis(d, auj)), `${nom} devis ${d.id}`);
+    for (const d of m.devis) assert.ok(ETATS_DEVIS.includes(DV.etatDevis(d, auj)), `${nom} devis ${d.id}`);
     const taux = DV.tauxDeTransformation(m.devis, auj);
     assert.ok(taux === null || (taux >= 0 && taux <= 100));
     for (const e of m.enveloppes) {
-      const r = BU.etatEnveloppe(e, m.depenses, auj);
-      assert.ok(Number.isInteger(r.consommeCents) && Number.isInteger(r.projectionCents) && ['ok', 'attention', 'depasse'].includes(r.etat), `${nom} ${e.id}`);
+      const r = BU.etatEnveloppe(e, m.depenses);
+      assert.ok(Number.isInteger(r.depenseCents) && Number.isInteger(r.pourcentage) && ['dans-le-budget', 'presque-plein', 'paye', 'depasse'].includes(r.etat), `${nom} ${e.id}`);
+      assert.equal(r.depenseCents - e.prevuCents, -r.resteCents, `${nom} ${e.id} reste`);
     }
     for (const p of m.prestations) assert.ok(TA.margePct(p.prixCents, p.coutCents) === null || Number.isFinite(TA.margePct(p.prixCents, p.coutCents)));
     const tranches = IM.tranchesDeRetard(m.factures, auj, { paiements: [] });
@@ -724,8 +981,16 @@ await dit('l’interface tutoie ; ce qui part chez un client (clés « client. �
 });
 
 await dit('libellés de statut : chaque statut calculé a son texte, en fr et en en', () => {
-  for (const s of ['brouillon', 'envoyee', 'en-retard', 'partiellement-payee', 'payee', 'annulee']) assert.ok(I.traduire('fr', `facture.${s}`) !== `facture.${s}`);
-  for (const s of ['brouillon', 'envoye', 'vu', 'accepte', 'refuse', 'expire']) assert.ok(I.traduire('en', `devis.${s}`));
+  const aSonTexte = (cle: string) => {
+    for (const l of ['fr', 'en']) assert.ok(I.dictionnaires[l][cle]?.trim(), `${l} : ${cle}`);
+  };
+  for (const s of ['brouillon', 'envoyee', 'vue', 'en-retard', 'payee', 'annulee']) aSonTexte(`facture.${s}`);
+  for (const s of ETATS_DEVIS) aSonTexte(`devis.${s}`);
+  for (const s of IM.TRANCHES) aSonTexte(`tranche.${s}`);
+  for (const s of IM.ETAPES) aSonTexte(`etape.${s}`);
+  for (const s of ['dans-le-budget', 'presque-plein', 'paye', 'depasse']) aSonTexte(`budget.${s}`);
+  for (const s of TR.SCENARIOS) aSonTexte(`scenario.${s}`);
+  for (const s of ['relance-1', 'relance-2']) aSonTexte(`client.relance.${s}`);
   assert.equal(I.traduire('fr', 'tresorerie.sousZero', { date: 'ven. 20 nov.' }), 'Tu passes sous zéro le ven. 20 nov.');
 });
 

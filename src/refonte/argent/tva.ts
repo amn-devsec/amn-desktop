@@ -1,4 +1,4 @@
-import { arrondi, ecartJours, jourDe, jourDuMois, moisDe, moisSuivant, type Jour, type Mois } from './commun';
+import { arrondi, ecartJours, jourDe, jourDuMois, joursOuvresAvant, moisDe, moisSuivant, type Jour, type Mois } from './commun';
 import { encaisse, totauxDocument, type FactureLue, type ReglementLu } from './facturation';
 
 /**
@@ -27,6 +27,7 @@ export interface DepenseLue {
   amountCents: number;
   tvaCents: number;
   spentAt: string;
+  justificatif?: { statut: 'justifié' | 'à justifier' | string };
 }
 
 export interface TvaDuMois {
@@ -34,6 +35,11 @@ export interface TvaDuMois {
   regime: Regime;
   collecteeCents: number;
   deductibleCents: number;
+  /** Bases hors taxes de la période (MA08 : « 15 900 € » et « 9 850 € »). */
+  baseVentesHtCents: number;
+  baseAchatsHtCents: number;
+  /** À reverser ÷ collectée, en % entier (la barre du résultat ; 0 en crédit). */
+  partReversee: number;
   /** Collectée − déductible : positif = à payer, négatif = crédit. */
   soldeCents: number;
   aPayerCents: number;
@@ -52,8 +58,14 @@ const comptee = (f: Pick<FactureLue, 'status'>) => f.status === 'issued' || f.st
 
 export function tvaDuMois(e: { mois: Mois; regime: Regime; factures: readonly FactureLue[]; paiements: readonly (ReglementLu & { date?: string })[]; depenses: readonly DepenseLue[] }): TvaDuMois {
   let collectee = 0;
+  let baseVentes = 0;
   if (e.regime === 'debits') {
-    for (const f of e.factures) if (comptee(f) && f.issuedAt && moisDe(f.issuedAt) === e.mois) collectee += signe(f) * totauxDocument(f.lines).tvaCents;
+    for (const f of e.factures) {
+      if (!comptee(f) || !f.issuedAt || moisDe(f.issuedAt) !== e.mois) continue;
+      const t = totauxDocument(f.lines);
+      collectee += signe(f) * t.tvaCents;
+      baseVentes += signe(f) * t.htCents;
+    }
   } else {
     for (const f of e.factures) {
       if (!comptee(f) || f.kind === 'creditNote') continue;
@@ -61,17 +73,41 @@ export function tvaDuMois(e: { mois: Mois; regime: Regime; factures: readonly Fa
       if (t.ttcCents === 0) continue;
       const recus = e.paiements.filter((p) => p.factureId === f.id && p.etat === 'réussi');
       if (recus.length > 0) {
-        for (const p of recus) if (p.date && moisDe(jourDe(p.date)) === e.mois) collectee += arrondi((p.montantCents * t.tvaCents) / t.ttcCents);
+        for (const p of recus) {
+          if (!p.date || moisDe(jourDe(p.date)) !== e.mois) continue;
+          const tva = arrondi((p.montantCents * t.tvaCents) / t.ttcCents);
+          collectee += tva;
+          baseVentes += p.montantCents - tva;
+        }
       } else if (f.status === 'paid' && f.paidAt && moisDe(f.paidAt) === e.mois) {
         // Sans règlement enregistré, la date de paiement de la facture fait foi pour la totalité.
         collectee += t.tvaCents;
+        baseVentes += t.htCents;
       }
     }
   }
-  const deductible = e.depenses.filter((d) => moisDe(d.spentAt) === e.mois).reduce((s, d) => s + d.tvaCents, 0);
+  const achats = e.depenses.filter((d) => moisDe(d.spentAt) === e.mois);
+  const deductible = achats.reduce((s, d) => s + d.tvaCents, 0);
+  const baseAchats = achats.reduce((s, d) => s + d.amountCents - d.tvaCents, 0);
   const solde = collectee - deductible;
-  return { mois: e.mois, regime: e.regime, collecteeCents: collectee, deductibleCents: deductible, soldeCents: solde, aPayerCents: Math.max(0, solde), creditCents: Math.max(0, -solde), aValiderParUnComptable: true };
+  return {
+    mois: e.mois,
+    regime: e.regime,
+    collecteeCents: collectee,
+    deductibleCents: deductible,
+    baseVentesHtCents: baseVentes,
+    baseAchatsHtCents: baseAchats,
+    partReversee: solde > 0 && collectee > 0 ? arrondi((solde / collectee) * 100) : 0,
+    soldeCents: solde,
+    aPayerCents: Math.max(0, solde),
+    creditCents: Math.max(0, -solde),
+    aValiderParUnComptable: true,
+  };
 }
+
+/** H08 : la TVA récupérable du mois = la TVA des seules dépenses JUSTIFIÉES (indicatif, à valider par un comptable). */
+export const tvaRecuperable = (depenses: readonly DepenseLue[], mois: Mois): number =>
+  depenses.filter((d) => moisDe(d.spentAt) === mois && d.justificatif?.statut === 'justifié').reduce((s, d) => s + d.tvaCents, 0);
 
 /** Le montant encaissé sur une facture (pratique pour un écran qui détaille le régime des encaissements). */
 export const encaisseSurFacture = encaisse;
@@ -104,4 +140,26 @@ export function echeancesAVenir(echeances: readonly EcheanceLue[], aujourdhui: J
     totalCents: lignes.reduce((s, e) => s + (e.montantCents ?? 0), 0),
     montantInconnu: lignes.filter((e) => e.montantCents === null).length,
   };
+}
+
+/** Jours ouvrés entre le paiement proposé et l'échéance (MA08 : 20 nov. → 18 nov.). */
+export const JOURS_OUVRES_AVANT_PAIEMENT = 2;
+
+/** MA08 : la prochaine échéance non payée, le nombre de jours qui en séparent, et le jour de paiement proposé (2 jours ouvrés avant). */
+export function prochaineEcheance(echeances: readonly EcheanceLue[], aujourdhui: Jour): { echeance: EcheanceLue; jours: number; payerLe: Jour } | null {
+  const e = echeances.filter((x) => x.paiement === 'À payer' && x.echeanceLe >= aujourdhui).sort((a, b) => a.echeanceLe.localeCompare(b.echeanceLe))[0];
+  return e ? { echeance: e, jours: ecartJours(aujourdhui, e.echeanceLe), payerLe: joursOuvresAvant(e.echeanceLe, JOURS_OUVRES_AVANT_PAIEMENT) } : null;
+}
+
+/** « En préparation · 92 % » : écritures prêtes ÷ écritures, arrondi à l'entier INFÉRIEUR (jamais 100 % s'il reste un point). */
+export const preparationPct = (pretes: number, total: number): number => (total <= 0 ? 0 : Math.floor((pretes / total) * 100));
+
+/** « Mis de côté » : provision suivie ÷ montants à payer d'ici la date, en % entier (l'application ne déplace pas d'argent). */
+export const partMiseDeCote = (provisionCents: number, aPayerCents: number): number | null => (aPayerCents <= 0 ? null : arrondi((provisionCents / aPayerCents) * 100));
+
+/** « Dû de l'année » : la somme des montants connus par famille, sur l'année civile. */
+export function duDeLAnnee(echeances: readonly EcheanceLue[], annee: number): { famille: string; montantCents: number }[] {
+  const par = new Map<string, number>();
+  for (const e of echeances) if (e.echeanceLe.startsWith(String(annee)) && e.montantCents !== null) par.set(e.famille, (par.get(e.famille) ?? 0) + e.montantCents);
+  return [...par.entries()].map(([famille, montantCents]) => ({ famille, montantCents }));
 }

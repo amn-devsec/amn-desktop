@@ -11,33 +11,38 @@ import { prochainNumero, totauxDocument, type TotauxDocument } from './facturati
  * brouillon complet, numéroté, valable 30 jours. Il n'est jamais envoyé seul.
  */
 
-export type EtatDevis = 'brouillon' | 'envoye' | 'vu' | 'accepte' | 'refuse' | 'expire';
+/** Les états de H07 (rubrique 6) : Brouillon → Envoyé → Vu → Signé, Refusé ou Expiré ; Annulé ; Facturé. */
+export type EtatDevis = 'brouillon' | 'envoye' | 'vu' | 'signe' | 'refuse' | 'expire' | 'annule' | 'facture';
 
 export interface DevisLu {
-  status: 'draft' | 'sent' | 'accepted' | 'refused' | string;
+  /** `accepted` = signé par le client. */
+  status: 'draft' | 'sent' | 'accepted' | 'refused' | 'cancelled' | string;
   validiteJusquau: Jour;
   vuAt: string | null;
+  /** La facture tirée du devis, s'il y en a une (H07 : « Facturé », lien vers la facture). */
+  factureId?: string | null;
 }
 
-/** Un devis envoyé expire le lendemain de sa date de validité. */
+/** Un devis envoyé ou vu expire le lendemain de sa date de validité. Un devis signé et facturé est « Facturé ». */
 export function etatDevis(d: DevisLu, aujourdhui: Jour): EtatDevis {
   if (d.status === 'draft') return 'brouillon';
-  if (d.status === 'accepted') return 'accepte';
+  if (d.status === 'cancelled') return 'annule';
+  if (d.status === 'accepted') return d.factureId ? 'facture' : 'signe';
   if (d.status === 'refused') return 'refuse';
   if (d.validiteJusquau && d.validiteJusquau < aujourdhui) return 'expire';
   return d.vuAt ? 'vu' : 'envoye';
 }
 
-/** Acceptés ÷ (acceptés + refusés + expirés), en % entier ; `null` tant qu'aucun devis n'est tranché. */
+/** Signés (facturés compris) ÷ (signés + refusés + expirés), en % entier ; `null` tant qu'aucun devis n'est tranché. */
 export function tauxDeTransformation(devis: readonly DevisLu[], aujourdhui: Jour): number | null {
   const etats = devis.map((d) => etatDevis(d, aujourdhui));
-  const acceptes = etats.filter((e) => e === 'accepte').length;
-  const tranches = etats.filter((e) => e === 'accepte' || e === 'refuse' || e === 'expire').length;
+  const acceptes = etats.filter((e) => e === 'signe' || e === 'facture').length;
+  const tranches = etats.filter((e) => e === 'signe' || e === 'facture' || e === 'refuse' || e === 'expire').length;
   const p = pourcentage(acceptes, tranches, 0);
   return p;
 }
 
-/** Durée de validité d'un devis prérempli : 30 jours (valeur de départ, §1.29 n° 3). */
+/** Durée de validité d'un devis : émission + 30 jours par défaut (H07 rubrique 6 ; valeur de départ, §1.29 n° 3). */
 export const VALIDITE_JOURS = 30;
 /** Taux de TVA d'une ligne préremplie quand la prestation n'en dit rien. */
 export const TAUX_TVA_PAR_DEFAUT = 20;
@@ -88,14 +93,14 @@ export function devisPrerempli(e: {
   client: { id: number; nom: string };
   quantite?: number;
   aujourdhui: Jour;
-  /** Les numéros de devis déjà pris (`D-AAAA-NNNN`). */
+  /** Les numéros de devis déjà pris (`D-AAAA-N`, H07 : « D-2026-114 »). */
   numeros: readonly string[];
 }): DevisPrerempli {
   const quantite = e.quantite && e.quantite > 0 ? e.quantite : 1;
   const lignes: InvoiceLine[] = [{ id: 'l-1', label: e.prestation.nom, quantity: quantite, unitPriceCents: e.prestation.prixCents, vatRate: e.prestation.tauxTva ?? TAUX_TVA_PAR_DEFAUT }];
   const totaux = totauxDocument(lignes);
   return {
-    numero: prochainNumero(e.numeros, Number(e.aujourdhui.slice(0, 4)), 'D'),
+    numero: prochainNumero(e.numeros, Number(e.aujourdhui.slice(0, 4)), 'D', 1),
     status: 'draft',
     clientId: e.client.id,
     clientNom: e.client.nom,
@@ -128,5 +133,11 @@ export function devisVersFacture(d: { id: number; clientId: number; clientNom: s
   };
 }
 
-/** L'acompte demandé à la signature : TTC × pourcentage, arrondi au centime. */
+/**
+ * L'écart à la version précédente (H07) : TTC de la nouvelle − TTC de l'ancienne ;
+ * `null` quand il est nul (il ne s'affiche pas).
+ */
+export const ecartDeVersion = (ttcNouveauCents: number, ttcAncienCents: number): number | null => (ttcNouveauCents === ttcAncienCents ? null : ttcNouveauCents - ttcAncienCents);
+
+/** L'acompte (H07) : pourcentage × TTC, au centime, recalculé à chaque modification. Traitement fiscal à valider par un comptable. */
 export const acompte = (ttcCents: number, pct: number): number => arrondi((ttcCents * Math.min(100, Math.max(0, pct))) / 100);
