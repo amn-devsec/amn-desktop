@@ -51,8 +51,8 @@ async function charger<T>(code: string): Promise<T> {
 const FICHIERS = ['commun', 'serie', 'pages', 'relecture', 'documents', 'signatures', 'modeles', 'journal', 'redaction', 'archives', 'connaissances', 'hub', 'i18n', 'phrases'];
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerH10 from '../${ZONE}/ecrans/h10/composer';\nexport * as composerF20 from '../${ZONE}/ecrans/f20/composer';\nexport * as composerH11 from '../${ZONE}/ecrans/h11/composer';\nexport * as composerH12 from '../${ZONE}/ecrans/h12/composer';\nexport * as composerME01 from '../${ZONE}/ecrans/me01/composer';\nexport * as composerME02 from '../${ZONE}/ecrans/me02/composer';\nexport * as composerME03 from '../${ZONE}/ecrans/me03/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
-const { commun: C, serie: S, pages: P, relecture: R, documents: D, signatures: G, modeles: MO, journal: J, redaction: RE, archives: A, connaissances: K, hub: H, i18n: I, phrases: PH, composerH10: CH10, composerF20: CF20, composerH11: CH11, composerH12: CH12, composerME01: CME01, composerME02: CME02, composerME03: CME03, monde } = M;
+const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerH10 from '../${ZONE}/ecrans/h10/composer';\nexport * as composerF20 from '../${ZONE}/ecrans/f20/composer';\nexport * as composerH11 from '../${ZONE}/ecrans/h11/composer';\nexport * as composerH12 from '../${ZONE}/ecrans/h12/composer';\nexport * as composerME01 from '../${ZONE}/ecrans/me01/composer';\nexport * as composerME02 from '../${ZONE}/ecrans/me02/composer';\nexport * as composerME03 from '../${ZONE}/ecrans/me03/composer';\nexport * as composerME04 from '../${ZONE}/ecrans/me04/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
+const { commun: C, serie: S, pages: P, relecture: R, documents: D, signatures: G, modeles: MO, journal: J, redaction: RE, archives: A, connaissances: K, hub: H, i18n: I, phrases: PH, composerH10: CH10, composerF20: CF20, composerH11: CH11, composerH12: CH12, composerME01: CME01, composerME02: CME02, composerME03: CME03, composerME04: CME04, monde } = M;
 
 const NB = ' ';
 const paris = (j: string, hhmm: string) => C.instantParis(j, Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3)));
@@ -1357,6 +1357,31 @@ await dit('ME03 · composerModeles : galerie triée par usage, barre relative au
   assert.equal(CME03.composerModeles({ ...e, modeles: [] }).courant, null);
   assert.ok(CME03.lignesDeMiniature('un deux').length >= 3 && CME03.lignesDeMiniature('mot '.repeat(500)).length <= 8);
   assert.deepEqual(CME03.composerModeles({ ...e, recommandes: ['A modèle', 'Z'] }).bibliotheque, { libelle: 'Ta bibliothèque 1 sur 2', pourcent: 50 });
+});
+
+await dit('ME04 · composerArchives : années, mois, recherche rangée par mois, quota, règles, restaurations ; rien sans éléments', () => {
+  const el = (id: string, titre: string, type: string, archiveLe: string, extra: object = {}) => ({ id, titre, type, tailleOctets: 1000, archiveLe, ...extra });
+  const elements = [el('a', 'Facture Menna', 'Facture', '2026-10-15'), el('b', 'Contrat Menna', 'Document', '2026-09-12', { contenu: 'Menna ici' }), el('c', 'Autre', 'Message', '2026-09-03', { contenu: 'sans le mot' }), el('d', 'Vieux', 'Document', '2025-03-01'), el('f', 'Photo', 'Photo', '2026-01-10', { tailleOctets: 1_500_000_000 })];
+  const base = { langue: 'fr', maintenant: '2026-10-30T09:42:00Z', elements, saisie: 'menna', dansLeContenu: true, type: 'Tout', annee: 2026, visibles: 5, regles: [{ type: 'facture-payee', apresMois: 12 }], restaurations: [{ id: 'x', at: '2026-10-14T10:00:00Z', nom: 'Doc', detail: 'rouvert' }], quotaOctets: 20e9, octetsLisibles: (n: number) => `${n} o` };
+  const a = { onType: () => undefined, onSuite: () => undefined, onAnnee: () => undefined };
+  const v = CME04.composerArchives(base, a);
+  assert.equal(v.recherche.resume, '2 résultats pour « menna », du plus récent au plus ancien');
+  assert.deepEqual(v.recherche.groupes.map((g: any) => g.mois), ['OCTOBRE 2026', 'SEPTEMBRE 2026']);
+  assert.deepEqual(v.recherche.types.map((t: any) => t.libelle), ['Tout · 2', 'Document · 1', 'Facture · 1']);
+  assert.deepEqual(v.temps.annees.map((x: any) => [x.annee, x.ouverte, x.total]), [[2026, true, '4'], [2025, false, '1']]);
+  assert.equal(v.temps.annees[0].trouves, '2 trouvés');
+  assert.equal(v.temps.annees[0].mois[0].libelle, 'Octobre');
+  assert.equal(v.temps.annees[0].mois[0].actif, true);
+  assert.ok(v.quota.libelle.length > 0 && v.regles.items.at(-1).valeur === 'Jamais', 'la suppression définitive reste « Jamais »');
+  assert.equal(v.restaures.sous, '1 ce trimestre');
+  assert.ok(v.suggestion !== null, 'plus de 1 Go de photos : on propose de compresser');
+  assert.equal(CME04.composerArchives({ ...base, saisie: '' }, a).recherche.resume, 'Tape un mot pour chercher dans les archives');
+  assert.equal(CME04.composerArchives({ ...base, saisie: 'zzz' }, a).recherche.resume, 'Aucun résultat pour « zzz »');
+  const vide = CME04.composerArchives({ ...base, elements: [] }, a);
+  assert.equal(vide.temps, null);
+  assert.equal(vide.quota, null);
+  assert.equal(vide.suggestion, null);
+  assert.equal(vide.sousTitre, 'Tout est gardé, rien n’encombre · rien n’est encore archivé');
 });
 
 await dit('rien ne lit l’horloge ni le hasard : « maintenant » est toujours un paramètre', () => {

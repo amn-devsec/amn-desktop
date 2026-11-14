@@ -1,3 +1,4 @@
+import { Archive } from 'lucide-react';
 import { declarerFamille, vue } from '../declarer';
 
 /**
@@ -130,6 +131,17 @@ export default declarerFamille({
         }),
         vue('esign', '/signature', ['faire signer un devis', 'signer sur l’écran', 'faire signer un bon'], ['signature', 'signer', 'tablette'], {
           en: { verbes: ['have a quote signed', 'sign on screen', 'have a slip signed'], motsCles: ['signature', 'sign', 'tablet', 'on-site'] },
+        }),
+      ],
+    },
+    {
+      nom: { fr: 'Archives', en: 'Archives' },
+      action: 'documents',
+      niveau: 'courant',
+      vues: [
+        vue('archives', '/archives', ['retrouver un ancien document', 'chercher dans les archives', 'restaurer un élément archivé'], ['archives', 'archivé', 'ancien', 'conservation', 'historique'], {
+          en: { verbes: ['find an old document', 'search the archives', 'restore an archived item'], motsCles: ['archives', 'archived', 'old', 'retention', 'history'] },
+          nouveau: { icone: Archive, ecran: () => import('../../ecrire/ecrans/me04/PageArchives'), indice: { fr: 'Retrouver ce qui est rangé, par date ou par mot', en: 'Find what is filed, by date or by word' } },
         }),
       ],
     },
