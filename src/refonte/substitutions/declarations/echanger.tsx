@@ -8,4 +8,6 @@ import { declarerSubstitutions } from '../declarer';
 export default declarerSubstitutions('echanger', [
   // F40 — la vue d'ensemble de la famille, à la place de la page générique (`/ensemble/echanger`, sa route exacte).
   { route: '/ensemble/echanger', composant: lazy(() => import('../../echanger/ecrans/f40/PageHub')) },
+  // H14 — Annonces : le tableau de l'équipe.
+  { route: '/annonces', composant: lazy(() => import('../../echanger/ecrans/h14/PageAnnonces')) },
 ]);

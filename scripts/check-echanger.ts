@@ -51,8 +51,9 @@ async function charger<T>(code: string): Promise<T> {
 const FICHIERS = ['commun', 'boite', 'hub', 'canaux', 'connecteurs', 'appels', 'annonces', 'courriel', 'reunions', 'partages', 'sondages', 'reponsesAuto', 'i18n', 'phrases'];
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerF40 from '../${ZONE}/ecrans/f40/composer';` + `\nexport * as composerG07 from '../${ZONE}/ecrans/g07/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
-const { commun: C, boite: B, hub: H, canaux: CA, connecteurs: CO, appels: AP, annonces: AN, courriel: CM, reunions: RE, partages: PA, sondages: SO, reponsesAuto: AU, i18n: I, phrases: PH, composerF40: CF40, composerG07: CG07, monde } = M;
+const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerF40 from '../${ZONE}/ecrans/f40/composer';` + `\nexport * as composerG07 from '../${ZONE}/ecrans/g07/composer';` + `\nexport * as composerH14 from '../${ZONE}/ecrans/h14/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
+const { commun: C, boite: B, hub: H, canaux: CA, connecteurs: CO, appels: AP, annonces: AN, courriel: CM, reunions: RE, partages: PA, sondages: SO, reponsesAuto: AU, i18n: I, phrases: PH, composerF40: CF40, composerG07: CG07, composerH14: CH14, monde } = M;
+const A_SEG = AN.segmentsDeLecture;
 
 const NB = ' ';
 const paris = (j: string, hhmm: string): number => C.instantParis(j, Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3)));
@@ -1104,6 +1105,36 @@ await dit('G07 · composerBoite : couloirs, filtres, bandeau, fil du client ; le
   assert.equal(vide.bandeau.valeur, '0 sur 0');
   assert.equal(CG07.depuisLisible(il(30 * 60), MAINT, 'fr'), 'hier');
   assert.equal(CG07.depuisLisible(il(2 * 24 * 60 + 30), MAINT, 'fr'), '2 j');
+});
+
+await dit('H14 · composerAnnonces : À la une, accusés, « Lu par x sur y », mosaïque, « Presque à jour », catégories ; rien d’inventé sans catégories ni réactions', () => {
+  const eq = [{ email: 'a@x', nom: 'Anne' }, { email: 'b@x', nom: 'Bob' }, { email: 'c@x', nom: 'Cléo' }];
+  const an = (id: string, par: string, jour: string, extra: any = {}) => ({ id, auteurEmail: par, auteurNom: par, publieeAt: paris(jour, '09:12'), titre: `Titre ${id}`, texte: `Texte ${id}`, categorie: '', epinglee: false, confirmations: [], ...extra });
+  const base = { langue: 'fr', maintenant: MAINT, moi: 'c@x', equipe: eq, avecCategories: false, avecReactions: false, filtre: null, brouillon: null };
+  const nue = CH14.composerAnnonces({ ...base, annonces: [an('1', 'a@x', '2026-10-28'), an('2', 'b@x', AUJ, { confirmations: [{ email: 'a@x' }] })] });
+  assert.equal(nue.aLaUne.id, '2', 'sans épingle, la plus récente prend « À la une »');
+  assert.equal(nue.aLaUne.epinglee, false, '… sans bordure ambre');
+  assert.equal(nue.categories, null, 'sans catégories, pas de carte');
+  assert.equal(nue.aLaUne.reactions, null, 'sans réactions, pas de rangée');
+  assert.equal(nue.brouillon, null);
+  assert.equal(nue.suggestion, null);
+  assert.equal(nue.aLaUne.lu.texte, 'Lu par 2 sur 3');
+  assert.deepEqual(nue.aLaUne.accuses.map((x: any) => [x.nom, x.sous, x.lu]), [['Anne', 'lu', true], ['Bob', 'auteur', true], ['Cléo (toi)', 'pas encore confirmé', false]]);
+  assert.equal(nue.aLaUne.peutConfirmer, true);
+  assert.equal(nue.presque.texte, '0/2');
+  assert.equal(nue.presque.titre, '2 à confirmer');
+  assert.equal(nue.colonnes.flat().length, 1);
+  const riche = CH14.composerAnnonces({ ...base, avecCategories: true, avecReactions: true, brouillon: { titre: '', texte: '', epingler: false }, annonces: [an('1', 'a@x', '2026-10-28', { categorie: 'Technique', epinglee: true, confirmations: [{ email: 'c@x', at: paris(AUJ, '08:00') }], reactions: [{ email: 'b@x', type: 'merci' }] }), an('2', 'b@x', AUJ, { categorie: 'Clients' })] });
+  assert.equal(riche.aLaUne.id, '1', 'l’épinglée prend « À la une » même plus ancienne');
+  assert.equal(riche.aLaUne.epinglee, true);
+  assert.deepEqual(riche.aLaUne.reactions.map((r: any) => [r.type, r.n, r.active]), [['bien-note', 0, false], ['merci', 1, false], ['question', 0, false]]);
+  assert.equal(riche.aLaUne.accuses[2].sous, 'lu à 08:00');
+  assert.deepEqual(riche.categories.lignes.map((c: any) => [c.nom, c.n, c.ton]), [['Clients', 1, 'contacts'], ['Technique', 1, 'outils']]);
+  assert.equal(riche.colonnes.flat().filter((c: any) => c.genre === 'brouillon').length, 1, 'le brouillon est dans la mosaïque, une fois');
+  assert.equal(riche.presque.texte, '1/2');
+  assert.equal(riche.presque.titre, 'Presque à jour');
+  assert.deepEqual([0, 1, 2, 3].map((x) => A_SEG(x, 3)), [{ pleins: 0, vert: false }, { pleins: 1, vert: false }, { pleins: 2, vert: false }, { pleins: 3, vert: true }]);
+  assert.deepEqual(A_SEG(0, 0), { pleins: 0, vert: false });
 });
 
 await dit('aucune brique visuelle : ni React, ni src/socle/ui, ni code partagé ; seulement les voisins, le dictionnaire du socle et le modèle des connecteurs (S9)', () => {
