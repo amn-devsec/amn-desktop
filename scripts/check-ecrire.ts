@@ -51,8 +51,8 @@ async function charger<T>(code: string): Promise<T> {
 const FICHIERS = ['commun', 'serie', 'pages', 'relecture', 'documents', 'signatures', 'modeles', 'journal', 'redaction', 'archives', 'connaissances', 'hub', 'i18n', 'phrases'];
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + "\nexport * as monde from '../src/refonte/donnees';");
-const { commun: C, serie: S, pages: P, relecture: R, documents: D, signatures: G, modeles: MO, journal: J, redaction: RE, archives: A, connaissances: K, hub: H, i18n: I, phrases: PH, monde } = M;
+const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerH10 from '../${ZONE}/ecrans/h10/composer';\nexport * as composerF20 from '../${ZONE}/ecrans/f20/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
+const { commun: C, serie: S, pages: P, relecture: R, documents: D, signatures: G, modeles: MO, journal: J, redaction: RE, archives: A, connaissances: K, hub: H, i18n: I, phrases: PH, composerH10: CH10, composerF20: CF20, monde } = M;
 
 const NB = ' ';
 const paris = (j: string, hhmm: string) => C.instantParis(j, Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3)));
@@ -1176,6 +1176,61 @@ await dit('écrans : composants du socle seulement, rien de src/screens ni de sr
   }
   assert.deepEqual(fautes, [], fautes.join('\n'));
 });
+await dit('H10 · composerNotes : l’arbre (favoris, clients, équipe), la recherche, les comptes, le plan et « palier de 14 jours dimanche »', () => {
+  const base = { clientId: null, blocs: [], auteurEmail: 'a@x.test', contributeurs: ['a@x.test'], modifieAt: '2026-10-30T08:00:00Z', modifieParEmail: 'a@x.test', favorisDe: [] as string[] };
+  const pg = (id: string, title: string, espace: string, plus: object = {}) => ({ ...base, id, title, parentId: null as string | null, espace, ...plus });
+  const pages = [
+    pg('f', 'Plan', 'Équipe', { favorisDe: ['a@x.test'] }),
+    pg('c', 'Dossier client', 'Clients'),
+    pg('p', 'Page ouverte', 'Clients', { parentId: 'c', blocs: [{ type: 'titre', texte: 'Objectifs' }, { type: 'texte', texte: 'x' }, { type: 'titre', texte: 'À préparer' }] }),
+    pg('q', 'Autre page', 'Clients', { parentId: 'c' }),
+    pg('s', 'Supprimée', 'Clients', { parentId: 'c', supprimeeLe: '2026-10-01' }),
+    pg('e', 'Réunions', 'Équipe'),
+  ];
+  const jours = Array.from({ length: 12 }, (_, i) => `2026-10-${19 + i}`);
+  const mots = S.motsParJour(jours.map((jour) => ({ jour, mots: 100 })));
+  const entrees = { langue: 'fr', maintenant: '2026-10-30T09:42:00Z', moi: { email: 'a@x.test', prenom: 'X' }, pages, pageId: 'p', recherche: '', mots, clientDe: () => null, vers: () => undefined, onOuvrir: () => undefined, ecritDans: null };
+  const tm = (c: string) => c;
+  const v = CH10.composerNotes(entrees, tm);
+  assert.deepEqual(v.arbre.sections.map((x: any) => x.titre), ['Favoris', 'Clients', 'Équipe']);
+  const clients = v.arbre.sections[1].elements;
+  assert.deepEqual(clients.map((x: any) => [x.titre, x.niveau, x.compte ?? null]), [['Dossier client', 0, 2], ['Page ouverte', 1, null], ['Autre page', 1, null]], 'compte hors corbeille ; enfants du dossier ouvert seulement');
+  assert.equal(clients[1].actif, true);
+  assert.deepEqual(v.droite.plan.items.map((x: any) => x.texte), ['Objectifs', 'À préparer']);
+  assert.equal(v.droite.plan.total, '2 blocs titrés');
+  assert.equal(v.arbre.serie.valeur, '12 jours');
+  assert.equal(v.arbre.serie.phrase, 'Page du jour écrite, palier de 14 jours dimanche.');
+  const filtre = CH10.composerNotes({ ...entrees, recherche: 'réunion' }, tm);
+  assert.deepEqual(filtre.arbre.sections.map((x: any) => x.titre), ['Équipe']);
+  assert.equal(CH10.composerNotes({ ...entrees, pageId: null, pages: [] }, tm).pageMeta, null);
+  assert.equal(C.nomDuJour('2026-11-01'), 'dimanche');
+  assert.equal(C.nomDuJour('2026-11-01', 'en'), 'Sunday');
+});
+
+await dit('F20 · composerHub : le curseur n’existe que s’il y a un coauteur ; la file de relecture met ma ligne d’abord ; rien n’est inventé sans donnée', () => {
+  const base = { clientId: null, blocs: [{ type: 'texte', texte: 'Un texte.' }], auteurEmail: 'a@x.test', contributeurs: ['a@x.test'], modifieAt: '2026-10-30T09:41:57Z', modifieParEmail: 'a@x.test', favorisDe: [], parentId: null, espace: 'Équipe' };
+  const mesures = { pages: 1, documents: 0, serieJournal: 0, brouillons: 0, modeles: 0, enAttenteDeSignature: 0, archives: 0, articles: 0, lecturesDuMois: 0, dictees: 0 };
+  const e = (extra: object = {}) => ({ langue: 'fr', maintenant: '2026-10-30T09:42:00Z', moi: { email: 'a@x.test', prenom: 'X' }, prenomDe: (m: string) => m.split('@')[0], pages: [{ ...base, id: 'p', title: 'T' }], presences: [], filtre: 'toutes', mesures, modulesOuverts: null, documents: [], signaturesActives: true, demandes: [], mots: new Map(), journal: [], notesRapides: [], apercuDe: (p: any) => ({ blocs: p.blocs.map((b: any) => ({ type: b.type, texte: b.texte })), liee: null, cheminDe: ['Équipe'] }), routes: {}, jourSemaineInitiales: ['L', 'M', 'M', 'J', 'V', 'S', 'D'], ...extra });
+  const etat = { onFiltre: () => undefined, onOuvrir: () => undefined, onNouvellePage: () => undefined, onPersonnaliser: () => undefined, onRanger: () => undefined, onNonRanger: () => undefined, icones: {}, noms: {}, libelles: {} };
+  const tm = (c: string) => c;
+  const seul = CF20.composerHub(e(), tm, etat);
+  assert.ok(seul.pages.dessus.blocs.every((b: any) => !b.curseur), 'personne ne co-écrit : pas de curseur');
+  assert.equal(seul.relecture.lignes.length, 0);
+  assert.equal(seul.suggestion, null, 'moins de 5 notes rapides : pas de rangement');
+  assert.equal(seul.serie.souvenir, null);
+  const avec = CF20.composerHub(e({ presences: [{ email: 'm@x.test', pageId: 'p', tapeA: '2026-10-30T09:41:55Z' }] }), tm, etat);
+  assert.equal(avec.pages.dessus.blocs.at(-1).curseur, 'm', 'un coauteur présent : le curseur est à la fin du dernier paragraphe');
+  const docs = [
+    { id: 'a', titre: 'Pour un autre', etat: 'Relecture demandée', relecteurEmail: 'm@x.test', demandeurEmail: 'a@x.test', demandeAt: '2026-10-28T10:00:00Z' },
+    { id: 'b', titre: 'Pour moi', etat: 'Relecture demandée', relecteurEmail: 'a@x.test', demandeurEmail: 'm@x.test', demandeAt: '2026-10-29T10:00:00Z' },
+  ];
+  const f = CF20.composerHub(e({ documents: docs }), tm, etat);
+  assert.deepEqual(f.relecture.lignes.map((l: any) => l.id), ['b', 'a']);
+  assert.ok(f.relecture.lignes[0].action !== null && f.relecture.lignes[1].action === null, 'le bouton n’est que sur ma ligne');
+  const sans = CF20.composerHub(e({ documents: docs, signaturesActives: false, modulesOuverts: new Set(['notes']) }), tm, etat);
+  assert.deepEqual(sans.modules.map((m: any) => m.cle), ['notes'], 'seuls les modules ouverts ont une tuile');
+});
+
 await dit('rien ne lit l’horloge ni le hasard : « maintenant » est toujours un paramètre', () => {
   const fautes = sources.filter(({ src }) => /Date\.now\(|new Date\(\)|Math\.random|performance\.now/.test(sansCommentaires(src))).map(({ f }) => f);
   assert.deepEqual(fautes, []);

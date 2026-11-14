@@ -8,4 +8,6 @@ import { declarerSubstitutions } from '../declarer';
 export default declarerSubstitutions('ecrire', [
   // F20 — la vue d'ensemble de la famille, à la place de la page générique (`/ensemble/ecrire`, sa route exacte).
   { route: '/ensemble/ecrire', composant: lazy(() => import('../../ecrire/ecrans/f20/PageHub')) },
+  // H10 — Notes et pages, à la place de l'écran des notes (même route ; la session de support garde l'écran d'origine).
+  { route: '/notes', composant: lazy(() => import('../../ecrire/ecrans/h10/PageNotes')) },
 ]);

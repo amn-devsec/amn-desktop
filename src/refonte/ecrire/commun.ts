@@ -189,3 +189,10 @@ export function dateFr(j: Jour, langue: Langue = 'fr', options: { mois?: boolean
   const mois = MOIS_LONGS[langue][Number(j.slice(5, 7)) - 1];
   return options.mois ? mois : langue === 'fr' ? `${Number(j.slice(8, 10))} ${mois}` : `${mois} ${Number(j.slice(8, 10))}`;
 }
+
+const NOMS_DES_JOURS = {
+  fr: ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'],
+  en: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+} as const;
+/** « dimanche » : le nom du jour de la semaine d'un jour (« palier de 14 jours dimanche », image H10). */
+export const nomDuJour = (j: Jour, langue: Langue = 'fr'): string => NOMS_DES_JOURS[langue][jourSemaineIso(j) - 1];
