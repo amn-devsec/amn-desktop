@@ -78,7 +78,8 @@ export function VueRdv({ statut, horsLigne = false, modele, actions, lecture = f
               </div>
             </div>
             <div className="sc-rd-ruban" role="group" aria-label={tm('rdv.ruban', { n: m.total })}>
-              {m.cartes.length === 0 && statut === 'pret' && <div className="sc-rd-ruban__vide"><BlocEtat icone={<CalendarClock size={20} strokeWidth={1.7} />} ton="neutre" titre={tm('jour.vide.titre')} actions={lecture ? <span /> : <Bouton variante="secondaire" onClick={actions.nouveau}>{tm('action.nouveau')}</Bouton>} /></div>}
+              {m.cartes.length === 0 && statut === 'pret' && <div className="sc-rd-ruban__vide">
+                <BlocEtat icone={<CalendarClock size={20} strokeWidth={1.7} />} ton="neutre" titre={tm('jour.vide.titre')} actions={lecture ? <span /> : <Bouton variante="secondaire" onClick={actions.nouveau}>{tm('action.nouveau')}</Bouton>} /></div>}
               {m.cartes.map((c) => <Carte key={c.id} c={c} duree={duree} onOuvrir={actions.ouvrir} tm={tm} />)}
               <div className="sc-rd-axe">
                 <span className="sc-rd-axe__ligne" />
@@ -108,7 +109,8 @@ export function VueRdv({ statut, horsLigne = false, modele, actions, lecture = f
                 <span className="sc-rd-maintenant" style={{ left: m.maintenantX }}><span className="sc-rd-maintenant__pastille sc-nombre">{m.maintenantHeure}</span></span>
               )}
             </div>
-            <div className="sc-rd-bandeau"><CalendarClock size={14} strokeWidth={1.9} aria-hidden /><p>{tm('suggestion.astuce')}</p><Bouton variante="secondaire" taille="petit" onClick={actions.ouvrirAgenda}>{tm('suggestion.ouvrirAgenda')}</Bouton></div>
+            <div className="sc-rd-bandeau">
+              <CalendarClock size={14} strokeWidth={1.9} aria-hidden /><p>{tm('suggestion.astuce')}</p><Bouton variante="secondaire" taille="petit" onClick={actions.ouvrirAgenda}>{tm('suggestion.ouvrirAgenda')}</Bouton></div>
           </section>
           <div className="sc-rd-bas">
             <section className="sc-rd-carte sc-rd-trajet" aria-label={tm('trajet.titre')}><div className="sc-rd-carte__tete"><h2 className="sc-rd-carte__titre">{tm('trajet.titre')}</h2><span className="sc-rd-carte__aide">{tm('trajet.aide')}</span></div><div className="sc-rd-vide"><Route size={16} strokeWidth={1.8} aria-hidden /><p>{m.total === 0 ? tm('trajet.aucun') : tm('trajet.indisponible')}</p></div></section>

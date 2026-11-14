@@ -25,3 +25,5 @@
 .sc-ct-cibles .sc-boite-recherche input { box-sizing: content-box; padding-block: 8px; margin-block: -8px; }
 /* Les traits du dessin (tiges, flèches de montée) ne reçoivent jamais le clic : le centre d'une cible reste à elle. */
 .sc-fi-tige, .sc-fi-montee { pointer-events: none; }
+/* Étroit : le bas de la page laisse la place de la barre d'Ajmani, pour que les derniers points d'un nuage ne passent pas dessous. */
+@media (max-width: 900px) { .sc-ct-cibles { padding-bottom: calc(var(--socle-hauteur-ajmani, 64px) + 12px); } }

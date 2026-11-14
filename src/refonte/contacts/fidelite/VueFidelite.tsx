@@ -76,7 +76,8 @@ export function VueFidelite({ statut, horsLigne = false, modele, faits, actions,
               <span className="sc-fi-surface__fideles"><strong className="sc-nombre">{m.fideles}</strong> {tm('echelle.fideles', { total: m.actifs })}</span>
             </div>
             <div className="sc-fi-echelle">
-              {statut === 'pret' && m.fideles === 0 && <div className="sc-fi-echelle__vide"><BlocEtat icone={<Users size={20} strokeWidth={1.7} />} ton="neutre" titre={tm('etat.vide.titre')} texte={tm('etat.vide.texte')} actions={<Bouton variante="primaire" onClick={actions.regles}>{tm('action.regles')}</Bouton>} /></div>}
+              {statut === 'pret' && m.fideles === 0 && <div className="sc-fi-echelle__vide">
+                <BlocEtat icone={<Users size={20} strokeWidth={1.7} />} ton="neutre" titre={tm('etat.vide.titre')} texte={tm('etat.vide.texte')} actions={<Bouton variante="primaire" onClick={actions.regles}>{tm('action.regles')}</Bouton>} /></div>}
               <Echelle m={m} filtre={filtre} aujourdhui={aujourdhui} onOuvrir={actions.ouvrirClient} />
               {m.barreaux.map((b) => <BlocPalier key={b.niveau} b={b} />)}
             </div>

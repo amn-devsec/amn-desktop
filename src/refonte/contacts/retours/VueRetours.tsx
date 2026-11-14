@@ -219,7 +219,8 @@ function CarteCitation({ c, aujourdhui, dernier, enAvant, modele, onOuvrir, onRe
         <span className="sc-rt-citation__guillemet" aria-hidden>“</span>
         <span className="sc-rt-citation__texte">{c.texte}</span>
       </button>
-      {c.themes.length > 0 && <div className="sc-rt-citation__themes">{c.themes.map((t) => <button key={t} type="button" className="sc-rt-tag" onClick={() => onTheme(t)}>{t}</button>)}</div>}
+      {c.themes.length > 0 && <div className="sc-rt-citation__themes">
+        {c.themes.map((t) => <button key={t} type="button" className="sc-rt-tag" onClick={() => onTheme(t)}>{t}</button>)}</div>}
       {rep && (
         <div className="sc-rt-reponse">
           {rep.factureEnRetard && <p className="sc-rt-reponse__facture"><span aria-hidden>€</span>{tm(rep.factureEnRetard.jours === 1 ? 'repondre.facture.1' : 'repondre.facture.n', { numero: rep.factureEnRetard.numero, jours: rep.factureEnRetard.jours })}</p>}

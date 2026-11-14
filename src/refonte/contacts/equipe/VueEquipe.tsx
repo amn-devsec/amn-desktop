@@ -62,7 +62,8 @@ export function VueEquipe({ statut, horsLigne = false, modele, actions, lecture 
           <div className="sc-eq-cartes" role="list">
             {m.cartes.map((c) => <Personne key={c.id} c={c} actions={actions} lecture={lecture} />)}
             {m.cartes.length === 1 && (
-              <div className="sc-eq-cartes__seul"><BlocEtat icone={<Users size={20} strokeWidth={1.7} />} ton="neutre" titre={tm('etat.seul.titre')} texte={tm('etat.seul.texte')} actions={lecture ? <span /> : <Bouton variante="primaire" onClick={actions.inviter}>{tm('action.inviter')}</Bouton>} /></div>
+              <div className="sc-eq-cartes__seul">
+                <BlocEtat icone={<Users size={20} strokeWidth={1.7} />} ton="neutre" titre={tm('etat.seul.titre')} texte={tm('etat.seul.texte')} actions={lecture ? <span /> : <Bouton variante="primaire" onClick={actions.inviter}>{tm('action.inviter')}</Bouton>} /></div>
             )}
           </div>
           <div className="sc-eq-bas">
@@ -99,7 +100,9 @@ function Personne({ c, actions, lecture }: { c: CartePersonne; actions: ActionsE
       {c.competences.length === 0 ? <p className="sc-eq-vide">{tm('competences.aucune')}</p> : <ul className="sc-eq-competences">{c.competences.map((k) => <li key={k}>{k}</li>)}</ul>}
       <div className="sc-eq-charge-tete"><h3 className="sc-eq-sur-titre">{tm('charge.titre')}</h3>{c.charge && <span className="sc-eq-charge__total sc-nombre" data-ton={c.charge.ton}>{tm('charge.total', { h: nombre(c.charge.totalHeures), cap: c.charge.capaciteHeures, n: Math.round(c.charge.part * 100) })}</span>}</div>
       {c.charge ? <Histogramme charge={c.charge} /> : (
-        <div className="sc-eq-charge-inconnue"><p>{tm('charge.inconnue')}</p><Bouton variante="secondaire" taille="petit" onClick={actions.relier}>{tm('charge.relier')}</Bouton></div>
+        <div className="sc-eq-charge-inconnue">
+          <p>{tm('charge.inconnue')}</p>
+          <Bouton variante="secondaire" taille="petit" onClick={actions.relier}>{tm('charge.relier')}</Bouton></div>
       )}
       <footer className="sc-eq-pied">
         <span className="sc-eq-pied__libre"><Clock size={13} strokeWidth={1.8} aria-hidden />{c.libreA ? tm('pied.libreA', { heure: c.libreA }) : tm('pied.libre')}</span>
@@ -134,7 +137,8 @@ function Acces({ m, actions }: { m: ModeleEquipe; actions: ActionsEquipe }) {
   const { tm } = useMotsEquipe();
   return (
     <section className="sc-eq-carte sc-eq-acces" aria-label={tm('acces.titre')}>
-      <div className="sc-eq-acces__tete"><h2 className="sc-eq-carte__titre">{tm('acces.titre')}</h2><button type="button" className="sc-eq-lien" onClick={actions.membresEtAcces}><KeyRound size={13} strokeWidth={1.9} aria-hidden />{tm('acces.membres')}</button></div>
+      <div className="sc-eq-acces__tete"><h2 className="sc-eq-carte__titre">{tm('acces.titre')}</h2>
+      <button type="button" className="sc-eq-lien" onClick={actions.membresEtAcces}><KeyRound size={13} strokeWidth={1.9} aria-hidden />{tm('acces.membres')}</button></div>
       {m.acces === null ? <p className="sc-eq-vide">{tm('acces.indisponible')}</p> : (
         <ul className="sc-eq-acces__liste">
           {m.acces.slice(0, 3).map((a) => <li key={a.id}><span className="sc-eq-acces__sq" aria-hidden>{a.initiale}</span><span className="sc-eq-acces__texte"><span className="sc-eq-acces__nom">{a.nom}</span><span className="sc-eq-acces__role">{a.role || tm('acces.invite')}</span></span></li>)}

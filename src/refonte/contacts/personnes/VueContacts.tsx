@@ -79,7 +79,8 @@ export function VueContacts({ statut, horsLigne = false, modele, selectionId, fi
           <ListeContacts modele={modele} selectionId={profil?.id ?? selectionId} filtre={filtre} recherche={recherche} actions={actions} />
           <section className="sc-pe-carte sc-pe-profil" aria-label={profil?.nom ?? tm('titre')}>
             {profil ? <Profil p={profil} aujourdhui={aujourdhui} actions={actions} lecture={lecture} /> : (
-              <div className="sc-pe-profil__vide"><BlocEtat icone={<Users size={20} strokeWidth={1.7} />} ton="neutre" titre={tm('etat.aucun.titre')} texte={tm('etat.aucun.texte')} actions={lecture ? <span /> : <Bouton variante="primaire" onClick={actions.nouveau}>{tm('action.nouveau')}</Bouton>} /></div>
+              <div className="sc-pe-profil__vide">
+                <BlocEtat icone={<Users size={20} strokeWidth={1.7} />} ton="neutre" titre={tm('etat.aucun.titre')} texte={tm('etat.aucun.texte')} actions={lecture ? <span /> : <Bouton variante="primaire" onClick={actions.nouveau}>{tm('action.nouveau')}</Bouton>} /></div>
             )}
           </section>
         </div>

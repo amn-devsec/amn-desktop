@@ -205,7 +205,9 @@ export function VuePile({ statut, horsLigne = false, modele, ton, envoi, annulat
         </ul>
       </section>
       <section className="sc-pl-carte sc-pl-reglages" aria-label={tm('reglages.titre')}>
-        <div className="sc-pl-reglages__tete"><h2>{tm('reglages.titre')}</h2><button type="button" onClick={actions.modifierReglages}><Pencil size={12} strokeWidth={1.9} aria-hidden />{tm('reglages.modifier')}</button></div>
+        <div className="sc-pl-reglages__tete">
+          <h2>{tm('reglages.titre')}</h2>
+          <button type="button" onClick={actions.modifierReglages}><Pencil size={12} strokeWidth={1.9} aria-hidden />{tm('reglages.modifier')}</button></div>
         <dl>
           <div><dt>{tm('reglages.envoi')}</dt><dd>{tm('reglages.envoi.valeur', { debut: m.reglages.debut.replace(/^0/, ''), fin: m.reglages.fin.replace(/^0/, '') })}</dd></div>
           <div><dt>{tm('reglages.suivante')}</dt><dd>{tm('reglages.suivante.valeur', { n: m.reglages.espacementJours })}</dd></div>

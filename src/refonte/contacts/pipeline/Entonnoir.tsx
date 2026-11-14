@@ -91,6 +91,7 @@ export function Entonnoir({ modele, aujourdhui, selectionId, onSelection, onDepl
         return (
           <g
             key={p.id}
+            role="presentation"
             className="sc-mc-deal"
             data-selection={select ? '' : undefined}
             data-glisse={enGlisse ? '' : undefined}

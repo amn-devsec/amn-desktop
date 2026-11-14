@@ -90,7 +90,8 @@ export function VuePipeline({ statut, horsLigne = false, modele, actions, lectur
             </div>
             <div className="sc-mc-zone">
               {statut === 'pret' && m.total === 0 && m.sortie.nb === 0 ? (
-                <div className="sc-mc-zone__vide"><BlocEtat icone={<GitBranch size={20} strokeWidth={1.7} />} ton="neutre" titre={tm('etat.vide.titre')} texte={tm('etat.vide.texte')} actions={lecture ? <span /> : <Bouton variante="primaire" onClick={actions.nouvelle}>{tm('action.nouvelle')}</Bouton>} /></div>
+                <div className="sc-mc-zone__vide">
+                  <BlocEtat icone={<GitBranch size={20} strokeWidth={1.7} />} ton="neutre" titre={tm('etat.vide.titre')} texte={tm('etat.vide.texte')} actions={lecture ? <span /> : <Bouton variante="primaire" onClick={actions.nouvelle}>{tm('action.nouvelle')}</Bouton>} /></div>
               ) : null}
               <Entonnoir modele={m} aujourdhui={aujourdhui} selectionId={selection} onSelection={setSelection} onDeplacer={actions.deplacer} lecture={lecture} />
               <Sortie m={m} onDefinir={actions.definirObjectif} aujourdhui={aujourdhui} lecture={lecture} />
@@ -142,7 +143,9 @@ function Sortie({ m, onDefinir, aujourdhui, lecture }: { m: ModeleEntonnoir; onD
             <Bouton variante="primaire" taille="petit" type="submit">{tm('objectif.enregistrer')}</Bouton>
           </form>
         ) : (
-          <div className="sc-mc-objectif__sans"><span>{tm('objectif.definir.texte')}</span>{!lecture && <Bouton variante="secondaire" taille="petit" onClick={() => setEdition(true)}>{tm('objectif.definir')}</Bouton>}</div>
+          <div className="sc-mc-objectif__sans">
+            <span>{tm('objectif.definir.texte')}</span>{!lecture &&
+            <Bouton variante="secondaire" taille="petit" onClick={() => setEdition(true)}>{tm('objectif.definir')}</Bouton>}</div>
         )}
       </div>
     </div>
