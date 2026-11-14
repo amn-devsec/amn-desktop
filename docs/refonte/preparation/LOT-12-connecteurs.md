@@ -6,7 +6,7 @@
 
 ## 1. En bref
 
-- **Livré** : `src/refonte/connecteurs/` (le modèle et les moteurs locaux, purs, sans React ni réseau) et `scripts/check-connecteurs.ts` (`npm run check:connecteurs`, **100 contrôles**, ajouté à `editions.yml`).
+- **Livré** : `src/refonte/connecteurs/` (le modèle et les moteurs locaux, purs, sans React ni réseau) et `scripts/check-connecteurs.ts` (`npm run check:connecteurs`, **103 contrôles**, ajouté à `editions.yml`).
 - **Aucun écran** : H21 reste à LOT-07 (S6), DEV-couts et DEV-editeur à LOT-11 (S8). Ils lisent ce module.
 - **Local d'abord** : chacune des 14 catégories du §4 a une version locale ; un connecteur arrêté rend la main au local (`modeDeCategorie`), l'écran reste utilisable.
 - **Jamais deviné** : aucun tarif n'est écrit. Tous les services sont « à relever » ; tant qu'un tarif n'est pas relevé (source https + date), le connecteur **ne peut pas s'activer**. Le relevé se fait dans `tarifs.ts`, au moment de construire H21.
@@ -135,8 +135,8 @@ La baie d'exemple de la fiche (8 branchées dont Gmail à reconnecter, 2 libres 
 
 | Moteur | Sur l'existant | Règles (valeurs par défaut : propositions) |
 |---|---|---|
-| Courriels | `lib/fileEnvoi.ts`, `useMessageTemplates` | identifiant déterministe ; jamais une variable `{nom}` laissée ; désinscription ; même modèle au même destinataire au plus une fois en 7 jours ; plage clients lun.–ven. 08:00–19:00 (sinon différé) ; 30 par heure au plus ; canal : un clic par la messagerie du poste (`mailto:`), sans clic par amn-api une fois la boîte branchée, API seulement si connectée |
-| Relances | `lib/relances.ts` (paliers 7 / 21 / 45 j) | ni payée, ni en litige, ni pas échue ; 7 jours entre deux relances ; mise en demeure et dernier avis attendent toujours une personne ; textes : les clés `relances.message*` existantes (vouvoiement, vérifié) |
+| Courriels | `lib/fileEnvoi.ts`, `useMessageTemplates` | identifiant déterministe ; jamais une variable `{nom}` laissée ; désinscription ; même modèle au même destinataire au plus une fois en 7 jours ; plage clients lun.–ven. 09:00–18:00, fiche MC07 (sinon différé) ; 30 par heure au plus ; canal : un clic par la messagerie du poste (`mailto:`), sans clic par amn-api une fois la boîte branchée, API seulement si connectée |
+| Relances | `lib/relances.ts` (paliers 7 / 21 / 45 j) | ni payée, ni en litige, ni pas échue ; fiche MC07 (§1.31) : 5 jours entre deux relances d'une facture (réglable de 3 à 14), 3 relances au plus par facture puis suivi à la main (`relancesAuPlafond`), une relance au plus par client sur 7 jours glissants, ses factures dues regroupées dans la même relance ; mise en demeure et dernier avis attendent toujours une personne ; textes : les clés `relances.message*` existantes (vouvoiement, vérifié) |
 | Rappels | `useAppointments` | client la veille (avancé au dernier moment calme d'avant si la veille tombe hors plage), équipe une heure avant ; rien pour un rendez-vous passé ou annulé |
 | Tri | — | mots repérés sans accents ni casse, mot entier, pluriel simple ; règles par priorité ; contact connu → Clients ; sinon À lire |
 | Rapports | `useReports` | semaine close (lun.–dim.) ou mois clos, en heure de Paris, une fois par période |
@@ -176,7 +176,7 @@ Même liste dans `amnApi.ts`. Rien de ceci n'est contourné dans ce dépôt.
 |---|---|---|---|
 | 1 | Notion et Webhooks | Webhooks = brique « événements reçus » d'amn-api, prise « chez nous » ; Notion par « Demander un connecteur » | catégorie `evenements` (hors §4, en 15e position) avec l'option `webhooks` ; `demandes.ts` (`OUTILS_A_DEMANDER`, `demanderUnConnecteur` : lecture seule, une demande par outil et par jour) |
 | 2 | Prise arrêtée | même dessin que libre, « arrêtée le … » | `dessinDePrise`, `texteDEtat` (clé `prise.arretee-le`) |
-| 3 | Valeurs par défaut | adoptées comme valeurs de départ, modifiables | `reglages.ts` : `VALEURS_DE_DEPART`, `avecValeursDeDepart`, `defautsDesReglages` ; chaque moteur prend la valeur réglée en paramètre |
+| 3 | Valeurs par défaut | adoptées comme valeurs de départ, modifiables ; pour les relances, la fiche MC07 l'emporte (§1.31) : 5 j (3 à 14), 09:00–18:00, 3 par facture, 1 par client sur 7 jours glissants | `reglages.ts` : `VALEURS_DE_DEPART`, `avecValeursDeDepart`, `defautsDesReglages` ; chaque moteur prend la valeur réglée en paramètre |
 | 4 | Moteur de H20 | couture `@edition/*`, jumeau `.business` à l'identique, posée par S6 dans LOT-07 | rien à changer ici : `automatisations.ts` est pur, le `.internal` l'importe |
 | 5 | Section LOT-12 au §7 | oui, courte | faite |
 
@@ -184,4 +184,4 @@ Les modèles de sites ajoutés restent sur le poste ; leur partage attend le ser
 
 ## 10. Gardes
 
-`typecheck`, `typecheck:business`, `lint`, `check:donnees`, `check:connecteurs` (100), plus `check:accueils`, `check:socle`, `check:moments` : verts (détail dans `docs/refonte/rapports/S9-connecteurs.md`).
+`typecheck`, `typecheck:business`, `lint`, `check:donnees`, `check:connecteurs` (103), plus `check:accueils`, `check:socle`, `check:moments` : verts (détail dans `docs/refonte/rapports/S9-connecteurs.md`).
