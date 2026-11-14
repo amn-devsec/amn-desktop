@@ -388,7 +388,8 @@ const sources = (plus: Record<string, unknown> = {}) => ({
   priorites: [
     { email: 'aaron@exemple.test', day: J0, items: [{ id: 'p1', label: 'Boucler le dossier', doneAt: null }, { id: 'p2', label: 'Préparer la réunion', doneAt: `${J0}T08:00:00.000Z` }] },
     { email: 'camille@exemple.test', day: J0, items: [{ id: 'p3', label: 'La sienne', doneAt: null }] },
-    { email: 'aaron@exemple.test', day: '2026-10-29', items: [{ id: 'p0', label: 'Hier', doneAt: null }] },
+    // La série est la clôture des priorités du jour (STATUT §1.36 n° 1) : cinq journées bouclées avant aujourd'hui, le week-end (24 et 25) ne casse rien.
+    ...['2026-10-29', '2026-10-28', '2026-10-27', '2026-10-26', '2026-10-23'].map((day, i) => ({ email: 'aaron@exemple.test', day, items: [{ id: `p0${i}`, label: 'Avant', doneAt: `${day}T16:00:00.000Z` }] })),
   ],
   rdv: [
     { id: 'r1', title: 'Point du matin', clientName: '', startAt: aT(9).toISOString(), fin: aT(9, 30), status: 'scheduled' },
@@ -417,7 +418,7 @@ await dit('calculerAujourdhui (pur) : « x sur y faites » sur le fil visible, l
   assert.equal(r.fil.find((l: { cle: string }) => l.cle === 'rdv:r5').fait, true, 'un rendez-vous « done » est fait, même avant sa fin');
   assert.equal(r.fil[0].cle, 'priorite:aaron@exemple.test:p1', 'ma priorité d’abord');
   assert.deepEqual(r.prochainRdv, { titre: 'Rendez-vous', debut: aT(11).toISOString() }, 'le prochain est le premier « scheduled » pas fini : pas celui de 10 h, déjà « done »');
-  assert.equal(r.serie, 5, 'cinq jours cochés avant aujourd’hui : le jour en cours ne rompt pas la série');
+  assert.equal(r.serie, 5, 'cinq journées de priorités bouclées avant aujourd’hui (le week-end ne casse rien) : le jour en cours ne rompt pas la série');
   assert.equal(r.masquees, 0);
   assert.equal(r.compteVide, false);
   assert.match(r.fil.find((l: { cle: string }) => l.cle === 'rdv:r2').titre, /Rendez-vous · Client Exemple/);
@@ -463,7 +464,8 @@ await dit('un seul calcul : construireFil (S2) n’est appelé que dans calculer
   assert.deepEqual(appelants, ['src/refonte/coquille/aujourdhui/calculer.ts']);
   const calc = sansCommentaires(lire('src/refonte/coquille/aujourdhui/calculer.ts'));
   assert.match(calc, /appliquerRetouches\(lignes, s\.retouches, s\.jour, s\.moi\)/, 'les retouches de S2');
-  assert.match(calc, /serie: meilleureSerie\(s\.routines, maintenant\)/, 'la série de S2');
+  assert.match(calc, /serieDeLaJournee\(/, 'la série du lot Ma journée (clôture des priorités, §1.36 n° 1)');
+  assert.doesNotMatch(calc, /meilleureSerie/, 'plus la série des routines');
   assert.doesNotMatch(calc, /import \{[^}]*\buse[A-Z]/, 'calculer.ts est pur : aucun hook');
   const accueil = sansCommentaires(lire('src/refonte/accueil/useAccueil.ts'));
   assert.match(accueil, /\} = useAujourdhui\(\);/);
