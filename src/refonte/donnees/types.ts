@@ -160,6 +160,8 @@ export interface Entreprise {
     plafondConnecteursCents: number;
     /** MR08 : l'objectif de chiffre d'affaires de la boutique pour le trimestre (centimes). */
     objectifBoutiqueTrimestreCents: number;
+    /** G08 : l'objectif du mois en revenu récurrent mensuel (centimes). */
+    objectifMrrCents: number;
     prevenirConnecteursAPourcent: number;
     auPlafondConnecteurs: 'tout s’arrête' | 'on continue et on prévient';
   };
