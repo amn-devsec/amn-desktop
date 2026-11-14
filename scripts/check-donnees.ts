@@ -19,6 +19,7 @@
  */
 
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as esbuild from 'esbuild';
@@ -1171,6 +1172,55 @@ dit('les cas attendus par les écrans existent dès « normal », pour 12 graine
     assert.ok(n.echeancesFiscales.some((e) => e.paiement === 'À payer' && str(e.echeanceLe) < jours(n)), `${nom} : échéance fiscale en retard`);
     assert.ok(n.sites.some((s) => s.etat === 'Dégradé') && n.notifications.some((x) => !x.lue), `${nom} : sites, notifications`);
   }
+});
+
+console.log('  — Le chargeur vers l’API d’essai');
+
+const Chargeur = (await import(path.join(here, 'charger-donnees-essai.mjs'))) as {
+  cibleAutorisee: (t: string) => { ok: boolean; base?: string; raison?: string };
+  compteAutorise: (e: string) => boolean;
+  remplacerChaine: (v: unknown, de: string, vers: string) => unknown;
+  CHARGES: { jeu: string; collection: string }[];
+};
+
+dit('le chargeur n’écrit que sur 127.0.0.1, en http, sans identifiants ni redirection', () => {
+  assert.deepEqual(Chargeur.cibleAutorisee('http://127.0.0.1:4171'), { ok: true, base: 'http://127.0.0.1:4171' });
+  for (const refusee of [
+    'http://localhost:4171', 'http://[::1]:4171', 'http://0.0.0.0:4171', 'http://127.0.0.2:4171', 'http://127.0.0.1.exemple.test:4171',
+    'https://127.0.0.1:4171', 'http://user:mdp@127.0.0.1:4171', 'http://192.168.1.10:4171', 'https://api.exemple.org', 'pas une adresse', '',
+  ]) assert.equal(Chargeur.cibleAutorisee(refusee).ok, false, `cible refusée : ${refusee}`);
+  const source = fs.readFileSync(path.join(here, 'charger-donnees-essai.mjs'), 'utf8');
+  assert.ok(source.includes("redirect: 'error'"), 'une redirection ne doit jamais emmener le chargeur ailleurs');
+  const adresses = [...source.matchAll(/https?:\/\/[^\s'"`)\]]+/g)].map((x) => x[0]);
+  assert.ok(adresses.every((a) => /^http:\/\/127\.0\.0\.1(:|…|\$\{|$)/.test(a)), `adresse inattendue dans le chargeur : ${adresses.join(' ')}`);
+});
+
+dit('le chargeur ne se connecte qu’avec un compte @exemple.test', () => {
+  for (const bon of ['essai.interne@exemple.test', 'fleuriste.essai@exemple.test', 'camille.roux@maison-vallon.exemple.test']) assert.equal(Chargeur.compteAutorise(bon), true, bon);
+  for (const mauvais of ['quelquun@gmail.com', 'a@exemple.test.fr', 'a@exemple.testt', 'a@autre-exemple.test.org', '@exemple.test', 'exemple.test', '']) assert.equal(Chargeur.compteAutorise(mauvais), false, mauvais);
+});
+
+dit('le chargeur remplace « moi » partout, et seulement la chaîne entière', () => {
+  const moi = 'camille.roux@maison-vallon.exemple.test';
+  const sortie = Chargeur.remplacerChaine({ a: moi, b: [moi, 'autre'], c: { d: `${moi}.x`, e: 3, f: null } }, moi, 'essai.interne@exemple.test');
+  assert.deepEqual(sortie, { a: 'essai.interne@exemple.test', b: ['essai.interne@exemple.test', 'autre'], c: { d: `${moi}.x`, e: 3, f: null } });
+});
+
+dit('chaque jeu chargé existe, a un identifiant, et sa collection existe dans amn-api (quand le dépôt voisin est là)', () => {
+  const noms = new Set(D.NOMS_DES_JEUX);
+  assert.equal(new Set(Chargeur.CHARGES.map((c) => c.collection)).size, Chargeur.CHARGES.length, 'une collection par jeu');
+  for (const c of Chargeur.CHARGES) {
+    assert.ok(noms.has(c.jeu), `jeu inconnu : ${c.jeu}`);
+    for (const ligne of normal[c.jeu]) assert.ok(ligne.id !== undefined && ligne.id !== null && String(ligne.id).length > 0 && String(ligne.id).length <= 200, `${c.jeu} : identifiant`);
+    assert.equal(new Set(normal[c.jeu].map((l) => String(l.id))).size, normal[c.jeu].length, `${c.jeu} : identifiants uniques`);
+  }
+  const racines = [process.env.AMN_API_ROOT, '/workspace/amn-api', path.join(here, '..', '..', 'amn-api')].filter(Boolean) as string[];
+  const racine = racines.find((r) => fs.existsSync(path.join(r, 'src', 'routes', 'collections.js')));
+  if (!racine) return console.log('    (amn-api absent : comparaison des collections passée)');
+  const texte = fs.readFileSync(path.join(racine, 'src', 'routes', 'collections.js'), 'utf8');
+  const permises = new Set([...texte.slice(texte.indexOf('export const ALLOWED'), texte.indexOf(']);', texte.indexOf('export const ALLOWED'))).matchAll(/^\s*'([A-Za-z]+)',/gm)].map((x) => x[1]));
+  assert.ok(permises.size > 50, 'la liste ALLOWED d’amn-api a été lue');
+  for (const c of Chargeur.CHARGES) assert.ok(permises.has(c.collection), `amn-api n’ouvre pas la collection « ${c.collection} »`);
 });
 
 console.log(`\n${vus} contrôles, tous au vert.`);
