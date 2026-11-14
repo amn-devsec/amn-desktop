@@ -5,7 +5,7 @@
  * quoi que ce soit, là où `check:contraste` demande un build servi et une
  * session.
  *
- *   1. LES CONTRASTES, lus dans `src/index.css` (jamais recopiés ici — la
+ *   1. LES CONTRASTES, lus dans `src/socle/theme.css` (jamais recopiés ici — la
  *      faute que `check:encres` traque), pour le graphite ET le thème clair :
  *        · les trois encres ≥ 4,5:1 sur chacune des cinq surfaces ;
  *        · chaque famille et chaque état : la base ≥ 3:1 (un trait, WCAG
@@ -21,6 +21,15 @@
  *      `check:calques`, qui exerce la pile que la Modale emploie.
  *   3. LE RÉGLAGE MOUVEMENT : défaut selon le système, choix écrit, retour
  *      au système, traduction vers framer-motion.
+ *   4. LE NOIR ET GRIS ET LA COQUILLE (session DS) : `src/socle/noir.css` dit
+ *      ce que la direction de design a validé (fonds, bordures, encres, rayons,
+ *      gabarits, familles, états) et ses deux écritures s'accordent ; les trois
+ *      encres du texte tiennent 4,5:1 sur chaque fond, et les deux encres
+ *      « discret » ne se posent JAMAIS en `color` ; les nouvelles briques et la
+ *      coquille (barre latérale, en-tête, barre Ajmani) se rendent avec leurs
+ *      rôles ARIA ; aucun personnage ni avatar d'Ajmani ; un seul bouton plein ;
+ *      rien de la coquille n'entre dans le paquet de l'édition cliente ; le
+ *      drapeau est éteint par défaut.
  *
  *   npm run check:socle
  */
@@ -47,9 +56,12 @@ const dit = async (nom: string, fn: () => void | Promise<void>) => {
 
 /* ── 1. Les jetons ────────────────────────────────────────────────────────── */
 
-const feuille = fs.readFileSync(path.join(racine, 'src/index.css'), 'utf8');
+// Le socle de la feuille commune vit dans `src/socle/theme.css`, chargé par la couture `@edition/socle-theme.css` (interne
+// seulement) que `src/index.css` importe ; l'édition cliente n'en voit rien (C-001, `check:client-statique`).
+const feuille = fs.readFileSync(path.join(racine, 'src/socle/theme.css'), 'utf8');
+const feuilleCommune = fs.readFileSync(path.join(racine, 'src/index.css'), 'utf8');
 const debutSocle = feuille.indexOf('LE SOCLE DE LA REFONTE (S0)');
-assert.ok(debutSocle > 0, 'bloc du socle introuvable dans src/index.css');
+assert.ok(debutSocle > 0, 'bloc du socle introuvable dans src/socle/theme.css');
 
 /** Le contenu entre l'accolade qui suit `apres` et l'accolade fermante appariée. */
 function bloc(apres: string, depuis = debutSocle): string {
@@ -373,6 +385,761 @@ await dit('traduction vers framer-motion : never / always / always + skipAnimati
 await dit('l’attribut data-mouvement a ses règles CSS (réduit, aucun)', () => {
   assert.match(feuille, /:root\[data-mouvement='reduit'\] \*/);
   assert.match(feuille, /:root\[data-mouvement='aucun'\] \*[\s\S]*?transition-duration: 0\.01ms !important/);
+});
+
+/* ── 4. Le noir et gris, les nouvelles briques, la coquille ───────────────── */
+
+console.log('\nSocle de la refonte — noir et gris, briques, coquille\n');
+
+const lireSrc = (rel: string) => fs.readFileSync(path.join(racine, rel), 'utf8');
+const noir = lireSrc('src/socle/noir.css');
+const sansCommentaires = (css: string) => css.replace(/\/\*[\s\S]*?\*\//g, '');
+const brut = (nom: string): string => {
+  const m = new RegExp(`${nom.replace(/[-]/g, '\\-')}:\\s*(#[0-9a-fA-F]{6}|[0-9]+px)\\s*;`).exec(noir);
+  assert.ok(m, `${nom} absent de noir.css`);
+  return m[1].toLowerCase();
+};
+const hexOf = (nom: string) => rvb(brut(nom));
+
+await dit('noir.css : les jetons validés par la direction de design, valeur pour valeur', () => {
+  const attendu: Record<string, string> = {
+    '--socle-fond-page': '#0c0c0d', '--socle-fond-lateral': '#101011', '--socle-carte-haut': '#19191c', '--socle-carte-bas': '#111113', '--socle-encart': '#141415', '--socle-champ': '#131314',
+    // Cartes v4 (06-V4 §3 règle 2) : #19191C → #111113, bord #2A2A2E, rayon 16.
+    '--socle-bord-lateral': '#222224', '--socle-bord-carte': '#2a2a2e', '--socle-bord-controle': '#28282b', '--socle-bord-entete': '#1d1d1f', '--socle-bord-ligne': '#19191b',
+    '--socle-texte-1': '#ededed', '--socle-texte-2': '#a0a0a5', '--socle-texte-3': '#8a8a8e', '--socle-trait-discret': '#77777c', '--socle-trait-tres-discret': '#5f5f64',
+    '--socle-primaire': '#ededed', '--socle-primaire-encre': '#0c0c0d',
+    // v4 (06-V4 §2) : info, sarcelle, violet, succès, rose, orange à leur valeur v4 ; Outils prend sa couleur a (décision du CO).
+    '--socle-fam-jour': '#6ea8ff', '--socle-fam-contacts': '#4fe3c1', '--socle-fam-ecrire': '#a58bff', '--socle-fam-argent': '#5ee6a8', '--socle-fam-echanger': '#ff7eb6', '--socle-fam-creer': '#ffa463', '--socle-fam-outils': '#7cc4ff',
+    '--socle-etat-succes': '#5ee6a8', '--socle-etat-attention': '#ffbe5c', '--socle-etat-critique': '#ff6b7a', '--socle-etat-info': '#6ea8ff',
+    '--socle-rayon-carte': '16px', '--socle-rayon-ajmani': '14px', '--socle-rayon-controle': '9px', '--socle-rayon-bouton': '9px', '--socle-rayon-pastille': '99px',
+    '--socle-largeur-lateral': '252px', '--socle-hauteur-entete': '60px', '--socle-hauteur-ajmani': '46px',
+  };
+  for (const [nom, valeur] of Object.entries(attendu)) assert.equal(brut(nom), valeur, nom);
+  // Le halo blanc de la v3 a disparu : le fond v4 est fait des deux halos de la famille, sur l'élément (06 §3 règle 1).
+  assert.doesNotMatch(noir, /--socle-halo:/, 'plus de halo blanc de la v3');
+});
+
+await dit('v4 (06-V4 §1) : deux couleurs par famille pour les onze familles, valeur pour valeur ; Cyber distinct de La Garde ; la coquille et chaque bloc posent leur paire en --fam-a / --fam-b, Système par défaut', () => {
+  // Le tableau de 06-V4-NEON §1 (et `_data/couleurs-familles.json` ; Développement, absent du fichier, d'après le tableau).
+  const PAIRES: Record<string, [string, string]> = {
+    jour: ['#6ea8ff', '#a58bff'], contacts: ['#4fe3c1', '#6ea8ff'], ecrire: ['#a58bff', '#f08bd6'], argent: ['#5ee6a8', '#ffd166'],
+    echanger: ['#ff7eb6', '#a58bff'], creer: ['#ffa463', '#ff6b7a'], outils: ['#7cc4ff', '#a58bff'], garde: ['#5ee6a8', '#6ea8ff'],
+    cyber: ['#ff6b7a', '#a58bff'], developpement: ['#6ea8ff', '#5ee6a8'], systeme: ['#a58bff', '#6ea8ff'],
+  };
+  const familles = lireSrc('src/socle/familles.ts');
+  assert.match(familles, /export const FAMILLES_COULEUR = \[\.\.\.FAMILLES, 'garde', 'cyber', 'developpement', 'systeme'\] as const;/, 'les onze familles de couleur');
+  for (const [f, [a, b]] of Object.entries(PAIRES)) {
+    assert.equal(brut(`--socle-fam-${f}-a`), a, `--socle-fam-${f}-a`);
+    assert.equal(brut(`--socle-fam-${f}-b`), b, `--socle-fam-${f}-b`);
+    assert.ok(noir.includes(`:root[data-ambiance='noir'] :is([data-famille-active='${f}'], [data-famille='${f}']) { --fam-a: var(--socle-fam-${f}-a); --fam-b: var(--socle-fam-${f}-b); }`), `${f} : la coquille et un bloc posent sa paire`);
+  }
+  assert.notDeepEqual(PAIRES.cyber, PAIRES.garde, 'Cyber a ses propres couleurs');
+  // Par défaut (pages sans famille, hors coquille) : la paire de Système, posée sur la racine noire.
+  const racine = /:root\[data-ambiance='noir'\] \{([\s\S]*?)\n\}/.exec(sansCommentaires(noir))?.[1] ?? '';
+  assert.match(racine, /\n\s*--fam-a: var\(--socle-fam-systeme-a\);\s*\n\s*--fam-b: var\(--socle-fam-systeme-b\);/, 'par défaut : la paire de Système');
+  assert.equal([...noir.matchAll(/--socle-fam-[a-z]+-[ab]:\s*#/g)].length, 22, 'onze paires, pas une de plus');
+});
+
+await dit('v4 (06-V4 §3) : les quinze règles de rendu, dans les briques et la coquille, aux valeurs des sources néon ; tout dépend de --fam-a / --fam-b, rien n’est écrit à la main', () => {
+  const lireCss = (f: string) => sansCommentaires(lireSrc(f));
+  const coquille = lireCss('src/socle/coquille/coquille.css');
+  const briques = lireCss('src/socle/ui/briques.css');
+  const controles = lireCss('src/socle/ui/controles/controles.css');
+  const archetypes = lireCss('src/socle/ui/archetypes/archetypes.css');
+  const graphiques = lireCss('src/socle/ui/graphiques/graphiques.css');
+  const vivant = lireCss('src/socle/ui/vivant/vivant.css');
+  const partagees = lireCss('src/socle/ui/briques-partagees/briques-partagees.css');
+  const mouvement = lireCss('src/socle/mouvement.css');
+  const mix = (v: string, p: string) => `color-mix\\(in srgb, var\\(${v}\\) ${p}%, transparent\\)`.replace(/\./g, '\\.');
+  // Les jetons du rendu v4 (sources néon).
+  for (const [nom, valeur] of Object.entries({ '--socle-blanc': '#ffffff', '--socle-encre-accent': '#0b0b0c', '--socle-verre-haut': '#1c1c1f', '--socle-verre-bas': '#151517', '--socle-bord-verre': '#303035', '--socle-ajmani-fond': '#121214', '--socle-suggestion-fond': '#151518' })) assert.equal(brut(nom), valeur, nom);
+  assert.match(noir, /--socle-reflet-carte: rgba\(255, 255, 255, 0\.065\);/);
+  assert.match(noir, /--socle-ombre-carte: 0 22px 46px -30px rgba\(0, 0, 0, 0\.95\);/);
+  // 1. Fond : deux halos de la famille — a à 20 % en haut à droite, b à 15 % en bas à gauche, sur #0c0c0d.
+  // Un seul jeton, redéclaré là où la paire change (racine, data-famille-active, data-famille) : il suit la famille de l'élément.
+  // Et le troisième des sources néon (140 pages sur 143) : b à 6 %, 520 × 340 à 0 % / 45 %.
+  const halos = new RegExp(`:root\\[data-ambiance='noir'\\],\\s*:root\\[data-ambiance='noir'\\] :is\\(\\[data-famille-active\\], \\[data-famille\\]\\) \\{\\s*--socle-halos:\\s*radial-gradient\\(900px 480px at 92% -8%, ${mix('--fam-a', '20')}, transparent 70%\\),\\s*radial-gradient\\(800px 520px at 32% 112%, ${mix('--fam-b', '15')}, transparent 70%\\),\\s*radial-gradient\\(520px 340px at 0% 45%, ${mix('--fam-b', '6')}, transparent 70%\\);\\s*--socle-halos-ecran:\\s*radial-gradient\\(820px 440px at 94% -8%, ${mix('--fam-a', '20')}, transparent 70%\\),\\s*radial-gradient\\(760px 460px at 20% 112%, ${mix('--fam-b', '16')}, transparent 70%\\);\\s*\\}`);
+  assert.match(sansCommentaires(noir), halos, '1 · le jeton des halos, et le voile des pages pleines');
+  // Le voile des pages pleines : par-dessus, en mode écran, sans prendre le clic, sous les calques (z-index 1).
+  assert.match(sansCommentaires(noir), /:root\[data-ambiance='noir'\] \.sc-halos-ecran::after \{\s*position: fixed;\s*z-index: 1;\s*inset: 0;\s*content: '';\s*background: var\(--socle-halos-ecran\);\s*mix-blend-mode: screen;\s*pointer-events: none;\s*\}/);
+  for (const [f, racine] of [['src/refonte/systeme/modules/VueTousLesModules.tsx', 'className="dm-page sc-halos-ecran"'], ['src/refonte/systeme/connexion/VueConnexion.tsx', 'className="cx sc-halos-ecran"'], ['src/refonte/systeme/veille/IdleScreen.tsx', 'className="ve sc-halos-ecran"'], ['src/refonte/systeme/h43-etats/PageEtatsMessages.tsx', 'className="sc-h43 sc-halos-ecran"']]) {
+    assert.ok(lireSrc(f).includes(racine), `${f} : la page pleine porte le voile (sources D02, G06, G09, H43)`);
+  }
+  // La famille active vaut aussi à la racine du document (portails : palettes, dialogues, toasts).
+  for (const f of ['jour', 'contacts', 'ecrire', 'argent', 'echanger', 'creer', 'outils', 'garde', 'cyber', 'developpement', 'systeme']) {
+    assert.match(sansCommentaires(noir), new RegExp(`:root\\[data-ambiance='noir'\\]\\[data-famille-active='${f}'\\], :root\\[data-ambiance='noir'\\] :is\\(\\[data-famille-active='${f}'\\], \\[data-famille='${f}'\\]\\) \\{ --fam-a: var\\(--socle-fam-${f}-a\\); --fam-b: var\\(--socle-fam-${f}-b\\); \\}`), `la paire de ${f} sur la racine aussi`);
+  }
+  assert.match(sansCommentaires(lireSrc('src/socle/coquille/Coquille.tsx')), /React\.useEffect\(\(\) => \{\s*const racine = document\.documentElement;\s*racine\.dataset\.familleActive = famille;\s*return \(\) => \{\s*if \(racine\.dataset\.familleActive === famille\) delete racine\.dataset\.familleActive;\s*\};\s*\}, \[famille\]\);/, 'la coquille pose sa famille sur la racine du document, et l’ôte en partant');
+  assert.match(coquille, /\.sc-coquille \{[^}]*background: var\(--socle-halos\), var\(--socle-fond-page\);/, '1 · le fond de la coquille');
+  assert.equal([...sansCommentaires(lireSrc('src/socle/coquille/coquille.css') + lireSrc('src/socle/ui/situations/situations.css') + lireSrc('src/refonte/systeme/demo/demo.css')).matchAll(/radial-gradient\(900px/g)].length, 0, '1 · la recette ne se recopie pas');
+  // 2. Cartes : dégradé, bord, rayon 16, reflet + ombre, halo 8,5 % de la famille dans un coin qui alterne.
+  assert.match(briques, new RegExp(`:is\\(\\[data-socle='carte'\\], \\.sc-kpi\\) \\{[^}]*radial-gradient\\(440px 160px at var\\(--sc-halo-coin\\), ${mix('--sc-halo-teinte', '8.5')}, transparent 70%\\),\\s*linear-gradient\\(180deg, var\\(--socle-carte-haut\\), var\\(--socle-carte-bas\\)\\);[^}]*border-radius: var\\(--socle-rayon-carte\\);\\s*box-shadow: inset 0 1px 0 var\\(--socle-reflet-carte\\), var\\(--socle-ombre-carte\\);`), '2 · la carte');
+  assert.match(briques, /:nth-child\(3n \+ 2\) \{ --sc-halo-coin: 100% 100%; --sc-halo-teinte: var\(--fam-a\); \}/, '2 · le coin alterne');
+  assert.match(briques, /:nth-child\(3n\) \{ --sc-halo-coin: 100% 0%; --sc-halo-teinte: var\(--fam-a\); \}/);
+  // 3. Titre de page : 30 px, 700, dégradé de texte #FFF → b.
+  assert.match(archetypes, /\.sc-page__titre \{[^}]*background: linear-gradient\(100deg, var\(--socle-blanc\) 30%, var\(--fam-b\)\);[^}]*background-clip: text;[^}]*color: transparent;[^}]*font-size: 30px;[^}]*font-weight: 700;/, '3 · le h1');
+  // 4. Grands chiffres : dégradé vertical #FFF → a (la valeur du Kpi, .sc-grand-nombre).
+  assert.match(briques, /\.sc-kpi__valeur > span:first-child,\s*\.sc-grand-nombre \{[^}]*background: linear-gradient\(180deg, var\(--socle-blanc\) 30%, var\(--fam-a\) 140%\);[^}]*background-clip: text;[^}]*color: transparent;/, '4 · les grands chiffres');
+  // 5. Bouton principal a → b, encre #0B0B0C, ombre a ; secondaire en verre.
+  assert.match(briques, new RegExp(`\\[data-variante='primaire'\\] \\{\\s*background: linear-gradient\\(135deg, var\\(--fam-a\\), var\\(--fam-b\\)\\);\\s*color: var\\(--socle-encre-accent\\);\\s*box-shadow: 0 10px 24px -10px ${mix('--fam-a', '85')}, inset 0 1px 0 var\\(--socle-reflet-principal\\);`), '5 · le bouton principal');
+  assert.match(briques, /\[data-variante='secondaire'\] \{[^}]*border-color: var\(--socle-bord-verre\);\s*background: linear-gradient\(180deg, var\(--socle-verre-haut\), var\(--socle-verre-bas\)\);\s*box-shadow: inset 0 1px 0 var\(--socle-reflet-verre\);/, '5 · le bouton secondaire');
+  // 6. Pastilles d'état : fond 14 %, bord 38 %, texte de la couleur, 600 ; le point a sa lueur.
+  assert.match(briques, new RegExp(`\\.sc-etat \\{[^}]*border: 1px solid ${mix('--etat', '38')};[^}]*background: ${mix('--etat', '14')};\\s*color: var\\(--etat\\);[^}]*font-weight: 600;`), '6 · la pastille');
+  assert.match(briques, /\.sc-etat::before \{[^}]*box-shadow: 0 0 8px var\(--etat\);/);
+  // 7. Points, anneaux, courbes, arcs : la lueur de leur couleur ; aire sous courbe à 0,42.
+  assert.match(briques, /\.sc-point \{[^}]*box-shadow: 0 0 6px var\(--fam, var\(--fam-a\)\);/, '7 · le point');
+  assert.match(vivant, /\.sc-voyant__point \{[^}]*, 0 0 6px var\(--sc-v-c, var\(--socle-etat-succes\)\);/, '7 · le voyant');
+  assert.match(briques, /\.sc-anneau \.sc-anneau__trait\[style\*='--sc-anneau-c'\] \{ filter: drop-shadow\(0 0 6px color-mix\(in srgb, var\(--sc-anneau-c\) 67%, transparent\)\); \}/, '7 · l’anneau');
+  assert.match(graphiques, /\.sc-g__ligne \{[^}]*filter: drop-shadow\(0 0 6px color-mix\(in srgb, var\(--sc-g-c\) 67%, transparent\)\);/, '7 · la courbe');
+  assert.match(graphiques, /\.sc-g__segment \{[^}]*filter: drop-shadow\(/, '7 · l’arc de donut');
+  assert.match(lireSrc('src/socle/ui/graphiques/Courbe.tsx'), /<stop className="sc-g__degrade" offset="0" stopOpacity="0\.42" \/>/, '7 · l’aire à 0,42');
+  // 8. Histogrammes : neutres en dégradé 50 % → 10 %, mise en valeur pleine → 30 % et sa lueur.
+  const barres = lireSrc('src/socle/ui/graphiques/Barres.tsx');
+  assert.match(barres, /<stop className="sc-g__degrade-famille" offset="0" stopOpacity="0\.5" \/>\s*<stop className="sc-g__degrade-famille" offset="1" stopOpacity="0\.1" \/>/, '8 · neutres 50 → 10 % de la couleur a de la famille');
+  assert.match(graphiques, /\.sc-g__degrade-famille \{ stop-color: var\(--fam-a\); \}/, '8 · les neutres prennent a');
+  assert.match(barres, /offset="0" stopOpacity="1" \/>\s*<stop className="sc-g__degrade" offset="1" stopOpacity="0\.3" \/>/, '8 · mise en valeur → 30 %');
+  assert.match(graphiques, /\.sc-g__colonne \{[^}]*fill: var\(--sc-g-neutre, var\(--socle-colonne-graphique\)\);/);
+  assert.match(graphiques, /\.sc-g__colonne\[data-mise='oui'\] \{ fill: var\(--sc-g-mise, var\(--sc-g-c\)\); filter: drop-shadow\(0 0 7px var\(--sc-g-c\)\); \}/);
+  // 9. Barres de progression : dégradé a → b et sa lueur.
+  assert.match(briques, new RegExp(`\\.sc-barre > span \\{[^}]*background: linear-gradient\\(90deg, var\\(--fam-a\\), var\\(--fam-b\\)\\);\\s*box-shadow: 0 0 10px ${mix('--fam-a', '55')};`), '9 · la progression');
+  // 10. Barre latérale : famille active a 24 % → b 8 % + liseré a 38 % ; module actif a 20 % → transparent ; repère 3 × 14 a → b avec lueur.
+  assert.match(coquille, new RegExp(`\\.sc-coquille \\.sc-famille\\[data-active='true'\\] \\{\\s*background: linear-gradient\\(90deg, ${mix('--fam-a', '24')}, ${mix('--fam-b', '8')}\\);\\s*box-shadow: inset 0 0 0 1px ${mix('--fam-a', '38')};\\s*color: var\\(--socle-blanc\\);`), '10 · la famille active');
+  assert.match(coquille, new RegExp(`\\.sc-coquille \\.sc-module\\[aria-current='page'\\] \\{\\s*background: linear-gradient\\(90deg, ${mix('--fam-a', '20')}, transparent\\);\\s*color: var\\(--socle-blanc\\);\\s*font-weight: 600;`), '10 · le module actif');
+  assert.match(coquille, /\.sc-module\[aria-current='page'\]::before \{[^}]*width: 3px;\s*height: 14px;[^}]*background: linear-gradient\(180deg, var\(--fam-a\), var\(--fam-b\)\);\s*box-shadow: 0 0 10px var\(--fam-a\);/, '10 · le repère');
+  // 11. Onglets : soulignement a ; segments : a 30 % → b 16 % avec liseré.
+  assert.match(controles, /\.sc-onglet\[aria-selected='true'\]::after \{[^}]*background: var\(--fam-a\); \}/, '11 · l’onglet');
+  assert.match(controles, new RegExp(`\\.sc-segment\\[aria-checked='true'\\] \\{\\s*background: linear-gradient\\(135deg, ${mix('--fam-a', '30')}, ${mix('--fam-b', '16')}\\);\\s*box-shadow: inset 0 0 0 1px ${mix('--fam-a', '45')};\\s*color: var\\(--socle-blanc\\);`), '11 · le segment');
+  // 12. Barre et suggestion d'Ajmani : bord en dégradé a → b (padding-box / border-box).
+  assert.match(coquille, /\.sc-ajmani \{[^}]*border: 1px solid transparent;[^}]*--sc-ajmani-fond: var\(--socle-ajmani-fond\);\s*background:\s*linear-gradient\(var\(--sc-ajmani-fond\), var\(--sc-ajmani-fond\)\) padding-box,\s*linear-gradient\(90deg, color-mix\(in srgb, var\(--fam-a\) 65%, transparent\), color-mix\(in srgb, var\(--fam-b\) 30%, transparent\) 45%, var\(--socle-ajmani-fin-bord\)\) border-box;/, '12 · la barre Ajmani');
+  assert.match(controles, /\.sc-suggestion \{[^}]*border: 1px solid transparent;[^}]*background:\s*linear-gradient\(var\(--socle-suggestion-fond\), var\(--socle-suggestion-fond\)\) padding-box,\s*linear-gradient\(135deg, var\(--fam-a\), var\(--fam-b\)\) border-box;\s*box-shadow: 0 18px 40px -26px var\(--fam-a\);/, '12 · la suggestion');
+  // 13. Avatars : les six dégradés pastel des sources, initiales à l'encre sombre.
+  const avatars: Record<string, [string, string]> = { a: ['#ff6b7a', '#a58bff'], m: ['#6ea8ff', '#4fe3c1'], r: ['#5ee6a8', '#3bb8c9'], c: ['#7cc4ff', '#6e7bff'], t: ['#c08bff', '#ff7eb6'], l: ['#ffa463', '#ff6b7a'] };
+  for (const [k, [a, b]] of Object.entries(avatars)) assert.match(noir, new RegExp(`--socle-avatar-${k}: linear-gradient\\(135deg, ${a}, ${b}\\);`), `13 · avatar ${k}`);
+  assert.match(briques, /\.sc-avatar \{[^}]*color: var\(--socle-encre-accent\);/);
+  // 14. Tuiles d'icône : teintées par leur couleur, fond 26 % → 6 %, bord 42 %.
+  assert.match(partagees, new RegExp(`\\.sc-icon-tile \\{[^}]*--sc-tuile-teinte: var\\(--fam, var\\(--fam-a\\)\\);[^}]*border: 1px solid ${mix('--sc-tuile-teinte', '42')};[^}]*background: linear-gradient\\(135deg, ${mix('--sc-tuile-teinte', '26')}, ${mix('--sc-tuile-teinte', '6')}\\);`), '14 · la tuile d’icône');
+  // 15. Mouvement inchangé ; le système (moins d'animations) et Mouvement « aucun » coupent aussi les lueurs animées.
+  assert.match(mouvement, /@media \(prefers-reduced-motion: reduce\) \{[\s\S]*\[data-mvt='onde'\]::after[^{]*\{ animation: none; \}[\s\S]*:is\(\.sc-ajmani, \.sc-interrupteur, \.sc-interrupteur > span, \.sc-famille, \.sc-module\) \{ transition: none; \}/, '15 · le système coupe l’onde et les lueurs en fondu');
+  assert.match(mouvement, /\[data-mouvement='aucun'\] :is\(\.sc-ajmani, \.sc-interrupteur, \.sc-interrupteur > span, \.sc-famille, \.sc-module\) \{ transition: none; \}/, '15 · Mouvement « aucun » aussi');
+  // Plus de gris par défaut : sans famille, c'est la paire de la famille active.
+  for (const [nom, css] of Object.entries({ briques, partagees, archetypes })) assert.doesNotMatch(css, /var\(--fam, var\(--socle-fam-outils\)\)/, `${nom} : le gris d’Outils n’est plus la teinte par défaut`);
+});
+
+await dit('v4 (06-V4 §2) : les huit couleurs d’état v3 ne restent nulle part dans le socle (jetons, feuilles, briques, coquille, écrans de LOT-00), ni en hexadécimal ni en rgb()', () => {
+  const V3 = ['8fbf7a', '8aa4d6', 'e0b35a', 'e08a80', '6fb7a8', 'a79bdb', 'd98fa8', 'd9a27a'];
+  const TRIPLETS = ['143, 191, 122', '138, 164, 214', '224, 179, 90', '224, 138, 128', '111, 183, 168', '167, 155, 219', '217, 143, 168', '217, 162, 122'];
+  const hex = new RegExp(`#(?:${V3.join('|')})\\b`, 'i');
+  const rgb = new RegExp(`rgba?\\(\\s*(?:${TRIPLETS.map((t) => t.replace(/, /g, ',\\s*')).join('|')})`, 'i');
+  const fichiers = [...fichiersSous('src/socle'), ...fichiersSous('src/refonte/systeme'), ...fichiersSous('src/refonte/coquille'), ...fichiersSous('src/refonte/compteurs')]
+    .filter((f) => /\.(css|tsx?)$/.test(f));
+  assert.ok(fichiers.length > 50, `${fichiers.length} fichiers relus`);
+  for (const f of fichiers) {
+    const src = lireSrc(f);
+    // La seule mention permise : la teinte de sélection de la fiche MR02, citée en v3 à côté de sa valeur v4.
+    const lu = f === 'src/socle/noir.css' ? src.replace(/MR02 : `#D9A27A` en v3/, '') : src;
+    assert.doesNotMatch(lu, hex, `${f} : une couleur d’état v3 (${lu.match(hex)?.[0]})`);
+    assert.doesNotMatch(lu, rgb, `${f} : une couleur d’état v3 en rgb (${lu.match(rgb)?.[0]})`);
+  }
+});
+
+await dit('noir.css : les noms du socle S0 disent la même chose que les jetons bruts', () => {
+  const paires: [string, string][] = [
+    ['--color-socle-fond', '--socle-fond-page'], ['--color-bg', '--socle-fond-page'], ['--color-socle-surface', '--socle-carte-bas'], ['--color-socle-eleve', '--socle-carte-haut'], ['--color-socle-bord', '--socle-bord-carte'],
+    ['--color-socle-texte', '--socle-texte-1'], ['--color-socle-texte-doux', '--socle-texte-3'], ['--color-socle-texte-discret', '--socle-texte-3'],
+    ['--color-socle-primaire', '--socle-primaire'], ['--color-socle-primaire-encre', '--socle-primaire-encre'],
+    ['--color-etat-succes', '--socle-etat-succes'], ['--color-etat-attention', '--socle-etat-attention'], ['--color-etat-danger', '--socle-etat-critique'], ['--color-etat-info', '--socle-etat-info'],
+    ...['jour', 'contacts', 'ecrire', 'argent', 'echanger', 'creer', 'outils'].flatMap((f): [string, string][] => [[`--color-fam-${f}`, `--socle-fam-${f}`], [`--color-fam-${f}-texte`, `--socle-fam-${f}`]]),
+  ];
+  for (const [socle, brutNom] of paires) assert.equal(brut(socle), brut(brutNom), `${socle} ≠ ${brutNom}`);
+});
+
+/* ── § 1.2 de docs/refonte/STATUT.md : les écarts DS → socle, une assertion par ligne ────
+   Le CO a comparé `noir.css` à 01-SOCLE-DESIGN et listé ce que LOT-00 doit corriger. Chaque
+   ligne du § 1.2 est tenue ici : le jeton existe avec la valeur du socle, ET une feuille du
+   socle le lit (un jeton déclaré que rien ne pose n'est pas une correction). */
+
+console.log('\nSocle de la refonte — § 1.2 (écarts DS → socle)\n');
+
+const FEUILLES_SOCLE = {
+  briques: sansCommentaires(lireSrc('src/socle/ui/briques.css')),
+  controles: sansCommentaires(lireSrc('src/socle/ui/controles/controles.css')),
+  coquille: sansCommentaires(lireSrc('src/socle/coquille/coquille.css')),
+  archetypes: sansCommentaires(lireSrc('src/socle/ui/archetypes/archetypes.css')),
+  situations: sansCommentaires(lireSrc('src/socle/ui/situations/situations.css')),
+  graphiques: sansCommentaires(lireSrc('src/socle/ui/graphiques/graphiques.css')),
+};
+const TOUTES_LES_FEUILLES = Object.values(FEUILLES_SOCLE).join('\n');
+const lu = (jeton: string) => assert.ok(TOUTES_LES_FEUILLES.includes(`var(${jeton})`), `${jeton} est déclaré mais aucune feuille du socle ne le lit`);
+
+await dit('§1.2 conformes : fond, latéral, carte, champ, cinq bordures, T1, plancher T4, sept familles, états, gabarits 252 et 60', () => {
+  const conformes: Record<string, string> = {
+    '--socle-fond-page': '#0c0c0d', '--socle-fond-lateral': '#101011', '--socle-carte-haut': '#19191c', '--socle-carte-bas': '#111113', '--socle-champ': '#131314',
+    '--socle-bord-carte': '#2a2a2e', '--socle-bord-entete': '#1d1d1f', '--socle-bord-ligne': '#19191b', '--socle-bord-lateral': '#222224', '--socle-bord-controle': '#28282b',
+    '--socle-texte-1': '#ededed', '--socle-texte-3': '#8a8a8e',
+    '--socle-etat-succes': '#5ee6a8', '--socle-etat-critique': '#ff6b7a', '--socle-etat-info': '#6ea8ff',
+    '--socle-largeur-lateral': '252px', '--socle-hauteur-entete': '60px',
+  };
+  for (const [nom, valeur] of Object.entries(conformes)) assert.equal(brut(nom), valeur, nom);
+  assert.equal(['jour', 'contacts', 'ecrire', 'argent', 'echanger', 'creer', 'outils'].filter((f) => /^#[0-9a-f]{6}$/.test(brut(`--socle-fam-${f}`))).length, 7, 'sept familles');
+});
+
+await dit('§1.2 ATTENTION vaut #ffbe5c (v4, 06-V4 §2 ; #e0b35a en v3), et plus la couleur de la famille Créer', () => {
+  assert.equal(brut('--socle-etat-attention'), '#ffbe5c');
+  assert.equal(brut('--color-etat-attention'), '#ffbe5c');
+  assert.notEqual(brut('--socle-etat-attention'), brut('--socle-fam-creer'), 'ATTENTION ne doit pas être #ffa463 (Créer)');
+  lu('--socle-etat-attention');
+});
+
+await dit('§1.2 le texte courant T2 #c4c4c8 existe (--socle-texte-courant) et sert d’encre ; #a0a0a5 reste le T3', () => {
+  assert.equal(brut('--socle-texte-courant'), '#c4c4c8');
+  assert.equal(brut('--socle-texte-2'), '#a0a0a5');
+  assert.match(TOUTES_LES_FEUILLES, /(?:^|[;{\s])color:\s*var\(--socle-texte-courant\)/, 'T2 est posé en `color` par une feuille du socle');
+  assert.match(FEUILLES_SOCLE.coquille, /\.sc-famille \{[^}]*color: var\(--socle-texte-courant\)/, 'le libellé de famille est en T2 (§0.1)');
+});
+
+await dit('§1.2 bordure de champ #5a5a60 (--socle-bord-champ), posée sur le champ et la liste', () => {
+  assert.equal(brut('--socle-bord-champ'), '#5a5a60');
+  assert.notEqual(brut('--socle-bord-champ'), '#6e6e73', 'plus la bordure forte de DS');
+  assert.match(FEUILLES_SOCLE.controles, /\.sc-champ__controle,\s*\.sc-selecteur \{[^}]*border: 1px solid var\(--socle-bord-champ\)/);
+});
+
+await dit('§1.2 la 8e famille « La Garde et la supervision » (v4 : son vert #5ee6a8, --socle-fam-garde), sur l’icône bouclier de la famille active, jamais en pastille ; Cyber, son rouge', () => {
+  assert.equal(brut('--socle-fam-garde'), '#5ee6a8', 'v4 : les sources dessinent l’icône active de La Garde en #5EE6A8');
+  assert.equal(brut('--socle-fam-outils'), '#7cc4ff', 'Outils : sa couleur a v4 (décision du CO), plus le gris v3 #9a9aa0');
+  assert.doesNotMatch(TOUTES_LES_FEUILLES, /#9a9aa0/i, 'plus le gris v3 d’Outils nulle part dans les feuilles du socle');
+  assert.match(FEUILLES_SOCLE.coquille, /\[data-famille='garde'\] > \.sc-famille\[data-active='true'\] \.sc-famille__icone \{ color: var\(--socle-fam-garde\); \}/);
+  assert.match(FEUILLES_SOCLE.coquille, /\[data-famille='cyber'\] > \.sc-famille\[data-active='true'\] \.sc-famille__icone \{ color: var\(--socle-fam-cyber-a\); \}/, 'Cyber : sa propre couleur, plus celle de La Garde');
+  for (const [, declarations] of TOUTES_LES_FEUILLES.matchAll(/\{([^}]*--socle-fam-garde[^}]*)\}/g)) {
+    assert.doesNotMatch(declarations, /background[^;]*--socle-fam-garde/, 'la teinte de La Garde ne fait jamais un fond (pastille)');
+  }
+});
+
+await dit('§1.2 rayons : bouton 9, champ 10, sous-carte 11, tag 6, ticket 12 (et colonne de kanban 14), chacun lu par sa brique', () => {
+  assert.equal(brut('--socle-rayon-bouton'), '9px');
+  assert.equal(brut('--socle-rayon-controle'), '9px', 'le rayon des contrôles est celui du bouton');
+  assert.equal(brut('--socle-rayon-champ'), '10px');
+  assert.equal(brut('--socle-rayon-sous-carte'), '11px');
+  assert.equal(brut('--socle-rayon-tag'), '6px');
+  assert.equal(brut('--socle-rayon-ticket'), '12px');
+  assert.equal(brut('--socle-rayon-kanban'), '14px');
+  assert.match(FEUILLES_SOCLE.briques, /\[data-socle='bouton'\] \{[^}]*border-radius: var\(--socle-rayon-controle\)/, 'le bouton porte le rayon 9');
+  assert.match(FEUILLES_SOCLE.controles, /\.sc-selecteur \{[^}]*border-radius: var\(--socle-rayon-champ\)/, 'le champ porte le rayon 10');
+  assert.match(FEUILLES_SOCLE.controles, /\.sc-bouton-icone \{[^}]*border-radius: var\(--socle-rayon-controle\)/, 'le bouton-icône porte le rayon 9');
+  for (const j of ['--socle-rayon-bouton', '--socle-rayon-sous-carte', '--socle-rayon-tag', '--socle-rayon-ticket', '--socle-rayon-kanban']) lu(j);
+});
+
+await dit('§1.2 bordures #212123 (sous-carte), #2e2e31 (bouton secondaire) et le pointillé #2e2e33 (zone vide, dépôt)', () => {
+  assert.equal(brut('--socle-bord-sous-carte'), '#212123');
+  assert.equal(brut('--socle-bord-bouton'), '#2e2e31');
+  assert.equal(brut('--socle-pointille'), '#2e2e33');
+  lu('--socle-bord-sous-carte');
+  // Le bouton secondaire v4 est en verre (06 §3 règle 5) : bord #303035 ; #2e2e31 reste le bord des autres contrôles.
+  assert.match(FEUILLES_SOCLE.briques, /\[data-variante='secondaire'\] \{[^}]*border-color: var\(--socle-bord-verre\)/);
+  lu('--socle-bord-bouton');
+  assert.match(TOUTES_LES_FEUILLES, /border: 1px dashed var\(--socle-pointille\)/, 'le pointillé est posé en `dashed`');
+});
+
+await dit('§1.2 barre Ajmani : 46 px (--socle-hauteur-ajmani), la hauteur de .sc-ajmani', () => {
+  assert.equal(brut('--socle-hauteur-ajmani'), '46px');
+  assert.match(FEUILLES_SOCLE.coquille, /\.sc-ajmani \{[^}]*height: var\(--socle-hauteur-ajmani\)/);
+});
+
+const COMPOSANTS_1_2 = ['Interrupteur', 'Onglets', 'Segmente', 'Tableau', 'Ticket', 'ColonneKanban', 'Kanban', 'Donut', 'Courbe', 'Barres', 'MiniCourbe', 'LigneTemps', 'CarteCases', 'CarteAnneau', 'CarteSerie', 'CarteJalon', 'SuggestionAjmani'];
+const U = await charger<Record<string, unknown>>({ code: `export { ${COMPOSANTS_1_2.join(', ')} } from '../src/socle/ui';` });
+await dit('§1.2 composants du §4 cités comme manquants — Toggle, Tabs, Segmented, Table, Ticket, colonne de kanban, Donut, graphiques, TimelineItem, cartes ludiques, Suggestion — exportés par src/socle/ui, aux valeurs du §4', () => {
+  for (const nom of COMPOSANTS_1_2) assert.equal(typeof U[nom], 'function', `${nom} n’est pas exporté par src/socle/ui`);
+  assert.match(FEUILLES_SOCLE.controles, /\.sc-interrupteur \{[^}]*width: 34px;[^}]*height: 20px;[^}]*background: var\(--socle-toggle-inactif\)/, 'Toggle 34 × 20');
+  assert.match(FEUILLES_SOCLE.controles, /\.sc-interrupteur\[aria-checked='true'\] \{ background: linear-gradient\(135deg, var\(--fam-a\), var\(--fam-b\)\); box-shadow: 0 0 12px -3px var\(--fam-a\); \}/, 'Toggle actif v4 : dégradé a → b et sa lueur');
+  assert.match(FEUILLES_SOCLE.controles, /\.sc-onglet\[aria-selected='true'\]::after \{[^}]*height: 2px;[^}]*background: var\(--fam-a\)/, 'Tabs v4 : filet 2 px de la couleur a');
+  assert.match(FEUILLES_SOCLE.controles, /\.sc-segmente \{[^}]*padding: 3px;[^}]*border: 1px solid var\(--socle-bord-controle\);[^}]*border-radius: var\(--socle-rayon-champ\);[^}]*background: var\(--socle-segment-fond\)/, 'Segmented : #141415, #28282b, rayon 10, 3 px');
+  assert.match(FEUILLES_SOCLE.archetypes, /border-radius: var\(--socle-rayon-ticket\);[^}]*background: var\(--socle-ticket\)/, 'Ticket : rayon 12, fond #171718');
+  assert.match(FEUILLES_SOCLE.archetypes, /border: 1px solid var\(--socle-bord-kanban\);\s*border-radius: var\(--socle-rayon-kanban\)/, 'colonne de kanban : #1e1e20, rayon 14');
+  assert.match(lireSrc('src/socle/ui/graphiques/Donut.tsx'), /epaisseur = 14/, 'Donut : épaisseur 14');
+});
+
+const FONDS_TEXTE = ['--socle-fond-page', '--socle-fond-lateral', '--socle-carte-haut', '--socle-carte-bas', '--socle-encart', '--socle-champ'];
+await dit('les trois encres du texte tiennent 4,5:1 sur chaque fond (le plancher : #8a8a8e)', () => {
+  for (const encre of ['--socle-texte-1', '--socle-texte-2', '--socle-texte-3']) {
+    for (const fond of [...FONDS_TEXTE, '--color-socle-survol']) {
+      const r = rapport(hexOf(encre), hexOf(fond));
+      assert.ok(r >= 4.5, `${encre} sur ${fond} : ${r.toFixed(2)}:1`);
+    }
+  }
+});
+
+await dit('familles et états : lisibles en texte (4,5:1) et en trait sur les fonds de carte', () => {
+  const noms = ['--socle-fam-jour', '--socle-fam-contacts', '--socle-fam-ecrire', '--socle-fam-argent', '--socle-fam-echanger', '--socle-fam-creer', '--socle-fam-outils', '--socle-etat-succes', '--socle-etat-attention', '--socle-etat-critique', '--socle-etat-info'];
+  for (const n of noms) for (const f of FONDS_TEXTE) assert.ok(rapport(hexOf(n), hexOf(f)) >= 4.5, `${n} sur ${f} : ${rapport(hexOf(n), hexOf(f)).toFixed(2)}:1`);
+});
+
+await dit('le bouton plein (#ededed sur #0c0c0d) et le focus tiennent leurs contrastes', () => {
+  assert.ok(rapport(hexOf('--socle-primaire-encre'), hexOf('--socle-primaire')) >= 7);
+  for (const f of FONDS_TEXTE) assert.ok(rapport(hexOf('--socle-texte-1'), hexOf(f)) >= 3, `focus sur ${f}`);
+  assert.match(sansCommentaires(lireSrc('src/socle/ui/briques.css')), /\.sc-focus:focus-visible[\s\S]*?outline:\s*2px solid var\(--color-socle-focus\)/);
+});
+
+/** Un `color:` (la propriété exacte, pas `border-color` ni `text-decoration-color`) et sa valeur. */
+function couleursDeTexte(css: string): string[] {
+  return [...sansCommentaires(css).matchAll(/(?:^|[;{\s])color\s*:\s*([^;}]+)/g)].map((m) => m[1].trim());
+}
+/* Les encres « discret » : jamais une couleur de texte (les feuilles du socle ; les écrans posent `color` sur un point ou un filet décoratif, par leur propre garde). */
+const INTERDITS_EN_TEXTE = /trait-discret|trait-tres-discret|#77777c|#5f5f64|#777777|#5f5f5f/i;
+/* Les gris de décor (B15) et les motifs (hachures, pointillés d'état) : jamais une couleur de texte, nulle part dans l'édition interne. */
+const DECOR_EN_TEXTE = /socle-decor-|socle-hachure-|socle-pointille-(ok|attention)|#121213|#17171a|#3e3e44/i;
+/* Les gris de décor seuls : « illustration seulement », donc jamais non plus la teinte d'un état ni le trait d'un texte SVG. */
+const GRIS_DECOR = /socle-decor-|#121213|#17171a|#3e3e44/i;
+/* Un sélecteur qui désigne un état (pastille, tag, drapeau, niveau, voyant, variation, ton) ou une variable de teinte. */
+const SELECTEUR_ETAT = /\.sc-etat|\[data-etat|\[data-ton|\[data-niveau|\.sc-severite|\.sc-voyant|\.sc-tag\b|\.sc-urgent|\.sc-kpi__variation|--etat|--fam/;
+const PROP_TEINTE = /^(--fam|--etat(-[\w-]+)?|--sc-ton|--sc-tuile-teinte)$/;
+
+/** Chaque déclaration `prop: valeur` d'une feuille, avec le sélecteur ENTIER de sa règle, liste comprise, sur une ligne
+ *  (les blocs imbriqués d'un @media sont lus comme les autres) : un état écrit sur la première ligne d'une liste compte. */
+function declarationsCss(css: string): { selecteur: string; prop: string; valeur: string }[] {
+  const out: { selecteur: string; prop: string; valeur: string }[] = [];
+  for (const m of sansCommentaires(css).matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    const selecteur = m[1].trim().replace(/\s+/g, ' ');
+    for (const d of m[2].split(';')) {
+      const i = d.indexOf(':');
+      if (i > 0) out.push({ selecteur, prop: d.slice(0, i).trim(), valeur: d.slice(i + 1).trim() });
+    }
+  }
+  return out;
+}
+
+await dit('« discret », « très discret », les gris de décor et les hachures ne sont jamais la couleur d’un texte (feuilles et classes) ; un gris de décor ne teinte ni un état (fond, bordure, --fam, --etat) ni un texte SVG (fill, stroke)', () => {
+  const socle = fichiersSous('src/socle').filter((f) => f.endsWith('.css'));
+  const css = [...new Set([...socle, 'src/socle/noir.css', 'src/socle/ui/briques.css', 'src/socle/coquille/coquille.css'])];
+  for (const f of css) for (const c of couleursDeTexte(lireSrc(f))) assert.ok(!INTERDITS_EN_TEXTE.test(c), `${f} : color: ${c}`);
+  const toutes = [...socle, ...fichiersSous('src/refonte').filter((f) => f.endsWith('.css'))];
+  for (const f of toutes) for (const c of couleursDeTexte(lireSrc(f))) assert.ok(!DECOR_EN_TEXTE.test(c), `${f} : color: ${c} (gris de décor ou motif)`);
+  // L'autre moitié de « illustration seulement » : ni la teinte d'un état (fond ou bordure sous un sélecteur d'état, variable --fam / --etat / --sc-ton), ni le trait d'un texte SVG.
+  for (const f of toutes) {
+    for (const d of declarationsCss(lireSrc(f))) {
+      if (!GRIS_DECOR.test(d.valeur)) continue;
+      const teinte = PROP_TEINTE.test(d.prop);
+      const texteSvg = /^(fill|stroke)$/.test(d.prop) && /(^|[\s>+~,(])(text|tspan)(\b|[.:[#])/.test(d.selecteur);
+      const etat = /^(background|background-color|background-image|border|border-color|border-top|border-right|border-bottom|border-left|outline|outline-color|box-shadow|fill|stroke)$/.test(d.prop) && SELECTEUR_ETAT.test(d.selecteur);
+      assert.ok(!(teinte || texteSvg || etat), `${f} : ${d.selecteur} { ${d.prop}: ${d.valeur} } (un gris de décor sur un état ou un texte)`);
+    }
+  }
+  const sources = [...fichiersSous('src/socle'), ...fichiersSous('src/refonte')].filter((f) => /\.tsx?$/.test(f));
+  for (const f of sources) {
+    const src = lireSrc(f).replace(/\/\*[\s\S]*?\*\//g, '');
+    assert.ok(!/text-\[var\(--socle-(trait|decor|hachure)|text-\[#(77777c|5f5f64|121213|17171a|3e3e44)\]|color:\s*['"]?(#77777c|#5f5f64|#121213|#17171a|#3e3e44|var\(--socle-(trait|decor|hachure))/i.test(src), `${f} pose une encre « discret » ou un gris de décor en texte`);
+  }
+});
+
+await dit('gris de décor (B15), hachures et pointillés d’état, teinte de sélection : présents, valeurs exactes, jamais un doublon', () => {
+  assert.equal(brut('--socle-decor-1'), '#121213');
+  assert.equal(brut('--socle-decor-2'), '#17171a');
+  assert.equal(brut('--socle-decor-3'), '#3e3e44');
+  // Commentés « jamais pour un texte ni un état », juste avant les trois jetons.
+  assert.match(noir, /JAMAIS pour un texte ni un état[\s\S]{0,200}--socle-decor-1: #121213;/);
+  // Aucun gris de décor ne sert d'encre : il n'est pas plus clair que le plancher T4 sur aucun fond (sinon on le lirait).
+  for (const n of ['--socle-decor-1', '--socle-decor-2', '--socle-decor-3']) assert.ok(rapport(hexOf(n), hexOf('--socle-fond-page')) < 4.5, `${n} serait lisible en texte`);
+  const sans = sansCommentaires(noir);
+  assert.match(sans, /--socle-hachure-attention:\s*repeating-linear-gradient\(135deg, color-mix\(in srgb, var\(--socle-etat-attention\) 45%, transparent\) 0 2px, transparent 2px 8px\);/);
+  assert.match(sans, /--socle-hachure-grise:\s*repeating-linear-gradient\(135deg, color-mix\(in srgb, var\(--socle-texte-3\) 35%, transparent\) 0 2px, transparent 2px 8px\);/);
+  assert.match(sans, /--socle-pointille-ok:\s*1px dashed var\(--socle-etat-succes\);/);
+  assert.match(sans, /--socle-pointille-attention:\s*1px dashed var\(--socle-etat-attention\);/);
+  assert.match(sans, /--socle-pointille:\s*#2e2e33;/, 'le pointillé gris des zones vides reste');
+  // Les hachures sont faites des couleurs d'état ou de T4 : aucune couleur écrite en dur dans un motif.
+  for (const [, nom, valeur] of sans.matchAll(/(--socle-(?:hachure|pointille)-[\w-]+):\s*([^;]+);/g)) assert.ok(!/#[0-9a-f]{3,8}|rgba?\(/i.test(valeur), `${nom} écrit une couleur en dur`);
+  // La teinte de sélection des fiches (MR02 #D9A27A en v3, l'orange #FFA463 en v4) = --socle-fam-creer, documentée là, sans jeton en double.
+  assert.match(noir, /teinte de SÉLECTION[^\n]*#D9A27A[^\n]*#FFA463[^\n]*--socle-fam-creer[^\n]*\n\s*--socle-fam-creer: #ffa463;/);
+  const d9 = [...sans.matchAll(/(--[\w-]+):\s*#ffa463;/gi)].map((m) => m[1]);
+  assert.deepEqual(d9.sort(), ['--color-fam-creer', '--color-fam-creer-texte', '--socle-fam-creer', '--socle-fam-creer-a']);
+  assert.ok(!/--socle-selection/.test(sans), 'pas de jeton de sélection en double');
+});
+
+function fichiersSous(dir: string): string[] {
+  const sortie: string[] = [];
+  for (const e of fs.readdirSync(path.join(racine, dir), { withFileTypes: true })) {
+    const rel = `${dir}/${e.name}`;
+    if (e.isDirectory()) sortie.push(...fichiersSous(rel));
+    else sortie.push(rel);
+  }
+  return sortie;
+}
+
+const entreeCoquille = {
+  code: [
+    "import { createElement as h } from 'react';",
+    "import { renderToStaticMarkup } from 'react-dom/server.browser';",
+    "import { MemoryRouter } from 'react-router-dom';",
+    "import { TuileKpi, TuileAjouter, BarreProgression, AnneauProgression, CaseACocher, LigneTache, EtatVide, Etiquette, PastilleEtat, Avatar, PileAvatars, Squelette, LigneActivite, EtapeFranchie, Chargement, Raccourci } from '../src/socle/ui';",
+    "import { BarreLaterale, EnTete, BarreAjmani } from '../src/socle/coquille';",
+    "import { construireFil } from '../src/refonte/coquille/fil';",
+    'export const rendre = (el) => renderToStaticMarkup(h(MemoryRouter, null, el));',
+    'export { h, TuileKpi, TuileAjouter, BarreProgression, AnneauProgression, CaseACocher, LigneTache, EtatVide, Etiquette, PastilleEtat, Avatar, PileAvatars, Squelette, LigneActivite, EtapeFranchie, Chargement, Raccourci, BarreLaterale, EnTete, BarreAjmani, construireFil };',
+  ].join('\n'),
+};
+const K = await charger<Record<string, any>>(entreeCoquille); // eslint-disable-line @typescript-eslint/no-explicit-any
+const rendreK = K.rendre as (el: unknown) => string;
+const hk = K.h as (type: unknown, props?: Record<string, unknown> | null, ...enfants: unknown[]) => unknown;
+
+await dit('TuileKpi : libellé, valeur, variation et barre annoncée ; cliquable = un vrai bouton', () => {
+  const r = rendreK(hk(K.TuileKpi, { libelle: 'Tâches d’équipe', valeur: 12, variation: '3 en cours', ton: 'succes', barre: 0.4, libelleBarre: 'Faites cette semaine' }));
+  assert.match(r, /class="sc-kpi"/);
+  assert.match(r, /role="progressbar"[^>]*aria-valuenow="40"/);
+  assert.match(r, /data-ton="succes"/);
+  const c = rendreK(hk(K.TuileKpi, { libelle: 'x', valeur: 1, onClick: () => undefined }));
+  assert.match(c, /^<button[^>]*type="button"/);
+  assert.match(rendreK(hk(K.TuileAjouter, { libelle: 'Ajouter une carte', onClick: () => undefined })), /^<button[^>]*data-vide="true"[^>]*>.*Ajouter une carte/);
+});
+
+await dit('barre et anneau : valeur bornée à 0–100, annoncée en pourcentage, redite en mots', () => {
+  const b = rendreK(hk(K.BarreProgression, { valeur: 1.7, libelle: 'Journée', texte: '3 sur 3' }));
+  assert.match(b, /aria-valuenow="100"/);
+  assert.match(b, /aria-valuetext="3 sur 3"/);
+  assert.match(b, /width:100%/);
+  assert.match(rendreK(hk(K.BarreProgression, { valeur: -1, libelle: 'x' })), /aria-valuenow="0"/);
+  const a = rendreK(hk(K.AnneauProgression, { valeur: 0.5, libelle: 'Journée', taille: 40, epaisseur: 4 }, '2/4'));
+  assert.match(a, /role="progressbar"[^>]*aria-valuenow="50"/);
+  assert.match(a, /stroke-dashoffset/);
+  assert.match(a, /aria-hidden="true"/);
+});
+
+await dit('case à cocher et ligne de tâche : role="checkbox", état annoncé, lecture seule dite, 44 px de colonne d’heure', () => {
+  const c = rendreK(hk(K.CaseACocher, { coche: true, libelle: 'Décocher : Appeler' }));
+  assert.match(c, /role="checkbox"/);
+  assert.match(c, /aria-checked="true"/);
+  assert.match(c, /aria-label="Décocher : Appeler"/);
+  assert.match(rendreK(hk(K.CaseACocher, { coche: false, lecture: true, libelle: 'x' })), /aria-disabled="true"/);
+  const l = rendreK(hk(K.LigneTache, { titre: 'Rendez-vous Dupont', heure: '09:30', fait: false, libelleCase: 'Cocher', famille: 'jour', meta: 'Agenda', onOuvrir: () => undefined }));
+  assert.match(l, /^<li[^>]*data-famille="jour"/);
+  assert.match(l, /class="sc-ligne__heure">09:30</);
+  assert.match(l, /<button[^>]*class="sc-ligne__corps sc-focus"/);
+  assert.match(l, /class="sc-point" data-taille="6"/);
+  const fait = rendreK(hk(K.LigneTache, { titre: 'x', fait: true, libelleCase: 'x' }));
+  assert.match(fait, /data-fait="true"/);
+});
+
+await dit('état vide : une invitation (texte + action) ; chargement : annoncé une fois, squelettes muets', () => {
+  const v = rendreK(hk(K.EtatVide, { titre: 'Rien ici', texte: 'Ajoutez votre premier client.', action: hk('button', null, 'Ajouter') }));
+  assert.match(v, /Ajoutez votre premier client\./);
+  assert.match(v, /<button>Ajouter<\/button>/);
+  const c = rendreK(hk(K.Chargement, { libelle: 'Chargement…' }, hk(K.Squelette, { hauteur: 20 })));
+  assert.match(c, /role="status"[^>]*aria-busy="true"/);
+  assert.match(c, /class="sc-squelette"[^>]*aria-hidden="true"|aria-hidden="true"[^>]*class="sc-squelette"/);
+});
+
+await dit('pastilles : l’état se dit en mots, l’avatar ne montre que des initiales, la pile se nomme', () => {
+  assert.match(rendreK(hk(K.PastilleEtat, { etat: 'critique' }, 'Critique')), /data-etat="critique"[^>]*>Critique/);
+  const av = rendreK(hk(K.Avatar, { nom: 'Aaron M.', taille: 24 }));
+  assert.match(av, />AM</);
+  assert.doesNotMatch(av, /<img|<svg/);
+  const pile = rendreK(hk(K.PileAvatars, { noms: ['Aaron', 'Mohamed', 'Riyad', 'Harun'], max: 3, libelle: '4 en ligne' }));
+  assert.match(pile, /role="img"[^>]*aria-label="4 en ligne"/);
+  assert.match(pile, />\+1</);
+  assert.match(rendreK(hk(K.Etiquette, { famille: 'argent' }, 'L’argent')), /data-famille="argent"/);
+});
+
+await dit('activité : la ligne dit qui et quand ; l’étape franchie est une carte, pas une animation', () => {
+  const l = rendreK(hk(K.LigneActivite, { nom: 'Riyad', texte: 'Facture F-12 encaissée', quand: 'il y a 2 h', famille: 'argent' }));
+  assert.match(l, /Riyad · il y a 2 h/);
+  const e = rendreK(hk(K.EtapeFranchie, { libelle: 'Étape franchie', texte: '100 factures envoyées', quand: 'hier', famille: 'argent' }));
+  assert.match(e, /class="sc-etape"/);
+  assert.match(e, /100 factures envoyées/);
+});
+
+const FAMILLES_TEST = (actif: string | null) => [
+  { cle: 'jour', nom: 'Ma journée', famille: 'jour', badge: 4, active: actif === 'jour', modules: [{ cle: 'home', libelle: 'Accueil', vers: '/', badge: 0, courant: actif === 'jour' }, { cle: 'tasks', libelle: 'Tâches', vers: '/tasks', badge: 4, courant: false }] },
+  { cle: 'argent', nom: 'L’argent', famille: 'argent', badge: 2, active: actif === 'argent', modules: [{ cle: 'invoices', libelle: 'Facturation', vers: '/facturation', badge: 2, courant: actif === 'argent' }] },
+];
+const GARDE_TEST = { cle: 'garde', nom: 'La Garde', famille: 'outils', badge: 0, active: false, modules: [{ cle: 'gardeSalle', libelle: 'Salle de contrôle', vers: '/garde', badge: 0, courant: false }] };
+const CYBER_TEST = { cle: 'cyber', nom: 'Cyber', famille: 'outils', badge: 0, active: false, modules: [], vers: '/cyber', compteur: null };
+const DEV_TEST = { cle: 'developpement', nom: 'Développement', famille: 'outils', badge: 0, active: false, modules: [], autres: 0, ensemble: { cle: 'ensemble-developpement', libelle: '', vers: '/ensemble/developpement', badge: 0, courant: false } };
+const EPINGLES_TEST = [
+  { cle: 'invoices', libelle: 'Facturation', vers: '/facturation', badge: 2, courant: false, famille: 'argent' },
+  { cle: 'clients', libelle: 'Clients', vers: '/clients', badge: 0, courant: false, famille: 'contacts' },
+];
+const JOUR_TEST = { faites: 2, total: 4, serie: 0, rendezVous: null, collegues: [{ cle: 'b', nom: 'Mohamed', lieu: 'Facturation' }], presenceMontree: true, vers: '/' };
+const LATERALE = (surcharges: Record<string, unknown> = {}) =>
+  hk(K.BarreLaterale, { produit: 'Mon espace', familles: FAMILLES_TEST('jour'), developpement: DEV_TEST, garde: GARDE_TEST, cyber: CYBER_TEST, epingles: EPINGLES_TEST, nombreModules: 101, routeTousLesModules: '/tous-les-modules', aujourdhui: JOUR_TEST, raccourciRecherche: '⌘K', onRecherche: () => undefined, onReplier: () => undefined, ouvert: false, onFermer: () => undefined, ...surcharges });
+
+await dit('barre latérale : une seule navigation, la famille active déroulée, le module courant marqué', () => {
+  const r = rendreK(LATERALE());
+  assert.equal((r.match(/<aside/g) ?? []).length, 1);
+  assert.match(r, /<aside[^>]*data-rail/);
+  assert.equal((r.match(/<nav/g) ?? []).length, 1);
+  assert.match(r, /Ma journée/);
+  assert.match(r, /aria-expanded="true"[^>]*aria-controls="sc-sous-jour"/);
+  assert.match(r, /aria-expanded="false"[^>]*aria-controls="sc-sous-argent"/);
+  assert.match(r, /<a[^>]*aria-current="page"[^>]*>.*?Accueil/);
+  assert.equal((r.match(/aria-current="page"/g) ?? []).length, 1);
+  assert.doesNotMatch(r, /id="sc-sous-argent"/, 'une famille repliée ne montre pas ses modules');
+});
+
+await dit('barre latérale v3 : SURVEILLANCE (La Garde, Cyber), « Tous les modules (101) » en bouton carré, ÉPINGLÉS, la carte « Aujourd’hui » à la place de « En ligne », ⌘K', () => {
+  const r = rendreK(LATERALE());
+  assert.match(r, /data-section="surveillance" data-guide="supervision"/);
+  assert.match(r, /<span class="sc-famille__nom">La Garde<\/span>/);
+  assert.match(r, /data-cle="cyber"/);
+  assert.match(r, /aria-label="Tous les modules \(101\)"/);
+  assert.match(r, /href="\/tous-les-modules"/);
+  assert.match(r, /data-section="epingles"[\s\S]*Facturation[\s\S]*Clients/);
+  assert.match(r, /data-socle="aujourdhui"[\s\S]*2 sur 4 faites/);
+  assert.match(r, /Mohamed, sur Facturation/);
+  assert.doesNotMatch(r, /sc-enligne/, 'le bloc « En ligne » est remplacé par la carte');
+  assert.match(r, /data-guide="recherche"/);
+  assert.match(r, /<kbd class="sc-kbd">⌘K<\/kbd>/);
+  const sans = rendreK(LATERALE({ garde: null, aujourdhui: { ...JOUR_TEST, collegues: [] } }));
+  assert.doesNotMatch(sans, /data-cle="garde"/, 'sans modules de la Garde, pas de ligne La Garde');
+  assert.match(sans, /data-cle="cyber"/, 'Cyber reste');
+  assert.match(sans, /Personne d’autre en ligne/);
+  assert.match(rendreK(LATERALE({ aujourdhui: { ...JOUR_TEST, presenceMontree: false } })), /Présence coupée sur ce poste/);
+});
+
+await dit('barre latérale : aucun compteur sur une famille ni dans la sous-liste (v3) ; un compteur d’épinglé se dit en mots, un zéro ne s’affiche pas', () => {
+  const r = rendreK(LATERALE({ familles: FAMILLES_TEST('argent') }));
+  const espace = r.slice(r.indexOf('data-section="espace"'), r.indexOf('data-section="surveillance"'));
+  assert.doesNotMatch(espace, /sc-compteur|sc-count-badge|à voir/);
+  // Le compteur d'un épinglé est le `CountBadge` du socle, variante `texte` (le chiffre seul, dit en mots).
+  assert.match(r, /class="sc-count-badge sc-epingle__compteur" data-variante="texte" title="2 à voir">2<span class="sr-only"> 2 à voir/);
+  assert.equal((r.match(/sc-epingle__compteur/g) ?? []).length, 1, 'Facturation (2), pas Clients (0)');
+});
+
+await dit('en-tête : fil d’Ariane en liste, dernière miette = page courante, pile « 3 en ligne », cloche, pastille de la Garde', () => {
+  const entete = (surcharges: Record<string, unknown> = {}) =>
+    hk(K.EnTete, { fil: [{ libelle: 'Ma journée', vers: '/' }, { libelle: 'Accueil' }], enLigne: ['Aaron', 'Mohamed', 'Riyad'], presenceMontree: true, notifications: 3, volet: () => 'volet', garde: { etat: 'calme', points: 0, vers: '/garde' }, onMenu: () => undefined, ...surcharges });
+  const r = rendreK(entete());
+  assert.match(r, /<header[^>]*data-socle="entete"/);
+  assert.match(r, /<nav aria-label="Fil d’Ariane"[^>]*><ol>/);
+  assert.match(r, /<li aria-current="page"><span>Accueil<\/span>/);
+  assert.match(r, /role="img"[^>]*aria-label="3 en ligne"/);
+  assert.match(r, /aria-label="Notifications, 3 à voir"/);
+  assert.match(r, /sc-cloche__badge[^>]*>3</);
+  assert.match(r, /La Garde veille, tout est en ordre/);
+  assert.match(r, /data-etat="calme"/);
+  assert.match(r, /sc-garde__point"><span class="sc-voyant" data-socle="voyant" data-ton="ok"/, 'le point est le voyant vivant');
+  assert.match(rendreK(entete({ garde: { etat: 'attention', points: 2, vers: '/garde' } })), /La Garde signale 2 point\(s\) à regarder/);
+  assert.match(rendreK(entete({ garde: { etat: 'critique', points: 1, vers: '/garde' } })), /La Garde a une alerte critique/);
+  assert.match(rendreK(entete({ garde: { etat: 'inconnu', points: 0, vers: '/garde' } })), /La Garde ne répond pas/);
+  assert.doesNotMatch(rendreK(entete({ notifications: 0 })), /sc-cloche__badge/);
+  assert.doesNotMatch(rendreK(entete({ enLigne: [] })), /sc-entete__presence/);
+});
+
+await dit('barre Ajmani : une barre de texte avec ⌘J — l’étincelle pour seul dessin, ni image, ni avatar', () => {
+  const r = rendreK(hk(K.BarreAjmani, { onOuvrir: () => undefined, raccourci: '⌘J' }));
+  assert.match(r, /^<button[^>]*aria-haspopup="dialog"[^>]*aria-keyshortcuts="Control\+J Meta\+J"/);
+  assert.match(r, /Demande à Ajmani, ou dis ce que tu veux faire/);
+  assert.match(r, /<kbd class="sc-kbd">⌘J<\/kbd>/);
+  assert.equal((r.match(/<svg/g) ?? []).length, 1, 'un seul dessin');
+  assert.match(r, /<svg[^>]*class="sc-etincelle/, 'et c’est l’étincelle');
+  assert.doesNotMatch(r, /<img|<canvas|sc-avatar/);
+});
+
+await dit('le fil d’Ariane : « Famille / Page » ; une page inconnue porte « Espace », jamais un segment d’adresse ; le fil n’est jamais vide', () => {
+  assert.deepEqual(K.construireFil({ famille: 'L’argent', module: 'Facturation', espace: 'Espace' }), [{ libelle: 'L’argent' }, { libelle: 'Facturation' }]);
+  assert.deepEqual(K.construireFil({ page: { famille: null, miettes: [{ libelle: 'Espace' }, { libelle: 'Tous les modules' }] }, espace: 'Espace' }), [{ libelle: 'Espace' }, { libelle: 'Tous les modules' }]);
+  assert.deepEqual(K.construireFil({ page: { famille: 'Ma journée', miettes: [{ libelle: 'Démarrage' }] }, espace: 'Espace' }), [{ libelle: 'Ma journée' }, { libelle: 'Démarrage' }]);
+  assert.deepEqual(K.construireFil({ espace: 'Espace' }), [{ libelle: 'Espace' }]);
+  assert.deepEqual(K.construireFil({ page: { miettes: [] }, espace: 'Espace' }), [{ libelle: 'Espace' }]);
+});
+
+await dit('la coquille tient à 400 px : tiroir sous 900 px, colonnes à minmax(0,1fr), rien qui force la largeur', () => {
+  const css = sansCommentaires(lireSrc('src/socle/coquille/coquille.css'));
+  assert.match(css, /@media \(max-width: 899\.98px\)/);
+  assert.match(css, /@media \(max-width: 460px\)/);
+  assert.match(css, /grid-template-columns: var\(--socle-largeur-lateral\) minmax\(0, 1fr\)/);
+  assert.match(css, /\.sc-principal \{[^}]*min-width: 0;[^}]*overflow-x: hidden;/);
+  assert.match(css, /\.sc-lateral \{[^}]*transform: translateX\(-102%\)/);
+  assert.match(sansCommentaires(lireSrc('src/socle/ui/briques.css')), /\.sc-kpi \{[^}]*min-width: 0;/);
+  for (const [fichier, bornes] of [['src/socle/coquille/coquille.css', /width:\s*(\d{4,})px/g], ['src/socle/ui/briques.css', /(?<!min-|max-)width:\s*(\d{4,})px/g]] as const) {
+    const larges = [...sansCommentaires(lireSrc(fichier)).matchAll(bornes)].map((m) => m[1]);
+    assert.deepEqual(larges, [], `${fichier} : une largeur fixe de plus de 999 px`);
+  }
+});
+
+await dit('un seul bouton plein par écran : la coquille n’en pose aucun, la palette non plus', () => {
+  for (const f of fichiersSous('src/socle/coquille').filter((x) => /\.tsx$/.test(x))) assert.doesNotMatch(lireSrc(f), /variante=["']primaire["']/, `${f} pose un bouton plein`);
+});
+
+await dit('Ajmani n’a ni tête, ni avatar, ni mascotte : aucun dessin dans la coquille, aucune image', () => {
+  for (const f of [...fichiersSous('src/socle/coquille'), ...fichiersSous('src/refonte/coquille')].filter((x) => /\.tsx?$/.test(x))) {
+    const src = lireSrc(f).replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+    assert.doesNotMatch(src, /<img\b|<canvas\b|TeteTele|AjmaniPetit|Mascotte|Robot|<Avatar[^>]*ajmani/i, `${f}`);
+  }
+  assert.doesNotMatch(lireSrc('src/socle/coquille/BarreAjmani.tsx').replace(/\/\*[\s\S]*?\*\//g, ''), /lucide-react|<svg/);
+});
+
+await dit('la palette ⌘J : combobox + listbox, flèches, Entrée, Échap ; le calque est fixe à z-index 50', () => {
+  const src = lireSrc('src/socle/coquille/PaletteAjmani.tsx');
+  assert.match(src, /role="combobox"/);
+  assert.match(src, /aria-activedescendant/);
+  assert.match(src, /role="listbox"/);
+  assert.match(src, /role="option"/);
+  assert.match(src, /ArrowDown/);
+  assert.match(src, /ArrowUp/);
+  assert.match(src, /e\.key === 'Enter'/);
+  assert.match(src, /useFermetureEchap\(ouverte, onFermer\)/);
+  assert.match(sansCommentaires(lireSrc('src/socle/coquille/coquille.css')), /\.sc-voile \{[^}]*position: fixed;[^}]*z-index: 50;/);
+  const glue = lireSrc('src/refonte/coquille/CoquilleRefonte.tsx');
+  assert.match(glue, /addEventListener\('keydown', surTouche, true\)/, '⌘J se prend en phase de capture');
+  assert.match(glue, /stopImmediatePropagation\(\)/);
+});
+
+await dit('éditions : rien de la coquille n’entre dans le paquet cliente ; son jumeau n’importe rien', () => {
+  const jumeau = lireSrc('src/edition/coquille.business.tsx');
+  const imports = [...jumeau.matchAll(/(?:import|export)[^'"]*?from\s+['"]([^'"]+)['"]/g)].map((m) => m[1]);
+  assert.deepEqual(imports.filter((i) => !/^react$/.test(i)), []);
+  assert.ok(!/Ajmani/.test(jumeau.replace(/\/\*[\s\S]*?\*\//g, '')));
+  const fautes: string[] = [];
+  for (const f of fichiersSous('src').filter((x) => /\.(tsx?|css)$/.test(x))) {
+    if (f.startsWith('src/socle/') || f.startsWith('src/refonte/') || /\.internal\.tsx?$/.test(f)) continue;
+    const src = lireSrc(f);
+    if (/(?:from|import)\s+['"][^'"]*(?:socle\/(?:coquille|noir|ui\/briques)|refonte\/coquille)/.test(src)) fautes.push(f);
+  }
+  assert.deepEqual(fautes, [], 'un fichier partagé importe la coquille sans passer par @edition/coquille');
+  assert.match(lireSrc('src/components/AppLayout.tsx'), /from '@edition\/coquille'/);
+  // Les Réglages (partagés) ne changent pas : la porte est `MouvementSection`, côté interne seulement.
+  assert.doesNotMatch(lireSrc('src/screens/SettingsScreen.tsx'), /coquille/i, 'SettingsScreen (partagé) ne doit rien savoir de la coquille');
+  assert.match(lireSrc('src/edition/socle.internal.tsx'), /<CoquilleSection \/>/);
+});
+
+await dit('le noir, les briques et la coquille ne se chargent qu’en édition interne (Ambiance.tsx), jamais depuis index.css', () => {
+  const ambiance = lireSrc('src/refonte/accueil/Ambiance.tsx');
+  for (const css of ['socle/noir.css', 'socle/ui/briques.css', 'socle/coquille/coquille.css']) assert.ok(ambiance.includes(css), `Ambiance.tsx ne charge pas ${css}`);
+  // Ni la feuille commune ni le socle qu'elle importe (même l'édition interne le charge avant l'ambiance) ne portent le noir.
+  for (const [nom, css] of [['index.css', feuilleCommune], ['src/socle/theme.css', feuille]] as const) assert.ok(!/noir\.css|briques\.css|coquille\.css|data-ambiance/.test(css), `${nom} porte le noir`);
+  // C-001 : la feuille commune ne porte aucun jeton du socle, elle n'importe que sa couture (interne : le socle ; cliente : rien).
+  assert.ok(!/--color-socle-|--color-fam-|--color-etat-|\[data-famille=|\[data-mouvement=/.test(feuilleCommune), 'src/index.css porte un jeton ou une règle du socle');
+  assert.match(feuilleCommune, /@import '@edition\/socle-theme\.css';/, 'src/index.css importe la couture du socle');
+});
+
+const drapeau = await charger<{ lireCoquille: () => boolean; ecrireCoquille: (a: boolean) => void; CLE_COQUILLE: string }>('src/refonte/coquille/drapeau.ts');
+await dit('le drapeau de la coquille : éteint par défaut, allumé sur ce poste seulement, un stockage refusé ne casse rien', () => {
+  stockage.delete(drapeau.CLE_COQUILLE);
+  assert.equal(drapeau.lireCoquille(), false, 'éteint par défaut');
+  const avant = evenements;
+  drapeau.ecrireCoquille(true);
+  assert.equal(drapeau.lireCoquille(), true);
+  assert.equal(stockage.get(drapeau.CLE_COQUILLE), 'noir');
+  assert.equal(evenements, avant + 1, 'prévient les écouteurs');
+  drapeau.ecrireCoquille(false);
+  assert.equal(drapeau.lireCoquille(), false);
+  assert.equal(stockage.has(drapeau.CLE_COQUILLE), false);
+  stockage.set(drapeau.CLE_COQUILLE, 'autre chose');
+  assert.equal(drapeau.lireCoquille(), false, 'une valeur inconnue = éteint');
+  stockage.delete(drapeau.CLE_COQUILLE);
+});
+
+/* ── Les Réglages de LOT-00 : trois surfaces propres, les liens « Réglages » des écrans, aucun archétype en gabarit ── */
+
+console.log('\nSocle de la refonte — réglages des écrans LOT-00\n');
+
+const entreeReglages = {
+  code: [
+    "import { createElement as h } from 'react';",
+    "import { renderToStaticMarkup } from 'react-dom/server.browser';",
+    "import { MemoryRouter } from 'react-router-dom';",
+    "import { MouvementSection, ancreDeReglages, ANCRES_REGLAGES } from '../src/edition/socle.internal';",
+    "export const rendre = (etat) => renderToStaticMarkup(h(MemoryRouter, { initialEntries: [{ pathname: '/settings', state: etat ?? null }] }, h(MouvementSection)));",
+    'export { ancreDeReglages, ANCRES_REGLAGES };',
+  ].join('\n'),
+};
+const R = await charger<{ rendre: (etat?: unknown) => string; ancreDeReglages: (s: unknown) => string | null; ANCRES_REGLAGES: readonly string[] }>(entreeReglages);
+
+await dit('Réglages : Mouvement, Écran de veille et Nouvelle coquille sont trois surfaces propres (carte du socle, ancre, contrôles différents), pas un gabarit répété', () => {
+  /* framer-motion sonde `prefers-reduced-motion` au premier rendu et s'y abonne : la fenêtre factice le lui permet, le temps de ce rendu. */
+  const fenetre = (globalThis as Record<string, unknown>).window as Record<string, unknown>;
+  const matchMediaAvant = fenetre.matchMedia;
+  fenetre.matchMedia = () => ({ matches: false, addEventListener: () => undefined, removeEventListener: () => undefined, addListener: () => undefined, removeListener: () => undefined });
+  let html: string;
+  try {
+    html = R.rendre();
+  } finally {
+    fenetre.matchMedia = matchMediaAvant;
+  }
+  const surfaces = [...html.matchAll(/<div id="(reglages-[a-z-]+)" data-reglage="([a-z-]+)"><section data-socle="carte"/g)].map((m) => [m[1], m[2]]);
+  assert.deepEqual(surfaces, [['reglages-mouvement', 'mouvement'], ['reglages-ecran-de-veille', 'ecran-de-veille'], ['reglages-coquille', 'coquille']]);
+  const decoupe = (id: string) => {
+    const debut = html.indexOf(`id="${id}"`);
+    const fin = html.indexOf('<div id="reglages-', debut + 1);
+    return html.slice(debut, fin < 0 ? undefined : fin);
+  };
+  const mouvement = decoupe('reglages-mouvement');
+  const veille = decoupe('reglages-ecran-de-veille');
+  const coquille = decoupe('reglages-coquille');
+  /* Chacune a son titre et son aide. */
+  assert.match(mouvement, /<h2[^>]*>Mouvement<\/h2>/);
+  assert.match(mouvement, /Ce qui bouge dans l’interface/);
+  assert.match(veille, /<h2[^>]*>Écran de veille<\/h2>/);
+  assert.match(veille, /ce poste couvre l’écran de noir/);
+  assert.match(coquille, /<h2[^>]*>Nouvelle coquille<\/h2>/);
+  assert.match(coquille, /Une seule navigation, un fil d’Ariane/);
+  /* Mouvement : un segmenté à trois niveaux, l'aide du niveau choisi, aucun interrupteur ni liste. */
+  assert.match(mouvement, /<div role="radiogroup" aria-label="Niveau de mouvement" class="sc-segmente">/);
+  assert.equal((mouvement.match(/role="radio"/g) ?? []).length, 3);
+  assert.match(mouvement, /aria-live="polite"[^>]*>Les panneaux glissent/);
+  assert.doesNotMatch(mouvement, /role="switch"|<select/);
+  /* Écran de veille : un interrupteur, un segmenté de délais, une liste de délais. */
+  assert.equal((veille.match(/role="switch"/g) ?? []).length, 1);
+  assert.equal((veille.match(/role="radio"/g) ?? []).length, 4);
+  assert.equal((veille.match(/<select /g) ?? []).length, 1);
+  /* Nouvelle coquille : l'état en pastille, les quatre points avec ⌘K et ⌘J, un interrupteur ; ni segmenté ni liste. */
+  assert.match(coquille, /class="sc-etat"[^>]*>Éteinte</);
+  assert.equal((coquille.match(/<li /g) ?? []).length, 4);
+  assert.match(coquille, /<kbd class="sc-kbd">⌘K<\/kbd><span>pour chercher<\/span>/);
+  assert.match(coquille, /<kbd class="sc-kbd">⌘J<\/kbd><span>pour Ajmani<\/span>/);
+  assert.match(coquille, /role="switch" aria-checked="false" aria-label="La nouvelle coquille sur ce poste"/);
+  /* Le libellé visible est relié à l'interrupteur par un <label> (un bouton est étiquetable) : cliquer le texte bascule. */
+  assert.match(coquille, /<label class="[^"]*"><span class="[^"]*">La nouvelle coquille sur ce poste<\/span><button type="button" role="switch"/, 'l’interrupteur de la coquille n’est pas dans un <label> avec son texte');
+  assert.doesNotMatch(coquille, /role="radio"|<select/);
+  /* Trois compositions distinctes : les jeux de contrôles ne se répètent pas. */
+  const signature = (x: string) => ['switch', 'radio', 'select', 'sc-kbd', 'aria-live'].map((c) => (x.includes(c) ? c : '-')).join(',');
+  assert.equal(new Set([signature(mouvement), signature(veille), signature(coquille)]).size, 3, 'deux surfaces ont la même composition');
+  /* Plus rien du gabarit d'avant : ni case native, ni `panel`, ni `eyebrow`. */
+  assert.doesNotMatch(html, /type="radio"|type="checkbox"|class="panel|class="eyebrow/);
+  for (const f of ['src/edition/socle.internal.tsx', 'src/refonte/systeme/veille/EcranDeVeilleSection.tsx', 'src/refonte/coquille/CoquilleSection.tsx']) {
+    assert.doesNotMatch(lireSrc(f).replace(/\/\*[\s\S]*?\*\//g, ''), /["' ]panel[ "']|eyebrow|accent-\[var/, `${f} reprend le gabarit d’avant`);
+  }
+});
+
+await dit('Réglages : H40 « Réglages » mène aux Paramètres (/settings), rubrique Notifications, par l’ancre que la porte interne fait défiler', () => {
+  const page = lireSrc('src/refonte/systeme/notifications/PageNotifications.tsx');
+  assert.match(page, /navigate\('\/settings', \{ state: \{ section: 'notifications' \} \}\)/);
+  assert.match(lireSrc('src/edition/appRoot.internal.tsx'), /<Route path="\/settings" element=\{<SettingsScreen \/>\} \/>/, 'la route réelle des Paramètres de l’édition interne');
+  const reglages = lireSrc('src/screens/SettingsScreen.tsx');
+  assert.match(reglages, /<div id="reglages-notifications">/, 'l’ancre de la rubrique Notifications');
+  assert.match(reglages, /<MouvementSection \/>/, 'la porte interne est montée dans les Paramètres');
+  assert.equal(R.ancreDeReglages('notifications'), 'reglages-notifications');
+  /* Les ancres vivent dans SettingsScreen ou dans les sections qu'il monte sans condition (Guide, Extensions, dans #reglages-accueil). */
+  assert.match(reglages, /<GuideSection \/>\s*<ExtensionsSection \/>/, 'les sections Guide et Extensions sont montées dans les Paramètres');
+  const porteurs = [reglages, lireSrc('src/guide/GuideSection.tsx'), lireSrc('src/components/settings/ExtensionsSection.tsx')];
+  for (const a of R.ANCRES_REGLAGES) assert.ok(porteurs.some((src) => src.includes(`id="reglages-${a}"`)) || ['mouvement', 'ecran-de-veille', 'coquille'].includes(a), `l’ancre « ${a} » n’existe pas dans les Paramètres`);
+  /* Chaque rubrique du plan des Paramètres se laisse viser par l'état de navigation : son ancre est dans la liste. */
+  const plan = [...reglages.matchAll(/ancre: 'reglages-([a-z-]+)'/g)].map((m) => m[1]);
+  assert.ok(plan.includes('guide') && plan.includes('extensions'), 'le plan des Paramètres annonce Guide et Extensions');
+  for (const a of plan) assert.ok(R.ANCRES_REGLAGES.includes(a), `la rubrique « ${a} » du plan des Paramètres n’est pas dans ANCRES_REGLAGES : ancreDeReglages('${a}') ne ferait rien défiler`);
+  assert.equal(R.ancreDeReglages('inconnue'), null);
+  assert.equal(R.ancreDeReglages({ toString: () => 'notifications' }), null, 'un état qui n’est pas une chaîne ne fait rien défiler');
+  assert.match(lireSrc('src/edition/socle.internal.tsx'), /scrollIntoView\(\{ behavior: niveau === 'complet' \? 'smooth' : 'auto', block: 'start' \}\)/, 'le défilement suit le réglage Mouvement');
+});
+
+await dit('Réglages : G09 « Réglages · Écran de veille » reste inactif pendant la veille ; G05, H41, H42, H47, H43, D02 et G06 n’envoient à aucun réglage', () => {
+  assert.match(lireSrc('src/refonte/systeme/veille/VueVeille.tsx'), /<p className="ve-pied__reglages">\{tm\('pied\.reglages'\)\}<\/p>/, 'un texte, ni lien ni bouton');
+  const dossiers = ['src/refonte/systeme/ajmani', 'src/refonte/systeme/recherche', 'src/refonte/systeme/demarrage', 'src/refonte/systeme/h43-etats', 'src/refonte/systeme/modules', 'src/refonte/systeme/connexion', 'src/refonte/systeme/veille'];
+  for (const d of dossiers) {
+    for (const f of fichiersSous(d).filter((x) => /\.tsx?$/.test(x))) {
+      const src = lireSrc(f).replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+      assert.doesNotMatch(src, /['"`]\/settings|navigate\(['"]\/settings|to=['"]\/settings/, `${f} envoie aux Paramètres : aucune fiche de ces écrans ne le prévoit`);
+    }
+  }
+});
+
+await dit('aucun écran LOT-00 n’est composé sur un archétype du §5 comme gabarit (DispositionPage, Page, RangeeKpi, ColonneDroite, GrilleCartes, Scinde, Semaine, Kanban) — la démonstration exceptée', () => {
+  const gabarits = /\b(DispositionPage|Page|RangeeKpi|ColonneDroite|GrilleCartes|Scinde|Semaine|Kanban)\b/;
+  for (const f of fichiersSous('src/refonte/systeme').filter((x) => /\.tsx$/.test(x) && !x.includes('/demo/'))) {
+    const src = lireSrc(f);
+    for (const [, noms, source] of src.matchAll(/import\s*\{([^}]*)\}\s*from\s*['"]([^'"]+)['"]/g)) {
+      if (!/socle\/ui/.test(source)) continue;
+      const importes = noms.split(',').map((n) => n.trim().replace(/^type\s+/, '').split(/\s+as\s+/)[0]);
+      const fautifs = importes.filter((n) => gabarits.test(n));
+      assert.deepEqual(fautifs, [], `${f} importe ${fautifs.join(', ')} du socle : un archétype du §5 pris pour squelette d’écran`);
+    }
+  }
 });
 
 console.log('');

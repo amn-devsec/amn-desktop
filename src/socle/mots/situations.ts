@@ -1,0 +1,136 @@
+/**
+ * Les mots du groupe « situations » du socle (LOT-00, écran H43). Même schéma que `src/socle/i18n.ts` :
+ * l'anglais est la base, le français est typé contre lui. Fusionnés dans `i18n.ts`.
+ *
+ * Les noms d'objets, de personnes et de recherches sont TOUJOURS des variables : `{objet}` (au
+ * singulier, en minuscules : « client »), `{objets}` (au pluriel, sans déterminant : « clients »),
+ * `{terme}`, `{proche}`, `{prenom}`, `{n}`. Aucun nom d'exemple n'est écrit ici.
+ *
+ * Typographie française (fiche H43, règles d'écriture) : guillemets « » avec espaces insécables
+ * (U+00A0) à l'intérieur, espace insécable avant « ? » et « : », apostrophe typographique comme
+ * partout dans le socle. Aucun point d'exclamation, aucun code d'erreur, tutoiement (v4, guide de voix `voix.ts`).
+ */
+export const EN_SITUATIONS = {
+  'etat.vide.titre': 'No {objet} yet',
+  'etat.vide.texte': 'Add your first {objet} or import a file.',
+  'etat.vide.texteSeul': 'Add your first {objet}.',
+  'etat.vide.texteLecture': 'Nothing has been added here yet. The help explains how.',
+  'etat.vide.ajouter': 'Add',
+  'etat.vide.importer': 'Import',
+  'etat.vide.aide': 'See the help',
+
+  'etat.hors.titre': 'You are offline',
+  'etat.hors.texte': 'Your changes are kept on this device and will be sent as soon as the network is back.',
+  'etat.hors.reessayer': 'Try again',
+
+  'etat.acces.titre': 'This page is restricted',
+  'etat.acces.texte': 'Ask {prenom} for access. They get your request right away.',
+  'etat.acces.demander': 'Request access',
+  'etat.acces.envoye': 'Request sent',
+  'etat.acces.prevenu': '{prenom} has been notified.',
+
+  'etat.aucun.titre': 'Nothing for “{terme}”',
+  'etat.aucun.proche': 'Did you mean {proche}? If not, try another word.',
+  'etat.aucun.sans': 'Try another word or clear the search.',
+  'etat.aucun.voir': 'See {proche}',
+  'etat.aucun.effacer': 'Clear the search',
+
+  'etat.erreur.titre': 'The {objets} could not be loaded',
+  'etat.erreur.texte': 'Nothing is lost. Try again in a moment.',
+  'etat.erreur.reessayer': 'Try again',
+
+  'chargement.legende': 'Loading your {objets}',
+  'chargement.long': 'This is taking longer than usual',
+  'chargement.reessayer': 'Try again',
+
+  'dialogue.annuler': 'Cancel',
+
+  'toast.annuler': 'Undo',
+  'toast.disparait': 'Disappears in {n} s',
+  'toast.erreur': 'Your change could not be saved.',
+  'toast.reessayer': 'Try again',
+  'toast.fermer': 'Close the notification',
+
+  'avis.pile': 'People on this page',
+  'avis.phrase': '{prenom} is also editing this page',
+  'avis.fusion.avant': 'Your changes and theirs are ',
+  'avis.fusion.mot': 'merged',
+  'avis.fusion.apres': '. Nothing is overwritten, a copy is kept.',
+  'avis.differences': 'Differences',
+  'avis.garder': 'Keep both',
+
+  /* v3 (H43 en situation) : bandeau hors ligne, élément en file, pied de fusion, données d'avant une erreur. */
+  'etat.erreur.titre.f': 'The {objets} could not be loaded',
+  'hors.bandeau': 'Offline',
+  'hors.bandeau.un': 'Offline · 1 {objet} waiting to be sent',
+  'hors.bandeau.n': 'Offline · {n} {objets} waiting to be sent',
+  'hors.attente': 'waiting, will leave when the network is back',
+  'acces.connecte': 'Signed in as {prenom} · nothing of the page is shown',
+  'aucun.ajmani': 'Ask Ajmani: “{terme}”',
+  'avis.direct': '{prenom} is on the page right now',
+  'avis.pied': 'Merged, nothing is overwritten · copy kept',
+  'erreur.derniere': 'last known value · {heure}',
+  'erreur.essai': 'new attempt in {n} s',
+} as const;
+
+export const FR_SITUATIONS: Record<keyof typeof EN_SITUATIONS, string> = {
+  'etat.vide.titre': 'Aucun {objet} pour l’instant',
+  'etat.vide.texte': 'Ajoute ton premier {objet} ou importe un fichier.',
+  'etat.vide.texteSeul': 'Ajoute ton premier {objet}.',
+  'etat.vide.texteLecture': 'Rien n’a encore été ajouté ici. L’aide explique comment faire.',
+  'etat.vide.ajouter': 'Ajouter',
+  'etat.vide.importer': 'Importer',
+  'etat.vide.aide': 'Voir l’aide',
+
+  'etat.hors.titre': 'Tu es hors connexion',
+  'etat.hors.texte': 'Tes modifications sont gardées sur cet appareil et partiront dès le retour du réseau.',
+  'etat.hors.reessayer': 'Réessayer',
+
+  'etat.acces.titre': 'Cette page est réservée',
+  'etat.acces.texte': 'Demande l’accès à {prenom}, il reçoit ta demande tout de suite.',
+  'etat.acces.demander': 'Demander l’accès',
+  'etat.acces.envoye': 'Demande envoyée',
+  'etat.acces.prevenu': '{prenom} a été prévenu.',
+
+  'etat.aucun.titre': 'Rien pour «\u00A0{terme}\u00A0»',
+  'etat.aucun.proche': 'Tu voulais dire {proche}\u00A0? Sinon, essaie un autre mot.',
+  'etat.aucun.sans': 'Essaie un autre mot ou efface la recherche.',
+  'etat.aucun.voir': 'Voir {proche}',
+  'etat.aucun.effacer': 'Effacer la recherche',
+
+  'etat.erreur.titre': 'Les {objets} n’ont pas pu être chargés',
+  'etat.erreur.texte': 'Rien n’est perdu. Réessaie dans un instant.',
+  'etat.erreur.reessayer': 'Réessayer',
+
+  'chargement.legende': 'Chargement de tes {objets}',
+  'chargement.long': 'C’est plus long que d’habitude',
+  'chargement.reessayer': 'Réessayer',
+
+  'dialogue.annuler': 'Annuler',
+
+  'toast.annuler': 'Annuler',
+  'toast.disparait': 'Disparaît dans {n} s',
+  'toast.erreur': 'Ta modification n’a pas pu être enregistrée.',
+  'toast.reessayer': 'Réessayer',
+  'toast.fermer': 'Fermer la notification',
+
+  'avis.pile': 'Personnes sur cette page',
+  'avis.phrase': '{prenom} modifie aussi cette page',
+  'avis.fusion.avant': 'Tes changements et les siens sont ',
+  'avis.fusion.mot': 'fusionnés',
+  'avis.fusion.apres': '. Rien n’est écrasé, une copie est gardée.',
+  'avis.differences': 'Différences',
+  'avis.garder': 'Garder les deux',
+
+  'etat.erreur.titre.f': 'Les {objets} n’ont pas pu être chargées',
+  'hors.bandeau': 'Hors ligne',
+  'hors.bandeau.un': 'Hors ligne · 1 {objet} en attente d’envoi',
+  'hors.bandeau.n': 'Hors ligne · {n} {objets} en attente d’envoi',
+  'hors.attente': 'en attente, partira au retour du réseau',
+  'acces.connecte': 'Connecté en tant que {prenom} · rien de la page n’est montré',
+  'aucun.ajmani': 'Demander à Ajmani\u00A0: «\u00A0{terme}\u00A0»',
+  'avis.direct': '{prenom} est sur la page en ce moment',
+  'avis.pied': 'Fusionnés, rien n’est écrasé · copie gardée',
+  'erreur.derniere': 'dernière valeur connue · {heure}',
+  'erreur.essai': 'nouvel essai dans {n} s',
+};
