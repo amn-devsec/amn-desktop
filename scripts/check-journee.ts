@@ -64,7 +64,7 @@ const M = await charger<any>(
     `export * as L from '../${ZONE}';`,
     "export * as monde from '../src/refonte/donnees';",
     "export * as attendus from '../src/refonte/donnees/attendus';",
-    "export { journeesDeTravail, serieEnCours, avancementProjet, statutProjet } from '../src/refonte/donnees/ma-journee';",
+    "export { avancementProjet, statutProjet } from '../src/refonte/donnees/ma-journee';",
     "export { joursSansImpaye as joursSansImpayeSim } from '../src/refonte/donnees/complements';",
     "export { moi } from '../src/refonte/donnees/equipe';",
     "export { jourDe as jourDeSim } from '../src/refonte/donnees/outils';",
@@ -72,7 +72,7 @@ const M = await charger<any>(
     "export { ecartsDeVoix } from '../src/socle/mots/voix';",
   ].join('\n'),
 );
-const { L, monde, attendus, moi, jourDeSim, journeesDeTravail, serieEnCours, avancementProjet, statutProjet, joursSansImpayeSim, DICTIONNAIRES_JOURNEE: DICO, ecartsDeVoix } = M;
+const { L, monde, attendus, moi, jourDeSim, avancementProjet, statutProjet, joursSansImpayeSim, DICTIONNAIRES_JOURNEE: DICO, ecartsDeVoix } = M;
 
 const VOLUMES = ['vide', 'peu', 'normal', 'beaucoup'] as const;
 const mondes = Object.fromEntries(VOLUMES.map((v) => [v, monde.construireMonde({ volume: v })])) as Record<(typeof VOLUMES)[number], any>;
@@ -221,7 +221,12 @@ await dit('le moment « defi.tenu » existe au catalogue, ton « fête », famil
 console.log('\nLOT-01 — H04, G08, H25 face aux valeurs attendues de SIM\n');
 
 const taches = (m: any) => m.taches.map((t: any) => ({ id: t.id, status: t.status, assigneeEmail: t.assigneeEmail, echeance: t.echeance, faiteAt: t.faiteAt }));
-const serieDeSim = (m: any, email: string, jour: string): number => serieEnCours(journeesDeTravail(m.taches, email, jour, 120), jour);
+// La série vient des priorités du jour de la personne (collection `dailyPriorities`), comme le fait `calculerAujourdhui` : une seule règle.
+const serieDeSim = (m: any, email: string, jour: string): number =>
+  L.serieDeLaJournee(
+    m.dailyPriorities.filter((d: any) => d.email.toLowerCase() === email.toLowerCase()).map((d: any) => L.prioritesDeLaCollection(d, L.jourDeParis)),
+    jour,
+  ).serie;
 
 await dit('H04 : le bilan calculé égale `attendusBilanSemaine`, aux quatre volumes, sur plusieurs graines, plusieurs semaines et plusieurs personnes', () => {
   for (const [nom, m] of tousLesMondes) {
@@ -237,7 +242,7 @@ await dit('H04 : le bilan calculé égale `attendusBilanSemaine`, aux quatre vol
           paiements: m.paiements,
           clients: m.clients,
           factures: m.factures,
-          // La série vient de ailleurs (règle unique) ; ici on lui donne celle de SIM pour comparer le reste.
+          // La série vient de ailleurs (règle unique) : ici, la même fonction que N01, sur les priorités du jour.
           serie: { serie: serieDeSim(m, email, jour) },
         });
         const { boiteAZero: _b, manque: _m, ...sansManque } = attendu;
