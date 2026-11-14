@@ -89,7 +89,7 @@ export function verifierDate(jourDuTexte: Jour, personnes: readonly string[], oc
 
 /* ------------------------------ Déclencheurs (Propositions) ------------------------------ */
 
-const FORMULES_LONGUES = ['je me permets de', 'je me permets d’', "je me permets d'", 'veuillez agréer', 'dans l’attente de votre retour', "dans l'attente de votre retour", 'je reste à votre entière disposition'];
+const FORMULES_LONGUES = ['je me permets de', 'je me permets d’', "je me permets d'", 'agréer', 'dans l’attente de votre retour', "dans l'attente de votre retour", 'à votre entière disposition'];
 const MOTS_DE_RENDEZ_VOUS = /\b(rendez-vous|rdv|créneau|creneau|rencontre|appel|visio)\b/i;
 const DATE_DANS_LE_TEXTE = /\b(\d{1,2}\s+(?:janv|févr|fevr|mars|avr|mai|juin|juil|août|aout|sept|oct|nov|déc|dec)[a-zé.]*|\d{1,2}\/\d{1,2}|lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche|demain|la semaine prochaine)\b/i;
 

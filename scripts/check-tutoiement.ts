@@ -22,7 +22,7 @@ const V = await charger<{
 }>({ code: "export * from '../src/socle/mots/voix';" });
 
 /** Ce qui est passé au tutoiement. Un lot y ajoute son dossier quand il passe ses textes au tutoiement. */
-export const PERIMETRE = ['src/socle', 'src/refonte/coquille', 'src/refonte/compteurs', 'src/refonte/systeme', 'scripts/apercu'];
+export const PERIMETRE = ['src/socle', 'src/refonte/coquille', 'src/refonte/compteurs', 'src/refonte/systeme', 'src/refonte/ecrire', 'scripts/apercu'];
 
 /**
  * LES ZONES CLIENT : des textes destinés à un client, qui gardent le vouvoiement (courriels, devis, factures,
@@ -30,6 +30,10 @@ export const PERIMETRE = ['src/socle', 'src/refonte/coquille', 'src/refonte/comp
  */
 export const ZONES_CLIENT: readonly { fichier: string; debut: string; raison: string }[] = [
   { fichier: 'scripts/apercu/ecrans/G05-ajmani.tsx', debut: 'Bonjour, sauf erreur de notre part', raison: 'le brouillon de relance montré par l’aperçu de G05 : il part chez le client' },
+  { fichier: 'src/refonte/ecrire/redaction.ts', debut: 'dans l’attente de votre retour', raison: 'ME02 reconnaît la formule de politesse d’un texte écrit pour un client, pour proposer « Plus direct » : un motif à reconnaître, jamais affiché' },
+  { fichier: 'src/refonte/ecrire/redaction.ts', debut: "dans l'attente de votre retour", raison: 'même motif, écrit avec l’apostrophe droite que la personne peut taper' },
+  { fichier: 'src/refonte/ecrire/redaction.ts', debut: 'à votre entière disposition', raison: 'ME02 reconnaît la formule de politesse d’un texte écrit pour un client : un motif à reconnaître, jamais affiché' },
+  { fichier: 'scripts/apercu/ecrans/H12.tsx', debut: 'Bonjour Menna, le devis', raison: 'la relance préparée montrée par l’aperçu de H12 : elle part chez le client' },
 ];
 
 /**
