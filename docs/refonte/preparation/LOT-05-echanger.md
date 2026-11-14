@@ -6,7 +6,7 @@
 
 ## 1. En bref
 
-- **Logique pure livrée** : `src/refonte/echanger/` (14 fichiers, sans React ni brique visuelle) et `scripts/check-echanger.ts` (`npm run check:echanger`, **89 contrôles**, ajouté à `package.json` et `editions.yml`). Les cas sont écrits à la main d'après la rubrique 6 de chaque fiche, puis rejoués sur les jeux fictifs aux volumes `vide`, `peu`, `normal`, `beaucoup`.
+- **Logique pure livrée** : `src/refonte/echanger/` (14 fichiers, sans React ni brique visuelle) et `scripts/check-echanger.ts` (`npm run check:echanger`, **94 contrôles**, ajouté à `package.json` et `editions.yml`). Les cas sont écrits à la main d'après la rubrique 6 de chaque fiche, puis rejoués sur les jeux fictifs aux volumes `vide`, `peu`, `normal`, `beaucoup`.
 - **G07 devient la boîte des CLIENTS** (courriel, WhatsApp, SMS) ; les échanges internes passent par Canaux (MX04) : la logique de `boite.ts` ne lit jamais les messages d'équipe. WhatsApp, SMS, le courriel et la téléphonie sont des **prises de la baie de S9** : `connecteurs.ts` lit leur état (`etatDePrise`) et dit « connecteur à brancher », « à reconnecter », sans rien simuler.
 - **H13 sans ligne pro** : `modeDAppel` répond `application-seulement` tant que la prise « téléphonie » n'est pas branchée et en forme (pas de pavé, pas de pièce « Standard »).
 - **Ce qui part chez un client reste au vouvoiement** : `reponsesAuto.ts` ne produit aucun texte client ; il **repère le tutoiement** dans un modèle destiné à un client (`tutoiementDansUnTexteClient`). L'interface (`i18n.ts`, ≈ 100 clés fr/en) tutoie.
@@ -119,3 +119,24 @@ Le registre refuse les vues en double (§1.19 n° 1). La clé `module` des subst
 ## 8. Jeux fictifs
 
 Les 11 jeux d'Échanger (`conversations`, `messages`, `canaux`, `annonces`, `courriels`, `salles`, `appels`, `reunions`, `partages`, `sondages`, `reponsesAuto`) suffisent à rejouer la logique aux quatre volumes. À demander à SIM (liste « Manque aux données » de STATUT) : le canal et le sens de chaque message client, des gestes de tri, des notes internes, la présence, les destinataires et réactions d'annonces, l'ordre du jour minuté d'une réunion en cours, les votes par personne, des règles structurées, des appels manqués et une file de Standard. Les noms, montants et dates des images ne sont jamais codés en dur (la garde le vérifie dans la logique).
+
+## 9. Lecture des images v4 (14 nov.)
+
+Les dix images de LOT-05 (F40, G07, H13, H14, MX01 à MX06) ont été ouvertes et comparées à la logique. Presque tout y était déjà. Ajouté, avec ses contrôles :
+
+| Image | Ce qu'elle montre | Ajout |
+|---|---|---|
+| G07 | « Hier, par courriel · Afficher 2 messages » | `boite.plierLesAnciens` (par jour et par canal) |
+| G07 | « Fait 9 · DU PS BL MC +5 · dernier à 10:12 » | `boite.apercuDuFait` |
+| F40 | tuiles : « 6 cette semaine · 4 h », « 148 envoyées ce mois », « partent lundi 9:00 », « 6 canaux », « tous protégés » | `hub.TuileDEchange.detail`, alimenté par des mesures facultatives (sans elles, la tuile garde son nombre) |
+| MX01 | étiquettes Urgent, À facturer, En attente client | `courriel.compterEtiquettes` |
+| MX03 | réglages du prochain lien (30 jours, code, filigrane, téléchargement) ; onglets Partagés, Reçus, Expirés | `partages.REGLAGES_DU_LIEN_PAR_DEFAUT`, `reglagesValides` (jamais sans protection), `ongletsDePartage` |
+| H13 | filtres « Tout », « Manqués », « Avec résumé » | `appels.compteursDHistorique` |
+
+Les textes de ces ajouts sont dans `i18n.ts` (fr, en).
+
+**Écarts entre les images et le texte du dossier, à garder en tête à la construction**
+- MX05 : « Préparé par Ajmani : vous hésitez entre deux tarifs de maintenance » est une phrase de l'interface écrite au vouvoiement. L'interface tutoie : « tu hésites ». La question posée aux clients (« préférez-vous ? ») reste au vouvoiement.
+- F40 : la tuile « Réponses automatiques » montre « 148 envoyées ce mois », pas « 5 actives sur 7 » : la mesure à afficher est `envoisAutoDuMois`.
+- G07 : « code 0x0000009F » est un texte d'exemple dans une pièce jointe : donnée fictive, rien à coder.
+- Presence : « Mohamed lit », « Riyad écrit » (F40, G07, MX01) et « Riyad est en train d'écrire » (MX04) sont de la présence en direct. Masqués au premier jet (STATUT §1.32 n° 4).

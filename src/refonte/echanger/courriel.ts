@@ -20,6 +20,8 @@ export interface MessageDeCourriel {
   organisation?: string | null;
   programmeAt?: Instant | null;
   assigneA?: string | null;
+  /** Étiquettes posées sur le message (MX01, image v4 : Urgent, À facturer, En attente client). */
+  etiquettes?: readonly string[];
 }
 
 export interface FilDeCourriel {
@@ -100,3 +102,14 @@ export const peutLire = (etat: EtatDeLaBoite, dejaCharges: number): boolean => e
 /** Les envois programmés : en attente d'une heure choisie, du plus proche au plus lointain. */
 export const programmes = (messages: readonly MessageDeCourriel[]): MessageDeCourriel[] =>
   messages.filter((m) => !!m.programmeAt).sort((a, b) => ms(a.programmeAt as Instant) - ms(b.programmeAt as Instant));
+
+
+/** Les étiquettes de départ de la boîte partagée (image v4). Modifiables ; ce sont des clés, le texte est dans i18n. */
+export const ETIQUETTES_PAR_DEFAUT = ['urgent', 'a-facturer', 'en-attente-client'] as const;
+
+/** Fils portant chaque étiquette (un fil compte une fois, même si plusieurs messages la portent). Les programmés n'y sont pas. */
+export function compterEtiquettes(messages: readonly MessageDeCourriel[], etiquettes: readonly string[] = ETIQUETTES_PAR_DEFAUT): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const e of etiquettes) out[e] = new Set(messages.filter((m) => !m.programmeAt && (m.etiquettes ?? []).includes(e)).map((m) => m.filId)).size;
+  return out;
+}

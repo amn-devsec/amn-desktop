@@ -964,6 +964,61 @@ await dit('heures ouvrées : une seule source, la plage « clients » des régla
   assert.deepEqual(B.horairesDepuis({ jours: [1, 2], debut: '08:30', fin: '12:00' }), { jours: [1, 2], debut: 510, fin: 720 });
 });
 
+await dit('images v4 · G07 : les messages d’un jour passé se plient par jour et par canal ; « Fait » montre 4 initiales, « +5 » et l’heure du dernier', () => {
+  const ms0 = [
+    { id: 'a', at: paris('2026-10-29', '16:00'), canal: 'courriel' as const },
+    { id: 'b', at: paris('2026-10-29', '16:30'), canal: 'courriel' as const },
+    { id: 'c', at: paris('2026-10-29', '17:00'), canal: 'whatsapp' as const },
+    { id: 'd', at: paris(AUJ, '08:31'), canal: 'whatsapp' as const },
+  ];
+  const r = B.plierLesAnciens(ms0, AUJ);
+  assert.deepEqual(r.visibles, ['d']);
+  assert.deepEqual(r.plies.map((p: any) => [p.canal, p.nombre, p.premierId]), [['courriel', 2, 'a'], ['whatsapp', 1, 'c']]);
+  assert.deepEqual(B.plierLesAnciens([], AUJ), { plies: [], visibles: [] });
+  const faits = ['DU', 'PS', 'BL', 'MC', 'X1', 'X2', 'X3', 'X4', 'X5'].map((i, k) => ({ initiales: i, at: paris(AUJ, `10:${String(12 - k).padStart(2, '0')}`) }));
+  const ap = B.apercuDuFait(faits);
+  assert.deepEqual(ap.initiales, ['DU', 'PS', 'BL', 'MC']);
+  assert.equal(ap.reste, 5);
+  assert.equal(ap.dernierAt, paris(AUJ, '10:12'));
+  assert.deepEqual(B.apercuDuFait([]), { initiales: [], reste: 0, dernierAt: null });
+});
+
+await dit('images v4 · F40 : les tuiles portent leurs détails (réunions de la semaine et durée, envois du mois, prochain envoi, canaux, liens protégés), sans eux elles retombent sur leur nombre', () => {
+  const base = { aRepondre: 5, courrielsNonLus: 3, canauxNonLus: 3, canauxAvecNonLus: 2, appelsEnCours: 1, reunionsAujourdhui: 1, annoncesAConfirmer: 1, partagesActifs: 17, sondagesEnCours: 3, reglesActives: 5, reglesTotal: 7, envoisProgrammes: 2 };
+  const nues = H.tuilesDuHub(base);
+  assert.ok(nues.every((t: any) => t.detail === undefined), 'rien d’inventé');
+  const riches = H.tuilesDuHub({ ...base, reunionsSemaine: 6, reunionsSemaineMinutes: 240, envoisAutoDuMois: 148, prochainEnvoiProgramme: paris('2026-11-02', '09:00'), canauxTotal: 6, liensTousProteges: true });
+  const par = (c: string) => riches.find((t: any) => t.cle === c)!;
+  assert.deepEqual(par('reunions').detail, { semaine: 6, minutes: 240 });
+  assert.deepEqual(par('reponsesAuto').detail, { envoisDuMois: 148 });
+  assert.deepEqual(par('programmes').detail, { prochainEnvoi: paris('2026-11-02', '09:00') });
+  assert.deepEqual(par('canaux').detail, { canauxTotal: 6 });
+  assert.deepEqual(par('partages').detail, { tousProteges: true });
+  assert.deepEqual(par('messagerie').nombres, [5]);
+});
+
+await dit('images v4 · MX01 : les étiquettes comptent des fils, une fois chacun, sans les messages programmés', () => {
+  const m = (id: string, filId: string, etiquettes?: string[], programmeAt?: number) => ({ id, filId, de: 'x@exemple.fr', a: ['equipe@exemple.fr'], at: paris(AUJ, '09:00'), lu: false, etiquettes, programmeAt });
+  const c = CM.compterEtiquettes([m('1', 'f1', ['urgent']), m('2', 'f1', ['urgent', 'a-facturer']), m('3', 'f2', ['a-facturer']), m('4', 'f3', ['urgent'], paris('2026-11-02', '09:00')), m('5', 'f4')]);
+  assert.deepEqual(c, { urgent: 1, 'a-facturer': 2, 'en-attente-client': 0 });
+});
+
+await dit('images v4 · MX03 : réglages du prochain lien (30 jours, code par courriel, filigrane, téléchargement) et onglets Partagés · Reçus · Expirés', () => {
+  assert.deepEqual(PA.REGLAGES_DU_LIEN_PAR_DEFAUT, { dureeJours: 30, protection: 'code par courriel', filigrane: false, telechargement: true });
+  assert.ok(PA.reglagesValides(PA.REGLAGES_DU_LIEN_PAR_DEFAUT));
+  assert.ok(!PA.reglagesValides({ ...PA.REGLAGES_DU_LIEN_PAR_DEFAUT, protection: 'aucune' }), 'un lien ne part jamais sans protection');
+  assert.ok(!PA.reglagesValides({ ...PA.REGLAGES_DU_LIEN_PAR_DEFAUT, dureeJours: 0 }));
+  const l = (id: string, expireLe: string | null, revoque = false) => ({ id, fichier: 'f', tailleOctets: 1, destinataire: null, creeAt: paris('2026-10-01', '09:00'), expireLe, dureeJours: 30, protection: 'compte' as const, ouvertures: 0, derniereOuvertureAt: null, revoque });
+  const o = PA.ongletsDePartage([l('1', '2026-11-05'), l('2', null), l('3', '2026-10-20'), l('4', '2026-12-01', true)], 9, AUJ);
+  assert.deepEqual(o, { partagesParMoi: 2, recus: 9, expires: 2 });
+});
+
+await dit('images v4 · H13 : filtres de l’historique « Tout », « Manqués », « Avec résumé »', () => {
+  const a = (id: string, sens: 'entrant' | 'sortant' | 'manque', resume: string | null) => ({ id, titre: id, sens, finAt: paris(AUJ, '09:00'), dureeSec: 60, resume, decisions: [], taches: [] });
+  assert.deepEqual(AP.compteursDHistorique([a('1', 'entrant', 'Oui.'), a('2', 'sortant', 'Oui.'), a('3', 'manque', 'Pas de message laissé.')]), { tout: 3, manques: 1, avecResume: 3 });
+  assert.deepEqual(AP.compteursDHistorique([]), { tout: 0, manques: 0, avecResume: 0 });
+});
+
 await dit('aucune brique visuelle : ni React, ni src/socle/ui, ni code partagé ; seulement les voisins, le dictionnaire du socle et le modèle des connecteurs (S9)', () => {
   const fautes: string[] = [];
   for (const { f, src } of sources) {

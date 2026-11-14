@@ -171,3 +171,9 @@ export const peutEnregistrerLaVoix = (accords: Readonly<Record<string, boolean>>
 
 /** Sans droit d'appel externe, « Appeler » et le pavé sont masqués. */
 export const paveVisible = (droitDAppelExterne: boolean, ligneProBranchee: boolean): boolean => droitDAppelExterne && ligneProBranchee;
+
+
+/** Les filtres de l'historique : « Tout », « Manqués 1 », « Avec résumé 3 » (image v4). */
+export function compteursDHistorique(appels: readonly AppelTermine[]): { tout: number; manques: number; avecResume: number } {
+  return { tout: appels.length, manques: appels.filter((a) => a.sens === 'manque').length, avecResume: appels.filter((a) => !!a.resume).length };
+}
