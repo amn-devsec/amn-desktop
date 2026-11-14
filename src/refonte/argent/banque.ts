@@ -13,6 +13,22 @@ import { totauxDocument, type FactureLue } from './facturation';
 
 export const soldeTotal = (comptes: readonly { soldeCents: number }[]): number => comptes.reduce((s, c) => s + c.soldeCents, 0);
 
+/**
+ * La nature d'un compte, lue dans son nom tant que les jeux n'ont pas de champ dédié
+ * (demandé à SIM) : épargne (« épargne », « livret ») ou courant (le reste, carte comprise).
+ */
+export const natureDuCompte = (nom: string): 'courant' | 'epargne' => (/[ée]pargne|livret/i.test(nom) ? 'epargne' : 'courant');
+
+/**
+ * LE SOLDE DE DÉPART DE LA TRÉSORERIE (STATUT §1.29 n° 7) : les comptes courants par
+ * défaut. L'épargne s'ajoute par un interrupteur, et reste toujours montrée à part.
+ */
+export function soldeDeDepart(comptes: readonly { nom: string; soldeCents: number }[], options: { avecEpargne?: boolean } = {}): { courantCents: number; epargneCents: number; totalCents: number } {
+  const courant = soldeTotal(comptes.filter((c) => natureDuCompte(c.nom) === 'courant'));
+  const epargne = soldeTotal(comptes.filter((c) => natureDuCompte(c.nom) === 'epargne'));
+  return { courantCents: courant, epargneCents: epargne, totalCents: courant + (options.avecEpargne ? epargne : 0) };
+}
+
 export interface OrdreAExecuter {
   beneficiaire: string;
   ibanFin: string;
@@ -34,7 +50,7 @@ export function preparerOrdre(e: { beneficiaire: string; ibanFin: string; montan
   return { ok: true, ordre: { beneficiaire: e.beneficiaire.trim(), ibanFin: e.ibanFin, montantCents: e.montantCents, reference: e.reference.trim(), echeance: e.echeance, emis: false, aExecuterDansTaBanque: true } };
 }
 
-/** Écart de dates toléré pour proposer un rapprochement. Proposition : 5 jours. */
+/** Écart de dates toléré pour proposer un rapprochement : 5 jours (valeur de départ, §1.29 n° 3). */
 export const FENETRE_RAPPROCHEMENT_JOURS = 5;
 
 /**
@@ -60,5 +76,5 @@ export function suggestionsDeRapprochement(
   return sortie;
 }
 
-/** Le jour où un ordre préparé devrait être exécuté pour arriver à temps. Proposition : 2 jours avant l'échéance. */
+/** Le jour où un ordre préparé devrait être exécuté pour arriver à temps : 2 jours avant l'échéance (valeur de départ, §1.29 n° 3). */
 export const dateLimiteDeLOrdre = (echeance: Jour): Jour => ajouterJours(echeance, -2);

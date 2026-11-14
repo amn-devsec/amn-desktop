@@ -3,7 +3,7 @@ import { arrondi, ecartJours, joursDansMois, moisDe, type Jour } from './commun'
 /**
  * BUDGET (MA06) — les enveloppes du mois : consommé, reste, projection, état.
  *
- * Règles (propositions, à valider par le CO) :
+ * Règles (valeurs de départ adoptées par le CO, STATUT §1.29 n° 3, modifiables) :
  *   · consommé = dépenses du mois de l'enveloppe, dans ses catégories ;
  *   · projection = consommé ramené au mois entier au rythme actuel (mois terminé :
  *     le consommé) ;

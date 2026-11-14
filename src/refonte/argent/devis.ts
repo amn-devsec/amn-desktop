@@ -37,7 +37,7 @@ export function tauxDeTransformation(devis: readonly DevisLu[], aujourdhui: Jour
   return p;
 }
 
-/** Durée de validité d'un devis prérempli. Proposition : 30 jours. */
+/** Durée de validité d'un devis prérempli : 30 jours (valeur de départ, §1.29 n° 3). */
 export const VALIDITE_JOURS = 30;
 /** Taux de TVA d'une ligne préremplie quand la prestation n'en dit rien. */
 export const TAUX_TVA_PAR_DEFAUT = 20;

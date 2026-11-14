@@ -9,8 +9,10 @@ import { resteDu, type ContexteFacture, type FactureLue } from './facturation';
  * flux datés — encaissements attendus, prélèvements d'abonnements, charges fixes,
  * échéances fiscales, salaires — projetés jour par jour sur N semaines.
  *
- * Règles (propositions, à valider par le CO) :
- *   · le solde de départ contient déjà tout ce qui est passé jusqu'à aujourd'hui
+ * Règles (valeurs de départ adoptées par le CO, STATUT §1.29 n° 3 et n° 7, modifiables) :
+ *   · le solde de départ est celui des comptes COURANTS (`banque.soldeDeDepart`) ;
+ *     l'épargne s'ajoute par un interrupteur et reste montrée à part ;
+ *   · ce solde contient déjà tout ce qui est passé jusqu'à aujourd'hui
  *     inclus : seuls les flux datés de DEMAIN ou après comptent ;
  *   · une facture non échue est attendue à son échéance (« attendu ») ; une facture
  *     déjà en retard est attendue 14 jours après aujourd'hui (« incertain ») ;
@@ -52,7 +54,7 @@ export interface Projection {
   soldeFinCents: number;
 }
 
-/** Retard supposé d'une facture déjà échue. Proposition : 14 jours. */
+/** Retard supposé d'une facture déjà échue : 14 jours (valeur de départ). */
 export const DECALAGE_RETARD_JOURS = 14;
 export const SEMAINES_PAR_DEFAUT = 12;
 

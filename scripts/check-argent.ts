@@ -62,7 +62,7 @@ const MODULES = ['commun', 'facturation', 'devis', 'depenses', 'impayes', 'tva',
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const M = await charger<any>(
   MODULES.map((f) => `export * as ${f} from '../src/refonte/argent/${f}';`).join('\n') +
-    "\nexport * as monde from '../src/refonte/donnees';\nexport { netDueCents } from '../src/state/useInvoices';\nexport { documentTotals } from '../src/lib/money';",
+    "\nexport * as monde from '../src/refonte/donnees';\nexport { netDueCents, nextNumber } from '../src/state/useInvoices';\nexport { documentTotals } from '../src/lib/money';",
 );
 const { commun: C, facturation: F, devis: DV, depenses: DP, impayes: IM, tva: TV, abonnements: AB, budget: BU, tarifs: TA, tresorerie: TR, banque: BA, paie: PA, connecteurs: CO, i18n: I, monde } = M;
 
@@ -94,8 +94,11 @@ const AUJ = '2026-10-30'; // vendredi 30 octobre 2026, le jour des maquettes
 
 console.log('L’argent — facturation\n');
 
-await dit('T1 : TVA par taux sur la base HT — HT 1 057,50 €, TVA 206,06 €, TTC 1 263,56 €', () => {
-  // base 20 % = 900,00 + 120,00 = 1 020,00 → TVA 204,00 ; base 5,5 % = 37,50 → 2,0625 → 2,06.
+/* La TVA s'arrondit LIGNE PAR LIGNE, comme `src/lib/money.ts` (décision du CO, STATUT §1.29 n° 1, 14 nov.,
+ * provisoire, révisable par Harun). T2 et T5 ont changé d'attendu ce jour-là (0,20 → 0,21 € ; − 0,20 → − 0,21 €). */
+
+await dit('T1 : TVA ligne par ligne — HT 1 057,50 €, TVA 206,06 €, TTC 1 263,56 €', () => {
+  // 900,00 → 180,00 ; 120,00 → 24,00 ; 37,50 → 2,0625 → 2,06. Total TVA 206,06 €.
   const t = F.totauxDocument(LIGNES_T1);
   assert.equal(t.htCents, 105_750);
   assert.equal(t.tvaCents, 20_606);
@@ -106,13 +109,13 @@ await dit('T1 : TVA par taux sur la base HT — HT 1 057,50 €, TVA 206,06 €,
   ]);
 });
 
-await dit('T2 : 3 × 0,33 € à 20 % — la TVA se calcule une fois par taux (0,20 €), pas ligne par ligne (0,21 €)', () => {
+await dit('T2 : 3 × 0,33 € à 20 % — chaque ligne arrondie (0,066 → 0,07), soit 0,21 € de TVA et 1,20 € TTC, comme money.ts', () => {
   const lignes = [ligne(1, 33, 20, 'a'), ligne(1, 33, 20, 'b'), ligne(1, 33, 20, 'c')];
   const t = F.totauxDocument(lignes);
-  assert.equal(t.tvaCents, 20);
-  assert.equal(t.ttcCents, 119);
-  // Le module existant `src/lib/money.ts` arrondit LIGNE PAR LIGNE : il trouve 0,21 €. Écart signalé au CO (note LOT-04 §5).
-  assert.equal(M.documentTotals(lignes).vatCents, 21);
+  assert.equal(t.tvaCents, 21);
+  assert.equal(t.ttcCents, 120);
+  const ref = M.documentTotals(lignes);
+  assert.deepEqual([t.htCents, t.tvaCents, t.ttcCents], [ref.netCents, ref.vatCents, ref.grossCents]);
 });
 
 await dit('T3 : quantité décimale — 2,5 × 33,33 € = 83,325 € → 83,33 € HT, TVA 16,67 €, TTC 100,00 €', () => {
@@ -123,7 +126,7 @@ await dit('T3 : quantité décimale — 2,5 × 33,33 € = 83,325 € → 83,33 
 });
 
 await dit('T4 : remise de 10 % sur T1 — HT 951,75 €, TVA 185,46 €, TTC 1 137,21 €, remise 105,75 €', () => {
-  // base 20 % : 1 020,00 × 0,9 = 918,00 → 183,60 ; base 5,5 % : 37,50 × 0,9 = 33,75 → 1,85625 → 1,86.
+  // 810,00 → 162,00 ; 108,00 → 21,60 ; 33,75 → 1,85625 → 1,86. Total TVA 185,46 €.
   const t = F.totauxDocument(LIGNES_T1, 10);
   assert.equal(t.htCents, 95_175);
   assert.equal(t.tvaCents, 18_546);
@@ -131,10 +134,10 @@ await dit('T4 : remise de 10 % sur T1 — HT 951,75 €, TVA 185,46 €, TTC 1 1
   assert.equal(t.remiseCents, 10_575);
 });
 
-await dit('T5 : un avoir est négatif et s’arrondit loin de zéro (− 0,99 € → TVA − 0,20 €) ; taux 0 % → TVA nulle', () => {
+await dit('T5 : un avoir est négatif et s’arrondit loin de zéro (3 × − 0,066 → − 0,07, soit − 0,21 €) ; taux 0 % → TVA nulle', () => {
   const a = F.totauxDocument([ligne(1, -33, 20, 'a'), ligne(1, -33, 20, 'b'), ligne(1, -33, 20, 'c')]);
-  assert.equal(a.tvaCents, -20);
-  assert.equal(a.ttcCents, -119);
+  assert.equal(a.tvaCents, -21);
+  assert.equal(a.ttcCents, -120);
   assert.equal(F.totauxDocument([ligne(2, 2_500, 0)]).tvaCents, 0);
   assert.equal(F.totauxDocument([]).ttcCents, 0);
 });
@@ -184,13 +187,16 @@ await dit('échéance : 30 jours par défaut ; au-delà de 60 jours après l’�
   assert.equal(F.delaiConforme('2026-10-30', '2026-10-29'), false); // avant l’émission
 });
 
-await dit('numérotation : continue par année et par préfixe ; les trous se voient', () => {
-  const n = ['F-2026-0001', 'F-2026-0002', 'F-2026-0004', 'F-2025-0012', 'AV-2026-0001', ''];
-  assert.equal(F.prochainNumero(n, 2026), 'F-2026-0005');
-  assert.equal(F.prochainNumero(n, 2027), 'F-2027-0001');
+await dit('numérotation : le format existant AAAA-NNNN et AV-AAAA-NNNN (§1.29 n° 4), comme nextNumber ; les trous se voient', () => {
+  const n = ['2026-0001', '2026-0002', '2026-0004', '2025-0012', 'AV-2026-0001', 'D-2026-0009', ''];
+  assert.equal(F.prochainNumero(n, 2026), '2026-0005');
+  assert.equal(F.prochainNumero(n, 2027), '2027-0001');
   assert.equal(F.prochainNumero(n, 2026, 'AV'), 'AV-2026-0002');
-  assert.deepEqual(F.trousDeNumerotation(n, 2026), ['F-2026-0003']);
-  assert.deepEqual(F.trousDeNumerotation(['F-2026-0001', 'F-2026-0002'], 2026), []);
+  assert.deepEqual(F.trousDeNumerotation(n, 2026), ['2026-0003']);
+  assert.deepEqual(F.trousDeNumerotation(['2026-0001', '2026-0002'], 2026), []);
+  const factures = n.map((number) => ({ number }));
+  assert.equal(F.prochainNumero(n, 2026), M.nextNumber(factures, 2026, 'invoice'));
+  assert.equal(F.prochainNumero(n, 2026, 'AV'), M.nextNumber(factures, 2026, 'creditNote'));
 });
 
 await dit('mentions : celles qui manquent sont listées ; « valable juridiquement » n’est jamais affirmé, il reste à faire valider', () => {
@@ -216,6 +222,12 @@ await dit('pénalités : 1 000,00 € × 13,15 %/an × 30 jours = 10,81 € ; in
   assert.equal(IM.penalitesDeRetard(100_000, 0, 13.15), 0);
   assert.equal(IM.penalitesDeRetard(0, 30, 13.15), 0);
   assert.equal(IM.INDEMNITE_RECOUVREMENT_CENTS, 4_000);
+});
+
+await dit('taux des pénalités par défaut : le minimum légal, trois fois le taux d’intérêt légal (3 × 3,71 % = 11,13 %), présenté comme tel', () => {
+  // 3,71 % est un taux d’exemple passé en paramètre : le vrai taux du semestre est une donnée du réglage.
+  assert.deepEqual(IM.tauxPenalitesParDefaut(3.71), { source: 'minimum-legal', tauxAnnuelPct: 11.13 });
+  assert.match(I.traduire('fr', 'penalites.minimumLegal'), /minimum légal/i);
 });
 
 await dit('tranches de retard : 0–30, 31–60, 61–90, plus de 90 jours ; bornes comprises dans la tranche basse', () => {
@@ -306,6 +318,11 @@ await dit('crédit de TVA : 10,00 € collectés, 30,00 € déductibles → rie
   assert.equal(r.soldeCents, -2_000);
   assert.equal(r.aPayerCents, 0);
   assert.equal(r.creditCents, 2_000);
+});
+
+await dit('régime de TVA par défaut (§1.29 n° 2) : encaissements pour les services, débits pour les biens', () => {
+  assert.equal(TV.regimeParDefaut('services'), 'encaissements');
+  assert.equal(TV.regimeParDefaut('biens'), 'debits');
 });
 
 await dit('échéance de la TVA d’un mois : le 20 du mois suivant par défaut (proposition, à valider) ; décembre → janvier', () => {
@@ -543,6 +560,13 @@ await dit('rapprochement : un encaissement de 1 263,56 € le 07/10 propose la f
   assert.equal(BA.soldeTotal([{ soldeCents: 1_000 }, { soldeCents: 2_500 }]), 3_500);
 });
 
+await dit('solde de départ (§1.29 n° 7) : comptes courants par défaut (1 000,00 + carte 200,00 = 1 200,00 €), épargne de 5 000,00 € à part ou ajoutée', () => {
+  const comptes = [{ nom: 'Compte courant', soldeCents: 100_000 }, { nom: 'Compte d’épargne', soldeCents: 500_000 }, { nom: 'Compte carte', soldeCents: 20_000 }];
+  assert.deepEqual(BA.soldeDeDepart(comptes), { courantCents: 120_000, epargneCents: 500_000, totalCents: 120_000 });
+  assert.equal(BA.soldeDeDepart(comptes, { avecEpargne: true }).totalCents, 620_000);
+  assert.equal(BA.natureDuCompte('Livret A'), 'epargne');
+});
+
 await dit('aucune fonction de la zone n’émet un virement ni n’envoie un paiement', () => {
   for (const mod of MODULES) {
     for (const nom of Object.keys(M[mod])) assert.doesNotMatch(nom, /^(virer|emettre|envoyer(Virement|Paiement)|executer|payer)/i, `${mod}.${nom}`);
@@ -566,25 +590,38 @@ const MONDES: { nom: string; m: any }[] = [];
 for (const volume of ['vide', 'peu', 'normal', 'beaucoup']) MONDES.push({ nom: volume, m: monde.construireMonde({ volume }) });
 for (const graine of [7, 42, 2026]) MONDES.push({ nom: `normal/${graine}`, m: monde.construireMonde({ volume: 'normal', graine }) });
 
-await dit('totaux et reste dû : identiques aux totaux et au solde stockés par les jeux ; statut affiché identique', () => {
+/* Les jeux de SIM calculent encore la TVA PAR TAUX (avant la décision du 14 nov., §1.29 n° 1) : en attendant leur
+ * alignement, la logique est comparée À L'IDENTIQUE à `money.ts`, et aux jeux à une tolérance d'un centime par ligne
+ * (l'écart qu'un arrondi par ligne peut produire, au plus). Quand SIM s'aligne, la tolérance passe à zéro. */
+const ecartLignes = (f: any) => f.lines.length;
+
+await dit('totaux et reste dû : identiques à money.ts ; aux jeux, à un centime par ligne près ; statut affiché identique', () => {
   const traduit: Record<string, string> = { brouillon: 'Brouillon', envoyee: 'Envoyée', 'en-retard': 'En retard', payee: 'Payée', annulee: 'Annulée' };
+  let ecarts = 0;
   for (const { nom, m } of MONDES) {
     const auj = m.contexte.aujourdhui;
     for (const f of m.factures) {
       const t = F.totauxDocument(f.lines);
+      const money = M.documentTotals(f.lines);
+      assert.deepEqual([t.htCents, t.tvaCents, t.ttcCents], [money.netCents, money.vatCents, money.grossCents], `${nom} ${f.id} (money.ts)`);
       const ref = monde.totauxDeFacture(f);
-      assert.deepEqual([t.htCents, t.tvaCents, t.ttcCents], [ref.htCents, ref.tvaCents, ref.ttcCents], `${nom} ${f.id}`);
-      assert.equal(F.resteDu(f, { factures: m.factures, paiements: [] }), f.soldeCents, `${nom} ${f.id} reste dû`);
+      assert.equal(t.htCents, ref.htCents, `${nom} ${f.id} HT`);
+      assert.ok(Math.abs(t.tvaCents - ref.tvaCents) <= ecartLignes(f), `${nom} ${f.id} TVA ${t.tvaCents} / ${ref.tvaCents}`);
+      if (t.tvaCents !== ref.tvaCents) ecarts += 1;
+      const reste = F.resteDu(f, { factures: m.factures, paiements: [] });
+      assert.ok(Math.abs(reste - f.soldeCents) <= (f.soldeCents ? ecartLignes(f) : 0), `${nom} ${f.id} reste dû`);
       assert.equal(traduit[F.statutFacture(f, auj, { factures: m.factures, paiements: [] })], monde.statutAffiche(f, auj), `${nom} ${f.id} statut`);
-      if (f.status === 'issued') assert.equal(F.resteDu(f, { factures: m.factures, paiements: [] }), M.netDueCents(f, m.factures) === 0 ? 0 : t.ttcCents);
+      if (f.status === 'issued') assert.equal(reste, M.netDueCents(f, m.factures), `${nom} ${f.id} = netDueCents`);
     }
   }
+  console.log(`      (factures dont la TVA diffère d’un centime entre les deux règles, sur tous les mondes : ${ecarts})`);
 });
 
 await dit('numérotation des jeux : continue, sans trou, chaque année', () => {
   for (const { nom, m } of MONDES) {
+    // Les jeux numérotent encore `F-AAAA-NNNN` (§1.29 n° 4 : SIM s'aligne) : lus avec le préfixe `F`.
     const numeros = m.factures.map((f: any) => f.number);
-    for (const an of new Set(numeros.filter(Boolean).map((n: string) => Number(n.slice(2, 6))))) assert.deepEqual(F.trousDeNumerotation(numeros, an), [], `${nom} ${an}`);
+    for (const an of new Set(numeros.filter(Boolean).map((n: string) => Number(n.slice(2, 6))))) assert.deepEqual(F.trousDeNumerotation(numeros, an, 'F'), [], `${nom} ${an}`);
   }
 });
 
@@ -596,7 +633,10 @@ await dit('TVA (débits) de chaque échéance « TVA de … » des jeux, et coti
       const prec = mo === 1 ? `${a - 1}-12` : `${a}-${String(mo - 1).padStart(2, '0')}`;
       if (e.famille === 'TVA') {
         tvaVues += 1;
-        assert.equal(TV.tvaDuMois({ mois: prec, regime: 'debits', factures: m.factures, paiements: [], depenses: m.depenses }).soldeCents, e.montantCents, `${nom} ${e.intitule}`);
+        // Tolérance d'un centime par ligne des factures du mois, jusqu'à l'alignement de SIM (voir plus haut).
+        const lignesDuMois = m.factures.filter((f: any) => f.status !== 'draft' && f.status !== 'cancelled' && f.issuedAt.startsWith(prec)).reduce((s: number, f: any) => s + f.lines.length, 0);
+        const calcule = TV.tvaDuMois({ mois: prec, regime: 'debits', factures: m.factures, paiements: [], depenses: m.depenses }).soldeCents;
+        assert.ok(Math.abs(calcule - e.montantCents) <= lignesDuMois, `${nom} ${e.intitule} : ${calcule} / ${e.montantCents}`);
         assert.equal(TV.echeanceTva(prec), e.echeanceLe);
       }
       if (e.famille === 'Cotisations') {
@@ -620,7 +660,7 @@ await dit('trésorerie sur les jeux : solde final = départ + flux de l’horizo
   for (const { nom, m } of MONDES) {
     const auj = m.contexte.aujourdhui;
     const flux = TR.fluxDesMouvementsPrevus(m.mouvements);
-    const depart = BA.soldeTotal(m.comptes);
+    const depart = BA.soldeDeDepart(m.comptes).totalCents;
     for (const scenario of ['attendu', 'prudent']) {
       const p = TR.projeter({ soldeDepartCents: depart, aujourdhui: auj, flux, semaines: 12, scenario });
       const fin = p.jours.at(-1).date;
@@ -648,7 +688,9 @@ await dit('devis, budget, tarifs, impayés et banque sur les jeux : aucun NaN, c
     for (const p of m.prestations) assert.ok(TA.margePct(p.prixCents, p.coutCents) === null || Number.isFinite(TA.margePct(p.prixCents, p.coutCents)));
     const tranches = IM.tranchesDeRetard(m.factures, auj, { paiements: [] });
     assert.equal(tranches.reduce((s: number, t: any) => s + t.montantCents, 0), IM.totalImpaye(m.factures, auj, { paiements: [] }));
-    assert.equal(IM.totalImpaye(m.factures, auj, { paiements: [] }), m.factures.filter((f: any) => monde.statutAffiche(f, auj) === 'En retard').reduce((s: number, f: any) => s + f.soldeCents, 0), `${nom} impayés`);
+    const enRetard = m.factures.filter((f: any) => monde.statutAffiche(f, auj) === 'En retard');
+    const attendu = enRetard.reduce((s: number, f: any) => s + M.netDueCents(f, m.factures), 0);
+    assert.equal(IM.totalImpaye(m.factures, auj, { paiements: [] }), attendu, `${nom} impayés`);
     for (const c of m.comptes) assert.equal(c.accesLectureSeule, true);
   }
 });

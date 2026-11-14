@@ -7,8 +7,9 @@ import { encaisse, totauxDocument, type FactureLue, type ReglementLu } from './f
  * Tout résultat porte `aValiderParUnComptable: true` : l'application aide à
  * préparer, elle ne déclare rien et ne remplace pas le comptable.
  *
- * DEUX RÉGIMES, à choisir dans les réglages (proposition : les encaissements pour
- * les prestations de services, à valider par un comptable) :
+ * DEUX RÉGIMES — un réglage de l'entreprise (STATUT §1.29 n° 2, provisoire, révisable
+ * par Harun). Par défaut : les encaissements pour les prestations de services, les
+ * débits pour les ventes de biens (`regimeParDefaut`). À valider par un comptable :
  *   · `debits` — la TVA est due sur les factures ÉMISES dans le mois (avoirs déduits).
  *     C'est la règle des jeux fictifs de SIM.
  *   · `encaissements` — la TVA est due sur les règlements REÇUS dans le mois, au
@@ -17,6 +18,10 @@ import { encaisse, totauxDocument, type FactureLue, type ReglementLu } from './f
  */
 
 export type Regime = 'debits' | 'encaissements';
+export type NatureActivite = 'services' | 'biens';
+
+/** Le régime proposé tant que l'entreprise n'a rien réglé (§1.29 n° 2). */
+export const regimeParDefaut = (nature: NatureActivite): Regime => (nature === 'services' ? 'encaissements' : 'debits');
 
 export interface DepenseLue {
   amountCents: number;
@@ -71,7 +76,7 @@ export function tvaDuMois(e: { mois: Mois; regime: Regime; factures: readonly Fa
 /** Le montant encaissé sur une facture (pratique pour un écran qui détaille le régime des encaissements). */
 export const encaisseSurFacture = encaisse;
 
-/** Jour limite de déclaration par défaut. Proposition : le 20 du mois suivant (le vrai jour dépend de l'entreprise, à valider). */
+/** Jour limite de déclaration : le 20 du mois suivant, valeur de départ modifiable (§1.29 n° 3 ; le vrai jour dépend de l'entreprise, à valider). */
 export const JOUR_ECHEANCE_TVA = 20;
 
 export const echeanceTva = (mois: Mois, jour = JOUR_ECHEANCE_TVA): Jour => jourDuMois(moisSuivant(mois), jour);

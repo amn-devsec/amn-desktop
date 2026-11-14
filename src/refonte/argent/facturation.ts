@@ -5,12 +5,13 @@ import { ajouterJours, arrondi, ecartJours, type Jour } from './commun';
  * FACTURATION (G03, H07, MA04) — totaux, reste dû, statut, échéance, numérotation,
  * mentions.
  *
- * LA RÈGLE DE LA TVA. La TVA d'un document se calcule PAR TAUX, sur la somme des
- * bases hors taxes, arrondie une fois au centime (règle de la fiche H07, et celle
- * des jeux fictifs de SIM). Le module existant `src/lib/money.ts` (`documentTotals`,
- * écrans actuels de facturation) arrondit LIGNE PAR LIGNE : sur trois lignes de
- * 0,33 € à 20 %, il trouve 0,21 € de TVA, la règle par taux 0,20 €. L'écart est
- * porté au CO (note LOT-04 §5) ; ce module suit la fiche.
+ * LA RÈGLE DE LA TVA (décision du CO, STATUT §1.29 n° 1, provisoire, révisable par
+ * Harun après l'avis d'un comptable). La TVA s'arrondit LIGNE PAR LIGNE, puis se
+ * totalise par taux : exactement la règle de `src/lib/money.ts` (`lineAmounts`,
+ * `documentTotals`). `money.ts` sert aussi l'édition cliente, qui ne change pas, et
+ * toutes les factures d'une organisation suivent une seule règle. Sur trois lignes de
+ * 0,33 € à 20 %, cela donne 0,21 € de TVA (la règle par taux de la fiche H07 donnerait
+ * 0,20 €). Les jeux de SIM, encore par taux, s'alignent (§1.29 n° 4 et n° 1).
  */
 
 export type Ligne = Pick<InvoiceLine, 'quantity' | 'unitPriceCents' | 'vatRate'> & Partial<Pick<InvoiceLine, 'label' | 'id'>>;
@@ -32,27 +33,27 @@ export interface TotauxDocument {
 }
 
 /**
- * Les totaux d'un devis, d'une facture ou d'un avoir.
+ * Les totaux d'un devis, d'une facture ou d'un avoir — sans remise, identiques à
+ * `documentTotals` de `src/lib/money.ts` (`check:argent` le vérifie).
  *
- * `remisePct` est une remise globale sur le hors taxes : elle s'applique à la base
- * de chaque taux, arrondie au centime, avant la TVA.
+ * `remisePct` est une remise globale sur le hors taxes : elle s'applique au hors taxes
+ * de chaque ligne, arrondi au centime, avant la TVA de la ligne.
  */
 export function totauxDocument(lignes: readonly Ligne[], remisePct = 0): TotauxDocument {
-  const bases = new Map<number, number>();
+  const facteur = (100 - Math.min(100, Math.max(0, remisePct))) / 100;
+  const parTauxMap = new Map<number, TotalTaux>();
+  let brut = 0;
   for (const l of lignes) {
     const taux = Number.isFinite(l.vatRate) ? l.vatRate : 0;
-    const montant = arrondi((Number.isFinite(l.quantity) ? l.quantity : 0) * (Number.isFinite(l.unitPriceCents) ? l.unitPriceCents : 0));
-    bases.set(taux, (bases.get(taux) ?? 0) + montant);
+    const net = arrondi((Number.isFinite(l.quantity) ? l.quantity : 0) * (Number.isFinite(l.unitPriceCents) ? l.unitPriceCents : 0));
+    brut += net;
+    const base = remisePct ? arrondi(net * facteur) : net;
+    const t = parTauxMap.get(taux) ?? { taux, baseCents: 0, tvaCents: 0 };
+    t.baseCents += base;
+    t.tvaCents += arrondi((base * taux) / 100);
+    parTauxMap.set(taux, t);
   }
-  const facteur = (100 - Math.min(100, Math.max(0, remisePct))) / 100;
-  let brut = 0;
-  const parTaux: TotalTaux[] = [...bases.entries()]
-    .sort((a, b) => a[0] - b[0])
-    .map(([taux, base]) => {
-      brut += base;
-      const baseCents = remisePct ? arrondi(base * facteur) : base;
-      return { taux, baseCents, tvaCents: arrondi((baseCents * taux) / 100) };
-    });
+  const parTaux = [...parTauxMap.values()].sort((a, b) => a.taux - b.taux);
   const htCents = parTaux.reduce((s, t) => s + t.baseCents, 0);
   const tvaCents = parTaux.reduce((s, t) => s + t.tvaCents, 0);
   return { htCents, tvaCents, ttcCents: htCents + tvaCents, parTaux, remiseCents: brut - htCents };
@@ -122,9 +123,9 @@ export function statutFacture(f: FactureLue, aujourdhui: Jour, ctx: ContexteFact
   return reste < totauxDocument(f.lines).ttcCents ? 'partiellement-payee' : 'envoyee';
 }
 
-/** Délai de paiement proposé par défaut (jours après l'émission). Proposition : 30 jours. */
+/** Délai de paiement par défaut (jours après l'émission) : 30 jours, valeur de départ modifiable (STATUT §1.29 n° 3). */
 export const DELAI_PAR_DEFAUT_JOURS = 30;
-/** Délai au-delà duquel une échéance n'est plus conforme (60 jours après l'émission). À valider par un comptable. */
+/** Délai au-delà duquel une échéance n'est plus conforme : 60 jours après l'émission (valeur de départ ; à valider par un comptable). */
 export const DELAI_MAX_JOURS = 60;
 
 export const echeanceParDefaut = (emisLe: Jour, delaiJours = DELAI_PAR_DEFAUT_JOURS): Jour => ajouterJours(emisLe, delaiJours);
@@ -135,22 +136,30 @@ export function delaiConforme(emisLe: Jour, echeance: Jour): boolean {
   return d >= 0 && d <= DELAI_MAX_JOURS;
 }
 
-const motif = (prefixe: string, annee: number) => new RegExp(`^${prefixe}-${annee}-(\\d{4,})$`);
+/**
+ * LA NUMÉROTATION (STATUT §1.29 n° 4) : le format du module existant, pour que la
+ * suite ne se rompe jamais — `AAAA-NNNN` pour une facture (préfixe vide), `AV-AAAA-NNNN`
+ * pour un avoir (préfixe `AV`), comme `nextNumber` de `src/state/useInvoices.ts`. Les
+ * devis gardent `D-AAAA-NNNN`. Les jeux de SIM (`F-AAAA-NNNN`) s'alignent ; d'ici là,
+ * `check:argent` les lit avec le préfixe `F`.
+ */
+const debut = (prefixe: string, annee: number) => (prefixe ? `${prefixe}-${annee}-` : `${annee}-`);
+const motif = (prefixe: string, annee: number) => new RegExp(`^${debut(prefixe, annee)}(\\d{4,})$`);
 
-/** Le numéro suivant, `F-AAAA-NNNN` (ou `AV-…`, `D-…`) : une suite continue par année et par préfixe. */
-export function prochainNumero(numeros: readonly string[], annee: number, prefixe = 'F'): string {
+/** Le numéro suivant : une suite continue par année et par préfixe. */
+export function prochainNumero(numeros: readonly string[], annee: number, prefixe = ''): string {
   const re = motif(prefixe, annee);
   const max = numeros.reduce((m, n) => Math.max(m, Number(re.exec(n)?.[1] ?? 0)), 0);
-  return `${prefixe}-${annee}-${String(max + 1).padStart(4, '0')}`;
+  return `${debut(prefixe, annee)}${String(max + 1).padStart(4, '0')}`;
 }
 
 /** Les numéros qui manquent dans la suite d'une année (une suite de factures ne doit pas avoir de trou). */
-export function trousDeNumerotation(numeros: readonly string[], annee: number, prefixe = 'F'): string[] {
+export function trousDeNumerotation(numeros: readonly string[], annee: number, prefixe = ''): string[] {
   const re = motif(prefixe, annee);
   const pris = new Set(numeros.map((n) => Number(re.exec(n)?.[1] ?? 0)).filter((k) => k > 0));
   const max = Math.max(0, ...pris);
   const trous: string[] = [];
-  for (let k = 1; k <= max; k += 1) if (!pris.has(k)) trous.push(`${prefixe}-${annee}-${String(k).padStart(4, '0')}`);
+  for (let k = 1; k <= max; k += 1) if (!pris.has(k)) trous.push(`${debut(prefixe, annee)}${String(k).padStart(4, '0')}`);
   return trous;
 }
 

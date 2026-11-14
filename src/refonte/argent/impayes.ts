@@ -67,10 +67,21 @@ export function delaiMoyenDePaiement(factures: readonly FactureLue[]): number | 
 export const INDEMNITE_RECOUVREMENT_CENTS = 4_000;
 
 /**
- * Pénalités de retard : reste dû × taux annuel × jours / 365, arrondies au centime.
- * Le taux est celui des conditions générales de l'entreprise (un réglage), jamais
- * écrit dans le code.
+ * LE TAUX DES PÉNALITÉS (STATUT §1.29 n° 6) : un réglage de l'identité de facturation,
+ * repris par H18. Par défaut, le MINIMUM LÉGAL entre professionnels, présenté comme
+ * tel : trois fois le taux d'intérêt légal. Le taux d'intérêt légal change chaque
+ * semestre : c'est une donnée du réglage, jamais une valeur écrite dans le code.
  */
+export const MULTIPLE_MINIMUM_LEGAL = 3;
+
+export type TauxPenalites = { source: 'minimum-legal'; tauxAnnuelPct: number } | { source: 'conditions-generales'; tauxAnnuelPct: number };
+
+/** Le taux de départ : le minimum légal, calculé depuis le taux d'intérêt légal du semestre (réglage). */
+export function tauxPenalitesParDefaut(tauxInteretLegalPct: number): TauxPenalites {
+  return { source: 'minimum-legal', tauxAnnuelPct: Math.round(tauxInteretLegalPct * MULTIPLE_MINIMUM_LEGAL * 100) / 100 };
+}
+
+/** Pénalités de retard : reste dû × taux annuel × jours / 365, arrondies au centime. */
 export function penalitesDeRetard(resteCents: number, jours: number, tauxAnnuelPct: number): number {
   if (resteCents <= 0 || jours <= 0 || !(tauxAnnuelPct > 0)) return 0;
   return arrondi((resteCents * tauxAnnuelPct * jours) / 100 / 365);

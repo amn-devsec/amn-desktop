@@ -5,7 +5,7 @@ import { jourDuMois, moisDe, moisSuivant, pourcentage, type Jour, type Mois } fr
  *
  * Revenu mensuel récurrent : les abonnements « Actif » et « Paiement échoué » (la
  * cliente est toujours abonnée, le prélèvement est à reprendre) ; « En pause » et
- * « Résilié » n'y entrent pas. Proposition à valider par le CO.
+ * « Résilié » n'y entrent pas (STATUT §1.29 n° 5, sous réserve de la fiche).
  */
 
 export type EtatAbonnement = 'Actif' | 'Paiement échoué' | 'En pause' | 'Résilié';
