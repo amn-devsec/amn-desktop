@@ -81,6 +81,7 @@
     "check:donnees": "node --experimental-strip-types --disable-warning=ExperimentalWarning --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-donnees.ts",
     "check:developpement": "node --experimental-strip-types --disable-warning=ExperimentalWarning --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-developpement.ts",
     "check:connecteurs": "node --experimental-strip-types --disable-warning=ExperimentalWarning --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-connecteurs.ts",
+    "check:outils": "node --experimental-strip-types --disable-warning=ExperimentalWarning --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-outils.ts",
     "check:clavier": "node scripts/check-clavier.mjs",
     "gardes": "node scripts/gardes-navigateur.mjs",
     "seed:essai": "node scripts/seed-essai.mjs",

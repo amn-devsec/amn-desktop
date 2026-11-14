@@ -197,7 +197,9 @@ section('Tarifs relevés');
 const releveValide = { categorie: 'sms', optionId: 'twilio', tarif: tarifFictif() };
 
 dit('chaque relevé de tarifs.ts est recevable (source https, date passée, montants positifs)', () => {
-  for (const r of K.RELEVES) assert.deepEqual(K.defautsDuReleve(r, AUJ), [], `${r.categorie}/${r.optionId}`);
+  // Un vrai relevé porte la date du jour où il a été fait : on le juge au calendrier réel (Paris), pas au jour figé des essais.
+  const aujourdhuiReel = new Intl.DateTimeFormat('fr-CA', { timeZone: 'Europe/Paris' }).format(new Date());
+  for (const r of K.RELEVES) assert.deepEqual(K.defautsDuReleve(r, aujourdhuiReel), [], `${r.categorie}/${r.optionId}`);
 });
 
 dit('un relevé fictif bien formé passe ; chaque défaut est nommé', () => {

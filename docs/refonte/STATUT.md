@@ -817,8 +817,8 @@ Mots fr/en par `definirMots`. Gardes : `check:socle-controles|graphiques|situati
 | F60 | Outils · Vue d'ensemble | nouveau | à faire | |
 | H18 | Outils · Paramètres | mixte | à faire | |
 | H19 | Outils · Membres et accès | mixte | à faire | |
-| H20 | Outils · Automatisations | mixte | à faire | |
-| H21 | Outils · Connecteurs | mixte | à faire | |
+| H20 | Outils · Automatisations | mixte | en cours (préparation) | Couture `@edition/automatisations` posée (§1.22 n° 4) : le moteur actuel reste tel quel dans les deux éditions ; l'interne exécute en plus les règles `'flux'` (`src/refonte/outils/`), en entier ou pas du tout ; la cliente reçoit un jumeau vide. Écran : après le socle v4. |
+| H21 | Outils · Connecteurs | mixte | en cours (préparation) | 7 tarifs relevés le 14 nov. sur les pages officielles, en euros : Mailjet, Gmail (API), Google Agenda (API), Stripe, Mollie, GoCardless, OVHcloud SMS. Les autres restent « à relever » (détail dans `rapports/S6-outils.md`). Écran : après le socle v4. |
 | H22 | Outils · Corbeille et historique | mixte | à faire | |
 | H23 | Outils · Assistance | mixte | à faire | |
 | H24 | Outils · Coffre-fort | mixte | à faire | |
@@ -830,6 +830,12 @@ Mots fr/en par `definirMots`. Gardes : `check:socle-controles|graphiques|situati
 | MO03 | Outils · Sauvegardes | mixte | à faire | |
 | MO04 | Outils · Import et export | mixte | à faire | |
 | MO05 | Outils · Raccourcis et favoris | mixte | à faire | |
+
+**Garde** : `check:outils` (18 contrôles, en CI).
+
+**Manque aux données** : un champ d'échéance des tâches (une tâche « à échéance » d'un flux attend) ; le montant et l'expéditeur dans les sources du moteur de H20 (un SI « montant » ou « expéditeur connu » attend).
+
+**Manque au modèle des connecteurs** (LOT-12, S9 en pause) : la devise d'un tarif (les tarifs publiés en dollars ne peuvent pas entrer) ; le plafond par transaction (GoCardless).
 
 ### LOT-08 · La Garde et la supervision — `claude/refonte-garde` — 12 écrans
 

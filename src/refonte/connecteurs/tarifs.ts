@@ -10,9 +10,16 @@ import type { Categorie, CategorieId, Jour, Tarif } from './types';
  *   · la date du relevé ;
  *   · la formule et les montants, en centimes, hors taxes ou non (dit).
  *
- * La liste est VIDE au 12 nov. : rien n'a été relevé en mode préparation, et
- * aucun chiffre n'est écrit de mémoire. `check:connecteurs` vérifie chaque
- * entrée ajoutée ici (source, date passée, montants positifs, option connue).
+ * Vide au 12 nov. (mode préparation). Premier relevé le 14 nov. (S6, LOT-07),
+ * pour H21 : seuls les tarifs publiés EN EUROS et lus mot pour mot sur la page
+ * officielle sont entrés. Un tarif publié en dollars attend : le modèle n'a pas
+ * de devise, et convertir serait inventer. Un tarif illisible (page chargée par
+ * script, redirection, page introuvable) attend aussi. Le détail de ce qui
+ * reste « à relever » est dans le rapport de S6. `check:connecteurs` vérifie
+ * chaque entrée ajoutée ici (source, date passée, montants positifs, option connue).
+ *
+ * `horsTaxes: false` veut dire « la page ne dit pas hors taxes » : le montant
+ * est pris tel qu'affiché.
  */
 
 export type TarifReleve = Extract<Tarif, { etat: 'releve' }>;
@@ -23,7 +30,53 @@ export interface Releve {
   tarif: TarifReleve;
 }
 
-export const RELEVES: readonly Releve[] = [];
+const LE_14_NOV = '2026-11-14';
+
+export const RELEVES: readonly Releve[] = [
+  // Offre Starter, 8 000 courriels par mois. La page dit : « tous les prix […] n'incluent pas la TVA ».
+  {
+    categorie: 'messagerie',
+    optionId: 'mailjet',
+    tarif: { etat: 'releve', formule: 'abonnement', fixeMensuelCents: 800, inclusParMois: 8000, unite: 'envoi', source: 'https://www.mailjet.com/fr/tarifs/', releveLe: LE_14_NOV, horsTaxes: true },
+  },
+  // « All standard use of the Gmail API is available at no additional cost. »
+  {
+    categorie: 'messagerie',
+    optionId: 'gmail',
+    tarif: { etat: 'releve', formule: 'gratuit', source: 'https://developers.google.com/gmail/api/reference/quota', releveLe: LE_14_NOV, horsTaxes: false },
+  },
+  // « All standard use of the Google Calendar API is available at no additional cost. »
+  {
+    categorie: 'agenda',
+    optionId: 'google-agenda',
+    tarif: { etat: 'releve', formule: 'gratuit', source: 'https://developers.google.com/workspace/calendar/api/guides/quota', releveLe: LE_14_NOV, horsTaxes: false },
+  },
+  // « 1,5 % + 0,25 € » pour les cartes standard de l'Espace économique européen ; sans frais mensuels.
+  {
+    categorie: 'paiement',
+    optionId: 'stripe',
+    tarif: { etat: 'releve', formule: 'commission', commissionDixMillieme: 150, commissionFixeCents: 25, unite: 'transaction', source: 'https://stripe.com/fr/pricing', releveLe: LE_14_NOV, horsTaxes: false },
+  },
+  // « 1,80 % + 0,25 € » pour les cartes de consommateur de l'Espace économique européen.
+  {
+    categorie: 'paiement',
+    optionId: 'mollie',
+    tarif: { etat: 'releve', formule: 'commission', commissionDixMillieme: 180, commissionFixeCents: 25, unite: 'transaction', source: 'https://www.mollie.com/fr/pricing', releveLe: LE_14_NOV, horsTaxes: false },
+  },
+  // Offre Standard, prélèvement en zone euro : « 1 % + 0,20 € », « Plafonnés à 2 € » (le modèle n'a pas de plafond par
+  // transaction : le coût affiché est donc un maximum) ; « Les prix sont hors TVA ».
+  {
+    categorie: 'paiement',
+    optionId: 'gocardless',
+    tarif: { etat: 'releve', formule: 'commission', commissionDixMillieme: 100, commissionFixeCents: 20, unite: 'transaction', source: 'https://gocardless.com/fr-fr/tarifs/', releveLe: LE_14_NOV, horsTaxes: true },
+  },
+  // Premier pack affiché : « 100 SMS », « 0,06 € HT/SMS ». La page ne précise pas la destination : à revérifier.
+  {
+    categorie: 'sms',
+    optionId: 'ovh-sms',
+    tarif: { etat: 'releve', formule: 'a-l-usage', parUniteCents: 6, unite: 'sms', source: 'https://www.ovhcloud.com/fr/sms/', releveLe: LE_14_NOV, horsTaxes: true },
+  },
+];
 
 /** Au-delà, un relevé est « ancien » : on l'affiche avec sa date, en invitant à le revérifier. */
 export const JOURS_AVANT_ANCIEN = 90;

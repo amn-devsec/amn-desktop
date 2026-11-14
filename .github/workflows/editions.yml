@@ -145,6 +145,8 @@ jobs:
         run: npm run check:developpement
       - name: Connecteurs et autonomie (LOT-12) — local d'abord, coût avant, trois clics, aucune clé, moteurs locaux
         run: npm run check:connecteurs
+      - name: Outils et réglages (LOT-07) — couture du moteur de H20, tarifs relevés de H21
+        run: npm run check:outils
 
       - name: Contrôle de la file d'envoi
         run: npm run check:envoi
