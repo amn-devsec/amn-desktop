@@ -2,7 +2,7 @@
 
 > Réécrit par le CO. Dernière mise à jour : 14 nov., 16h15 UTC. La boucle tourne ; ton plan « Bureau de travail » est en tête.
 
-**Compteurs** (14 nov., 15h35) : **écrans construits 79 / 153, livrés 79** · **lots préparés 9 / 13, lots finis 6 / 13** · **écrans livrés depuis la veille : 79**.
+**Compteurs** (14 nov., 15h35) : **écrans construits 82 / 153, livrés 79** · **lots préparés 9 / 13, lots finis 6 / 13** · **écrans livrés depuis la veille : 79**.
 Lots livrés : LOT-01 Ma journée (16), LOT-02 Contacts (13), LOT-03 Écrire et retenir (9), LOT-05 Échanger (10), LOT-06 Créer et produire (15), LOT-11 Développement (7), et les 9 écrans de LOT-00 du socle. Tout ce qui est construit est livré. T1 a vérifié vivante en entier à 14h00 : 77 contrôles sur 77, et la fidélité des six lots dans les seuils. La courbe : `STATUT.md`, « Vitesse ».
 
 ## Ton plan « Bureau de travail » (direction du 14 nov., en priorité)

@@ -21,7 +21,7 @@ Mode : **continu et autonome**, repris par Harun (« reprends », 14 nov., aprè
 | S6 | `session_01RHV8Xq2txWkfjAusKvq9DG` | préparation de LOT-07 fusionnée ; **sans zips v4** ; LOT-10 passe à S8 | construire LOT-07 dès les zips ; relire la sécurité de LOT-10 avant sa fusion |
 | S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **LOT-06 et LOT-01 (moitié S7) livrés** | en pause : aucun lot libre |
 | S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | **LOT-11 livré** ; accord de Harun pour LOT-10 | **construit LOT-10** Cyber sur `claude/refonte-cyber` (note de préparation d'abord) |
-| DS | `session_01TZGDvVWristJnnPK59rruY` | attend l'accord direct de Harun pour construire LOT-04 | commencer par MA03, H07, MA12 |
+| DS | `session_01TZGDvVWristJnnPK59rruY` | **LOT-04 en construction**, 3 sur 17 (`80a09f3d`) | fusionner vivante (gardes de S5) ; répondre au partage avec S7 |
 | SIM, S9, F1 | `session_011UF2ufZg9moGv2rRZFRuf7`, `session_01C5DAVygXYax6Q7g436TPQx`, `session_01VZHqP3gvzrtnpgsTrrKguV` | en pause | F1 : intégration reportée (S0) |
 
 **Dès que Harun a collé ses accords** : DS construit LOT-04 (S7 peut prendre la moitié, comme pour LOT-01) ; S3 corrige `check:encres`, puis LOT-08 ; S8 fait LOT-10 ; S0 fait le socle (§1.38), puis l'allumage de la coquille et F1 ; S6 construit LOT-07 dès les zips. S5 fait un relevé mobile des lots livrés pour LOT-09. Avant chaque fusion : `git ls-tree <sha> node_modules` vide, et toutes les `check:*` sauf `business` et `fidelite`.
@@ -40,7 +40,7 @@ Mode : **continu et autonome**, repris par Harun (« reprends », 14 nov., aprè
 
 | Jour | Construits | Livrés (cumul) | Livrés depuis la veille | Lots préparés | Lots finis | Note |
 |---|---|---|---|---|---|---|
-| 14 nov. | 79 / 153 | 79 (LOT-00 9, LOT-06 15, LOT-11 7, LOT-02 13, LOT-03 9, LOT-05 10, LOT-01 16) | 79 | 9 / 13 | 6 / 13 (LOT-06, LOT-11, LOT-02, LOT-03, LOT-05, LOT-01) ; LOT-00 attend l'allumage | LOT-02 retiré à 11h25 (`check:clavier`), refusionné corrigé à 11h40. Restent : LOT-04 (DS), LOT-07 (S6), LOT-08 (S3), LOT-09 (après 01 à 08), LOT-10 (S8), tous en attente de Harun ou des zips. |
+| 14 nov. | 82 / 153 | 79 (LOT-00 9, LOT-06 15, LOT-11 7, LOT-02 13, LOT-03 9, LOT-05 10, LOT-01 16) | 79 | 9 / 13 | 6 / 13 (LOT-06, LOT-11, LOT-02, LOT-03, LOT-05, LOT-01) ; LOT-00 attend l'allumage | LOT-02 retiré à 11h25 (`check:clavier`), refusionné corrigé à 11h40. Restent : LOT-04 (DS), LOT-07 (S6), LOT-08 (S3), LOT-09 (après 01 à 08), LOT-10 (S8), tous en attente de Harun ou des zips. |
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
@@ -51,6 +51,7 @@ Mode : **continu et autonome**, repris par Harun (« reprends », 14 nov., aprè
 - 14 nov., 10h15 : **LOT-06 fusionné** (`e1615090`, 15 écrans), **premier lot livré** de la vague de construction. T1 l'a accepté : fidélité sur l'aperçu, les 15 écrans justifiés ; structure sur l'application, les 12 routes montées dans la coquille v4, rien de coupé à 390 px. Suites demandées à S7 : relire 6 écrans au-dessus de 15 % en disposition (H17, MR01, MR10, H16, MR05, MR04) ; zones de clic de 34 px (§1.39) ; l'état vide de H17 (« Le livre de marque d’ · ») ; les entrées de registre de ses 3 écrans neufs. T1 fixe les valeurs acceptées de LOT-06.
 - 14 nov., 10h00 : **LOT-06 complet** (S7, `277263a`, 15 sur 15). S7 et S8 butent tous deux sur `check:systeme-demarrage` (« le registre ne doit pas bouger », qui perd les fonctions des écrans neufs). Le correctif est sur la branche LOT-03 de S5 et arrive avec sa fusion. Ordre : LOT-03, puis S7 et S8 déclarent leurs écrans neufs, puis LOT-06 et LOT-11.
 - 14 nov., 10h00 : méthode de `check:fidelite` (§1.40). La fidélité se mesure sur l'aperçu statique, rempli avec les jeux de SIM ; l'application sert à la structure. Pas de collection nouvelle dans l'API d'essai.
+- 14 nov., 16h40 : LOT-04 (DS) à 3 écrans sur 17 (`80a09f3d` : MA03, H07, MA12). La branche de DS n'a pas le correctif durable de S5 sur `check:navigation` et `check:systeme-demarrage`, et DS avait ajusté ces gardes de son côté. Demande : fusionner vivante, garder la version de S5 et passer par S5 pour tout autre besoin. Partage avec S7 reproposé à DS. Montants à 4 chiffres sans espace (Chromium) : ajouté à la liste de S0.
 - 14 nov., 16h35 : note de préparation de LOT-18 reprise seule (F1 `0b33592f`) : la branche de F1 porte aussi ses trois modules, dont l'intégration attend S0. Niveau des 8 écrans de LOT-18 : « courant ». Le rail des 16 essentiels ne bouge pas, et Harun peut en promouvoir un après ses tests (*réversible*).
 - 14 nov., 16h30 : **CI cassée, réparée.** Un nom d'étape d'`editions.yml` contenait « : » sans guillemets (ajouté par LOT-01, S1 `5970f184`, fusionné à 13h40). Le fichier n'était plus un YAML valide, donc le workflow ne se chargeait plus sur les branches de la refonte (`main` n'est pas touché). Corrigé avec des guillemets. Leçon : avant chaque push, le CO valide maintenant le YAML des workflows ; T1 ajoute ce contrôle à `tester-branche`. `check:licences` est branché (package.json et editions.yml) : 926 paquets, aucune AGPL. ffmpeg : seulement comme exécutable séparé, de préférence LGPL, à revoir avant toute distribution (*provisoire, soumis à Harun*).
 - 14 nov., 16h20 : **socle n° 1 fusionné** (S0 `488671af`) : `check:ancres` et `check:avoirs` passent au vert. Paquet client identique au comportement près (T1) ; six lots dans les seuils ; LOT-00 dans les seuils, avec D02 relevé à 37,7 brut (le registre grossit avec les lots, la disposition reste dans le +2 ; *réversible*). Échecs connus restants : 12, et aucun n'est une régression de la refonte. Suite de LOT-01 fusionnée (S7 `4ab6a67b`, H02 « à reprendre »).
@@ -949,7 +950,7 @@ Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en para
 | S2 | LOT-01 | ✓ | N01 remplace son Accueil ; M1, M2 et M4 sont absorbés par G05, H40 et H42. Ses 5 commits postérieurs (`b228f5d`) ne sont pas fusionnés. |
 | S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **LOT-02 et moitié de LOT-01 livrés** | **construit LOT-08** La Garde sur `claude/refonte-garde-2` (S3 relit la logique) |
 | S5 | `session_012jWErBSSkcoVaU3iN895bQ` | **LOT-03 et LOT-05 livrés**, préparation de LOT-09 fusionnée | en pause ; proposé pour la liste du socle (POINT-HARUN n° 9) |
-| DS | LOT-04 | ✓ à condition | Ne pousse plus dans `src/socle/**`. Banque en lecture seule ; LOT-04 n'affiche que l'état « connecté / à connecter », la configuration est dans H21 (LOT-07). |
+| DS | `session_01TZGDvVWristJnnPK59rruY` | **LOT-04 en construction**, 3 sur 17 (`80a09f3d`) | fusionner vivante (gardes de S5) ; répondre au partage avec S7 |
 | **S7** (nouvelle) | LOT-06 | ✓ | **Décision de Harun : LOT-06 confié à S7, F1 écartée.** Sonnet 5.5, effort élevé. À créer. |
 | F1 | — | écartée de LOT-06 | Continue l'Atelier. Vérificateur cassé sur `refonte-vivante` (C-003, patch de T1 à appliquer par F1). Ses modules rejoignent les familles par le registre, après LOT-06. |
 | S6 | LOT-07, puis LOT-10 | ⚠ à condition | Les deux après sa phase 1 (privée ; Harun dit au CO quand elle est finie). LOT-07 d'abord : CY07 étend MO02 (Sites et trackers), qui est dans LOT-07. 30 écrans à elle seule, Opus 5.5, effort élevé. Audit privé ; commits sans description de faiblesse ; écrans sensibles relus par T1. |
@@ -962,7 +963,7 @@ Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en para
 | Session | Branche | État | Dernier sha | Rapport | Points |
 |---|---|---|---|---|---|
 | S0 / LOT-00 | `claude/refonte-socle` | **v2 fusionné** (`488cdcc`) ; socle v3 à suivre sur la même branche | `fdd6366` | `rapports/LOT-00.md` (sur sa branche) | Questions de LOT-00 : §7, section LOT-00 |
-| DS | `claude/refonte-design-socle` | gelée, reprise par LOT-00 | `e97f479` | `rapports/DS.md` (branche LOT-00) | — |
+| DS | `session_01TZGDvVWristJnnPK59rruY` | **LOT-04 en construction**, 3 sur 17 (`80a09f3d`) | fusionner vivante (gardes de S5) ; répondre au partage avec S7 |
 | S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **LOT-02 et moitié de LOT-01 livrés** | **construit LOT-08** La Garde sur `claude/refonte-garde-2` (S3 relit la logique) |
 | S2 | `claude/refonte-s2-accueil` | fusionnée à `a537dbe` ; 5 commits non fusionnés | `b228f5d` | [`rapports/S2.md`](rapports/S2.md) | Remplacée par LOT-01 |
 | S3 | `session_01FBSpK6n1yYtYXYyxbLAuBV` | `check:encres` réglé (`1150965`) ; **sans zips v4** | gardien de la logique de LOT-08 ; relit les écrans de S1 ; reprend la moitié restante dès les zips |
