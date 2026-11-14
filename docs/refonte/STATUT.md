@@ -17,7 +17,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 | S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **LOT-02 livré** ; segments de MC07 et de H45 à 38 px (`ca47af79`) chez T1 | **LOT-01, moitié S1** (H01, H03, G08, MJ01 à MJ05) sur `claude/refonte-journee-2` |
 | S2 | `session_014ZkF6SeGRNi6NR3uEsjM5q` | préparation de LOT-01 finie ; **sans zips v4** ; la construction de LOT-01 passe à S7 | en pause jusqu'aux zips, puis un autre lot |
 | S3 | `session_01FBSpK6n1yYtYXYyxbLAuBV` | attend l'accord de Harun (`check:encres`) ; **sans zips v4** | correctif d'`equipes.ts`, puis LOT-08 |
-| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | **LOT-03 livré** (9/9) ; **LOT-05 complet** (10/10, `b83d4d6e`) chez T1 | zones de 36 px de LOT-03 (`commun/ecran.css`) |
+| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | **LOT-03 et LOT-05 livrés** ; dernières zones de LOT-03 (`d597994f`) chez T1 | **préparation de LOT-09** Mobile et tablette (note, sans écran), sur `claude/refonte-mobile` |
 | S6 | `session_01RHV8Xq2txWkfjAusKvq9DG` | préparation de LOT-07 fusionnée ; **sans zips v4** ; LOT-10 passe à S8 | construire LOT-07 dès les zips ; relire la sécurité de LOT-10 avant sa fusion |
 | S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **LOT-06 livré** (`66719328` fusionné) | zones de 34 → 36 px et « Réduire » (#/tournees), puis **LOT-01, moitié S7** (N01, H25, H02, H04, L01, L02, L03, L07) |
 | S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | **LOT-11 livré** (`6a87e35` fusionné) | attend l'accord de Harun pour LOT-10 Cyber (POINT-HARUN) |
@@ -40,7 +40,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 | Jour | Construits | Livrés (cumul) | Livrés depuis la veille | Lots préparés | Lots finis | Note |
 |---|---|---|---|---|---|---|
-| 14 nov. | 67 / 153 | 53 (LOT-00 9, LOT-06 15, LOT-11 7, LOT-02 13, LOT-03 9) | 53 | 8 / 13 | 4 / 13 (LOT-06, LOT-11, LOT-02, LOT-03) ; LOT-00 attend l'allumage | LOT-02 retiré à 11h25 (`check:clavier`), refusionné corrigé à 11h40. LOT-05 (10) complet, chez T1. LOT-01 partagé entre S7 et S1. Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. |
+| 14 nov. | 67 / 153 | 63 (LOT-00 9, LOT-06 15, LOT-11 7, LOT-02 13, LOT-03 9, LOT-05 10) | 63 | 8 / 13 | 5 / 13 (LOT-06, LOT-11, LOT-02, LOT-03, LOT-05) ; LOT-00 attend l'allumage | LOT-02 retiré à 11h25 (`check:clavier`), refusionné corrigé à 11h40. LOT-01 en construction (S7 4/8, S1 0/8). Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. |
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
@@ -51,6 +51,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 - 14 nov., 10h15 : **LOT-06 fusionné** (`e1615090`, 15 écrans), **premier lot livré** de la vague de construction. T1 l'a accepté : fidélité sur l'aperçu, les 15 écrans justifiés ; structure sur l'application, les 12 routes montées dans la coquille v4, rien de coupé à 390 px. Suites demandées à S7 : relire 6 écrans au-dessus de 15 % en disposition (H17, MR01, MR10, H16, MR05, MR04) ; zones de clic de 34 px (§1.39) ; l'état vide de H17 (« Le livre de marque d’ · ») ; les entrées de registre de ses 3 écrans neufs. T1 fixe les valeurs acceptées de LOT-06.
 - 14 nov., 10h00 : **LOT-06 complet** (S7, `277263a`, 15 sur 15). S7 et S8 butent tous deux sur `check:systeme-demarrage` (« le registre ne doit pas bouger », qui perd les fonctions des écrans neufs). Le correctif est sur la branche LOT-03 de S5 et arrive avec sa fusion. Ordre : LOT-03, puis S7 et S8 déclarent leurs écrans neufs, puis LOT-06 et LOT-11.
 - 14 nov., 10h00 : méthode de `check:fidelite` (§1.40). La fidélité se mesure sur l'aperçu statique, rempli avec les jeux de SIM ; l'application sert à la structure. Pas de collection nouvelle dans l'API d'essai.
+- 14 nov., 12h15 : **LOT-05 Échanger fusionné** (S5 `c0320220`, T1 `aea04dfd`), cinquième lot livré. Toutes les gardes passent, dont `naming` et clavier ; 10 écrans dans les seuils ; F40 et G07 ont de nouveau leur centre. Règle du CO : un lot peut passer ses propres lignes du §7 à « fait », sans accord à demander. S5 prépare LOT-09 Mobile (une note, sans écran, §1.4).
 - 14 nov., 12h10 : LOT-05 corrigé (S5 `c0320220`) et zones de LOT-06 (S7 `5672a939`) chez T1. LOT-01 : S7 a 4 écrans sur 8 (`053dc48e` : N01, H25, H02, H04). T1 fait un premier passage tôt, pour les éléments ludiques protégés. La règle de `creer.css` qui passe les briques du socle à 36 px pour les écrans de LOT-06 est acceptée à titre provisoire, avec un commentaire pour la retirer quand S0 aura corrigé le socle.
 - 14 nov., 12h05 : suites fusionnées après la sonde de T1 : LOT-02 `ca47af79` (segments de MC07 et de H45), LOT-03 `38330a29` et `d44c6e34` (zones de 36 px ; jours de ME01 et lignes de liste acceptés, §1.41), T1 `16fdb7ba`. Reste à S5 pour LOT-03, après LOT-05 : ME04, le champ et la case dans un `<label>`, et trois petites cibles. Gardes du CO : seuls les échecs connus.
 - 14 nov., 11h50 : **LOT-03 Écrire et retenir fusionné** (S5 `2da78ad5`, T1 `6e5a6bd5`), quatrième lot livré. 75 contrôles verts, dont clavier ; 9 écrans dans les seuils ; ME05 sorti de l'ancien bureau ; paquet client identique ; 0 clic au centre renvoyé à un voisin. Reste : zones de 34 → 36 px (`commun/ecran.css`, S5, en cours). Gardes du CO : seuls les échecs connus.
@@ -896,7 +897,7 @@ Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en para
 | S0 Socle | LOT-00 puis socle v3 | ✓ | LOT-00 (v2) fusionné. Socle v3 en cours : §1.10 et §5. |
 | S2 | LOT-01 | ✓ | N01 remplace son Accueil ; M1, M2 et M4 sont absorbés par G05, H40 et H42. Ses 5 commits postérieurs (`b228f5d`) ne sont pas fusionnés. |
 | S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **LOT-02 livré** ; segments de MC07 et de H45 à 38 px (`ca47af79`) chez T1 | **LOT-01, moitié S1** (H01, H03, G08, MJ01 à MJ05) sur `claude/refonte-journee-2` |
-| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | **LOT-03 livré** (9/9) ; **LOT-05 complet** (10/10, `b83d4d6e`) chez T1 | zones de 36 px de LOT-03 (`commun/ecran.css`) |
+| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | **LOT-03 et LOT-05 livrés** ; dernières zones de LOT-03 (`d597994f`) chez T1 | **préparation de LOT-09** Mobile et tablette (note, sans écran), sur `claude/refonte-mobile` |
 | DS | LOT-04 | ✓ à condition | Ne pousse plus dans `src/socle/**`. Banque en lecture seule ; LOT-04 n'affiche que l'état « connecté / à connecter », la configuration est dans H21 (LOT-07). |
 | **S7** (nouvelle) | LOT-06 | ✓ | **Décision de Harun : LOT-06 confié à S7, F1 écartée.** Sonnet 5.5, effort élevé. À créer. |
 | F1 | — | écartée de LOT-06 | Continue l'Atelier. Vérificateur cassé sur `refonte-vivante` (C-003, patch de T1 à appliquer par F1). Ses modules rejoignent les familles par le registre, après LOT-06. |
@@ -915,7 +916,7 @@ Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en para
 | S2 | `claude/refonte-s2-accueil` | fusionnée à `a537dbe` ; 5 commits non fusionnés | `b228f5d` | [`rapports/S2.md`](rapports/S2.md) | Remplacée par LOT-01 |
 | S3 | `claude/refonte-s3-supervisor` (ancienne), `claude/refonte-garde` (LOT-08) | ancienne fusionnée ; LOT-08 en préparation (note seulement, aucun code) | `e7f4f25`, `2eedc9b` | `docs/refonte/preparation-garde.md` (branche LOT-08) | 15 questions tranchées au §1.8 |
 | S4 | — | annulée | — | — | — |
-| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | **LOT-03 livré** (9/9) ; **LOT-05 complet** (10/10, `b83d4d6e`) chez T1 | zones de 36 px de LOT-03 (`commun/ecran.css`) |
+| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | **LOT-03 et LOT-05 livrés** ; dernières zones de LOT-03 (`d597994f`) chez T1 | **préparation de LOT-09** Mobile et tablette (note, sans écran), sur `claude/refonte-mobile` |
 | S6 | `claude/refonte-sec-*` | phase 1 en cours, privée. **Ne pas fusionner sans décision de Harun.** | — | `docs/securite/**`, hors dépôt | Prend LOT-07 puis LOT-10 |
 | S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **LOT-06 livré** (`66719328` fusionné) | zones de 34 → 36 px et « Réduire » (#/tournees), puis **LOT-01, moitié S7** (N01, H25, H02, H04, L01, L02, L03, L07) |
 | F1 | `claude/refonte-atelier-f1` | prête, non fusionnée, rien de branché | `59056ad` | `docs/atelier/PRET.md` | C-003 à appliquer ; 3 modules choisis (§1.21), à intégrer après le socle v4 |
