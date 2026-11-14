@@ -18,12 +18,10 @@ Le plan complet est dans [`PLAN-BUREAU-DE-TRAVAIL.md`](PLAN-BUREAU-DE-TRAVAIL.md
   - **BDT-5 Métiers d'AMN** (F1) : fiche d'intervention de dépannage (hatf), échéances et rapport mensuel de maintenance, contrats et générateur légal (avec un juriste avant tout usage réel), suivi du temps, brief client, kit de livraison.
 - **Ordre** : les lots en cours gardent leur priorité (LOT-04, 07, 08, 10, le socle). Les cinq nouveaux démarrent par leur note de préparation, en parallèle.
 
-**Tes questions**
-1. **La liste des sites faits par AMN**, dont ceux de ta base de projets Claude, pour choisir les premiers modèles. Pour chacun : fait pour un client ou non, et si l'accord du client existe.
-2. **L'accord des clients** : qui le demande (toi, Mohamed ?) et sous quelle forme (un courriel suffit-il ?). Sans accord, le site reste une référence privée, hors du dépôt public.
-3. **« hatf »** : tu l'emploies pour le dépannage informatique et les diagnostics. Est-ce le nom d'une activité, d'une marque ou d'une offre d'AMN ? F1 en a besoin pour nommer la fiche d'intervention.
-4. **« Un modèle de site marche sans JavaScript »**, règle proposée par S2 pour BDT-1. L'inspecteur lit le modèle dans un cadre où aucun script ne s'exécute, donc sans risque, et un modèle léger n'a pas besoin de script. Le JavaScript reste permis comme amélioration, mais le site doit fonctionner sans. Recommandation : oui.
-5. **Les sources de vulnérabilités** (CISA, NVD, OSV) demandent un accès réseau sortant. Elles sont gratuites et publiques, et interrogées seulement à la demande. Recommandation : oui.
+**Tes questions** (les sites, l'accord des clients et l'accès réseau sont réglés : STATUT §1.44)
+1. **« hatf »** : un nom d'activité, de marque ou d'offre d'AMN ? Et le site 3D de hatf avec Ajmani : est-il à nous (donc utilisable comme modèle) ou fait pour quelqu'un ?
+2. **La source du portfolio** (aaron.amndevsec.fr) : dans quel dépôt est-elle ? Celle d'amndevsec.fr est dans `amn-devsec/amn-site`.
+3. **« Un modèle de site marche sans JavaScript »**, règle proposée par S2 pour BDT-1 : l'inspecteur lit le modèle sans exécuter de script, et un modèle léger n'en a pas besoin. Le JavaScript reste permis comme amélioration. Recommandation : oui.
 
 ## Lignes à coller (ton accord direct, que ces sessions demandent)
 
