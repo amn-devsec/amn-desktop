@@ -933,16 +933,32 @@ Préparation par DS (14 nov.) : logique pure `src/refonte/argent/` et `check:arg
 
 | ID | Écran | Type | État | Écart / note |
 |---|---|---|---|---|
-| F40 | Échanger · Vue d'ensemble | nouveau | à faire | |
-| G07 | Échanger · Messagerie d'équipe | mixte | à faire | |
-| H13 | Échanger · Appels | mixte | à faire | |
-| H14 | Échanger · Annonces | mixte | à faire | |
-| MX01 | Échanger · Courriel | mixte | à faire | |
-| MX02 | Échanger · Réunions | mixte | à faire | |
-| MX03 | Échanger · Partage de fichiers | mixte | à faire | |
-| MX04 | Échanger · Canaux | mixte | à faire | |
-| MX05 | Échanger · Sondages | mixte | à faire | |
-| MX06 | Échanger · Réponses automatiques | mixte | à faire | |
+| F40 | Échanger · Vue d'ensemble | nouveau | en cours (préparation) | préparation : page sans module ; logique `hub.ts` (règle d'attente, canaux actifs, dix tuiles). Attend `ModuleTile`, `ModuleGroupGrid`, `AddModuleTile` |
+| G07 | Échanger · Messagerie (boîte des clients) | mixte | en cours (préparation) | préparation : **aucun écran de boîte des clients** ; logique `boite.ts` (couloirs, Boîte à zéro, série) et `connecteurs.ts` ; l'entrée « Messagerie » du registre est la messagerie d'équipe (note §4, question 1) |
+| H13 | Échanger · Appels | mixte | en cours (préparation) | préparation : `CallsScreen` `/appels`, `SallesScreen` `/salles` ; logique `appels.ts` ; sans ligne pro : appel dans l'application seulement |
+| H14 | Échanger · Annonces | mixte | en cours (préparation) | préparation : `AnnouncementsScreen` `/annonces` (lecture seulement) ; logique `annonces.ts` |
+| MX01 | Échanger · Courriel | mixte | en cours (préparation) | préparation : **aucun module existant** ; logique `courriel.ts` ; prise « messagerie » de la baie, attend amn-api |
+| MX02 | Échanger · Réunions | mixte | en cours (préparation) | préparation : `MeetingsScreen` `/reunions` ; logique `reunions.ts` |
+| MX03 | Échanger · Partage de fichiers | mixte | en cours (préparation) | préparation : **aucun module existant** ; logique `partages.ts` ; aucune adresse de lien dans les types ; stockage d'équipe attend LOT-13 |
+| MX04 | Échanger · Canaux | mixte | en cours (préparation) | préparation : `GroupsScreen` `/groupes` et messages privés ; logique `canaux.ts` |
+| MX05 | Échanger · Sondages | mixte | en cours (préparation) | préparation : `PollsScreen` `/sondages` ; logique `sondages.ts` |
+| MX06 | Échanger · Réponses automatiques | mixte | en cours (préparation) | préparation : **aucun module existant** ; logique `reponsesAuto.ts` (naît désactivée, vouvoiement vérifié) |
+
+Préparation par S5 (14 nov., `claude/refonte-echanger`) : note [`preparation/LOT-05-echanger.md`](preparation/LOT-05-echanger.md), logique dans `src/refonte/echanger/`, garde `check:echanger` (88 contrôles), rapport [`rapports/LOT-05-preparation.md`](rapports/LOT-05-preparation.md). Aucun écran visuel. Dossier v4 lu (fiches, `06`, `tutoiement.json`) ; **les images v4 n'ont pas été ouvertes**. G07 est la boîte des clients ; WhatsApp, SMS, le courriel et la téléphonie sont des prises de la baie de S9 : `connecteurs.ts` dit « connecteur à brancher » et ne simule rien. Ce qui part chez un client reste au vouvoiement (la logique le vérifie, elle n'écrit aucun texte client).
+
+**Manque au socle**
+- `ModuleTile`, `ModuleGroupGrid`, `AddModuleTile` pour F40 ; `SuggestionCompact`, `FlagUrgent`, `Kbd`, `LiveDot`, `Caret` (cités, à confirmer par S0).
+- `formats.ts` : le lot garde une copie de `nombre` et `pct` à retirer à la fusion du socle v4.
+- `check:tutoiement` : pas encore dans la base (la garde du lot refuse « vous / votre / vos » et les impératifs en « -ez » dans ses textes).
+
+**Manque aux données**
+- Messagerie : le canal et le sens de chaque message client, l'état de tri, les notes internes, les adresses et numéros des fiches pour le rattachement.
+- Courriel (MX01) : une boîte partagée, des fils, l'état d'analyse des pièces jointes, les envois programmés.
+- Annonces : épinglage, catégories, destinataires, heure de lecture par personne, réactions. Sondages : types de réponse, destinataires clients. Réunions : début réel, ordre du jour minuté, notes en direct.
+- Partage de fichiers (MX03) : tout (liens, ouvertures, protection, quota).
+- Réponses automatiques (MX06) : des règles structurées et leurs envois.
+- Appels : ligne professionnelle, file d'attente, transfert, présence vocale.
+- Aucune collection synchronisée n'est ajoutée sans l'accord de Harun (§1.27 n° 4) : en attendant, « non disponible », avec la raison.
 
 ### LOT-06 · Créer et produire — `claude/refonte-creer` — 15 écrans
 
