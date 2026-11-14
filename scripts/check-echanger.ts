@@ -51,8 +51,8 @@ async function charger<T>(code: string): Promise<T> {
 const FICHIERS = ['commun', 'boite', 'hub', 'canaux', 'connecteurs', 'appels', 'annonces', 'courriel', 'reunions', 'partages', 'sondages', 'reponsesAuto', 'i18n', 'phrases'];
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerF40 from '../${ZONE}/ecrans/f40/composer';` + `\nexport * as composerG07 from '../${ZONE}/ecrans/g07/composer';` + `\nexport * as composerH14 from '../${ZONE}/ecrans/h14/composer';` + `\nexport * as composerH13 from '../${ZONE}/ecrans/h13/composer';` + `\nexport * as composerMX05 from '../${ZONE}/ecrans/mx05/composer';` + `\nexport * as composerMX04 from '../${ZONE}/ecrans/mx04/composer';` + `\nexport * as composerMX02 from '../${ZONE}/ecrans/mx02/composer';` + `\nexport * as composerMX01 from '../${ZONE}/ecrans/mx01/composer';` + `\nexport * as composerMX03 from '../${ZONE}/ecrans/mx03/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
-const { commun: C, boite: B, hub: H, canaux: CA, connecteurs: CO, appels: AP, annonces: AN, courriel: CM, reunions: RE, partages: PA, sondages: SO, reponsesAuto: AU, i18n: I, phrases: PH, composerF40: CF40, composerG07: CG07, composerH14: CH14, composerH13: CH13, composerMX05: CMX05, composerMX04: CMX04, composerMX02: CMX02, composerMX01: CMX01, composerMX03: CMX03, monde } = M;
+const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerF40 from '../${ZONE}/ecrans/f40/composer';` + `\nexport * as composerG07 from '../${ZONE}/ecrans/g07/composer';` + `\nexport * as composerH14 from '../${ZONE}/ecrans/h14/composer';` + `\nexport * as composerH13 from '../${ZONE}/ecrans/h13/composer';` + `\nexport * as composerMX05 from '../${ZONE}/ecrans/mx05/composer';` + `\nexport * as composerMX04 from '../${ZONE}/ecrans/mx04/composer';` + `\nexport * as composerMX02 from '../${ZONE}/ecrans/mx02/composer';` + `\nexport * as composerMX01 from '../${ZONE}/ecrans/mx01/composer';` + `\nexport * as composerMX03 from '../${ZONE}/ecrans/mx03/composer';` + `\nexport * as composerMX06 from '../${ZONE}/ecrans/mx06/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
+const { commun: C, boite: B, hub: H, canaux: CA, connecteurs: CO, appels: AP, annonces: AN, courriel: CM, reunions: RE, partages: PA, sondages: SO, reponsesAuto: AU, i18n: I, phrases: PH, composerF40: CF40, composerG07: CG07, composerH14: CH14, composerH13: CH13, composerMX05: CMX05, composerMX04: CMX04, composerMX02: CMX02, composerMX01: CMX01, composerMX03: CMX03, composerMX06: CMX06, monde } = M;
 const A_SEG = AN.segmentsDeLecture;
 
 const NB = ' ';
@@ -1358,6 +1358,34 @@ await dit('MX03 · composerPartages : cartes, jauge d’expiration, ouvertures, 
   assert.deepEqual(vide.cartes, []);
   assert.equal(vide.protection, null);
   assert.ok(!/https?:|@|token|jeton/i.test(JSON.stringify(v)), 'ni adresse, ni jeton');
+});
+
+await dit('MX06 · composerReponses : liste, compteurs, éditeur en phrases, garde-fou, aperçu avec variables ; une variable sans valeur ne bloque jamais l’envoi ; une règle incomplète ne s’active pas', () => {
+  const regle = (id: string, extra: any = {}) => ({ id, nom: `Règle ${id}`, canaux: ['courriel'], declencheur: { type: 'horaires' }, modele: 'Bonjour {prénom},\nNous sommes fermés jusqu’à {réouverture}.', sauf24h: true, actif: true, envoisDuMois: 10, ...extra });
+  const regles = [regle('a', { cible: 'un client', modeleTitre: 'Bien reçu', signature: 'L’équipe', tache: { personne: 'R', quand: '9:00' }, testeeQuand: 'hier', enregistreAt: paris(AUJ, '10:41') }), regle('b', { actif: false, envoisDuMois: 0, canaux: [], modele: null }), regle('c', { declencheur: { type: 'mots', mots: ['devis', 'prix'] }, sauf24h: false, envoisDuMois: 30 })];
+  const soir = paris('2026-10-29', '18:30');
+  const e = { langue: 'fr', maintenant: soir, regles, proposee: { nom: 'Suivi' }, choisieId: 'a', enLigne: true, apercu: { de: 'L’équipe', prenom: 'Karim', destinataireNom: 'Karim Medina', delaiSecondes: 2, cible: 'client' }, manque: { question: 'où en est ma commande ?', n: 12 }, avis: [4, 5] };
+  const v = CMX06.composerReponses(e);
+  assert.equal(v.regles.sous, '2 actives sur 4', 'la règle proposée compte dans le total');
+  assert.deepEqual(v.regles.pied, { envois: '40', gagne: '2 h', avis: '4,5 / 5' });
+  assert.deepEqual(v.regles.lignes.map((r: any) => [r.id, r.actif, r.selectionnee, r.peutActiver]), [['a', true, true, true], ['b', false, false, false], ['c', true, false, true]], 'une règle incomplète ne s’active pas');
+  assert.equal(v.regles.lignes[1].compteur, '0 envoyée ce mois');
+  assert.equal(v.regles.lignes[0].compteur, '10 envoyées ce mois');
+  assert.equal(v.regles.proposee.sous, 'Proposée par Ajmani · née désactivée');
+  assert.deepEqual(v.editeur.blocs.map((b: any) => b.cle), ['quand', 'etsi', 'alors', 'etaussi', 'saufsi']);
+  assert.ok(/Du lundi au vendredi après 18:00/.test(v.editeur.blocs[0].detail), 'les horaires viennent des réglages');
+  assert.equal(v.editeur.enregistre, 'Enregistré à 10:41');
+  assert.equal(v.editeur.detail, '10 envois ce mois · testée hier · aucune plainte');
+  assert.deepEqual(CMX06.composerReponses({ ...e, choisieId: 'c' }).editeur.blocs.map((b: any) => b.cle), ['quand', 'alors'], 'sans garde-fou ni tâche, ces blocs ne se montrent pas');
+  const texte = v.apercu.paragraphes.map((p: any) => p.map((s: any) => s.texte).join('')).join('\n').replace(/[\u00a0\u202f]/g, ' ');
+  assert.equal(texte, 'Bonjour Karim,\nNous sommes fermés jusqu’à demain 9:00.');
+  assert.ok(v.apercu.paragraphes[0].some((s: any) => s.v && s.texte === 'Karim'), 'les variables sont surlignées');
+  const sans = CMX06.composerReponses({ ...e, apercu: { ...e.apercu, prenom: null } });
+  assert.equal(sans.apercu.paragraphes[0].map((s: any) => s.texte).join('').trim(), 'Bonjour,', 'sans prénom : « Bonjour, », l’envoi n’est pas bloqué');
+  assert.equal(CMX06.composerReponses({ ...e, choisieId: 'b' }).apercu, null, 'une règle sans modèle n’a pas d’aperçu');
+  assert.ok(/12 clients ont demandé « où en est ma commande \? »/.test(v.suggestion.texte), v.suggestion.texte);
+  assert.equal(CMX06.composerReponses({ ...e, manque: null }).suggestion, null);
+  assert.equal(CMX06.composerReponses({ ...e, regles: [], choisieId: null }).editeur, null);
 });
 
 await dit('aucune brique visuelle : ni React, ni src/socle/ui, ni code partagé ; seulement les voisins, le dictionnaire du socle et le modèle des connecteurs (S9)', () => {

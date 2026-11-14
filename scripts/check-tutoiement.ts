@@ -49,6 +49,7 @@ export const ZONES_CLIENT: readonly { fichier: string; debut: string; raison: st
   { fichier: 'scripts/apercu/ecrans/MX01.tsx', debut: 'Merci, c’était très clair', raison: 'un courriel REÇU d’un client, montré par l’aperçu de MX01 : il garde le vouvoiement de son auteur' },
   { fichier: 'scripts/apercu/ecrans/MX01.tsx', debut: 'Je vous envoie les 12 photos', raison: 'un courriel REÇU d’un client, montré par l’aperçu de MX01 : il garde le vouvoiement de son auteur' },
   { fichier: 'scripts/apercu/ecrans/MX01.tsx', debut: 'Votre versement de 2 400', raison: 'un courriel REÇU d’un service de paiement, montré par l’aperçu de MX01 : il garde le vouvoiement de son auteur' },
+  { fichier: 'scripts/apercu/ecrans/MX06.tsx', debut: 'Bonjour {prénom},', raison: 'le modèle de réponse automatique d’une règle, montré par l’aperçu de MX06 : il part chez le client' },
 ];
 
 /**

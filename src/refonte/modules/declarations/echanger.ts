@@ -1,4 +1,4 @@
-import { Inbox, Mail, Share2 } from 'lucide-react';
+import { Inbox, Mail, Reply, Share2 } from 'lucide-react';
 import { declarerFamille, vue } from '../declarer';
 
 /**
@@ -134,6 +134,19 @@ export default declarerFamille({
       vues: [
         vue('newsletter', '/lettre', ['envoyer une newsletter', 'écrire à tous mes clients'], ['newsletter', 'lettre', 'emailing', 'mail groupé', 'mailing', 'campagne'], {
           en: { verbes: ['send a newsletter', 'write to all my customers'], motsCles: ['newsletter', 'email campaign', 'mailing', 'bulk mail'] },
+        }),
+      ],
+    },
+    {
+      // MX06 : répondre vite selon des règles écrites en phrases ; une règle neuve naît désactivée.
+      nom: { fr: 'Réponses automatiques', en: 'Automatic replies' },
+      action: 'public',
+      niveau: 'courant',
+      vues: [
+        vue('autoReplies', '/reponses-automatiques', ['répondre automatiquement aux clients', 'écrire une règle de réponse', 'répondre hors horaires'], ['réponse', 'automatique', 'règle', 'hors horaires', 'absence', 'répondeur'], {
+          en: { verbes: ['reply automatically to clients', 'write a reply rule', 'reply outside opening hours'], motsCles: ['automatic', 'reply', 'rule', 'out of hours', 'away', 'auto-responder'] },
+          etiquette: { fr: 'Réponses automatiques', en: 'Automatic replies' },
+          nouveau: { icone: Reply, ecran: () => import('../../echanger/ecrans/mx06/PageReponses'), indice: { fr: 'Répondre en 2 secondes, selon tes règles', en: 'Reply in 2 seconds, following your rules' } },
         }),
       ],
     },

@@ -27,6 +27,9 @@
     },
     "MX03": {
       "raison": "24,3 % brut. Zone de dépôt 768 × 124, filtres, grille de trois colonnes de cartes de 238 de haut, colonne droite de 320 (transferts, anneau de protection, suggestion) tiennent leurs cotes. Ce qui diffère : (1) l'ordre des cartes suit la règle de la fiche (expiration la plus proche d'abord, sans expiration en dernier : « Photos chantier » passe en tête) alors que l'image garde l'ordre de saisie ; chaque carte est donc ailleurs que sur l'image, ce qui compte pour l'essentiel de l'écart ; (2) les nombres viennent des données de l'aperçu (6 liens actifs et non 17, « Expirés · 0 », espace utilisé de 55 Mo et non 2,1 Go) ; (3) le texte, décalé de 2 à 4 px (interligne des cartes et des transferts) ; (4) la barre latérale de l'aperçu (voir plus haut)."
+    },
+    "MX06": {
+      "raison": "20,5 % brut. Liste des règles 280, éditeur 472 et colonne droite de 320 (aperçu, suggestion) tiennent leurs cotes : blocs reliés par un trait, jetons de 28 px, bloc « SAUF SI » en pointillé, pied à trois chiffres. Ce qui diffère : (1) le texte, décalé de 2 à 4 px (interligne des règles, des blocs et de l'aperçu) ; (2) l'aperçu du message montre le jeton « Karim » et « demain 9:00 » calculés par la logique (prochaine ouverture lue dans les heures ouvrées) et non écrits à la main ; (3) « 4 actives sur 7 » et non « 5 sur 7 » : le jeu fictif compte quatre règles actives ; (4) « un courriel ou un SMS » à la place de « un courriel ou un message » (les canaux viennent des canaux de la boîte des clients) ; (5) la barre latérale de l'aperçu (voir plus haut)."
     }
   }
 }

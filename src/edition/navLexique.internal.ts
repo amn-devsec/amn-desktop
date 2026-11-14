@@ -38,6 +38,8 @@ const NAV_EN_INTERNE: Record<string, TraductionNav> = {
   sharedMail: { label: 'Email', hint: 'The team’s shared mailbox, in threads' },
   // Écran neuf de LOT-05 (MX03) : le partage de fichiers par lien protégé.
   sharedFiles: { label: 'File sharing', hint: 'Send a protected link, not an attachment' },
+  // Écran neuf de LOT-05 (MX06) : les réponses automatiques.
+  autoReplies: { label: 'Automatic replies', hint: 'Reply in 2 seconds, following your rules' },
   health: { label: 'Health log', hint: 'Dates and deadlines, nothing medical' },
   calcPro: { label: 'Pro calculator', hint: 'A till-roll tape you reread before pricing' },
   interventions: { label: 'Field visits', hint: 'Before, during, after — the report of a call-out' },
