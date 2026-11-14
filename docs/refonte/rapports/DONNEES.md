@@ -6,7 +6,7 @@
 2. **Chargeur** `scripts/charger-donnees-essai.mjs` : écrit un volume choisi dans l'API d'essai locale (127.0.0.1 seulement, comptes `@exemple.test`), huit collections ; La Garde par `seed-supervision.mjs`. Ligne ajoutée à `LANCER-EN-LOCAL.md`.
 3. **Attendus** des écrans calculés H09, H04, G08 et H25 (`attendus.ts`), avec les cas que leurs fiches montrent garantis dans les jeux.
 4. **LOT-14** : 1 000 organisations fictives reproductibles (`charge.ts`), scénarios dans `docs/simulation/charge.md`, exécution locale `simulation/charge/executer.mjs` : les trois scénarios tournent, aucune écriture perdue.
-5. **Champs réclamés** par les lots 02, 04 et 06 ajoutés avec contrôle, sauf une courte liste plus bas ; **numérotation** `AAAA-NNNN` et **avoirs** `AV-AAAA-NNNN` (CO, §1.28 n° 4). `check:donnees` : **108 contrôles** (87 avant).
+5. **Champs réclamés** par les lots 02, 04 et 06 ajoutés avec contrôle, sauf une courte liste plus bas ; **numérotation** `AAAA-NNNN` et **avoirs** `AV-AAAA-NNNN` (CO, §1.28 n° 4). `check:donnees` : **114 contrôles** (87 avant).
 
 ## Branche et sha
 
@@ -30,7 +30,7 @@ Fichiers **sensibles** ou **hors zone** : aucun (ni `package.json`, ni `editions
 | `lint` | vert |
 | `check:accueils`, `check:socle`, `check:moments` | vert |
 | `check:langue`, `check:accent`, `check:naming`, `check:modules` | vert |
-| `check:donnees` (108 contrôles) | vert |
+| `check:donnees` (114 contrôles) | vert |
 
 Le scénario de charge « cible » est rejoué par `check:donnees` quand amn-api est à côté (sinon le contrôle le dit et passe).
 
@@ -53,6 +53,12 @@ Pour que les cas des fiches existent : prévisions de trésorerie sur quatre moi
 - **LOT-02** : référents de partenaires (interlocuteurs de type partenaire), sentiment des avis et NPS (`calculerNps`), raison de perte des prospects.
 - **LOT-04** : numérotation des factures `AAAA-NNNN` et jeu `avoirs` (`AV-AAAA-NNNN`, factures de nature `creditNote`, partiels sur les factures dues, le reste dû baisse, la TVA aussi) ; régime de TVA ; lignes à 10 % et 5,5 % (factures, devis) et dépenses à 5,5 % ; historique des soldes (90 jours) et des enveloppes (6 mois) ; indicateur « échue » sur les encaissements prévus ; attendus de H09.
 - **LOT-06** : tout ce que la liste réclame **sauf MR08** (aucun jeu) — H15 (niveau cible, emplacement par mouvement, commandes fournisseur, franco et port), H16 (poids et part réalisée, interventions, livraisons), H17 (rôle et part des couleurs, « à éviter », dernière modification), MR01 (étape « Sous-titrage », plans, sous-titres, commentaires, publication), MR02 (sections, visites par jour, avis avec accord), MR03 (trajets, « Sur place »), MR04 (affectation datée, entretien, contrôle, réforme), MR05 (photos, TVA, prix d'achat, niveau conseillé, ventes par semaine), MR06 (indisponibilités, conflits), MR07 (création, échéance, livraison, paiement en ligne), MR09 (énergie, niveau, autonomie, kilomètres et carburant par jour), MR10 (orientation, signature du client), MR11 (« sans objet », cause, relevé), F50 (contrôle ouvert rattaché à un chantier, étape « Réception »).
+
+## LOT-11 Développement (commande du CO, §8 de la note de préparation)
+
+Huit jeux de plus (109 au total) : `depots`, `deploiements`, `deploiementsPlanifies`, `executions`, `tachesPlanifiees`, `mesuresServeur`, `servicesServeur`, `paiementsConnecteurs`, et les `connecteurs` complétés (mode local / payant / à brancher, modèle de coût, consommation du mois, payé), plus le plafond mensuel dans les réglages (40 €, alerte à 80 %). `developpement.ts`. Formes en sur-ensembles de celles de S8, vérifiées à la compilation et lues par la logique même de S8 dans `check:donnees`. Cas garantis : les quatre états de déploiement, neuf déploiements dans la semaine, un « Revenir », un test en échec, une pause automatique après trois échecs, un service à surveiller, les trois modes de connecteur. Les noms de dépôts sont inventés (aucun dépôt réel).
+
+Pas fait : le résumé du serveur de DEV-serveur (en ligne depuis N jours, copie hors serveur, coût du mois, remplissage du disque) — non listé dans la commande ; les modèles de sites (contenu, pas des données).
 
 ## Ce qui reste à faire (par ordre d'utilité)
 

@@ -31,7 +31,7 @@ const mixte = construireMonde({ volume: 'normal', volumes: { factures: 'vide', c
 | `normal` | le cas des maquettes | 48 / 70 / ≈ 270 |
 | `beaucoup` | défilement, pagination, performance | 300 / 700 / ≈ 1 750 |
 
-`construireMonde` assemble les 101 jeux en quelques centaines de millisecondes, même au volume `beaucoup`.
+`construireMonde` assemble les 109 jeux en quelques centaines de millisecondes, même au volume `beaucoup`.
 
 ## Conventions
 
@@ -44,7 +44,7 @@ const mixte = construireMonde({ volume: 'normal', volumes: { factures: 'vide', c
 
 ## Catalogue des jeux
 
-Les 101 jeux sont dans `types.ts` (`NOMS_DES_JEUX`, 25) et `types-suite.ts` (`NOMS_DES_JEUX_SUITE`, 76). Fiches = celles de `AMN-refonte-CO/lots/`.
+Les 109 jeux sont dans `types.ts` (`NOMS_DES_JEUX`, 25) et `types-suite.ts` (`NOMS_DES_JEUX_SUITE`, 84). Fiches = celles de `AMN-refonte-CO/lots/`.
 
 | Lot | Jeux | Fichier |
 |---|---|---|
@@ -57,6 +57,7 @@ Les 101 jeux sont dans `types.ts` (`NOMS_DES_JEUX`, 25) et `types-suite.ts` (`NO
 | Créer | `articles`, `produits`, `commandes`, `chantiers`, `dossiersPhotos`, `marque`, `videos`, `pagesPubliques`, `etapesTournee`, `equipements`, `ressources`, `reservations`, `vehicules`, `modelesControle`, `controles`, `ecarts` | `creer.ts` |
 | Outils | `corbeille`, `aide`, `secrets` (masqués), `sites`, `trackers`, `sauvegardes`, `operations`, `raccourcis`, `automatisations`, `connecteurs`, `notifications`, `modelesMetier`, `usagesCalculs` | `boite-outils.ts` |
 | La Garde | `organisations`, `actifs`, `alertes`, `incidents`, `vulnerabilites`, `rondes`, `evenementsSecurite`, `journalAcces`, `criteresMaturite`, `offresCyber` | `garde.ts` |
+| Développement (LOT-11) | `depots`, `deploiements`, `deploiementsPlanifies`, `executions`, `tachesPlanifiees`, `mesuresServeur`, `servicesServeur`, `paiementsConnecteurs` ; `connecteurs` complétés (mode, modèle de coût, consommation, payé) | `developpement.ts` |
 | Cyber (LOT-10) | `outilsCyber`, `accords`, `missions`, `constats`, `documentsCyber`, `logicielsClients`, `alertesVeille`, `fuites`, `dossiersConformite`, `campagnes`, `parcSecurite` | `cyber.ts` |
 
 Aides communes : `commun.ts` (horodatages bornés au passé, cycles, hasard par jeu).
@@ -83,6 +84,10 @@ node scripts/charger-donnees-essai.mjs --volume normal      # vide | peu | norma
 ```
 
 N'écrit que sur `127.0.0.1` et que pour un compte `@exemple.test`. Huit jeux ont une collection d'accueil dans amn-api (clients, projets, tâches, rendez-vous, notes, devis, factures, dépenses ; sept sont prouvés par `compat.ts`, les tâches ont un type lâche) ; le script nomme les autres en fin de passage. Mode d'emploi pour Harun : `docs/refonte/LANCER-EN-LOCAL.md`, étape 4. La Garde (`--garde`) passe par `scripts/seed-supervision.mjs`, qui exige une API d'essai sur un fichier.
+
+## Développement (LOT-11, `developpement.ts`)
+
+Les formes sont des sur-ensembles de celles de S8 (`src/refonte/developpement/`) : sa logique (`etatGlobal`, `executionsDuMois`, `precedentPassage`…) lit ces jeux sans adaptateur, ce que `compat.ts` et `check:donnees` vérifient. Le journal d'exécutions est la vérité des automatisations : le compte du mois et le dernier passage s'en déduisent. Aucun nom d'hôte, aucune adresse, aucun port, aucune variable d'environnement. Les modèles de sites ne sont pas des données de SIM (contenu à relire par Harun).
 
 ## La charge (LOT-14, `charge.ts`)
 

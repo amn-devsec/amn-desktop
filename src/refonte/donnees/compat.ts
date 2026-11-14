@@ -12,7 +12,11 @@ import type { Appointment } from '../../state/useAppointments';
 import type { Expense } from '../../state/expenseEngine';
 import type { Note } from '../../state/useNotes';
 import type { ProjectData } from '../../state/projectEngine';
+import type { Deploiement as DeploiementS8 } from '../developpement/deploiements';
+import type { Execution as ExecutionS8 } from '../developpement/journal';
+import type { TachePlanifiee as TachePlanifieeS8 } from '../developpement/planification';
 import type { Depense, Devis, Evenement, Facture, FicheClient, NoteRapide, Projet } from './types';
+import type { Deploiement, Execution, TachePlanifiee } from './types-suite';
 
 type SurEnsemble<Jeu extends Ancien, Ancien> = Jeu;
 
@@ -24,4 +28,8 @@ export type VerifCompatibilite = [
   SurEnsemble<Depense, Expense>,
   SurEnsemble<NoteRapide, Note>,
   SurEnsemble<Projet, ProjectData>,
+  // LOT-11 : la logique de S8 lit ces jeux sans adaptateur.
+  SurEnsemble<Deploiement, DeploiementS8>,
+  SurEnsemble<Execution, ExecutionS8>,
+  SurEnsemble<TachePlanifiee, TachePlanifieeS8>,
 ];

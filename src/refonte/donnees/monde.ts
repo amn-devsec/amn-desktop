@@ -17,6 +17,7 @@ import { genererBulletins, genererCreneaux, genererDefis, genererEcheances, gene
 import { genererAccords, genererAlertesVeille, genererCampagnes, genererConstats, genererDocumentsCyber, genererDossiersConformite, genererFuites, genererLogiciels, genererMissions, genererOutilsCyber, genererParcSecurite } from './cyber';
 import { genererAnnonces, genererAppels, genererCanaux, genererConversations, genererCourriels, genererPartages, genererReponsesAuto, genererReunions, genererSalles, genererSondages } from './echanger';
 import { genererArchives, genererConnaissances, genererFichiers, genererJournal, genererModeles, genererPages, genererSignatures, genererTextes } from './ecrire';
+import { genererDeploiements, genererDeploiementsPlanifies, genererDepots, genererExecutions, genererMesuresServeur, genererPaiementsConnecteurs, genererServicesServeur, genererTachesPlanifiees } from './developpement';
 import { genererActifs, genererAlertes, genererCriteres, genererEvenementsSecurite, genererIncidents, genererJournalAcces, genererOffres, genererOrganisations, genererRondes, genererVulnerabilites, poserEtats } from './garde';
 import { genererArticles, genererChantiers, genererCommandes, genererControles, genererDossiersPhotos, genererEquipements, genererEtapesTournee, genererMarque, genererModelesControle, genererPagesPubliques, genererProduits, genererRessources, genererReservations, genererVehicules, genererVideos } from './creer';
 import {
@@ -158,6 +159,16 @@ export function construireMonde(options: OptionsMonde = {}): Monde {
   const modelesMetier = genererModelesMetier(ctx);
   const usagesCalculs = genererUsagesCalculs(ctx);
 
+  // Développement (LOT-11) : le journal d'exécutions est la vérité des automatisations (compte du mois, dernier passage).
+  const depots = genererDepots(ctx, tickets);
+  const deploiements = genererDeploiements(ctx, equipe, depots);
+  const deploiementsPlanifies = genererDeploiementsPlanifies(ctx, equipe, depots);
+  const executions = genererExecutions(ctx, automatisations);
+  const tachesPlanifiees = genererTachesPlanifiees(ctx, automatisations);
+  const mesuresServeur = genererMesuresServeur(ctx);
+  const servicesServeur = genererServicesServeur(ctx);
+  const paiementsConnecteurs = genererPaiementsConnecteurs(ctx, connecteurs);
+
   // La Garde : l'état de chaque organisation se déduit de son score, de ses alertes ouvertes et de sa dernière ronde.
   const { organisations, plans } = genererOrganisations(ctx, clients, sites);
   const actifs = genererActifs(ctx, organisations, clients);
@@ -188,6 +199,7 @@ export function construireMonde(options: OptionsMonde = {}): Monde {
   return {
     contexte: ctx, entreprise, equipe, taches, evenements, projets, tickets, notes, rappels, habitudes, clients, interlocuteurs, prospects,
     fournisseurs, achats, avis, relances, fidelite, devis, factures, paiements, depenses, abonnements, contrats, comptes, mouvements, enveloppes,
+    depots, deploiements, deploiementsPlanifies, executions, tachesPlanifiees, mesuresServeur, servicesServeur, paiementsConnecteurs,
     avoirs, echeancesFiscales, bulletins, prestations, partenaires, creneaux, defis,
     pages, fichiers, signatures, modeles, journal, textes, archives, connaissances,
     conversations, messages, canaux, annonces, courriels, salles, appels, reunions, partages, sondages, reponsesAuto,

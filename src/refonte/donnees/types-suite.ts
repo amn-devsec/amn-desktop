@@ -29,6 +29,8 @@ import type { Facture } from './types';
 export const NOMS_DES_JEUX_SUITE = [
   // Compléments des lots déjà faits
   'echeancesFiscales', 'bulletins', 'prestations', 'partenaires', 'creneaux', 'defis', 'avoirs',
+  // Développement (LOT-11)
+  'depots', 'deploiements', 'deploiementsPlanifies', 'executions', 'tachesPlanifiees', 'mesuresServeur', 'servicesServeur', 'paiementsConnecteurs',
   // Écrire
   'pages', 'fichiers', 'signatures', 'modeles', 'journal', 'textes', 'archives', 'connaissances',
   // Échanger
@@ -836,6 +838,14 @@ export interface Connecteur {
   droits: string[];
   cleCreeeLe: Jour | null;
   widgets: number;
+  /** DEV-couts (modèle de S9, `src/refonte/connecteurs/`) : ce que le connecteur fait seul (« local »), ce qui est payant, ce qui n'est pas branché. */
+  mode: 'local' | 'payant' | 'a-brancher';
+  /** Les noms de `Formule` de S9. */
+  modeleDeCout: 'gratuit' | 'abonnement' | 'a-l-usage' | 'commission';
+  /** Ce qui a été consommé ce mois-ci, et le forfait inclus (null : pas de limite). */
+  consommationMois: { unite: string; utilise: number; inclus: number | null };
+  /** Ce qui a été payé ce mois-ci pour ce connecteur, en centimes (0 pour un connecteur local). */
+  payeCeMoisCents: number;
 }
 
 /** H40. */
@@ -1160,7 +1170,132 @@ export interface ParcSecurite {
 
 /* ============================= Le monde, suite ============================= */
 
+/* ============================ Développement (LOT-11) ============================ */
+
+/**
+ * Ces formes sont des sur-ensembles de celles de `src/refonte/developpement/` (S8) : la logique de S8 lit ces jeux
+ * sans adaptateur (`compat.ts` le vérifie). Aucun nom d'hôte, aucune adresse, aucun port, aucune variable d'environnement.
+ */
+
+/** DEV-projets. Un dépôt suivi : état des tests, langages, commits des 31 dernières semaines. */
+export interface Depot {
+  id: string;
+  nom: string;
+  description: string;
+  branche: string;
+  /** Les parts (somme 100) des langages du dépôt, le premier est le principal. */
+  langages: { nom: string; part: number }[];
+  tests: { etat: 'verts' | 'echec'; echecs: number; depuisLe: string | null };
+  /** Le nombre de commits de chaque semaine, de la plus ancienne (il y a 30 semaines) à la semaine en cours. */
+  commitsParSemaine: number[];
+  dernierCommitAt: string | null;
+  /** Où le dépôt est mis en ligne (libellé, pas une adresse). */
+  cible: string;
+  version: string | null;
+  /** Une pièce du Studio liée, si le dépôt est un projet de client. */
+  pieceStudioId: string | null;
+  /** Les tickets (jeu `tickets`) rattachés au dépôt. */
+  ticketIds: string[];
+  teinte: number;
+}
+
+export type EtatEtapeDeploiement = 'a-venir' | 'en-cours' | 'reussie' | 'echouee' | 'sautee';
+
+/** DEV-deploiements. Cinq étapes dans le même ordre : code, construction, tests, miseEnLigne, verification. */
+export interface Deploiement {
+  id: string;
+  depot: string;
+  branche: string;
+  quoi: string | null;
+  version: string | null;
+  cible: 'apercu' | 'preproduction' | 'production' | 'interne' | 'serveur';
+  /** Un prénom, jamais une adresse. */
+  par: string;
+  lanceA: string;
+  etapes: { etape: 'code' | 'construction' | 'tests' | 'miseEnLigne' | 'verification'; etat: EtatEtapeDeploiement; debut: string | null; fin: string | null }[];
+  annuleA: string | null;
+  /** Ce déploiement remet en ligne celui-ci (« Revenir »). */
+  retourDe: string | null;
+}
+
+export interface DeploiementPlanifie {
+  id: string;
+  depot: string;
+  branche: string;
+  quoi: string;
+  cible: Deploiement['cible'];
+  prevuA: string;
+  par: string;
+}
+
+/** DEV-editeur : une exécution du journal d'une automatisation (`fluxId` = `Automatisation.id`). */
+export interface Execution {
+  id: string;
+  fluxId: string;
+  debut: string;
+  fin: string | null;
+  resultat: 'en-cours' | 'reussie' | 'echec' | 'ignoree';
+  mode: 'local' | 'api';
+  essai: boolean;
+  actionHumaine: boolean;
+  /** Une phrase courte, jamais une valeur secrète. */
+  message: string | null;
+}
+
+export type PlanificationDeTache =
+  | { type: 'quotidien'; heure: string; jours?: number[] }
+  | { type: 'intervalle'; minutes: number; depuis: string }
+  | { type: 'une-fois'; a: string };
+
+export interface TachePlanifiee {
+  id: string;
+  nom: string;
+  /** L'automatisation que cette planification fait tourner (null : une tâche seule). */
+  automatisationId: string | null;
+  planification: PlanificationDeTache;
+  active: boolean;
+  creeeA: string;
+  /** L'heure PRÉVUE du dernier passage fait (pas l'heure réelle de l'exécution). */
+  dernierPassagePrevu: string | null;
+}
+
+/** DEV-serveur : un point de la charge sur 24 heures, toutes les 10 minutes. Aucun hôte, aucune adresse. */
+export interface MesureServeur {
+  id: string;
+  at: string;
+  processeurPct: number;
+  memoirePct: number;
+  disquePct: number;
+  reseauMoParS: number;
+}
+
+export interface ServiceServeur {
+  id: string;
+  nom: string;
+  detail: string;
+  /** Sur 30 jours, en pourcent à deux décimales. */
+  disponibilite30jPct: number;
+  etat: 'en marche' | 'attention' | 'arrêté';
+}
+
+/** DEV-couts : ce qui a été payé aux connecteurs sur les six derniers mois (le dernier est le mois courant). */
+export interface PaiementConnecteurs {
+  id: string;
+  mois: string;
+  payeCents: number;
+  /** Ce que le même usage aurait coûté en API payantes, moins ce qui a été payé. */
+  economiseCents: number;
+}
+
 export interface MondeSuite {
+  depots: Depot[];
+  deploiements: Deploiement[];
+  deploiementsPlanifies: DeploiementPlanifie[];
+  executions: Execution[];
+  tachesPlanifiees: TachePlanifiee[];
+  mesuresServeur: MesureServeur[];
+  servicesServeur: ServiceServeur[];
+  paiementsConnecteurs: PaiementConnecteurs[];
   /** G03, H07, MA04 : les avoirs sont des factures de nature `creditNote`, numérotées `AV-AAAA-NNNN`, qui réduisent `creditNoteFor`. Le chargeur les range avec les factures. */
   avoirs: Facture[];
   echeancesFiscales: EcheanceFiscale[];

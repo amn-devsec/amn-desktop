@@ -152,6 +152,10 @@ export interface Entreprise {
     delaiRelanceRendezVousJours: number;
     delaiRelanceProspectJours: number;
     budgetMensuelDepensesCents: number;
+    /** DEV-couts : le plafond mensuel des connecteurs payants (centimes), le seuil d'alerte et ce qui se passe au plafond. */
+    plafondConnecteursCents: number;
+    prevenirConnecteursAPourcent: number;
+    auPlafondConnecteurs: 'tout s’arrête' | 'on continue et on prévient';
   };
 }
 
