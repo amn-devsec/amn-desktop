@@ -90,3 +90,30 @@ Détail : `preparation/LOT-11-developpement.md` §5 et rubrique 13 de chaque fic
 - **H21 et MO03** : leur écran actuel (sections des Paramètres) est noté « à confirmer » ; LOT-07 les tient.
 - **La logique** n'est branchée sur aucun écran ni aucune donnée réelle ; elle est éprouvée sur des cas écrits et sur le jeu fictif `automatisations` seulement.
 - La CI GitHub n'a pas tourné sur la branche (pas de PR, consigne).
+
+---
+
+# Étape 3 — construction des écrans (14 nov.)
+
+## Résumé
+
+1. Feu vert du CO (socle v4 fusionné, §1.35). Les **7 écrans** sont construits dans `src/refonte/developpement/`, un commit par écran : DEV-ensemble (`06919b5`), DEV-projets (`798fb91`), DEV-deploiements (`035e7aa`), correctif de noms (`c90e0a3`), DEV-serveur (`ab2925f`), DEV-editeur (`a94b9f1`), DEV-couts (`0e4f86b`), DEV-modeles-sites (`a07807d`).
+2. Néon de la famille par `--fam-a` / `--fam-b` de la coquille, jetons du socle seulement (feuille `styles.ts`, contrôlée) ; textes au tutoiement (`i18n.ts`, fr et en) ; « Redémarrer » secondaire et inerte, cible « Interne » inerte ; sur téléphone, les écrans passent en une colonne et n'offrent aucune action lourde.
+3. **Deux blocages au CO** : la déclaration des 6 écrans neufs au registre (`check:navigation`, S5) et les signaux de la barre (`check:socle-coquille`, S0). Les fichiers sont prêts, hors du dépôt.
+4. Captures sur un banc statique hors dépôt (amn-api n'a pas pu être attaché : permission refusée dans cette session). T1 refait la mesure dans son banc.
+
+## Choix et écarts
+
+- **Source des données** (`donnees.tsx`) : jeux fictifs de SIM pour un compte `@exemple.test` seulement, étiquetés « Données d'exemple » ; « à brancher » pour tout autre compte. Aucune donnée inventée.
+- **Feuille du lot en module** (`styles.ts`, injectée une fois) : `check:navigation` assemble le registre avec esbuild et suit les écrans neufs jusqu'à leurs imports, sans charger de CSS.
+- **Noms de fichiers** : `PageDeploiements.tsx` (la logique `deploiements.ts` ne différait que par la casse, ce que Windows ne distingue pas) ; `chemins.ts` (une garde de S3 repère tout import `./routes`).
+- Les écarts écran par écran sont dans `STATUT.md`, section LOT-11.
+
+## Gardes (lot B, avant le push)
+
+Voir le message au CO : `typecheck` ×2, `lint`, `check:tutoiement`, `check:developpement` et les 74 gardes d'`editions.yml`, plus `build:web` en local. `check:business` non lancé : il exige le paquet client, dont le build est réservé à T1.
+
+## Ce qui n'a pas été vérifié
+
+- Le rendu dans la vraie application (coquille allumée, API d'essai) : pas d'amn-api dans cette session, et les routes `/developpement/*` attendent la décision sur le registre.
+- Les gardes navigateur (T1).
