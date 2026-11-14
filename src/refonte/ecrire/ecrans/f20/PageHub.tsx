@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Archive, BookOpen, FileSignature, FileText, Folder, Layers, Lightbulb, Mic, PenLine, Plus } from 'lucide-react';
+import { useAssistant } from '../../../../assistant/AssistantContext';
 import { useAuth } from '../../../../auth/AuthContext';
 import { isModuleEnabled } from '../../../../data/spaces';
 import { useProfilesOptionnel } from '../../../../state/ProfilesContext';
@@ -33,9 +34,10 @@ const ROUTES: Record<string, string> = {
   redaction: '/outils/redaction',
   modeles: '/outils/modeles',
   signatures: '/signature',
+  archives: '/archives',
   connaissances: '/knowledge',
 };
-const VUES: Record<string, string> = { notes: 'notes', documents: 'binder', journal: 'logbook', redaction: 'writing', modeles: 'templates', signatures: 'esign', connaissances: 'knowledge' };
+const VUES: Record<string, string> = { notes: 'notes', documents: 'binder', journal: 'logbook', redaction: 'writing', modeles: 'templates', signatures: 'esign', archives: 'archives', connaissances: 'knowledge' };
 
 const ICONES: Record<string, React.ReactNode> = {
   notes: <FileText size={14} />,
@@ -58,6 +60,7 @@ export default function PageHub() {
   const { user } = useAuth();
   const profils = useProfilesOptionnel();
   const { notes, createNote } = useNotes();
+  const assistant = useAssistant();
   const articles = useCollection<{ title?: string }>('knowledge');
   const demandes = useCollection<{ status?: string }>('signatures');
   const [filtre, setFiltre] = useState<FiltreDePages>('toutes');
@@ -88,7 +91,8 @@ export default function PageHub() {
     () => motsParJour(notes.map((n) => ({ jour: n.updatedAt.slice(0, 10), mots: `${n.title} ${n.body}`.split(/\s+/).filter(Boolean).length }))),
     [notes],
   );
-  const ouverts = useMemo(() => new Set(Object.keys(VUES).filter((c) => isModuleEnabled(VUES[c]))), []);
+  // La dictée n'est pas un module : elle ouvre Ajmani (⌘J) ; elle est toujours là.
+  const ouverts = useMemo(() => new Set([...Object.keys(VUES).filter((c) => isModuleEnabled(VUES[c])), 'dictee']), []);
   const noms = langue === 'fr' ? NOMS_FR : NOMS_EN;
 
   const vue = useMemo(
@@ -126,11 +130,12 @@ export default function PageHub() {
           onRanger: () => undefined,
           onNonRanger: () => undefined,
           icones: ICONES,
+          surClic: { dictee: () => assistant.open('chat') },
           noms,
           libelles: libellesDe(tm as never, ouverts.size),
         },
       ),
-    [langue, maintenant, email, prenom, profils, pages, filtre, demandes, articles, ouverts, mots, noms, navigate, createNote, tm],
+    [langue, maintenant, email, prenom, profils, pages, filtre, demandes, articles, ouverts, mots, noms, navigate, createNote, tm, assistant],
   );
   return <VueHub {...vue} />;
 }

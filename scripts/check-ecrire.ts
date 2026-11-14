@@ -1167,7 +1167,8 @@ await dit('écrans : composants du socle seulement, rien de src/screens ni de sr
     const src = fs.readFileSync(f, 'utf8');
     const code = f.endsWith('.css') ? src.replace(/\/\*[\s\S]*?\*\//g, '') : sansCommentaires(src);
     for (const m of src.matchAll(/(?:import|export)[^'"]*?from\s+['"]([^'"]+)['"]/g)) {
-      if (/\/(screens|assistant|business)\//.test(m[1]) || /\.business(\.|$)/.test(m[1])) fautes.push(`${rel} importe ${m[1]}`);
+      // Rien de src/screens ni d'une édition ; de src/assistant, seul le crochet public d'ouverture (`AssistantContext`, comme les routes du registre) : la dictée ouvre ⌘J, sans toucher à src/assistant/**.
+      if (/\/(screens|business)\//.test(m[1]) || /\.business(\.|$)/.test(m[1]) || (/\/assistant\//.test(m[1]) && !/\/assistant\/AssistantContext$/.test(m[1]))) fautes.push(`${rel} importe ${m[1]}`);
     }
     if (/#[0-9a-fA-F]{3,8}\b|rgba?\(|hsla?\(/.test(code)) fautes.push(`${rel} : couleur écrite à la main`);
     if (interdits.test(code)) fautes.push(`${rel} : nom d’une image (${interdits.exec(code)?.[0]})`);

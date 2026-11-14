@@ -18,7 +18,9 @@ export interface TuileVue {
   nom: string;
   icone: React.ReactNode;
   sous: string;
-  vers: string;
+  /** Où mène la tuile : une route, ou une action (`onClick`, la dictée ouvre ⌘J) : l'un des deux. */
+  vers: string | null;
+  onClick?: () => void;
   /** Les deux seules couleurs d'état de l'index : le vert (Journal) et l'orange (Signatures). */
   ton: 'neutre' | 'vert' | 'orange';
   pastille: number | null;
@@ -136,18 +138,18 @@ export function VueHub(p: VueHubProps) {
           <ul className="ec-f20__tuiles">
             {p.modules.map((m) => (
               <li key={m.cle}>
-                <ModuleTile
-                  nom={m.nom}
-                  icone={m.icone}
-                  famille="ecrire"
-                  sousTexte={m.sous}
-                  vers={m.vers}
-                  className="ec-f20__tuile"
-                  accessoire={
-                    m.coAuteur ? <Avatar nom={m.coAuteur} taille={20} enLigne /> : m.nouveau ? <span className="ec-f20__nouveau">{l.nouveau}</span> : <Pastille n={m.pastille} />
-                  }
-                  title={m.nom}
-                />
+                {(() => {
+                  const commun = {
+                    nom: m.nom,
+                    icone: m.icone,
+                    famille: 'ecrire' as const,
+                    sousTexte: m.sous,
+                    className: 'ec-f20__tuile',
+                    accessoire: m.coAuteur ? <Avatar nom={m.coAuteur} taille={20} enLigne /> : m.nouveau ? <span className="ec-f20__nouveau">{l.nouveau}</span> : <Pastille n={m.pastille} />,
+                    title: m.nom,
+                  };
+                  return m.vers ? <ModuleTile {...commun} vers={m.vers} /> : <ModuleTile {...commun} onClick={m.onClick ?? (() => undefined)} />;
+                })()}
               </li>
             ))}
           </ul>

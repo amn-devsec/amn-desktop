@@ -74,7 +74,7 @@ function sousTexteDeTuile(cle: string, nombres: number[], l: Langue, coAuteur: s
   }
 }
 
-export function composerHub(e: EntreesHub, tm: (cle: string, p?: Record<string, string | number>) => string, etat: { onFiltre: (c: string) => void; onOuvrir: (page: PageMin) => void; onNouvellePage: () => void; onPersonnaliser: () => void; onRanger: () => void; onNonRanger: () => void; icones: Record<string, import('react').ReactNode>; noms: Record<string, string>; libelles: Record<string, string> }): VueHubProps {
+export function composerHub(e: EntreesHub, tm: (cle: string, p?: Record<string, string | number>) => string, etat: { onFiltre: (c: string) => void; onOuvrir: (page: PageMin) => void; onNouvellePage: () => void; onPersonnaliser: () => void; onRanger: () => void; onNonRanger: () => void; icones: Record<string, import('react').ReactNode>; noms: Record<string, string>; libelles: Record<string, string>; surClic?: Record<string, () => void> }): VueHubProps {
   const aujourdhui = jourDe(e.maintenant);
   const coAut = coAuteursPresents(e.presences, e.moi.email, e.maintenant);
   const coAuteurPrenom = coAut.length ? e.prenomDe(coAut[0]) : null;
@@ -93,7 +93,8 @@ export function composerHub(e: EntreesHub, tm: (cle: string, p?: Record<string, 
     nom: etat.noms[t.cle] ?? t.cle,
     icone: etat.icones[t.cle],
     sous: sousTexteDeTuile(t.cle, t.nombres, e.langue, t.cle === 'notes' ? coAuteurPrenom : null),
-    vers: e.routes[t.cle] ?? '/',
+    vers: e.routes[t.cle] ?? null,
+    onClick: etat.surClic?.[t.cle],
     ton: t.cle === 'journal' ? 'vert' : t.ton,
     pastille: t.pastille,
     nouveau: t.nouveau,
