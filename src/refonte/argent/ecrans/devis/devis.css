@@ -1,0 +1,163 @@
+/*
+  H07 · DEVIS — cotes de la fiche (rubrique 3) : rail gauche 212 (catalogue 523, versions 127, écart 14), plan de travail
+  574 × 664 (padding 12 / 16 / 16) portant la page de 536, rail droit 290 (suivi 241, options 220). Écart 16 entre les
+  colonnes. Jetons du socle seulement.
+*/
+
+.ar-devis__corps {
+  display: grid;
+  min-height: 664px;
+  grid-template-columns: 212px 574px minmax(0, 290px);
+  grid-template-rows: 664px;
+  gap: 16px;
+}
+.ar-devis__etat { min-height: 664px; align-items: center; justify-content: center; }
+.ar-devis__pastille { display: inline-flex; align-items: center; }
+.ar-devis__indispo { margin: 10px 18px 0; color: var(--socle-texte-3); font-size: 12px; line-height: 17px; }
+
+/* ── Rail gauche ── */
+.ar-devis__gauche,
+.ar-devis__droite { display: flex; min-width: 0; flex-direction: column; gap: 14px; }
+.ar-devis__catalogue { height: 523px; }
+.ar-devis__recherche { margin: 12px 16px 6px; }
+.ar-devis__prestations { min-height: 0; flex: 1 1 0 !important; margin: 0; padding: 0 16px; overflow-y: auto; list-style: none; }
+.ar-devis__prestation { display: flex; min-height: 57px; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 1px solid var(--socle-bord-ligne); }
+.ar-devis__prestation-texte { display: flex; min-width: 0; flex-direction: column; gap: 2px; }
+.ar-devis__prestation-nom { overflow: hidden; color: var(--socle-texte-1); font-size: 12.5px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+.ar-devis__prestation-prix { color: var(--socle-texte-3); font-size: 11.5px; }
+.ar-devis__plus {
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--socle-bord-bouton);
+  border-radius: 7px;
+  background: var(--socle-pilule);
+  color: var(--socle-texte-courant);
+  cursor: pointer;
+}
+.ar-devis__plus:hover { background: var(--socle-survol); }
+.ar-devis__catalogue-pied { margin: 0; padding: 10px 16px 12px; color: var(--socle-texte-3); font-size: 11.5px; }
+.ar-devis__versions { height: 127px; }
+.ar-devis__liste-versions { margin: 8px 10px 0; padding: 0; list-style: none; }
+.ar-devis__version { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 4px 8px; border-radius: 9px; }
+.ar-devis__version[data-active='oui'] { background: var(--socle-survol); }
+.ar-devis__version-n { color: var(--socle-texte-courant); font-size: 12px; }
+.ar-devis__version-texte { display: flex; flex-direction: column; color: var(--socle-texte-1); font-size: 12.5px; line-height: 17px; }
+.ar-devis__version-texte .ar-discret { font-size: 11px; }
+
+/* ── Plan de travail et page ── */
+.ar-devis__bureau {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 16px 16px;
+  border: 1px solid var(--socle-bord-entete);
+  border-radius: 14px;
+  background: var(--socle-sous-carte);
+}
+.ar-devis__barre { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--socle-texte-2); font-size: 12px; }
+.ar-devis__enregistre { display: inline-flex; align-items: center; gap: 8px; }
+.ar-devis__legende-marge::before { display: inline-block; width: 9px; height: 9px; margin-right: 7px; border-radius: 2px; background: var(--socle-etat-info); content: ''; }
+.ar-devis__page {
+  position: relative;
+  display: flex;
+  width: 536px;
+  min-height: 0;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-self: center;
+  padding: 24px 28px 20px 32px;
+  overflow-y: auto;
+  border: 1px solid var(--socle-bord-bouton);
+  border-radius: 10px;
+  background: linear-gradient(180deg, var(--socle-carte-haut), var(--socle-encart));
+  box-shadow: var(--socle-ombre-carte);
+}
+.ar-devis__page-tete { display: flex; align-items: flex-start; justify-content: space-between; }
+.ar-devis__marque { display: inline-flex; align-items: center; gap: 10px; }
+.ar-devis__marque > span:last-child { display: flex; flex-direction: column; }
+.ar-devis__logo { display: inline-flex; width: 26px; height: 26px; align-items: center; justify-content: center; border-radius: 6px; background: var(--socle-texte-1); color: var(--socle-encre-accent); font-size: 13px; font-weight: 700; }
+.ar-devis__marque-nom { color: var(--socle-texte-1); font-size: 13px; font-weight: 600; }
+.ar-devis__marque-activite { color: var(--socle-texte-3); font-size: 11px; }
+.ar-devis__numero { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; color: var(--socle-texte-1); font-size: 12px; font-weight: 600; }
+.ar-devis__mention { color: var(--socle-texte-3); font-size: 10.5px; font-weight: 500; letter-spacing: 0.08em; }
+.ar-devis__client { display: flex; justify-content: space-between; gap: 16px; margin-top: 22px; }
+.ar-devis__client > div { display: flex; flex-direction: column; gap: 1px; color: var(--socle-texte-2); font-size: 11.5px; line-height: 17px; }
+.ar-devis__client strong { color: var(--socle-texte-1); font-size: 13px; font-weight: 500; }
+.ar-devis__mention-doux { color: var(--socle-texte-3); }
+.ar-devis__dates { align-items: flex-end; text-align: right; }
+.ar-devis__objet { margin: 20px 0 10px; color: var(--socle-texte-1); font-size: 14px; font-weight: 600; }
+.ar-devis__tableau { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.ar-devis__tableau th { padding: 0 0 8px; border-bottom: 1px solid var(--socle-bord-sous-carte); color: var(--socle-texte-3); font-size: 10.5px; font-weight: 500; letter-spacing: 0.06em; text-align: right; }
+.ar-devis__tableau th:first-child { text-align: left; }
+.ar-devis__tableau col:first-child,
+.ar-devis__tableau th:nth-child(2) { width: 34px; }
+.ar-devis__tableau th:nth-child(3) { width: 82px; }
+.ar-devis__tableau th:nth-child(4) { width: 86px; }
+.ar-devis__tableau td { position: relative; height: 40px; padding: 0; border-bottom: 1px solid var(--socle-bord-ligne); color: var(--socle-texte-courant); font-size: 12.5px; text-align: right; }
+.ar-devis__tableau td:first-child { color: var(--socle-texte-1); text-align: left; }
+.ar-devis__tableau tr[data-edition='oui'] td { height: 50px; background: rgba(255, 255, 255, 0.025); }
+.ar-devis__marge { position: absolute; top: 9px; bottom: 9px; left: -21px; width: 5px; border-radius: 3px; background: var(--socle-etat-info); }
+.ar-devis__cellule { padding: 4px 0; border: 0; background: transparent; color: inherit; font: inherit; cursor: text; }
+.ar-devis__cellule:disabled { cursor: default; }
+.ar-devis__champ { width: 66px; height: 26px; padding: 0 6px; border: 1px solid var(--socle-bord-champ); border-radius: 6px; background: var(--socle-champ); color: var(--socle-texte-1); font-size: 12.5px; text-align: right; }
+.ar-devis__ancien { display: block; color: var(--socle-texte-3); font-size: 10px; text-decoration: line-through; }
+.ar-devis__total { padding: 4px 6px; border-radius: 6px; color: var(--socle-texte-1); font-weight: 600; }
+.ar-devis__total[data-change='oui'] { background: color-mix(in srgb, var(--socle-etat-succes) 12%, transparent); }
+.ar-devis__ajouter {
+  display: flex;
+  height: 34px;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 0 10px;
+  border: 1px dashed var(--socle-pointille);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--socle-texte-3);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.ar-devis__bas { display: flex; justify-content: space-between; gap: 18px; margin-top: 18px; }
+.ar-devis__conditions { max-width: 220px; color: var(--socle-texte-2); font-size: 11px; line-height: 16px; }
+.ar-devis__conditions p { margin: 0 0 2px; }
+.ar-devis__totaux { width: 236px; margin: 0; }
+.ar-devis__totaux > div { display: flex; justify-content: space-between; padding: 3px 0; color: var(--socle-texte-2); font-size: 12px; }
+.ar-devis__totaux dd { margin: 0; color: var(--socle-texte-courant); }
+.ar-devis__ttc { margin-top: 6px; padding-top: 8px !important; border-top: 1px solid var(--socle-bord-sous-carte); }
+.ar-devis__ttc dt { color: var(--socle-texte-1); font-size: 13px; font-weight: 600; }
+.ar-devis__ttc dd { color: var(--socle-texte-1) !important; font-size: 18px; font-weight: 700; }
+.ar-devis__ecart { display: inline-flex !important; float: right; align-items: center; gap: 6px; margin-top: 4px; padding: 2px 9px !important; border-radius: 99px; background: var(--socle-pilule); font-family: var(--socle-police-mono); font-size: 11px !important; }
+.ar-devis__accord { display: flex; align-items: center; gap: 8px; margin-top: auto; padding-top: 14px; color: var(--socle-texte-3); font-size: 11px; }
+
+/* ── Rail droit ── */
+.ar-devis__suivi { height: 241px; }
+.ar-devis__chiffres { display: grid; grid-template-columns: auto auto 1fr; gap: 16px; margin: 10px 16px 0; }
+.ar-devis__chiffres > div { display: flex; flex-direction: column-reverse; }
+.ar-devis__chiffres dt { color: var(--socle-texte-3); font-size: 11px; }
+.ar-devis__chiffres dd { margin: 0; color: var(--socle-texte-1); font-size: 17px; font-weight: 600; }
+.ar-devis__sections { display: flex; flex-direction: column; gap: 8px; margin: 18px 16px 0; padding: 0; list-style: none; }
+.ar-devis__sections li { display: grid; grid-template-columns: minmax(0, 1fr) 60px 52px; align-items: center; gap: 10px; color: var(--socle-texte-courant); font-size: 12px; }
+.ar-devis__section-barre { height: 4px; border-radius: 2px; background: var(--socle-piste); }
+.ar-devis__section-barre span { display: block; height: 100%; border-radius: 2px; background: var(--socle-etat-info); }
+.ar-devis__suivi-vide { padding: 4px 0; }
+.ar-devis__vu { margin: 12px 18px 0; color: var(--socle-texte-1); font-size: 13px; }
+.ar-devis__options { height: 220px; }
+.ar-devis__liste-options { display: flex; flex-direction: column; gap: 11px; margin: 12px 16px 0; padding: 0; list-style: none; }
+.ar-devis__option { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.ar-devis__option-texte { display: flex; flex-direction: column; color: var(--socle-texte-1); font-size: 12.5px; line-height: 17px; }
+.ar-devis__option-texte .ar-discret { font-size: 11.5px; }
+.ar-devis__lien { display: flex; flex-direction: column; padding: 0; border: 0; background: transparent; color: var(--socle-texte-1); font: inherit; font-size: 12.5px; text-align: left; cursor: pointer; }
+.ar-devis__lien:hover span:first-child { text-decoration: underline; }
+.ar-devis__mention-comptable { margin: 0 4px; }
+
+@container (max-width: 1100px) {
+  .ar-devis__corps { grid-template-columns: 212px minmax(0, 1fr); grid-template-rows: auto; }
+  .ar-devis__droite { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; }
+  .ar-devis__page { width: 100%; }
+}

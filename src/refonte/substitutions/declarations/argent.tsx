@@ -10,4 +10,6 @@ import { declarerSubstitutions } from '../declarer';
 export default declarerSubstitutions('argent', [
   // MA03 · Paiements en ligne : l'écran des acomptes et du paiement en ligne.
   { route: '/acompte', composant: lazy(() => import('../../argent/ecrans/paiements/PagePaiements')) },
+  // H07 · Devis : le devis en cours, sur son plan de travail.
+  { route: '/facturation/devis', composant: lazy(() => import('../../argent/ecrans/devis/PageDevis')) },
 ]);

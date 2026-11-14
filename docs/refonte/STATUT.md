@@ -1123,7 +1123,7 @@ Préparation par DS (14 nov.) : logique pure `src/refonte/argent/` (18 fichiers)
 |---|---|---|---|---|
 | F30 | Argent · Vue d'ensemble | nouveau | en cours (préparation) | `ensemble.ts` : rivière du mois, objectif d'encaissement ; définition de la « série » à trancher (G03 ≠ F30) |
 | G03 | Argent · Facturation | mixte | en cours (préparation) | `facturation.ts` : six stations (dont « Vue »), reste dû, numérotation existante, mentions, paiement à vérifier avant relance |
-| H07 | Argent · Devis | mixte | en cours (préparation) | `devis.ts` : états de la fiche (signé, facturé), **devis prérempli** (H41, H42), écart de version ; TVA par ligne (CO) au lieu de par taux (fiche) |
+| H07 | Argent · Devis | mixte | **construit** (`/facturation/devis`, coquille allumée) | `ecrans/devis/` : catalogue, versions, page du devis éditable en place (totaux ligne par ligne, acompte, écart de version), suivi de lecture, options, lien « Paiement en plusieurs fois » (F1) quand il est au registre ; aperçu `H07` : 21,1 % brut (données fictives) ; page réelle en lecture : le devis du serveur n'a qu'un montant (une ligne), ni versions ni suivi ni catalogue servis ; montants à 4 chiffres sans espace dans Chromium (format du socle, à voir avec S0) |
 | H08 | Argent · Dépenses | mixte | en cours (préparation) | `depenses.ts` : justificatifs avant le 5, reçu rapproché, TVA récupérable des seules dépenses justifiées |
 | H09 | Argent · Prévisions | mixte | en cours (préparation) | `tresorerie.ts` : 90 jours, trois scénarios par hypothèses, ce qui pèse le plus, seuil de confort ; **attendus de SIM non livrés** |
 | MA07 | Argent · Trésorerie | mixte | en cours (préparation) | même moteur que H09 ; compte courant par défaut, épargne à part ; autonomie, bande d'incertitude |
