@@ -47,6 +47,8 @@ Le plan complet est dans [`PLAN-BUREAU-DE-TRAVAIL.md`](PLAN-BUREAU-DE-TRAVAIL.md
 7. Le tutoiement : note toute phrase qui te vouvoie encore.
 8. Éteins la nouvelle coquille : l'ancienne interface doit revenir, intacte.
 
+9. *(Facultatif, sans urgence)* Les preuves locales du Studio (BDT-2) : suis `docs/refonte/preparation/BDT-2-essai/LISEZ-MOI.md` sur ton poste, pour un ffmpeg LGPL, MediaPipe, whisper.cpp et Piper. Les sessions n'ont pas le droit de télécharger ces programmes.
+
 **Tes retours** : en vrac, dans notre conversation. J'en fais des tâches.
 
 ## Fait / en cours / bloqué
