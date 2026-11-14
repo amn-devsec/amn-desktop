@@ -13,14 +13,14 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 | Session | Identifiant | État | Prochain geste |
 |---|---|---|---|
 | S0 Socle | `session_01SJe828c2W5EnkMY4fhFY6z` | attend l'accord direct de Harun | sa liste, §1.38 |
-| T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | `check:fidelite` par lot (aperçu + application) | test au clic réel des cibles de LOT-02 (7 routes) ; LOT-03 dès ME05 ; sonde courte de LOT-11 `5523167` |
-| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | LOT-02 **retiré de vivante** (`check:clavier`) ; nuages corrigés (`405e2986`) | 16 éléments cliquables au clavier, MC03, puis contrôle court de T1 → refusion (le CO annule le retrait) |
+| T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | `check:fidelite` et `tester-branche` par lot | LOT-03 `2da78ad5` (fidélité 9/9, structure en cours) ; LOT-05 après « Gérer » |
+| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **LOT-02 livré** (13/13, `7796608f`) | pastilles de 20 px de MC07 et H45 ; puis libre |
 | S2 | `session_014ZkF6SeGRNi6NR3uEsjM5q` | préparation de LOT-01 finie ; **sans zips v4** ; la construction de LOT-01 passe à S7 | en pause jusqu'aux zips, puis un autre lot |
 | S3 | `session_01FBSpK6n1yYtYXYyxbLAuBV` | attend l'accord de Harun (`check:encres`) ; **sans zips v4** | correctif d'`equipes.ts`, puis LOT-08 |
-| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | LOT-03 complet (mise en page acceptée) ; LOT-05 à 4 sur 6 (`078ca378`) | **d'abord ME05** (catalogue.ts) → T1 → fusion de LOT-03 ; puis MX03, MX06, raccord de F40 |
+| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | **LOT-03 complet** (ME05 `2da78ad5`) ; **LOT-05 complet** (10/10, `d706a9bd`) | « Gérer » (sondages, canaux), zones de 36 px, rapport LOT-05 |
 | S6 | `session_01RHV8Xq2txWkfjAusKvq9DG` | préparation de LOT-07 fusionnée ; **sans zips v4** ; LOT-10 passe à S8 | construire LOT-07 dès les zips ; relire la sécurité de LOT-10 avant sa fusion |
-| S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **LOT-06 livré**, 15/15 ; zones §1.41 (`66719328`) chez T1 | **construit LOT-01** Ma journée sur `claude/refonte-journee` (H25, H02, H04, N01 d'abord) |
-| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | **LOT-11 livré** ; « Relancer » à 390 px (`6a87e35`) chez T1 | **construit LOT-10** Cyber sur `claude/refonte-cyber` (préparation, puis écrans sans dépendance) |
+| S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **LOT-06 livré** (`66719328` fusionné) | zones de 34 → 36 px et « Réduire » (#/tournees), puis **LOT-01** sur `claude/refonte-journee` |
+| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | **LOT-11 livré** (`6a87e35` fusionné) | attend l'accord de Harun pour LOT-10 Cyber (POINT-HARUN) |
 | DS | `session_01TZGDvVWristJnnPK59rruY` | attend l'accord direct de Harun pour construire LOT-04 | commencer par MA03, H07, MA12 |
 | SIM, S9, F1 | `session_011UF2ufZg9moGv2rRZFRuf7`, `session_01C5DAVygXYax6Q7g436TPQx`, `session_01VZHqP3gvzrtnpgsTrrKguV` | en pause | F1 : intégration reportée (S0) |
 
@@ -40,7 +40,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 | Jour | Construits | Livrés (cumul) | Livrés depuis la veille | Lots préparés | Lots finis | Note |
 |---|---|---|---|---|---|---|
-| 14 nov. | 57 / 153 | 31 (LOT-00 9, LOT-06 15, LOT-11 7) | 31 | 8 / 13 | 2 / 13 (LOT-06, LOT-11) ; LOT-00 attend l'allumage | LOT-02 (13) fusionné puis retiré à 11h25 (`check:clavier` rouge), refusion après correctif de S1. Les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. |
+| 14 nov. | 57 / 153 | 44 (LOT-00 9, LOT-06 15, LOT-11 7, LOT-02 13) | 44 | 8 / 13 | 3 / 13 (LOT-06, LOT-11, LOT-02) ; LOT-00 attend l'allumage | LOT-02 retiré à 11h25 (`check:clavier`), refusionné corrigé à 11h40. LOT-03 (9) et LOT-05 (10) complets, chez T1. Les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. |
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
@@ -51,6 +51,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 - 14 nov., 10h15 : **LOT-06 fusionné** (`e1615090`, 15 écrans), **premier lot livré** de la vague de construction. T1 l'a accepté : fidélité sur l'aperçu, les 15 écrans justifiés ; structure sur l'application, les 12 routes montées dans la coquille v4, rien de coupé à 390 px. Suites demandées à S7 : relire 6 écrans au-dessus de 15 % en disposition (H17, MR01, MR10, H16, MR05, MR04) ; zones de clic de 34 px (§1.39) ; l'état vide de H17 (« Le livre de marque d’ · ») ; les entrées de registre de ses 3 écrans neufs. T1 fixe les valeurs acceptées de LOT-06.
 - 14 nov., 10h00 : **LOT-06 complet** (S7, `277263a`, 15 sur 15). S7 et S8 butent tous deux sur `check:systeme-demarrage` (« le registre ne doit pas bouger », qui perd les fonctions des écrans neufs). Le correctif est sur la branche LOT-03 de S5 et arrive avec sa fusion. Ordre : LOT-03, puis S7 et S8 déclarent leurs écrans neufs, puis LOT-06 et LOT-11.
 - 14 nov., 10h00 : méthode de `check:fidelite` (§1.40). La fidélité se mesure sur l'aperçu statique, rempli avec les jeux de SIM ; l'application sert à la structure. Pas de collection nouvelle dans l'API d'essai.
+- 14 nov., 11h40 : **LOT-02 Contacts refusionné** : le retrait `2b02ad23` est annulé, puis fusion de `7796608f` (clavier : 16 → 0, nuages bornés par le voisin, MC03). T1 l'accepte : 75 contrôles verts, dont clavier ; 13 écrans dans les seuils ; 0 clic au centre renvoyé à un voisin. Reste à S1 : pastilles de 20 px de MC07 et H45. Fusionnés avec : LOT-06 `66719328` (S7 reprend les zones de 34 → 36 px et « Réduire » des tournées), LOT-11 `6a87e35` (accepté), T1 `8c7bf98e`. §1.41 : 36 px, formule de T1. Gardes du CO : toutes les `check:*`, seuls les échecs connus.
 - 14 nov., 11h37 : S8 demande l'accord direct de Harun pour LOT-10, nouveau lot qui touche à la sécurité. La ligne à coller est dans POINT-HARUN. En attendant, S8 ne crée pas la branche.
 - 14 nov., 11h35 : **LOT-10 Cyber confié à S8** sur `claude/refonte-cyber`, au lieu de S6. S6 n'a pas les zips et a déjà les 30 écrans de LOT-07 ; S8 a les zips et a fini LOT-11. S8 commence par la note de préparation et les écrans sans dépendance. CY07, CY11, CY12, CY13 et CY04 attendent leurs lots. Les 4 `CYB-*` attendent leurs fiches, et les prix de CYB-chiffrage sont à Harun. S6 relit la sécurité avant la fusion. Réversible.
 - 14 nov., 11h30 : **LOT-01 Ma journée (16 écrans) confié à S7** pour la construction, sur `claude/refonte-journee`, à partir de la préparation de S2. S7 a les zips v4 et a fini LOT-06 ; S2 ne les a pas. S2 reste en pause et reprendra un autre lot dès qu'il aura les zips. Réversible.
@@ -838,7 +839,7 @@ Dans l'ordre :
 5. **Palette ⌘K (H41)**, relevé de T1 sur les 20 tâches courantes :
    - (a) ajouter des actions de création (« Nouvelle tâche », « Nouveau client », « Nouvelle facture », « Nouveau devis », « Nouveau rendez-vous »), pour tenir l'objectif de 3 actions au plus ;
    - (b) quand la saisie correspond à un module, **Entrée ouvre le module**, et « Demander à Ajmani » passe en second. Aujourd'hui, « client » puis Entrée lance Ajmani.
-6. **Bouton du socle** : zone de clic invisible de 36 px (§1.41 ; il fait 31 px de haut, comme les fiches), et même bord pour `.sc-segment`, `.sc-interrupteur` et les actions de PageHead, aujourd'hui à 34 px exacts ; de même, dans la coquille : « Ouvrir le menu » et « Notifications » de l'en-tête mobile (34×34), « Chercher un module, un client… » (181×34), « Tous les modules » (34×34), carte « Aujourd'hui » (197×34), relevés par T1 ; **boutons de PageHead** décalés de 26 px par rapport aux images, sur les 15 écrans de LOT-06 (relevé de S7).
+6. **Bouton du socle** : zone de clic invisible de 36 px (§1.41 ; il fait 31 px de haut, comme les fiches), et même bord pour `FilterChips` (filtres de 34 px), `.sc-segment`, `.sc-interrupteur` et les actions de PageHead, aujourd'hui à 34 px exacts ; de même, dans la coquille : « Ouvrir le menu » et « Notifications » de l'en-tête mobile (34×34), « Chercher un module, un client… » (181×34), « Tous les modules » (34×34), carte « Aujourd'hui » (197×34), relevés par T1 ; **boutons de PageHead** décalés de 26 px par rapport aux images, sur les 15 écrans de LOT-06 (relevé de S7).
 7. **« Tous les modules » (D02)** : montrer les vues secondaires de chaque module (36 écrans n'ont aujourd'hui que la Bibliothèque comme chemin) ; ⌘K les trouve par leur nom.
 
 Éléments ludiques protégés (relevé de T1) : absents partout, parce que leurs écrans (LOT-01, LOT-10) ne sont pas encore construits. Ce n'est **pas une régression**. L'absence devient bloquante dès qu'un lot annonce L07, H02, H04 ou L01 livrés : T1 relance son contrôle à chaque lot concerné.
@@ -858,7 +859,7 @@ Sur l'API d'essai, beaucoup d'écrans s'affichent à l'état vide : seuls 8 jeux
 ### 1.41 Zones de clic : 36 px, et le centre de l'élément reste à lui (14 nov.)
 
 Deux précisions de §1.39, mesurées par T1 et S8.
-1. **Taille** : une zone de 34 px exacts laisse dehors la sonde posée à ±17 px, car le bord est exclusif. Les zones invisibles (`::after`) font donc **36 px**, le dessin ne change pas. Le socle a le même bord à 34 px (`.sc-segment`, `.sc-interrupteur`, actions de `PageHead`) : c'est ajouté à la liste de S0 (§1.38).
+1. **Taille** : zone de clic **≥ 36 × 36 px centrée sur l'élément**, vérifiée par 9 points à ±17 px (le bord à ±18 est exclusif ; outil de T1 : `h = min/2 − 1`). Une zone de 34 px exacts ne passe pas. Les zones invisibles (`::after`) font donc au moins 36 px, le dessin ne change pas. Sur un nuage dense, la zone de chaque point s'arrête à mi-chemin du point voisin : elle peut faire moins de 36 px, à condition que son centre reste à lui. Le socle a le même bord à 34 px (`.sc-segment`, `.sc-interrupteur`, actions de `PageHead`) : c'est ajouté à la liste de S0 (§1.38).
 2. **Recouvrement** (règle de T1, dans `scripts/qualite/exigences-ecran.mjs`) : c'est **refusé** si le centre, ou la moitié centrale de la boîte visible, renvoie un voisin (un clic au milieu de l'élément part ailleurs). C'est **accepté** si seuls les bords des marges de 34 px se chevauchent : le dernier élément dessiné reçoit le clic dans la marge.
 
 ## 2. Les lots
