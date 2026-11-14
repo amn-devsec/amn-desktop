@@ -1,4 +1,4 @@
-import { Columns3, Gauge } from 'lucide-react';
+import { Columns3, Gauge, StickyNote } from 'lucide-react';
 import { declarerFamille, vue } from '../declarer';
 
 /**
@@ -99,6 +99,21 @@ export default declarerFamille({
             icone: Gauge,
             ecran: () => import('../../journee/cockpit/PageCockpit'),
             indice: { fr: 'Leur activité en ligne, en direct : revenus, utilisateurs, tickets, santé', en: 'Their activity online, live: revenue, users, tickets, health' },
+          },
+        }),
+      ],
+    },
+    {
+      nom: { fr: 'Notes rapides', en: 'Quick notes' },
+      action: 'suivre',
+      niveau: 'courant',
+      vues: [
+        vue('notesRapides', '/notes-rapides', ['noter une idée en deux secondes', 'voir mes notes rapides', 'ranger mes notes à plus tard'], ['note rapide', 'idée', 'mur de notes', 'à trier', 'mémo'], {
+          en: { verbes: ['note an idea in two seconds', 'see my quick notes', 'sort my notes later'], motsCles: ['quick note', 'idea', 'note wall', 'to sort', 'memo'] },
+          nouveau: {
+            icone: StickyNote,
+            ecran: () => import('../../journee/notes/PageNotes'),
+            indice: { fr: 'Noter en deux secondes, classer plus tard', en: 'Note in two seconds, sort later' },
           },
         }),
       ],

@@ -1,5 +1,5 @@
 {
-  "_": "Écarts de LOT-01 (Ma journée, la moitié de S1 : H01, H03, G08, MJ01 à MJ05) au-dessus de 15 % en comparaison brute, sur le modèle de justifies-LOT-02.json. Aucun écran ne dépasse 15 % en disposition (couleur ± 10, la barre de T1). H03 (7,8 %) et G08 (14,4 %) sont sous 15 % même en brut. À compléter avec MJ03 à MJ05.",
+  "_": "Écarts de LOT-01 (Ma journée, la moitié de S1 : H01, H03, G08, MJ01 à MJ05) au-dessus de 15 % en comparaison brute, sur le modèle de justifies-LOT-02.json. Aucun écran ne dépasse 15 % en disposition (couleur ± 10, la barre de T1). H03 (7,8 %) et G08 (14,4 %) sont sous 15 % même en brut. MJ03 et MJ04 s'y ajoutent ; MJ05 suit.",
   "ecrans": {
     "H01": {
       "brut": "16,3 %",
@@ -15,6 +15,16 @@
       "brut": "16,8 %",
       "disposition": "8,6 %",
       "raison": "six habitudes et leur historique fabriqués d'après le tableau de la fiche ; dans l'application une habitude n'a ni moment, ni rythme, ni mesure chiffrée ; mêmes écarts de coquille que LOT-00 (barre latérale de l'aperçu : liste des modules, section « Développement », états de la barre « Aujourd'hui »)"
+    },
+    "MJ03": {
+      "brut": "22,5 %",
+      "disposition": "11,6 %",
+      "raison": "créneaux de l'équipe fabriqués dans le script d'aperçu d'après la liste de la fiche ; dans l'application un poste est une demi-journée sans heure, sans titre ni catégorie ; mêmes écarts de coquille que LOT-00 (barre latérale de l'aperçu : liste des modules, section « Développement », états de la barre « Aujourd'hui »)"
+    },
+    "MJ04": {
+      "brut": "26,9 %",
+      "disposition": "8,3 %",
+      "raison": "onze notes fabriquées d'après le tableau de la fiche ; dans l'application une note n'a ni type, ni étiquette, ni voix, ni valeur d'accès ; mêmes écarts de coquille que LOT-00 (barre latérale de l'aperçu : liste des modules, section « Développement », états de la barre « Aujourd'hui »)"
     }
   }
 }

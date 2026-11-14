@@ -623,7 +623,7 @@ if (M.PLA_modele) {
     assert.deepEqual(m.blocs.map((b: any) => [b.reserveMin / 60, b.ton]), [[25, 'ok'], [30, 'orange'], [40, 'rouge']]);
     assert.equal(m.blocs[0].lignes[0].totalMin, 300);
     assert.equal(Math.round(m.blocs[1].charge * 100), 86);
-    assert.equal(pl([pers('x', { disponibiliteH: 30 })], pleine('x', 6)).blocs[0].ton, 'rouge' === 'rouge' ? 'orange' : '', '30 h sur 30 h : à 100 % exactement, orange');
+    assert.equal(pl([pers('x', { disponibiliteH: 30 })], pleine('x', 6)).blocs[0].ton, 'orange', '30 h sur 30 h : à 100 % exactement, orange');
   });
 
   await dit('la semaine remplie : réservé de l’équipe ÷ disponible de l’équipe', () => {
@@ -680,6 +680,90 @@ if (M.PLA_modele) {
   await dit('MJ03 · textes : mêmes clés en fr et en, tutoiement', () => {
     motsJustes(M.DICTIONNAIRES_PLANNING, 'MJ03');
     assert.equal(M.DICTIONNAIRES_PLANNING.fr['action.ajouter'], 'Ajouter un créneau');
+  });
+}
+
+/* ── MJ04 · Notes rapides ───────────────────────────────────────────────── */
+if (M.NOT_modele) {
+  console.log('\nMa journée — MJ04, Notes rapides (mur de notes, À trier, pied de date, rangement proposé)\n');
+  const NOT = M.NOT_modele;
+  const AUJ = '2026-10-30';
+  const nt = (id: string, o: Record<string, unknown> = {}): any => ({ id, titre: `Note ${id}`, corps: '', type: 'texte', etiquette: null, epinglee: false, updatedAt: '2026-10-30T09:00:00+01:00', ...o });
+  const mur = (notes: any[], o: Record<string, unknown> = {}) => NOT.modeleMur({ notes, aujourdhui: AUJ, ...o });
+
+  await dit('le pied : l’heure aujourd’hui, « Hier », le jour abrégé jusqu’à 7 jours, puis la date courte', () => {
+    assert.deepEqual(NOT.piedDeNote('2026-10-30T09:12:00+01:00', AUJ), { genre: 'heure', texte: '09:12' });
+    assert.deepEqual(NOT.piedDeNote('2026-10-29T16:00:00+01:00', AUJ), { genre: 'hier', texte: 'Hier' });
+    assert.deepEqual(NOT.piedDeNote('2026-10-26T10:00:00+01:00', AUJ), { genre: 'jour', texte: 'Lun.' });
+    assert.deepEqual(NOT.piedDeNote('2026-10-23T14:00:00+01:00', AUJ), { genre: 'jour', texte: 'Ven.' });
+    assert.deepEqual(NOT.piedDeNote('2026-10-12T14:00:00+01:00', AUJ), { genre: 'date', texte: '12 oct.' });
+  });
+
+  await dit('« à trier » : ni étiquette, ni client, ni tâche, ni projet, ni dossier ; sans cette source, rien n’est à trier', () => {
+    assert.equal(NOT.estATrier({ etiquette: null }), true);
+    for (const lien of [{ etiquette: 'Idée' }, { clientId: 3 }, { tacheId: 't1' }, { projectId: 'p1' }, { dossier: 'Chantier' }]) assert.equal(NOT.estATrier({ etiquette: null, ...lien }), false, JSON.stringify(lien));
+    const m = mur([nt('a'), nt('b')], { aTrierActif: false });
+    assert.deepEqual([m.nbATrier, m.compteurs.aTrier, m.propositions.length], [0, 0, 0]);
+    assert.equal(m.colonnes.flat().every((n: any) => !n.aTrier), true);
+  });
+
+  await dit('l’ordre : épinglées d’abord, puis les plus récentes ; « anciennes » inverse le reste ; « titre » ignore accents et casse', () => {
+    const notes = [nt('a', { updatedAt: '2026-10-28T09:00:00+01:00' }), nt('b', { epinglee: true, updatedAt: '2026-10-20T09:00:00+01:00' }), nt('c', { updatedAt: '2026-10-29T09:00:00+01:00' })];
+    assert.deepEqual(mur(notes).ordre.map((n: any) => n.id), ['b', 'c', 'a']);
+    assert.deepEqual(mur(notes, { tri: 'anciennes' }).ordre.map((n: any) => n.id), ['b', 'a', 'c']);
+    assert.deepEqual(mur([nt('1', { titre: 'Écrire' }), nt('2', { titre: 'abeille' }), nt('3', { titre: 'Zèbre' })], { tri: 'titre' }).ordre.map((n: any) => n.titre), ['abeille', 'Écrire', 'Zèbre']);
+  });
+
+  await dit('les compteurs : Toutes, Épinglées, À trier, Vocales ; le filtre et la recherche (sans accents) ne changent pas les compteurs', () => {
+    const notes = [nt('a', { epinglee: true, etiquette: 'Idée' }), nt('b', { type: 'vocale', titre: 'Réunion' }), nt('c'), nt('d', { etiquette: 'À faire' })];
+    const m = mur(notes);
+    assert.deepEqual(m.compteurs, { toutes: 4, epinglees: 1, aTrier: 2, vocales: 1 });
+    assert.deepEqual(mur(notes, { filtre: 'vocales' }).ordre.map((n: any) => n.id), ['b']);
+    assert.deepEqual(mur(notes, { recherche: 'reunion' }).ordre.map((n: any) => n.id), ['b']);
+    assert.deepEqual(mur(notes, { filtre: 'epinglees' }).compteurs, m.compteurs);
+  });
+
+  await dit('le mur : quatre colonnes, chaque note dans la colonne la plus courte, de gauche à droite ; la carte d’Ajmani prend la place de la dernière', () => {
+    const m = mur(Array.from({ length: 8 }, (_, i) => nt(`n${i}`, { updatedAt: `2026-10-30T0${9 - i}:00:00+01:00` })));
+    assert.deepEqual(m.colonnes.map((c: any) => c.length), [2, 2, 2, 2]);
+    assert.deepEqual(m.colonnes.map((c: any) => c[0].id), ['n0', 'n1', 'n2', 'n3']);
+    const avec = mur(Array.from({ length: 6 }, (_, i) => nt(`n${i}`, { updatedAt: `2026-10-30T0${9 - i}:00:00+01:00` })), { carteAjmaniHauteur: 259 });
+    assert.equal(avec.colonnes[3].length, 0, 'la dernière colonne est déjà occupée par la carte');
+    assert.equal(mur([nt('a'), nt('b')], { colonnesImposees: [['b'], [], [], ['a']] }).colonnes[3][0].id, 'a', 'un placement imposé est respecté');
+  });
+
+  await dit('les propositions de rangement : données par l’appelant, seulement à partir de notes à trier, jamais déduites ici', () => {
+    const p = [{ cle: 'p1', note: 'Café', vers: 'Tâches' }];
+    assert.deepEqual(mur([nt('a')], { propositions: p }).propositions, p);
+    assert.deepEqual(mur([nt('a', { etiquette: 'Idée' })], { propositions: p }).propositions, [], 'rien à trier : pas de carte');
+    assert.deepEqual(mur([nt('a')]).propositions, [], 'sans proposition donnée, rien n’est inventé');
+  });
+
+  await dit('les états : mur vide (aucune note), filtre sans résultat (des notes, aucune ne passe)', () => {
+    const v = mur([]);
+    assert.deepEqual([v.vide, v.filtreVide], [true, false]);
+    const f = mur([nt('a')], { filtre: 'vocales' });
+    assert.deepEqual([f.vide, f.filtreVide], [false, true]);
+  });
+
+  await dit('SÉCURITÉ : une note d’accès ne porte jamais sa valeur ; le modèle n’a aucun champ « valeur » ni « code »', () => {
+    const m = mur([nt('a', { type: 'acces', titre: 'Code du local', corps: '' })]);
+    const note = m.colonnes.flat()[0];
+    assert.deepEqual(Object.keys(note).filter((k) => /valeur|code|secret|mot.?de.?passe/i.test(k)), []);
+    const source = fs.readFileSync(path.join(racine, 'src/refonte/journee/notes/VueNotes.tsx'), 'utf8');
+    assert.ok(source.includes('•••• ••'), 'la vignette montre un masque');
+    assert.ok(!/n\.(valeur|code|secret)\b/.test(source), 'la vue ne lit aucune valeur');
+  });
+
+  await dit('hauteurEstimee : une liste grandit avec ses lignes, une vocale est plus haute qu’un texte court', () => {
+    const court = NOT.hauteurEstimee({ type: 'texte', corps: '' });
+    assert.ok(NOT.hauteurEstimee({ type: 'vocale', corps: '' }) > court);
+    assert.ok(NOT.hauteurEstimee({ type: 'liste', corps: '', items: [1, 2, 3, 4].map((i) => ({ texte: `${i}`, fait: false })) }) > NOT.hauteurEstimee({ type: 'liste', corps: '', items: [{ texte: 'a', fait: false }] }));
+  });
+
+  await dit('MJ04 · textes : mêmes clés en fr et en, tutoiement', () => {
+    motsJustes(M.DICTIONNAIRES_NOTES, 'MJ04');
+    assert.equal(M.DICTIONNAIRES_NOTES.fr['action.nouvelle'], 'Nouvelle note');
   });
 }
 

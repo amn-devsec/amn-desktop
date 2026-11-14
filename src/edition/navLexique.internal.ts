@@ -53,6 +53,7 @@ const NAV_EN_INTERNE: Record<string, TraductionNav> = {
   // LOT-02 (refonte) : les écrans neufs de « Mes contacts et clients », déclarés au registre des modules.
   cockpit: { label: 'Client cockpit', hint: 'Their activity online, live: revenue, users, tickets, health' },
   missions: { label: 'Missions and tickets', hint: 'Team and client tickets, in columns' },
+  notesRapides: { label: 'Quick notes', hint: 'Note in two seconds, sort later' },
   pipelineCommercial: { label: 'Sales pipeline', hint: 'The opportunity funnel, from first contact to signature' },
   rdvClients: { label: 'Client meetings', hint: 'The day of your client meetings, hour by hour' },
   partenaires: { label: 'Partners', hint: 'Those who move the business forward without being clients' },
