@@ -8,7 +8,8 @@
 4. Moteurs locaux : courriels, relances, rappels, tri, rapports, sauvegardes, planificateur (heure de Paris) ; liste « Demandé à amn-api » avec un repli local par point.
 5. Branches Sinon et Puis rangées dans le moteur H20 existant (`automatisations.ts`), sans perte dans les deux sens (décision du CO, 12 nov.).
 6. Décisions du CO (§1.22) appliquées : prise Webhooks, « Demander un connecteur », prise arrêtée, valeurs de départ modifiables ; section LOT-12 au §7 de `STATUT.md`.
-7. Garde `check:connecteurs` (100 contrôles), ajoutée à `package.json` et `editions.yml` ; note `docs/refonte/preparation/LOT-12-connecteurs.md`.
+7. Relances alignées sur la fiche MC07 (§1.31) : 5 jours (3 à 14), 09:00–18:00, 3 par facture, une par client sur 7 jours glissants.
+8. Garde `check:connecteurs` (103 contrôles), ajoutée à `package.json` et `editions.yml` ; note `docs/refonte/preparation/LOT-12-connecteurs.md`.
 
 ## Branche et sha
 
@@ -43,7 +44,8 @@ Aucun fichier `*.business.*`, aucun écran ; `REGLES.md` non touché ; dans `STA
 | `typecheck:business` | vert |
 | `lint` | vert |
 | `check:donnees` | vert (87) |
-| `check:connecteurs` | vert (100) ; mordant vérifié par 8 mutations volontaires (tarif non relevé, validation humaine, tutoiement client, déclencheur réel gardé à tort, SINON perdu, identifiant historique changé, prise arrêtée mal dessinée, réglage ignoré), toutes détectées |
+| `check:connecteurs` | vert (103) ; mordant vérifié par 11 mutations volontaires (tarif non relevé, validation humaine, tutoiement client, déclencheur réel gardé à tort, SINON perdu, identifiant historique changé, prise arrêtée mal dessinée, réglage ignoré, fenêtre client ignorée, plafond par facture ignoré, borne de 14 jours assouplie), toutes détectées |
+| `check:contacts` (S1) | **rouge, 13 sur 85** : il fige les anciennes valeurs lues dans `reglages.ts` (7 jours, 08:00–19:00). Hors de ma zone, non modifié ; à mettre à jour par S1 |
 | `check:accueils` | vert |
 | `check:socle` | vert |
 | `check:moments` | vert |

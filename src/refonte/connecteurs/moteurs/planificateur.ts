@@ -75,8 +75,8 @@ export interface Plage {
   fin: string;
 }
 
-/** Textes aux clients : du lundi au vendredi, de 08:00 à 19:00 (valeur de départ). */
-export const PLAGE_CLIENTS: Plage = { jours: [1, 2, 3, 4, 5], debut: '08:00', fin: '19:00' };
+/** Textes aux clients : du lundi au vendredi, de 09:00 à 18:00 (fiche MC07, STATUT §1.31). */
+export const PLAGE_CLIENTS: Plage = { jours: [1, 2, 3, 4, 5], debut: '09:00', fin: '18:00' };
 /** Notifications à l'équipe : tous les jours, de 07:30 à 21:00 (valeur de départ). */
 export const PLAGE_EQUIPE: Plage = { jours: [1, 2, 3, 4, 5, 6, 7], debut: '07:30', fin: '21:00' };
 

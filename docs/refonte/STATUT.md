@@ -1157,9 +1157,9 @@ Brief : `07-ESPACE-DEV.md`. Entrée de barre latérale au-dessus de « Surveilla
 
 Tenue par S9. Pas d'écran à soi : H21 est à LOT-07 (S6), DEV-couts et DEV-editeur à LOT-11 (S8).
 
-- **État** : préparation fusionnée (`890522d`, dans `4254e7a`, §1.22). Décisions du §1.22 appliquées dans le modèle : prise Webhooks « chez nous » (catégorie « Événements reçus »), « Demander un connecteur » pour Notion, prise arrêtée dessinée comme libre avec « arrêtée le … », valeurs de départ réunies et modifiables (`reglages.ts`). Branche : voir le dernier message de S9.
+- **État** : préparation fusionnée (`890522d`, dans `4254e7a`, §1.22). Décisions du §1.22 appliquées dans le modèle : prise Webhooks « chez nous » (catégorie « Événements reçus »), « Demander un connecteur » pour Notion, prise arrêtée dessinée comme libre avec « arrêtée le … », valeurs de départ réunies et modifiables (`reglages.ts`). Relances alignées sur la fiche MC07 (§1.31) : 5 jours entre deux relances d'une facture (3 à 14), plage clients lun.–ven. 09:00–18:00, 3 relances au plus par facture, une relance au plus par client sur 7 jours glissants ; `reglages.ts` est la seule source, S1 la lit. Branche : voir le dernier message de S9.
 - **Contenu** : `src/refonte/connecteurs/` (catalogue, tarifs à relever, cycle en 3 clics, règles de H21 et de DEV-couts, flux Quand / Si / Alors rangés dans le moteur de H20, moteurs locaux, liste « Demandé à amn-api »). Note : [`preparation/LOT-12-connecteurs.md`](preparation/LOT-12-connecteurs.md).
-- **Gardes** : `check:connecteurs` (100 contrôles, en CI), plus typecheck des deux éditions, lint, `check:donnees`.
+- **Gardes** : `check:connecteurs` (103 contrôles, en CI), plus typecheck des deux éditions, lint, `check:donnees`. `check:contacts` (S1) fige encore les anciennes valeurs (7 jours, 08:00–19:00) : à mettre à jour par S1 avec cette fusion.
 - **Dépendances** :
   - S6 (LOT-07) : la couture `@edition/*` du moteur de H20 (jumeau `.business` à l'identique) ; l'écran H21 ; le relevé des tarifs au moment de construire H21.
   - S8 (LOT-11) : DEV-couts et DEV-editeur, construits sur ce modèle.
