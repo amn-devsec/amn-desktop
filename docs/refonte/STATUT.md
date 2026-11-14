@@ -51,6 +51,7 @@ Mode : **continu et autonome**, repris par Harun (« reprends », 14 nov., aprè
 - 14 nov., 10h15 : **LOT-06 fusionné** (`e1615090`, 15 écrans), **premier lot livré** de la vague de construction. T1 l'a accepté : fidélité sur l'aperçu, les 15 écrans justifiés ; structure sur l'application, les 12 routes montées dans la coquille v4, rien de coupé à 390 px. Suites demandées à S7 : relire 6 écrans au-dessus de 15 % en disposition (H17, MR01, MR10, H16, MR05, MR04) ; zones de clic de 34 px (§1.39) ; l'état vide de H17 (« Le livre de marque d’ · ») ; les entrées de registre de ses 3 écrans neufs. T1 fixe les valeurs acceptées de LOT-06.
 - 14 nov., 10h00 : **LOT-06 complet** (S7, `277263a`, 15 sur 15). S7 et S8 butent tous deux sur `check:systeme-demarrage` (« le registre ne doit pas bouger », qui perd les fonctions des écrans neufs). Le correctif est sur la branche LOT-03 de S5 et arrive avec sa fusion. Ordre : LOT-03, puis S7 et S8 déclarent leurs écrans neufs, puis LOT-06 et LOT-11.
 - 14 nov., 10h00 : méthode de `check:fidelite` (§1.40). La fidélité se mesure sur l'aperçu statique, rempli avec les jeux de SIM ; l'application sert à la structure. Pas de collection nouvelle dans l'API d'essai.
+- 14 nov., 16h15 : **direction de Harun : le « Bureau de travail »** (§1.43). Le plan et l'analyse des tâches réelles sont écrits (`PLAN-BUREAU-DE-TRAVAIL.md`). Cinq lots créés (LOT-14 à LOT-18), à commencer par leur note de préparation. Les 8 modèles de l'aperçu ne sont pas gardés : ce sont des pages de remplissage. Trois questions à Harun dans POINT-HARUN.
 - 14 nov., 16h05 : LOT-10 (S8 `0a830d3`, note de préparation). Décisions *réversibles* : CY01 remplace /cyber et les neufs prennent /cyber/<nom> ; l'ancien bureau reste jusqu'à l'allumage ; `cyber.ts` est déclaré au registre ; l'exclusion de la famille contextuelle des totaux de `check:navigation` est faite par S5 (propriétaire) ; la sous-liste de la barre se fait comme pour Développement ; CY03 est dessiné depuis les agrégats, le détail par appareil dit « non disponible », et les champs sont commandés à SIM.
 - 14 nov., 16h00 : **`check:encres` réglé** (S3 `1150965`), première des deux conditions pour allumer la coquille (l'autre est S0). La note de préparation de LOT-08 est fusionnée. **LOT-08 confié à S1** (`claude/refonte-garde-2`), d'accord avec S3, qui n'a pas les zips et reste le gardien de `src/refonte/garde/**`. Réversible. S8 commence LOT-10. Contrôle du vocabulaire du retard par T1 : 0 faute sur 70 écrans ; H02 passe à « à reprendre ».
 - 14 nov., 15h50 : **« reprends » de Harun**, avec ses réponses au POINT-HARUN (§1.42). Point notable : pour les factures, on garde « en retard » ou « impayé ». La boucle repart, avec les mêmes garde-fous.
@@ -897,6 +898,23 @@ Deux précisions de §1.39, mesurées par T1 et S8.
 
 Harun colle lui-même les accords de S0, DS, S3 et S8, et donne les zips à S6. Il teste la nouvelle coquille aujourd'hui, et ses retours en vrac deviennent des tâches.
 
+### 1.43 Plan « Bureau de travail » (direction de Harun, 14 nov., en priorité)
+
+Le plan est dans [`PLAN-BUREAU-DE-TRAVAIL.md`](PLAN-BUREAU-DE-TRAVAIL.md). Il crée cinq lots nouveaux, sans fiche v4 : chacun commence par une note de préparation et suit les archétypes du socle.
+- **LOT-14** Modèles de sites v2 (S2) ;
+- **LOT-15** Studio de contenu (S9) ;
+- **LOT-16** Atelier développement (S5, après le relevé mobile) ;
+- **LOT-17** Atelier cyber (S8, après LOT-10 ; S6 relit) ;
+- **LOT-18** Métiers d'AMN (F1).
+
+Règles communes :
+- chaque écran fonctionne sans IA, et l'IA est locale et en option ;
+- les outils sont gratuits ou ouverts et tournent en local, sans aucun service payant caché ;
+- licences MIT, Apache, BSD ou MPL de préférence ; LGPL liée dynamiquement ; GPL seulement en outil séparé ; **jamais d'AGPL** ;
+- ludique collectif, dans les limites fixées.
+
+Un modèle de site n'entre que par la porte de qualité : `signes-ia` à 0, axe-core, responsive, performance, code actuel, relecture de Harun. Un site fait pour un client n'entre qu'avec son accord écrit, une fois anonymisé ; sans accord, il reste une référence privée, hors du dépôt public. T1 contrôle ces lots sans image : archétypes, accessibilité, zones, textes et licences (`check:licences` à créer).
+
 ## 2. Les lots
 
 Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en parallèle, une branche chacun ; **LOT-09 en dernier**. Les chiffres viennent de `03-INDEX.md` : 9 + 16 + 13 + 9 + 17 + 10 + 15 + 16 + 12 + 11 + 14 = **142**. (Le tableau du fichier 00 compte G05 dans LOT-05 ; l'index et les prompts le rangent dans LOT-00. Le CO suit l'index.)
@@ -1068,6 +1086,8 @@ Captures : faites par S0 **sans lancer l'app** (aperçu statique `file://` des v
 | 7. Tutoiement | fait : coquille, mots du socle et 9 écrans (et leurs aperçus), d'après `_data/tutoiement.json` ; vouvoiement gardé dans le brouillon de relance (texte client), « Combien êtes-vous ? » (l'équipe) et les mots reconnus à la saisie ; **guide de voix** du socle (`src/socle/mots/voix.ts`) ; gardes des écrans passées à l'exigence du tutoiement | `8c8b8e9` |
 | 8. Gardes | fait : `check:tutoiement` (périmètre, zones client, lexiques de saisie, citations, écrits dans la garde) ; `check:voix` étendu au guide de voix et aux mots du socle ; les deux dans le workflow des éditions | `b5d61a5` |
 | 9. Captures v4 | fait : tableau ci-dessus ; corrections trouvées par la comparaison, toutes d'après les sources : la famille active posée aussi sur la racine du document (palettes ⌘K / ⌘J, dialogues et toasts en portail la reçoivent), le 3ᵉ halo des sources (140 pages sur 143), le voile de halos des pages pleines (D02, G06, G09, H43), le bouton principal de G06, l'instant de G09, la case cochée de G05, le bord dégradé du « point d'Ajmani » de H40 | voir le message au CO |
+
+**Liste du socle (§1.38), n° 1 — fait le 14 nov.** : `c67fe57` (lien d'évitement en bouton, `check:ancres`), `47a7391` (pont `@edition/moments`, jumeau cliente inerte, `check:avoirs`), `28928a7` (`check:ancres` et `check:avoirs` dans `editions.yml`), `a171646d` (`check:ajmani` sur la nouvelle couture). **Contrôles** : typecheck des deux éditions, lint et 82 `check:*` verts, dont `ancres`, `avoirs`, `ajmani`, `clavier`, `client-statique`, `tutoiement`, `voix`. Rouges comme avant, et sans rapport : `encres` (C-007, `src/refonte/garde/equipes.ts`) et `migration`. Non lancés ici, car il leur faut un paquet servi, une application empaquetée ou un compte d'essai (à T1) : `isolation`, `business`, `deployed`, `veille-cliente`, `package`, `installer`, `signal`, `mobile`, `xss`, `support`, `visite`, `courses-parc`.
 
 Écarts et restes de la passe finale (points 1 à 9) :
 

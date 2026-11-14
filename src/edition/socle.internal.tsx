@@ -147,4 +147,5 @@ function MouvementBloc() {
  * n'importe jamais `src/socle/**` ; il passe par `@edition/socle`. Ici, c'est
  * le vrai bus ; côté cliente, une fonction qui ne fait rien.
  */
+// Le code d'état émet ses moments par `@edition/moments` (sans l'interface du socle) ; gardé ici pour les autres appelants.
 export { emit as emettreMoment } from '../socle/moments';

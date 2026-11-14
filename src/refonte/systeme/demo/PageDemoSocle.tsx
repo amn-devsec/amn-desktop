@@ -165,7 +165,7 @@ import './demo.css';
  *     contient aucune couleur en dur, et aucune encre « discret » ne sert de couleur de texte.
  *   · Aucun nom propre : tout vient de `exemples.ts` (« Projet A », « Personne 1 »). Aucun texte en dur
  *     ici : tout passe par `i18n.ts`.
- *   · Le sommaire n'utilise PAS d'ancres `href="#…"` : l'application est en HashRouter, un `#` y changerait de
+ *   · Le sommaire n'utilise PAS d'ancres « #section » : l'application est en HashRouter, un `#` y changerait de
  *     route. Ce sont des boutons qui font `scrollIntoView`.
  *   · La page ne laisse rien derrière elle : le réglage Mouvement qu'elle aurait changé est remis à son état
  *     d'avant au démontage.

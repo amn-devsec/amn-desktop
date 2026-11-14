@@ -40,9 +40,18 @@ export function Coquille({ lateral, entete, ajmani, children, largeur = 'lecture
   }, [famille]);
   return (
     <div data-socle="coquille" data-espace-racine data-espace="poste" data-repliee={lateralRepliee || undefined} data-famille-active={famille} className="sc-coquille">
-      <a href="#sc-principal" className="sc-evitement" onClick={(e) => { e.preventDefault(); document.getElementById('sc-principal')?.focus(); }}>
+      {/* Un bouton, pas un lien « #sc-principal » : sous HashRouter, une ancre change la route (check:ancres). */}
+      <button
+        type="button"
+        className="sc-evitement"
+        onClick={() => {
+          const principal = document.getElementById('sc-principal');
+          principal?.focus();
+          principal?.scrollIntoView({ block: 'start' });
+        }}
+      >
         {ts('coquille.evitement')}
-      </a>
+      </button>
       {lateral}
       {tiroirOuvert && <button type="button" tabIndex={-1} aria-label={ts('coquille.menu.fermer')} className="sc-fond-tiroir" onClick={onFermerTiroir} />}
       <div className="sc-colonne">
