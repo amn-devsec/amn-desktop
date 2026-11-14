@@ -1,4 +1,4 @@
-# LOT-18 · Métiers d'AMN — note de préparation
+# BDT-5 · Métiers d'AMN — note de préparation
 
 > Branche `claude/refonte-atelier-f1`. Rédigée le 14 nov. 2026 par F1, **rapprochée du plan le jour même** (`PLAN-BUREAU-DE-TRAVAIL.md` @ `98ae31ef`) et des décisions du CO. Mode PRÉPARATION (étape 1) : **aucun écran, aucun code, rien dans le registre**.
 > Modèle : `LOT-06-creer.md`. Rien dans ce document ne décrit une faiblesse de sécurité ; aucune donnée réelle.

@@ -10,19 +10,20 @@ Lots livrés : LOT-01 Ma journée (16), LOT-02 Contacts (13), LOT-03 Écrire et 
 Le plan complet est dans [`PLAN-BUREAU-DE-TRAVAIL.md`](PLAN-BUREAU-DE-TRAVAIL.md). En bref :
 - **Principe** : chaque outil marche sans IA. Ajmani reste un raccourci, et l'IA, quand elle sert (retrait de fond, sous-titres, voix), est **locale et en option**, avec un geste manuel à côté. Les outils sont gratuits ou ouverts et tournent sur le poste. On préfère les licences MIT, Apache ou MPL, et **jamais d'AGPL**. Le jeu est **collectif** (un carnet d'atelier d'équipe, des paliers communs, des célébrations), sans chiffre individuel ni classement.
 - **Les 8 modèles de sites** : **aucun n'est livré dans l'application** (la liste est vide en attendant ta relecture des textes). Les 8 de l'aperçu ont été écrits par S8 pour mesurer l'écran : une seule page générique en 8 couleurs, avec des noms fictifs pris sur l'image v4 (Optique Lumière, Atelier Marceau, La Table de Marcel, Prestige Drive, Veillance, Lina Bardet, Maison Karim, Studio Souffle). **Je n'en garderais aucun** : ce sont des modèles de remplissage. Leurs 8 secteurs servent de liste de départ.
-- **Cinq nouveaux lots**, chacun commencé par une note de préparation, puisqu'aucune fiche v4 n'existe :
-  - **LOT-14 Modèles de sites v2** (S2) : bibliothèque pour 100 modèles et plus, avec filtres et vignettes progressives ; inspecteur au clic ; copie du site, d'une section ou d'un composant ; porte de qualité (signes-ia à 0, accessibilité, responsive, performance, code actuel, ta relecture).
-  - **LOT-15 Studio de contenu** (S9) : formats, retouche par lot, retrait de fond, vidéo (coupe, sous-titres, voix off, jamais de musique par défaut), médias, kit de marque, calendrier.
-  - **LOT-16 Atelier développement** (S5) : extraits, outils du quotidien, contrôle SEO, accessibilité et performance, assistant de lancement de projet.
-  - **LOT-17 Atelier cyber** (S8, après LOT-10, relu par S6) : CVE depuis des sources publiques gratuites, rapports d'audit, listes de contrôle, périmètres autorisés. Les 4 CYB-* restent exclus.
-  - **LOT-18 Métiers d'AMN** (F1) : fiche d'intervention de dépannage (hatf), échéances et rapport mensuel de maintenance, contrats et générateur légal (avec un juriste avant tout usage réel), suivi du temps, brief client, kit de livraison.
+- **Cinq nouveaux lots, au préfixe BDT** (LOT-13 et LOT-14 existent déjà), chacun commencé par une note de préparation, puisqu'aucune fiche v4 n'existe :
+  - **BDT-1 Modèles de sites v2** (S2) : bibliothèque pour 100 modèles et plus, avec filtres et vignettes progressives ; inspecteur au clic ; copie du site, d'une section ou d'un composant ; porte de qualité (signes-ia à 0, accessibilité, responsive, performance, code actuel, ta relecture).
+  - **BDT-2 Studio de contenu** (S9) : formats, retouche par lot, retrait de fond, vidéo (coupe, sous-titres, voix off, jamais de musique par défaut), médias, kit de marque, calendrier.
+  - **BDT-3 Atelier développement** (S5) : extraits, outils du quotidien, contrôle SEO, accessibilité et performance, assistant de lancement de projet.
+  - **BDT-4 Atelier cyber** (S8, après LOT-10, relu par S6) : CVE depuis des sources publiques gratuites, rapports d'audit, listes de contrôle, périmètres autorisés. Les 4 CYB-* restent exclus.
+  - **BDT-5 Métiers d'AMN** (F1) : fiche d'intervention de dépannage (hatf), échéances et rapport mensuel de maintenance, contrats et générateur légal (avec un juriste avant tout usage réel), suivi du temps, brief client, kit de livraison.
 - **Ordre** : les lots en cours gardent leur priorité (LOT-04, 07, 08, 10, le socle). Les cinq nouveaux démarrent par leur note de préparation, en parallèle.
 
 **Tes questions**
 1. **La liste des sites faits par AMN**, dont ceux de ta base de projets Claude, pour choisir les premiers modèles. Pour chacun : fait pour un client ou non, et si l'accord du client existe.
 2. **L'accord des clients** : qui le demande (toi, Mohamed ?) et sous quelle forme (un courriel suffit-il ?). Sans accord, le site reste une référence privée, hors du dépôt public.
 3. **« hatf »** : tu l'emploies pour le dépannage informatique et les diagnostics. Est-ce le nom d'une activité, d'une marque ou d'une offre d'AMN ? F1 en a besoin pour nommer la fiche d'intervention.
-4. **Les sources de vulnérabilités** (CISA, NVD, OSV) demandent un accès réseau sortant. Elles sont gratuites et publiques, et interrogées seulement à la demande. Recommandation : oui.
+4. **« Un modèle de site marche sans JavaScript »**, règle proposée par S2 pour BDT-1. L'inspecteur lit le modèle dans un cadre où aucun script ne s'exécute, donc sans risque, et un modèle léger n'a pas besoin de script. Le JavaScript reste permis comme amélioration, mais le site doit fonctionner sans. Recommandation : oui.
+5. **Les sources de vulnérabilités** (CISA, NVD, OSV) demandent un accès réseau sortant. Elles sont gratuites et publiques, et interrogées seulement à la demande. Recommandation : oui.
 
 ## Lignes à coller (ton accord direct, que ces sessions demandent)
 

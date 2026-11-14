@@ -1,6 +1,6 @@
 # Plan « Bureau de travail » : travailler sans dépendre d'une IA
 
-> Direction de Harun du 14 nov. (carte blanche, priorité dans la boucle). Plan écrit par le CO ; résumé et questions dans [`POINT-HARUN.md`](POINT-HARUN.md). Ce document décrit des outils et des écrans, et rien qui touche à une faiblesse de sécurité.
+> Direction de Harun du 14 nov. (carte blanche, priorité dans la boucle). Plan écrit par le CO ; résumé et questions dans [`POINT-HARUN.md`](POINT-HARUN.md). Les lots du plan portent le préfixe **BDT** (BDT-1 à BDT-5), pour ne pas se confondre avec LOT-13 Serveur et LOT-14 Charge. Ce document décrit des outils et des écrans, et rien qui touche à une faiblesse de sécurité.
 
 ## 0. Le principe
 
@@ -13,7 +13,7 @@ Règles qui valent pour tout le plan :
 4. **Ludique, dans les limites déjà fixées** (STATUT, « À ne pas simplifier ») : aucun chiffre individuel, aucun classement, aucune perte de points, aucun reproche. Le jeu est **collectif** : on avance ensemble, on débloque ensemble, on fête ensemble.
 5. **Les règles des lots** s'appliquent sans changement : §1.40 (aperçus), §1.41 (zones de 36 px), §1.42 (vocabulaire), tutoiement, toutes les `check:*`, aucun lien `node_modules` commité. Ces modules n'ont **pas de fiche v4** : chaque lot commence par une note de préparation, puis les écrans suivent les archétypes du socle. Harun valide sur l'aperçu, et T1 contrôle la conformité aux archétypes, l'accessibilité, les zones de clic et les textes, à la place d'une image.
 
-## 1. Modèles de sites, revus (LOT-14)
+## 1. Modèles de sites, revus (BDT-1)
 
 **État aujourd'hui.** Dans l'application, **aucun modèle n'est livré** : `MODELES_LIVRES` est vide, en attendant la relecture des textes par Harun (décision du 12 nov.). Les 8 « modèles » qu'on voit dans l'aperçu (`scripts/apercu/modeles-exemple.ts`) ont été écrits par S8 le 14 nov., uniquement pour mesurer la fidélité de l'écran DEV-modeles-sites. Ce sont 8 couleurs posées sur **une seule page générique** (en-tête, accroche, trois offres, pied), avec des noms et des secteurs pris sur l'image v4 :
 
@@ -50,7 +50,7 @@ Règles qui valent pour tout le plan :
   Mieux vaut **8 à 12 modèles excellents d'abord**, puis la bibliothèque grandit.
 - **Ludique** : la « collection » de l'atelier. Chaque section et chaque composant réutilisé dans un vrai projet s'allume dans la collection de l'équipe. Une étape collective (« 10 composants réutilisés », « premier site livré depuis un modèle ») déclenche une célébration discrète, qui respecte le mouvement réduit.
 
-## 2. Studio de contenu (LOT-15)
+## 2. Studio de contenu (BDT-2)
 
 Un espace de **Créer et produire** pour préparer des publications sans IA.
 - **Formats** : posts (1:1, 4:5), stories et reels (9:16), couvertures (16:9), avec des gabarits par format et les zones de sécurité de chaque réseau affichées.
@@ -69,10 +69,10 @@ Un espace de **Créer et produire** pour préparer des publications sans IA.
 - **Calendrier de publication** : il prolonge le module « Publier » existant. On prépare, on planifie et on exporte (fichier et texte prêts à poster). La publication automatique vers un réseau passe par un connecteur nommé, coupé par défaut ; rien ne part sans un clic.
 - **Ludique** : la « série de publication » de l'équipe (régularité collective, sans pression) et le mur des publications du mois.
 
-## 3. Atelier développement et cyber (LOT-16 et LOT-17)
+## 3. Atelier développement et cyber (BDT-3 et BDT-4)
 
-**LOT-16 Atelier développement** (espace Développement)
-- **Bibliothèque d'extraits et de composants** : du code classé par langage et par usage, avec recherche, coloration (Shiki), copie, et les composants issus des modèles (lien avec LOT-14).
+**BDT-3 Atelier développement** (espace Développement)
+- **Bibliothèque d'extraits et de composants** : du code classé par langage et par usage, avec recherche, coloration (Shiki), copie, et les composants issus des modèles (lien avec BDT-1).
 - **Outils du quotidien**, tous en local :
   - format et validation JSON ;
   - testeur d'expressions régulières, avec l'explication des groupes ;
@@ -81,14 +81,14 @@ Un espace de **Créer et produire** pour préparer des publications sans IA.
   - images de partage Open Graph (satori, MPL-2.0) ;
   - encodages (base64, URL) et horodatages.
 - **Contrôle d'une page** : SEO (balises, titres, liens, plan du site, données structurées : règles écrites dans l'application), accessibilité (axe-core), performance (Lighthouse). Le rapport est lisible et peut s'exporter pour le client.
-- **Assistant de lancement de projet** : un questionnaire court (type de site, pages, langues, formulaires, paiement), puis le dépôt créé depuis un modèle de LOT-14, la liste de contrôle de mise en ligne (domaine, DNS, HTTPS, mentions légales, cookies, sauvegardes) et le lien avec Projets de code et Déploiements.
+- **Assistant de lancement de projet** : un questionnaire court (type de site, pages, langues, formulaires, paiement), puis le dépôt créé depuis un modèle de BDT-1, la liste de contrôle de mise en ligne (domaine, DNS, HTTPS, mentions légales, cookies, sauvegardes) et le lien avec Projets de code et Déploiements.
 
-**LOT-17 Atelier cyber** (espace Cyber, avec LOT-10 ; S6 relit la sécurité de tout)
+**BDT-4 Atelier cyber** (espace Cyber, avec LOT-10 ; S6 relit la sécurité de tout)
 - **Suivi des vulnérabilités (CVE)** : sources publiques et gratuites, nommées, interrogées seulement sur demande ou à heure fixe (catalogue KEV de la CISA, API NVD, OSV.dev). Rapprochement avec le parc déclaré de chaque client (logiciels et versions). Une alerte n'est qu'une **information** : aucune action automatique.
 - **Modèles de rapports d'audit** : un résumé pour la direction et une partie technique, l'échelle de gravité, le plan de correction suivi dans le temps. Export PDF.
 - **Listes de contrôle** : à partir de référentiels ouverts, avec leur licence respectée (le guide d'hygiène de l'ANSSI sous Licence Ouverte ; OWASP ASVS sous CC BY-SA, avec attribution).
 - **Périmètres autorisés** : chaque mission porte son périmètre écrit, sa lettre de mission signée (via Signatures), ses dates de début et de fin. Rien ne se lance hors du périmètre ni hors des dates : c'est la règle déjà posée pour OSINT (CY06), étendue à tout l'atelier.
-- **Exclus** : les 4 `CYB-*` (vulnérabilités, rapport d'audit, playbook, chiffrage), comme décidé pour LOT-10. Les nouveaux écrans ne les remplacent pas en douce : si un écran de LOT-17 recouvre un `CYB-*`, il attend la décision de Harun.
+- **Exclus** : les 4 `CYB-*` (vulnérabilités, rapport d'audit, playbook, chiffrage), comme décidé pour LOT-10. Les nouveaux écrans ne les remplacent pas en douce : si un écran de BDT-4 recouvre un `CYB-*`, il attend la décision de Harun.
 - **Ludique** : le « carnet de veille » de l'équipe (les alertes lues ensemble dans la semaine, sans compte individuel) et la frise des audits rendus.
 
 ## 4. Les vraies tâches d'AMN DevSec, et ce qu'il faut pour chacune
@@ -98,13 +98,13 @@ Un espace de **Créer et produire** pour préparer des publications sans IA.
 | Tâche | Existe | Manque | Facile |
 |---|---|---|---|
 | **Trouver et signer un client de site** | contacts, pipeline, prospects, relances (LOT-02) ; devis (LOT-04) ; taux horaire et comparateur de devis (F1) | brief client, cahier des charges, proposition commerciale | un **questionnaire de brief** partagé au client, qui produit le cahier des charges et le devis |
-| **Créer et livrer un site** | projets de code, déploiements, serveur, modèles (LOT-11) | recette avec le client, liste de mise en ligne, procès-verbal de livraison, passation (accès, domaine) | l'**assistant de lancement** (LOT-16) et un **kit de livraison** en un clic : PV signé, accès transmis, guide d'usage du client |
+| **Créer et livrer un site** | projets de code, déploiements, serveur, modèles (LOT-11) | recette avec le client, liste de mise en ligne, procès-verbal de livraison, passation (accès, domaine) | l'**assistant de lancement** (BDT-3) et un **kit de livraison** en un clic : PV signé, accès transmis, guide d'usage du client |
 | **Maintenance et suivi** | sites et trackers, supervision (La Garde) ; cockpit client (LOT-01) ; contrats et abonnements (LOT-04) | calendrier des échéances (domaine, HTTPS, mises à jour), rapport mensuel au client, contrôle des sauvegardes | un **calendrier d'échéances** automatique par site, et un **rapport mensuel** pré-rempli à relire |
 | **Dépannage informatique (hatf)** | missions et tickets (LOT-01) ; rendez-vous, tournées, matériel, photos de chantier (LOT-02 et LOT-06) ; facturation | fiche d'intervention, diagnostic guidé, parc matériel du client, suivi des garanties, bon signé | une **fiche d'intervention** : diagnostic par symptôme (listes de contrôle écrites par nous), matériel et numéro de série, photos avant et après, bon signé sur place, facture en un geste |
-| **Audits et rapports de cybersécurité** | Cyber (LOT-10, en cours) ; maturité et comparatif (La Garde) | lettre de mission, périmètre, rapport type, suivi des corrections | l'**atelier cyber** (LOT-17) |
+| **Audits et rapports de cybersécurité** | Cyber (LOT-10, en cours) ; maturité et comparatif (La Garde) | lettre de mission, périmètre, rapport type, suivi des corrections | l'**atelier cyber** (BDT-4) |
 | **Devis, factures, contrats** | L'argent (LOT-04, en cours) ; signatures, documents (LOT-03) | modèles de contrats (création de site, maintenance, audit), CGV | une **bibliothèque de contrats** pré-remplis depuis la fiche client, signés dans l'application. Validation par un juriste avant tout usage réel (§1.42 n° 2) |
 | **Documents légaux (RGPD, mentions légales)** | Conformité (Outils) | générateur de mentions légales, politique de confidentialité, bandeau de cookies, registre des traitements, accord de sous-traitance | un **générateur légal** par site client, versionné. Validation par un juriste avant tout usage réel |
-| **Contenu pour les réseaux** | vidéo, images, publier, visuels et marque (LOT-06) | formats, retouche par lot, sous-titres, kit de marque, calendrier | le **Studio** (LOT-15) |
+| **Contenu pour les réseaux** | vidéo, images, publier, visuels et marque (LOT-06) | formats, retouche par lot, sous-titres, kit de marque, calendrier | le **Studio** (BDT-2) |
 | **Formation et veille** | base de connaissances, notes, journal (LOT-03) | veille en flux (RSS local), parcours de formation interne, supports et attestations pour les formations clients, sensibilisation des clients | un **lecteur de veille** local, des **parcours** de fiches, un module de **sensibilisation** pour les clients (quiz sur l'hameçonnage, sans piège réel) |
 | **Organiser l'équipe de trois** | Ma journée, planning, défis d'équipe (LOT-01) | temps passé par projet, rentabilité par client | un **suivi du temps** léger (minuteur relié à la tâche) qui alimente le taux horaire de F1 |
 
@@ -120,10 +120,10 @@ Un espace de **Créer et produire** pour préparer des publications sans IA.
 
 | Lot | Contenu | Session proposée | D'abord |
 |---|---|---|---|
-| **LOT-14** | Modèles de sites v2 : bibliothèque, inspecteur, porte de qualité | **S2** (libre ; ce lot n'a pas besoin des zips) ; S8 consulté (il a construit ModelesDeSites) | note de préparation, puis 2 modèles pilotes de bout en bout |
-| **LOT-15** | Studio de contenu | **S9** (libre depuis LOT-12) | note de préparation : choix et licences des outils, avec preuve qu'ils tournent en local |
-| **LOT-16** | Atelier développement | **S5**, après le relevé mobile | note de préparation |
-| **LOT-17** | Atelier cyber | **S8**, après LOT-10 ; S6 relit la sécurité | note de préparation, relue par S6 |
-| **LOT-18** | Métiers d'AMN : fiche d'intervention hatf, échéances et rapport mensuel, contrats et générateur légal, suivi du temps, brief client, kit de livraison | **F1** (taux horaire, devis), après son intégration avec S0 ; SIM pour les données | note de préparation, avec les priorités de Harun |
+| **BDT-1** | Modèles de sites v2 : bibliothèque, inspecteur, porte de qualité | **S2** (libre ; ce lot n'a pas besoin des zips) ; S8 consulté (il a construit ModelesDeSites) | note de préparation, puis 2 modèles pilotes de bout en bout |
+| **BDT-2** | Studio de contenu | **S9** (libre depuis LOT-12) | note de préparation : choix et licences des outils, avec preuve qu'ils tournent en local |
+| **BDT-3** | Atelier développement | **S5**, après le relevé mobile | note de préparation |
+| **BDT-4** | Atelier cyber | **S8**, après LOT-10 ; S6 relit la sécurité | note de préparation, relue par S6 |
+| **BDT-5** | Métiers d'AMN : fiche d'intervention hatf, échéances et rapport mensuel, contrats et générateur légal, suivi du temps, brief client, kit de livraison | **F1** (taux horaire, devis), après son intégration avec S0 ; SIM pour les données | note de préparation, avec les priorités de Harun |
 
 T1 contrôle chaque lot sans image v4 : conformité aux archétypes du socle, accessibilité, zones de clic, textes et vocabulaire, licences des dépendances (un contrôle `check:licences` à créer par T1 : aucune AGPL, liste des licences à jour), et taille du paquet. Les lots déjà en cours (LOT-04, 07, 08, 10, le socle) gardent leur priorité.
