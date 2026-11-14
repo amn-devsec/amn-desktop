@@ -432,6 +432,8 @@ export const FEUILLE_DEVELOPPEMENT = `
 @container (max-width: 700px) {
   .dv-sv-jauges, .dv-sv-droite { grid-template-columns: 1fr; }
   .dv-sv-tuiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* Sur téléphone, le texte passe à la ligne : la tuile grandit avec lui, pour que « Relancer » et sa zone de clic restent dedans. */
+  .dv-sv-tuile { height: auto; min-height: 105px; }
 }
 
 /* ═══ DEV-editeur ════════════════════════════════════════════════════════ */
