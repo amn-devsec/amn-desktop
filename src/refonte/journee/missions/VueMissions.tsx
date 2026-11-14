@@ -136,7 +136,7 @@ function Colonne({ c, prevenu, tm, langue, glisse, peutGlisser, lecture, actions
         <h2>{libelle}</h2>
         {c.segments ? (
           <>
-            <span className="sc-ms-jauge" aria-hidden>{Array.from({ length: c.segments.total }, (_, i) => <i key={i} data-pris={i < c.segments!.pris ? '' : undefined} />)}</span>
+            <span className="sc-ms-jauge" aria-hidden>{Array.from({ length: c.segments.total }, (_, i) => <i key={i} data-pris={i < (c.segments?.pris ?? 0) ? '' : undefined} />)}</span>
             <span className="sc-ms-limite sc-nombre">{tm('colonne.limite', { n: c.total, limite: c.limite ?? 0 })}</span>
           </>
         ) : <span className="sc-ms-compte sc-nombre">{c.total}</span>}

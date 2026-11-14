@@ -379,6 +379,109 @@ if (M.COC_modele) {
   });
 }
 
+/* ── MJ01 · Projets ─────────────────────────────────────────────────────── */
+if (M.PRO_modele) {
+  console.log('\nMa journée — MJ01, Projets (feuille de route : fenêtre, barres, jalons, ordre)\n');
+  const PRO = M.PRO_modele;
+  const NOW = paris('2026-10-30', '10:42');
+  const proj = (id: string, o: Record<string, unknown> = {}): any => ({ id, nom: `Projet ${id}`, icone: 'folder', membres: ['Amina'], avancement: 50, debut: '2026-10-19', fin: '2026-11-27', jalons: [], ...o });
+  const fe = (projets: any[], o: Record<string, unknown> = {}) => PRO.modeleFeuille({ projets, aujourdhui: '2026-10-30', maintenant: NOW, ...o });
+
+  await dit('la fenêtre : « Trimestre » = 10 semaines qui commencent 3 semaines avant la semaine du jour (5 oct. au 13 déc.), « Mois » = 5 semaines', () => {
+    const t = fe([]);
+    assert.deepEqual([t.debut, t.fin, t.jours], ['2026-10-05', '2026-12-13', 70]);
+    assert.equal(Math.round(t.pxParJour * 10) / 10, 11.8);
+    const m = fe([], { fenetre: 'mois' });
+    assert.deepEqual([m.debut, m.jours], ['2026-10-19', 35]);
+    assert.deepEqual(t.semaines.map((s: any) => s.jour).slice(0, 3), ['2026-10-05', '2026-10-12', '2026-10-19']);
+    assert.deepEqual(t.semaines.filter((s: any) => s.debutDeMois).map((s: any) => s.jour), ['2026-10-05', '2026-11-02', '2026-12-07']);
+    assert.equal(t.weekends.length, 10);
+  });
+
+  await dit('la ligne d’aujourd’hui se place à l’heure près, et n’existe que dans la frise', () => {
+    const t = fe([]);
+    assert.equal(Math.round(t.aujourdhuiX * 10) / 10, Math.round((25 * t.pxParJour + (10 * 60 + 42) / 1440 * t.pxParJour) * 10) / 10);
+    assert.equal(PRO.modeleFeuille({ projets: [], aujourdhui: '2027-03-01', maintenant: paris('2027-03-01', '10:00'), fenetre: 'trimestre' }).aujourdhuiX === null, false);
+    assert.equal(fe([], { fenetre: 'mois' }).aujourdhuiX > 0, true);
+  });
+
+  await dit('la barre : du jour de début au jour de fin, remplie à l’avancement × sa longueur (pas au temps écoulé) ; avant la frise = bord gauche coupé', () => {
+    const t = fe([proj('a', { debut: '2026-10-19', fin: '2026-11-03', avancement: 30 }), proj('b', { debut: '2026-09-21', fin: '2026-11-04', avancement: 72 })]);
+    const [a, b] = t.couloirs;
+    const jours = 16;
+    assert.equal(Math.round(a.barre.x * 10) / 10, Math.round(14 * t.pxParJour * 10) / 10);
+    assert.equal(Math.round(a.barre.largeur * 10) / 10, Math.round(jours * t.pxParJour * 10) / 10);
+    assert.equal(Math.round(a.barre.rempli / a.barre.largeur * 100), 30);
+    assert.deepEqual([b.barre.x, b.barre.coupeAGauche, b.barre.coupeADroite], [0, true, false]);
+    assert.equal(Math.round(b.barre.rempli / b.barre.largeur * 100), 72);
+  });
+
+  await dit('hors fenêtre : une flèche au bord avec la date ; sans date : « Dates à définir », jamais une barre inventée', () => {
+    const t = fe([proj('passe', { debut: '2026-08-01', fin: '2026-09-15' }), proj('futur', { debut: '2027-02-01', fin: '2027-03-01' }), proj('sans', { debut: null, fin: null })]);
+    const par = Object.fromEntries(t.couloirs.map((c: any) => [c.id, c]));
+    assert.deepEqual([par.passe.barre, par.passe.horsFenetre], [null, { cote: 'gauche', jour: '2026-09-15' }]);
+    assert.deepEqual([par.futur.barre, par.futur.horsFenetre], [null, { cote: 'droite', jour: '2027-02-01' }]);
+    assert.deepEqual([par.sans.sansDates, par.sans.barre], [true, null]);
+  });
+
+  await dit('le statut affiché : Terminé, En retard (échéance ou jalon non fait passé), Presque fini (≥ 85 %), À démarrer (0 % et début futur), sinon En cours', () => {
+    const st = (o: Record<string, unknown>) => PRO.statutAffiche({ avancement: 50, fin: '2026-11-27', debut: '2026-10-19', jalons: [], ...o }, '2026-10-30');
+    assert.equal(st({ avancement: 100, fin: '2026-01-01' }), 'Terminé', 'terminé même si l’échéance est passée');
+    assert.equal(st({ fin: '2026-10-29' }), 'En retard');
+    assert.equal(st({ jalons: [{ id: 'j', titre: 'x', jour: '2026-10-27', fait: false }] }), 'En retard');
+    assert.equal(st({ jalons: [{ id: 'j', titre: 'x', jour: '2026-10-27', fait: true }] }), 'En cours', 'un jalon fait n’est pas un retard');
+    assert.equal(st({ avancement: 85 }), 'Presque fini');
+    assert.equal(st({ avancement: 84 }), 'En cours');
+    assert.equal(st({ avancement: 0, debut: '2026-11-09' }), 'À démarrer');
+    assert.equal(st({ avancement: 0, debut: '2026-10-19' }), 'En cours', '0 % mais commencé');
+  });
+
+  await dit('l’état d’un jalon : atteint, manqué (non fait et passé), aujourd’hui, à venir ; placé au milieu de son jour, étiquette à droite pour les 7 derniers jours', () => {
+    const e = (jour: string, fait = false) => PRO.etatDuJalon({ jour, fait }, '2026-10-30');
+    assert.deepEqual([e('2026-10-23', true), e('2026-10-27'), e('2026-10-30'), e('2026-11-13')], ['atteint', 'manque', 'aujourdhui', 'avenir']);
+    const t = fe([proj('a', { jalons: [{ id: 'j1', titre: 'Fin', jour: '2026-12-10', fait: false }, { id: 'j2', titre: 'Milieu', jour: '2026-11-13', fait: false }, { id: 'j3', titre: 'Hors', jour: '2027-01-10', fait: false }] })]);
+    const [j2, j1] = t.couloirs[0].jalons.sort((x: any, y: any) => x.jour.localeCompare(y.jour));
+    assert.deepEqual([t.couloirs[0].jalons.length, j2.aDroite, j1.aDroite], [2, false, true], 'le jalon hors frise ne se dessine pas');
+    assert.equal(Math.round(j2.x * 100) / 100, Math.round((39 * t.pxParJour + t.pxParJour / 2) * 100) / 100);
+  });
+
+  await dit('l’ordre des couloirs : en retard d’abord, puis en cours par échéance, puis à démarrer, puis terminés du trimestre seulement', () => {
+    const t = fe([
+      proj('fini', { avancement: 100, fin: '2026-10-23', termineLe: '2026-10-23' }), proj('ancien', { avancement: 100, fin: '2026-06-01', termineLe: '2026-06-01' }),
+      proj('demarrer', { avancement: 0, debut: '2026-11-09', fin: '2026-12-11' }), proj('tard', { fin: '2026-12-20' }), proj('tot', { fin: '2026-11-04' }), proj('retard', { fin: '2026-10-20' }),
+    ]);
+    assert.deepEqual(t.couloirs.map((c: any) => c.id), ['retard', 'tot', 'tard', 'demarrer', 'fini']);
+    assert.deepEqual([t.nbActifs, t.nbEnRetard], [4, 1], '« n actifs » : ni terminés ni archivés ; « dont n en retard »');
+    assert.deepEqual(fe([proj('a', { archive: true })]).couloirs, []);
+    assert.deepEqual(fe([proj('retard', { fin: '2026-10-20' }), proj('ok')], { filtre: 'enRetard' }).couloirs.map((c: any) => c.id), ['retard']);
+    assert.deepEqual(fe([proj('a', { mien: true }), proj('b')], { filtre: 'miens' }).couloirs.map((c: any) => c.id), ['a']);
+  });
+
+  await dit('les prochains jalons : non faits, manqués ou des 7 prochains jours, par date (les manqués en tête), quatre au plus ; sinon « rien d’attendu » et le suivant', () => {
+    const j = (id: string, jour: string, fait = false) => ({ id, titre: `Jalon ${id}`, jour, fait });
+    const t = fe([proj('p', { jalons: [j('a', '2026-10-27'), j('b', '2026-10-30'), j('c', '2026-11-03'), j('d', '2026-11-04'), j('e', '2026-11-05'), j('f', '2026-10-20', true), j('g', '2026-11-12')] })]);
+    assert.deepEqual(t.prochains.map((x: any) => x.id), ['a', 'b', 'c', 'd'], 'quatre, le fait et le lointain exclus');
+    assert.deepEqual(t.prochains.map((x: any) => x.etat.genre), ['retard', 'aujourdhui', 'jour', 'jour']);
+    assert.equal(t.prochains[0].etat.jours, 3);
+    assert.equal(t.prochains[2].etat.jourSemaine, 2, 'mardi 3 nov.');
+    const rien = fe([proj('p', { jalons: [j('x', '2026-11-20')] })]);
+    assert.deepEqual([rien.prochains.length, rien.aucunProchain], [0, { jour: '2026-11-20', titre: 'Jalon x' }]);
+  });
+
+  await dit('« terminés ce trimestre » : passés à 100 % depuis le début du trimestre civil ; le lien proposé relie le bas d’une barre au haut de l’autre', () => {
+    const t = fe([proj('a', { avancement: 100, termineLe: '2026-10-05' }), proj('b', { avancement: 100, termineLe: '2026-09-30' }), proj('c', { fin: '2026-11-27', debut: '2026-10-19' }), proj('d', { avancement: 0, debut: '2026-11-09', fin: '2026-12-11' })], { objectifTermines: 15, lien: { deId: 'c', versId: 'd', jour: '2026-11-13' } });
+    assert.deepEqual(t.terminesTrimestre, { n: 1, objectif: 15 });
+    const ordre = t.couloirs.map((c: any) => c.id);
+    assert.ok(t.lien.y1 > ordre.indexOf('c') * 48 && t.lien.y2 < (ordre.indexOf('d') + 1) * 48 && t.lien.y2 > ordre.indexOf('d') * 48);
+    assert.equal(fe([proj('c')], { lien: { deId: 'c', versId: 'zzz', jour: '2026-11-13' } }).lien, null, 'un lien vers un projet absent ne se dessine pas');
+  });
+
+  await dit('MJ01 · textes : mêmes clés en fr et en, tutoiement', () => {
+    motsJustes(M.DICTIONNAIRES_PROJETS, 'MJ01');
+    assert.equal(M.DICTIONNAIRES_PROJETS.fr['action.nouveau'], 'Nouveau projet');
+  });
+}
+
 /* ── Structure ──────────────────────────────────────────────────────────── */
 console.log('\nMa journée — structure des écrans de S1\n');
 const lister = (d: string): string[] => (fs.existsSync(path.join(racine, d)) ? fs.readdirSync(path.join(racine, d), { recursive: true, withFileTypes: true }).filter((f: any) => f.isFile()).map((f: any) => path.relative(racine, path.join(f.parentPath ?? f.path, f.name)).replace(/\\/g, '/')) : []);

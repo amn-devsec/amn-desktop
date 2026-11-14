@@ -10,4 +10,7 @@ import { declarerSubstitutions } from '../declarer';
 export default declarerSubstitutions('journee', [
   // H01 — Calendrier : la semaine. « Jour », « Mois » et la création passent par l'écran d'origine (`useOutlet`), partagé avec l'édition cliente.
   { route: '/agenda', composant: lazy(() => import('../../journee/calendrier/PageCalendrier')) },
+
+  // MJ01 — Projets : la feuille de route. La création, l'ouverture d'un projet et le modèle passent par l'écran d'origine (`useOutlet`).
+  { route: '/projets', composant: lazy(() => import('../../journee/projets/PageProjets')) },
 ]);
