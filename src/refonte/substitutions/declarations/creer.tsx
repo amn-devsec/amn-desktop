@@ -9,4 +9,6 @@ import { declarerSubstitutions } from '../declarer';
 export default declarerSubstitutions('creer', [
   // F50 — le hub de la famille (route exacte, `hubs.ts`).
   { route: '/ensemble/creer', composant: lazy(() => import('../../creer/ecrans/F50/HubCreer')) },
+  // H15 — Stock.
+  { route: '/stock', module: 'stock', composant: lazy(() => import('../../creer/ecrans/H15/StockRefonte')) },
 ]);
