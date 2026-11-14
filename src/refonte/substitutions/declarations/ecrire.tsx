@@ -20,4 +20,6 @@ export default declarerSubstitutions('ecrire', [
   { route: '/outils/redaction', composant: lazy(() => import('../../ecrire/ecrans/me02/PageRedaction')) },
   // ME03 — Modèles, à la place de l'écran des modèles (même route).
   { route: '/outils/modeles', composant: lazy(() => import('../../ecrire/ecrans/me03/PageModeles')) },
+  // ME05 — Base de connaissances, à la place de l'écran des connaissances (même route).
+  { route: '/knowledge', composant: lazy(() => import('../../ecrire/ecrans/me05/PageConnaissances')) },
 ]);

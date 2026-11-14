@@ -51,8 +51,8 @@ async function charger<T>(code: string): Promise<T> {
 const FICHIERS = ['commun', 'serie', 'pages', 'relecture', 'documents', 'signatures', 'modeles', 'journal', 'redaction', 'archives', 'connaissances', 'hub', 'i18n', 'phrases'];
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerH10 from '../${ZONE}/ecrans/h10/composer';\nexport * as composerF20 from '../${ZONE}/ecrans/f20/composer';\nexport * as composerH11 from '../${ZONE}/ecrans/h11/composer';\nexport * as composerH12 from '../${ZONE}/ecrans/h12/composer';\nexport * as composerME01 from '../${ZONE}/ecrans/me01/composer';\nexport * as composerME02 from '../${ZONE}/ecrans/me02/composer';\nexport * as composerME03 from '../${ZONE}/ecrans/me03/composer';\nexport * as composerME04 from '../${ZONE}/ecrans/me04/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
-const { commun: C, serie: S, pages: P, relecture: R, documents: D, signatures: G, modeles: MO, journal: J, redaction: RE, archives: A, connaissances: K, hub: H, i18n: I, phrases: PH, composerH10: CH10, composerF20: CF20, composerH11: CH11, composerH12: CH12, composerME01: CME01, composerME02: CME02, composerME03: CME03, composerME04: CME04, monde } = M;
+const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerH10 from '../${ZONE}/ecrans/h10/composer';\nexport * as composerF20 from '../${ZONE}/ecrans/f20/composer';\nexport * as composerH11 from '../${ZONE}/ecrans/h11/composer';\nexport * as composerH12 from '../${ZONE}/ecrans/h12/composer';\nexport * as composerME01 from '../${ZONE}/ecrans/me01/composer';\nexport * as composerME02 from '../${ZONE}/ecrans/me02/composer';\nexport * as composerME03 from '../${ZONE}/ecrans/me03/composer';\nexport * as composerME04 from '../${ZONE}/ecrans/me04/composer';\nexport * as composerME05 from '../${ZONE}/ecrans/me05/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
+const { commun: C, serie: S, pages: P, relecture: R, documents: D, signatures: G, modeles: MO, journal: J, redaction: RE, archives: A, connaissances: K, hub: H, i18n: I, phrases: PH, composerH10: CH10, composerF20: CF20, composerH11: CH11, composerH12: CH12, composerME01: CME01, composerME02: CME02, composerME03: CME03, composerME04: CME04, composerME05: CME05, monde } = M;
 
 const NB = ' ';
 const paris = (j: string, hhmm: string) => C.instantParis(j, Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3)));
@@ -1382,6 +1382,38 @@ await dit('ME04 · composerArchives : années, mois, recherche rangée par mois,
   assert.equal(vide.quota, null);
   assert.equal(vide.suggestion, null);
   assert.equal(vide.sousTitre, 'Tout est gardé, rien n’encombre · rien n’est encore archivé');
+});
+
+await dit('ME05 · composerConnaissances : « annuler une facture » trouve l’étape de l’avoir ; l’arbre, « à relire », le plan ; rien d’inventé', () => {
+  const art = (id: string, titre: string, rubrique: string, etapes: any[] = [], extra: object = {}) => ({ id, titre, rubrique, etapes, majLe: '2026-10-29', statut: 'publié', ...extra });
+  const facture = art('f', 'Faire une facture en 3 minutes', 'Facturation', [
+    { titre: 'Ouvre Facturation', texte: 'Appuie sur « Nouvelle facture » et choisis le client.' },
+    { titre: 'Ajoute les lignes', texte: 'Tape le début du nom d’une prestation.' },
+    { titre: 'Corrige après l’envoi', texte: 'Une facture envoyée ne se supprime pas : ouvre-la, puis « Émettre un avoir ».' },
+  ], { lieA: ['s'] });
+  const articles = [facture, art('s', 'Brancher Stripe', 'Facturation', [{ titre: 'x', texte: 'x '.repeat(400) }]), art('v', 'Ancienne', 'Sécurité', [], { majLe: '2025-01-01' })];
+  const e = { langue: 'fr', maintenant: '2026-10-30T09:42:00Z', articles, choisi: 'f', question: 'Comment annuler une facture ?', filtre: '', rubriquesOuvertes: null, lecturesDuMois: 214, lecturesDeLArticle: 14, auteur: null, etapeCourante: 2, modulesChanges: {} };
+  const a = { onOuvrir: () => undefined, onRubrique: () => undefined, onUtile: () => undefined };
+  const v = CME05.composerConnaissances(e, a);
+  assert.deepEqual(v.article.etapes.map((s: any) => s.citee), [false, false, true], 'la réponse cite l’étape de l’avoir, pas la première');
+  assert.ok(v.question.reponse.source.includes('étape 3'));
+  assert.deepEqual(v.arbre.rubriques.map((r: any) => [r.titre, r.total, r.ouverte]), [['Facturation', 2, true], ['Sécurité', 1, false]]);
+  assert.equal(v.arbre.rubriques[1].articles[0].aRelire, true, 'plus de 6 mois sans mise à jour : à relire');
+  assert.equal(v.arbre.pied.aRelire, '1 à relire');
+  assert.equal(v.droite.plan.pied, 'Étape 2 sur 3 · 1 min de lecture');
+  assert.deepEqual(v.droite.voirAussi.items.map((i: any) => i.titre), ['Brancher Stripe']);
+  assert.equal(v.sousTitre, 'Ce que l’équipe sait, écrit une fois pour tous · 3 articles, 214 lectures ce mois');
+  const rien = CME05.composerConnaissances({ ...e, question: 'la météo de demain ?' }, a);
+  assert.equal(rien.question.reponse, null);
+  assert.equal(rien.question.rien, 'Je n’ai rien trouvé dans ta base. Je crée l’article ?');
+  assert.equal(CME05.composerConnaissances({ ...e, question: '' }, a).question.rien, null);
+  const filtre = CME05.composerConnaissances({ ...e, filtre: 'stripe' }, a);
+  assert.deepEqual(filtre.arbre.rubriques.map((r: any) => r.total), [1]);
+  const vide = CME05.composerConnaissances({ ...e, articles: [], choisi: null, question: '' }, a);
+  assert.equal(vide.article, null);
+  assert.equal(vide.droite, null);
+  assert.equal(vide.sousTitre, 'Ce que l’équipe sait, écrit une fois pour tous · aucun article pour l’instant');
+  assert.equal(CME05.composerConnaissances({ ...e, lecturesDuMois: null }, a).sousTitre, 'Ce que l’équipe sait, écrit une fois pour tous · 3 articles');
 });
 
 await dit('rien ne lit l’horloge ni le hasard : « maintenant » est toujours un paramètre', () => {
