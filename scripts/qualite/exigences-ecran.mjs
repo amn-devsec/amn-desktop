@@ -5,8 +5,9 @@
  * Les défauts des écrans d'origine (C-011) deviennent des exigences de l'écran de la refonte qui les remplace. Ce
  * script les mesure sur des routes données, à 390 px de large (la largeur du plus petit téléphone du produit) :
  *   - aucune coupure : le contenu du document ne dépasse pas la largeur de la fenêtre (`scrollWidth ≤ 390`) ;
- *   - aucune cible interactive visible (lien, bouton, champ, case, rôle button / checkbox / tab…) dont le plus petit côté
- *     est sous 34 px. Un lien en ligne dans une phrase est écarté (WCAG l'exempte).
+ *   - aucune cible interactive visible (lien, bouton, champ, case, rôle button / checkbox / tab…) dont la ZONE DE CLIC est sous
+ *     34 px : on sonde neuf points d'un carré de 34 × 34 px centré sur l'élément avec `elementFromPoint` (§1.39 ; un ::after
+ *     invisible compte, la boîte seule non). Un lien en ligne dans une phrase est écarté (WCAG l'exempte).
  *
  *   node scripts/qualite/exigences-ecran.mjs --dist <build-interne> --routes '#/notes,#/classeur' [--api …] [--sortie f.json]
  *
@@ -27,9 +28,10 @@ const DIST = opt('dist');
 const API = opt('api', 'http://127.0.0.1:4171');
 const ROUTES = (opt('routes') ?? '').split(',').map((r) => r.trim()).filter(Boolean);
 const SORTIE = opt('sortie');
+const CSS = opt('css'); // contrôle : un style ajouté après le chargement (ex. un ::after qui élargit les boutons) doit faire passer les cibles
 const MIN = Number(opt('min', '34'));
 const LARGEUR = Number(opt('largeur', '390'));
-if (!DIST || !ROUTES.length) { console.error("Usage : exigences-ecran.mjs --dist <build-interne> --routes '#/a,#/b' [--api …] [--min 34] [--largeur 390] [--sortie f.json]"); process.exit(2); }
+if (!DIST || !ROUTES.length) { console.error("Usage : exigences-ecran.mjs --dist <build-interne> --routes '#/a,#/b' [--api …] [--min 34] [--largeur 390] [--css '<style de contrôle>'] [--sortie f.json]"); process.exit(2); }
 if (!/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/.test(API)) { console.error('--api : cette machine seulement'); process.exit(2); }
 const MAIL = process.env.AMN_E2E_EMAIL ?? 'essai.interne@exemple.test';
 const MDP = process.env.AMN_E2E_PASSWORD ?? 'Interne-2026-Essai';
@@ -66,6 +68,7 @@ await attendre(4000);
 const resultats = [];
 for (const route of ROUTES) {
   await page.goto(`${ORIGINE}/${route}`); await attendre(2200);
+  if (CSS) await page.addStyleTag({ content: CSS });
   const m = await page.evaluate(([min, large]) => {
     const doc = document.documentElement;
     const debord = Math.max(doc.scrollWidth, document.body.scrollWidth);
@@ -83,24 +86,46 @@ for (const route of ROUTES) {
       }
       if (coupables.length >= 4) break;
     }
+    // LA ZONE DE CLIC, PAS LA BOÎTE (§1.39) : un élément plus petit que 34 px peut être élargi par un ::after invisible. On sonde
+    // avec `elementFromPoint` neuf points d'un carré de 34 × 34 centré sur l'élément : le centre, les quatre bords et les quatre coins
+    // (rentrés d'un pixel). La cible tient si chaque point renvoie l'élément ou l'un de ses descendants ; un point qui tombe sur le
+    // voisin ou sur le fond dit que la zone de clic ne couvre pas le carré.
     const petites = [];
+    let sauvees = 0;
     const cibles = document.querySelectorAll('a[href], button, input:not([type=hidden]), select, textarea, [role=button], [role=checkbox], [role=tab], [role=menuitem], [role=switch], [role=option]');
+    const nom = (e) => ((e.getAttribute('aria-label') || e.textContent || e.getAttribute('title') || e.tagName) + '').trim().replace(/\s+/g, ' ').slice(0, 28);
     for (const e of cibles) {
       const cs = getComputedStyle(e);
       if (cs.visibility === 'hidden' || cs.display === 'none' || Number(cs.opacity) < 0.05) continue;
-      const b = e.getBoundingClientRect();
-      if (b.width < 1 || b.height < 1 || b.bottom < 0 || b.right < 0) continue;
+      let b = e.getBoundingClientRect();
+      if (b.width < 1 || b.height < 1) continue;
       if (e.closest('[aria-hidden="true"], [inert]')) continue;
       // un lien en ligne dans une phrase est exempté
       if (e.tagName === 'A' && cs.display === 'inline' && e.parentElement && (e.parentElement.textContent || '').trim().length > (e.textContent || '').trim().length + 12) continue;
-      const cote = Math.min(b.width, b.height);
-      if (cote < min) petites.push(`${Math.round(b.width)}×${Math.round(b.height)} « ${((e.getAttribute('aria-label') || e.textContent || e.getAttribute('title') || e.tagName) + '').trim().replace(/\s+/g, ' ').slice(0, 28)} »`);
+      if (b.width >= min && b.height >= min) continue; // la boîte suffit
+      e.scrollIntoView({ block: 'center', inline: 'center' });
+      b = e.getBoundingClientRect();
+      if (b.bottom < 0 || b.right < 0 || b.top > innerHeight || b.left > innerWidth) continue;
+      const cx = b.left + b.width / 2;
+      const cy = b.top + b.height / 2;
+      const h = min / 2 - 1;
+      const points = [[0, 0], [-h, 0], [h, 0], [0, -h], [0, h], [-h, -h], [h, -h], [-h, h], [h, h]];
+      const rate = [];
+      for (const [dx, dy] of points) {
+        const x = cx + dx;
+        const y = cy + dy;
+        if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight) continue; // hors fenêtre : non sondé
+        const touche = document.elementFromPoint(x, y);
+        if (!(touche && (touche === e || e.contains(touche)))) rate.push(`${dx},${dy}`);
+      }
+      if (rate.length) petites.push(`${Math.round(b.width)}×${Math.round(b.height)} « ${nom(e)} » (zone de clic : ${rate.length} point(s) sur 9 hors de l’élément)`);
+      else sauvees += 1;
     }
-    return { debord, coupables, petites };
+    return { debord, coupables, petites, sauvees };
   }, [MIN, LARGEUR]);
   const coupe = m.debord > LARGEUR + 1;
-  resultats.push({ route, debord: m.debord, coupe, coupables: m.coupables, petites: m.petites });
-  console.log(`${coupe || m.petites.length ? '✗' : '✓'} ${route.padEnd(28)} largeur du contenu ${m.debord} px${coupe ? ' (COUPÉ)' : ''} · ${m.petites.length} cible(s) < ${MIN} px`);
+  resultats.push({ route, debord: m.debord, coupe, coupables: m.coupables, petites: m.petites, sauvees: m.sauvees });
+  console.log(`${coupe || m.petites.length ? '✗' : '✓'} ${route.padEnd(28)} largeur du contenu ${m.debord} px${coupe ? ' (COUPÉ)' : ''} · ${m.petites.length} zone(s) de clic < ${MIN} px${m.sauvees ? ` (+ ${m.sauvees} boîte(s) trop petite(s) mais zone de clic suffisante)` : ''}`);
   for (const c of m.coupables) console.log(`     coupe : ${c}`);
   for (const p of m.petites.slice(0, 6)) console.log(`     petite : ${p}`);
 }
