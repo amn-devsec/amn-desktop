@@ -1,10 +1,10 @@
 # Point pour Harun
 
-> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 03h40 UTC.
+> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 03h50 UTC.
 
 **Compteurs** (14 nov.) : **écrans construits 9 / 153**, ceux de LOT-00, qui attendent la vérification de T1 · **lots préparés 7 / 13**, lots finis 0 / 13 · **écrans livrés depuis la veille : 0**. Courbe jour par jour : `STATUT.md`, « Vitesse ».
 
-**⚠ Zips v4** : **SIM ne les a pas, et DS non plus d'après son rapport** (j'attends sa confirmation). S1 les a. La solution durable est le dépôt privé décrit plus bas. Elle évite de redonner les zips à chaque session.
+**⚠ Zips v4** : **Il manque les 5 zips à S6 (LOT-07) et à SIM.** S1, DS, S5 et S7 les ont. Le dépôt privé décrit plus bas règle cela pour toutes les sessions. La solution durable est le dépôt privé décrit plus bas. Elle évite de redonner les zips à chaque session.
 
 ## Programme de test du jour
 
@@ -16,14 +16,15 @@
 - T1 vérifie le socle v4, puis fera la comparaison automatique aux images.
 - S0 répare deux contrôles cassés par le socle.
 - SIM complète ses jeux.
-- S6 prépare LOT-07.
+- S6 a livré la préparation de LOT-07 ; elle attend que T1 compare le paquet client (elle touche un fichier partagé).
+- DS adapte son calcul aux avoirs, et je refusionne ensuite les jeux de SIM (retirés : ils cassaient un contrôle).
 
 **Bloqué** : rien.
 
 ## À décider par Harun
 
 1. **Nouvelles données partagées** (produits, interlocuteurs, archives, données plus riches de Créer). Elles changent amn-api, et 92 des 100 jeux fictifs n'y ont pas encore de place. Recommandation : oui, en une fois avec Mohamed, après le socle v4.
-2. **TVA** : la règle provisoire est l'arrondi par ligne, avec les encaissements pour les services. Recommandation : faire valider par un comptable.
+2. **TVA et papiers juridiques** : la règle provisoire est l'arrondi par ligne, les encaissements pour les services et une déclaration mensuelle. Le modèle de mise en demeure n'existe pas encore. Recommandation : faire valider la TVA par un comptable et le modèle par un juriste.
 3. **Redémarrage d'amn-api**, qu'attend la dernière étape de sécurité de S6. Recommandation : pas d'urgence tant que rien n'est distribué.
 4. **Serveur (LOT-13)** : en pause. Recommandation : en décembre.
 5. **Dépôt amn-desktop en privé** : question ouverte. Recommandation : oui.

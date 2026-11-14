@@ -17,7 +17,7 @@ import {
   ajouterJours, arrondir, centimes, compter, debutDeMois, ecartJours, graineDe, hasard, instantParis, iso, lundiDe, tva, type Hasard, type Jour,
 } from './outils';
 import type {
-  Abonnement, CompteBancaire, Contexte, Contrat, Depense, Devis, Enveloppe, Facture, FicheClient, Membre, Mouvement, Paiement,
+  Abonnement, CompteBancaire, Contexte, Contrat, Depense, Devis, Enveloppe, Facture, LigneFacturee, FicheClient, Membre, Mouvement, Paiement,
 } from './types';
 import type { InvoiceLine } from '../../shared/api';
 
@@ -58,13 +58,14 @@ export function statutAffiche(f: Pick<Facture, 'status' | 'dueAt'>, aujourdhui: 
 /** Les taux de TVA des lignes : surtout 20 %, un peu de 10 % (travaux, restauration) et de 5,5 % (livres, alimentation). */
 const tauxDeTva = (h: Hasard): number => h.pondere([[20, 86], [10, 9], [5.5, 5]] as const);
 
-function lignesAleatoires(h: Hasard, nombre: number): InvoiceLine[] {
+function lignesAleatoires(h: Hasard, nombre: number): LigneFacturee[] {
   const uniques = PRESTATIONS.filter((p) => p[2] === null);
   return h.echantillon(uniques, nombre).map(([libelle, prix], k) => ({
     id: `l-${k + 1}`,
     label: libelle,
     quantity: h.pondere([[1, 7], [2, 2], [3, 1]] as const),
     unitPriceCents: arrondir(centimes(prix * h.choix([0.9, 1, 1, 1.1])), 1000),
+    prixGrilleCents: arrondir(centimes(prix), 1000),
     vatRate: tauxDeTva(h),
   }));
 }
@@ -75,7 +76,7 @@ function lignesAleatoires(h: Hasard, nombre: number): InvoiceLine[] {
  * tantôt une prestation ponctuelle. C'est ce mélange qui donne des factures de
  * 54 € comme de 5 000 €, et des niveaux de fidélité variés.
  */
-function lignesFacture(h: Hasard): InvoiceLine[] {
+function lignesFacture(h: Hasard): LigneFacturee[] {
   if (!h.chance(0.45)) return lignesAleatoires(h, h.entier(1, 2));
   const recurrentes = PRESTATIONS.filter((p) => p[2] === 'mois');
   return h.echantillon(recurrentes, h.entier(1, 2)).map(([libelle, prix], k) => ({
@@ -83,6 +84,7 @@ function lignesFacture(h: Hasard): InvoiceLine[] {
     label: libelle,
     quantity: h.pondere([[1, 5], [2, 2], [3, 2], [6, 1]] as const),
     unitPriceCents: centimes(prix),
+    prixGrilleCents: centimes(prix),
     vatRate: tauxDeTva(h),
   }));
 }
@@ -147,7 +149,7 @@ export function genererFactures(ctx: Contexte, clients: readonly FicheClient[], 
   const profil = new Map<number, 'ponctuel' | 'tardif' | 'lent'>();
   for (const c of clients) profil.set(c.id, h.pondere([['ponctuel', 70], ['tardif', 22], ['lent', 8]] as const));
 
-  const fabriquer = (c: FicheClient, lignes: InvoiceLine[], emisLe: Jour, quoteId: number | null, brouillon: boolean): Omit<Facture, 'number' | 'id'> => {
+  const fabriquer = (c: FicheClient, lignes: LigneFacturee[], emisLe: Jour, quoteId: number | null, brouillon: boolean): Omit<Facture, 'number' | 'id'> => {
     const delai = h.pondere([[termeJours, 7], [15, 1], [45, 1], [0, 1]] as const);
     const echeance = ajouterJours(emisLe, delai);
     const p = profil.get(c.id) ?? 'ponctuel';
@@ -276,7 +278,7 @@ export function genererFactures(ctx: Contexte, clients: readonly FicheClient[], 
     const an = f.issuedAt.slice(0, 4);
     const k = (suite.get(an) ?? 0) + 1;
     suite.set(an, k);
-    numeros.set(f, `F-${an}-${String(k).padStart(4, '0')}`);
+    numeros.set(f, `${an}-${String(k).padStart(4, '0')}`);
   }
   const factures: Facture[] = brutes
     .map((f, i) => ({ ...f, id: `fa-${String(i + 1).padStart(4, '0')}`, number: numeros.get(f) ?? '' }))
@@ -293,6 +295,67 @@ export function genererFactures(ctx: Contexte, clients: readonly FicheClient[], 
     d.paymentStatus = f.status === 'paid' ? 'paid' : f.status === 'issued' ? (f.dueAt < ctx.aujourdhui ? 'late' : 'pending') : 'unpaid';
   }
   return factures;
+}
+
+/* -------------------------------- Avoirs -------------------------------- */
+
+/**
+ * Les avoirs (G03, H07, MA04) : des factures de nature `creditNote`, `AV-AAAA-NNNN`, qui réduisent une facture d'origine.
+ * Sur une facture réglée, un avoir total ou partiel est un crédit à rembourser ou à reporter ; sur une facture encore due, un
+ * avoir PARTIEL (jamais total : la facture reste due) baisse le reste dû, et `soldeCents` le dit.
+ */
+export function genererAvoirs(ctx: Contexte, factures: Facture[], paiements: readonly Paiement[] = []): Facture[] {
+  const h = hasard(graineDe(ctx.graine, 'avoirs'));
+  const eligibles = factures.filter((f) => (f.status === 'paid' || f.status === 'issued') && f.issuedAt !== '' && f.issuedAt <= ajouterJours(ctx.aujourdhui, -5) && (f.kind ?? 'invoice') === 'invoice' && !paiements.some((p) => p.factureId === f.id && p.etat === 'réussi'));
+  const n = Math.min(compter(ctx.volumes.avoirs, [0, 1, 4, 30]), eligibles.length);
+  if (n === 0) return [];
+  // Un tiers sur des factures encore dues (avoir partiel), le reste sur des factures réglées.
+  const dues = h.melanger(eligibles.filter((f) => f.status === 'issued'));
+  const reglees = h.melanger(eligibles.filter((f) => f.status === 'paid'));
+  const nDues = n >= 3 ? Math.min(dues.length, Math.ceil(n / 3)) : 0;
+  const cibles = [...dues.slice(0, nDues), ...reglees.slice(0, n - nDues)];
+  if (cibles.length < n) cibles.push(...[...dues.slice(nDues), ...reglees.slice(n - nDues)].slice(0, n - cibles.length));
+  const bruts = cibles.map((f) => {
+    const partiel = f.status === 'issued' || h.chance(0.4);
+    const emis = [ajouterJours(f.issuedAt, 3 + h.entier(0, 25)), ctx.aujourdhui].sort()[0];
+    return { f, partiel, emis };
+  });
+  const parAn = new Map<string, number>();
+  const ordonnes = [...bruts].sort((a, b) => a.emis.localeCompare(b.emis) || a.f.id.localeCompare(b.f.id));
+  const avoirs = ordonnes.map(({ f, partiel, emis }, i): Facture => {
+    const an = emis.slice(0, 4);
+    const k = (parAn.get(an) ?? 0) + 1;
+    parAn.set(an, k);
+    const lines = f.lines.map((l, j) => ({ ...l, id: `av-l-${i + 1}-${j + 1}`, quantity: partiel ? Math.max(0.5, Math.round((l.quantity / 2) * 100) / 100) : l.quantity }));
+    const avoir: Facture = {
+      ...f,
+      id: `av-${String(i + 1).padStart(4, '0')}`,
+      number: `AV-${an}-${String(k).padStart(4, '0')}`,
+      issuedAt: emis,
+      dueAt: emis,
+      lines,
+      status: 'issued',
+      paidAt: '',
+      paymentMethod: '',
+      cancelReason: '',
+      notes: `Avoir sur la facture ${f.number}.`,
+      quoteId: null,
+      kind: 'creditNote',
+      creditNoteFor: f.id,
+      createdAt: iso(instantParis(emis, '10:00')),
+      updatedAt: iso(instantParis(emis, '10:00')),
+      soldeCents: 0,
+    };
+    return avoir;
+  });
+  // Le reste dû d'une facture encore due baisse de ce que ses avoirs ont repris (jamais sous zéro).
+  for (const f of factures) {
+    if (f.status !== 'issued') continue;
+    const repris = avoirs.filter((a) => a.creditNoteFor === f.id).reduce((s, a) => s + totauxDeFacture(a).ttcCents, 0);
+    const regle = paiements.filter((p) => p.factureId === f.id && p.etat === 'réussi').reduce((s, p) => s + p.montantCents, 0);
+    f.soldeCents = Math.max(0, totauxDeFacture(f).ttcCents - repris - regle);
+  }
+  return avoirs.sort((a, b) => b.issuedAt.localeCompare(a.issuedAt) || b.number.localeCompare(a.number));
 }
 
 /* ------------------------------- Paiements ------------------------------- */
@@ -332,7 +395,23 @@ export function genererPaiements(ctx: Contexte, factures: readonly Facture[]): P
     k += 1;
     liste.push({ id: `pay-${String(k).padStart(4, '0')}`, factureId: f.id, clientId: f.clientId, clientNom: f.clientNom, moyen: 'virement', montantCents: totauxDeFacture(f).ttcCents, fraisCents: 0, etat: 'en attente', date: iso(instantParis(ajouterJours(ctx.aujourdhui, -1), '17:45')), reference: ref() });
   }
-  return liste.sort((a, b) => b.date.localeCompare(a.date)).slice(0, cap);
+  const base = liste.sort((a, b) => b.date.localeCompare(a.date)).slice(0, cap);
+  // Des règlements partiels (G03, MA03) : une facture encore due dont le client a déjà versé une partie. Ils s'ajoutent hors plafond,
+  // pour que le reste dû (`soldeCents`) corresponde toujours aux règlements présents.
+  const enAttente = new Set(base.filter((p) => p.etat === 'en attente').map((p) => p.factureId));
+  const eligibles = factures.filter((f) => f.status === 'issued' && f.issuedAt !== '' && f.issuedAt <= ajouterJours(ctx.aujourdhui, -3) && !enAttente.has(f.id));
+  const nPartiels = Math.min(eligibles.length, compter(ctx.volumes.paiements, [0, 1, 4, 30]));
+  const partiels: Paiement[] = [];
+  h.melanger(eligibles).slice(0, nPartiels).forEach((f) => {
+    const ttc = totauxDeFacture(f).ttcCents;
+    const montant = Math.max(100, Math.round((ttc * (0.3 + h.entier(0, 3) * 0.1)) / 100) * 100);
+    if (montant >= ttc) return;
+    const jour = [ajouterJours(f.issuedAt, 2 + h.entier(0, 20)), ajouterJours(ctx.aujourdhui, -1)].sort()[0];
+    k += 1;
+    partiels.push({ id: `pay-${String(k).padStart(4, '0')}`, factureId: f.id, clientId: f.clientId, clientNom: f.clientNom, moyen: 'virement', montantCents: montant, fraisCents: 0, etat: 'réussi', date: iso(Math.min(instantParis(jour, '10:30'), ctx.maintenant - 60 * 60_000)), reference: ref() });
+    f.soldeCents = Math.max(0, f.soldeCents - montant);
+  });
+  return [...base, ...partiels].sort((a, b) => b.date.localeCompare(a.date));
 }
 
 /* ------------------------------- Dépenses ------------------------------- */
@@ -514,7 +593,7 @@ export function genererMouvements(
   for (const f of factures) {
     if (f.status !== 'issued') continue;
     const attendu = f.dueAt < ctx.aujourdhui ? ajouterJours(ctx.aujourdhui, h.entier(2, 14)) : ajouterJours(f.dueAt, h.entier(0, 8));
-    liste.push({ compteId: principal.id, libelle: `Encaissement attendu ${f.clientNom}`, nature: 'Encaissement attendu', categorie: 'Ventes', date: attendu, montantCents: totauxDeFacture(f).ttcCents, reel: false, rapprochement: 'sans objet', lien: { type: 'facture', id: f.id }, recurrent: false });
+    liste.push({ compteId: principal.id, libelle: `Encaissement attendu ${f.clientNom}`, nature: 'Encaissement attendu', categorie: 'Ventes', date: attendu, montantCents: f.soldeCents > 0 ? f.soldeCents : totauxDeFacture(f).ttcCents, reel: false, rapprochement: 'sans objet', lien: { type: 'facture', id: f.id }, recurrent: false });
   }
   for (const [libelle, categorie, montant, jour] of fixes) {
     // Quatre mois : de quoi couvrir l'horizon de 90 jours de H09 (prévisions de trésorerie).

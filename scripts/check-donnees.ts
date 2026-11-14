@@ -88,6 +88,27 @@ const D = await loadFromSrc<{
   MELANGE_D_ACTIONS: readonly { nom: string; poids: number; ecriture: boolean }[];
 }>('src/refonte/donnees/index.ts');
 
+const S8 = {
+  deploiements: await loadFromSrc<{
+    etatGlobal: (d: unknown) => string;
+    dureeTotale: (d: unknown, m?: unknown) => number | null;
+    ETAPES: readonly string[];
+    CIBLES: readonly string[];
+    versionDeRetour: (ds: unknown[], d: unknown) => { id: string } | null;
+  }>('src/refonte/developpement/deploiements.ts'),
+  journal: await loadFromSrc<{
+    executionsDuMois: (j: unknown, maintenant: unknown, fluxId?: string) => number;
+    derniereExecution: (j: unknown, fluxId?: string) => { debut: string | number } | null;
+    doitSeMettreEnPause: (j: unknown, fluxId: string) => boolean;
+    CONSERVATION_JOURS: number;
+    LIGNES_MAX: number;
+  }>('src/refonte/developpement/journal.ts'),
+  planification: await loadFromSrc<{
+    precedentPassage: (p: unknown, avant: unknown) => number | null;
+    fauteDePlanification: (p: unknown) => string | null;
+  }>('src/refonte/developpement/planification.ts'),
+};
+
 let vus = 0;
 const dit = (nom: string, fn: () => void) => {
   fn();
@@ -99,9 +120,19 @@ const normal = D.construireMonde({ volume: 'normal' });
 const gros = D.construireMonde({ volume: 'beaucoup' });
 const peu = D.construireMonde({ volume: 'peu' });
 const vide = D.construireMonde({ volume: 'vide' });
+// Les avoirs ne sont dans le monde que sur demande (`avoirs: true`) tant que la logique de DS ne lit pas la nature `creditNote`.
+const peuAv = D.construireMonde({ volume: 'peu', avoirs: true });
+const normalAv = D.construireMonde({ volume: 'normal', avoirs: true });
+const grosAv = D.construireMonde({ volume: 'beaucoup', avoirs: true });
+const videAv = D.construireMonde({ volume: 'vide', avoirs: true });
 const jours = (m: MondeBrut): string => m.contexte.aujourdhui;
 const joursCyber = (m: MondeBrut): string => m.contexte.aujourdhuiCyber;
 const aujourdhuiDe = jours;
+/** Le reste dû d'une facture : TTC − avoirs émis − règlements réussis, jamais négatif ; zéro hors facture envoyée (même règle que DS). */
+const resteDuDe = (m: MondeBrut, f: Lien): number =>
+  f.status === 'issued'
+    ? Math.max(0, D.totauxDeFacture(f).ttcCents - m.avoirs.filter((x) => x.creditNoteFor === f.id).reduce((n, x) => n + D.totauxDeFacture(x).ttcCents, 0) - m.paiements.filter((p) => p.factureId === f.id && p.etat === 'réussi').reduce((n, p) => n + num(p.montantCents), 0))
+    : 0;
 const estCourrielFictifLocal = (c: string): boolean => /@[a-z0-9.-]+\.exemple\.test$/.test(c);
 const str = (x: unknown): string => String(x ?? '');
 const num = (x: unknown): number => Number(x);
@@ -280,14 +311,14 @@ dit('numérotation continue sans trou, par année, dans l’ordre d’émission 
   const emises = gros.factures.filter((f) => f.status !== 'draft').sort((a, b) => str(a.number).localeCompare(str(b.number)));
   const parAn = new Map<string, number[]>();
   for (const f of emises) {
-    const m = /^F-(\d{4})-(\d{4})$/.exec(str(f.number));
+    const m = /^(\d{4})-(\d{4})$/.exec(str(f.number));
     assert.ok(m, `numéro mal formé : ${str(f.number)}`);
     parAn.set(m[1], [...(parAn.get(m[1]) ?? []), Number(m[2])]);
   }
   for (const [an, suite] of parAn) assert.deepEqual(suite, suite.map((_, i) => i + 1), `trou dans la numérotation de ${an}`);
   assert.ok(gros.factures.filter((f) => f.status === 'draft').every((f) => str(f.number) === '' && str(f.issuedAt) === ''), 'brouillons');
   for (const an of parAn.keys()) {
-    const dates = emises.filter((f) => str(f.number).includes(`-${an}-`)).map((f) => str(f.issuedAt));
+    const dates = emises.filter((f) => str(f.number).startsWith(`${an}-`)).map((f) => str(f.issuedAt));
     assert.ok(dates.every((d) => d.startsWith(an)), `une facture ${an} n’est pas émise en ${an}`);
   }
   assert.ok(emises.length > 500);
@@ -306,7 +337,41 @@ dit('le solde dû vaut le TTC d’une facture envoyée, zéro sinon ; les totaux
     const t = D.totauxDeFacture(f);
     assert.ok(Number.isInteger(t.htCents) && Number.isInteger(t.tvaCents));
     assert.equal(t.ttcCents, t.htCents + t.tvaCents);
-    assert.equal(num(f.soldeCents), f.status === 'issued' ? t.ttcCents : 0);
+    assert.equal(num(f.soldeCents), resteDuDe(gros, f), 'reste dû = TTC − avoirs − règlements');
+  }
+});
+dit('les avoirs : AV-AAAA-NNNN continu, rattachés à une facture du même client, jamais plus grands qu’elle, le reste dû baisse', () => {
+  for (const [nom, m] of [['normal', normalAv], ['peu', peuAv], ['beaucoup', grosAv], ['vide', videAv]] as const) {
+    const parAn = new Map<string, number[]>();
+    const emises = [...m.avoirs].sort((a, b) => str(a.number).localeCompare(str(b.number)));
+    for (const a of emises) {
+      const mt = /^AV-(\d{4})-(\d{4})$/.exec(str(a.number));
+      assert.ok(mt, `${nom} : numéro d’avoir ${str(a.number)}`);
+      parAn.set(mt[1], [...(parAn.get(mt[1]) ?? []), Number(mt[2])]);
+      assert.equal(a.kind, 'creditNote');
+      const origine = m.factures.find((f) => f.id === a.creditNoteFor);
+      assert.ok(origine && (origine.status === 'paid' || origine.status === 'issued'), `${nom} : facture d’origine émise`);
+      assert.equal(origine.clientId, a.clientId, `${nom} : même client`);
+      assert.ok(str(a.issuedAt) >= str(origine.issuedAt) && str(a.issuedAt) <= aujourdhuiDe(m), `${nom} : date de l’avoir`);
+      assert.ok(str(a.number).startsWith(`AV-${str(a.issuedAt).slice(0, 4)}-`), `${nom} : l’année du numéro est celle de l’émission`);
+      const total = m.avoirs.filter((x) => x.creditNoteFor === origine.id).reduce((n, x) => n + D.totauxDeFacture(x).ttcCents, 0);
+      assert.ok(total <= D.totauxDeFacture(origine).ttcCents, `${nom} : un avoir ne dépasse pas sa facture`);
+      if (origine.status === 'issued') assert.ok(total < D.totauxDeFacture(origine).ttcCents, `${nom} : sur une facture encore due, l’avoir est partiel`);
+      assert.equal(num(a.soldeCents), 0, 'un avoir n’est jamais dû');
+    }
+    for (const [an, suite] of parAn) assert.deepEqual(suite, suite.map((_, i) => i + 1), `${nom} : trou dans les avoirs de ${an}`);
+    assert.equal(new Set([...m.factures, ...m.avoirs].map((f) => f.id)).size, m.factures.length + m.avoirs.length, `${nom} : identifiants uniques`);
+    assert.ok(m.factures.every((f) => !f.kind || f.kind === 'invoice'), 'les factures restent des factures');
+  }
+  assert.ok(normalAv.avoirs.length >= 1 && grosAv.avoirs.length >= 10, 'des avoirs dès « normal »');
+  assert.ok(grosAv.avoirs.some((a) => grosAv.factures.find((f) => f.id === a.creditNoteFor)?.status === 'issued') && grosAv.avoirs.some((a) => grosAv.factures.find((f) => f.id === a.creditNoteFor)?.status === 'paid'), 'avoirs sur factures dues et réglées');
+  assert.equal(videAv.avoirs.length, 0);
+  assert.equal(normal.avoirs.length + gros.avoirs.length, 0, 'sans demande, aucun avoir dans le monde');
+  // Avec avoirs, le reste dû, la TVA et les encaissements attendus en tiennent compte (même calcul que les mondes sans avoirs, moins ce que les avoirs reprennent).
+  for (const f of grosAv.factures) assert.equal(num(f.soldeCents), resteDuDe(grosAv, f), 'reste dû = TTC − avoirs − règlements');
+  for (const x of grosAv.mouvements.filter((y) => y.nature === 'Encaissement attendu')) {
+    const f = grosAv.factures.find((y) => y.id === (x.lien as Lien).id);
+    assert.equal(num(x.montantCents), num(f?.soldeCents), 'l’encaissement attendu est le reste dû');
   }
 });
 dit('le statut « En retard » se déduit (envoyée + échéance passée) ; il y en a, mais peu', () => {
@@ -334,16 +399,24 @@ dit('chaque paiement correspond à une facture réglée (ou en attente sur une f
   for (const p of gros.paiements) {
     const f = gros.factures.find((x) => x.id === p.factureId) as Lien;
     assert.ok(f, 'paiement sans facture');
-    assert.equal(num(p.montantCents), D.totauxDeFacture(f).ttcCents, 'montant du paiement ≠ TTC de la facture');
-    if (p.etat === 'réussi' || p.etat === 'remboursé') assert.equal(f.status, 'paid');
+    // Un règlement partiel est un règlement réussi, plus petit que la facture, sur une facture encore envoyée.
+    const partiel = p.etat === 'réussi' && f.status === 'issued';
+    if (partiel) assert.ok(num(p.montantCents) > 0 && num(p.montantCents) < D.totauxDeFacture(f).ttcCents, 'règlement partiel : plus petit que la facture');
+    else assert.equal(num(p.montantCents), D.totauxDeFacture(f).ttcCents, 'montant du paiement ≠ TTC de la facture');
+    if (p.etat === 'réussi' && !partiel) assert.equal(f.status, 'paid');
+    if (p.etat === 'remboursé') assert.equal(f.status, 'paid');
     if (p.etat === 'en attente') assert.equal(f.status, 'issued');
     assert.ok(str(p.date).slice(0, 10) <= aujourdhui, 'paiement dans le futur');
     assert.ok(num(p.fraisCents) >= 0 && (p.moyen === 'carte' || num(p.fraisCents) === 0), 'frais hors carte');
   }
-  const reussies = new Set(gros.paiements.filter((p) => p.etat === 'réussi' || p.etat === 'remboursé').map((p) => p.factureId));
+  const reussies = new Set(gros.paiements.filter((p) => (p.etat === 'réussi' && gros.factures.find((f) => f.id === p.factureId)?.status === 'paid') || p.etat === 'remboursé').map((p) => p.factureId));
   const payees = gros.factures.filter((f) => f.status === 'paid');
   const complet = D.construireMonde({ volume: 'normal', volumes: { paiements: 'beaucoup' } });
   const c2 = new Set(complet.paiements.filter((p) => p.etat === 'réussi' || p.etat === 'remboursé').map((p) => p.factureId));
+  // Des règlements partiels existent, sans jamais solder la facture ; deux règlements sur une même facture ne dépassent pas son TTC.
+  const partiels = gros.paiements.filter((p) => p.etat === 'réussi' && gros.factures.find((f) => f.id === p.factureId)?.status === 'issued');
+  assert.ok(partiels.length >= 5 && normal.paiements.some((p) => p.etat === 'réussi' && normal.factures.find((f) => f.id === p.factureId)?.status === 'issued'), 'des règlements partiels dès « normal »');
+  for (const f of gros.factures.filter((x) => x.status === 'issued')) assert.ok(gros.paiements.filter((p) => p.factureId === f.id && p.etat === 'réussi').reduce((n, p) => n + num(p.montantCents), 0) < D.totauxDeFacture(f).ttcCents, 'un règlement partiel ne solde pas la facture');
   assert.ok(complet.factures.filter((f) => f.status === 'paid').every((f) => c2.has(f.id)), 'une facture payée sans paiement');
   assert.ok(reussies.size > 0 && payees.length > 0);
 });
@@ -401,17 +474,18 @@ dit('la santé est entre 0 et 100 et se recalcule avec la formule de la fiche H0
   const sante = gros.clients.map((c) => num(c.sante));
   assert.ok(sante.some((s) => s >= 70) && sante.some((s) => s >= 45 && s < 70) && sante.some((s) => s < 45), 'vert, orange et rouge doivent exister (H05)');
 });
-dit('« Impayé » si et seulement si une facture envoyée est échue ; « À relancer » sinon quand l’échange est ancien', () => {
-  for (const c of gros.clients) {
-    const impaye = gros.factures.some((f) => f.clientId === c.id && f.status === 'issued' && str(f.dueAt) < jours(gros));
-    if (impaye) assert.equal(c.statutAffiche, 'Impayé');
-    else assert.notEqual(c.statutAffiche, 'Impayé');
-    const depuis = D.ecartJours(D.jourDe(Date.parse(str(c.dernierEchangeAt))), jours(gros));
-    if (!impaye && (depuis > 5 || num(c.sante) < 45)) assert.equal(c.statutAffiche, 'À relancer');
-    if (!impaye && depuis <= 5 && num(c.sante) >= 45) assert.equal(c.statutAffiche, 'Actif');
-  }
-  const statuts = new Set(gros.clients.map((c) => c.statutAffiche));
-  assert.deepEqual([...statuts].sort(), ['Actif', 'Impayé', 'À relancer']);
+dit('statut des clients (H05) : Impayé > 7 jours d’échéance, À relancer, Nouveau < 30 jours, Actif — dans cet ordre', () => {
+  const regle = (m: MondeBrut, c: Lien): string => {
+    const echues = m.factures.filter((f) => f.clientId === c.id && f.status === 'issued' && str(f.dueAt) < jours(m)).map((f) => D.ecartJours(str(f.dueAt), jours(m)));
+    const depuis = D.ecartJours(D.jourDe(Date.parse(str(c.dernierEchangeAt))), jours(m));
+    if (echues.some((e) => e > 7)) return 'Impayé';
+    if (echues.length > 0 || depuis > 5 || num(c.sante) < 45) return 'À relancer';
+    return D.ecartJours(str(c.debutLe), jours(m)) < 30 ? 'Nouveau' : 'Actif';
+  };
+  for (const m of [normal, peu, gros]) for (const c of m.clients) assert.equal(c.statutAffiche, regle(m, c), `client ${str(c.id)}`);
+  assert.deepEqual([...new Set(gros.clients.map((c) => c.statutAffiche))].sort(), ['Actif', 'Impayé', 'Nouveau', 'À relancer']);
+  assert.equal(D.ecartJours('2026-10-01', '2026-10-30') < 30, true, 'repère : 29 jours = encore nouveau');
+  assert.equal(D.ecartJours('2026-09-30', '2026-10-30') < 30, false, 'repère : 30 jours = plus nouveau');
 });
 dit('le dernier échange n’est jamais dans le futur ni avant le début de la relation', () => {
   for (const c of gros.clients) {
@@ -450,14 +524,22 @@ dit('relances : chacune pointe un objet réellement en retard ; tri par montant 
   assert.deepEqual(montants, [...montants].sort((a, b) => b - a));
   assert.ok(new Set(gros.relances.map((r) => r.motif)).size >= 3, 'plusieurs motifs');
 });
-dit('fidélité : 1 point par euro encaissé sur 12 mois ; niveaux Bronze < 500 ≤ Argent < 1 500 ≤ Or', () => {
-  const depuis = `${Number(jours(gros).slice(0, 4)) - 1}${jours(gros).slice(4)}`;
-  for (const f of gros.fidelite) {
-    const pts = gros.factures.filter((x) => x.clientId === f.clientId && x.status === 'paid' && str(x.paidAt) >= depuis).reduce((s, x) => s + Math.floor(D.totauxDeFacture(x).ttcCents / 100), 0);
-    assert.equal(f.points, pts);
-    assert.equal(f.niveau, pts >= 1500 ? 'Or' : pts >= 500 ? 'Argent' : 'Bronze');
+dit('fidélité (MC02) : 1 point par euro payé, 50 par avis, 200 par recommandation, sur 12 mois ; Bronze < 800 ≤ Argent < 1 800 ≤ Or', () => {
+  for (const [nom, m] of [['normal', normal], ['peu', peu], ['beaucoup', gros]] as const) {
+    const depuis = `${Number(jours(m).slice(0, 4)) - 1}${jours(m).slice(4)}`;
+    const dans = (j: string): boolean => j >= depuis && j <= jours(m);
+    for (const f of m.fidelite) {
+      const euros = m.factures.filter((x) => x.clientId === f.clientId && x.status === 'paid' && dans(str(x.paidAt))).reduce((s, x) => s + Math.floor(D.totauxDeFacture(x).ttcCents / 100), 0);
+      const avis = m.avis.filter((a) => a.clientId === f.clientId && dans(str(a.date))).length;
+      const reco = (f.recommandations as string[]).filter(dans).length;
+      assert.equal((f.recommandations as string[]).length, reco, `${nom} : recommandations dans l’année`);
+      assert.equal(f.points, euros + avis * 50 + reco * 200, `${nom} : points de ${str(f.clientNom)}`);
+      assert.equal(f.niveau, num(f.points) >= 1800 ? 'Or' : num(f.points) >= 800 ? 'Argent' : 'Bronze', `${nom} : niveau`);
+      assert.ok(num(f.points) > 0 && str(f.derniereActiviteLe) <= jours(m), `${nom} : activité`);
+    }
   }
-  assert.deepEqual(new Set(gros.fidelite.map((f) => f.niveau)).size >= 2, true);
+  assert.deepEqual([...new Set(normal.fidelite.map((f) => f.niveau))].sort(), ['Argent', 'Bronze', 'Or'], 'normal : les trois paliers');
+  assert.ok(gros.fidelite.some((f) => (f.recommandations as string[]).length > 0) && gros.avis.length > 0, 'des recommandations');
 });
 
 /* ------------------------------ Ma journée ------------------------------ */
@@ -587,17 +669,22 @@ function invariants(m: MondeBrut, nom: string): void {
   // Factures : numérotation, chronologie, solde
   const parAn = new Map<string, number[]>();
   for (const f of m.factures) {
-    const t = D.totauxDeFacture(f);
-    assert.equal(num(f.soldeCents), f.status === 'issued' ? t.ttcCents : 0, `${nom} : solde`);
+    assert.equal(num(f.soldeCents), resteDuDe(m, f), `${nom} : solde`);
     if (f.status === 'draft') { assert.equal(str(f.number), ''); continue; }
     assert.ok(str(f.dueAt) >= str(f.issuedAt) && str(f.issuedAt) <= auj, `${nom} : dates ${str(f.number)}`);
     if (f.status === 'paid') assert.ok(str(f.paidAt) >= str(f.issuedAt) && str(f.paidAt) <= auj, `${nom} : paiement ${str(f.number)}`);
-    const mt = /^F-(\d{4})-(\d{4})$/.exec(str(f.number));
+    const mt = /^(\d{4})-(\d{4})$/.exec(str(f.number));
     assert.ok(mt, `${nom} : numéro ${str(f.number)}`);
     parAn.set(mt[1], [...(parAn.get(mt[1]) ?? []), Number(mt[2])]);
   }
   for (const [an, suite] of parAn) assert.deepEqual([...suite].sort((a, b) => a - b), suite.map((_, i) => i + 1), `${nom} : trou en ${an}`);
-  for (const p of m.paiements) assert.equal(num(p.montantCents), D.totauxDeFacture(m.factures.find((f) => f.id === p.factureId)).ttcCents, `${nom} : montant du paiement`);
+  for (const p of m.paiements) {
+    const f = m.factures.find((x) => x.id === p.factureId) as Lien;
+    const ttc = D.totauxDeFacture(f).ttcCents;
+    // Un règlement réussi sur une facture encore envoyée est partiel : strictement sous le TTC.
+    if (p.etat === 'réussi' && f.status === 'issued') assert.ok(num(p.montantCents) > 0 && num(p.montantCents) < ttc, `${nom} : règlement partiel`);
+    else assert.equal(num(p.montantCents), ttc, `${nom} : montant du paiement`);
+  }
   // Passé et futur
   for (const t of m.taches) if (t.status === 'done') assert.ok(Date.parse(str(t.faiteAt)) <= maintenant, `${nom} : tâche faite dans le futur`);
   for (const r of m.rappels) if (r.fait) assert.ok(Date.parse(str(r.faitAt)) <= maintenant, `${nom} : rappel fait dans le futur`);
@@ -611,8 +698,8 @@ function invariants(m: MondeBrut, nom: string): void {
   const donnees = { factures: m.factures, devis: m.devis, avis: m.avis };
   for (const c of m.clients) {
     assert.equal(D.calculerSante(c, donnees, auj), c.sante, `${nom} : santé`);
-    const impaye = m.factures.some((f) => f.clientId === c.id && f.status === 'issued' && str(f.dueAt) < auj);
-    assert.equal(c.statutAffiche === 'Impayé', impaye, `${nom} : statut Impayé`);
+    const impaye = m.factures.some((f) => f.clientId === c.id && f.status === 'issued' && D.ecartJours(str(f.dueAt), auj) > 7);
+    assert.equal(c.statutAffiche === 'Impayé', impaye, `${nom} : statut Impayé (échue depuis plus de 7 jours)`);
     assert.ok(Date.parse(str(c.dernierEchangeAt)) <= maintenant, `${nom} : échange futur`);
   }
   // Projets
@@ -646,7 +733,8 @@ dit('chaque volume montre les cas que les écrans attendent (au moins un impayé
     assert.ok(p.taches.some((t) => t.echeance === auj) && p.evenements.some((e) => D.jourDe(Date.parse(str(e.startAt))) === auj), `${nom}, peu : rien aujourd’hui`);
     assert.ok(n.taches.some((t) => t.status !== 'done' && str(t.echeance) < auj), `${nom}, normal : aucune tâche en retard`);
     assert.ok(n.rappels.some((r) => !r.fait && Date.parse(str(r.quandAt)) < n.contexte.maintenant), `${nom}, normal : aucun rappel en retard`);
-    assert.ok(new Set(n.clients.map((c) => c.statutAffiche)).size === 3, `${nom}, normal : les trois statuts de client`);
+    assert.ok(new Set(n.clients.map((c) => c.statutAffiche)).size === 4, `${nom}, normal : les quatre statuts de client`);
+    assert.equal(new Set(n.fidelite.map((f) => f.niveau)).size, 3, `${nom}, normal : les trois paliers de fidélité`);
     assert.ok(n.relances.length >= 3, `${nom}, normal : trop peu de relances`);
     assert.ok(n.paiements.some((p) => p.etat === 'réussi' && str(p.date).slice(0, 10) === auj), `${nom}, normal : rien d’encaissé aujourd’hui (N01)`);
   }
@@ -663,7 +751,8 @@ const IPV4 = /\b(?:\d{1,3}\.){3}\d{1,3}\b/;
 dit('chaque nouveau jeu existe, vide au volume « vide », rempli aux autres', () => {
   const suite = D.NOMS_DES_JEUX.slice(D.NOMS_DES_JEUX.indexOf('echeancesFiscales'));
   assert.ok(suite.length >= 60, `${suite.length} jeux dans la suite`);
-  for (const nom of suite) {
+  // Les avoirs ne sont dans le monde que sur demande : leur contrôle est plus haut.
+  for (const nom of suite.filter((x) => x !== 'avoirs')) {
     assert.equal(vide[nom].length, 0, `${nom} doit être vide`);
     assert.ok(gros[nom].length > 0, `${nom} : « beaucoup » est vide`);
     assert.ok(normal[nom].length > 0, `${nom} : « normal » est vide`);
@@ -723,7 +812,8 @@ dit('TVA : la TVA à reverser est celle des factures émises moins celle des dé
     const [a, mEcheance] = str(e.echeanceLe).split('-').map(Number);
     const an = mEcheance === 1 ? a - 1 : a;
     const cleMois = `${an}-${String(mois).padStart(2, '0')}`;
-    const col = gros.factures.filter((f) => f.status !== 'draft' && f.status !== 'cancelled' && str(f.issuedAt).startsWith(cleMois)).reduce((t, f) => t + D.totauxDeFacture(f).tvaCents, 0);
+    const col = gros.factures.filter((f) => f.status !== 'draft' && f.status !== 'cancelled' && str(f.issuedAt).startsWith(cleMois)).reduce((t, f) => t + D.totauxDeFacture(f).tvaCents, 0)
+      - gros.avoirs.filter((x) => str(x.issuedAt).startsWith(cleMois)).reduce((t, x) => t + D.totauxDeFacture(x).tvaCents, 0);
     const ded = gros.depenses.filter((d) => str(d.spentAt).startsWith(cleMois)).reduce((t, d) => t + num(d.tvaCents), 0);
     assert.equal(num(e.montantCents), col - ded, `TVA de ${m[1]}`);
   }
@@ -817,7 +907,8 @@ dit('fichiers : la signature d’un fichier dit celle de sa demande ; un lien ex
 
 dit('signatures : l’état suit les signataires, l’échéance et l’envoi ; chaque demande pointe un fichier ; l’empreinte est tronquée', () => {
   for (const s of gros.signatures) {
-    const st = (s.signataires as Lien[]).map((x) => x.statut);
+    // Une personne « en copie » reçoit le document ; elle ne signe jamais et ne compte pas dans l'état.
+    const st = (s.signataires as Lien[]).filter((x) => x.role === 'signataire').map((x) => x.statut);
     assert.match(str(s.empreinteCourte), /^[0-9a-f]{8}$/);
     assert.ok(ids(gros.fichiers).has(s.fichierId));
     if (s.etat === 'À envoyer') assert.ok(s.envoyeAt === null && st.every((x) => x === 'En attente'));
@@ -826,6 +917,7 @@ dit('signatures : l’état suit les signataires, l’échéance et l’envoi ; 
     if (s.etat === 'Refusée') assert.ok(st.includes('Refusé'));
     if (s.etat === 'Expirée') assert.ok(str(s.echeanceLe) < jours(gros) && !st.every((x) => x === 'Signé'));
     for (const x of s.signataires as Lien[]) assert.equal(x.statut === 'Signé', x.signeAt !== null);
+    for (const x of (s.signataires as Lien[]).filter((y) => y.role === 'copie')) assert.ok(x.statut === 'En attente' && x.signeAt === null, 'en copie : ne signe jamais');
   }
   assert.ok(normal.signatures.length >= 10 && new Set(normal.signatures.map((s) => s.etat)).size >= 6, 'H12 montre presque tous les états');
 });
@@ -835,7 +927,7 @@ dit('pages, modèles, journal, textes, archives, connaissances : références, d
   for (const p of gros.pages) { assert.ok(p.parentId === null || ids(gros.pages).has(p.parentId)); assert.ok((p.blocs as unknown[]).length > 0 && Date.parse(str(p.modifieAt)) <= gros.contexte.maintenant); assert.ok(emails.has(p.auteurEmail)); }
   for (const m of gros.modeles) { assert.ok(num(m.usagesMois) <= num(m.creationsDuTypeMois)); assert.equal((m.utilisateurs30j as string[]).length > 0, num(m.usagesMois) > 0); }
   const cles = new Set<string>();
-  for (const j of gros.journal) { const k = `${str(j.auteurEmail)}:${str(j.jour)}`; assert.ok(!cles.has(k), `deux entrées le même jour ${k}`); cles.add(k); assert.ok(str(j.jour) <= jours(gros)); assert.match(str(j.commenceA), /^\d{2}:\d{2}$/); assert.ok(['très bien', 'bien', 'moyen', 'difficile'].includes(str(j.humeur))); }
+  for (const j of gros.journal) { const k = `${str(j.auteurEmail)}:${str(j.jour)}`; assert.ok(!cles.has(k), `deux entrées le même jour ${k}`); cles.add(k); assert.ok(str(j.jour) <= jours(gros)); assert.match(str(j.commenceA), /^\d{2}:\d{2}$/); assert.ok(['difficile', 'moyen', 'bien', 'très bien', 'excellent'].includes(str(j.humeur))); }
   for (const t of gros.textes) { if (t.interlocuteurId !== null) assert.ok(ids(gros.interlocuteurs).has(t.interlocuteurId)); if (t.etat === 'à valider' || t.etat === 'prêt') assert.ok(t.relecteurEmail); }
   for (const a of gros.archives) { assert.ok(str(a.conserverJusquau) > str(a.archiveLe) && str(a.archiveLe) <= jours(gros)); assert.equal(a.mode === 'à la main', a.parEmail !== null); if (a.type === 'Facture') assert.equal(num(str(a.conserverJusquau).slice(0, 4)) - num(str(a.archiveLe).slice(0, 4)), 10, 'factures : dix ans'); }
   for (const e of gros.connaissances) { assert.ok(!(e.lectures as Lien[]).some((l) => l.email === e.auteurEmail), 'l’auteur ne compte pas parmi les lecteurs'); for (const q of e.questionsLieesIds as string[]) assert.equal(gros.connaissances.find((x) => x.id === q)?.type, 'question'); }
@@ -924,7 +1016,7 @@ dit('chantiers, photos, tournées, matériel, flotte, réservations, qualité : 
     assert.ok(point, 'un écart naît d’un point non conforme');
     assert.equal(e.gravite, point.criticite === 'critique' ? 'critique' : 'mineur');
   }
-  for (const c of gros.controles) { if (c.statut === 'À faire') assert.ok((c.resultats as Lien[]).every((r) => r.conforme === null)); if (c.statut === 'Terminé') assert.ok((c.resultats as Lien[]).every((r) => r.conforme !== null)); }
+  for (const c of gros.controles) { if (c.statut === 'À faire') assert.ok((c.resultats as Lien[]).every((r) => r.conforme === null)); if (c.statut === 'Terminé') assert.ok((c.resultats as Lien[]).every((r) => r.conforme !== null || r.sansObjet === true)); for (const r of c.resultats as Lien[]) if (r.sansObjet === true) assert.equal(r.conforme, null, 'sans objet : pas de résultat'); }
 });
 
 console.log('  — Outils');
@@ -1311,6 +1403,10 @@ dit('les cas attendus par H04, H25 et G08 existent aussi pour 12 graines', () =>
     assert.ok(b.encaisse.cents > 0 && b.encaisse.ecartPourcent !== null, `graine ${graine} : un encaissé comparable à la semaine d’avant`);
     assert.equal(b.semaineProchaine.suggere, true, `graine ${graine} : suggestion de la semaine prochaine`);
     assert.ok(D.attendusPrevisions(n).entreesAttendues.nombre > 0 && D.attendusCockpit(n).nouveauxClientsActifs >= 1, `graine ${graine} : entrées attendues, nouveaux clients actifs`);
+    assert.deepEqual([...new Set(n.deploiements.map((d) => S8.deploiements.etatGlobal(d)))].sort(), ['annule', 'echec', 'en-cours', 'reussi'], `graine ${graine} : les quatre états de déploiement`);
+    assert.ok(n.depots.some((d) => (d.tests as Lien).etat === 'echec') && n.servicesServeur.some((x) => x.etat === 'attention'), `graine ${graine} : un test en échec, un service à surveiller`);
+    assert.ok(n.automatisations.some((x) => x.etat === 'En pause' && S8.journal.doitSeMettreEnPause(n.executions, str(x.id))), `graine ${graine} : une pause automatique`);
+    for (const x of n.automatisations) assert.equal(S8.journal.executionsDuMois(n.executions, n.contexte.maintenant, str(x.id)), num(x.executionsMois), `graine ${graine} : exécutions du mois`);
   }
 });
 
@@ -1425,6 +1521,340 @@ dit('LOT-06 : commandes (création, échéance, livraison, paiement en ligne), t
     }
   }
   assert.deepEqual([...vus].sort(), ['En route', 'Fait', 'Sur place', 'À faire'], 'les quatre états apparaissent dans la matinée');
+});
+
+dit('LOT-06 (suite) : stock, chantiers, marque, vidéos, pages, produits, ressources, véhicules, photos, contrôles', () => {
+  for (const [nom, m] of [['normal', normal], ['beaucoup', gros]] as const) {
+    const auj = aujourdhuiDe(m);
+    // H15
+    for (const a of m.articles) {
+      assert.equal(a.niveauCible, num(a.seuilAlerte) * 3);
+      for (const mv of a.mouvements as Lien[]) assert.equal(mv.emplacement, a.emplacement, `${nom} : emplacement d’un mouvement`);
+      for (const c of a.commandesFournisseur as Lien[]) assert.ok(str(c.commandeeLe) <= auj && str(c.arriveeLe) > str(c.commandeeLe) && (c.recue === true ? str(c.arriveeLe) <= auj : str(c.arriveeLe) >= auj), `${nom} : commande fournisseur`);
+      if (D.quantiteEnStock(a) < num(a.seuilAlerte)) assert.ok((a.commandesFournisseur as Lien[]).some((c) => c.recue === false), `${nom} : un article sous son seuil a une commande en route`);
+    }
+    for (const f of m.fournisseurs) assert.ok(Number.isInteger(num(f.fraisDePortCents)) && num(f.fraisDePortCents) > 0 && (f.francoCents === null || num(f.francoCents) > num(f.fraisDePortCents)), `${nom} : franco et port`);
+    assert.ok(m.fournisseurs.some((f) => f.francoCents !== null) && m.fournisseurs.some((f) => f.francoCents === null), `${nom} : avec et sans franco`);
+    // H16, F50
+    for (const c of m.chantiers) {
+      const e = c.etapes as Lien[];
+      assert.equal(e.reduce((s, x) => s + num(x.poids), 0), 100, `${nom} : les poids font 100`);
+      assert.equal(str(e[e.length - 1].nom), 'Réception', `${nom} : dernière étape « Réception »`);
+      for (const x of e) assert.ok(num(x.partRealisee) >= 0 && num(x.partRealisee) <= 1 && (x.faite === true ? x.partRealisee === 1 : num(x.partRealisee) < 1), `${nom} : part réalisée`);
+      if (c.statut === 'Terminé') assert.ok(e.every((x) => x.faite === true), `${nom} : terminé = reçu`);
+      for (const i of c.interventions as Lien[]) assert.equal(i.fait === true, str(i.le) <= auj && c.statut !== 'À venir', `${nom} : intervention faite ⇔ passée`);
+      for (const l of c.livraisons as Lien[]) assert.equal(l.recue === true, str(l.le) <= auj, `${nom} : livraison reçue ⇔ passée`);
+      if (c.statut === 'À venir') assert.equal((c.livraisons as unknown[]).length, 0);
+    }
+    assert.ok(m.controles.some((c) => c.chantierId !== null && c.statut !== 'Terminé'), `${nom} : F50 — un contrôle ouvert rattaché à un chantier`);
+    // H17
+    for (const q of m.marque) {
+      const p = q.palette as Lien[];
+      assert.equal(p.reduce((s, x) => s + num(x.partUsage), 0), 100, `${nom} : la palette fait 100 %`);
+      assert.ok(p.every((x) => ['Principale', 'Secondaire', 'Accent', 'Fond', 'Texte'].includes(str(x.role))) && (q.aEviter as string[]).length >= 3 && str(q.modifieLe) <= auj);
+    }
+    // MR01
+    for (const v of m.videos) {
+      const rang = ['Idée', 'Tournage', 'Montage', 'Sous-titrage', 'Relecture', 'Publiée'].indexOf(str(v.etape));
+      assert.ok(rang >= 0);
+      assert.equal((v.plans as unknown[]).length > 0, rang >= 2, `${nom} : des plans dès le montage`);
+      assert.equal((v.sousTitres as unknown[]).length > 0, rang >= 3, `${nom} : des sous-titres dès l’étape « Sous-titrage »`);
+      assert.equal((v.commentaires as unknown[]).length > 0, rang >= 4, `${nom} : des commentaires dès la relecture`);
+      assert.equal(v.publieeLe !== null, v.etape === 'Publiée');
+      if (v.publieeLe !== null) assert.ok(str(v.publieeLe) <= auj);
+    }
+    assert.ok(new Set(m.videos.map((v) => v.etape)).size === 6, `${nom} : les six étapes existent`);
+    // MR02
+    for (const pg of m.pagesPubliques) {
+      assert.equal((pg.visitesParJour as number[]).length, 7);
+      assert.equal((pg.visitesParJour as number[]).reduce((s, x) => s + x, 0), num(pg.visites7j), `${nom} : les visites par jour font celles des 7 jours`);
+      assert.ok((pg.sections as unknown[]).length >= 3 && (pg.visitesParJour as number[]).every((x) => x >= 0));
+    }
+    assert.ok(m.pagesPubliques.some((pg) => (pg.avis as Lien[]).some((a) => a.accordClient === false)) && m.pagesPubliques.some((pg) => (pg.avis as Lien[]).some((a) => a.accordClient === true)), `${nom} : des avis avec et sans accord`);
+    // MR04, MR05
+    for (const e of m.equipements) assert.ok(str(e.affectationDepuis) <= auj, `${nom} : affectation datée, dans le passé`);
+    for (const p of m.produits) {
+      assert.ok([20, 10, 5.5].includes(num(p.tvaPourcent)));
+      const a = m.articles.find((x) => x.id === p.articleId);
+      if (a) {
+        assert.equal(p.prixAchatCents, a.prixAchatCents);
+        assert.equal((p.ventesParSemaine as number[]).length, 8);
+        const ventes = (a.mouvements as Lien[]).filter((x) => x.motif === 'Vente');
+        // La somme des huit semaines est celle des ventes datées de ces huit semaines (du lundi d'il y a 7 semaines à aujourd'hui).
+        const lundiCourant = D.jourDe(Date.parse(`${auj}T12:00:00Z`) - ((new Date(`${auj}T12:00:00Z`).getUTCDay() + 6) % 7) * 86_400_000);
+        const debutFenetre = D.jourDe(Date.parse(`${lundiCourant}T12:00:00Z`) - 49 * 86_400_000);
+        const attendu = ventes.filter((x) => str(x.le) >= debutFenetre && str(x.le) <= auj).reduce((s, x) => s - num(x.delta), 0);
+        assert.equal((p.ventesParSemaine as number[]).reduce((s, x) => s + x, 0), attendu, `${nom} : les ventes par semaine se lisent dans les mouvements`);
+        assert.ok(num(p.niveauConseille) >= num(p.seuilAlerte), 'niveau conseillé ≥ seuil');
+      } else assert.ok(p.prixAchatCents === null && p.niveauConseille === null && (p.ventesParSemaine as unknown[]).length === 0 && p.photos === 0);
+    }
+    // MR06, MR09, MR10, MR11
+    for (const r of m.ressources) for (const ind of r.indisponibilites as Lien[]) {
+      assert.ok(str(ind.debut) <= str(ind.fin));
+      assert.ok(m.reservations.filter((x) => x.ressourceId === r.id).every((x) => { const j = D.jourDe(Date.parse(str(x.debutAt))); return j < str(ind.debut) || j > str(ind.fin); }), `${nom} : aucune réservation pendant une indisponibilité`);
+    }
+    assert.ok(m.ressources.some((r) => (r.indisponibilites as unknown[]).length > 0) && m.ressources.some((r) => (r.conflits as unknown[]).length > 0), `${nom} : indisponibilités et conflits`);
+    for (const v of m.vehicules) {
+      assert.ok(['Diesel', 'Essence', 'Électrique', 'Hybride'].includes(str(v.energie)) && num(v.niveauPourcent) >= 0 && num(v.niveauPourcent) <= 100 && num(v.autonomieKm) > 0);
+      const j = v.parJour as Lien[];
+      assert.equal(j.length, 7);
+      assert.equal(str(j[6].jour), auj);
+      for (const x of j) assert.equal(x.carburantL === null, v.energie === 'Électrique', `${nom} : pas de carburant pour un véhicule électrique`);
+    }
+    for (const d of m.dossiersPhotos) {
+      for (const p of d.photos as Lien[]) assert.ok(['portrait', 'paysage'].includes(str(p.orientation)));
+      if (d.signatureClient !== null) assert.ok(m.chantiers.find((c) => c.id === d.chantierId)?.statut === 'Terminé' && str((d.signatureClient as Lien).le) <= auj);
+    }
+    for (const c of m.controles) for (const r of c.resultats as Lien[]) if (r.sansObjet === true) assert.ok(c.statut === 'Terminé' && r.conforme === null);
+    assert.ok(m.controles.some((c) => (c.resultats as Lien[]).some((r) => r.sansObjet === true)), `${nom} : un point « sans objet »`);
+    for (const e of m.ecarts) assert.ok(str(e.cause).length > 0 && str(e.releveLe) === str(m.controles.find((c) => c.id === e.controleId)?.le));
+  }
+});
+
+console.log('  — Développement (LOT-11)');
+
+dit('dépôts : langages à 100 %, 31 semaines de commits, tests, tickets qui existent', () => {
+  for (const [nom, m] of [['normal', normal], ['peu', peu], ['beaucoup', gros]] as const) {
+    const debutSemaine = D.instantParis(D.jourDe(Date.parse(`${aujourdhuiDe(m)}T12:00:00Z`) - ((new Date(`${aujourdhuiDe(m)}T12:00:00Z`).getUTCDay() + 6) % 7) * 86_400_000), '00:00');
+    const tickets = ids(m.tickets);
+    assert.equal(new Set(m.depots.map((d) => d.nom)).size, m.depots.length, `${nom} : noms uniques`);
+    for (const d of m.depots) {
+      assert.equal((d.langages as Lien[]).reduce((t, l) => t + num(l.part), 0), 100, `${nom} : langages`);
+      const c = d.commitsParSemaine as number[];
+      assert.ok(c.length === 31 && c.every((x) => Number.isInteger(x) && x >= 0), `${nom} : 31 semaines`);
+      if (c[30] > 0) assert.ok(str(d.dernierCommitAt) >= new Date(debutSemaine).toISOString() && Date.parse(str(d.dernierCommitAt)) < m.contexte.maintenant, `${nom} : le dernier commit est de cette semaine, dans le passé`);
+      if (d.dernierCommitAt !== null) assert.ok(Date.parse(str(d.dernierCommitAt)) < m.contexte.maintenant);
+      const t = d.tests as Lien;
+      assert.equal(t.etat === 'echec', num(t.echecs) > 0, `${nom} : tests en échec ⇔ échecs`);
+      assert.equal(t.depuisLe !== null, t.etat === 'echec');
+      assert.ok((d.ticketIds as string[]).every((id) => tickets.has(id)), `${nom} : tickets du dépôt`);
+    }
+    assert.ok(m.depots.length === 0 || m.depots.some((d) => (d.tests as Lien).etat === 'echec'), `${nom} : un test en échec à regarder`);
+  }
+  assert.ok(normal.depots.some((d) => (d.tests as Lien).etat === 'verts') && vide.depots.length === 0);
+});
+
+dit('déploiements : cinq étapes dans l’ordre, les quatre états existent (lus par la logique de S8), neuf cette semaine, « Revenir » vers un réussi', () => {
+  for (const [nom, m] of [['normal', normal], ['peu', peu], ['beaucoup', gros]] as const) {
+    const depots = new Set(m.depots.map((d) => str(d.nom)));
+    const parId = new Map(m.deploiements.map((d) => [str(d.id), d]));
+    for (const d of m.deploiements) {
+      assert.ok(depots.has(str(d.depot)), `${nom} : dépôt`);
+      assert.ok(S8.deploiements.CIBLES.includes(str(d.cible)) && d.cible !== 'interne', `${nom} : cible`);
+      assert.deepEqual((d.etapes as Lien[]).map((e) => e.etape), [...S8.deploiements.ETAPES], `${nom} : cinq étapes`);
+      assert.ok(Date.parse(str(d.lanceA)) <= m.contexte.maintenant, `${nom} : lancé dans le futur`);
+      let t = Date.parse(str(d.lanceA));
+      for (const e of d.etapes as Lien[]) {
+        if (e.debut !== null) { assert.ok(Date.parse(str(e.debut)) >= t && Date.parse(str(e.debut)) <= m.contexte.maintenant, `${nom} : début d’étape`); t = Date.parse(str(e.debut)); }
+        if (e.fin !== null) { assert.ok(Date.parse(str(e.fin)) >= t && Date.parse(str(e.fin)) <= m.contexte.maintenant + 1, `${nom} : fin d’étape`); t = Date.parse(str(e.fin)); }
+        assert.equal(e.etat === 'a-venir', e.debut === null, `${nom} : étape à venir ⇔ sans début`);
+      }
+      assert.ok(!/@|https?:|localhost/.test(JSON.stringify(d)), `${nom} : aucune adresse`);
+      const etat = S8.deploiements.etatGlobal(d);
+      if (etat === 'echec') { const e = d.etapes as Lien[]; assert.equal(e.find((x) => x.etat === 'echouee')?.etape, 'tests'); assert.ok(e.slice(3).every((x) => x.etat === 'a-venir')); }
+      if (etat !== 'en-cours') assert.ok(S8.deploiements.dureeTotale(d, m.contexte.maintenant) === null || (S8.deploiements.dureeTotale(d, m.contexte.maintenant) as number) >= 0);
+      if (d.retourDe !== null) {
+        const o = parId.get(str(d.retourDe));
+        assert.ok(o && o.depot === d.depot && o.cible === d.cible && S8.deploiements.etatGlobal(o) === 'reussi' && str(o.lanceA) < str(d.lanceA), `${nom} : « Revenir » vers un déploiement réussi antérieur du même dépôt et de la même cible`);
+        assert.equal(S8.deploiements.versionDeRetour(m.deploiements, d)?.id, o.id, 'la logique de S8 retrouve la même version');
+      }
+    }
+    for (const p of m.deploiementsPlanifies) assert.ok(Date.parse(str(p.prevuA)) > m.contexte.maintenant && depots.has(str(p.depot)), `${nom} : déploiement planifié à venir`);
+    assert.deepEqual(m.deploiements.map((d) => str(d.lanceA)), [...m.deploiements.map((d) => str(d.lanceA))].sort().reverse(), `${nom} : du plus récent au plus ancien`);
+  }
+  const etats = new Set(normal.deploiements.map((d) => S8.deploiements.etatGlobal(d)));
+  assert.deepEqual([...etats].sort(), ['annule', 'echec', 'en-cours', 'reussi'], 'normal : les quatre états');
+  const lundi = D.instantParis(D.jourDe(Date.parse(`${aujourdhui}T12:00:00Z`) - ((new Date(`${aujourdhui}T12:00:00Z`).getUTCDay() + 6) % 7) * 86_400_000), '00:00');
+  assert.ok(normal.deploiements.filter((d) => Date.parse(str(d.lanceA)) >= lundi).length >= 9, 'normal : neuf déploiements cette semaine');
+  assert.ok(normal.deploiements.some((d) => d.retourDe !== null) && normal.deploiementsPlanifies.length >= 1);
+  assert.ok(peu.deploiements.length === 5 && new Set(peu.deploiements.map((d) => S8.deploiements.etatGlobal(d))).size >= 3);
+});
+
+dit('journal d’exécutions : le compte du mois et le dernier passage se lisent dans le journal ; une pause automatique après trois échecs', () => {
+  for (const [nom, m] of [['normal', normal], ['peu', peu], ['beaucoup', gros]] as const) {
+    const flux = ids(m.automatisations);
+    const maintenant = m.contexte.maintenant;
+    assert.ok(m.executions.length <= S8.journal.LIGNES_MAX, `${nom} : le journal tient en ${S8.journal.LIGNES_MAX} lignes`);
+    for (const e of m.executions) {
+      assert.ok(flux.has(str(e.fluxId)), `${nom} : flux`);
+      assert.ok(Date.parse(str(e.debut)) <= maintenant && maintenant - Date.parse(str(e.debut)) <= (S8.journal.CONSERVATION_JOURS + 1) * 86_400_000, `${nom} : dans les ${S8.journal.CONSERVATION_JOURS} jours`);
+      assert.ok(e.fin === null || Date.parse(str(e.fin)) >= Date.parse(str(e.debut)));
+      assert.ok(['reussie', 'echec', 'ignoree', 'en-cours'].includes(str(e.resultat)) && ['local', 'api'].includes(str(e.mode)));
+    }
+    for (const a of m.automatisations) {
+      assert.equal(S8.journal.executionsDuMois(m.executions, maintenant, str(a.id)), num(a.executionsMois), `${nom} : exécutions du mois de ${str(a.id)}`);
+      const reelles = m.executions.filter((e) => e.fluxId === a.id && e.essai !== true);
+      if (reelles.length) assert.equal(S8.journal.derniereExecution(m.executions, str(a.id))?.debut, str(reelles[0].debut), `${nom} : dernière exécution`);
+      if (a.etat === 'Brouillon') assert.equal(reelles.length, 0, 'un brouillon n’a jamais tourné');
+      if (reelles.length) assert.equal(str(a.dernierPassageAt), str(reelles[0].debut), `${nom} : dernier passage de l’automatisation = dernière exécution réelle`);
+      assert.ok(num(a.executions) >= reelles.length, `${nom} : le total n’est pas inférieur au journal`);
+    }
+    for (const e of m.executions.filter((x) => x.essai === true)) assert.ok(m.automatisations.find((a) => a.id === e.fluxId)?.etat === 'Active', 'les essais sont visibles mais ne comptent jamais');
+  }
+  assert.ok(normal.automatisations.some((a) => a.etat === 'En pause' && S8.journal.doitSeMettreEnPause(normal.executions, str(a.id))), 'normal : une automatisation en pause après trois échecs de suite');
+  assert.ok(normal.executions.some((e) => e.resultat === 'echec') && normal.executions.some((e) => e.resultat === 'ignoree') && normal.executions.some((e) => e.actionHumaine === true) && normal.executions.some((e) => e.mode === 'api') && normal.executions.some((e) => e.essai === true), 'normal : tous les cas du journal');
+  assert.equal(vide.executions.length, 0);
+});
+
+dit('tâches planifiées : planifications valides pour S8, dernier passage prévu = le précédent passage calculé par S8', () => {
+  for (const [nom, m] of [['normal', normal], ['peu', peu], ['beaucoup', gros]] as const) {
+    for (const t of m.tachesPlanifiees) {
+      assert.equal(S8.planification.fauteDePlanification(t.planification), null, `${nom} : planification valide`);
+      const attendu = S8.planification.precedentPassage(t.planification, m.contexte.maintenant + 1);
+      const cree = Date.parse(str(t.creeeA));
+      const voulu = attendu !== null && attendu >= cree && attendu <= m.contexte.maintenant ? new Date(attendu).toISOString() : null;
+      assert.equal(t.dernierPassagePrevu, voulu, `${nom} : dernier passage prévu de ${str(t.nom)}`);
+      assert.ok(Date.parse(str(t.creeeA)) < m.contexte.maintenant);
+      assert.ok(t.automatisationId === null || ids(m.automatisations).has(str(t.automatisationId)));
+    }
+  }
+  const types = new Set(normal.tachesPlanifiees.map((t) => (t.planification as Lien).type));
+  assert.deepEqual([...types].sort(), ['intervalle', 'quotidien', 'une-fois'], 'normal : les trois sortes de planification');
+  assert.ok(normal.tachesPlanifiees.some((t) => t.active === false) && normal.tachesPlanifiees.some((t) => t.dernierPassagePrevu === null));
+});
+
+dit('serveur : 24 h toutes les 10 minutes, jauges bornées, services avec disponibilité ; ni hôte, ni adresse, ni port', () => {
+  for (const [nom, m] of [['normal', normal], ['peu', peu], ['beaucoup', gros]] as const) {
+    const mesures = m.mesuresServeur;
+    assert.equal(mesures.length, nom === 'peu' ? 36 : 144, `${nom} : nombre de points`);
+    for (let k = 0; k < mesures.length; k += 1) {
+      const x = mesures[k];
+      assert.ok(num(x.processeurPct) >= 0 && num(x.processeurPct) <= 100 && num(x.memoirePct) >= 0 && num(x.memoirePct) <= 100 && num(x.disquePct) >= 0 && num(x.disquePct) <= 100 && num(x.reseauMoParS) >= 0, `${nom} : jauges`);
+      assert.ok(Date.parse(str(x.at)) <= m.contexte.maintenant, `${nom} : mesure dans le futur`);
+      if (k > 0) assert.equal(Date.parse(str(x.at)) - Date.parse(str(mesures[k - 1].at)), 600_000, `${nom} : un point toutes les 10 minutes`);
+    }
+    if (mesures.length) assert.ok(m.contexte.maintenant - Date.parse(str(mesures[mesures.length - 1].at)) < 600_000 + 1, `${nom} : la dernière mesure est de maintenant`);
+    for (const sv of m.servicesServeur) {
+      assert.ok(num(sv.disponibilite30jPct) >= 95 && num(sv.disponibilite30jPct) <= 100, `${nom} : disponibilité`);
+      assert.equal(sv.etat, num(sv.disponibilite30jPct) < 99.5 ? 'attention' : 'en marche', `${nom} : état d’un service`);
+    }
+    assert.ok(!/https?:|localhost|\b\d{1,3}(\.\d{1,3}){3}\b|\b[a-z0-9-]+\.(com|fr|net|io|org|dev)\b|\bport\s*\d+/i.test(JSON.stringify([m.servicesServeur, m.mesuresServeur])), `${nom} : ni hôte, ni adresse, ni port`);
+  }
+  assert.ok(normal.servicesServeur.length === 6 && normal.servicesServeur.some((s) => s.etat === 'attention') && normal.servicesServeur.filter((s) => s.etat === 'en marche').length === 5, 'normal : six services dont un à surveiller');
+  const cpu = normal.mesuresServeur.map((x) => num(x.processeurPct));
+  assert.ok(Math.max(...cpu) - Math.min(...cpu) >= 15, 'normal : la charge varie dans la journée');
+  assert.equal(vide.mesuresServeur.length + vide.servicesServeur.length, 0);
+});
+
+dit('coûts des connecteurs : mode, consommation, payé ; six mois dont le dernier est le mois courant ; le plafond tient', () => {
+  for (const [nom, m] of [['normal', normal], ['peu', peu], ['beaucoup', gros]] as const) {
+    const reg = m.entreprise.reglages as Lien;
+    assert.equal(reg.plafondConnecteursCents, 4000);
+    assert.equal(reg.prevenirConnecteursAPourcent, 80);
+    let paye = 0;
+    for (const c of m.connecteurs) {
+      assert.ok(['local', 'payant', 'a-brancher'].includes(str(c.mode)) && ['gratuit', 'abonnement', 'a-l-usage', 'commission'].includes(str(c.modeleDeCout)));
+      assert.equal(c.mode === 'a-brancher', c.etat === 'Non connecté', `${nom} : « à brancher » ⇔ non connecté`);
+      if (num(c.payeCeMoisCents) > 0) assert.equal(c.mode, 'payant', `${nom} : ce qui est payé est payant`);
+      if (c.mode === 'a-brancher') assert.equal(num((c.consommationMois as Lien).utilise), 0);
+      const cm = c.consommationMois as Lien;
+      assert.ok(Number.isInteger(num(cm.utilise)) && num(cm.utilise) >= 0 && (cm.inclus === null || num(cm.inclus) > 0));
+      paye += num(c.payeCeMoisCents);
+    }
+    assert.ok(paye <= num(reg.plafondConnecteursCents), `${nom} : le payé tient sous le plafond`);
+    const p = m.paiementsConnecteurs;
+    if (m.connecteurs.length === 0) { assert.equal(p.length, 0); continue; }
+    assert.equal(p.length, 6);
+    assert.equal(str(p[5].mois), aujourdhuiDe(m).slice(0, 7), `${nom} : le dernier mois est le mois courant`);
+    assert.equal(num(p[5].payeCents), paye, `${nom} : le dernier mois vaut la somme des connecteurs`);
+    for (let k = 1; k < 6; k += 1) { const ecart = D.ecartJours(`${str(p[k - 1].mois)}-01`, `${str(p[k].mois)}-01`); assert.ok(ecart >= 28 && ecart <= 31, 'mois consécutifs'); }
+    assert.ok(p.every((x) => num(x.payeCents) >= 0 && num(x.economiseCents) >= 0));
+  }
+  assert.ok(normal.connecteurs.some((c) => c.mode === 'payant') && normal.connecteurs.some((c) => c.mode === 'local') && normal.connecteurs.some((c) => c.mode === 'a-brancher'), 'normal : les trois modes');
+});
+
+dit('LOT-03 (suite) : liens et échéances de blocs, commentaires ancrés, présence, signatures complètes, humeur à 5 niveaux, étapes, archives, relectures', () => {
+  for (const [nom, m] of [['normal', normal], ['beaucoup', gros]] as const) {
+    const auj = aujourdhuiDe(m);
+    const pages = ids(m.pages);
+    for (const p of m.pages) {
+      for (const b of p.blocs as Lien[]) {
+        if (b.type === 'tache') assert.equal(b.echeance !== null, b.fait !== true, `${nom} : échéance d'un bloc tâche ⇔ non fait`);
+        for (const l of (b.liens as string[] | undefined) ?? []) assert.ok(pages.has(l) && l !== p.id, `${nom} : lien vers une autre page`);
+      }
+      const ca = p.commentairesAncres as Lien[];
+      assert.ok(ca.length <= num(p.commentaires), `${nom} : commentaires ancrés`);
+      for (const c of ca) assert.ok(num(c.bloc) < (p.blocs as unknown[]).length && Date.parse(str(c.le)) <= m.contexte.maintenant);
+      for (const x of p.presence as Lien[]) assert.ok(m.contexte.maintenant - Date.parse(str(x.tapeA)) < 120_000 && (p.contributeurs as string[]).includes(str(x.email)), `${nom} : présence récente d'un contributeur`);
+    }
+    assert.ok(m.pages.some((p) => (p.blocs as Lien[]).some((b) => ((b.liens as unknown[] | undefined) ?? []).length > 0)) && m.pages.some((p) => (p.presence as unknown[]).length > 0) && m.pages.some((p) => (p.commentairesAncres as unknown[]).length > 0), `${nom} : liens, présence et commentaires existent`);
+    for (const f of m.fichiers) assert.equal(f.faitsReleves !== null, f.typeMetier === 'Contrat', `${nom} : faits relevés ⇔ contrat`);
+    assert.ok(m.fichiers.every((f) => str(f.intercalaire) === str(f.dossier).split('/')[0]));
+    for (const s of m.signatures) {
+      const sg = s.signataires as Lien[];
+      const signataires = new Set(sg.map((x) => x.id));
+      assert.equal(signataires.size, sg.length, `${nom} : identifiants de signataires`);
+      for (const c of s.champs as Lien[]) { assert.ok(signataires.has(c.signataireId) && sg.find((x) => x.id === c.signataireId)?.role === 'signataire', `${nom} : champ d'un signataire`); assert.equal(c.rempli, sg.find((x) => x.id === c.signataireId)?.statut === 'Signé'); }
+      const ra = s.relanceAuto as Lien;
+      assert.equal(ra.active === true, ['Envoyée', 'Ouverte', 'Partiellement signée'].includes(str(s.etat)), `${nom} : relances automatiques tant que ça attend`);
+      assert.equal(ra.prochaineAt !== null, ra.active === true);
+    }
+    assert.ok(m.signatures.some((s) => (s.signataires as Lien[]).some((x) => x.role === 'copie')), `${nom} : un destinataire en copie`);
+    for (const j of m.journal) {
+      assert.equal(['difficile', 'moyen', 'bien', 'très bien', 'excellent'].indexOf(str(j.humeur)) + 1, j.humeurNiveau, `${nom} : niveau d'humeur`);
+      assert.ok([1, 2, 3, 4, 5].includes(num(j.energie)) && (j.mercis as string[]).length <= 3);
+    }
+    assert.equal(new Set(m.journal.map((j) => j.humeur)).size, 5, `${nom} : les cinq humeurs`);
+    assert.ok(m.journal.some((j) => (j.mercis as string[]).length > 0));
+    for (const k of m.connaissances) {
+      assert.equal((k.etapes as unknown[]).length > 0, k.type !== 'question', `${nom} : des étapes sauf pour une question`);
+      assert.ok(!(k.articlesLiesIds as string[]).includes(str(k.id)) && (k.articlesLiesIds as string[]).every((id) => ids(m.connaissances).has(id)), `${nom} : articles liés`);
+      assert.ok(str(k.rubrique).length > 0);
+    }
+    assert.ok(m.connaissances.some((k) => (k.articlesLiesIds as unknown[]).length > 0) && new Set(m.connaissances.map((k) => k.rubrique)).size >= 3, `${nom} : articles liés, rubriques`);
+    for (const a of m.archives) {
+      assert.ok(str(a.texteIndexe).includes(str(a.nom).toLowerCase()), `${nom} : texte indexé`);
+      for (const r of a.restaurations as Lien[]) assert.ok(str(r.le) >= str(a.archiveLe) && str(r.le) <= auj, `${nom} : restauration après l'archivage`);
+    }
+    assert.ok(m.archives.some((a) => (a.restaurations as unknown[]).length > 0), `${nom} : une restauration`);
+    assert.deepEqual(m.reglesArchivage.map((r) => r.type), ['facture-payee', 'conversation-silencieuse', 'devis-refuse']);
+    assert.ok(m.reglesArchivage.every((r) => r.active === (r.dernierePasseeLe !== null)) && m.reglesArchivage.some((r) => !r.active));
+    const objets = new Set([...m.pages.map((p) => p.id), ...m.fichiers.map((f) => f.id)]);
+    for (const d of m.demandesRelecture) {
+      assert.ok(objets.has(str(d.objetId)), `${nom} : relecture d'un objet qui existe`);
+      assert.equal(d.relecteurEmail === null, d.etat === 'Brouillon partagé', `${nom} : relecteur ⇔ demandée`);
+      assert.ok(Date.parse(str(d.demandeAt)) <= m.contexte.maintenant);
+    }
+    assert.deepEqual([...new Set(m.demandesRelecture.map((d) => d.etat))].sort(), ['Brouillon partagé', 'En signature', 'Relecture demandée', 'Terminé'], `${nom} : les quatre étapes de la file`);
+  }
+  assert.equal(vide.reglesArchivage.length + vide.demandesRelecture.length, 0);
+});
+
+dit('remises : le prix de grille des lignes se compare au prix facturé ; MR08 : l’entonnoir se lit dans les commandes, les paniers et les sessions tiennent', () => {
+  for (const [nom, m] of [['normal', normal], ['beaucoup', gros]] as const) {
+    const lignes = [...m.factures.flatMap((f) => f.lines as Lien[]), ...m.devis.flatMap((d) => d.lignes as Lien[])];
+    assert.ok(lignes.every((l) => Number.isInteger(num(l.prixGrilleCents)) && num(l.prixGrilleCents) > 0), `${nom} : chaque ligne porte son prix de grille`);
+    const remises = lignes.filter((l) => num(l.unitPriceCents) < num(l.prixGrilleCents));
+    assert.ok(remises.length > 0 && lignes.some((l) => num(l.unitPriceCents) === num(l.prixGrilleCents)) && lignes.some((l) => num(l.unitPriceCents) > num(l.prixGrilleCents)), `${nom} : des remises, des prix de grille, des majorations`);
+    for (const l of remises) { const taux = 1 - num(l.unitPriceCents) / num(l.prixGrilleCents); assert.ok(taux > 0 && taux <= 0.15, `${nom} : une remise de 15 % au plus`); }
+    // Entonnoir
+    const e = m.entonnoirBoutique;
+    assert.equal(e.length, nom === 'normal' ? 30 : 90);
+    assert.equal(str(e[e.length - 1].jour), aujourdhuiDe(m));
+    for (const [k, j] of e.entries()) {
+      assert.ok(num(j.visites) >= num(j.produitsVus) && num(j.produitsVus) >= num(j.paniersCrees) && num(j.paniersCrees) >= num(j.commandes) && num(j.commandes) >= num(j.paiements), `${nom} : l’entonnoir ne remonte jamais (${str(j.jour)})`);
+      assert.equal(num(j.commandes), m.commandes.filter((c) => c.creeLe === j.jour).length, `${nom} : commandes du ${str(j.jour)}`);
+      assert.equal(num(j.paiements), m.commandes.filter((c) => c.creeLe === j.jour && c.paiement === 'Payé').length);
+      if (k > 0) assert.equal(D.ecartJours(str(e[k - 1].jour), str(j.jour)), 1, 'jours consécutifs');
+    }
+    // Paniers
+    const commandes = ids(m.commandes);
+    for (const p of m.paniers) {
+      assert.ok(Date.parse(str(p.derniereActiviteAt)) <= m.contexte.maintenant && num(p.lignes) >= 1 && num(p.montantCents) > 0);
+      const age = m.contexte.maintenant - Date.parse(str(p.derniereActiviteAt));
+      if (p.etat === 'ouvert') assert.ok(age < 3_600_000, `${nom} : un panier ouvert a une activité récente`);
+      if (p.etat === 'abandonné') assert.ok(age >= 3_600_000);
+      assert.equal(p.etat === 'converti', p.commandeId !== null);
+      if (p.commandeId !== null) assert.ok(commandes.has(str(p.commandeId)));
+    }
+    assert.deepEqual([...new Set(m.paniers.map((p) => p.etat))].sort(), ['abandonné', 'converti', 'ouvert'], `${nom} : les trois états de panier`);
+    // Sessions en direct
+    assert.ok(m.sessionsBoutique.length > 0 && m.sessionsBoutique.every((x) => m.contexte.maintenant - Date.parse(str(x.derniereActiviteAt)) < 5 * 60_000 && Date.parse(str(x.debutAt)) <= Date.parse(str(x.derniereActiviteAt))), `${nom} : sessions actives dans les cinq dernières minutes`);
+    const reg = m.entreprise.reglages as Lien;
+    assert.ok(num(reg.objectifBoutiqueTrimestreCents) >= 100_000 && num(reg.objectifBoutiqueTrimestreCents) % 50_000 === 0, `${nom} : objectif du trimestre`);
+  }
+  assert.equal(vide.entonnoirBoutique.length + vide.paniers.length + vide.sessionsBoutique.length, 0);
+  assert.ok(peu.entonnoirBoutique.length === 14 && peu.paniers.length === 3 && peu.sessionsBoutique.length === 2);
 });
 
 console.log('  — LOT-14 : la charge');

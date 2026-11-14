@@ -3,7 +3,7 @@
 ## Résumé (5 lignes au plus)
 
 1. Logique pure du lot dans `src/refonte/echanger/` (14 fichiers, sans React ni brique du socle) : boîte des clients (couloirs, Boîte à zéro, série de soirs), vue d'ensemble, canaux d'équipe, appels et salles, annonces, courriel, réunions, partage de fichiers, sondages, réponses automatiques, état des canaux lu sur la baie de S9.
-2. Garde `check:echanger` : **88 contrôles** (cas des fiches, rejeu sur les jeux fictifs aux 4 volumes, structure), dans `package.json` et `editions.yml`.
+2. Garde `check:echanger` : **94 contrôles** (cas des fiches, rejeu sur les jeux fictifs aux 4 volumes, structure), dans `package.json` et `editions.yml`.
 3. G07 = boîte des CLIENTS ; WhatsApp, SMS, courriel et téléphonie sont des prises de la baie (`connecteurs.ts` : « connecteur à brancher », « à reconnecter »). Sans ligne pro, H13 = appel dans l'application seulement. Ce qui part chez un client reste au vouvoiement (la logique le vérifie).
 4. Note `preparation/LOT-05-echanger.md` ; section LOT-05 du `STATUT.md` à jour. Dossier v4 lu ; **les images v4 n'ont pas été ouvertes**.
 5. Quatre écrans sans module existant (MX01, MX03, MX06, et la boîte des clients de G07) ; six questions pour le CO (note §6), dont le renommage de l'entrée « Messagerie » du registre.
@@ -44,7 +44,7 @@ Aucun fichier `*.business.*`, aucun fichier du socle, `src/screens/**`, `src/ass
 | `typecheck:business` | OK |
 | `lint` | OK |
 | `check:accueils`, `check:socle`, `check:moments`, `check:navigation`, `check:donnees` | OK |
-| `check:echanger` (nouveau, dans `editions.yml`) | OK, 88 contrôles |
+| `check:echanger` (nouveau, dans `editions.yml`) | OK, 94 contrôles |
 | `check:contacts`, `check:developpement`, `check:connecteurs`, `check:langue`, `check:modules` | OK |
 
 ## Points à trancher

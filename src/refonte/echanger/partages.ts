@@ -24,6 +24,10 @@ export interface LienPartage {
   ouvertures: number;
   derniereOuvertureAt: Instant | null;
   revoque?: boolean;
+  /** Filigrane sur le fichier ouvert (MX03, réglages du lien). */
+  filigrane?: boolean;
+  /** Téléchargement permis (sinon lecture seule). */
+  telechargement?: boolean;
 }
 
 export const DUREE_PAR_DEFAUT_JOURS = 30;
@@ -110,3 +114,25 @@ export function relanceAProposer(liens: readonly LienPartage[], maintenant: Inst
 
 /** Le texte copié n'est jamais mis dans un attribut `title` ni `data-*` : l'adresse ne doit pas être dans le DOM. */
 export const adresseVisible = (): false => false;
+
+
+/**
+ * « Réglages du prochain lien » (image v4) : expire dans 30 jours, code par courriel, filigrane, téléchargement
+ * permis. Valeurs de départ (Proposition), modifiables pour chaque envoi. Le code n'est jamais montré.
+ */
+export interface ReglagesDuLien {
+  dureeJours: number;
+  protection: LienPartage['protection'];
+  filigrane: boolean;
+  telechargement: boolean;
+}
+export const REGLAGES_DU_LIEN_PAR_DEFAUT: ReglagesDuLien = { dureeJours: DUREE_PAR_DEFAUT_JOURS, protection: 'code par courriel', filigrane: false, telechargement: true };
+
+/** Un lien à créer ne part jamais sans protection : « aucune » est refusée à la création. */
+export const reglagesValides = (r: ReglagesDuLien): boolean => r.protection !== 'aucune' && Number.isInteger(r.dureeJours) && r.dureeJours >= 1 && r.dureeJours <= 365;
+
+/** Les onglets : « Partagés par moi · 17 », « Reçus · 9 », « Expirés · 31 » (expirés ou révoqués). */
+export function ongletsDePartage(liens: readonly LienPartage[], recus: number, aujourdhui: Jour): { partagesParMoi: number; recus: number; expires: number } {
+  const expire = (l: LienPartage) => !!l.revoque || (l.expireLe !== null && l.expireLe < aujourdhui);
+  return { partagesParMoi: liens.filter((l) => !expire(l)).length, recus, expires: liens.filter(expire).length };
+}

@@ -159,6 +159,13 @@ export interface MesuresDEchanger {
   reglesActives: number;
   reglesTotal: number;
   envoisProgrammes: number;
+  /** Détails des tuiles (image v4) : tous facultatifs, la tuile retombe sur son nombre sans eux. */
+  reunionsSemaine?: number;
+  reunionsSemaineMinutes?: number;
+  envoisAutoDuMois?: number;
+  prochainEnvoiProgramme?: Instant | null;
+  canauxTotal?: number;
+  liensTousProteges?: boolean;
 }
 
 export type TonDeTuile = 'neutre' | 'orange';
@@ -169,21 +176,30 @@ export interface TuileDEchange {
   ton: TonDeTuile;
   /** Pastille de compte, seulement si > 0. */
   pastille: number | null;
+  /** Ce que la tuile ajoute à son nombre : « 6 cette semaine · 4 h », « 148 envoyées ce mois », « partent lundi 9:00 »… */
+  detail?: { semaine?: number; minutes?: number; envoisDuMois?: number; prochainEnvoi?: Instant; canauxTotal?: number; tousProteges?: boolean };
 }
 
 export function tuilesDuHub(m: MesuresDEchanger, actifs: ReadonlySet<ModuleDEchanger> | null = null): TuileDEchange[] {
-  const t = (cle: ModuleDEchanger, nombres: number[], action = 0): TuileDEchange => ({ cle, nombres, ton: action > 0 ? 'orange' : 'neutre', pastille: action > 0 ? action : null });
+  const t = (cle: ModuleDEchanger, nombres: number[], action = 0, detail?: TuileDEchange['detail']): TuileDEchange => ({
+    cle,
+    nombres,
+    ton: action > 0 ? 'orange' : 'neutre',
+    pastille: action > 0 ? action : null,
+    ...(detail && Object.keys(detail).length ? { detail } : {}),
+  });
+  const sans = (o: Record<string, number | string | boolean | null | undefined>): NonNullable<TuileDEchange['detail']> => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined && v !== null)) as NonNullable<TuileDEchange['detail']>;
   const toutes = [
     t('messagerie', [m.aRepondre], m.aRepondre),
     t('courriel', [m.courrielsNonLus], m.courrielsNonLus),
-    t('canaux', [m.canauxNonLus], 0),
+    t('canaux', [m.canauxNonLus], 0, sans({ canauxTotal: m.canauxTotal })),
     t('appels', [m.appelsEnCours]),
-    t('reunions', [m.reunionsAujourdhui]),
+    t('reunions', [m.reunionsAujourdhui], 0, sans({ semaine: m.reunionsSemaine, minutes: m.reunionsSemaineMinutes })),
     t('annonces', [m.annoncesAConfirmer], m.annoncesAConfirmer),
-    t('partages', [m.partagesActifs]),
+    t('partages', [m.partagesActifs], 0, sans({ tousProteges: m.liensTousProteges })),
     t('sondages', [m.sondagesEnCours]),
-    t('reponsesAuto', [m.reglesActives, m.reglesTotal]),
-    t('programmes', [m.envoisProgrammes]),
+    t('reponsesAuto', [m.reglesActives, m.reglesTotal], 0, sans({ envoisDuMois: m.envoisAutoDuMois })),
+    t('programmes', [m.envoisProgrammes], 0, sans({ prochainEnvoi: m.prochainEnvoiProgramme })),
   ];
   return actifs ? toutes.filter((x) => actifs.has(x.cle)) : toutes;
 }

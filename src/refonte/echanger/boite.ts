@@ -1,3 +1,4 @@
+import { VALEURS_DE_DEPART } from '../connecteurs/reglages';
 import { ajouterJours, estJourOuvre, instantParis, jourDe, ms, partiesParis, pourcent, MS_MINUTE, type Instant, type Jour } from './commun';
 
 /**
@@ -43,8 +44,15 @@ export interface Horaires {
   debut: number;
   fin: number;
 }
-/** Les horaires d'ouverture de l'organisation (MX06 §6) : lundi à vendredi, 9 h à 18 h. Réglage d'équipe. */
-export const HORAIRES_PAR_DEFAUT: Horaires = { jours: [1, 2, 3, 4, 5], debut: 9 * 60, fin: 18 * 60 };
+const enMinutes = (hhmm: string) => Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3, 5));
+/**
+ * Les heures ouvrées (MX06 §6) : UNE seule source, la plage « clients » de `connecteurs/reglages.ts`
+ * (lundi à vendredi, 09:00–18:00, décision du CO, STATUT §1.32 n° 3). Rien n'est recopié ici.
+ */
+export function horairesDepuis(plage: { jours: readonly number[]; debut: string; fin: string }): Horaires {
+  return { jours: plage.jours, debut: enMinutes(plage.debut), fin: enMinutes(plage.fin) };
+}
+export const HORAIRES_PAR_DEFAUT: Horaires = horairesDepuis(VALEURS_DE_DEPART.plageClients);
 /** La promesse : 2 heures ouvrées (G07 §6, F40 §6), réglable dans « Règles de tri ». */
 export const PROMESSE_MINUTES = 120;
 /** La fin de la journée de travail : 19 h (G07 §6, Proposition), réglable. */
@@ -333,4 +341,48 @@ export const brouillonPartSeul = (): false => false;
 export function numeroMasque(numero: string): string {
   const d = chiffres(numero);
   return d.length < 4 ? '' : `… ${d.slice(-4, -2)} ${d.slice(-2)}`;
+}
+
+
+/**
+ * G07 (image v4) : dans le fil d'un client, les messages d'un jour passé se plient par jour et par canal
+ * (« Hier, par courriel · Afficher 2 messages ») ; ceux d'aujourd'hui restent dépliés. Les notes internes se plient
+ * comme les autres messages. Un pli n'est jamais vide.
+ */
+export interface PliDeMessages {
+  jour: Jour;
+  canal: CanalDeMessage;
+  nombre: number;
+  /** Le premier message du pli : l'écran en montre l'extrait. */
+  premierId: string;
+  ids: string[];
+}
+export function plierLesAnciens(messages: readonly Pick<MessageDeFil, 'id' | 'at' | 'canal'>[], aujourdhui: Jour): { plies: PliDeMessages[]; visibles: string[] } {
+  const tri = [...messages].sort((a, b) => ms(a.at) - ms(b.at) || a.id.localeCompare(b.id));
+  const plies: PliDeMessages[] = [];
+  const visibles: string[] = [];
+  for (const m of tri) {
+    const jour = jourDe(m.at);
+    if (jour >= aujourdhui) {
+      visibles.push(m.id);
+      continue;
+    }
+    const pli = plies.find((p) => p.jour === jour && p.canal === m.canal);
+    if (pli) {
+      pli.nombre += 1;
+      pli.ids.push(m.id);
+    } else plies.push({ jour, canal: m.canal, nombre: 1, premierId: m.id, ids: [m.id] });
+  }
+  return { plies, visibles };
+}
+
+/** Le couloir « Fait · 9 » : quatre initiales, « +5 », l'heure du dernier traité (image v4). */
+export const INITIALES_DU_COULOIR_FAIT = 4;
+export function apercuDuFait(faits: readonly { initiales: string; at: Instant }[]): { initiales: string[]; reste: number; dernierAt: Instant | null } {
+  const tri = [...faits].sort((a, b) => ms(b.at) - ms(a.at) || a.initiales.localeCompare(b.initiales));
+  return {
+    initiales: tri.slice(0, INITIALES_DU_COULOIR_FAIT).map((f) => f.initiales),
+    reste: Math.max(0, tri.length - INITIALES_DU_COULOIR_FAIT),
+    dernierAt: tri.length ? tri[0].at : null,
+  };
 }

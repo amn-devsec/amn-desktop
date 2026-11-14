@@ -13,7 +13,7 @@ import { ajouterJours, compter, ecartJours, estOuvre, type Jour } from './outils
 import { moi } from './equipe';
 import type { Contexte, Devis, Facture, FicheClient, Interlocuteur, Membre } from './types';
 import type {
-  Bloc, DemandeSignature, ElementArchive, EntreeConnaissance, EntreeJournal, Fichier, EtatSignature, ModeleDocument, Page, TexteRedige,
+  Bloc, DemandeRelecture, DemandeSignature, ElementArchive, EntreeConnaissance, EntreeJournal, Fichier, EtatSignature, ModeleDocument, Page, ReglePourArchiver, TexteRedige,
 } from './types-suite';
 
 
@@ -33,7 +33,7 @@ export function genererFichiers(ctx: Contexte, equipe: readonly Membre[], client
   const n = compter(ctx.volumes.fichiers, [0, 8, 40, 400]);
   const gens = salaries(equipe);
   const liste: Fichier[] = [];
-  const ajouter = (p: Omit<Fichier, 'id' | 'proprietaireEmail' | 'partages' | 'lienExterne' | 'versions' | 'archive' | 'signature'>): void => {
+  const ajouter = (p: Omit<Fichier, 'id' | 'proprietaireEmail' | 'partages' | 'lienExterne' | 'versions' | 'archive' | 'signature' | 'intercalaire' | 'faitsReleves'>): void => {
     const proprio = h.choix(gens);
     const autres = h.echantillon(gens.filter((g) => g.email !== proprio.email), h.entier(0, 2));
     const jours = h.pondere([[7, 2], [30, 5], [90, 1]] as const);
@@ -46,6 +46,11 @@ export function genererFichiers(ctx: Contexte, equipe: readonly Membre[], client
       versions: h.pondere([[1, 6], [2, 3], [3, 1]] as const),
       archive: false,
       signature: null,
+      // H11 : l'intercalaire est le premier niveau du dossier ; seuls les contrats ont des faits relevés (échéance, montant, parties).
+      intercalaire: p.dossier.split('/')[0],
+      faitsReleves: p.typeMetier === 'Contrat'
+        ? { parties: [p.clientId !== null ? `Client n° ${p.clientId}` : 'Cocontractant', 'La maison'], echeanceLe: ajouterJours(ctx.aujourdhui, ((liste.length * 37) % 540) - 40), montantCents: (2 + (liste.length % 9)) * 120_000, reconductionTacite: liste.length % 2 === 0 }
+        : null,
     });
   };
   // Un fichier par devis envoyé ou accepté et par facture émise : les liens se retrouvent.
@@ -92,15 +97,15 @@ export function genererSignatures(
     const envoye = etat === 'À envoyer' ? null : ajouterJours(ctx.aujourdhui, -(etat === 'Expirée' ? h.entier(18, 40) : etat === 'Signée' ? h.entier(3, 40) : h.entier(1, 9)));
     const echeance = envoye ? ajouterJours(envoye, 14) : null;
     const signataires = [
-      { ...externe, ordre: 1 },
-      ...(nbSignataires === 2 ? [{ nom: dirigeant.nomComplet, email: dirigeant.email, ordre: 2 }] : []),
+      { ...externe, ordre: 1, role: 'signataire' as const },
+      ...(nbSignataires === 2 ? [{ nom: dirigeant.nomComplet, email: dirigeant.email, ordre: 2, role: 'signataire' as const }] : []),
     ].map((s, k) => {
       let statut: DemandeSignature['signataires'][number]['statut'] = 'En attente';
       if (etat === 'Signée') statut = 'Signé';
       else if (etat === 'Partiellement signée') statut = k === 0 ? 'Signé' : 'Ouvert';
       else if (etat === 'Ouverte') statut = k === 0 ? 'Ouvert' : 'En attente';
       else if (etat === 'Refusée') statut = k === 0 ? 'Refusé' : 'En attente';
-      return { ...s, statut, signeAt: statut === 'Signé' && envoye ? quandPasse(ctx.maintenant, ajouterJours(envoye, h.entier(0, 2)), '11:30') : null };
+      return { ...s, id: `${cle('sg', i + 1)}-s${k + 1}`, statut, signeAt: statut === 'Signé' && envoye ? quandPasse(ctx.maintenant, ajouterJours(envoye, h.entier(0, 2)), '11:30') : null };
     });
     liste.push({
       id: cle('sg', i + 1),
@@ -114,7 +119,19 @@ export function genererSignatures(
       relances: etat === 'Envoyée' || etat === 'Ouverte' ? h.entier(0, 2) : 0,
       etat,
       empreinteCourte: empreinteCourte(h),
+      champs: signataires.flatMap((sg, k) => ['signature', 'date', ...(f.typeMetier === 'Contrat' ? ['paraphe'] : [])].map((type, j) => ({
+        id: `${cle('sg', i + 1)}-c${k + 1}${j + 1}`, type: type as DemandeSignature['champs'][number]['type'], page: 1 + ((j + k) % 3), signataireId: sg.id,
+        obligatoire: type !== 'date' || k === 0, rempli: sg.statut === 'Signé',
+      }))),
+      // Les relances automatiques ne tournent que tant que la demande attend : envoyée, ouverte ou en partie signée.
+      relanceAuto: {
+        active: etat === 'Envoyée' || etat === 'Ouverte' || etat === 'Partiellement signée',
+        prochaineAt: envoye && (etat === 'Envoyée' || etat === 'Ouverte' || etat === 'Partiellement signée') ? new Date(ctx.maintenant + (2 + (i % 4)) * 86_400_000).toISOString() : null,
+        intervalleJours: 3,
+      },
     });
+    // H12 : une personne « en copie » reçoit le document signé ; elle ne signe jamais.
+    if (i % 3 === 1) liste[liste.length - 1].signataires.push({ id: `${cle('sg', i + 1)}-s9`, nom: 'Service comptabilité', email: 'compta@exemple.test', ordre: 9, role: 'copie', statut: 'En attente', signeAt: null });
     f.signature = etat === 'Signée' ? 'Signé' : etat === 'Envoyée' || etat === 'Ouverte' || etat === 'Partiellement signée' ? 'En attente de signature' : null;
   });
   return liste;
@@ -157,6 +174,9 @@ export function genererPages(ctx: Contexte, equipe: readonly Membre[], clients: 
       commentaires: h.chance(0.3) ? h.entier(1, 6) : 0,
       versions: h.entier(1, 12),
       supprimeeLe: null,
+      commentairesAncres: [],
+      presence: [],
+      rendezVousId: null,
     });
   };
   // Les pages « dossier » d'abord (Clients, Équipe), puis les pages enfants.
@@ -174,6 +194,23 @@ export function genererPages(ctx: Contexte, equipe: readonly Membre[], clients: 
       ajouter({ title: i < CORPS_PAGES.length ? base.titre : `${base.titre} (${i})`, icone: base.icone, espace: base.espace, parentId: base.espace === 'Équipe' ? racines['Équipe'] ?? null : null, blocs: base.blocs });
     }
   }
+  // H10 (suite) — tout se déduit du rang et des pages existantes : aucun tirage de plus.
+  liste.forEach((p, i) => {
+    p.blocs = p.blocs.map((b, k) => ({
+      ...b,
+      ...(b.type === 'tache' ? { echeance: b.fait ? null : ajouterJours(ctx.aujourdhui, ((i + k) % 14) - 3) } : {}),
+      // Un bloc de texte sur quatre pointe vers une autre page : de quoi construire les « liens retour ».
+      ...(b.type === 'texte' && liste.length > 1 && (i + k) % 4 === 0 ? { liens: [liste[(i + 1) % liste.length].id] } : {}),
+    }));
+    const commentaires = p.commentaires;
+    p.commentairesAncres = fabriquer(Math.min(commentaires, p.blocs.length), (c) => ({
+      id: `${p.id}-ca${c}`, bloc: (c - 1) % Math.max(1, p.blocs.length), auteurEmail: [p.auteurEmail, ...p.contributeurs][(c - 1) % (1 + p.contributeurs.length)], texte: ['À reformuler ?', 'Source à ajouter.', 'Validé de mon côté.'][(c - 1) % 3],
+      le: quandPasse(ctx.maintenant, ajouterJours(ctx.aujourdhui, -((c + i) % 9)), '15:10'), resolu: c % 2 === 0,
+    }));
+    // Présence : une page « En cours » sur dix est ouverte par un collègue qui écrit à l'instant (moins de deux minutes).
+    if (p.statut === 'En cours' && i % 10 === 3 && p.contributeurs.length > 0 && p.espace !== 'Personnel') p.presence = [{ email: p.contributeurs[0], tapeA: new Date(ctx.maintenant - 40_000).toISOString() }];
+    p.rendezVousId = p.espace === 'Clients' && p.clientId !== null && i % 3 === 0 ? `ev-${String(1 + (i % 20)).padStart(4, '0')}` : null;
+  });
   return liste.sort((a, b) => b.modifieAt.localeCompare(a.modifieAt));
 }
 
@@ -245,6 +282,14 @@ const REFLEXIONS: readonly (readonly [string, string[]])[] = [
   ['Fatigue en fin de semaine. Bilan fait, on repart lundi.', []],
 ];
 
+/** ME01 : cinq niveaux d'humeur (le plus fréquent : « bien ») et une énergie de 1 à 5, qui suit l'humeur de près. */
+function humeurEtEnergie(i: number, h: ReturnType<typeof hasardDe>): Pick<EntreeJournal, 'humeur' | 'humeurNiveau' | 'energie'> {
+  const niveau = h.pondere([[1, 1], [2, 3], [3, 5], [4, 3], [5, 1]] as const);
+  const noms = ['difficile', 'moyen', 'bien', 'très bien', 'excellent'] as const;
+  const energie = Math.max(1, Math.min(5, niveau + ((i % 3) - 1))) as EntreeJournal['energie'];
+  return { humeur: noms[niveau - 1], humeurNiveau: niveau, energie };
+}
+
 export function genererJournal(ctx: Contexte, equipe: readonly Membre[], clients: readonly FicheClient[]): EntreeJournal[] {
   const h = hasardDe(ctx.graine, 'journal');
   const n = compter(ctx.volumes.journal, [0, 5, 40, 200]);
@@ -261,7 +306,7 @@ export function genererJournal(ctx: Contexte, equipe: readonly Membre[], clients
       if (clients.length && h.chance(0.3)) etiquettes.push(nomClient(h.choix(clients)).split(' ')[0]);
       if (!liste.some((e) => e.jour === jour && e.auteurEmail === auteur.email)) {
         const debut = jour === ctx.aujourdhui ? `07:${String(h.entier(10, 59))}` : `${String(h.entier(7, 9)).padStart(2, '0')}:${String(h.entier(0, 59)).padStart(2, '0')}`;
-        liste.push({ id: cle('jo', liste.length + 1), jour, commenceA: debut, texte, apercu: apercu(texte, 80), etiquettes, humeur: h.pondere([['très bien', 2], ['bien', 5], ['moyen', 3], ['difficile', 1]] as const), auteurEmail: auteur.email });
+        liste.push({ id: cle('jo', liste.length + 1), jour, commenceA: debut, texte, apercu: apercu(texte, 80), etiquettes, ...humeurEtEnergie(liste.length + 1, h), mercis: (liste.length + 1) % 3 === 0 ? [] : ['Merci à l’équipe pour le coup de main.', 'Un client content.', 'Une journée calme.'].slice(0, 1 + ((liste.length + 1) % 3)), auteurEmail: auteur.email });
       }
     }
     jour = ajouterJours(jour, -1);
@@ -332,6 +377,9 @@ export function genererArchives(ctx: Contexte, equipe: readonly Membre[], fichie
       mode: parRegle ? 'règle' : 'à la main',
       parEmail: parRegle ? null : h.choix(gens).email,
       conserverJusquau: `${Number(le.slice(0, 4)) + ans}${le.slice(4)}`,
+      texteIndexe: `${nom} ${sousTitre} ${origine}`.toLowerCase(),
+      // Un élément sur douze a déjà été restauré, puis archivé de nouveau.
+      restaurations: liste.length % 12 === 5 ? [{ le: ajouterJours(le, 3 + (liste.length % 20)) <= ctx.aujourdhui ? ajouterJours(le, 3 + (liste.length % 20)) : le, parEmail: gens[liste.length % Math.max(1, gens.length)]?.email ?? '' }] : [],
     });
   };
   for (const f of vieilles.slice(0, Math.round(n * 0.4))) ajouter('Facture', `Facture ${f.number}`, `${f.clientNom} · réglée`, h.entier(40e3, 130e3), `Facturation / ${f.issuedAt.slice(0, 4)}`, 10);
@@ -352,6 +400,8 @@ const ENTREES: readonly { type: EntreeConnaissance['type']; titre: string; blocs
   { type: 'article', titre: 'Bien utiliser le calendrier partagé', blocs: [{ type: 'texte', texte: 'Un rendez-vous client se crée avec la fiche du client liée.' }] },
   { type: 'procédure', titre: 'Fermer un mois comptable', blocs: [{ type: 'tache', texte: 'Justifier les dépenses', fait: false }, { type: 'tache', texte: 'Rapprocher la banque', fait: false }, { type: 'tache', texte: 'Préparer la TVA', fait: false }] },
 ];
+
+const RUBRIQUES = ['Démarrer', 'Facturation', 'Équipe', 'Clients', 'Outils'] as const;
 
 export function genererConnaissances(ctx: Contexte, equipe: readonly Membre[]): EntreeConnaissance[] {
   const h = hasardDe(ctx.graine, 'connaissances');
@@ -377,10 +427,52 @@ export function genererConnaissances(ctx: Contexte, equipe: readonly Membre[]): 
       etat: h.chance(0.12) ? ('brouillon' as const) : ('publié' as const),
       versions: h.entier(1, 8),
       questionsLieesIds: [] as string[],
+      rubrique: RUBRIQUES[(i - 1) % RUBRIQUES.length],
+      etapes: base.type === 'question' ? [] : base.blocs.filter((b) => b.type === 'tache' || b.type === 'liste' || b.type === 'texte').slice(0, 4).map((b, k) => ({ titre: `Étape ${k + 1}`, texte: b.texte.split('\n')[0], ...(k === 0 ? { astuce: 'Prenez votre temps, rien ne presse.' } : {}) })),
+      articlesLiesIds: [] as string[],
     };
   });
   const questions = liste.filter((e) => e.type === 'question');
   for (const e of liste.filter((x) => x.type !== 'question')) if (questions.length && h.chance(0.4)) e.questionsLieesIds = [h.choix(questions).id];
+  // ME05 : des articles liés entre eux (jamais à soi-même).
+  const autres = liste.filter((x) => x.type === 'article');
+  for (const e of autres) e.articlesLiesIds = autres.filter((x) => x.id !== e.id).slice(0, 2).map((x) => x.id);
   return liste.sort((a, b) => b.majLe.localeCompare(a.majLe));
 }
 
+
+/* ------------------------- Règles d'archivage et relectures ------------------------- */
+
+/** ME04 : les trois règles de conservation de la fiche ; la dernière passe est celle de la nuit. */
+export function genererReglesArchivage(ctx: Contexte): ReglePourArchiver[] {
+  const n = compter(ctx.volumes.reglesArchivage, [0, 1, 3, 3]);
+  const modeles: readonly (readonly [ReglePourArchiver['type'], number, boolean])[] = [['facture-payee', 12, true], ['conversation-silencieuse', 6, true], ['devis-refuse', 3, false]];
+  return fabriquer(n, (i) => {
+    const [type, apresMois, active] = modeles[i - 1];
+    return { id: cle('ra', i), type, apresMois, active, dernierePasseeLe: active ? ajouterJours(ctx.aujourdhui, -1) : null };
+  });
+}
+
+/** F20 : des documents qui attendent un relecteur (pages et fichiers du jeu), à tous les stades de la file. */
+export function genererDemandesRelecture(ctx: Contexte, equipe: readonly Membre[], pages: readonly Page[], fichiers: readonly Fichier[]): DemandeRelecture[] {
+  const h = hasardDe(ctx.graine, 'demandesRelecture');
+  const n = pages.length + fichiers.length === 0 ? 0 : compter(ctx.volumes.demandesRelecture, [0, 3, 8, 40]);
+  const gens = salaries(equipe);
+  const etats = cycle(h, ['Relecture demandée', 'Brouillon partagé', 'En signature', 'Terminé', 'Relecture demandée'] as const, n);
+  const objets = [...pages.filter((p) => p.espace !== 'Personnel').map((p) => ({ id: p.id, titre: p.title })), ...fichiers.filter((f) => f.typeMetier === 'Rapport' || f.typeMetier === 'Contrat' || f.typeMetier === 'Autre').map((f) => ({ id: f.id, titre: f.nom }))];
+  if (objets.length === 0) return [];
+  return fabriquer(n, (i) => {
+    const o = objets[(i - 1) % objets.length];
+    const demandeur = h.choix(gens);
+    const etat = etats[i - 1];
+    return {
+      id: cle('dr', i),
+      titre: o.titre,
+      etat,
+      relecteurEmail: etat === 'Brouillon partagé' ? null : h.choix(gens.filter((g) => g.email !== demandeur.email).concat(demandeur)).email,
+      demandeurEmail: demandeur.email,
+      demandeAt: quandPasse(ctx.maintenant, ajouterJours(ctx.aujourdhui, -h.entier(0, 12)), `${String(h.entier(8, 17)).padStart(2, '0')}:${String(h.entier(0, 59)).padStart(2, '0')}`),
+      objetId: o.id,
+    };
+  });
+}
