@@ -4,7 +4,7 @@
 
 ## REPRISE (à lire en premier après une compaction ; tenu par le CO, réécrit à chaque tour)
 
-Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `8121e07`.
+Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `5b2e8d0`.
 
 **Si la limite d'utilisation coupe le CO** : à la reprise (un message de Harun, une session, ou le réveil programmé), relire ce bloc, faire `git fetch` des branches `claude/refonte-*`, puis reprendre la boucle (lister, lire, contrôler, fusionner, répondre, mettre à jour). Réveil du CO : `send_later`, toutes les 20 min tant que des sessions travaillent, 45 min quand toutes attendent (consigne de Harun), réarmé à chaque tour.
 
@@ -15,11 +15,11 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 | S6 Sécurité | `session_01RHV8Xq2txWkfjAusKvq9DG` | LOT-07 en préparation ; une étape de sécurité attend amn-api | couture H20, tarifs H21 (§1.26) |
 | SIM | `session_011UF2ufZg9moGv2rRZFRuf7` | `c9e8713` prêt mais **retiré** (casse `check:argent`) ; **sans dossier v4** | refusionner quand DS lit les avoirs ; puis fidélité, H05, LOT-03, LOT-11 |
 | DS | `session_01TZGDvVWristJnnPK59rruY` | préparation de LOT-04 fusionnée (§1.29) ; **sans dossier v4** | **lire les avoirs (nature creditNote)** pour que `check:argent` passe sur `c9e8713` |
-| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | LOT-03 et registre fusionnés | préparation de LOT-05 |
+| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | LOT-03, registre et LOT-05 fusionnés (§1.32) | attend le socle v4 |
 | S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | LOT-02 relu avec le v4 et fusionné (§1.31) ; a les zips | attend le socle v4 |
 | S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | préparation v4 fusionnée (`526cd63`) | attend le socle v4 |
 | S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | en pause | feu vert de l'étape 3 au socle v4 ; jeux à commander à SIM |
-| S9 | `session_01C5DAVygXYax6Q7g436TPQx` | LOT-12 fini (§1.26) | rien |
+| S9 | `session_01C5DAVygXYax6Q7g436TPQx` | LOT-12 fini, valeurs de MC07 fusionnées (`bcdc65f`) | rien |
 | S2, S3 (première tâche : `check:encres`), F1 | `session_014ZkF6SeGRNi6NR3uEsjM5q`, `session_01FBSpK6n1yYtYXYyxbLAuBV`, `session_01VZHqP3gvzrtnpgsTrrKguV` | arrêtées | relancer au socle v4 (prompts : `PROMPTS-11NOV.md`, §1.21) |
 
 **À dire au prochain message** : à T1, La Garde dans l'API d'essai demande une base sur fichier (SIM) ; à S6, les vues terrain et stock quittent Outils pour Créer (`bb54c03`).
@@ -38,10 +38,11 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 | Jour | Construits | Livrés (cumul) | Livrés depuis la veille | Lots préparés | Lots finis | Note |
 |---|---|---|---|---|---|---|
-| 14 nov. | 9 / 153 | 0 | 0 | 6 / 13 | 0 / 13 | les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 06, 11 et 12. La note de LOT-08 n'est pas fusionnée. |
+| 14 nov. | 9 / 153 | 0 | 0 | 7 / 13 | 0 / 13 | les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. La note de LOT-08 n'est pas fusionnée. |
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov. : LOT-05 préparation et réglages de MC07 fusionnés (`5b2e8d0`), gardes lues avant le push (§1.32).
 - 14 nov. : **incident**. La fusion de `c9e8713` (SIM) a été poussée (`c565bd7`) avant que ses gardes soient lues : `check:argent` était rouge (avoirs rangés avec les factures). Elle a été retirée quelques minutes après (`8121e07`), et tout est revenu au vert. DS adapte sa logique aux avoirs, puis le CO refusionne. **Correction de méthode : le CO lit toutes les gardes avant chaque push, jamais après.**
 - 14 nov. : LOT-02 (`1c036fd`) fusionné : les relances lisent `connecteurs/reglages.ts`.
 - 14 nov. : LOT-02 relu avec le v4, fusionné. Les fiches l'emportent sur les valeurs du CO : relances à 5 j, 9:00–18:00, une par client et par semaine glissante, une seule source de réglages (§1.31).
@@ -677,6 +678,19 @@ Fusionné. `check:contacts` (85), les typechecks et lint sont verts, et aucune g
 | 3 | Jeux de SIM | Fidélité aux paliers de la fiche (800 / 1 800, avis 50, recommandation 200) et statut des clients (H05) : **commandés à SIM**. |
 | 4 | « Messagerie » (MC03) | Ce sont les échanges de G07, pas le courriel. Corrigé par S1. |
 | 5 | Échelles de l'intérêt (H06) | Le choix de S1 est adopté, **provisoire, révisable par Harun**. |
+
+### 1.32 LOT-05 préparation (S5, `44690a3`) et réglages de MC07 (S9, `bcdc65f`) : fusionnés
+
+Fusionnés (`5b2e8d0`). Gardes lues **avant** le push, et toutes vertes : `check:echanger` (88), `check:connecteurs` (103), `check:contacts` (85, qui lit les nouvelles valeurs de S9), les typechecks, lint, et aucune garde nouvelle rouge.
+
+| # | Question de S5 (LOT-05) | Décision |
+|---|---|---|
+| 1 | Entrée « Messagerie » du registre | **Oui** : quand G07 arrive, l'entrée actuelle (équipe) est renommée « Canaux », G07 prend « Messagerie », et les deux sont essentielles. |
+| 2 | MX01, MX03, MX06, nouveaux modules | **Oui** : ils entrent au registre avec leur écran, à la construction. Leurs collections rejoignent la liste présentée à Harun. D'ici là, « non disponible », avec la raison. |
+| 3 | Heures ouvrées de la promesse de 2 h | **Une seule source** : la plage de `src/refonte/connecteurs/reglages.ts` (lun.–ven. 9:00–18:00, §1.31). Elle sert aussi d'horaires de l'organisation tant qu'il n'en existe pas d'autres. |
+| 4 | Présence « lit / écrit » | **Masquée** au premier jet, sans rien simuler (comme §1.29, LOT-03 n° 3). |
+| 5 | « Messages programmés » | Le nom de la fiche est gardé, **provisoire, révisable par Harun**. |
+| 6 | Tutoiement dans MX04 | **La v4 l'emporte** : tutoiement dans l'interface, vouvoiement pour ce qui part chez un client. |
 
 ## 2. Les lots
 
