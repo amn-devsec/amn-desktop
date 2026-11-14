@@ -1,0 +1,73 @@
+{
+ "lot": "LOT-01",
+ "_": "Les écrans de LOT-01 (Ma journée), claude/refonte-journee. Mesure sur l'aperçu statique du lot (STATUT §1.40). Premier passage : N01, H25, H02, H04. L01, L02, L03, L07 s'ajoutent quand leurs aperçus existent.",
+ "defaut": {
+  "mac": true,
+  "date": "2026-10-30T10:42:00+01:00",
+  "stockage": {
+   "amn.coquille": "noir"
+  }
+ },
+ "ecrans": [
+  {
+   "id": "N01",
+   "route": "#/",
+   "etapes": [
+    {
+     "attendre": "main, [role=main], h1"
+    },
+    {
+     "clicSiPresent": "button:has-text('Compris')"
+    },
+    {
+     "pause": 700
+    }
+   ]
+  },
+  {
+   "id": "H25",
+   "route": "#/tableau-de-bord",
+   "etapes": [
+    {
+     "attendre": "main, [role=main], h1"
+    },
+    {
+     "clicSiPresent": "button:has-text('Compris')"
+    },
+    {
+     "pause": 700
+    }
+   ]
+  },
+  {
+   "id": "H02",
+   "route": "#/tasks",
+   "etapes": [
+    {
+     "attendre": "main, [role=main], h1"
+    },
+    {
+     "clicSiPresent": "button:has-text('Compris')"
+    },
+    {
+     "pause": 700
+    }
+   ]
+  },
+  {
+   "id": "H04",
+   "route": "#/revue-hebdo",
+   "etapes": [
+    {
+     "attendre": "main, [role=main], h1"
+    },
+    {
+     "clicSiPresent": "button:has-text('Compris')"
+    },
+    {
+     "pause": 700
+    }
+   ]
+  }
+ ]
+}

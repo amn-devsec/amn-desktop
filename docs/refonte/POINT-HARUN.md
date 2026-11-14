@@ -1,8 +1,8 @@
 # Point pour Harun
 
-> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 12h40 UTC., 10h15 UTC., 10h00 UTC., 10h00 UTC., 09h35 UTC., 09h00 UTC., 08h40 UTC., 08h20 UTC., 08h00 UTC.
+> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 12h50 UTC., 10h15 UTC., 10h00 UTC., 10h00 UTC., 09h35 UTC., 09h00 UTC., 08h40 UTC., 08h20 UTC., 08h00 UTC.
 
-**Compteurs** (14 nov., 12h15) : **écrans construits 67 / 153, livrés 63** (LOT-00 9, LOT-06 Créer et produire 15, LOT-11 Développement 7, LOT-02 Contacts 13, LOT-03 Écrire et retenir 9, **LOT-05 Échanger 10**) · **lots préparés 9 / 13, lots finis 5 / 13** · **écrans livrés depuis la veille : 63**. LOT-01 Ma journée est en construction (S7 et S1). La courbe : `STATUT.md`, « Vitesse ».
+**Compteurs** (14 nov., 12h15) : **écrans construits 76 / 153, livrés 63** (LOT-00 9, LOT-06 Créer et produire 15, LOT-11 Développement 7, LOT-02 Contacts 13, LOT-03 Écrire et retenir 9, **LOT-05 Échanger 10**) · **lots préparés 9 / 13, lots finis 5 / 13** · **écrans livrés depuis la veille : 63**. LOT-01 Ma journée est en construction (S7 et S1). La courbe : `STATUT.md`, « Vitesse ».
 
 **À ton réveil, une ligne à coller dans la session S0** (rien d'urgent, le reste avance sans elle) :
 
@@ -49,6 +49,7 @@ Pourquoi : S0 refuse de pousser sur un simple message d'une autre session et veu
 6. **Fournisseurs des 7 options génériques des connecteurs (H21)** : S6 demande quel outil nommer pour chacune (messagerie, agenda, paiement, etc.). Nommer un fournisseur, c'est un choix d'achat. Recommandation : garder des libellés génériques jusqu'au serveur (décembre), sans rien nommer.
 7. **Limite d'utilisation** : jusqu'à 8 sessions vont construire en même temps. Recommandation : laisse-les tourner. Si la limite se resserre, dis-moi lesquelles mettre en pause (je propose de garder S1, DS et S5).
 8. **Connexion à la version web (téléphone, LOT-09)**, proposée par S6 : aucune clé partagée dans la version web ; une session au nom de la personne (mot de passe et double authentification), avec les droits de son rôle ; La Garde réservée au propriétaire et à l'administrateur ; sur mobile, la session dure au plus 7 jours et se coupe après 24 h sans activité, avec verrouillage après 5 min ; liste des appareils dans H19 pour en couper un ; cookie protégé plutôt qu'un stockage lisible par la page. Cela change amn-api. Recommandation : oui, avec le chantier du serveur (décembre) ; LOT-09 avance sur cette base, rien n'est branché avant ton accord.
+9. **S5 est libre** (LOT-03, LOT-05 et la préparation de LOT-09 sont finis). Ce qui reste est bloqué par d'autres : LOT-04 attend ton accord à DS, LOT-07 les zips de S6, LOT-08 ton accord à S3, et la liste du socle ton accord à S0. Recommandation : si S0 ne peut pas reprendre bientôt, confie sa liste du socle (§1.38 : boutons et filtres à 36 px, tutoiement, ⌘K…) à S5, qui a les zips et connaît le socle. À coller dans S5 : « Oui, prends la liste du socle de S0 (STATUT §1.38) sur claude/refonte-socle, selon le message du CO. »
 
 ## À créer par Harun
 

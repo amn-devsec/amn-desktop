@@ -118,6 +118,8 @@
     button.ec-puce,
     .ec-me01__jour,
     .ec-me01__fleches button,
+    .ec-me01__relire,
+    .ec-me01__plus,
     .ec-me02__onglet,
     .ec-me05__rubrique,
     .ec-me05__article,
@@ -138,6 +140,8 @@
     button.ec-puce,
     .ec-me01__jour,
     .ec-me01__fleches button,
+    .ec-me01__relire,
+    .ec-me01__plus,
     .ec-me02__onglet,
     .ec-me05__rubrique,
     .ec-me05__article,
@@ -160,14 +164,11 @@
 }
 
 /*
- * LE CALENDRIER DE ME01 (§1.41) : les jours se touchent presque (26 px de disque, 6 px d'écart : 32 px de pas), donc la zone
- * de chaque jour s'arrête à mi-chemin de ses voisins (32 × 32) : le centre d'un jour n'est jamais renvoyé au voisin.
- * Les recherches et champs (label) prennent la zone de 36 px sur le label entier, qui donne le focus à son champ.
+ * LE CALENDRIER DE ME01 (§1.41) : un disque de 26 px par jour, sur un pas de 36 px (rangées de 26 + 10 px d'écart, colonnes
+ * d'au moins 36 px) : la zone de clic de chaque jour est le carré de 36 px centré sur son disque, sans empiéter sur les
+ * voisins. Les flèches du mois (28 px) sont espacées de 8 px pour la même raison. Les recherches et champs (label)
+ * prennent la zone de 36 px sur le label entier, qui donne le focus à son champ.
  */
-.ec-me01__jour::after {
-  width: calc(100% + 6px);
-  height: calc(100% + 6px);
-}
 
 /*
  * LES CHAMPS ET LES INTERRUPTEURS (§1.41) : un champ de recherche remplit son `label` (36 px de haut au moins, bordure comprise) : le clic
