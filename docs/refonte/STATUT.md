@@ -2,8 +2,43 @@
 
 > Tenu par le CO. Une session ne modifie que **la section de son lot** dans « 7. Écrans » (une ligne par écran) ; tout le reste est au CO. Règles : [`REGLES.md`](REGLES.md).
 
+## REPRISE (à lire en premier après une compaction ; tenu par le CO, réécrit à chaque tour)
+
+Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `baff3a3`.
+
+**Si la limite d'utilisation coupe le CO** : à la reprise (un message de Harun, une session, ou le réveil programmé), relire ce bloc, faire `git fetch` des branches `claude/refonte-*`, puis reprendre la boucle (lister, lire, contrôler, fusionner, répondre, mettre à jour). Réveil du CO : `send_later`, toutes les 45 min environ, réarmé à chaque tour.
+
+| Session | Identifiant | État | Prochain geste |
+|---|---|---|---|
+| S0 Socle | `session_01SJe828c2W5EnkMY4fhFY6z` | passe finale v4 finie (`888f7a0`) | corriger ce que T1 signale ; puis la baisse des échecs connus |
+| T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | passage 2 sur `888f7a0` en cours | son verdict → fusion du socle v4 et allumage (§1.9) |
+| S6 Sécurité | `session_01RHV8Xq2txWkfjAusKvq9DG` | LOT-07 en préparation ; une étape de sécurité attend amn-api | couture H20, tarifs H21 (§1.26) |
+| SIM | `session_011UF2ufZg9moGv2rRZFRuf7` | chargeur vers l'API d'essai en cours | livrer → mettre à jour `LANCER-EN-LOCAL.md` |
+| DS | `session_01TZGDvVWristJnnPK59rruY` | préparation de LOT-04 fusionnée (§1.29) ; **sans dossier v4** | relire ses points [fiche] dès qu'il a les zips |
+| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | LOT-03 fusionné (§1.29) | registre (12 vues vers `creer`), puis LOT-05 |
+| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | décisions reçues (§1.28) ; lecture du v4 | relire et fusionner sa reprise |
+| S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | préparation v4 fusionnée (`526cd63`) | attend le socle v4 |
+| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | en pause | feu vert de l'étape 3 au socle v4 ; jeux à commander à SIM |
+| S9 | `session_01C5DAVygXYax6Q7g436TPQx` | LOT-12 fini (§1.26) | rien |
+| S2, S3, F1 | `session_014ZkF6SeGRNi6NR3uEsjM5q`, `session_01FBSpK6n1yYtYXYyxbLAuBV`, `session_01VZHqP3gvzrtnpgsTrrKguV` | arrêtées | relancer au socle v4 (prompts : `PROMPTS-11NOV.md`, §1.21) |
+
+**Décisions provisoires en cours** (révisables par Harun) : arrondi et régime de TVA, seuils de l'argent (§1.29) ; valeurs de départ des connecteurs (§1.22 n° 3) ; plafonds de relance 3 et 1 par jour (§1.28 n° 4) ; seuils de charge (validés, §1.20). Liste « À décider par Harun » : `POINT-HARUN.md`.
+
+**Échecs connus à faire baisser** (gardes rouges, aussi sur `main` selon S0, à confirmer par T1) : migration, encres, xss, visite, support. Aucune fusion n'en ajoute un nouveau.
+
+## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
+
+- 14 nov. : LOT-04 et LOT-03 préparations fusionnées (`baff3a3`). TVA par ligne comme `money.ts` (provisoire), régime de TVA réglable (provisoire), numérotation existante, archives sans nouvelle collection (§1.29).
+- 14 nov. : LOT-06 préparation v4 fusionnée (`750d8b3`). Les 12 vues à rapatrier dans `creer` sont listées par S7, et S5 fait le déplacement.
+- 14 nov. : messages directs du CO aux sessions, règle dans `REGLES.md`.
+- 14 nov. : LOT-02 préparation fusionnée ; fidélité aux deux formules ; un seul moteur de relances (§1.28).
+- 14 nov. : LOT-06, quinze réponses ; aucune nouvelle collection synchronisée sans Harun (§1.27).
+- 13 nov. : LOT-12 fini ; couture H20 et tarifs H21 confiés à S6 (§1.26).
+- 13 nov. : passe finale v4 de S0 acceptée, passage 2 de T1 (§1.25).
+- 12 nov. : modules de F1 (§1.21), seuils de charge (§1.20), LOT-11 et LOT-12 (§1.17 à §1.23), reprise après 18h (§1.18, §1.24).
+
 - Branche d'intégration : **`claude/refonte-vivante`** (décision du 31 oct., §1.1). Base `main` @ `630ef45`.
-- Dernière mise à jour : 2026-11-14. Messages directs du CO aux sessions (REGLES). LOT-02 préparation fusionnée : §1.28. Réponses à S7 : §1.27. Passage 2 de T1 : §1.25.
+- Dernière mise à jour : 2026-11-14, nuit. Mode continu du CO : bloc REPRISE et journal en tête. LOT-06 préparation v4 fusionnée.
 - LOT-00 (socle v2) est fusionné (`488cdcc`), avec les 4 commits de S5. **Le socle v3 s'y ajoute avant la construction visuelle des lots** (S0 a ses consignes). D'ici là, chaque lot prépare et construit sa logique : §5.
 - Fusionnés aussi le 1er nov. : T1 (API d'essai, bac à sable, contrôle de fidélité) et les données fictives de SIM (100 jeux, `4fe559b`), avec `check:donnees` en CI (87 contrôles).
 - Gardes locales sur `refonte-vivante` : `typecheck`, `typecheck:business`, `lint` et les 55 contrôles sans navigateur de `editions.yml` verts.
@@ -573,6 +608,34 @@ Fusionnée (`66ba5c4`). Après la fusion : `check:contacts` (63 contrôles), les
 | — | « Messagerie » (MC03) | Selon la fiche MC03. Si elle ne dit rien : le courriel. |
 | — | Raccourci « Relancer » | Aucun, confirmé (§1.8 n° 14). |
 
+### 1.29 LOT-04 (DS, `11e05e2`) et LOT-03 (S5, `a59198f`) : préparations fusionnées, décisions du CO
+
+Fusionnées (`baff3a3`). Seul conflit : deux ajouts côte à côte dans `editions.yml` et `package.json`, tous deux gardés. Après la fusion, tout est vert : `check:argent` (53), `check:ecrire` (94), `check:contacts`, `check:creer`, `check:connecteurs`, `check:developpement`, `check:donnees`, `check:navigation`, `check:money`, `check:moments`, `check:socle`, `check:accueils`, les typechecks des deux éditions et lint. **DS et S1 n'avaient pas le dossier v4** : leurs points [fiche] restent à relire.
+
+**LOT-04, L'argent :**
+
+| # | Point | Décision |
+|---|---|---|
+| 1 | Arrondi de la TVA (par taux ou par ligne) | **Provisoire, révisable par Harun** : la refonte suit `src/lib/money.ts`, par ligne. `money.ts` sert aussi l'édition cliente, qui ne change pas, et toutes les factures d'une organisation doivent suivre la même règle. L'écart est porté à Harun, pour l'avis d'un comptable. |
+| 2 | Régime de TVA | **Provisoire, révisable par Harun** : c'est un réglage de l'entreprise. Par défaut, TVA sur les encaissements pour les prestations de services, sur les débits pour les ventes de biens. La mention « à valider par un comptable » reste affichée. |
+| 3 | Seuils (30 j, 60 j, le 20, 14 j, 12 semaines, 80 %, 5 j, 30 j, 2 j) | **Adoptés comme valeurs de départ**, modifiables (provisoire, révisable par Harun). |
+| 4 | Numérotation | **Le format du module existant** (`AAAA-NNNN`, `AV-AAAA-NNNN`) : la suite des numéros ne doit jamais se rompre. Les jeux de SIM s'y alignent. |
+| 5 | Revenu récurrent | Comme proposé : « Paiement échoué » compté, « En pause » non, sous réserve de la fiche. |
+| 6 | Taux des pénalités | Un réglage de l'**identité de facturation**, repris par H18. Par défaut, le minimum légal, présenté comme tel. |
+| 7 | Comptes de la trésorerie | Le **compte courant par défaut**. L'épargne s'ajoute par un interrupteur et reste montrée à part. |
+| 8 | Doublon de format | Remplacé par `src/socle/formats.ts` à la construction. La copie ne sert plus qu'aux textes envoyés aux clients. |
+
+**LOT-03, Écrire et retenir :**
+
+| # | Point | Décision |
+|---|---|---|
+| 1 | Série d'écriture | La règle unique est validée. **Repos par défaut : samedi et dimanche** (la série ne casse pas), réglable. |
+| 2 | ME04 Archives | **Pas de nouvelle collection.** L'écran puise dans les sources existantes : la corbeille (H22) et les fichiers archivés (H11). La collection `archives` rejoint la liste présentée à Harun. |
+| 3 | Présence en direct | Acceptable au premier jet : « Enregistré » seulement, sans curseur simulé. |
+| 4 | Contrat arrivant à échéance | « À renouveler » à l'approche de l'échéance, sinon « Signé ». |
+| 5 | Menu « / » (14 annoncées, 13 listées) | On suit la liste : **13**. L'écart avec la fiche est noté. |
+| 6 | Dictée (tuile de F20) | **Oui** : la tuile ouvre la barre ⌘J avec la commande vocale existante, sans toucher à `src/assistant/**`. |
+
 ## 2. Les lots
 
 Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en parallèle, une branche chacun ; **LOT-09 en dernier**. Les chiffres viennent de `03-INDEX.md` : 9 + 16 + 13 + 9 + 17 + 10 + 15 + 16 + 12 + 11 + 14 = **142**. (Le tableau du fichier 00 compte G05 dans LOT-05 ; l'index et les prompts le rangent dans LOT-00. Le CO suit l'index.)
@@ -798,37 +861,73 @@ Préparation par S1 (14 nov., `claude/refonte-contacts`) : note [`preparation/LO
 
 | ID | Écran | Type | État | Écart / note |
 |---|---|---|---|---|
-| F20 | Écrire · Vue d'ensemble | nouveau | à faire | |
-| H10 | Écrire · Notes | mixte | à faire | |
-| H11 | Écrire · Documents | mixte | à faire | |
-| H12 | Écrire · Signatures | mixte | à faire | |
-| ME03 | Écrire · Modèles | mixte | à faire | |
-| ME01 | Écrire · Journal | mixte | à faire | |
-| ME02 | Écrire · Rédaction et traduction | mixte | à faire | |
-| ME04 | Écrire · Archives | mixte | à faire | |
-| ME05 | Écrire · Base de connaissances | mixte | à faire | |
+| F20 | Écrire · Vue d'ensemble | nouveau | en cours (préparation) | préparation : page sans module ; logique `hub.ts`, `relecture.ts`, `serie.ts`. Attend `ModuleTile`, `ModuleGroupGrid`, `AddModuleTile` |
+| H10 | Écrire · Notes | mixte | en cours (préparation) | préparation : `PagesScreen` `/pages` (les notes rapides `/notes` sont MJ04, LOT-01) ; logique `pages.ts` ; écart : le menu « / » compte 12 blocs, la fiche en annonce 14 |
+| H11 | Écrire · Documents | mixte | en cours (préparation) | préparation : `ClasseurScreen` `/classeur` et `/media` ; logique `documents.ts` ; téléversement, partage et faits relevés « non disponibles » |
+| H12 | Écrire · Signatures | mixte | en cours (préparation) | préparation : `SignatureDistanceScreen` `/signature-a-distance` ; logique `signatures.ts` (circuit, délai moyen, relances automatiques) |
+| ME03 | Écrire · Modèles | mixte | en cours (préparation) | préparation : `TemplatesScreen` `/outils/modeles` ; logique `modeles.ts` (variables `{nom}`, case proposée) |
+| ME01 | Écrire · Journal | mixte | en cours (préparation) | préparation : `DiaryScreen` `/personnel/journal`, local au poste ; logique `journal.ts` ; humeur à 5 niveaux absente des données |
+| ME02 | Écrire · Rédaction et traduction | mixte | en cours (préparation) | préparation : `RedactionScreen`, `TraductionScreen` ; logique `redaction.ts` |
+| ME04 | Écrire · Archives | mixte | en cours (préparation) | préparation : **aucun module existant** ; logique `archives.ts` ; collection à décider (note §6, 2) |
+| ME05 | Écrire · Base de connaissances | mixte | en cours (préparation) | préparation : `KnowledgeScreen` `/knowledge` (titre, texte, date) ; logique `connaissances.ts` dont la réponse sourcée d'Ajmani |
+
+Préparation par S5 (14 nov., `claude/refonte-ecrire`) : note [`preparation/LOT-03-ecrire.md`](preparation/LOT-03-ecrire.md), logique dans `src/refonte/ecrire/`, garde `check:ecrire` (94 contrôles), rapport [`rapports/LOT-03-preparation.md`](rapports/LOT-03-preparation.md). Aucun écran visuel. Dossier v4 lu (fiches, `06`, `tutoiement.json`) ; **les images v4 n'ont pas été ouvertes**. La série d'écriture est une seule règle pour F20, H10 et ME01 (« Proposition » de F20 §9, à valider). La note épinglée d'un client, source demandée par H41, est dans `pages.ts`.
+
+**Manque au socle**
+- `ModuleTile` (hauteur 50), `ModuleGroupGrid`, `AddModuleTile` pour F20 ; `ShortcutList` ; `SuggestionCompact` (cités, à confirmer par S0).
+- L'icône de « Téléverser » (H11) est une flèche vers le bas dans le socle ; elle doit pointer vers le haut.
+- `formats.ts` : le lot garde une copie de `nombre`, `pct`, `tailleLisible` à retirer à la fusion du socle v4.
+- `check:tutoiement` : pas encore dans la base (la garde du lot refuse « vous / votre / vos » et les impératifs en « -ez » dans ses textes).
+
+**Manque aux données**
+- Pages : blocs avec échéance et liens vers d'autres pages ; commentaires ancrés ; propriétés (client lié, statut) ; présence en direct.
+- Documents : intercalaires, partage avec lien externe, faits relevés d'un contrat, quota (aucun stockage nouveau, §1.27 n° 10).
+- Signatures : champs posés, rôle « en copie », relances automatiques planifiées.
+- Journal : humeur sur 5 niveaux, énergie, mercis (le jeu fictif a 4 niveaux).
+- Base de connaissances : étapes, rubriques, journal de lectures, statut ; articles liés.
+- Archives : éléments archivés, règles, restaurations, texte indexé.
+- F20 : une demande de relecture comme objet.
+- Aucune collection synchronisée n'est ajoutée sans l'accord de Harun (§1.27 n° 4) : en attendant, « non disponible », avec la raison.
 
 ### LOT-04 · L'argent — `claude/refonte-argent` — 17 écrans
 
+Préparation par DS (14 nov.) : logique pure `src/refonte/argent/` et `check:argent` (53 propriétés, cas écrits à l'avance, rejeu sur les jeux de SIM). Note : [`preparation/LOT-04-argent.md`](preparation/LOT-04-argent.md). Aucun écran avant la fusion du socle v4. **Dossier v4 non disponible pendant la préparation** : les points marqués [fiche] sont à relire avec les fiches.
+
 | ID | Écran | Type | État | Écart / note |
 |---|---|---|---|---|
-| F30 | Argent · Vue d'ensemble | nouveau | à faire | |
-| G03 | Argent · Facturation | mixte | à faire | |
-| H07 | Argent · Devis | mixte | à faire | |
-| H08 | Argent · Dépenses | mixte | à faire | |
-| H09 | Argent · Prévisions | mixte | à faire | |
-| MA07 | Argent · Trésorerie | mixte | à faire | |
-| MA04 | Argent · Impayés | mixte | à faire | |
-| MA01 | Argent · Contrats | mixte | à faire | |
-| MA02 | Argent · Comptabilité | mixte | à faire | |
-| MA03 | Argent · Paiements en ligne | mixte | à faire | |
-| MA05 | Argent · Notes de frais | mixte | à faire | |
-| MA06 | Argent · Budget | mixte | à faire | |
-| MA08 | Argent · TVA et impôts | mixte | à faire | |
-| MA09 | Argent · Abonnements récurrents | mixte | à faire | |
-| MA10 | Argent · Banque | mixte | à faire | |
-| MA11 | Argent · Paie | mixte | à faire | |
-| MA12 | Argent · Tarifs et remises | mixte | à faire | |
+| F30 | Argent · Vue d'ensemble | nouveau | en cours (préparation) | logique prête : impayés, TVA du mois, trésorerie, revenu récurrent ; hub `/ensemble/argent` (S0) |
+| G03 | Argent · Facturation | mixte | en cours (préparation) | `facturation.ts` : totaux par taux, reste dû (avoirs, règlements partiels), statut, numérotation, mentions |
+| H07 | Argent · Devis | mixte | en cours (préparation) | `devis.ts` : état, transformation, **devis prérempli** (source de H41 et H42), devis → facture, acompte ; place du Comparateur de devis (F1) |
+| H08 | Argent · Dépenses | mixte | en cours (préparation) | `depenses.ts` : HT et TVA depuis un TTC, catégories, justificatifs |
+| H09 | Argent · Prévisions | mixte | en cours (préparation) | `tresorerie.ts` : projection 12 semaines, scénarios attendu et prudent, point bas, besoin ; **attendus de SIM non livrés** |
+| MA07 | Argent · Trésorerie | mixte | en cours (préparation) | `tresorerie.ts`, `banque.soldeTotal` ; quels comptes comptent (à trancher) |
+| MA04 | Argent · Impayés | mixte | en cours (préparation) | `impayes.ts` : tranches, priorités, pénalités, indemnité de 40 €, relance préparée au vouvoiement, jamais envoyée |
+| MA01 | Argent · Contrats | mixte | en cours (préparation) | rien de propre au lot ; règles de renouvellement [fiche] |
+| MA02 | Argent · Comptabilité | mixte | en cours (préparation) | FEC existant repris ; `banque.suggestionsDeRapprochement` |
+| MA03 | Argent · Paiements en ligne | mixte | en cours (préparation) | `connecteurs.etatPaiementsEnLigne` (lecture du modèle de S9), `devis.acompte` |
+| MA05 | Argent · Notes de frais | mixte | en cours (préparation) | `depenses.notesARembourser` ; remboursement préparé (`banque.preparerOrdre`) |
+| MA06 | Argent · Budget | mixte | en cours (préparation) | `budget.ts` : consommé, projection, seuil de 80 % |
+| MA08 | Argent · TVA et impôts | mixte | en cours (préparation) | `tva.ts` : débits ou encaissements, crédit, échéances ; « à valider par un comptable » sur chaque résultat |
+| MA09 | Argent · Abonnements récurrents | mixte | en cours (préparation) | `abonnements.ts` : revenu récurrent, attrition, prochain prélèvement |
+| MA10 | Argent · Banque | mixte | en cours (préparation) | `banque.ts` : **lecture seule**, ordre préparé, IBAN jamais complet ; `connecteurs.etatBanque` |
+| MA11 | Argent · Paie | mixte | en cours (préparation) | `paie.ts` : cotisations fictives à 46 % du net, montants masqués par défaut |
+| MA12 | Argent · Tarifs et remises | mixte | en cours (préparation) | `tarifs.ts` : marge, marge pondérée, remises (alerte sous le coût) ; place du Taux horaire (F1) |
+
+**Manque au socle** (à vérifier sur la liste v4) :
+- brique « montant masqué / révélé » (MA11, aussi G09) ;
+- graphique de solde projeté avec ligne zéro, point bas marqué et zone sous zéro (H09, MA07) ;
+- tableau ou barres par tranche d'âge des impayés (MA04).
+
+**Manque aux données** (à commander à SIM) :
+- règlements partiels (plusieurs paiements par facture) et avoirs ;
+- identité fiscale : régime de TVA, franchise en base, taux de pénalités ;
+- taux de TVA à 5,5 % et 10 % sur des lignes et des dépenses ;
+- remises sur devis et prestations ;
+- historique des enveloppes et des soldes par jour ;
+- attendus calculés de H09 (déjà commandés, §1.11) ;
+- indicateur « facture échue » sur les encaissements prévus.
+
+**À trancher** (note §5) : arrondi de la TVA (par taux, fiche H07, ou par ligne, `src/lib/money.ts`) ; régime de TVA par défaut ; format de numérotation ; seuils proposés ; comptes de la trésorerie.
 
 ### LOT-05 · Échanger — `claude/refonte-echanger` — 10 écrans
 
@@ -847,23 +946,74 @@ Préparation par S1 (14 nov., `claude/refonte-contacts`) : note [`preparation/LO
 
 ### LOT-06 · Créer et produire — `claude/refonte-creer` — 15 écrans
 
+**Mode PRÉPARATION (consigne du CO, 6 nov.)** : le socle v3 n'étant pas fusionné, aucun écran visuel n'est construit. Livré : la note [`preparation/LOT-06-creer.md`](preparation/LOT-06-creer.md) (module existant, données, écarts, écran par écran), la **logique pure des 15 écrans** dans `src/refonte/creer/` (17 fichiers, sans React ni brique du socle) et `npm run check:creer` (137 contrôles, cas limites et tutoiement inclus : cas des fiches écrits à la main, puis jeux fictifs de SIM aux volumes vide, peu, normal, beaucoup ; ajouté à `editions.yml`). Gardes sans navigateur de la CI : toutes vertes sur la branche (`typecheck`, `typecheck:business`, `lint`, les contrôles de `editions.yml`) ; `check:business` attend un build.
+
+La colonne « État » reste `à faire` : un écran n'est « fait » qu'une fois construit, capturé et comparé à son image.
+
 | ID | Écran | Type | État | Écart / note |
 |---|---|---|---|---|
-| F50 | Créer · Vue d'ensemble | nouveau | à faire | |
-| H15 | Créer · Stock | mixte | à faire | |
-| H16 | Créer · Chantiers | mixte | à faire | |
-| H17 | Créer · Visuels et marque | mixte | à faire | |
-| MR01 | Créer · Vidéo | mixte | à faire | |
-| MR02 | Créer · Ma page publique | mixte | à faire | |
-| MR03 | Créer · Tournées | mixte | à faire | |
-| MR04 | Créer · Matériel | mixte | à faire | |
-| MR05 | Créer · Catalogue produits | mixte | à faire | |
-| MR06 | Créer · Réservations | mixte | à faire | |
-| MR07 | Créer · Commandes | mixte | à faire | |
-| MR08 | Créer · Boutique en ligne | mixte | à faire | |
-| MR09 | Créer · Flotte de véhicules | mixte | à faire | |
-| MR10 | Créer · Photos de chantier | mixte | à faire | |
-| MR11 | Créer · Qualité et contrôles | mixte | à faire | |
+| F50 | Créer · Vue d'ensemble | nouveau | à faire | Logique prête : `ligneDeProduction.ts`. « Fabrication » n'existe pas dans le dépôt, « Bons d'intervention » = `InterventionsScreen` ; les 16 modules sont dans 5 familles du registre (question 1) |
+| H15 | Créer · Stock | mixte | à faire | Logique prête : `stock.ts`. Le module réel n'a ni emplacement, ni mouvements, ni commandes fournisseur par article (champs à ajouter) |
+| H16 | Créer · Chantiers | mixte | à faire | Logique prête : `chantiers.ts`. Le module réel (`AssemblyScreen`) n'a ni budget, ni poids d'étape, ni dates : nouveau modèle à brancher |
+| H17 | Créer · Visuels et marque | mixte | à faire | Logique prête : `marque.ts`. Le kit réel est un monogramme : logos, palette nommée et modèles à créer |
+| MR01 | Créer · Vidéo | mixte | à faire | Logique prête : `video.ts`. Deux modèles non reliés (`videoEdits`, `videoProductions`) ; pas de moteur de montage : frise en lecture |
+| MR02 | Créer · Ma page publique | mixte | à faire | Logique prête : `pagePublique.ts`. Le module réel est une configuration unique, sans sections ni version de travail |
+| MR03 | Créer · Tournées | mixte | à faire | Logique prête : `tournees.ts`. Aucun géocodage ni service de plan dans le dépôt (question 5) |
+| MR04 | Créer · Matériel | mixte | à faire | Logique prête : `materiel.ts`. Le module réel ne gère que des prêts par créneau |
+| MR05 | Créer · Catalogue produits | mixte | à faire | Logique prête : `catalogue.ts`. **Aucun module existant** : collection de produits à créer (question 2) |
+| MR06 | Créer · Réservations | mixte | à faire | Logique prête : `reservations.ts`. Ressource générique et détection de conflit à créer ; seul Matériel refuse un chevauchement |
+| MR07 | Créer · Commandes | mixte | à faire | Logique prête : `commandes.ts`. Les statuts réels (`new`…`delivered`) et ceux de la fiche se rangent dans les mêmes 4 étapes |
+| MR08 | Créer · Boutique en ligne | mixte | à faire | Logique prête : `boutique.ts`. Pas de visites en direct dans le réel (compteur quotidien) ; entonnoir 30 jours déjà dans `guichet.ts` |
+| MR09 | Créer · Flotte de véhicules | mixte | à faire | Logique prête : `flotte.ts`. Échéances km et jours déjà dans `ajouts.ts` ; énergie, niveau et conducteur à ajouter |
+| MR10 | Créer · Photos de chantier | mixte | à faire | Logique prête : `photos.ts`. Le réel : une photo par phase et par intervention ; dossier multi-photos à créer |
+| MR11 | Créer · Qualité et contrôles | mixte | à faire | Logique prête : `qualite.ts`. Le réel : listes de cases et note libre ; écarts, criticité, preuve et signature à créer |
+
+**Ce qui manque au socle v3 (pour le CO / LOT-00)** — à fournir avant la construction visuelle :
+
+1. *Briques partagées déjà annoncées au §1.10* : `ModuleTile` (41 px) et `ModuleGroupGrid` (F50), `PageHead`, `IconTile`, `IconButton`, `StatusPill`, `AvatarStack`, `SearchBox`, `AjmaniBar`, `SuggestionCompact` / `InlineSuggestion`, `FlagUrgent`.
+2. *Composants du §0.4 cités par le lot* : `Gauge` (demi-jauge 180°, MR09 et H16), `LiveDot` (MR01, MR02, MR06, MR07, MR08), `FlowLine` (MR03, MR07), `FilterChips` / `Chips` (H15, MR04, MR05, MR10), `Segmented` compact, `Progress` 4 px, `Ring` 26 à 58 px, `Tag`, la carte ludique `check` (MR02, MR03, MR04, MR09 : `CarteCases`), `Kbd`, `Check` 16 à 18 px.
+3. *Jetons* : police monospace, gris de décor pour les illustrations (point 15 de `04-ECARTS`), teinte de sélection `#D9A27A` (MR02), hachures orange et grises (MR06), pointillés verts et orange.
+4. *Mouvement* : `amn-grow`, `amn-slide`, `amn-bar`, `amnFlow` (pointillé qui s'écoule), `amnHalo`, toutes coupées par `prefers-reduced-motion`.
+5. *Compteurs de la barre latérale* : un point d'entrée pour que les modules déclarent un compteur (Stock : articles sous le seuil ; Chantiers : à surveiller ; Commandes : à expédier). Les calculs existent : `articlesASurveiller`, `chantiersASurveiller`, `compter().aExpedier`.
+6. *Mise en forme chiffrée* : le module de formats des graphiques du socle ne peut pas être importé hors de la liste de `check:socle-graphiques` ; `commun.ts` en garde une copie minimale (question 7).
+7. *Composants propres à chaque écran* (rubrique 5 des fiches : `LevelTube`, `SitePlan`, `BookSpread`, `EditTimeline`, `RouteMap`, `AssetTag`, `ProductMosaic`, `ResourceTimeline`, `OrderPipeline`, `PurchaseFunnel`, `VehicleCard`, `BeforeAfterSlider`, `InspectionSheet`, `ParetoChart`, `ProductionLine`, `WorkToken`…) : construits par le lot dans `src/refonte/creer/`, pas par le socle.
+
+**Mise à jour v4 (14 nov., S7)** : note mise à jour ([`preparation/LOT-06-creer.md`](preparation/LOT-06-creer.md) §0 : néon par `--fam-a` / `--fam-b`, tutoiement, briques du socle, substitution, DEV-modeles-sites sans doublon, déclarations préparées) ; textes calculés passés au tutoiement ; `check:creer` étendu aux cas limites. **Zips v4 reçus et lus le 14 nov.** : fiches et `_data` de LOT-06 identiques au v3 ; paire de la famille Créer `#FFA463` / `#FF6B7A` ; 14 entrées de `tutoiement.json` concernent le lot (note §0). La barre latérale v4 range les 16 modules sous « Créer et produire » (17 entrées avec la vue d'ensemble) : réponse à la question 1 ci-dessous, à confirmer par le CO. Rapport : [`rapports/LOT-06-preparation.md`](rapports/LOT-06-preparation.md).
+
+**Manque aux données** (jeux de `src/refonte/donnees/`, à transmettre à SIM ; la logique les lit comme facultatifs) :
+
+| Écran | Jeu | Champ manquant |
+|---|---|---|
+| H15 | `articles` | niveau cible ; emplacement par mouvement ; commandes fournisseur (article, quantité, arrivée) ; franco et frais de port du fournisseur |
+| H16 | `chantiers` | poids et part réalisée par étape ; interventions planifiées ; livraisons rattachées |
+| H17 | `marque` | rôle et part d'usage des couleurs ; règles « à éviter » ; dernière modification |
+| MR01 | `videos` | étape « Sous-titrage » ; plans ; sous-titres ; commentaires de relecture ; date de publication |
+| MR02 | `pagesPubliques` | sections ; visites par jour ; avis avec accord du client |
+| MR03 | `etapesTournee` | durée et distance de trajet ; état « Sur place » |
+| MR04 | `equipements` | dernier contrôle ; dernier entretien ; réforme ; affectation datée |
+| MR05 | `produits` | photos ; TVA ; prix d'achat ; niveau conseillé ; lignes de vente par semaine |
+| MR06 | `ressources`, `reservations` | indisponibilité (garage, hors service) ; historique des conflits |
+| MR07 | `commandes` | instant de création ; heure d'échéance ; date de livraison ; paiement en ligne |
+| MR08 | (aucun) | sessions en direct ; événements de l'entonnoir ; paniers avec dernière activité ; objectif du trimestre |
+| MR09 | `vehicules` | énergie ; niveau de carburant ou de charge ; autonomie ; kilomètres et carburant par jour |
+| MR10 | `dossiersPhotos` | orientation des photos ; signature du client |
+| MR11 | `controles`, `ecarts` | résultat « sans objet » ; cause et date de relevé de l'écart |
+| F50 | (tous) | contrôle qualité ouvert rattaché à un chantier ; étape « Réception » des chantiers |
+
+**Questions pour le CO — toutes tranchées au §1.27 (14 nov.)** ; la note de préparation applique les réponses (liste exacte des modules à rapatrier, routes `/reservations` et `/photos-chantier`, tuile « Modèles de sites », « Fabrication » masqué). Texte d'origine :
+
+1. *Familles du registre.* F50 annonce 16 modules « Créer et produire », mais 11 sont déclarés dans `outils`, `argent`, `echanger` ou `ecrire` et 2 n’existent pas (question 3). Faut-il les rattacher à `creer` (les fichiers de ces familles sont à d'autres lots) ou garder le hub comme simple vue transversale ?
+2. *MR05 Catalogue produits* n'existe pas : on crée la collection `products` (avec lien vers `stockItems`) ? Cela touche `SyncContext` et le contrat amn-api.
+3. *Noms des deux modules sans maquette* : « Fabrication » (aucun équivalent) et « Bons d'intervention » (= `InterventionsScreen`). Les garder, les renommer, ou masquer « Fabrication » tant qu'il n'existe pas ?
+4. *Modèles de données plus riches que le réel* (chantier avec budget et poids, contrôle avec écarts, page en sections, dossier photos) : quelle session les ajoute à `SYNCED_COLLECTIONS` et à amn-api, et quand ? La construction visuelle de H16, MR02, MR10 et MR11 en dépend.
+5. *Géocodage, plan et trafic (MR03)* : quel service, et hébergé où (clés côté serveur seulement) ? Sans cela, le plan reste schématique comme `ItinerairesScreen`.
+6. *Vidéo* : fusionner `videoEdits` et `videoProductions` en un seul objet (MR01 les réunit) ou garder deux sources et les relier ?
+7. *Formats chiffrés* : étendre la liste de `check:socle-graphiques` pour l'import du module de formats, ou le déplacer vers `src/lib` ?
+8. *Typographie* : les textes calculés suivent `check:langue` (apostrophes courbes), donc « Il n’en reste que 4. » diffère de la fiche (apostrophe droite) ; d'accord ?
+9. *Droit de publier* (MR01, MR02) : distinct du droit d'écrire ? La logique prévoit les deux cas (« Demander la publication »), la réponse relève de H19.
+10. *Fichiers (logos, photos, rushes)* : le dépôt n'a pas de stockage pour H17, MR04, MR05, MR10, MR01. Où les met-on avant de construire ces écrans ?
+11. *Dates de SIM* : les jeux sont à 10 h 15 le 30 oct., les images à 10 h 42 (suite de SIM, n° 1). La logique n'en dépend pas, mais la comparaison à ± 2 px, si.
+12. *Champs manquants des jeux fictifs* : liste en §6 de la note de préparation, à transmettre à SIM.
 
 ### LOT-07 · Outils et réglages — `claude/refonte-outils` — 16 écrans
 
