@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArrowRight, CalendarDays, Check, Image as ImageIcon, Truck, Wrench } from 'lucide-react';
-import { PageHead, Segmente, SuggestionAjmani } from '../../../../socle/ui';
+import { PageHead, Segmente, SuggestionCompact } from '../../../../socle/ui';
 import { formaterEuro } from '../../commun';
 import { useMots } from './textes';
 import type { ChantierVue, EtapeVue, ModeleChantiers } from './modele';
@@ -14,10 +14,10 @@ export interface VueChantiersProps {
   onNouveau?: () => void;
   /** Coche ou décoche une étape du chantier ouvert (sans droit d'écriture : absent, le rail est en lecture). */
   onEtape?: (chantierId: string, indice: number) => void;
-  /** La suggestion d'Ajmani (titre, texte) ; absente : pas de carte. */
-  suggestion?: { titre: string; texte: string };
+  /** « Voir la tournée » : la règle « livraison après la pose prévue » du chantier ouvert (`modele.ouvert.prochaine.livraison`). */
   onDecaler?: () => void;
   onIgnorer?: () => void;
+  suggestionMasquee?: boolean;
 }
 
 const initiale = (n: string) => (n.trim()[0] ?? '·').toUpperCase();
@@ -29,7 +29,7 @@ function Jauge({ pct }: { pct: number }) {
     <svg className="cr-jauge" width="168" height="94" viewBox="0 0 168 94" role="img" aria-label={`${p} %`}>
       <defs><linearGradient id="cr-jauge-degrade" x1="0" x2="1"><stop offset="0" stopColor="var(--fam-a)" /><stop offset="1" stopColor="var(--fam-b)" /></linearGradient></defs>
       <path d="M8 86 A76 76 0 0 1 160 86" fill="none" stroke="var(--socle-anneau-fond)" strokeWidth="9" strokeLinecap="round" />
-      <path d="M8 86 A76 76 0 0 1 160 86" fill="none" stroke="url(#cr-jauge-degrade)" strokeWidth="9" strokeLinecap="round" strokeDasharray={`${(longueur * p) / 100} ${longueur}`} style={{ filter: 'drop-shadow(0 0 5px var(--fam-a))' }} />
+      {p > 0 && <path d="M8 86 A76 76 0 0 1 160 86" fill="none" stroke="url(#cr-jauge-degrade)" strokeWidth="9" strokeLinecap="round" strokeDasharray={`${(longueur * p) / 100} ${longueur}`} style={{ filter: 'drop-shadow(0 0 5px var(--fam-a))' }} />}
     </svg>
   );
 }
@@ -91,7 +91,12 @@ function Ouvert({ c, onOuvrir, onEtape }: { c: ChantierVue; onOuvrir: (id: strin
               <p className="cr-budget__av">{tm('budget.avancement', { n: c.avancement })} <PastilleRythme c={c} /></p>
             </>
           ) : (
-            <div className="cr-budget__vide"><b>{tm('budget.nonRenseigne')}</b><small>{tm('budget.ajouter')}</small><p className="cr-budget__av">{tm('budget.avancement', { n: c.avancement })}</p></div>
+            <>
+              <Jauge pct={0} />
+              <div className="cr-budget__centre cr-budget__centre--vide"><small>{tm('budget.nonRenseigne')}</small></div>
+              <p className="cr-budget__montants"><small className="cr-t3">{tm('budget.ajouter')}</small></p>
+              <p className="cr-budget__av">{tm('budget.avancement', { n: c.avancement })}</p>
+            </>
           )}
         </div>
       </div>
@@ -170,8 +175,16 @@ export function VueChantiers(p: VueChantiersProps) {
                 </div>
               ))}
             </section>
-            {p.suggestion && (
-              <SuggestionAjmani titre={p.suggestion.titre} texte={p.suggestion.texte} primaire={{ libelle: tm('suggestion.decaler'), onClick: p.onDecaler ?? (() => undefined) }} secondaire={{ libelle: tm('suggestion.ignorer'), onClick: p.onIgnorer ?? (() => undefined) }} />
+            {m.ouvert.prochaine?.livraison && !p.suggestionMasquee && (
+              <section className="cr-sugg" data-mvt="entree" aria-label={tm('suggestion.titre')}>
+                <SuggestionCompact
+                  texte={tm('suggestion.texte', { jour: m.ouvert.prochaine.livraison })}
+                  libelleOui={tm('suggestion.decaler')}
+                  libelleNon={tm('suggestion.ignorer')}
+                  onOui={p.onDecaler ?? (() => undefined)}
+                  onNon={p.onIgnorer ?? (() => undefined)}
+                />
+              </section>
             )}
           </aside>
         </div>

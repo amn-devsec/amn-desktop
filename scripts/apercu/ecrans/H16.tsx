@@ -31,8 +31,7 @@ export default function Apercu() {
   const modele = modeleDesChantiers({ chantiers, interventions, livraisons, aujourdhui: jour, ouvertId: ouvert.id, langue: 'fr' });
   return (
     <ApercuBureau famille="creer" sousPage="assembly" fil={['Créer et produire', 'Chantiers']}>
-      <VueChantiers modele={modele} vue={vue} onVue={setVue} onOuvrir={() => undefined}
-        suggestion={{ titre: 'Risque de retard sur le chantier ouvert', texte: 'La livraison arrive après la pose prévue. Je décale la fin de la pose et je préviens le client ?' }} />
+      <VueChantiers modele={modele} vue={vue} onVue={setVue} onOuvrir={() => undefined} />
     </ApercuBureau>
   );
 }
