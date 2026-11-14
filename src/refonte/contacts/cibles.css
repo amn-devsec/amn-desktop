@@ -37,3 +37,6 @@
 
 /* Les segments compacts (ton d'un message, filtres de H45) : 20 px dessinés, zone de 38 px (le socle pose 34 px). */
 .sc-ct-cibles .sc-segment::after { width: max(100%, 38px); height: max(100%, 38px); }
+
+/* MJ01 : les cases de jalon du socle (18 px) ont une zone de 38 px, comme les autres petits boutons de LOT-01. */
+.sc-ct-cibles .sc-case::after { width: max(100%, 38px); height: max(100%, 38px); }

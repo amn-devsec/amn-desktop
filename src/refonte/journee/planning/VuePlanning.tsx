@@ -120,7 +120,7 @@ function Bloc({ b, m, tm, fmt, lecture, actions, vide }: { b: BlocPersonne; m: M
       <div className="sc-pl2-personne">
         <div className="sc-pl2-personne__haut">
           <Avatar nom={b.nom} taille={34} enLigne={b.enLigne} />
-          <span className="sc-pl2-personne__id"><b>{b.nom}</b><span>{b.moi ? tm('personne.vous', { role: b.role }) : b.role}</span></span>
+          <span className="sc-pl2-personne__id"><b>{b.nom}</b><span>{b.moi ? tm('personne.moi', { role: b.role }) : b.role}</span></span>
         </div>
         <div className="sc-pl2-reserve"><span>{tm('personne.reserve')}</span><span className="sc-nombre"><b>{heures(b.reserveMin)}</b> {tm('personne.sur', { dispo: heures(b.disponibiliteMin) })}</span></div>
         <span className="sc-pl2-charge" data-ton={b.ton} aria-hidden><i style={{ width: `${Math.min(100, b.charge * 100)}%` }} /></span>
