@@ -55,9 +55,9 @@ async function charger<T>(code: string): Promise<T> {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const M = await charger<any>(
-  "export * as L from '../src/refonte/contacts';\nexport * as monde from '../src/refonte/donnees';\nexport { DICTIONNAIRES_CONTACTS } from '../src/refonte/contacts/i18n';\nexport * as V from '../src/refonte/connecteurs/reglages';\nexport * as H from '../src/refonte/contacts/hub/modele';\nexport * as N from '../src/refonte/contacts/hub/nuage';\nexport { DICTIONNAIRES_HUB } from '../src/refonte/contacts/hub/i18n';\nexport { depuisMonde } from '../src/refonte/contacts/sources/depuisMonde';\nexport * as C from '../src/refonte/contacts/clients/modele';\nexport { DICTIONNAIRES_CLIENTS } from '../src/refonte/contacts/clients/i18n';\nexport * as G from '../src/refonte/contacts/fiche/modele';\nexport { DICTIONNAIRES_FICHE } from '../src/refonte/contacts/fiche/i18n';\nexport * as P from '../src/refonte/contacts/prospects/modele';\nexport * as PN from '../src/refonte/contacts/prospects/nuage';\nexport { DICTIONNAIRES_PROSPECTS } from '../src/refonte/contacts/prospects/i18n';\nexport * as RT from '../src/refonte/contacts/retours/modele';\nexport { DICTIONNAIRES_RETOURS } from '../src/refonte/contacts/retours/i18n';\nexport * as FO from '../src/refonte/contacts/fournisseurs/modele';\nexport { DICTIONNAIRES_FOURNISSEURS } from '../src/refonte/contacts/fournisseurs/i18n';\nexport * as PL from '../src/refonte/contacts/pipeline/modele';\nexport * as PG from '../src/refonte/contacts/pipeline/geometrie';\nexport { DICTIONNAIRES_PIPELINE } from '../src/refonte/contacts/pipeline/i18n';\nexport * as FI from '../src/refonte/contacts/fidelite/modele';\nexport { DICTIONNAIRES_FIDELITE } from '../src/refonte/contacts/fidelite/i18n';\nexport * as PE from '../src/refonte/contacts/personnes/modele';\nexport { DICTIONNAIRES_CONTACTS_PERSONNES } from '../src/refonte/contacts/personnes/i18n';\nexport * as EQ from '../src/refonte/contacts/equipe/modele';\nexport { DICTIONNAIRES_EQUIPE } from '../src/refonte/contacts/equipe/i18n';\nexport * as PA from '../src/refonte/contacts/partenaires/modele';\nexport * as PAG from '../src/refonte/contacts/partenaires/geometrie';\nexport { DICTIONNAIRES_PARTENAIRES } from '../src/refonte/contacts/partenaires/i18n';\nexport * as RD from '../src/refonte/contacts/rdv/modele';\nexport { DICTIONNAIRES_RDV } from '../src/refonte/contacts/rdv/i18n';",
+  "export * as L from '../src/refonte/contacts';\nexport * as monde from '../src/refonte/donnees';\nexport { DICTIONNAIRES_CONTACTS } from '../src/refonte/contacts/i18n';\nexport * as V from '../src/refonte/connecteurs/reglages';\nexport * as H from '../src/refonte/contacts/hub/modele';\nexport * as N from '../src/refonte/contacts/hub/nuage';\nexport { DICTIONNAIRES_HUB } from '../src/refonte/contacts/hub/i18n';\nexport { depuisMonde } from '../src/refonte/contacts/sources/depuisMonde';\nexport * as C from '../src/refonte/contacts/clients/modele';\nexport { DICTIONNAIRES_CLIENTS } from '../src/refonte/contacts/clients/i18n';\nexport * as G from '../src/refonte/contacts/fiche/modele';\nexport { DICTIONNAIRES_FICHE } from '../src/refonte/contacts/fiche/i18n';\nexport * as P from '../src/refonte/contacts/prospects/modele';\nexport * as PN from '../src/refonte/contacts/prospects/nuage';\nexport { DICTIONNAIRES_PROSPECTS } from '../src/refonte/contacts/prospects/i18n';\nexport * as RT from '../src/refonte/contacts/retours/modele';\nexport { DICTIONNAIRES_RETOURS } from '../src/refonte/contacts/retours/i18n';\nexport * as FO from '../src/refonte/contacts/fournisseurs/modele';\nexport { DICTIONNAIRES_FOURNISSEURS } from '../src/refonte/contacts/fournisseurs/i18n';\nexport * as PL from '../src/refonte/contacts/pipeline/modele';\nexport * as PG from '../src/refonte/contacts/pipeline/geometrie';\nexport { DICTIONNAIRES_PIPELINE } from '../src/refonte/contacts/pipeline/i18n';\nexport * as FI from '../src/refonte/contacts/fidelite/modele';\nexport { DICTIONNAIRES_FIDELITE } from '../src/refonte/contacts/fidelite/i18n';\nexport * as PE from '../src/refonte/contacts/personnes/modele';\nexport { DICTIONNAIRES_CONTACTS_PERSONNES } from '../src/refonte/contacts/personnes/i18n';\nexport * as EQ from '../src/refonte/contacts/equipe/modele';\nexport { DICTIONNAIRES_EQUIPE } from '../src/refonte/contacts/equipe/i18n';\nexport * as PA from '../src/refonte/contacts/partenaires/modele';\nexport * as PAG from '../src/refonte/contacts/partenaires/geometrie';\nexport { DICTIONNAIRES_PARTENAIRES } from '../src/refonte/contacts/partenaires/i18n';\nexport * as RD from '../src/refonte/contacts/rdv/modele';\nexport { DICTIONNAIRES_RDV } from '../src/refonte/contacts/rdv/i18n';\nexport * as PI from '../src/refonte/contacts/pile/modele';\nexport { DICTIONNAIRES_PILE } from '../src/refonte/contacts/pile/i18n';",
 );
-const { L, monde, V, H, N, C, G, DICTIONNAIRES_HUB: DICO_HUB, DICTIONNAIRES_CLIENTS: DICO_CLIENTS, DICTIONNAIRES_FICHE: DICO_FICHE, P, PN, DICTIONNAIRES_PROSPECTS: DICO_PROSPECTS, RT, DICTIONNAIRES_RETOURS: DICO_RETOURS, FO, DICTIONNAIRES_FOURNISSEURS: DICO_FOURNISSEURS, PL, PG, DICTIONNAIRES_PIPELINE: DICO_PIPELINE, FI, DICTIONNAIRES_FIDELITE: DICO_FIDELITE, PE, DICTIONNAIRES_CONTACTS_PERSONNES: DICO_PERSONNES, EQ, DICTIONNAIRES_EQUIPE: DICO_EQUIPE, PA, PAG, DICTIONNAIRES_PARTENAIRES: DICO_PARTENAIRES, RD, DICTIONNAIRES_RDV: DICO_RDV, depuisMonde, DICTIONNAIRES_CONTACTS: DICO } = M;
+const { L, monde, V, H, N, C, G, DICTIONNAIRES_HUB: DICO_HUB, DICTIONNAIRES_CLIENTS: DICO_CLIENTS, DICTIONNAIRES_FICHE: DICO_FICHE, P, PN, DICTIONNAIRES_PROSPECTS: DICO_PROSPECTS, RT, DICTIONNAIRES_RETOURS: DICO_RETOURS, FO, DICTIONNAIRES_FOURNISSEURS: DICO_FOURNISSEURS, PL, PG, DICTIONNAIRES_PIPELINE: DICO_PIPELINE, FI, DICTIONNAIRES_FIDELITE: DICO_FIDELITE, PE, DICTIONNAIRES_CONTACTS_PERSONNES: DICO_PERSONNES, EQ, DICTIONNAIRES_EQUIPE: DICO_EQUIPE, PA, PAG, DICTIONNAIRES_PARTENAIRES: DICO_PARTENAIRES, RD, DICTIONNAIRES_RDV: DICO_RDV, PI, DICTIONNAIRES_PILE: DICO_PILE, depuisMonde, DICTIONNAIRES_CONTACTS: DICO } = M;
 const paris = (jour: string, hhmm: string): number => L.instantParis(jour, hhmm);
 const VOLUMES = ['vide', 'peu', 'normal', 'beaucoup'] as const;
 const mondes = Object.fromEntries(VOLUMES.map((v) => [v, monde.construireMonde({ volume: v })])) as Record<(typeof VOLUMES)[number], any>;
@@ -459,7 +459,7 @@ await dit('les cinq messages de relance vouvoient et ne tutoient jamais, avec le
     assert.ok(!TUTOIEMENT.test(m), `${motif} tutoie : ${m}`);
   }
   const f = L.messageClient(relance({ objetLibelle: 'Facture F-001', montantCents: 123_400, departLe: '2026-10-01' }), 'fr', '2026-10-30');
-  assert.match(f, /Facture F-001/);
+  assert.match(f, /la facture F-001/);
   assert.match(f, /1\u00a0234,00\u00a0€|1\u00a0234\u00a0€/);
   assert.match(f, /01\/10\/2026/);
 });
@@ -2427,6 +2427,171 @@ await dit('MC06 · textes : mêmes clés en fr et en, mêmes paramètres, compte
   }
   for (const b of new Set(en.filter((k) => /\.(1|n)$/.test(k)).map((k) => k.replace(/\.(1|n)$/, '')))) for (const l of ['fr', 'en']) assert.ok(DICO_RDV[l][`${b}.1`] && DICO_RDV[l][`${b}.n`], `${b} (${l})`);
   assert.equal(DICO_RDV.fr['sousTitre'], 'Tes clients réservent seuls, tu gardes la main · prochain à {heure}', 'la phrase de tutoiement.json');
+});
+
+/* ── MC07 · Relances ────────────────────────────────────────────────────── */
+console.log('\nContacts — MC07, Relances (pile focalisée, file du jour, cadence, boîte à zéro)\n');
+
+const rl = (id: string, clientId: number | null, o: Record<string, unknown> = {}): any => relance({ id: `rl-${id}`, clientId, clientNom: clientId == null ? `Prospect ${id}` : `Client ${clientId}`, objetId: id, motif: 'devis', objetLibelle: `Devis D-${id}`, departLe: '2026-10-20', ...o });
+const MC07_A = rl('a', 1, { montantCents: 600_000 });
+const MC07_B = rl('b', 2, { montantCents: 300_000, motif: 'facture', objetLibelle: 'Facture F-2' });
+const MC07_C = rl('c', null, { montantCents: 150_000, motif: 'prospect', objetLibelle: 'Formation' });
+const MC07_D = rl('d', 1, { montantCents: 100_000, motif: 'facture', objetLibelle: 'Facture F-1' });
+const entreesPile = (o: Record<string, unknown> = {}): any => ({ historique: { traces: [], joursVides: [], matin: null }, passees: [], selection: null, ton: 'courtois', brouillons: {}, reponses: null, ...o });
+const pile = (relances: any[], o: Record<string, unknown> = {}, src: Record<string, unknown> = {}) => PI.modelePile(base({ relances, ...src }), entreesPile(o));
+const envoyee = (r: any, hhmm = '09:12', geste = 'envoyee'): any => ({ cle: PI.cleRelance(r), geste, le: paris('2026-10-30', hhmm) });
+
+await dit('MC07 · la file du jour : par montant décroissant ; un client une fois ; la relance du premier plan est la première', () => {
+  const m = pile([MC07_D, MC07_C, MC07_B, MC07_A]);
+  assert.deepEqual(m.lignes.map((l: any) => l.clientNom), ['Client 1', 'Client 2', 'Prospect c'], 'D (même client que A) attend : une relance par client et par semaine');
+  assert.deepEqual(m.lignes.map((l: any) => l.etat), ['encours', 'avenir', 'avenir']);
+  assert.deepEqual([m.total, m.traitees, m.reste, m.videe], [3, 0, 3, false]);
+  assert.equal(m.courante.clientNom, 'Client 1');
+  assert.deepEqual(m.ensuite, ['Client 2', 'Prospect c']);
+  assert.deepEqual(m.lignes[1].droite, { genre: 'jours', n: 10 });
+});
+
+await dit('MC07 · « Envoyer » : la ligne est faite (à l’heure du clic), la suivante passe au premier plan, le total du matin ne bouge pas', () => {
+  const m = pile([MC07_D, MC07_C, MC07_B, MC07_A], { historique: { traces: [envoyee(MC07_A)], joursVides: [], matin: null } });
+  assert.deepEqual(m.lignes.map((l: any) => [l.clientNom, l.etat]), [['Client 1', 'faite'], ['Client 2', 'encours'], ['Prospect c', 'avenir']]);
+  assert.deepEqual(m.lignes[0].droite, { genre: 'heure', heure: '09:12' });
+  assert.deepEqual([m.total, m.traitees, m.reste], [3, 1, 2]);
+  assert.equal(m.courante.clientNom, 'Client 2');
+  assert.equal(m.envoyeesMois, 1);
+});
+
+await dit('MC07 · la liste du matin tient : un client écrit aujourd’hui n’en fait pas entrer un autre, et le total ne baisse pas', () => {
+  const matin = { jour: '2026-10-30', cles: [PI.cleRelance(MC07_A), PI.cleRelance(MC07_B), PI.cleRelance(MC07_C), PI.cleRelance(MC07_D)] };
+  const m = pile([MC07_D, MC07_C, MC07_B, MC07_A], { historique: { traces: [envoyee(MC07_A)], joursVides: [], matin } });
+  assert.equal(m.total, 4, 'D était dans la liste du matin');
+  assert.equal(m.reste, 2);
+});
+
+await dit('MC07 · « Reporter à demain » : elle sort de la file, compte comme traitée, repart demain', () => {
+  const m = pile([MC07_C, MC07_B, MC07_A], { historique: { traces: [envoyee(MC07_B, '10:00', 'reportee')], joursVides: [], matin: null } });
+  assert.deepEqual(m.lignes.map((l: any) => [l.clientNom, l.etat]), [['Client 2', 'faite'], ['Client 1', 'encours'], ['Prospect c', 'avenir']]);
+  assert.deepEqual(m.lignes[0].droite, { genre: 'reportee' });
+  assert.deepEqual([m.total, m.traitees, m.reste], [3, 1, 2]);
+  assert.equal(m.envoyeesMois, 0, 'reportée n’est pas envoyée');
+});
+
+await dit('MC07 · « Passer » : la carte passe en fin de pile, la relance reste dans la file et ne compte pas comme traitée', () => {
+  const m = pile([MC07_C, MC07_B, MC07_A], { passees: [PI.cleRelance(MC07_A)] });
+  assert.equal(m.courante.clientNom, 'Client 2');
+  assert.deepEqual(m.lignes.map((l: any) => l.clientNom), ['Client 2', 'Prospect c', 'Client 1']);
+  assert.deepEqual([m.total, m.traitees, m.reste], [3, 0, 3]);
+  const choisie = pile([MC07_C, MC07_B, MC07_A], { selection: PI.cleRelance(MC07_C) });
+  assert.equal(choisie.courante.clientNom, 'Prospect c', 'un clic sur une ligne l’amène au premier plan');
+});
+
+await dit('MC07 · la règle d’espacement s’applique AVANT l’affichage : 5 jours sur un objet, rien dans les 24 h après un échange, pas hors de la plage', () => {
+  const recente = rl('r', 3, { montantCents: 900_000, etat: 'envoyée', nbEnvoyees: 1, derniereEnvoiLe: '2026-10-28' });
+  assert.deepEqual(pile([recente, MC07_A]).lignes.map((l: any) => l.clientNom), ['Client 1'], 'envoyée il y a 2 jours : attend');
+  const ok = rl('r', 3, { montantCents: 900_000, etat: 'envoyée', nbEnvoyees: 1, derniereEnvoiLe: '2026-10-23' });
+  assert.deepEqual(pile([ok, MC07_A]).lignes.map((l: any) => l.clientNom), ['Client 3', 'Client 1'], 'envoyée il y a 7 jours : prête');
+  const echange = pile([MC07_A], {}, { echanges: [{ clientId: 1, at: new Date(paris('2026-10-30', '09:00')).toISOString() }] });
+  assert.equal(echange.lignes.length, 0, 'un échange il y a moins de 24 h');
+  const tot = pile([MC07_A], {}, { maintenant: paris('2026-10-30', '07:00') });
+  assert.equal(tot.courante.peutPartir, false, 'avant 9:00 : le message est prêt, il ne part pas');
+  assert.match(tot.courante.statutEnvoi, /^Part le .* à 09:00/);
+  const weekend = pile([MC07_A], {}, { maintenant: paris('2026-10-31', '10:00'), aujourdhui: '2026-10-31' });
+  assert.equal(weekend.courante.peutPartir, false, 'jamais le week-end');
+  assert.equal(pile([MC07_A]).courante.peutPartir, true);
+  assert.equal(pile([MC07_A]).courante.statutEnvoi, 'part maintenant');
+});
+
+await dit('MC07 · trois relances au plus : la 3e est la dernière par message (bandeau), un objet à trois relances sort de la file', () => {
+  const deux = rl('x', 1, { etat: 'envoyée', nbEnvoyees: 2, derniereEnvoiLe: '2026-10-20' });
+  const m = pile([deux]);
+  assert.equal(m.courante.rang, 3);
+  assert.equal(m.courante.derniere, true);
+  assert.equal(m.courante.suite, 'appel');
+  assert.equal(m.suggestion?.clientNom, 'Client 1', '2 relances sans réponse : un appel plutôt qu’un message');
+  assert.equal(pile([deux], { suggestionMasquee: new Set([PI.cleRelance(deux)]) }).suggestion, null, '« Non » la masque');
+  const trois = rl('x', 1, { etat: 'envoyée', nbEnvoyees: 3, derniereEnvoiLe: '2026-10-01' });
+  assert.equal(pile([trois]).courante, null);
+  assert.equal(pile([MC07_A]).suggestion, null, 'sans cas : l’astuce');
+});
+
+await dit('MC07 · boîte à zéro : file vidée, rond du jour coché, la série ignore le week-end, la phrase calme', () => {
+  const traces = [envoyee(MC07_A, '09:12'), envoyee(MC07_B, '09:30'), envoyee(MC07_C, '09:50')];
+  const m = pile([MC07_A, MC07_B, MC07_C], { historique: { traces, joursVides: ['2026-10-26', '2026-10-27', '2026-10-28', '2026-10-29'], matin: null } });
+  assert.equal(m.videe, true);
+  assert.equal(m.courante, null);
+  assert.equal(m.serie, 5);
+  assert.deepEqual(m.semaine.map((s: any) => [s.jour, s.coche, s.aujourdhui]), [['2026-10-26', true, false], ['2026-10-27', true, false], ['2026-10-28', true, false], ['2026-10-29', true, false], ['2026-10-30', true, true]]);
+  const lundi = pile([], { historique: { traces: [], joursVides: ['2026-10-29', '2026-10-30'], matin: null } }, { aujourdhui: '2026-11-02', maintenant: paris('2026-11-02', '10:00') });
+  assert.equal(lundi.serie, 2, 'un lundi suit un vendredi');
+  assert.equal(pile([]).total, 0);
+  assert.equal(pile([]).videe, false, 'rien à relancer : ni file ni boîte à zéro');
+});
+
+await dit('MC07 · les réponses : sans source, « non disponible » et jamais un taux inventé ; avec elles, 14 sur 23 se calcule', () => {
+  assert.equal(pile([MC07_A]).reponses, null);
+  assert.equal(pile([MC07_A]).tauxReponse, null);
+  const faites = Array.from({ length: 4 }, (_, i) => rl(`z${i}`, 10 + i, { etat: i < 3 ? 'répondue' : 'envoyée', nbEnvoyees: 1, derniereEnvoiLe: '2026-10-12' }));
+  const m = pile(faites, { reponses: [] });
+  assert.equal(m.envoyeesMois, 4);
+  assert.equal(m.tauxReponse, 75);
+  assert.equal(m.lignes.length, 1, 'une relance répondue n’est plus dans la file');
+  assert.deepEqual(PI.reponsesDepuisRelances([rl('p', 5, { motif: 'facture', etat: 'répondue', nbEnvoyees: 1, derniereEnvoiLe: '2026-10-30', objetLibelle: 'Facture F-9' })], '2026-10-30').map((r: any) => [r.clientNom, r.texte, r.genre]), [['Client 5', 'Facture F-9 payée', 'paiement']]);
+});
+
+await dit('MC07 · la cadence de l’objet : départ, 1re relance « Aujourd’hui », 2e, appel proposé, suivi à la main ; elle suit l’étape en cours', () => {
+  const m = pile([MC07_A]);
+  assert.deepEqual(m.frise.map((e: any) => [e.genre, e.etat]), [['depart', 'fait'], ['relance', 'maintenant'], ['relance', 'avenir'], ['appel', 'avenir'], ['manuel', 'fin']]);
+  assert.equal(m.frise[0].le, '2026-10-20');
+  assert.equal(m.frise[1].le, '2026-10-30');
+  assert.equal(m.frise[1].aujourdhui, true);
+  assert.equal(m.frise[1].jourN, 10);
+  assert.ok(m.frise[2].le > m.frise[1].le && m.frise[3].le > m.frise[2].le, 'les étapes suivantes tombent après la première');
+  assert.equal(m.frise[4].le, undefined);
+  const apres = pile([rl('x', 1, { etat: 'envoyée', nbEnvoyees: 2, derniereEnvoiLe: '2026-10-20' })]);
+  assert.deepEqual(apres.frise.map((e: any) => e.etat), ['fait', 'fait', 'fait', 'maintenant', 'fin']);
+  const tot = pile([MC07_A], {}, { maintenant: paris('2026-10-30', '07:00') });
+  assert.equal(tot.frise[1].aujourdhui, undefined, '« Aujourd’hui » seulement si elle peut partir');
+});
+
+await dit('MC07 · le texte : le ton change l’entrée et la fin, le texte reste modifiable, l’objet et le destinataire viennent des données', () => {
+  const m = pile([MC07_A]);
+  assert.match(m.courante.corps, /^Bonjour, je reviens vers vous au sujet du devis D-a envoyé le 20\/10\/2026\./);
+  assert.match(m.courante.corps, /\n\nBien cordialement\.$/);
+  assert.equal(m.courante.sujet, 'Votre devis D-a');
+  assert.equal(m.courante.a, 'Client 1', 'sans interlocuteur, le nom du client');
+  const chaud = pile([MC07_A], { ton: 'chaleureux' }).courante.corps;
+  assert.match(chaud, /J’espère que vous allez bien\./);
+  assert.match(chaud, /Bien chaleureusement\.$/);
+  const bref = pile([rl('x', 1, { etat: 'envoyée', nbEnvoyees: 1, derniereEnvoiLe: '2026-10-20' })], { ton: 'bref' }).courante.corps;
+  assert.ok(!/précédent message/.test(bref), 'bref : sans rappel du message précédent');
+  assert.match(bref, /Merci d’avance\.$/);
+  const libre = pile([MC07_A], { brouillons: { [PI.cleRelance(MC07_A)]: 'Mon texte.' } }).courante;
+  assert.equal(libre.corps, 'Mon texte.');
+  assert.equal(libre.modifie, true);
+  for (const ton of ['courtois', 'chaleureux', 'bref']) assert.ok(!TUTOIEMENT.test(pile([MC07_A], { ton }).courante.corps), `${ton} tutoie`);
+  const lien = pile([MC07_A], {}, { interlocuteurs: [{ id: 'i1', prenom: 'Karim', nom: 'Medina', nomComplet: 'Karim Medina', organisationType: 'client', organisationId: '1', organisationNom: 'Client 1' }] }).courante;
+  assert.deepEqual([lien.a, lien.destinataire.prenom], ['Karim Medina', 'Karim']);
+  assert.match(lien.corps, /^Bonjour Karim,/);
+});
+
+await dit('MC07 · les gestes déjà faits comptent : une relance envoyée aujourd’hui a une relance de plus et sa date du jour (la règle la voit)', () => {
+  const [v] = PI.appliquerTraces([MC07_A], [envoyee(MC07_A)]);
+  assert.deepEqual([v.etat, v.nbEnvoyees, v.derniereEnvoiLe], ['envoyée', 1, '2026-10-30']);
+  assert.equal(PI.appliquerTraces([MC07_A], [envoyee(MC07_A, '09:00', 'reportee')])[0].nbEnvoyees, 0, 'reportée n’est pas envoyée');
+  assert.equal(PI.appliquerTraces([rl('y', 1, { etat: 'répondue' })], [envoyee(rl('y', 1))])[0].etat, 'répondue', 'une réponse reste une réponse');
+});
+
+await dit('MC07 · textes : mêmes clés en fr et en, mêmes paramètres, comptes à deux formes, l’interface tutoie, le message client vouvoie', () => {
+  const en = Object.keys(DICO_PILE.en).sort();
+  assert.deepEqual(Object.keys(DICO_PILE.fr).sort(), en);
+  const params = (t: string) => [...t.matchAll(/\{(\w+)\}/g)].map((x) => x[1]).sort().join(',');
+  for (const k of en) {
+    assert.ok(DICO_PILE.en[k].trim() && DICO_PILE.fr[k].trim(), k);
+    assert.equal(params(DICO_PILE.fr[k]), params(DICO_PILE.en[k]), `paramètres de ${k}`);
+    assert.ok(!VOUVOIEMENT_UI.test(DICO_PILE.fr[k]), `${k} vouvoie : ${DICO_PILE.fr[k]}`);
+  }
+  for (const b of new Set(en.filter((k) => /\.(1|n)$/.test(k)).map((k) => k.replace(/\.(1|n)$/, '')))) for (const l of ['fr', 'en']) assert.ok(DICO_PILE[l][`${b}.1`] && DICO_PILE[l][`${b}.n`], `${b} (${l})`);
+  assert.equal(DICO_PILE.fr['sousTitre.n'], 'Personne n’est oublié · {n} relances prêtes, une à la fois', 'la phrase de tutoiement.json');
+  for (const k of ['client.chaleureux.intro', 'client.chaleureux.fin', 'client.bref.fin', 'client.sujet.facture', 'client.sujet.devis', 'client.sujet.rendez-vous', 'client.sujet.prospect', 'client.sujet.inactif']) assert.ok(!TUTOIEMENT.test(DICO.fr[k]), `${k} tutoie`);
 });
 
 /* ── Structure ──────────────────────────────────────────────────────────── */
