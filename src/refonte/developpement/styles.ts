@@ -63,7 +63,10 @@ export const FEUILLE_DEVELOPPEMENT = `
 :is(.dv-page, .dv-ms-fiche) [data-socle='bouton']::after,
 .dv-ens-poste__nom::after,
 .dv-ens-jeton::after,
-.dv-ms-puce::after { content: ''; position: absolute; top: 50%; left: 50%; width: max(100%, 34px); height: max(100%, 34px); transform: translate(-50%, -50%); }
+/* 36 px dessinés en zone : 34 px utiles, plus 1 px de chaque côté pour qu'une sonde posée pile à ± 17 px du centre tombe dedans. */
+.dv-ms-puce::after { content: ''; position: absolute; top: 50%; left: 50%; width: max(100%, 36px); height: max(100%, 36px); transform: translate(-50%, -50%); }
+/* Le sélecteur Aperçu / Code (Segmente du socle, zone de 34 px tout juste) prend la même marge dans la fiche d'un modèle. */
+.dv-ms-fiche .sc-segment::after { width: max(100%, 36px); height: max(100%, 36px); }
 
 /* ── Points, grands chiffres ── */
 .dv-point {
@@ -196,8 +199,8 @@ export const FEUILLE_DEVELOPPEMENT = `
 .dv-ens-milieu { display: grid; grid-template-columns: 547px 547px; gap: 14px; }
 .dv-ens-milieu > .dv-carte { min-height: 150px; padding: 14px 18px; }
 .dv-ens-milieu .dv-carte__tete { margin-bottom: 8px; }
-/* 35 px par ligne (plus le filet) : deux zones de clic de 34 px voisines ne se recouvrent pas (§1.39). */
-.dv-ens-milieu .dv-a-regarder__ligne { min-height: 35px; font-size: 13px; }
+/* 36 px par ligne (plus le filet) : deux zones de clic de 36 px voisines ne se recouvrent pas (§1.39). */
+.dv-ens-milieu .dv-a-regarder__ligne { min-height: 36px; font-size: 13px; }
 .dv-ens-seul { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: center; }
 .dv-ens-seul__bloc { display: flex; align-items: center; gap: 12px; background: none; border: 0; padding: 0; color: inherit; text-align: left; cursor: pointer; }
 .dv-ens-seul__grand { display: block; font-size: 20px; font-weight: 700; color: var(--socle-texte-1); }
