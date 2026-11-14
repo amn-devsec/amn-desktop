@@ -203,6 +203,51 @@
      "pause": 700
     }
    ]
+  },
+  {
+   "id": "MJ03",
+   "route": "#/planning",
+   "etapes": [
+    {
+     "attendre": "main, [role=main], h1"
+    },
+    {
+     "clicSiPresent": "button:has-text('Compris')"
+    },
+    {
+     "pause": 700
+    }
+   ]
+  },
+  {
+   "id": "MJ04",
+   "route": "#/notes-rapides",
+   "etapes": [
+    {
+     "attendre": "main, [role=main], h1"
+    },
+    {
+     "clicSiPresent": "button:has-text('Compris')"
+    },
+    {
+     "pause": 700
+    }
+   ]
+  },
+  {
+   "id": "MJ05",
+   "route": "#/rappels",
+   "etapes": [
+    {
+     "attendre": "main, [role=main], h1"
+    },
+    {
+     "clicSiPresent": "button:has-text('Compris')"
+    },
+    {
+     "pause": 700
+    }
+   ]
   }
  ]
 }
