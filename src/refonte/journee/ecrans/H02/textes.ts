@@ -3,7 +3,7 @@ import { definirMots } from '../../../../socle/mots';
 /** H02 · Tâches — textes statiques (fiche H02 rubrique 4, au tutoiement). */
 const EN = {
   'titre': 'Tasks',
-  'sous': '{o} open · {r} overdue · {f} done today',
+  'sous': '{o} open · {r} to pick up · {f} done today',
   'puce.moi': 'My tasks',
   'puce.equipe': 'Team',
   'puce.faites': 'Done',
@@ -28,7 +28,7 @@ const EN = {
   'case.deleguer.aide': 'to hand over',
   'case.alleger': 'Lighten',
   'case.alleger.aide': 'later, or never',
-  'case.dont': 'including {n} overdue',
+  'case.dont': 'including {n} to pick up',
   'case.autres': '+ {n} more',
   'pied.planifier': '{duree} free {quand} to place them',
   'pied.deleguer': 'Suggested: hand over to {nom}, free this afternoon',
@@ -69,7 +69,7 @@ const EN = {
 
 const FR: Readonly<Record<keyof typeof EN, string>> = {
   'titre': 'Tâches',
-  'sous': '{o} ouvertes · {r} en retard · {f} faites aujourd’hui',
+  'sous': '{o} ouvertes · {r} à reprendre · {f} faites aujourd’hui',
   'puce.moi': 'Mes tâches',
   'puce.equipe': 'Équipe',
   'puce.faites': 'Terminées',
@@ -94,7 +94,7 @@ const FR: Readonly<Record<keyof typeof EN, string>> = {
   'case.deleguer.aide': 'à confier',
   'case.alleger': 'Alléger',
   'case.alleger.aide': 'plus tard, ou jamais',
-  'case.dont': 'dont {n} en retard',
+  'case.dont': 'dont {n} à reprendre',
   'case.autres': '+ {n} autres',
   'pied.planifier': '{duree} libres {quand} pour les placer',
   'pied.deleguer': 'Proposé : confier à {nom}, libre cet après-midi',
