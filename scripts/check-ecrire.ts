@@ -993,7 +993,29 @@ for (const volume of ['vide', 'peu', 'normal', 'beaucoup']) {
     const arbo = P.compteursArborescence(pages, moiEmail);
     assert.equal(arbo.equipe, pages.filter((p: any) => !p.supprimeeLe && p.espace === 'Équipe').length);
     for (const p of pages) for (const s of P.sectionsDeTaches(p.blocs)) assert.ok(s.faites <= s.total && s.pourcent >= 0 && s.pourcent <= 100);
-    for (const p of pages) assert.equal(P.liensRetour(p.id, pages).total, 0, 'les jeux n’ont pas de liens entre pages');
+    // Liens entre pages : recomptés à part, page par page, puis comparés à la logique.
+    const ids = new Set(pages.map((p: any) => p.id));
+    for (const p of pages) for (const b of p.blocs) for (const cible of b.liens ?? []) assert.ok(ids.has(cible), `lien orphelin : « ${p.title} » cite ${cible}, qui n’existe pas dans le jeu`);
+    for (const cible of pages) {
+      const citantes = pages.filter((p: any) => p.id !== cible.id && !p.supprimeeLe && p.blocs.some((b: any) => (b.liens ?? []).includes(cible.id)));
+      const lr = P.liensRetour(cible.id, pages);
+      assert.equal(lr.total, citantes.length, `liens retour de « ${cible.title} »`);
+      assert.ok(lr.visibles.length === Math.min(citantes.length, P.LIENS_VISIBLES));
+      assert.ok(lr.visibles.every((l: any, i: number, tous: any[]) => i === 0 || Date.parse(tous[i - 1].modifieAt) >= Date.parse(l.modifieAt)), 'la plus récente d’abord');
+      assert.ok(lr.visibles.every((l: any) => l.pageId !== cible.id && citantes.some((c: any) => c.id === l.pageId)), 'ni elle-même, ni une page supprimée');
+      assert.ok(lr.visibles.every((l: any) => l.extrait.length > 0 && l.extrait.length <= P.EXTRAIT_AVANT + 1), 'extrait non vide et court');
+    }
+    // Le contrôle n'est pas creux : dès que le jeu a quelques pages, il porte de vrais liens à vérifier.
+    const nbLiens = pages.reduce((n: number, p: any) => n + p.blocs.reduce((m: number, b: any) => m + (b.liens?.length ?? 0), 0), 0);
+    if (volume === 'normal' || volume === 'beaucoup') assert.ok(nbLiens > 0, 'les jeux « normal » et « beaucoup » portent des liens entre pages');
+    // Un lien vers soi-même ne compte pas ; une page supprimée ne cite plus.
+    if (pages.length) {
+      const a = pages[0];
+      const seule = [{ ...a, supprimeeLe: undefined, blocs: [{ type: 'texte' as const, texte: 'Voir plus haut.', liens: [a.id] }] }];
+      assert.equal(P.liensRetour(a.id, seule).total, 0);
+      const supprimee = [{ ...a, id: 'z', supprimeeLe: '2026-10-01T00:00:00Z', blocs: [{ type: 'texte' as const, texte: 'Ancien.', liens: [a.id] }] }, ...seule];
+      assert.equal(P.liensRetour(a.id, supprimee).total, 0);
+    }
 
     // H11 : documents
     const fichiers = w.fichiers;
