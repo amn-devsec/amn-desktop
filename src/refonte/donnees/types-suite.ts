@@ -32,7 +32,7 @@ export const NOMS_DES_JEUX_SUITE = [
   // MR08 (boutique en ligne)
   'entonnoirBoutique', 'paniers', 'sessionsBoutique',
   // Développement (LOT-11)
-  'depots', 'deploiements', 'deploiementsPlanifies', 'executions', 'tachesPlanifiees', 'mesuresServeur', 'servicesServeur', 'paiementsConnecteurs',
+  'serveur', 'depots', 'deploiements', 'deploiementsPlanifies', 'executions', 'tachesPlanifiees', 'mesuresServeur', 'servicesServeur', 'paiementsConnecteurs',
   // Écrire
   'pages', 'fichiers', 'signatures', 'modeles', 'journal', 'textes', 'archives', 'connaissances', 'reglesArchivage', 'demandesRelecture',
   // Échanger
@@ -1378,7 +1378,26 @@ export interface SessionBoutique {
   appareil: 'mobile' | 'ordinateur' | 'tablette';
 }
 
+/** DEV-serveur : le résumé du serveur. Aucun nom d'hôte, aucune adresse, aucun port. Un seul enregistrement (le serveur de l'entreprise). */
+export interface ResumeServeur {
+  id: string;
+  /** Jours depuis le dernier redémarrage. */
+  enLigneDepuisJours: number;
+  redemarreLe: string;
+  memoireTotaleGo: number;
+  disqueTotalGo: number;
+  disqueUtiliseGo: number;
+  /** La croissance du disque (Go) des quatre dernières semaines, de la plus ancienne à la plus récente. */
+  croissanceDisqueGoParSemaine: number[];
+  /** La capacité déclarée du lien, en Mo/s (de quoi calculer l'anneau du réseau). */
+  capaciteReseauMoParS: number;
+  sauvegardes: { derniereCopieAt: string | null; derniereCopieReussie: boolean; restaurationTesteeLe: Jour | null; copieHorsServeurChiffree: boolean };
+  /** Les lignes de coût du mois en cours (TTC, centimes) : hébergement, stockage, copies. */
+  couts: { ligne: string; cents: number }[];
+}
+
 export interface MondeSuite {
+  serveur: ResumeServeur[];
   entonnoirBoutique: JourEntonnoir[];
   paniers: PanierBoutique[];
   sessionsBoutique: SessionBoutique[];

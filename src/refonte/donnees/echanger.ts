@@ -170,7 +170,7 @@ export function genererAnnonces(ctx: Contexte, equipe: readonly Membre[]): Annon
   const gens = salaries(equipe);
   return fabriquer(n, (i) => {
     const [titre, texte, categorie, epinglee] = i <= ANNONCES.length ? ANNONCES[i - 1] : [`${ANNONCES[i % ANNONCES.length][0]} (${i})`, ANNONCES[i % ANNONCES.length][1], ANNONCES[i % ANNONCES.length][2], false] as const;
-    const auteur = h.choix(gens.filter((g) => g.role === 'Administrateur').concat(gens[0]));
+    const auteur = h.choix(gens.filter((g) => g.role === 'owner' || g.role === 'admin').concat(gens[0]));
     const publieeAt = ctx.maintenant - (i === 1 ? h.entier(30, 90) * 60_000 : (i - 1) * h.entier(1, 3) * 86_400_000 + h.entier(1, 6) * 3_600_000);
     // L'auteur est compté d'office parmi ceux qui ont lu (H14).
     const lecteurs = [auteur, ...h.echantillon(gens.filter((g) => g.email !== auteur.email), h.entier(0, gens.length - 1))];

@@ -53,7 +53,7 @@ const ecartEchange = (h: Hasard): number =>
   ] as const);
 
 const suiveurs = (equipe: readonly Membre[]): Membre[] => {
-  const l = equipe.filter((m) => m.role === 'Administrateur' || m.role === 'Membre');
+  const l = equipe.filter((m) => m.role !== 'guest');
   return l.length ? l : [...equipe];
 };
 

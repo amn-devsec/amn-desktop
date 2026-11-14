@@ -85,7 +85,11 @@ export interface Contexte {
 /* ------------------------------- Équipe ------------------------------- */
 
 /** MC04 (Équipe), H19 (Membres et accès). Rôles : ceux de MC04. */
-export type RoleMembre = 'Administrateur' | 'Membre' | 'Invité' | 'Partenaire';
+/**
+ * Les quatre rôles du SERVEUR (`UserRole`), les seuls réels : `owner` (Propriétaire, le « dirigeant »), `admin` (Administrateur),
+ * `member` (Membre), `guest` (Invité). « Partenaire » n'est pas un rôle : les partenaires sont des contacts (MC05). STATUT §1.34 n° 2.
+ */
+export type RoleMembre = 'owner' | 'admin' | 'member' | 'guest';
 
 export interface Membre {
   id: string;

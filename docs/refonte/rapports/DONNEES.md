@@ -30,7 +30,7 @@ Fichiers **sensibles** ou **hors zone** : aucun (ni `package.json`, ni `editions
 | `lint` | vert |
 | `check:accueils`, `check:socle`, `check:moments` | vert |
 | `check:langue`, `check:accent`, `check:naming`, `check:modules` | vert |
-| `check:donnees` (114 contrôles) | vert |
+| `check:donnees` (118 contrôles) | vert |
 
 Le scénario de charge « cible » est rejoué par `check:donnees` quand amn-api est à côté (sinon le contrôle le dit et passe).
 
@@ -69,11 +69,13 @@ Pas fait : le résumé du serveur de DEV-serveur (en ligne depuis N jours, copie
 - **Remises** (MA12) : chaque ligne de devis ou de facture porte `prixGrilleCents` ; l'écart avec le prix facturé est la remise accordée (jusqu'à 15 %). Pas de remise globale sur un document (`remisePct` de DS) : à demander si besoin.
 - **MR08** : jeux `entonnoirBoutique` (visites → paiements, 30 jours, lu dans `commandes`), `paniers` (ouvert, abandonné, converti), `sessionsBoutique` (actives depuis moins de 5 minutes) ; objectif du trimestre dans les réglages.
 
-114 jeux, `check:donnees` : 116 contrôles. **Contrôles des autres lots sur ces jeux** : creer 137, echanger 89, developpement 51, connecteurs 103 verts ; trois rouges, chacun à cause d'un changement commandé : `check:contacts` rejoue encore la fidélité à 500 / 1 500 sur les seules factures (S1 : passer à `pointsProgramme`, `PALIERS`, avis et recommandations du jeu) ; `check:argent` appelle `resteDu(…, { paiements: [] })` (DS : lui passer `m.paiements`, les règlements partiels y sont) ; `check:ecrire` affirme « les jeux n'ont pas de liens entre pages » (S5 : ils en ont, c'est ce qu'elle demandait).
+115 jeux, `check:donnees` : 118 contrôles. **Contrôles des autres lots sur ces jeux** : creer 137, echanger 89, developpement 51, connecteurs 103 verts ; trois rouges, chacun à cause d'un changement commandé : `check:contacts` rejoue encore la fidélité à 500 / 1 500 sur les seules factures (S1 : passer à `pointsProgramme`, `PALIERS`, avis et recommandations du jeu) ; `check:argent` appelle `resteDu(…, { paiements: [] })` (DS : lui passer `m.paiements`, les règlements partiels y sont) ; `check:ecrire` affirme « les jeux n'ont pas de liens entre pages » (S5 : ils en ont, c'est ce qu'elle demandait).
 
-## Avoirs : sur demande seulement (retrait du 14 nov. par le CO)
+## Avoirs par défaut, rôles du serveur, résumé du serveur (messages du CO, 14 nov.)
 
-Le CO a retiré temporairement la fusion `c9e8713` de `refonte-vivante` : `check:argent` (DS) ne lit pas encore la nature `creditNote`, donc les avoirs faussaient le reste dû, la TVA et les impayés. Réponse de SIM : le jeu `avoirs` reste, mais **n'entre dans le monde que sur demande** — `construireMonde({ avoirs: true })`, `jeu('avoirs')`, `--avoirs` pour le chargeur. Par défaut le monde n'a pas d'avoirs, et les contrôles de tous les lots qui lisent ces jeux passent (argent 53, contacts 85, échanger 89, écrire 94, créer 137, développement 51, connecteurs 103). Quand DS lit les avoirs, passer `avoirs` à `true` par défaut (une ligne dans `monde.ts`).
+- **Avoirs** : DS les lit (`check:argent`, §1.34) ; ils sont dans le monde **par défaut** (`construireMonde({ avoirs: false })` redonne un monde sans avoir).
+- **Rôles fictifs** alignés sur le serveur (§1.34 n° 2) : `owner` (le dirigeant, « moi »), `admin`, `member`, `guest`. « Partenaire » n'est plus un rôle : Inès (graphiste) devient une invitée (`guest`), les partenaires sont des contacts (MC05). `compat.ts` vérifie la correspondance avec `UserRole`.
+- **DEV-serveur** : jeu `serveur` (un enregistrement) — jours en ligne, mémoire, disque cohérent avec les mesures, croissance sur 4 semaines, capacité du lien, sauvegardes lues dans le jeu `sauvegardes`, coût du mois (9 € : hébergement, stockage, copies). Les états des services suivent la fiche : en marche dès 99,9 %, attention de 99,0 à 99,9 %, arrêté dessous. Ni hôte, ni adresse, ni port.
 
 ## Ce qui reste à faire (par ordre d'utilité)
 
@@ -99,7 +101,7 @@ Aucun point faible d'amn-api n'a été trouvé par ces essais.
 
 ## Ce qui n'a pas été vérifié
 
-- **Aucun écran n'a encore consommé** ces jeux ni ces attendus : tout est vérifié par le compilateur et 106 contrôles, pas en situation. Pas de navigateur.
+- **Aucun écran n'a encore consommé** ces jeux ni ces attendus : tout est vérifié par le compilateur et 118 contrôles, pas en situation. Pas de navigateur.
 - **Les chiffres de charge ne valent pas pour le serveur réel** (même processus pour le serveur et les personnes simulées). Le palier de 1 000 organisations connectées et les 72 h n'ont pas été joués : seulement 100 organisations dont 20 connectées pendant 30 s, des paliers jusqu'à 40, et 80 s d'essai long avec coupures et redémarrages.
 - **Le chargeur a été essayé** sur une API d'essai locale (volumes « peu », « normal » et « vide », retour d'un volume à l'autre, refus des cibles et des comptes) mais **pas** contre le port 4171 de T1.
 - **Les formes des huit collections** sont celles de `compat.ts` ; les tâches n'y figurent pas (leur type dans le dépôt est lâche) et n'ont pas de champ `priority` : un écran qui l'exigerait le dira.

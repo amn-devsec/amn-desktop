@@ -18,21 +18,21 @@ import type { Contexte, Entreprise, Membre, RoleMembre } from './types';
 export const DOMAINE_ENTREPRISE = 'maison-vallon.exemple.test';
 
 const FIXES: readonly Omit<Membre, 'id' | 'nomComplet' | 'initiales' | 'email' | 'derniereActiviteAt' | 'congesJours'>[] = [
-  { prenom: 'Camille', nom: 'Roux', role: 'Administrateur', fonction: 'Dirigeante', specialites: ['Stratégie', 'Relation client'], statut: 'en ligne', moi: true, teinte: 0, doubleAuthentification: true, heuresSemaine: 35 },
-  { prenom: 'Hugo', nom: 'Marchand', role: 'Membre', fonction: 'Commercial', specialites: ['Vente', 'Devis'], statut: 'en ligne', moi: false, teinte: 1, doubleAuthentification: true, heuresSemaine: 35 },
-  { prenom: 'Nadia', nom: 'Bensalah', role: 'Administrateur', fonction: 'Comptable', specialites: ['Facturation', 'TVA', 'Paie'], statut: 'hors ligne', moi: false, teinte: 2, doubleAuthentification: true, heuresSemaine: 28 },
-  { prenom: 'Léa', nom: 'Dubois', role: 'Membre', fonction: 'Chargée de production', specialites: ['Sites web', 'Contenus'], statut: 'en ligne', moi: false, teinte: 3, doubleAuthentification: false, heuresSemaine: 35 },
-  { prenom: 'Yanis', nom: 'Garcia', role: 'Membre', fonction: 'Technicien', specialites: ['Sécurité', 'Maintenance'], statut: 'absent', moi: false, teinte: 4, doubleAuthentification: true, heuresSemaine: 35 },
-  { prenom: 'Inès', nom: 'Traoré', role: 'Partenaire', fonction: 'Graphiste partenaire', specialites: ['Identité visuelle'], statut: 'hors ligne', moi: false, teinte: 5, doubleAuthentification: false, heuresSemaine: 14 },
+  { prenom: 'Camille', nom: 'Roux', role: 'owner', fonction: 'Dirigeante', specialites: ['Stratégie', 'Relation client'], statut: 'en ligne', moi: true, teinte: 0, doubleAuthentification: true, heuresSemaine: 35 },
+  { prenom: 'Hugo', nom: 'Marchand', role: 'member', fonction: 'Commercial', specialites: ['Vente', 'Devis'], statut: 'en ligne', moi: false, teinte: 1, doubleAuthentification: true, heuresSemaine: 35 },
+  { prenom: 'Nadia', nom: 'Bensalah', role: 'admin', fonction: 'Comptable', specialites: ['Facturation', 'TVA', 'Paie'], statut: 'hors ligne', moi: false, teinte: 2, doubleAuthentification: true, heuresSemaine: 28 },
+  { prenom: 'Léa', nom: 'Dubois', role: 'member', fonction: 'Chargée de production', specialites: ['Sites web', 'Contenus'], statut: 'en ligne', moi: false, teinte: 3, doubleAuthentification: false, heuresSemaine: 35 },
+  { prenom: 'Yanis', nom: 'Garcia', role: 'member', fonction: 'Technicien', specialites: ['Sécurité', 'Maintenance'], statut: 'absent', moi: false, teinte: 4, doubleAuthentification: true, heuresSemaine: 35 },
+  { prenom: 'Inès', nom: 'Traoré', role: 'guest', fonction: 'Graphiste invitée', specialites: ['Identité visuelle'], statut: 'hors ligne', moi: false, teinte: 5, doubleAuthentification: false, heuresSemaine: 14 },
 ];
 
 const FONCTIONS_GENEREES: readonly (readonly [string, RoleMembre, string[]])[] = [
-  ['Assistant administratif', 'Membre', ['Accueil', 'Courrier']],
-  ['Chargé de clientèle', 'Membre', ['Relation client']],
-  ['Développeuse', 'Membre', ['Sites web']],
-  ['Stagiaire', 'Invité', ['Découverte']],
-  ['Chef de projet', 'Membre', ['Planning', 'Suivi']],
-  ['Rédacteur', 'Membre', ['Contenus']],
+  ['Assistant administratif', 'member', ['Accueil', 'Courrier']],
+  ['Chargé de clientèle', 'member', ['Relation client']],
+  ['Développeuse', 'member', ['Sites web']],
+  ['Stagiaire', 'guest', ['Découverte']],
+  ['Chef de projet', 'member', ['Planning', 'Suivi']],
+  ['Rédacteur', 'member', ['Contenus']],
 ];
 
 export function genererEquipe(ctx: Contexte): Membre[] {

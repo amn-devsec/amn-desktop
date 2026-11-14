@@ -18,7 +18,7 @@ import type {
 } from './types';
 
 const hhmm = (h: number, m = 0): string => `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-const ouvres = (e: readonly Membre[]): Membre[] => e.filter((m) => m.role === 'Administrateur' || m.role === 'Membre');
+const ouvres = (e: readonly Membre[]): Membre[] => e.filter((m) => m.role !== 'guest');
 
 /* ------------------------------- Projets ------------------------------- */
 

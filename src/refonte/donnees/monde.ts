@@ -18,7 +18,7 @@ import { genererAccords, genererAlertesVeille, genererCampagnes, genererConstats
 import { genererAnnonces, genererAppels, genererCanaux, genererConversations, genererCourriels, genererPartages, genererReponsesAuto, genererReunions, genererSalles, genererSondages } from './echanger';
 import { genererArchives, genererConnaissances, genererDemandesRelecture, genererFichiers, genererJournal, genererModeles, genererPages, genererReglesArchivage, genererSignatures, genererTextes } from './ecrire';
 import { genererEntonnoir, genererPaniers, genererSessions } from './boutique';
-import { genererDeploiements, genererDeploiementsPlanifies, genererDepots, genererExecutions, genererMesuresServeur, genererPaiementsConnecteurs, genererServicesServeur, genererTachesPlanifiees } from './developpement';
+import { genererDeploiements, genererDeploiementsPlanifies, genererDepots, genererExecutions, genererMesuresServeur, genererPaiementsConnecteurs, genererServeur, genererServicesServeur, genererTachesPlanifiees } from './developpement';
 import { genererActifs, genererAlertes, genererCriteres, genererEvenementsSecurite, genererIncidents, genererJournalAcces, genererOffres, genererOrganisations, genererRondes, genererVulnerabilites, poserEtats } from './garde';
 import { genererArticles, genererChantiers, genererCommandes, genererControles, genererDossiersPhotos, genererEquipements, genererEtapesTournee, genererMarque, genererModelesControle, genererPagesPubliques, genererProduits, genererRessources, genererReservations, genererVehicules, genererVideos } from './creer';
 import {
@@ -40,9 +40,8 @@ export interface OptionsMonde {
   /** « Maintenant » du lot Cyber. Défaut : `MAINTENANT_CYBER` (mardi 3 novembre 2026) ; décalé comme `maintenant` si celui-ci l'est. */
   maintenantCyber?: number;
   /**
-   * Y met-on les avoirs (`AV-AAAA-NNNN`, factures de nature `creditNote`) ? Défaut : non. Ils baissent le reste dû, la TVA et
-   * les encaissements attendus : une logique qui ne lit pas la nature `creditNote` (check:argent de DS) les verrait comme des
-   * écarts. À passer à `true` par défaut quand elle les lit (CO, 14 nov.).
+   * Y met-on les avoirs (`AV-AAAA-NNNN`, factures de nature `creditNote`) ? Défaut : oui (DS les lit depuis le 14 nov.). Ils
+   * baissent le reste dû, la TVA et les encaissements attendus ; `false` redonne un monde sans avoir.
    */
   avoirs?: boolean;
   /** Volume de tous les jeux. Défaut : `normal`. */
@@ -73,7 +72,7 @@ export function construireMonde(options: OptionsMonde = {}): Monde {
   const factures = genererFactures(ctx, clients, devis, entreprise.identite.paymentTermDays);
   const paiements = genererPaiements(ctx, factures);
   // Les avoirs baissent le reste dû de certaines factures (soldeCents) : ils précèdent la trésorerie et la TVA.
-  const avoirs = options.avoirs ? genererAvoirs(ctx, factures, paiements) : [];
+  const avoirs = options.avoirs !== false ? genererAvoirs(ctx, factures, paiements) : [];
 
   const { projets, cibles } = genererProjets(ctx, equipe, clients);
   const taches = genererTaches(ctx, equipe, clients, projets, cibles);
@@ -185,6 +184,7 @@ export function construireMonde(options: OptionsMonde = {}): Monde {
   const tachesPlanifiees = genererTachesPlanifiees(ctx, automatisations);
   const mesuresServeur = genererMesuresServeur(ctx);
   const servicesServeur = genererServicesServeur(ctx);
+  const serveur = genererServeur(ctx, sauvegardes);
   const paiementsConnecteurs = genererPaiementsConnecteurs(ctx, connecteurs);
 
   // La Garde : l'état de chaque organisation se déduit de son score, de ses alertes ouvertes et de sa dernière ronde.
@@ -217,7 +217,7 @@ export function construireMonde(options: OptionsMonde = {}): Monde {
   return {
     contexte: ctx, entreprise, equipe, taches, evenements, projets, tickets, notes, rappels, habitudes, clients, interlocuteurs, prospects,
     fournisseurs, achats, avis, relances, fidelite, devis, factures, paiements, depenses, abonnements, contrats, comptes, mouvements, enveloppes,
-    entonnoirBoutique, paniers, sessionsBoutique,
+    serveur, entonnoirBoutique, paniers, sessionsBoutique,
     depots, deploiements, deploiementsPlanifies, executions, tachesPlanifiees, mesuresServeur, servicesServeur, paiementsConnecteurs,
     avoirs, echeancesFiscales, bulletins, prestations, partenaires, creneaux, defis,
     pages, fichiers, signatures, modeles, journal, textes, archives, connaissances, reglesArchivage, demandesRelecture,

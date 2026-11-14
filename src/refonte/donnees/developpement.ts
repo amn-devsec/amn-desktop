@@ -15,7 +15,7 @@ import { ajouterJours, compter, debutDeMois, estOuvre, instantParis, iso, jourDe
 import type { Contexte, Membre, Ticket } from './types';
 import type {
   Automatisation, Connecteur, Depot, Deploiement, DeploiementPlanifie, Execution, MesureServeur, PaiementConnecteurs, PlanificationDeTache,
-  ServiceServeur, TachePlanifiee,
+  CopieSauvegarde, ResumeServeur, ServiceServeur, TachePlanifiee,
 } from './types-suite';
 
 const MIN = 60_000;
@@ -309,9 +309,35 @@ export function genererServicesServeur(ctx: Contexte): ServiceServeur[] {
   ];
   return fabriquer(n, (i) => {
     const [nom, detail, dispo] = modeles[(i - 1) % modeles.length];
-    const attention = dispo < 99.5;
+    // Fiche DEV-serveur : en marche dès 99,9 %, attention entre 99,0 et 99,9 %, arrêté sous 99,0 %.
+    const attention = dispo < 99.9;
     return { id: cle('sv', i, 3), nom, detail, disponibilite30jPct: Math.round((dispo - (h.chance(0.2) ? 0.01 : 0)) * 100) / 100, etat: attention ? 'attention' : 'en marche' };
   });
+}
+
+/** Le résumé du serveur : jours en ligne, mémoire et disque, sauvegardes (lues dans le jeu `sauvegardes`), coût du mois. */
+export function genererServeur(ctx: Contexte, sauvegardes: readonly CopieSauvegarde[]): ResumeServeur[] {
+  if (compter(ctx.volumes.serveur, [0, 1, 1, 1]) === 0) return [];
+  const derniere = [...sauvegardes].sort((a, b) => b.at.localeCompare(a.at))[0] ?? null;
+  const jours = 41;
+  return [{
+    id: 'srv-1',
+    enLigneDepuisJours: jours,
+    redemarreLe: iso(ctx.maintenant - jours * JOUR - 5 * 3_600_000),
+    memoireTotaleGo: 8,
+    disqueTotalGo: 160,
+    // 24 % de 160 Go : les mesures de la journée disent 24 % (voir `genererMesuresServeur`).
+    disqueUtiliseGo: 38.4,
+    croissanceDisqueGoParSemaine: [0.9, 1.2, 1, 1.1],
+    capaciteReseauMoParS: 12.5,
+    sauvegardes: {
+      derniereCopieAt: derniere ? derniere.at : null,
+      derniereCopieReussie: derniere ? derniere.etat === 'Réussie' : false,
+      restaurationTesteeLe: ajouterJours(ctx.aujourdhui, -28),
+      copieHorsServeurChiffree: true,
+    },
+    couts: [{ ligne: 'Hébergement', cents: 600 }, { ligne: 'Stockage', cents: 200 }, { ligne: 'Copies', cents: 100 }],
+  }];
 }
 
 /* ------------------------------- Coûts des connecteurs ------------------------------- */

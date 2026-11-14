@@ -31,20 +31,21 @@ const mixte = construireMonde({ volume: 'normal', volumes: { factures: 'vide', c
 | `normal` | le cas des maquettes | 48 / 70 / ≈ 270 |
 | `beaucoup` | défilement, pagination, performance | 300 / 700 / ≈ 1 750 |
 
-`construireMonde` assemble les 114 jeux en quelques centaines de millisecondes, même au volume `beaucoup`.
+`construireMonde` assemble les 115 jeux en quelques centaines de millisecondes, même au volume `beaucoup`.
 
 ## Conventions
 
 - **Montants en centimes entiers** (`...Cents`), TTC sauf mention contraire. Aides : `totauxDeFacture`, `totauxDeLignes`.
 - **Un champ qui existe déjà dans le dépôt garde son nom** (`title`, `status`, `assigneeEmail`, `amountCents`…). Un champ que seule une fiche réclame est en français et cite sa fiche (`types.ts`). `compat.ts` vérifie à la compilation que `FicheClient`, `Devis`, `Facture`, `Evenement`, `Depense`, `NoteRapide` et `Projet` restent des sur-ensembles des types du dépôt.
-- **Numérotation** : le format du module existant — `AAAA-NNNN` pour une facture, `AV-AAAA-NNNN` pour un avoir, chacune continue par année. Les avoirs (`avoirs`) sont des factures de nature `creditNote` qui réduisent `creditNoteFor` ; le reste dû (`soldeCents`) en tient compte, et le chargeur les range avec les factures.
+- **Numérotation** : le format du module existant — `AAAA-NNNN` pour une facture, `AV-AAAA-NNNN` pour un avoir, chacune continue par année. Les avoirs (`avoirs`) sont des factures de nature `creditNote` qui réduisent `creditNoteFor` ; le reste dû (`soldeCents`) en tient compte, et le chargeur les range avec les factures. Ils sont dans le monde par défaut (`construireMonde({ avoirs: false })` pour un monde sans avoir).
+- **Rôles** : les quatre du serveur (`owner`, `admin`, `member`, `guest`). « Partenaire » n'est pas un rôle : les partenaires sont des contacts (MC05).
 - **Jours** : `AAAA-MM-JJ` du calendrier de Paris (heure d'hiver et d'été gérées). **Instants** : ISO.
 - **Ce qui est dérivé se recalcule** : « En retard » (`statutAffiche`), santé d'un client (`calculerSante`, formule proposée par H05), avancement et statut d'un projet (`avancementProjet`, `statutProjet`), série (`journeesDeTravail`, `serieEnCours`), quantité en stock (`quantiteEnStock`), état d'une organisation (`etatOrganisation`), score et niveau de maturité (`scoreMaturite`, `niveauMaturite`), état d'un accord (`etatAccord`), disponibilité d'un outil (`outilDisponible`), niveau de conformité (`niveauConformite`), jours sans impayé (`joursSansImpaye`). Un écran doit refaire ces calculs ; les valeurs stockées servent à comparer.
 - Les règles que les fiches disent « à confirmer dans le code » sont implémentées comme **propositions**, nommées dans le code. Ne les prenez pas pour la règle du produit.
 
 ## Catalogue des jeux
 
-Les 114 jeux sont dans `types.ts` (`NOMS_DES_JEUX`, 25) et `types-suite.ts` (`NOMS_DES_JEUX_SUITE`, 89). Fiches = celles de `AMN-refonte-CO/lots/`.
+Les 115 jeux sont dans `types.ts` (`NOMS_DES_JEUX`, 25) et `types-suite.ts` (`NOMS_DES_JEUX_SUITE`, 90). Fiches = celles de `AMN-refonte-CO/lots/`.
 
 | Lot | Jeux | Fichier |
 |---|---|---|
@@ -57,7 +58,7 @@ Les 114 jeux sont dans `types.ts` (`NOMS_DES_JEUX`, 25) et `types-suite.ts` (`NO
 | Créer | `articles`, `produits`, `commandes`, `chantiers`, `dossiersPhotos`, `marque`, `videos`, `pagesPubliques`, `etapesTournee`, `equipements`, `ressources`, `reservations`, `vehicules`, `modelesControle`, `controles`, `ecarts` ; boutique en ligne (MR08) : `entonnoirBoutique`, `paniers`, `sessionsBoutique` | `creer.ts`, `boutique.ts` |
 | Outils | `corbeille`, `aide`, `secrets` (masqués), `sites`, `trackers`, `sauvegardes`, `operations`, `raccourcis`, `automatisations`, `connecteurs`, `notifications`, `modelesMetier`, `usagesCalculs` | `boite-outils.ts` |
 | La Garde | `organisations`, `actifs`, `alertes`, `incidents`, `vulnerabilites`, `rondes`, `evenementsSecurite`, `journalAcces`, `criteresMaturite`, `offresCyber` | `garde.ts` |
-| Développement (LOT-11) | `depots`, `deploiements`, `deploiementsPlanifies`, `executions`, `tachesPlanifiees`, `mesuresServeur`, `servicesServeur`, `paiementsConnecteurs` ; `connecteurs` complétés (mode, modèle de coût, consommation, payé) | `developpement.ts` |
+| Développement (LOT-11) | `depots`, `deploiements`, `deploiementsPlanifies`, `executions`, `tachesPlanifiees`, `mesuresServeur`, `servicesServeur`, `serveur` (résumé : jours en ligne, disque, sauvegardes, coût du mois), `paiementsConnecteurs` ; `connecteurs` complétés (mode, modèle de coût, consommation, payé) | `developpement.ts` |
 | Cyber (LOT-10) | `outilsCyber`, `accords`, `missions`, `constats`, `documentsCyber`, `logicielsClients`, `alertesVeille`, `fuites`, `dossiersConformite`, `campagnes`, `parcSecurite` | `cyber.ts` |
 
 Aides communes : `commun.ts` (horodatages bornés au passé, cycles, hasard par jeu).

@@ -67,7 +67,7 @@ const SECRETS: readonly (readonly [string, SecretMasque['type']])[] = [
 export function genererSecrets(ctx: Contexte, equipe: readonly Membre[]): SecretMasque[] {
   const h = hasardDe(ctx.graine, 'secrets');
   const n = compter(ctx.volumes.secrets, [0, 3, 8, 30]);
-  const resp = salaries(equipe).filter((m) => m.role === 'Administrateur' || m.fonction === 'Technicien');
+  const resp = salaries(equipe).filter((m) => m.role === 'owner' || m.role === 'admin' || m.fonction === 'Technicien');
   return fabriquer(n, (i) => {
     const [nom, type] = SECRETS[(i - 1) % SECRETS.length];
     return {
