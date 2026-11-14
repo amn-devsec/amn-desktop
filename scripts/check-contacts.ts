@@ -55,9 +55,9 @@ async function charger<T>(code: string): Promise<T> {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const M = await charger<any>(
-  "export * as L from '../src/refonte/contacts';\nexport * as monde from '../src/refonte/donnees';\nexport { DICTIONNAIRES_CONTACTS } from '../src/refonte/contacts/i18n';\nexport * as V from '../src/refonte/connecteurs/reglages';\nexport * as H from '../src/refonte/contacts/hub/modele';\nexport * as N from '../src/refonte/contacts/hub/nuage';\nexport { DICTIONNAIRES_HUB } from '../src/refonte/contacts/hub/i18n';\nexport { depuisMonde } from '../src/refonte/contacts/sources/depuisMonde';\nexport * as C from '../src/refonte/contacts/clients/modele';\nexport { DICTIONNAIRES_CLIENTS } from '../src/refonte/contacts/clients/i18n';\nexport * as G from '../src/refonte/contacts/fiche/modele';\nexport { DICTIONNAIRES_FICHE } from '../src/refonte/contacts/fiche/i18n';\nexport * as P from '../src/refonte/contacts/prospects/modele';\nexport * as PN from '../src/refonte/contacts/prospects/nuage';\nexport { DICTIONNAIRES_PROSPECTS } from '../src/refonte/contacts/prospects/i18n';\nexport * as RT from '../src/refonte/contacts/retours/modele';\nexport { DICTIONNAIRES_RETOURS } from '../src/refonte/contacts/retours/i18n';\nexport * as FO from '../src/refonte/contacts/fournisseurs/modele';\nexport { DICTIONNAIRES_FOURNISSEURS } from '../src/refonte/contacts/fournisseurs/i18n';\nexport * as PL from '../src/refonte/contacts/pipeline/modele';\nexport * as PG from '../src/refonte/contacts/pipeline/geometrie';\nexport { DICTIONNAIRES_PIPELINE } from '../src/refonte/contacts/pipeline/i18n';",
+  "export * as L from '../src/refonte/contacts';\nexport * as monde from '../src/refonte/donnees';\nexport { DICTIONNAIRES_CONTACTS } from '../src/refonte/contacts/i18n';\nexport * as V from '../src/refonte/connecteurs/reglages';\nexport * as H from '../src/refonte/contacts/hub/modele';\nexport * as N from '../src/refonte/contacts/hub/nuage';\nexport { DICTIONNAIRES_HUB } from '../src/refonte/contacts/hub/i18n';\nexport { depuisMonde } from '../src/refonte/contacts/sources/depuisMonde';\nexport * as C from '../src/refonte/contacts/clients/modele';\nexport { DICTIONNAIRES_CLIENTS } from '../src/refonte/contacts/clients/i18n';\nexport * as G from '../src/refonte/contacts/fiche/modele';\nexport { DICTIONNAIRES_FICHE } from '../src/refonte/contacts/fiche/i18n';\nexport * as P from '../src/refonte/contacts/prospects/modele';\nexport * as PN from '../src/refonte/contacts/prospects/nuage';\nexport { DICTIONNAIRES_PROSPECTS } from '../src/refonte/contacts/prospects/i18n';\nexport * as RT from '../src/refonte/contacts/retours/modele';\nexport { DICTIONNAIRES_RETOURS } from '../src/refonte/contacts/retours/i18n';\nexport * as FO from '../src/refonte/contacts/fournisseurs/modele';\nexport { DICTIONNAIRES_FOURNISSEURS } from '../src/refonte/contacts/fournisseurs/i18n';\nexport * as PL from '../src/refonte/contacts/pipeline/modele';\nexport * as PG from '../src/refonte/contacts/pipeline/geometrie';\nexport { DICTIONNAIRES_PIPELINE } from '../src/refonte/contacts/pipeline/i18n';\nexport * as FI from '../src/refonte/contacts/fidelite/modele';\nexport { DICTIONNAIRES_FIDELITE } from '../src/refonte/contacts/fidelite/i18n';",
 );
-const { L, monde, V, H, N, C, G, DICTIONNAIRES_HUB: DICO_HUB, DICTIONNAIRES_CLIENTS: DICO_CLIENTS, DICTIONNAIRES_FICHE: DICO_FICHE, P, PN, DICTIONNAIRES_PROSPECTS: DICO_PROSPECTS, RT, DICTIONNAIRES_RETOURS: DICO_RETOURS, FO, DICTIONNAIRES_FOURNISSEURS: DICO_FOURNISSEURS, PL, PG, DICTIONNAIRES_PIPELINE: DICO_PIPELINE, depuisMonde, DICTIONNAIRES_CONTACTS: DICO } = M;
+const { L, monde, V, H, N, C, G, DICTIONNAIRES_HUB: DICO_HUB, DICTIONNAIRES_CLIENTS: DICO_CLIENTS, DICTIONNAIRES_FICHE: DICO_FICHE, P, PN, DICTIONNAIRES_PROSPECTS: DICO_PROSPECTS, RT, DICTIONNAIRES_RETOURS: DICO_RETOURS, FO, DICTIONNAIRES_FOURNISSEURS: DICO_FOURNISSEURS, PL, PG, DICTIONNAIRES_PIPELINE: DICO_PIPELINE, FI, DICTIONNAIRES_FIDELITE: DICO_FIDELITE, depuisMonde, DICTIONNAIRES_CONTACTS: DICO } = M;
 const paris = (jour: string, hhmm: string): number => L.instantParis(jour, hhmm);
 const VOLUMES = ['vide', 'peu', 'normal', 'beaucoup'] as const;
 const mondes = Object.fromEntries(VOLUMES.map((v) => [v, monde.construireMonde({ volume: v })])) as Record<(typeof VOLUMES)[number], any>;
@@ -1830,6 +1830,133 @@ await dit('MC01 · textes : mêmes clés en fr et en, mêmes paramètres, compte
   }
   for (const b of new Set(en.filter((k) => /\.(1|n)$/.test(k)).map((k) => k.replace(/\.(1|n)$/, '')))) for (const l of ['fr', 'en']) assert.ok(DICO_PIPELINE[l][`${b}.1`] && DICO_PIPELINE[l][`${b}.n`], `${b} (${l})`);
   assert.equal(DICO_PIPELINE.fr['suggestion.texte.n'], 'Le devis de {montant} est ouvert depuis {n} jours sans réponse. Je prépare un message court et poli, tu le relis avant l’envoi.', 'la phrase de tutoiement.json');
+});
+
+/* ── MC02 : Fidélité ───────────────────────────────────────────────────── */
+console.log('\nContacts — MC02, Fidélité (échelle des paliers, gestes de la semaine)\n');
+
+const compteMC02 = (clientId: number, points: number, activite: string, o: Record<string, unknown> = {}): any => ({ clientId, clientNom: `Client ${clientId}`, points, niveau: points >= 1800 ? 'Or' : points >= 800 ? 'Argent' : 'Bronze', derniereActiviteLe: activite, recommandations: [], avantages: [], ...o });
+const srcMC02 = (comptes: any[], o: Record<string, unknown> = {}): any => base({ clients: comptes.map((c) => fiche(c.clientId, 3, { debutLe: '2024-06-15' })), fidelite: comptes, ...o });
+
+await dit('MC02 · position sur le barreau : 230 + part × 444, la part est relative au palier (980 et 1 710 sont sur le même barreau) ; Or jusqu’à 2 500', () => {
+  assert.equal(FI.positionXClient(0), 230);
+  assert.equal(FI.positionXClient(1), 674);
+  assert.equal(FI.positionXClient(2), 674, 'borné');
+  const part = (p: number) => Math.round(FI.partDansLePalier(p) * 1000) / 1000;
+  assert.deepEqual([980, 1360, 1710, 800].map(part), [0.18, 0.56, 0.91, 0]);
+  assert.deepEqual([120, 740, 1800, 2150, 2500, 9000].map(part), [0.15, 0.925, 0, 0.5, 1, 1]);
+  assert.ok(FI.positionXClient(FI.partDansLePalier(1710)) > 600, 'Medina : tout près du montant droit d’Argent');
+  assert.deepEqual([...FI.NIVEAUX_HAUT_EN_BAS], ['Or', 'Argent', 'Bronze']);
+});
+
+await dit('MC02 · deux rangées alternées, deux clients d’une même rangée toujours à 140 px au moins, même tous au plafond de l’échelle', () => {
+  const tous = Array.from({ length: 4 }, (_, i) => ({ id: i, part: 1 }));
+  const r = FI.rangees(tous);
+  assert.deepEqual(r.map((c: any) => c.rangee), [0, 1, 0, 1]);
+  for (const rang of [0, 1]) {
+    const xs = r.filter((c: any) => c.rangee === rang).map((c: any) => c.x).sort((a: number, b: number) => a - b);
+    for (let i = 1; i < xs.length; i += 1) assert.ok(xs[i] - xs[i - 1] >= FI.ECART_MINIMAL, `rangée ${rang} : ${xs.join(', ')}`);
+    assert.ok(xs.every((x: number) => x >= 230 && x <= 674));
+  }
+  const exemple = FI.rangees([{ part: 0.18 }, { part: 0.32 }, { part: 0.56 }, { part: 0.91 }]);
+  assert.deepEqual(exemple.map((c: any) => c.rangee), [0, 1, 0, 1]);
+  assert.deepEqual(exemple.map((c: any) => Math.round(c.x)), [310, 372, 479, 634], 'l’exemple de la fiche garde ses places');
+});
+
+await dit('MC02 · effectifs, au plus quatre clients posés par barreau (les plus proches du palier suivant d’abord), « N autres » ; carrés pleins = revenus ce mois', () => {
+  const comptes = [
+    ...Array.from({ length: 7 }, (_, i) => compteMC02(10 + i, 100 + i * 100, i < 4 ? '2026-10-12' : '2026-09-01')),
+    compteMC02(30, 900, '2026-10-02'), compteMC02(31, 1900, '2026-10-20'), compteMC02(32, 0, '2026-10-20'),
+  ];
+  const m = FI.modeleFidelite(srcMC02(comptes));
+  assert.equal(m.fideles, 9, 'un client à 0 point n’est pas fidèle');
+  const [or, argent, bronze] = m.barreaux;
+  assert.deepEqual([or.effectif, argent.effectif, bronze.effectif], [1, 1, 7]);
+  assert.equal(bronze.poses.length, 4);
+  assert.equal(bronze.autres, 3);
+  assert.deepEqual(bronze.poses.map((c: any) => c.clientId).sort(), [13, 14, 15, 16].sort(), 'les plus proches de 800 points');
+  assert.equal(bronze.carres.length, 7);
+  assert.equal(bronze.revenus, 4);
+  assert.equal(m.barreaux.reduce((s: number, b: any) => s + b.revenus, 0), m.programme.revenus);
+  assert.equal(m.programme.revenus, 6, '4 + 1 + 1');
+});
+
+await dit('MC02 · « bientôt au palier suivant » : moins de 100 points du seuil, « plus que N points » ; l’Or n’a pas de palier suivant ; « inactifs » = 30 jours sans activité', () => {
+  const m = FI.modeleFidelite(srcMC02([compteMC02(1, 1710, '2026-10-26'), compteMC02(2, 740, '2026-09-29'), compteMC02(3, 100, '2026-09-20'), compteMC02(4, 2140, '2026-10-29')]));
+  const pose = (id: number) => m.barreaux.flatMap((b: any) => b.poses).find((c: any) => c.clientId === id);
+  assert.deepEqual(pose(1).bientot, { manque: 90, vers: 'Or' });
+  assert.deepEqual(pose(2).bientot, { manque: 60, vers: 'Argent' });
+  assert.equal(pose(3).bientot, null);
+  assert.equal(pose(4).bientot, null);
+  assert.deepEqual([pose(1).inactif, pose(2).inactif, pose(3).inactif], [false, true, true]);
+  assert.deepEqual(m.chips, { tous: 4, bientot: 2, inactifs: 2 });
+  assert.deepEqual([pose(1), pose(2), pose(3)].map((c: any) => FI.gardeLeFiltre(c, 'bientot')), [true, true, false]);
+  assert.deepEqual([pose(1), pose(3)].map((c: any) => FI.gardeLeFiltre(c, 'inactifs')), [false, true]);
+});
+
+await dit('MC02 · à offrir cette semaine : passage de palier, anniversaire de relation (7 jours), seuil de 500 points dépassé ; trois au plus', () => {
+  const src = srcMC02([compteMC02(1, 1820, '2026-10-28'), compteMC02(2, 1020, '2026-10-20'), compteMC02(3, 300, '2026-10-20'), compteMC02(4, 340, '2026-10-20')]);
+  src.clients = [fiche(1, 3, { debutLe: '2024-01-10' }), fiche(2, 3, { debutLe: '2024-03-04' }), fiche(3, 3, { debutLe: '2023-11-02' }), fiche(4, 3, { debutLe: '2026-09-01' })];
+  const m = FI.modeleFidelite(src);
+  assert.deepEqual(m.gestes.map((g: any) => [g.clientId, g.genre]), [[1, 'palier'], [3, 'anniversaire'], [2, 'seuil']]);
+  const an = m.gestes.find((g: any) => g.genre === 'anniversaire');
+  assert.deepEqual(an.params, { n: 3, jour: '2026-11-02' });
+  assert.deepEqual(m.gestes.find((g: any) => g.genre === 'palier').params, { niveau: 'Or' });
+  assert.equal(FI.modeleFidelite(srcMC02([compteMC02(1, 330, '2026-10-01')])).gestes.length, 0);
+  const beaucoup = FI.modeleFidelite(srcMC02(Array.from({ length: 8 }, (_, i) => compteMC02(i + 1, 1810 + i, '2026-10-20'))));
+  assert.equal(beaucoup.gestes.length, 3);
+});
+
+await dit('MC02 · le programme ce mois : points = euros payés ce mois + avis × 50 + recommandations × 200 ; avantages utilisés ce mois et leur valeur', () => {
+  const f = (clientId: number, paye: string, cents: number) => factureH05(clientId, { status: 'paid', paidAt: paye, issuedAt: paye, lines: [{ id: 'l', label: 'x', quantity: 1, unitPriceCents: cents, vatRate: 0 }] });
+  const src = srcMC02([compteMC02(1, 500, '2026-10-10', { recommandations: ['2026-10-05', '2026-06-01'], avantages: [{ id: 'a1', libelle: 'Bon', valeurCents: 3000, statut: 'Utilisé', le: '2026-10-15' }, { id: 'a2', libelle: 'Bon', valeurCents: 5000, statut: 'Offert', le: '2026-10-16' }, { id: 'a3', libelle: 'Bon', valeurCents: 2000, statut: 'Utilisé', le: '2026-09-01' }] })], {
+    factures: [f(1, '2026-10-10', 120_000), f(1, '2026-09-10', 999_000)],
+    avis: [{ clientId: 1, date: '2026-10-12' }, { clientId: 1, date: '2026-08-12' }],
+  });
+  const m = FI.modeleFidelite(src);
+  assert.equal(m.programme.pointsDistribues, 1200 + 50 + 200);
+  assert.deepEqual([m.programme.avantagesUtilises, m.programme.avantagesCents], [1, 3000]);
+  assert.deepEqual(m.regles, { pointsParEuro: 1, pointsParAvis: 50, pointsParRecommandation: 200, seuilBientot: 100 });
+});
+
+await dit('MC02 · suggestion : un client dont l’intervalle habituel est dépassé de moitié ou plus (9 jours pour un rythme de 6) ; sans cas, la carte « astuce »', () => {
+  const payee = (id: number, jour: string) => factureH05(id, { status: 'paid', paidAt: jour, issuedAt: jour });
+  const regulier = ['2026-09-01', '2026-09-08', '2026-09-15', '2026-09-22'].map((j) => payee(1, j));
+  const src = srcMC02([compteMC02(1, 600, '2026-09-22')], { factures: regulier });
+  const m = FI.modeleFidelite(src);
+  assert.deepEqual(m.suggestion, { clientId: 1, clientNom: 'Client 1', jours: 38, rythme: 7 });
+  const recent = srcMC02([compteMC02(1, 600, '2026-10-26')], { factures: ['2026-10-05', '2026-10-12', '2026-10-19', '2026-10-26'].map((j) => payee(1, j)) });
+  assert.equal(FI.modeleFidelite(recent).suggestion, null);
+  assert.equal(FI.modeleFidelite(srcMC02([compteMC02(1, 600, '2026-09-22')], { factures: regulier.slice(0, 2) })).suggestion, null, 'moins de trois paiements : pas de rythme');
+});
+
+await dit('MC02 · sur les jeux de SIM (quatre volumes) : le modèle se construit, les effectifs somment les comptes, personne n’est posé hors de la plage du palier', () => {
+  for (const v of VOLUMES) {
+    const src = depuisMonde(mondes[v]);
+    const m = FI.modeleFidelite(src);
+    const comptes = src.fidelite.filter((c: any) => c.points > 0);
+    assert.equal(m.barreaux.reduce((s: number, b: any) => s + b.effectif, 0), comptes.length, v);
+    assert.equal(m.fideles, comptes.length, v);
+    for (const b of m.barreaux) {
+      assert.equal(b.carres.length, b.effectif, v);
+      assert.ok(b.poses.length <= 4 && b.poses.length + b.autres === b.effectif, v);
+      assert.ok(b.poses.every((c: any) => c.points >= b.depuis && (b.jusqua == null || c.points < b.jusqua) && c.x >= 230 && c.x <= 674), v);
+    }
+    assert.ok(m.gestes.length <= 3, v);
+  }
+});
+
+await dit('MC02 · textes : mêmes clés en fr et en, mêmes paramètres, comptes à deux formes, l’interface tutoie', () => {
+  const en = Object.keys(DICO_FIDELITE.en).sort();
+  assert.deepEqual(Object.keys(DICO_FIDELITE.fr).sort(), en);
+  const params = (t: string) => [...t.matchAll(/\{(\w+)\}/g)].map((x) => x[1]).sort().join(',');
+  for (const k of en) {
+    assert.ok(DICO_FIDELITE.en[k].trim() && DICO_FIDELITE.fr[k].trim(), k);
+    assert.equal(params(DICO_FIDELITE.fr[k]), params(DICO_FIDELITE.en[k]), `paramètres de ${k}`);
+    assert.ok(!VOUVOIEMENT_UI.test(DICO_FIDELITE.fr[k]), `${k} vouvoie : ${DICO_FIDELITE.fr[k]}`);
+  }
+  for (const b of new Set(en.filter((k) => /\.(1|n)$/.test(k)).map((k) => k.replace(/\.(1|n)$/, '')))) for (const l of ['fr', 'en']) assert.ok(DICO_FIDELITE[l][`${b}.1`] && DICO_FIDELITE[l][`${b}.n`], `${b} (${l})`);
+  assert.equal(DICO_FIDELITE.fr['sousTitre'], 'Récompense ceux qui reviennent · 3 paliers, aucun effort', 'la phrase de tutoiement.json');
 });
 
 /* ── Structure ──────────────────────────────────────────────────────────── */

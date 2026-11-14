@@ -1,0 +1,100 @@
+/*
+  « FIDÉLITÉ » (MC02, v4) — mise en page aux cotes de la fiche (zone principale de 1108 px, x = 40, y = 94 → 758).
+
+    surface « Échelle des paliers »   768 × 664 à (40, 94), sans rembourrage : titre (14 / 18), zone de l'échelle de 732 × 556
+                                      (montants à x = 214 et 690, barreaux à y = 124 / 316 / 508), pied « Gagner des points » ;
+    colonne droite                    320 : « À offrir cette semaine » 296, « Le programme ce mois » 157, suggestion 183, écart 14.
+
+  Aucune couleur écrite ici : `--socle-*` (src/socle/noir.css) et `--fam-a`/`--fam-b` (posés par la coquille). Les trois
+  paliers prennent des jetons du socle (Or : attention, Argent : texte clair, Bronze : texte atténué), pas de bronze cuivré.
+  Chargée par `VueFidelite.tsx`.
+*/
+.sc-fi__entete.sc-page__entete { flex-wrap: nowrap; gap: 16px; }
+.sc-fi__hors-ligne { margin: 0; font-size: 12px; color: var(--socle-etat-attention); }
+.sc-fi { display: grid; grid-template-columns: minmax(0, 768fr) minmax(0, 320fr); gap: 16px; flex: 1 1 0; min-height: 0; }
+.sc-fi-carte { display: flex; flex-direction: column; min-width: 0; border-radius: var(--socle-rayon-carte); border: 1px solid var(--socle-bord-carte); background: linear-gradient(180deg, var(--socle-carte-haut), var(--socle-carte-bas)); box-shadow: var(--socle-ombre-carte); color: var(--socle-texte-1); }
+.sc-fi-carte__titre { margin: 0; font-size: 14px; font-weight: 600; color: var(--socle-texte-1); }
+.sc-fi-vide { margin: 0; font-size: 12.5px; color: var(--socle-texte-3); }
+.sc-fi-droite { display: flex; flex-direction: column; gap: 14px; min-width: 0; min-height: 0; }
+
+.sc-fi-surface { padding: 0; min-height: 0; overflow: hidden; }
+.sc-fi-surface__tete { display: flex; align-items: center; gap: 14px; padding: 14px 18px 0; }
+.sc-fi-surface__fideles { margin-left: auto; font-size: 12.5px; color: var(--socle-texte-3); }
+.sc-fi-surface__fideles strong { color: var(--socle-texte-1); font-weight: 700; }
+.sc-fi-echelle { position: relative; flex: 0 0 556px; height: 556px; margin: 8px 18px 0; }
+.sc-fi-echelle__vide { position: absolute; inset: 0; z-index: 2; display: grid; place-items: center; pointer-events: none; }
+.sc-fi-echelle__vide > * { pointer-events: auto; }
+.sc-fi-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.sc-fi-pied { display: flex; align-items: center; gap: 10px; padding: 12px 18px; border-top: 1px solid var(--socle-bord-ligne); font-size: 12.5px; color: var(--socle-texte-3); flex: 0 0 auto; }
+.sc-fi-pied__titre { margin-right: 6px; }
+.sc-fi-puce { display: inline-flex; align-items: center; gap: 8px; height: 30px; padding: 0 12px; border-radius: var(--socle-rayon-pastille); border: 1px solid var(--socle-bord-sous-carte); color: var(--socle-texte-2); }
+
+/* L'échelle : montants, barreaux, clients. */
+.sc-fi-montant { stroke: var(--socle-piste); stroke-width: 3; stroke-linecap: round; }
+.sc-fi-barreau { stroke-width: 3; stroke-linecap: round; stroke: var(--socle-texte-3); }
+.sc-fi-barreau[data-niveau='Or'] { stroke: var(--socle-etat-attention); }
+.sc-fi-barreau[data-niveau='Argent'] { stroke: var(--socle-texte-2); }
+.sc-fi-seuil { font-size: 11px; fill: var(--socle-texte-3); font-family: var(--socle-mono, ui-monospace, monospace); }
+.sc-fi-vide { font-size: 12px; fill: var(--socle-texte-3); }
+.sc-fi-autres rect { fill: none; stroke: var(--socle-pointille); stroke-dasharray: 3 3; }
+.sc-fi-autres text { font-size: 12px; fill: var(--socle-texte-3); }
+.sc-fi-tige { stroke: var(--socle-bord-controle); stroke-width: 1; }
+.sc-fi-contact { fill: var(--socle-texte-3); }
+.sc-fi-carre rect { fill: var(--socle-sous-carte); stroke: var(--socle-bord-controle); stroke-width: 1.2; cursor: pointer; }
+.sc-fi-carre__lettre { font-size: 12px; font-weight: 600; fill: var(--socle-texte-1); pointer-events: none; }
+.sc-fi-carre:focus-visible { outline: none; }
+.sc-fi-carre:focus-visible rect { stroke: var(--socle-texte-1); stroke-width: 2.2; }
+.sc-fi-client__nom { font-size: 12px; fill: var(--socle-texte-2); pointer-events: none; }
+.sc-fi-client__points { font-size: 11px; fill: var(--socle-texte-3); font-family: var(--socle-mono, ui-monospace, monospace); pointer-events: none; }
+.sc-fi-client[data-bientot] .sc-fi-carre rect { fill: var(--fam-a); fill-opacity: 0.18; stroke: var(--fam-a); }
+.sc-fi-client[data-bientot] .sc-fi-client__nom { fill: var(--socle-texte-1); font-weight: 500; }
+.sc-fi-client[data-pale] { opacity: 0.3; }
+.sc-fi-montee line { stroke: var(--fam-a); stroke-width: 1.3; stroke-dasharray: 3 4; animation: sc-fi-flux 1.6s linear infinite; }
+.sc-fi-montee text { font-size: 12px; fill: var(--fam-a); }
+@keyframes sc-fi-flux { to { stroke-dashoffset: -14; } }
+@media (prefers-reduced-motion: reduce) { .sc-fi-montee line { animation: none; } }
+
+/* Les blocs de palier (colonne de gauche de 186 px). */
+.sc-fi-palier { position: absolute; left: 0; width: 186px; display: flex; flex-direction: column; gap: 3px; }
+.sc-fi-palier__nom { display: flex; align-items: baseline; gap: 8px; font-size: 17px; font-weight: 600; color: var(--socle-texte-1); }
+.sc-fi-palier__point { align-self: center; width: 9px; height: 9px; border-radius: 50%; background: var(--socle-texte-3); }
+.sc-fi-palier[data-niveau='Or'] .sc-fi-palier__point { background: var(--socle-etat-attention); }
+.sc-fi-palier[data-niveau='Argent'] .sc-fi-palier__point { background: var(--socle-texte-2); }
+.sc-fi-palier__effectif { font-size: 12.5px; font-weight: 400; color: var(--socle-texte-3); }
+.sc-fi-palier__plage { font-size: 12px; color: var(--socle-texte-3); }
+.sc-fi-palier__avantage { margin-top: 4px; font-size: 12.5px; color: var(--socle-texte-2); }
+.sc-fi-palier__carres { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 6px; }
+.sc-fi-palier__carres > i { width: 9px; height: 9px; border-radius: 2px; border: 1px solid var(--socle-texte-3); }
+.sc-fi-palier__carres > i[data-plein] { background: var(--socle-texte-2); border-color: var(--socle-texte-2); }
+.sc-fi-palier__revenus { font-size: 11.5px; color: var(--socle-texte-3); }
+
+/* « À offrir cette semaine ». */
+.sc-fi-offrir { height: 296px; flex: 0 0 296px; padding: 14px 16px; gap: 8px; }
+.sc-fi-offrir__tete { display: flex; align-items: baseline; justify-content: space-between; }
+.sc-fi-offrir__progression { font-size: 12px; color: var(--socle-texte-3); }
+.sc-fi-offrir__liste { display: flex; flex-direction: column; flex: 1 1 0; justify-content: space-around; margin: 0; padding: 0; list-style: none; }
+.sc-fi-geste { display: grid; grid-template-columns: auto minmax(0, 1fr) 8px; align-items: start; gap: 10px; }
+.sc-fi-geste__texte { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.sc-fi-geste__nom { font-size: 13px; font-weight: 500; color: var(--socle-texte-1); }
+.sc-fi-geste__motif { font-size: 12px; color: var(--socle-texte-3); }
+.sc-fi-geste__recompense { font-size: 12.5px; color: var(--socle-texte-2); }
+.sc-fi-geste__palier { width: 7px; height: 7px; margin-top: 6px; border-radius: 50%; background: var(--socle-texte-3); }
+.sc-fi-geste__palier[data-niveau='Or'] { background: var(--socle-etat-attention); }
+.sc-fi-geste__palier[data-niveau='Argent'] { background: var(--socle-texte-2); }
+.sc-fi-geste[data-fait] .sc-fi-geste__nom { color: var(--socle-texte-3); text-decoration: line-through; }
+
+/* « Le programme ce mois ». */
+.sc-fi-programme { height: 157px; flex: 0 0 157px; padding: 14px 16px; }
+.sc-fi-programme__lignes { display: flex; flex-direction: column; flex: 1 1 0; justify-content: space-around; margin: 8px 0 0; }
+.sc-fi-programme__lignes > div { display: grid; grid-template-columns: 1fr auto auto; align-items: baseline; gap: 12px; font-size: 12.5px; }
+.sc-fi-programme__lignes dt { color: var(--socle-texte-2); }
+.sc-fi-programme__lignes dd { margin: 0; font-size: 16px; font-weight: 700; color: var(--socle-texte-1); }
+.sc-fi-programme__lignes dd.sc-fi-programme__sous { min-width: 80px; text-align: right; font-size: 12px; font-weight: 400; color: var(--socle-texte-3); }
+
+.sc-fi-suggestion { flex: 1 1 183px; min-height: 0; }
+.sc-fi-suggestion > * { height: 100%; }
+.sc-fi-astuce { display: flex; flex-direction: column; gap: 6px; height: 100%; padding: 14px 18px; border-radius: var(--socle-rayon-carte); border: 1px solid var(--socle-bord-carte); background: var(--socle-sous-carte); }
+.sc-fi-astuce__titre { font-size: 13px; font-weight: 600; }
+.sc-fi-astuce p { margin: 0; font-size: 12.5px; line-height: 1.5; color: var(--socle-texte-2); }
+
+@media (max-width: 1279px) { .sc-fi { grid-template-columns: minmax(0, 1fr); } .sc-fi-droite { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); } .sc-fi-offrir, .sc-fi-programme { height: auto; flex-basis: auto; } }

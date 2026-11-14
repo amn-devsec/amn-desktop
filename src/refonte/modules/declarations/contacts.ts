@@ -1,4 +1,4 @@
-import { Filter } from 'lucide-react';
+import { Award, Filter } from 'lucide-react';
 import { declarerFamille, vue } from '../declarer';
 
 /**
@@ -93,6 +93,21 @@ export default declarerFamille({
         }),
         vue('referrals', '/parrainage', ['noter un parrainage', 'récompenser un parrain'], ['parrainage', 'parrain', 'recommandation'], {
           en: { verbes: ['note a referral', 'reward a referrer'], motsCles: ['referral', 'referrer', 'recommendation', 'sponsor'] },
+        }),
+      ],
+    },
+    {
+      nom: { fr: 'Niveaux de fidélité', en: 'Loyalty tiers' },
+      action: 'fideliser',
+      niveau: 'courant',
+      vues: [
+        vue('fideliteNiveaux', '/fidelite/niveaux', ['voir mes clients fidèles', 'offrir un avantage à un client', 'voir qui approche du palier suivant', 'récompenser ceux qui reviennent'], ['palier', 'bronze', 'argent', 'or', 'points', 'niveau', 'client fidèle'], {
+          en: { verbes: ['see my loyal clients', 'give a perk to a client', 'see who is close to the next tier', 'reward those who come back'], motsCles: ['tier', 'bronze', 'silver', 'gold', 'points', 'level', 'loyal client'] },
+          nouveau: {
+            icone: Award,
+            ecran: () => import('../../contacts/fidelite/PageFidelite'),
+            indice: { fr: 'L’échelle des paliers : qui est Bronze, Argent ou Or', en: 'The tier ladder: who is Bronze, Silver or Gold' },
+          },
         }),
       ],
     },

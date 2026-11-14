@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAssistant } from '../../../assistant/AssistantContext';
 import { NAV_ITEMS } from '../../../data/navigation';
 import { isModuleAllege, isModuleEnabled } from '../../../data/spaces';
+import { useCollection } from '../../../state/SyncContext';
+import { formuleDe } from '../fidelite';
 import { useSourcesContacts } from '../sources/depuisApp';
 import { modeleHub, type GroupeHub, type SuggestionAppel } from './modele';
 import { VueHub, type ActionsHub } from './VueHub';
@@ -60,13 +62,16 @@ export default function PageHub(): React.ReactElement {
   const { open: ouvrirAjmani } = useAssistant();
   const maintenant = useMaintenant();
   const { statut, sources } = useSourcesContacts(maintenant);
+  // La tuile « Fidélité » mène à la formule de l'organisation : tampons si elle a déjà des cartes (on ne retire rien), points sinon.
+  const cartes = useCollection<{ id: string }>('loyaltyCards');
+  const routeFidelite = formuleDe(null, cartes.length) === 'tampons' ? '/fidelite' : '/fidelite/niveaux';
   const [masquee, setMasquee] = useState<number | null>(() => lireMasquee(Date.now()));
 
   const modele = useMemo(() => {
     if (!sources) return null;
-    const m = modeleHub(sources);
+    const m = modeleHub(sources, routeFidelite);
     return { ...m, groupes: tuilesAccessibles(m.groupes), suggestion: m.suggestion && m.suggestion.clientId === masquee ? null : m.suggestion };
-  }, [sources, masquee]);
+  }, [sources, masquee, routeFidelite]);
 
   const versClient = useCallback((clientId: number) => navigate('/clients', { state: { focusClientId: clientId } }), [navigate]);
 
