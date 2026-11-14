@@ -151,6 +151,8 @@ jobs:
         run: npm run check:connecteurs
       - name: Écrire et retenir (LOT-03) — série d'écriture, relecture, documents, signatures, journal, archives, connaissances
         run: npm run check:ecrire
+      - name: L’argent (LOT-04) — facturation, TVA, impayés, trésorerie, cas écrits à l’avance, banque en lecture seule
+        run: npm run check:argent
 
       - name: Contrôle de la file d'envoi
         run: npm run check:envoi
