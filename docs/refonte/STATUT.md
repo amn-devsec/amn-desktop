@@ -4,27 +4,27 @@
 
 ## REPRISE (à lire en premier après une compaction ; tenu par le CO, réécrit à chaque tour)
 
-Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `5014f1cc`.
+Mode : **ARRÊTÉ** par Harun (« stop », 14 nov., 15h35 UTC). Ne relancer aucune session et n'armer aucun réveil tant qu'il n'a pas écrit « reprends ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante`, vérifiée en entier par T1 à 14h00 (77 contrôles sur 77, fidélité des six lots livrés dans les seuils).
 
 **Avoirs** : réglé, ils sont présents par défaut (`b0173f3`).
 
-**Si la limite d'utilisation coupe le CO** : à la reprise (un message de Harun, une session, ou le réveil programmé), relire ce bloc, faire `git fetch` des branches `claude/refonte-*`, puis reprendre la boucle (lister, lire, contrôler, fusionner, répondre, mettre à jour). Réveil du CO : `send_later`, toutes les 20 min tant que des sessions travaillent, 45 min quand toutes attendent (consigne de Harun), réarmé à chaque tour.
+**Si la limite d'utilisation coupe le CO** : à la reprise (un message de Harun, une session, ou le réveil programmé), relire ce bloc, faire `git fetch` des branches `claude/refonte-*`, puis reprendre la boucle (lister, lire, contrôler, fusionner, répondre, mettre à jour). Réveil du CO : `send_later` (20 min quand des sessions travaillent, 45 min quand toutes attendent), **suspendu** depuis le « stop » ; aucun réveil n'est programmé.
 
 | Session | Identifiant | État | Prochain geste |
 |---|---|---|---|
 | S0 Socle | `session_01SJe828c2W5EnkMY4fhFY6z` | attend l'accord direct de Harun | sa liste, §1.38 |
-| T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | `check:fidelite` et `tester-branche` par lot | LOT-03 `2da78ad5` (fidélité 9/9, structure en cours) ; LOT-05 après « Gérer » |
+| T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | vivante vérifiée en entier (14h00) ; file vide | mesurer le prochain lot (LOT-04, 07, 08, 10) |
 | S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **LOT-02 livré ; LOT-01 moitié S1 livrée** (`544545be` fusionné) | en pause : aucun lot libre |
 | S2 | `session_014ZkF6SeGRNi6NR3uEsjM5q` | préparation de LOT-01 finie ; **sans zips v4** ; la construction de LOT-01 passe à S7 | en pause jusqu'aux zips, puis un autre lot |
 | S3 | `session_01FBSpK6n1yYtYXYyxbLAuBV` | attend l'accord de Harun (`check:encres`) ; **sans zips v4** | correctif d'`equipes.ts`, puis LOT-08 |
 | S5 | `session_012jWErBSSkcoVaU3iN895bQ` | **LOT-03 et LOT-05 livrés**, préparation de LOT-09 fusionnée | en pause ; proposé pour la liste du socle (POINT-HARUN n° 9) |
 | S6 | `session_01RHV8Xq2txWkfjAusKvq9DG` | préparation de LOT-07 fusionnée ; **sans zips v4** ; LOT-10 passe à S8 | construire LOT-07 dès les zips ; relire la sécurité de LOT-10 avant sa fusion |
 | S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **LOT-06 et LOT-01 (moitié S7) livrés** | en pause : aucun lot libre |
-| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | **LOT-11 livré** (`6a87e35` fusionné) | attend l'accord de Harun pour LOT-10 Cyber (POINT-HARUN) |
+| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | **LOT-11 livré** | attend l'accord de Harun pour LOT-10 Cyber (POINT-HARUN) |
 | DS | `session_01TZGDvVWristJnnPK59rruY` | attend l'accord direct de Harun pour construire LOT-04 | commencer par MA03, H07, MA12 |
 | SIM, S9, F1 | `session_011UF2ufZg9moGv2rRZFRuf7`, `session_01C5DAVygXYax6Q7g436TPQx`, `session_01VZHqP3gvzrtnpgsTrrKguV` | en pause | F1 : intégration reportée (S0) |
 
-**À dire au prochain message** : à chaque lot, donner dans son rapport la commande d'aperçu de ses écrans (§1.40) ; à chaque lot, ses exigences de cibles et de largeur (§1.37) ; à DS, la place des modules de F1 est corrigée (MA03 ↔ H07, §1.33 n° 4) ; à T1, (a) La Garde dans l'API d'essai demande une base sur fichier (SIM), (b) comparer le paquet client de `claude/refonte-outils` @ `f52ef5d` (`AutomationsRunner.tsx` partagé) avant sa fusion.
+**À la reprise (« reprends »)** : relancer d'abord DS (LOT-04) et S3 (LOT-08) si Harun a collé leurs lignes, puis S8 (LOT-10) et S0 ou S5 (socle). Avant chaque fusion de lot : `git ls-tree <sha> node_modules` doit être vide, et toutes les `check:*` sauf `business` et `fidelite` doivent être lues. LOT-09 se construit après la fusion de 04 et 08. F1 reprend avec S0.
 
 **Décisions provisoires en cours** (révisables par Harun) : arrondi et régime de TVA, seuils de l'argent (§1.29) ; valeurs de départ des connecteurs (§1.22 n° 3) ; plafonds de relance 3 et 1 par jour (§1.28 n° 4) ; seuils de charge (validés, §1.20). Liste « À décider par Harun » : `POINT-HARUN.md`.
 
@@ -51,6 +51,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 - 14 nov., 10h15 : **LOT-06 fusionné** (`e1615090`, 15 écrans), **premier lot livré** de la vague de construction. T1 l'a accepté : fidélité sur l'aperçu, les 15 écrans justifiés ; structure sur l'application, les 12 routes montées dans la coquille v4, rien de coupé à 390 px. Suites demandées à S7 : relire 6 écrans au-dessus de 15 % en disposition (H17, MR01, MR10, H16, MR05, MR04) ; zones de clic de 34 px (§1.39) ; l'état vide de H17 (« Le livre de marque d’ · ») ; les entrées de registre de ses 3 écrans neufs. T1 fixe les valeurs acceptées de LOT-06.
 - 14 nov., 10h00 : **LOT-06 complet** (S7, `277263a`, 15 sur 15). S7 et S8 butent tous deux sur `check:systeme-demarrage` (« le registre ne doit pas bouger », qui perd les fonctions des écrans neufs). Le correctif est sur la branche LOT-03 de S5 et arrive avec sa fusion. Ordre : LOT-03, puis S7 et S8 déclarent leurs écrans neufs, puis LOT-06 et LOT-11.
 - 14 nov., 10h00 : méthode de `check:fidelite` (§1.40). La fidélité se mesure sur l'aperçu statique, rempli avec les jeux de SIM ; l'application sert à la structure. Pas de collection nouvelle dans l'API d'essai.
+- 14 nov., 15h35 : **« stop » de Harun.** Le dernier réveil du CO est annulé, aucune session n'est relancée. Bilan de la journée : 79 écrans construits et livrés, 6 lots finis, 9 préparés ; tout le reste attend Harun (accords à S0, DS, S3, S8 ; zips de S6 ; POINT-HARUN n° 1 à 10).
 - 14 nov., 14h00 : **vivante vérifiée en entier par T1** (`afa4d6cb`) : 77 contrôles sur 77 verts, et `check:fidelite` des six lots livrés dans les seuils (71 écrans, aucun n'a bougé de plus de 2 points après les fusions). LOT-00 n'est pas remesuré : le socle n'a pas bougé.
 - 14 nov., 13h55 : **LOT-01 Ma journée fusionné en entier** : moitié S7 (`1fe34d3f`, avec les restes de LOT-06 dans `creer.css`) et moitié S1 (`43b362f0`, `544545be`), T1 `acceptes-LOT-01`. Sixième lot livré, 16 écrans. Tous les éléments ludiques protégés sont présents (H02, H04, L01, L07, MJ02, N01) ; 16 écrans dans les seuils ; paquet client identique. Le CO a résolu 5 conflits, en gardant les deux moitiés. Gardes du CO : seuls les échecs connus.
 - 14 nov., 13h40 : **LOT-01, moitié S1 fusionnée** (`43b362f0`, T1 `548c4c23`) : 8 écrans livrés (H01, H03, G08, MJ01 à MJ05). 77 gardes, 8 écrans dans les seuils, aucun centre renvoyé à un voisin, pas de lien `node_modules`. Règle des grilles denses ajoutée à §1.41. Le pictogramme abstrait de 14 px de la suggestion Ajmani est accepté : ce n'est pas un personnage. La moitié S7 attend ses justifications (H25, L01, L02) et les zones de H25 ; LOT-01 sera fini avec elle.
@@ -914,7 +915,7 @@ Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en para
 | F1 | — | écartée de LOT-06 | Continue l'Atelier. Vérificateur cassé sur `refonte-vivante` (C-003, patch de T1 à appliquer par F1). Ses modules rejoignent les familles par le registre, après LOT-06. |
 | S6 | LOT-07, puis LOT-10 | ⚠ à condition | Les deux après sa phase 1 (privée ; Harun dit au CO quand elle est finie). LOT-07 d'abord : CY07 étend MO02 (Sites et trackers), qui est dans LOT-07. 30 écrans à elle seule, Opus 5.5, effort élevé. Audit privé ; commits sans description de faiblesse ; écrans sensibles relus par T1. |
 | S3 | LOT-08 | ✓ | Règles du §1.8. Zone élargie à `src/bureaux/cyber/**` (partage dans `REGLES.md`). Ajoute « Ouvrir Cyber » sur F70. |
-| T1 | transversal | ✓ | API d'essai et bac à sable **fusionnés** (`97929c1`). Seule session autorisée à `build:web` sur données fictives (`REGLES.md`). Fait les captures et les comparaisons à ± 2 px de tous les lots. Outil de fidélité fusionné (`3cc8dff`). |
+| T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | vivante vérifiée en entier (14h00) ; file vide | mesurer le prochain lot (LOT-04, 07, 08, 10) |
 | SIM | transversal | ✓ | **100 jeux fusionnés** (`4fe559b`), `check:donnees` à 87 contrôles en CI, règles validées (§1.11). Enchaîne : dates v3, chargeur vers l'API d'essai, attendus des écrans calculés. |
 
 ## 4. Sessions et branches (état au 1er nov.)
@@ -931,7 +932,7 @@ Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en para
 | S6 | `claude/refonte-sec-*` | phase 1 en cours, privée. **Ne pas fusionner sans décision de Harun.** | — | `docs/securite/**`, hors dépôt | Prend LOT-07 puis LOT-10 |
 | S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **LOT-06 et LOT-01 (moitié S7) livrés** | en pause : aucun lot libre |
 | F1 | `claude/refonte-atelier-f1` | prête, non fusionnée, rien de branché | `59056ad` | `docs/atelier/PRET.md` | C-003 à appliquer ; 3 modules choisis (§1.21), à intégrer après le socle v4 |
-| T1 | `claude/refonte-qualite-t1`, `claude/refonte-qualite` | **les deux fusionnées** (`97929c1`, `3cc8dff`) | `51a962d`, `f2e243a` | [`../qualite/SANTE.md`](../qualite/SANTE.md) | Passage 2 à faire sur `refonte-vivante` |
+| T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | vivante vérifiée en entier (14h00) ; file vide | mesurer le prochain lot (LOT-04, 07, 08, 10) |
 | SIM | `claude/refonte-donnees-fictives`, `claude/refonte-sim-bac-a-sable` | **données fusionnées** (`4fe559b`) + `check:donnees` en CI ; bac à sable non fusionné | `4fe559b`, `95d9765` | [`rapports/DONNEES.md`](rapports/DONNEES.md) | Suite : §1.11 |
 | G0 | — | retirée | — | — | — |
 
@@ -943,7 +944,7 @@ Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en para
 | LOT-08 et LOT-10 | en plus, `src/bureaux/cyber/**`, partagé selon `REGLES.md`. LOT-10 : `src/refonte/cyber/**` et `declarations/cyber.ts`. |
 | S6 | `docs/securite/**` (hors dépôt) et `src/securite/**` ; pour ses lots, `src/refonte/outils/**` et `src/refonte/cyber/**`. |
 | F1 | `src/ateliers/**` et `docs/atelier/**`. |
-| T1 | `tests/**`, `scripts/qualite/**`, `docs/qualite/**`. Constats de sécurité : à S6, en privé. |
+| T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | vivante vérifiée en entier (14h00) ; file vide | mesurer le prochain lot (LOT-04, 07, 08, 10) |
 | SIM | `simulation/**`, `docs/simulation/**`, `src/refonte/donnees/**`, `scripts/check-donnees.ts`. |
 
 **Relances automatiques : aucune**, tant que Harun n'a pas validé le plafond proposé (une relance par nuit et par piste).
