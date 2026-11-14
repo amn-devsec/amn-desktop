@@ -4,7 +4,7 @@
 
 ## REPRISE (à lire en premier après une compaction ; tenu par le CO, réécrit à chaque tour)
 
-Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `9759cbd`.
+Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `ed3bdcb`.
 
 **Avoirs** : réglé, ils sont présents par défaut (`b0173f3`).
 
@@ -14,17 +14,17 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 |---|---|---|---|
 | S0 Socle | `session_01SJe828c2W5EnkMY4fhFY6z` | passe finale v4 finie (`888f7a0`) ; correctifs `ancres` et `avoirs` prêts mais **attend l'accord direct de Harun** pour pousser | ligne à coller par Harun (POINT-HARUN) ; puis ce que T1 signale |
 | T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | passage 2 fini : socle fusionné (§1.35) | C-008 (gardes sous la coquille v4), puis `check:fidelite` sur chaque lot, priorité 2 |
-| S6 Sécurité | `session_01RHV8Xq2txWkfjAusKvq9DG` | LOT-07 préparation (`afdbccf`) ; **sans zips v4** ; une étape de sécurité attend amn-api | fusion après le contrôle du paquet client par T1 |
+| S6 Sécurité | `session_01RHV8Xq2txWkfjAusKvq9DG` | LOT-07 préparation **fusionnée** (`3030072`) ; **sans zips v4** ; une étape de sécurité attend amn-api | construire LOT-07 dès qu'il a les zips |
 | SIM | `session_011UF2ufZg9moGv2rRZFRuf7` | tout fusionné (`b0173f3`, 115 jeux) ; **sans dossier v4** | listes « Manque aux données » des lots à venir |
-| DS | `session_01TZGDvVWristJnnPK59rruY` | LOT-04 avec les avoirs, fusionné (§1.34) | appliquer §1.33, comparer H09 aux attendus de SIM |
-| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | LOT-03, registre et LOT-05 fusionnés (§1.32) | attend le socle v4 |
-| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | LOT-02 relu avec le v4 et fusionné (§1.31) ; a les zips | attend le socle v4 |
-| S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | préparation v4 fusionnée (`526cd63`) | attend le socle v4 |
-| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | en pause ; ses jeux sont livrés par SIM | feu vert de l'étape 3 au socle v4 |
+| DS | `session_01TZGDvVWristJnnPK59rruY` | **construit LOT-04** | lots de 3 à 5 écrans → T1 → fusion |
+| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | **construit LOT-03, puis LOT-05** | lots de 3 à 5 écrans → T1 → fusion |
+| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **construit LOT-02** (feu vert le 14 nov., 08h) | lots de 3 à 5 écrans → `check:fidelite` de T1 → fusion |
+| S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **construit LOT-06** | lots de 3 à 5 écrans → T1 → fusion |
+| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | LOT-11, 7 sur 7, non accepté (6 écrans non montés) | correction durable de `check:navigation`, puis déclarer ses 6 modules → T1 remesure → fusion |
 | S9 | `session_01C5DAVygXYax6Q7g436TPQx` | LOT-12 fini, valeurs de MC07 fusionnées (`bcdc65f`) | rien |
-| S2, S3 (première tâche : `check:encres`), F1 | `session_014ZkF6SeGRNi6NR3uEsjM5q`, `session_01FBSpK6n1yYtYXYyxbLAuBV`, `session_01VZHqP3gvzrtnpgsTrrKguV` | arrêtées | relancer au socle v4 (prompts : `PROMPTS-11NOV.md`, §1.21) |
+| S2, S3 (première tâche : `check:encres`), F1 — **relancés le 14 nov., 08h** | `session_014ZkF6SeGRNi6NR3uEsjM5q`, `session_01FBSpK6n1yYtYXYyxbLAuBV`, `session_01VZHqP3gvzrtnpgsTrrKguV` | arrêtées | relancer au socle v4 (prompts : `PROMPTS-11NOV.md`, §1.21) |
 
-**À dire au prochain message** : à T1, (a) La Garde dans l'API d'essai demande une base sur fichier (SIM), (b) comparer le paquet client de `claude/refonte-outils` @ `f52ef5d` (`AutomationsRunner.tsx` partagé) avant sa fusion.
+**À dire au prochain message** : à DS, la place des modules de F1 est corrigée (MA03 ↔ H07, §1.33 n° 4) ; à T1, (a) La Garde dans l'API d'essai demande une base sur fichier (SIM), (b) comparer le paquet client de `claude/refonte-outils` @ `f52ef5d` (`AutomationsRunner.tsx` partagé) avant sa fusion.
 
 **Décisions provisoires en cours** (révisables par Harun) : arrondi et régime de TVA, seuils de l'argent (§1.29) ; valeurs de départ des connecteurs (§1.22 n° 3) ; plafonds de relance 3 et 1 par jour (§1.28 n° 4) ; seuils de charge (validés, §1.20). Liste « À décider par Harun » : `POINT-HARUN.md`.
 
@@ -40,10 +40,21 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 | Jour | Construits | Livrés (cumul) | Livrés depuis la veille | Lots préparés | Lots finis | Note |
 |---|---|---|---|---|---|---|
-| 14 nov. | 9 / 153 | 9 (LOT-00, socle v4) | 9 | 7 / 13 | 0 / 13 (LOT-00 attend l'allumage) | les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. La note de LOT-08 n'est pas fusionnée. |
+| 14 nov. | 31 / 153 (22 sur les branches des lots, à vérifier ; LOT-11 complet) | 9 (LOT-00, socle v4) | 9 | 8 / 13 | 0 / 13 (LOT-00 attend l'allumage) | les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. La note de LOT-08 n'est pas fusionnée. |
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov., 09h20 : **LOT-07 préparation fusionnée** (`89ef910a`), paquet client vérifié par T1 ; 5 conflits, tous des ajouts, gardés. Premier `check:fidelite` sur les lots : LOT-11 non accepté (6 écrans non montés, faute de déclaration au registre) ; F20 à justifier, avec deux tuiles à ajouter ; F50 et H15 à justifier ; H16 à reprendre (bouton, jauge, suggestion). Réorganisation : la correction durable de `check:navigation` passe de S5 à S8, qui est bloqué et disponible.
+- 14 nov., 09h10 : **C-008 réglé** (patch de T1, appliqué par le CO dans `check-contraste.mjs` et `routes-coquille.mjs`). Sous la coquille v4, les gardes trouvent 160 écrans au lieu de 15 ; contraste : 34 622 textes, aucun sous AA ; plus de faux rouge sur le néon. C-009 corrigé aussi. Restent des défauts réels, à répartir : 11 familles de cibles trop petites, 4 écrans qui débordent à 390 px, 39 écrans de l'ancienne barre que la coquille v4 ne relie plus.
+- 14 nov., 09h00 : LOT-02, 4 écrans sur 13 (S1, `479995a`). La création préremplie demanderait de toucher `src/screens` : refusé, puisque l'édition cliente ne change pas. Les boutons ouvrent la création existante, avec l'écart noté. L'intérêt de H06 est estimé et dit comme tel.
+- 14 nov., 08h55 : attendus du cockpit G08 (SIM `651ba70`) et calcul de S2 (`bf2f29e`) fusionnés ensemble. `check:journee` est à 64, toutes les gardes sont vertes. SIM et S2 n'ont plus rien en attente avant les zips v4.
+- 14 nov., 08h50 : LOT-03, 5 écrans sur 9 (S5, `60de991`). Acceptés : `src/refonte/ecrire` au périmètre de `check:tutoiement`, avec 4 zones client ; « Signatures » qui s'ouvre sur H12 ; la série de ME01, sans devoir (repos le week-end, aucun reproche). S5 doit d'abord passer l'intégration de F1 et la correction durable de `check:navigation`.
+- 14 nov., 08h45 : jeux de LOT-01 (SIM `d8ba0fc7`) et harnais de `check:journee` (S2 `c4f31a7`) fusionnés ensemble. Gardes lues avant le push, toutes vertes (`check:donnees` 122, `check:journee`).
+- 14 nov., 08h40 : LOT-01 (`c978d05`) fusionné. `calculerAujourdhui` lit `serieDeLaJournee`, `defi.tenu` est au catalogue, et deux assertions de `check:socle-coquille` sont mises à jour par S2 pour la nouvelle règle de série. Gardes lues avant le push, toutes vertes.
+- 14 nov., 08h35 : `check:navigation` figeait 101 entrées et aucun écran neuf, ce qui bloquait F1 et S8. S5 en fait une correction durable : 101 + les écrans neufs déclarés, seules les routes `/essai/` sont comparées, et le `nom.en` de la déclaration est accepté, avec des contrôles négatifs. S8 est autorisé à modifier deux assertions de `check:socle-coquille` (zone de S0, bloqué) pour le compteur de LOT-11, sans perdre l'intention de la garde. S7 a 3 écrans sur 15 au-dessus du seuil de fidélité : justifications écrites, puis T1 tranche. T1 passe `check:fidelite` environ une fois par heure.
+- 14 nov., 08h30 : Atelier F1 (`e10a601`). Fusion d'essai faite en local : `check:socle-archetypes` rouge, donc **annulée avant le push**. L'intégration complète (branche de F1, déclarations au registre, correctif hors zone) est confiée à S5, sur `claude/refonte-atelier-integration`. tauxHoraire passe en « courant ». Place des modules corrigée (§1.33 n° 4). F1 se met en pause.
+- 14 nov., 08h20 : LOT-01 préparation fusionnée (S2). La série suit la clôture des priorités ; S2 peut modifier une ligne de `calculer.ts` du socle, puisque S0 est bloqué ; moment `defi.tenu` accepté (§1.36).
+- 14 nov., 08h : DS demande l'accord direct de Harun avant de construire, et n'a pas accès à amn-api : ses captures passent par l'aperçu statique, comme pour S0, et T1 garde les captures sur API. La session de S3 a refusé l'édition d'`equipes.ts` (C-007) : il faut l'accord de Harun. S3 n'a pas les zips v4. Lignes à coller dans `POINT-HARUN.md`.
 - 14 nov., 08h : **socle v4 fusionné** (`a76c201`) après le feu vert de T1. La coquille n'est pas allumée par défaut (conditions de T1, §1.35). Feu vert à la construction des écrans pour tous les lots préparés.
 - 14 nov., 05h25 : outils de T1 fusionnés (`be05376`) : contrôle de fidélité v4, garde `check:fidelite` (tests unitaires 2 sur 2), conditions de la coquille v4. Gardes vertes. Le verdict du passage 2 sur le socle est toujours attendu.
 - 14 nov., 05h : **S0, deuxième échec sur le même point** (anti-blocage, règle C). Diagnostic : S0 ne pousse pas sur un message d'une autre session, et attend l'accord direct de Harun. Ce n'est pas un défaut de travail : c'est une règle de prudence de la session. Tentatives : deux messages du CO, dont un avec la règle de `REGLES.md`. Correctif proposé par S0 et retenu par le CO : un pont `@edition/moments` séparé, avec son jumeau `*.business`. Mis dans `POINT-HARUN.md`, une ligne à coller par Harun. Rien d'autre n'est bloqué par là.
@@ -716,7 +727,7 @@ Fusionné (`74bb0d4`). Gardes lues avant le push : `check:argent` (69), les type
 | 1 | TVA par taux (fiche) ou par ligne | Reste **par ligne** (§1.29 n° 1, provisoire). Aucun écart sur l'exemple de H07 ni sur les jeux. La question va à Harun et à un comptable. |
 | 2 | Relances : « J+7 » de la fiche contre le 8e jour du moteur ; étapes successives | On garde **le moteur unique** (le palier s'ouvre après le seuil) : `src/lib/relances.ts` sert aussi l'édition cliente. L'écart d'un jour est noté, **provisoire, révisable par Harun**. La condition d'étape de MA04 (relance 2 après relance 1) **s'ajoute** dans la couche de la refonte. |
 | 3 | Modèle de mise en demeure | Il se règle dans l'**identité de facturation** (H18). Pas de modèle par défaut : l'étape reste vide tant qu'un modèle validé par un juriste n'est pas posé. La validation revient à Harun. |
-| 4 | Place des modules de F1 | Comme le propose DS, **provisoire** : Taux horaire de revient dans MA12, Paiement en plusieurs fois dans H07, Comparateur de devis dans MA03. Par des liens, F1 garde ses modules. |
+| 4 | Place des modules de F1 | **Corrigé le 14 nov. sur la remarque de F1** : Taux horaire de revient dans MA12 (Tarifs et remises), Paiement en plusieurs fois dans **MA03** (Paiements en ligne), Comparateur de devis dans **H07** (Devis). Ce sont des liens : F1 garde ses modules. |
 | 5 | Deux « séries » de même nom | **La définition de G03** (aucune facture en retard laissée « non traitée » à 23 h 59). F30 renvoie à G03, donc F30 la suit. |
 | 6 | TVA récupérable | **Deux chiffres distincts**, chacun nommé : indicatif dans H08 (dépenses justifiées), déclaratif dans MA08. |
 | 7 | Période de TVA | Un réglage, mensuel ou trimestriel. **Mensuel par défaut**, comme les jeux ; le trimestre est la somme des mois. **Provisoire**, à valider par un comptable. |
@@ -749,7 +760,7 @@ LOT-04 fusionné : `check:argent` passe ses 70 propriétés, avec et sans les av
 **Allumage de la coquille par défaut (§1.9) : pas encore.** T1 ne le valide pas tant que ces points restent ouverts :
 - **C-006** (S0) : tutoiement. 6 chaînes visibles sur LOT-00 et la coquille, plus 79 lignes sur 19 autres écrans. `check:tutoiement` est vert parce qu'il ne lit que les 353 textes du dictionnaire : il faut l'étendre au rendu.
 - **C-007** (S3) : `check:encres`, des copies de jetons dans `src/refonte/garde/equipes.ts`.
-- **C-008** (T1) : sous la coquille v4, les gardes navigateur ne trouvent que 15 écrans sur 142. Elles sont à adapter avant toute certification, et le faux rouge de `check:contraste` (texte sombre sur dégradé néon) aussi.
+- ~~**C-008** (T1)~~ : **réglé le 14 nov.**, les gardes trouvent 160 écrans. Ont été révélés : 11 familles de cibles, 4 écrans à 390 px, 39 écrans de l'ancienne barre que la coquille ne relie plus.
 - Les correctifs `ancres` et `avoirs` (S0) ; l'ancienne garde `check:coquille` interne, à adapter (S0) ; C-005, CSS inerte dans le paquet client, 64 sélecteurs (S0) ; C-009, un compte neuf qui voit H42 fait planter `check:contraste` (S0 ou T1) ; C-010, encre T4 à `#8b8b8f` (S0).
 
 **Fidélité de LOT-00** (mesures de T1, écart brut à ± 2 px, valeurs acceptées dans `docs/qualite/fidelite/acceptes-LOT-00.json`) : G09 13,3 · G06 11,4 · H42 18,1 · H40 20,0 · H47 21,3 · H41 22,7 · H43 27,6 · D02 30,6 · G05 43,4 %. En disposition (couleur à ± 10), tous les écrans sont sous 15 %. Les écarts justifiés sont dans `justifies-LOT-00.json`.
@@ -758,6 +769,21 @@ LOT-04 fusionné : `check:argent` passe ses 70 propriétés, avec et sans les av
 - un commit par écran, et un push par lot de 3 à 5 écrans ;
 - avant de signaler au CO : `check:tutoiement` et la garde du lot ;
 - avant la fusion : T1 passe `check:fidelite`.
+
+### 1.36 LOT-01 préparation (S2, `09a0a28`) : fusionnée, décisions du CO
+
+Fusionnée. Les gardes, lues avant le push, sont vertes : `check:journee` (45), aucune garde nouvelle rouge, typechecks et lint. **S2 n'a pas les zips v4** : rien n'est construit, et les écrans sans fiche lue restent « à faire ». La session de S2 n'a pas pu écrire dans STATUT : le CO a reporté ses lignes au §7.
+
+| # | Question de S2 | Décision |
+|---|---|---|
+| 1 | Trois définitions de « série » | **(c), la clôture des priorités du jour**, comme le dit la règle du §1.10 (« Série = clôture des 3 priorités »). `calculerAujourdhui` (fichier de S0, qui attend Harun) passe à `serieDeLaJournee` : **S2 est autorisé à faire ce changement d'une ligne**, avec `check:socle-vivant` et les gardes du socle verts. SIM aligne ses attendus H04 et H25. |
+| 2 | Pas de priorités du jour dans les jeux | **Commandé à SIM** : un jeu `dailyPriorities`. |
+| 3 | H25 « même règle que N01 » | **Le fil du jour de N01**, comme le dit le texte cité de la fiche. **Provisoire**, à relire avec la fiche. |
+| 4 | Engagements écrits de L07 | Ils demandent une collection nouvelle : la question rejoint la liste présentée à Harun. D'ici là, l'invitation à écrire son engagement s'affiche, et l'enregistrement est « non disponible », avec la raison. |
+| 5 | Moment `defi.tenu` (ton `fete`) | **Accepté.** S2 l'ajoute au catalogue et à la liste de `check:moments`. |
+| 6 | Agrégats Stripe de G08 | Une demande à amn-api (Harun et Mohamed). Aucune clé ne passe par le poste. |
+| 7 | Routes de G08, H03 et MJ05 | À lire sur les fiches, quand S2 aura les zips. |
+| 8 | Périmètre de `check:tutoiement` | Ajout de `src/refonte/journee` : **accepté**. |
 
 ## 2. Les lots
 
@@ -1030,22 +1056,22 @@ Gardes : `check:socle`, `check:tutoiement`, `check:voix`, `check:socle-controles
 
 | ID | Écran | Type | État | Écart / note |
 |---|---|---|---|---|
-| N01 | Ma journée · Accueil | mixte | à faire | |
-| H25 | Ma journée · Tableau de bord, widgets | mixte | à faire | |
-| G08 | Ma journée · Cockpit client : Stripe, utilisateurs, tickets | mixte | à faire | |
+| N01 | Ma journée · Accueil | mixte | en cours (préparation) | préparation (S2) : lit `useAujourdhui` ; série = `serieDeLaJournee` (§1.36 n° 1) |
+| H25 | Ma journée · Tableau de bord, widgets | mixte | en cours (préparation) | préparation : `tableauDeBord` = attendus de SIM ; grille à lire sur la fiche |
+| G08 | Ma journée · Cockpit client : Stripe, utilisateurs, tickets | mixte | en cours (préparation) | préparation : `cockpitDuClient` = attendus de SIM ; agrégats seulement, aucune clé ; route à lire sur la fiche |
 | H01 | Ma journée · Calendrier | mixte | à faire | |
-| H02 | Ma journée · Tâches | mixte | à faire | |
-| H03 | Ma journée · Missions et tickets, kanban | mixte | à faire | |
-| H04 | Ma journée · Bilan de la semaine | mixte | à faire | |
-| MJ01 | Ma journée · Projets | mixte | à faire | |
-| MJ03 | Ma journée · Planning de l'équipe | mixte | à faire | |
-| MJ02 | Ma journée · Habitudes | mixte | à faire | |
+| H02 | Ma journée · Tâches | mixte | en cours (préparation) | préparation : paliers et série ; **trophées protégés** |
+| H03 | Ma journée · Missions et tickets, kanban | mixte | en cours (préparation) | préparation : `trierLaColonne`, `deplacer` ; aucun écran d'origine |
+| H04 | Ma journée · Bilan de la semaine | mixte | en cours (préparation) | préparation : `bilanDeLaSemaine` = attendus de SIM ; **trophées et paliers protégés** |
+| MJ01 | Ma journée · Projets | mixte | en cours (préparation) | préparation : `projetCalcule` = SIM |
+| MJ03 | Ma journée · Planning de l'équipe | mixte | en cours (préparation) | préparation : `chevauchements`, `personnesDuCreneau` |
+| MJ02 | Ma journée · Habitudes | mixte | en cours (préparation) | préparation : `serieDHabitude`, `tauxDeTenue` (propositions) |
 | MJ04 | Ma journée · Notes rapides | mixte | à faire | |
-| MJ05 | Ma journée · Rappels | mixte | à faire | |
+| MJ05 | Ma journée · Rappels | mixte | en cours (préparation) | préparation : `etatDuRappel` ; aucun écran d'origine |
 | L03 | Ma journée · Rituel du matin | nouveau | à faire | |
 | L02 | Ma journée · Mode Focus | nouveau | à faire | |
-| L01 | Ma journée · Séries et jalons | nouveau | à faire | |
-| L07 | Ma journée · Défis d'équipe | nouveau | à faire | |
+| L01 | Ma journée · Séries et jalons | nouveau | en cours (préparation) | préparation : `serieDeLaJournee`, paliers 5/10/20/30/50/100 ; **protégé** ; priorités absentes des jeux |
+| L07 | Ma journée · Défis d'équipe | nouveau | en cours (préparation) | préparation : défis, jauge, frise, célébrations, engagements, proposition ; **protégé** ; engagements sans donnée |
 
 ### LOT-02 · Mes contacts et clients — `claude/refonte-contacts` — 13 écrans
 
@@ -1262,10 +1288,10 @@ La colonne « État » reste `à faire` : un écran n'est « fait » qu'une fois
 | ID | Écran | Type | État | Écart / note |
 |---|---|---|---|---|
 | F60 | Outils · Vue d'ensemble | nouveau | à faire | |
-| H18 | Outils · Paramètres | mixte | à faire | |
-| H19 | Outils · Membres et accès | mixte | à faire | |
-| H20 | Outils · Automatisations | mixte | à faire | |
-| H21 | Outils · Connecteurs | mixte | à faire | |
+| H18 | Outils · Paramètres | mixte | en cours (préparation) | Existant inventorié (`preparation/LOT-07-outils.md` §3) ; attend la fiche v4, puis le socle v4. |
+| H19 | Outils · Membres et accès | mixte | en cours (préparation) | Existant inventorié (§4 de la note). Droits provisoires livrés (`src/refonte/outils/droits.ts`, §1.34 n° 2 à 5) : rôles du serveur, seul `owner` publie, `owner` et `admin` gèrent les connecteurs. Attend la fiche v4. |
+| H20 | Outils · Automatisations | mixte | en cours (préparation) | Couture `@edition/automatisations` posée (§1.22 n° 4) : le moteur actuel reste tel quel dans les deux éditions ; l'interne exécute en plus les règles `'flux'` (`src/refonte/outils/`), en entier ou pas du tout ; la cliente reçoit un jumeau vide. Écran : après le socle v4. |
+| H21 | Outils · Connecteurs | mixte | en cours (préparation) | 14 tarifs relevés le 14 nov. sur les pages officielles, tels que publiés (§1.34 n° 7) : 7 en euros (Mailjet, Gmail et Google Agenda par leurs API, Stripe, Mollie, GoCardless, OVHcloud SMS) et 7 en dollars (Postmark, Resend, Vercel, Netlify, GitHub, Slack, Twilio). Les autres restent « à relever » (détail dans `rapports/S6-outils.md`). Écran : après le socle v4. |
 | H22 | Outils · Corbeille et historique | mixte | à faire | |
 | H23 | Outils · Assistance | mixte | à faire | |
 | H24 | Outils · Coffre-fort | mixte | à faire | |
@@ -1277,6 +1303,12 @@ La colonne « État » reste `à faire` : un écran n'est « fait » qu'une fois
 | MO03 | Outils · Sauvegardes | mixte | à faire | |
 | MO04 | Outils · Import et export | mixte | à faire | |
 | MO05 | Outils · Raccourcis et favoris | mixte | à faire | |
+
+**Garde** : `check:outils` (22 contrôles, en CI).
+
+**Manque aux données** : un champ d'échéance des tâches (une tâche « à échéance » d'un flux attend) ; le montant et l'expéditeur dans les sources du moteur de H20 (un SI « montant » ou « expéditeur connu » attend).
+
+**Modèle des connecteurs** (LOT-12, S9 en pause) : devise, plafond par transaction et prix par personne ajoutés par S6 le 14 nov., avec l'accord du CO (§1.34 n° 7).
 
 ### LOT-08 · La Garde et la supervision — `claude/refonte-garde` — 12 écrans
 

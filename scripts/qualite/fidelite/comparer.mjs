@@ -445,7 +445,9 @@ function lireOptions(argv) {
 function trouverReference(o) {
   if (o.positionnels.length >= 2) return { fichier: o.positionnels[1], id: o.id ?? path.basename(o.positionnels[1]).replace(/\.png$/i, '').split('-')[0] };
   if (o.id && o.images) {
-    const candidats = fs.readdirSync(o.images).filter((f) => f.endsWith('.png') && (f === `${o.id}.png` || f.startsWith(`${o.id}-`)));
+    const tous = fs.readdirSync(o.images).filter((f) => f.endsWith('.png'));
+    // Le nom exact gagne : « DEV-modeles-sites » ne doit pas hésiter avec « DEV-modeles-sites-code ».
+    const candidats = tous.includes(`${o.id}.png`) ? [`${o.id}.png`] : tous.filter((f) => f.startsWith(`${o.id}-`));
     if (candidats.length === 1) return { fichier: path.join(o.images, candidats[0]), id: o.id };
     throw new Error(candidats.length === 0 ? `aucune image « ${o.id} » dans ${o.images}` : `plusieurs images pour « ${o.id} » : ${candidats.join(', ')}`);
   }

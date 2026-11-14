@@ -1,5 +1,6 @@
 import { appliquerRetouches, construireFil, type LibellesFil, type LigneFil, type RetouchesFil } from '../../accueil/filDuJour';
-import { meilleureSerie } from '../../accueil/tuiles';
+import { prioritesDeLaCollection, serieDeLaJournee } from '../../journee/serie';
+import { jourDeParis } from '../../journee/commun';
 import { isoDay } from '../../../state/useInvoices';
 
 /**
@@ -15,7 +16,8 @@ import { isoDay } from '../../../state/useInvoices';
  *   · `construireFil` puis `appliquerRetouches` (`filDuJour.ts`) : le fil
  *     automatique (priorités, rendez-vous, tâches, étapes d'un compte vide),
  *     puis la main de la personne par-dessus ;
- *   · `meilleureSerie` (`tuiles.ts`) : la série se compte à la clôture — le
+ *   · `serieDeLaJournee` (`src/refonte/journee/serie.ts`) : la série se compte à
+ *     la clôture des priorités du jour — le
  *     jour en cours ne la rompt pas tant qu'il n'est pas fini (04-ECARTS B2).
  *
  * `construireFil` n'est appelé qu'ici (`check:socle-coquille`).
@@ -87,7 +89,11 @@ export function calculerAujourdhui(s: SourcesAujourdhui, maintenant: Date, l: Li
   return {
     faites: faits,
     total: visibles.length,
-    serie: meilleureSerie(s.routines, maintenant),
+    // La série est la clôture des priorités du jour (STATUT §1.5 n° 2 et §1.36 n° 1), une seule règle pour N01 et la carte.
+    serie: serieDeLaJournee(
+      s.priorites.filter((d) => d.email.toLowerCase() === s.moi.toLowerCase()).map((d) => prioritesDeLaCollection({ day: d.day, items: d.items }, jourDeParis)),
+      s.jour,
+    ).serie,
     prochainRdv: prochain ? { titre: prochain.title?.trim() || prochain.clientName || '', debut: prochain.startAt } : null,
     fil: visibles,
     masquees,

@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { MoteurEtendu } from '@edition/automatisations';
 import { useAutomations, type Declencheur } from '../state/useAutomations';
 import { useLangue } from '../i18n';
 
@@ -6,6 +7,10 @@ import { useLangue } from '../i18n';
  * Le moteur des automatisations, monté dans la mise en page : il tourne tant
  * qu'un poste est ouvert, pas seulement quand l'écran Automatisations l'est.
  * Ne rend rien.
+ *
+ * `MoteurEtendu` passe par la couture `@edition/automatisations` : l'édition
+ * interne y exécute les règles au format étendu ; l'édition cliente reçoit un
+ * jumeau qui ne fait rien, et garde le seul moteur ci-dessous.
  */
 export function AutomationsRunner() {
   const { t } = useLangue();
@@ -20,5 +25,5 @@ export function AutomationsRunner() {
     [t],
   );
   useAutomations(libelles);
-  return null;
+  return <MoteurEtendu libelles={libelles} />;
 }
