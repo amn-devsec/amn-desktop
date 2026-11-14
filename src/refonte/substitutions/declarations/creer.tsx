@@ -17,4 +17,6 @@ export default declarerSubstitutions('creer', [
   { route: '/identite-visuelle', module: 'brand', composant: lazy(() => import('../../creer/ecrans/H17/MarqueRefonte')) },
   // MR01 — Vidéo (`/productions-video` garde son écran : la production, reliée par le titre).
   { route: '/montage-video', module: 'video', composant: lazy(() => import('../../creer/ecrans/MR01/VideoRefonte')) },
+  // MR02 — Ma page publique (`/portfolio` garde son écran).
+  { route: '/mini-page', module: 'minisite', composant: lazy(() => import('../../creer/ecrans/MR02/PagePubliqueRefonte')) },
 ]);

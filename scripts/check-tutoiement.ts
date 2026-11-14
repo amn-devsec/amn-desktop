@@ -29,6 +29,7 @@ export const PERIMETRE = ['src/socle', 'src/refonte/coquille', 'src/refonte/comp
  * relances, réponses automatiques, page publique, messages reçus). Chacune : le fichier, le début du texte, la raison.
  */
 export const ZONES_CLIENT: readonly { fichier: string; debut: string; raison: string }[] = [
+  { fichier: 'scripts/apercu/ecrans/MR02.tsx', debut: 'Votre informatique, sereine.', raison: 'le contenu du site public montré dans l’aperçu de MR02 : il s’adresse aux visiteurs du client, donc au vouvoiement' },
   { fichier: 'scripts/apercu/ecrans/G05-ajmani.tsx', debut: 'Bonjour, sauf erreur de notre part', raison: 'le brouillon de relance montré par l’aperçu de G05 : il part chez le client' },
 ];
 
