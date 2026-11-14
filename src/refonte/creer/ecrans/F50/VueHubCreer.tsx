@@ -213,6 +213,6 @@ function LivreVue({ couloir, nombre, palier }: { couloir: CouloirId; nombre: num
   const titre = nombre >= 2 || langue === 'en' ? tm(`${cle}.n` as CleF50, { n: nombre }) : tm(`${cle}.1` as CleF50, { n: nombre });
   const sous = couloir === 'commandes' && palier ? (palier.atteint ? tm('livre.commandes.sousAtteint', { palier: palier.palier }) : tm('livre.commandes.sous', { palier: palier.palier, restant: palier.restant })) : tm(`${cle}.sous` as CleF50);
   return (
-    <div className="cr-livre" data-palier={couloir === 'commandes' && !!palier}><b>{titre}</b><small>{sous}</small></div>
+    <div className="cr-couloir-pied" data-palier={couloir === 'commandes' && !!palier}><b>{titre}</b><small>{sous}</small></div>
   );
 }
