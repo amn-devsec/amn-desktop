@@ -703,3 +703,6 @@ i[data-t='attente'] { background: transparent; border: 1px dashed var(--socle-te
 :is(.jr-defis .cr-bouton-plein, .jr-defis .cr-bouton-verre) { position: relative; }
 @media (max-width: 1280px) { .jr-defis { grid-template-columns: minmax(0, 1fr); } .jr-defis__droite { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; } .jr-apports ul { grid-template-columns: minmax(0, 1fr); gap: 8px; } .jr-apports li { padding: 0; border-left: 0; } }
 @media (max-width: 1000px) { .jr-hero__centre { grid-template-columns: minmax(0, 1fr); } .jr-defis__droite { grid-template-columns: minmax(0, 1fr); } .jr-d-frise { grid-template-columns: repeat(2, minmax(0, 1fr)); } .jr-d-frise::before { display: none; } }
+
+/* §1.41 : les boutons du socle de ces écrans (suggestion d'Ajmani, cartes) ont aussi une zone de 36 px de haut. */
+.cr-page :is(.sc-suggestion, .jr-carte, .jr-catalogue, .jr-accueil, .jr-bilan, .jr-taches) [data-socle='bouton']::after { content: ''; position: absolute; left: 50%; top: 50%; width: max(100%, 36px); height: max(100%, 36px); transform: translate(-50%, -50%); }
