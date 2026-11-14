@@ -118,7 +118,18 @@ for (const route of ROUTES) {
         const touche = document.elementFromPoint(x, y);
         if (!(touche && (touche === e || e.contains(touche)))) rate.push(`${dx},${dy}`);
       }
-      if (rate.length) petites.push(`${Math.round(b.width)}×${Math.round(b.height)} « ${nom(e)} » (zone de clic : ${rate.length} point(s) sur 9 hors de l’élément)`);
+      // Recouvrement : le CENTRE ou un point de la moitié centrale de la boîte visible renvoie un voisin → un clic au milieu de l'élément va ailleurs.
+      // Un voisin qui ne mord que sur la marge de 34 px, hors de la boîte, est acceptable (le dernier dessiné reçoit le clic de la marge).
+      const boite = [[0, 0], [-b.width / 4, -b.height / 4], [b.width / 4, -b.height / 4], [-b.width / 4, b.height / 4], [b.width / 4, b.height / 4]]; // la moitié centrale de la boîte
+      let recouvre = false;
+      for (const [dx, dy] of boite) {
+        const x = cx + dx;
+        const y = cy + dy;
+        if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight) continue;
+        const t = document.elementFromPoint(x, y);
+        if (!(t && (t === e || e.contains(t)))) { recouvre = true; break; }
+      }
+      if (rate.length) petites.push(`${Math.round(b.width)}×${Math.round(b.height)} « ${nom(e)} » (zone de clic : ${rate.length} point(s) sur 9 hors de l’élément${recouvre ? ' ; RECOUVREMENT : un voisin reçoit le clic sur la boîte même' : ''})`);
       else sauvees += 1;
     }
     return { debord, coupables, petites, sauvees };
