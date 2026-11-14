@@ -19,7 +19,7 @@ import {
   type ModeBloc,
   type TypeQuand,
 } from '../connecteurs';
-import { ABrancher, CarteDev, PageDev, SuggestionDev } from './briques';
+import { ABrancher, CarteDev, PageDev, SuggestionDev, useLectureSeule } from './briques';
 import { useDonneesDeveloppement } from './donnees';
 import { dire } from './i18n';
 import { executionsDuMois, resumeFlux, texteDerniereExecution } from './journal';
@@ -112,6 +112,7 @@ export default function EditeurDeFlux() {
   const d = useDonneesDeveloppement();
   const { upsert } = useSync();
   const aller = useNavigate();
+  const lectureSeule = useLectureSeule();
   const regles = useCollection<AutomationEtendue>('automations');
   const m = d.maintenant;
 
@@ -228,7 +229,7 @@ export default function EditeurDeFlux() {
             <ul className="dv-ed-palette__liste">
               {PALETTE.map((p) => (
                 <li key={p.type}>
-                  <button type="button" className="dv-ed-palette__bloc" data-ton={p.ton} onClick={() => choisirQuand(p.type, p.heure)} disabled={!courant}>
+                  <button type="button" className="dv-ed-palette__bloc" data-ton={p.ton} onClick={() => choisirQuand(p.type, p.heure)} disabled={!courant || lectureSeule}>
                     <span className="dv-ed-palette__tuile" aria-hidden>
                       <p.icone size={13} />
                     </span>
@@ -248,7 +249,7 @@ export default function EditeurDeFlux() {
                   aria-checked={mode === md}
                   className="dv-ed-option"
                   data-choisi={mode === md || undefined}
-                  disabled={!courant}
+                  disabled={!courant || lectureSeule}
                   onClick={() => courant && modifier(basculerFlux(courant, md))}
                 >
                   <span className="dv-point" data-ton={md === 'local' ? 'succes' : 'attention'} aria-hidden />

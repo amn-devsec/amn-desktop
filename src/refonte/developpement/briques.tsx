@@ -1,4 +1,4 @@
-import React, { useInsertionEffect } from 'react';
+import React, { useEffect, useInsertionEffect, useState } from 'react';
 import { Page, PageHead, Etiquette, BlocEtat, Bouton, IconeEtincelle, type ActionPage } from '../../socle/ui';
 import type { DonneesDeveloppement } from './donnees';
 import { dire } from './i18n';
@@ -10,6 +10,25 @@ import { FEUILLE_DEVELOPPEMENT } from './styles';
  */
 
 const ID_FEUILLE = 'amn-feuille-developpement';
+
+/** Un écran de téléphone (700 px de large au plus). */
+export const REQUETE_TELEPHONE = '(max-width: 700px)';
+
+/**
+ * Sur téléphone, l'espace Développement est en LECTURE SEULE (décision de Harun, 12 nov.) : mises en ligne, retours
+ * arrière, redémarrages, enregistrements et ajouts restent sur l'ordinateur.
+ */
+export function useLectureSeule(): boolean {
+  const [telephone, setTelephone] = useState(() => typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia(REQUETE_TELEPHONE).matches);
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return undefined;
+    const mq = window.matchMedia(REQUETE_TELEPHONE);
+    const suivre = () => setTelephone(mq.matches);
+    mq.addEventListener('change', suivre);
+    return () => mq.removeEventListener('change', suivre);
+  }, []);
+  return telephone;
+}
 
 /** Pose la feuille du lot dans le document, une seule fois (la même balise pour les sept écrans). */
 export function useFeuilleDev(): void {
@@ -41,6 +60,7 @@ export function PageDev({
   className?: string;
 }) {
   useFeuilleDev();
+  const lectureSeule = useLectureSeule();
   const sous = (
     <>
       {sousTitre}
@@ -55,7 +75,7 @@ export function PageDev({
   );
   return (
     <Page className={`dv-page ${className}`.trim()}>
-      <PageHead className="dv-entete" titre={titre} sousTitre={sous} primaire={primaire} secondaires={secondaires} />
+      <PageHead className="dv-entete" titre={titre} sousTitre={sous} primaire={lectureSeule ? undefined : primaire} secondaires={lectureSeule ? [] : secondaires} />
       {children}
     </Page>
   );
