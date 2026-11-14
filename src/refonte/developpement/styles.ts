@@ -275,4 +275,77 @@ export const FEUILLE_DEVELOPPEMENT = `
   .dv-pj-grille { grid-template-columns: 1fr; }
   .dv-pj-chiffres { gap: 24px; }
 }
+
+.dv-annonce { margin: 0; min-height: 0; font-size: 13px; color: var(--socle-texte-2); }
+.dv-annonce:empty { display: none; }
+
+/* ═══ DEV-deploiements ═══════════════════════════════════════════════════ */
+.dv-dp-dernier { height: 171px; padding: 16px 22px; }
+.dv-dp-dernier__tete { display: flex; align-items: center; gap: 12px; }
+.dv-dp-tuile {
+  flex: none; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 11px; color: var(--fam-a);
+  border: 1px solid color-mix(in srgb, var(--fam-a) 42%, transparent);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--fam-a) 26%, transparent), color-mix(in srgb, var(--fam-a) 6%, transparent));
+}
+.dv-dp-dernier__titres { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; font-size: 12.5px; }
+.dv-dp-dernier__titre { font-size: 15px; font-weight: 600; color: var(--socle-texte-1); }
+.dv-dp-frise { list-style: none; margin: 14px 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); }
+.dv-dp-etape { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.dv-dp-lien {
+  position: absolute; top: 15px; right: calc(50% + 28px); width: calc(100% - 56px); height: 2px; border-radius: 1px;
+  background: var(--socle-piste);
+}
+.dv-dp-lien[data-fait] { background: linear-gradient(90deg, var(--fam-a), var(--fam-b)); box-shadow: 0 0 6px color-mix(in srgb, var(--fam-a) 45%, transparent); }
+.dv-dp-rond {
+  width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center;
+  border: 2px solid var(--socle-bord-carte); color: var(--socle-texte-3); background: var(--socle-carte-bas);
+}
+.dv-dp-etape[data-etat='reussie'] .dv-dp-rond { border: 0; color: var(--socle-primaire-encre); background: linear-gradient(135deg, var(--fam-a), var(--fam-b)); box-shadow: 0 0 10px color-mix(in srgb, var(--fam-b) 45%, transparent); }
+.dv-dp-etape[data-etat='echouee'] .dv-dp-rond { border-color: var(--socle-etat-critique); color: var(--socle-etat-critique); box-shadow: 0 0 10px color-mix(in srgb, var(--socle-etat-critique) 40%, transparent); }
+.dv-dp-etape[data-etat='en-cours'] .dv-dp-rond { border-color: var(--fam-a); }
+.dv-dp-rond__pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--fam-a); }
+.dv-dp-etape__nom { font-size: 13.5px; font-weight: 600; color: var(--socle-texte-1); }
+.dv-dp-etape__duree { font-size: 12px; }
+.dv-dp-corps { display: grid; grid-template-columns: 732px 360px; gap: 16px; }
+.dv-dp-gauche, .dv-dp-droite { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.dv-dp-historique { height: 313px; padding: 16px 18px; }
+.dv-dp-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.dv-dp-table th { text-align: left; font-size: 11px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: var(--socle-texte-3); padding: 0 6px 8px; }
+.dv-dp-table td { height: 54px; padding: 0 6px; border-top: 1px solid var(--socle-bord-ligne); vertical-align: middle; }
+.dv-dp-table td:first-child { width: 14px; }
+.dv-dp-table tr[data-choisi] td { background: var(--socle-ligne-survol); }
+.dv-dp-table__depot { display: block; font-size: 13px; font-weight: 600; color: var(--socle-texte-1); }
+.dv-dp-table__sous { display: block; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; }
+.dv-dp-table__quand { display: block; white-space: nowrap; }
+.dv-dp-table__action { text-align: right; }
+.dv-dp-planifies { height: 147px; padding: 16px 18px; }
+.dv-dp-planifies__liste { list-style: none; margin: 0; padding: 0; }
+.dv-dp-planifie { display: flex; align-items: center; gap: 12px; min-height: 46px; border-top: 1px solid var(--socle-bord-ligne); font-size: 13.5px; }
+.dv-dp-planifie:first-child { border-top: 0; }
+.dv-dp-calendrier { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 8px; color: var(--socle-fam-ecrire-a); border: 1px solid color-mix(in srgb, var(--socle-fam-ecrire-a) 42%, transparent); background: color-mix(in srgb, var(--socle-fam-ecrire-a) 12%, transparent); }
+.dv-dp-planifie__date { width: 112px; flex: none; }
+.dv-dp-planifie__quoi { flex: 1; min-width: 0; color: var(--socle-texte-1); }
+.dv-dp-jours { height: 140px; padding: 16px 18px 10px; }
+.dv-dp-jours .dv-carte__tete { margin-bottom: 6px; }
+.dv-dp-barres { display: flex; align-items: flex-end; gap: 6px; height: 56px; }
+.dv-dp-barre { flex: 1; min-height: 4px; border-radius: 4px 4px 2px 2px; background: linear-gradient(180deg, color-mix(in srgb, var(--fam-a) 70%, transparent), color-mix(in srgb, var(--fam-a) 18%, transparent)); }
+.dv-dp-barre[data-echec] { background: var(--socle-etat-critique); box-shadow: 0 0 8px color-mix(in srgb, var(--socle-etat-critique) 50%, transparent); }
+.dv-dp-jours__reperes { display: flex; justify-content: space-between; font-size: 11px; margin-top: 2px; }
+.dv-dp-enligne { height: 168px; padding: 16px 18px; }
+.dv-dp-enligne__liste { list-style: none; margin: 0; padding: 0; }
+.dv-dp-enligne__liste li { display: flex; align-items: center; gap: 10px; min-height: 27px; border-top: 1px solid var(--socle-bord-ligne); font-size: 13.5px; }
+.dv-dp-enligne__liste li:first-child { border-top: 0; }
+.dv-dp-enligne__nom { flex: 1; min-width: 0; color: var(--socle-texte-courant); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dv-dp-suggestion { height: 137px; }
+
+@container (max-width: 1100px) {
+  .dv-dp-corps { grid-template-columns: 1fr; }
+  .dv-dp-droite { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .dv-dp-historique, .dv-dp-planifies, .dv-dp-dernier { height: auto; }
+}
+@container (max-width: 700px) {
+  .dv-dp-frise { grid-template-columns: 1fr; gap: 8px; }
+  .dv-dp-lien { display: none; }
+  .dv-dp-droite { grid-template-columns: 1fr; }
+}
 `;
