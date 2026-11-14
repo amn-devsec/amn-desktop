@@ -14,7 +14,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 |---|---|---|---|
 | S0 Socle | `session_01SJe828c2W5EnkMY4fhFY6z` | attend l'accord direct de Harun | sa liste, §1.38 |
 | T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | `check:fidelite` par lot (aperçu + application) | mesure des zones de clic par sonde ; LOT-03, puis LOT-11 |
-| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | construit LOT-02 (8 sur 13) | MC03 à MC07, justifies-LOT-02 |
+| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **LOT-02 complet, 13 sur 13** (`fbed7734`) | T1 → fusion |
 | S2 | `session_014ZkF6SeGRNi6NR3uEsjM5q` | préparation de LOT-01 finie ; **sans zips v4** | en pause jusqu'aux zips |
 | S3 | `session_01FBSpK6n1yYtYXYyxbLAuBV` | attend l'accord de Harun (`check:encres`) ; **sans zips v4** | correctif d'`equipes.ts`, puis LOT-08 |
 | S5 | `session_012jWErBSSkcoVaU3iN895bQ` | LOT-03 complet, mise en page acceptée ; ME05 encore dans l'ancien bureau | retirer `/knowledge` et `/decisions` du Supervisor → T1 → fusion ; puis LOT-05 |
@@ -40,10 +40,11 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 | Jour | Construits | Livrés (cumul) | Livrés depuis la veille | Lots préparés | Lots finis | Note |
 |---|---|---|---|---|---|---|
-| 14 nov. | 48 / 153 | 24 (LOT-00 9, LOT-06 15) | 24 | 8 / 13 | 1 / 13 (LOT-06) ; LOT-00 attend l'allumage | les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. La note de LOT-08 n'est pas fusionnée. |
+| 14 nov. | 57 / 153 | 24 (LOT-00 9, LOT-06 15) | 24 | 8 / 13 | 1 / 13 (LOT-06) ; LOT-00 attend l'allumage | les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. La note de LOT-08 n'est pas fusionnée. |
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov., 10h45 : **LOT-02 complet** (S1, `fbed7734`, 13 sur 13), en file chez T1. Réglages en `localStorage` à titre provisoire ; aucun envoi réel des relances avant la phase 0 de sécurité et le connecteur d'envoi ; formule de fidélité et réglages des relances dans H18. LOT-05 : 4 écrans sur 10 (S5), 17 essentiels acceptés.
 - 14 nov., 10h25 : suites de LOT-06 (S7 `5177df0`) : zones de clic de 34 px, repli de H17, H17 à 9,2 % en disposition. T1 remesure avant la fusion. Deux points du socle vont à la liste de S0 : le Bouton à 31 px et le décalage de PageHead (§1.38 n° 6).
 - 14 nov., 10h20 : LOT-11 (`a86c470`) : structure et paquet client bons (7 routes montées, identique octet pour octet côté client), mais **pas fusionné** : la fidélité n'est pas mesurable, faute d'aperçus dans le dépôt. S8 pousse ses aperçus (`scripts/apercu/ecrans/DEV-*.tsx`) et `justifies-LOT-11.json`, puis vérifie DEV-modeles-sites (75,6 % brut). DEV-ensemble n'a pas d'image, c'est une proposition validée : « ni pour ni contre » accepté. La règle tient : aucune fusion d'écrans sans fidélité mesurée.
 - 14 nov., 10h20 : entrées de registre des 3 écrans neufs de LOT-06 fusionnées (S7 `37152cf`) ; valeurs acceptées de LOT-06 fixées par T1 (brut et disposition surveillés, à +2 points). Gardes vertes.
