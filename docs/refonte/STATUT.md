@@ -2,8 +2,40 @@
 
 > Tenu par le CO. Une session ne modifie que **la section de son lot** dans « 7. Écrans » (une ligne par écran) ; tout le reste est au CO. Règles : [`REGLES.md`](REGLES.md).
 
+## REPRISE (à lire en premier après une compaction ; tenu par le CO, réécrit à chaque tour)
+
+Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `750d8b3`.
+
+| Session | Identifiant | État | Prochain geste |
+|---|---|---|---|
+| S0 Socle | `session_01SJe828c2W5EnkMY4fhFY6z` | passe finale v4 finie (`888f7a0`) | corriger ce que T1 signale ; puis la baisse des échecs connus |
+| T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | passage 2 sur `888f7a0` en cours | son verdict → fusion du socle v4 et allumage (§1.9) |
+| S6 Sécurité | `session_01RHV8Xq2txWkfjAusKvq9DG` | LOT-07 en préparation ; une étape de sécurité attend amn-api | couture H20, tarifs H21 (§1.26) |
+| SIM | `session_011UF2ufZg9moGv2rRZFRuf7` | chargeur vers l'API d'essai en cours | livrer → mettre à jour `LANCER-EN-LOCAL.md` |
+| DS | `session_01TZGDvVWristJnnPK59rruY` | préparation de LOT-04 en cours | relire et fusionner son rapport |
+| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | LOT-03 en préparation | puis registre (12 vues vers `creer`), puis LOT-05 |
+| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | décisions reçues (§1.28) ; lecture du v4 | relire et fusionner sa reprise |
+| S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | préparation v4 fusionnée (`526cd63`) | attend le socle v4 |
+| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | en pause | feu vert de l'étape 3 au socle v4 ; jeux à commander à SIM |
+| S9 | `session_01C5DAVygXYax6Q7g436TPQx` | LOT-12 fini (§1.26) | rien |
+| S2, S3, F1 | `session_014ZkF6SeGRNi6NR3uEsjM5q`, `session_01FBSpK6n1yYtYXYyxbLAuBV`, `session_01VZHqP3gvzrtnpgsTrrKguV` | arrêtées | relancer au socle v4 (prompts : `PROMPTS-11NOV.md`, §1.21) |
+
+**Décisions provisoires en cours** (révisables par Harun) : valeurs de départ des connecteurs (§1.22 n° 3) ; plafonds de relance 3 et 1 par jour (§1.28 n° 4) ; seuils de charge (validés, §1.20). Liste « À décider par Harun » : `POINT-HARUN.md`.
+
+**Échecs connus à faire baisser** (gardes rouges, aussi sur `main` selon S0, à confirmer par T1) : migration, encres, xss, visite, support. Aucune fusion n'en ajoute un nouveau.
+
+## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
+
+- 14 nov. : LOT-06 préparation v4 fusionnée (`750d8b3`). Les 12 vues à rapatrier dans `creer` sont listées par S7, et S5 fait le déplacement.
+- 14 nov. : messages directs du CO aux sessions, règle dans `REGLES.md`.
+- 14 nov. : LOT-02 préparation fusionnée ; fidélité aux deux formules ; un seul moteur de relances (§1.28).
+- 14 nov. : LOT-06, quinze réponses ; aucune nouvelle collection synchronisée sans Harun (§1.27).
+- 13 nov. : LOT-12 fini ; couture H20 et tarifs H21 confiés à S6 (§1.26).
+- 13 nov. : passe finale v4 de S0 acceptée, passage 2 de T1 (§1.25).
+- 12 nov. : modules de F1 (§1.21), seuils de charge (§1.20), LOT-11 et LOT-12 (§1.17 à §1.23), reprise après 18h (§1.18, §1.24).
+
 - Branche d'intégration : **`claude/refonte-vivante`** (décision du 31 oct., §1.1). Base `main` @ `630ef45`.
-- Dernière mise à jour : 2026-11-14. Messages directs du CO aux sessions (REGLES). LOT-02 préparation fusionnée : §1.28. Réponses à S7 : §1.27. Passage 2 de T1 : §1.25.
+- Dernière mise à jour : 2026-11-14, nuit. Mode continu du CO : bloc REPRISE et journal en tête. LOT-06 préparation v4 fusionnée.
 - LOT-00 (socle v2) est fusionné (`488cdcc`), avec les 4 commits de S5. **Le socle v3 s'y ajoute avant la construction visuelle des lots** (S0 a ses consignes). D'ici là, chaque lot prépare et construit sa logique : §5.
 - Fusionnés aussi le 1er nov. : T1 (API d'essai, bac à sable, contrôle de fidélité) et les données fictives de SIM (100 jeux, `4fe559b`), avec `check:donnees` en CI (87 contrôles).
 - Gardes locales sur `refonte-vivante` : `typecheck`, `typecheck:business`, `lint` et les 55 contrôles sans navigateur de `editions.yml` verts.
