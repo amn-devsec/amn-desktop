@@ -2,12 +2,21 @@ import { lazy } from 'react';
 import { declarerSubstitutions } from '../declarer';
 
 /**
- * LOT-01 — Ma journée, la moitié de S1 (STATUT § 1.3) : les écrans refondus, à la place des écrans d'origine. Chaque écran vit dans
- * `src/refonte/journee/<écran>/` (une vue, une page branchée, un fichier de mots) et se déclare ici par la route EXACTE de l'écran
- * d'origine. Les écrans neufs (H03, G08, MJ05) n'ont pas d'écran d'origine : ils se déclarent au registre des modules
- * (`modules/declarations/jour.ts`, champ `nouveau`), pas ici.
+ * LOT-01 — Ma journée (STATUT § 1.3), construit par S7 (`journee/ecrans/<ID>/`) et S1 (`journee/<écran>/`) : les écrans
+ * refondus, substitués à l'écran d'origine de la même route. Les écrans nouveaux (H03, G08, MJ05, L01, L02, L03, L07) sont des
+ * vues du registre (`declarations/jour.ts`, `nouveau`), pas ici ; N01 passe par la couture `@edition/accueils` ; H01 par une
+ * couture, son fichier d'origine étant partagé avec l'édition cliente.
  */
 export default declarerSubstitutions('journee', [
+  // — Moitié S7 —
+  // H25 — Tableau de bord, widgets.
+  { route: '/tableau-de-bord', module: 'dashboard', composant: lazy(() => import('../../journee/ecrans/H25/TableauDeBordRefonte')) },
+  // H02 — Tâches.
+  { route: '/tasks', module: 'tasks', composant: lazy(() => import('../../journee/ecrans/H02/TachesRefonte')) },
+  // H04 — Bilan de la semaine.
+  { route: '/revue-hebdo', module: 'weekly', composant: lazy(() => import('../../journee/ecrans/H04/BilanRefonte')) },
+
+  // — Moitié S1 —
   // H01 — Calendrier : la semaine. « Jour », « Mois » et la création passent par l'écran d'origine (`useOutlet`), partagé avec l'édition cliente.
   { route: '/agenda', composant: lazy(() => import('../../journee/calendrier/PageCalendrier')) },
 

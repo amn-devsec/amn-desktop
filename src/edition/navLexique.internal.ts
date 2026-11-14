@@ -50,6 +50,11 @@ const NAV_EN_INTERNE: Record<string, TraductionNav> = {
   scanner: { label: 'Scanner', hint: 'Vulnerability scanning' },
   comply: { label: 'Comply', hint: 'GDPR compliance' },
   ssl: { label: 'SSL Monitor', hint: 'TLS certificates' },
+  // LOT-01 (Ma journée) : les écrans nouveaux.
+  series: { label: 'Streaks and milestones', hint: 'Your steady habit, no pressure' },
+  defis: { label: 'Team challenges', hint: 'Moving forward together, no ranking' },
+  rituel: { label: 'Morning ritual', hint: 'Three minutes to start well' },
+  focus: { label: 'Focus mode', hint: 'One thing at a time, the rest waits' },
   // LOT-02 (refonte) : les écrans neufs de « Mes contacts et clients », déclarés au registre des modules.
   cockpit: { label: 'Client cockpit', hint: 'Their activity online, live: revenue, users, tickets, health' },
   missions: { label: 'Missions and tickets', hint: 'Team and client tickets, in columns' },

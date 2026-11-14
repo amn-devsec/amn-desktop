@@ -331,7 +331,7 @@ button.cr-rail__noeud { cursor: pointer; }
 .cr-apercu__scene { position: absolute; inset: 0; background: radial-gradient(circle at 60% 45%, var(--socle-decor-3) 0 16%, transparent 17%), linear-gradient(180deg, var(--socle-decor-2), var(--socle-decor-1)); opacity: .7; }
 .cr-apercu__code { position: absolute; top: 14px; left: 16px; z-index: 1; font-size: 11px; color: var(--socle-texte-2); }
 .cr-lecteur { display: flex; align-items: center; gap: 12px; padding: 10px 18px; font-size: 13px; color: var(--socle-texte-1); }
-.cr-lecteur__lire { width: 36px; height: 36px; border-radius: 50%; border: 0; background: linear-gradient(135deg, var(--fam-a), var(--fam-b)); color: var(--socle-primaire-encre); display: grid; place-items: center; cursor: pointer; }
+.cr-lecteur__lire { position: relative; width: 36px; height: 36px; border-radius: 50%; border: 0; background: linear-gradient(135deg, var(--fam-a), var(--fam-b)); color: var(--socle-primaire-encre); display: grid; place-items: center; cursor: pointer; }
 .cr-lecteur__barre { flex: 1; height: 4px; border-radius: 2px; background: var(--socle-piste); position: relative; }
 .cr-lecteur__barre i { display: block; height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--fam-a), var(--fam-b)); }
 .cr-video-droite { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
@@ -465,8 +465,10 @@ button.cr-rail__noeud { cursor: pointer; }
 .cr-plan__resume dl div[data-ton='rouge'] dt { color: var(--socle-etat-critique); }
 .cr-plan__resume p { margin: 0; font-size: 12px; color: var(--socle-etat-succes); display: flex; gap: 6px; align-items: center; }
 .cr-plan__periode { position: absolute; top: 16px; right: 16px; }
+.cr-lecteur__lire::after { content: ''; position: absolute; inset: 0; }
+.cr-plan__zoom button::after { content: ''; position: absolute; inset: -2px; }
 .cr-plan__zoom { position: absolute; right: 16px; bottom: 90px; display: flex; flex-direction: column; gap: 6px; }
-.cr-plan__zoom button { width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--socle-bord-controle); background: var(--socle-carte-haut); color: var(--socle-texte-2); cursor: pointer; display: grid; place-items: center; }
+.cr-plan__zoom button { position: relative; width: 36px; height: 36px; border-radius: 9px; border: 1px solid var(--socle-bord-controle); background: var(--socle-carte-haut); color: var(--socle-texte-2); cursor: pointer; display: grid; place-items: center; }
 .cr-plan__legende { position: absolute; left: 16px; bottom: 90px; display: flex; gap: 12px; align-items: center; padding: 6px 12px; border-radius: 9px; background: var(--socle-carte-haut); border: 1px solid var(--socle-bord-carte); font-size: 12px; color: var(--socle-texte-2); }
 .cr-plan__legende span { width: 16px; height: 0; border-top: 3px solid var(--socle-etat-succes); display: inline-block; }
 .cr-plan__legende span[data-t='route'] { border-top: 3px dashed var(--socle-etat-info); }
@@ -495,7 +497,7 @@ button.cr-rail__noeud { cursor: pointer; }
 .cr-materiel-barre { display: flex; align-items: center; gap: 12px; flex-wrap: nowrap; }
 .cr-catalogue__gauche .cr-materiel-barre > :first-child { flex: none; }
 .cr-catalogue__gauche .cr-materiel-barre .cr-recherche { flex: 0 1 150px; width: auto; min-width: 90px; }
-.cr-recherche { display: inline-flex; align-items: center; gap: 8px; width: 210px; height: 34px; padding: 0 12px; border-radius: var(--socle-rayon-champ); background: var(--socle-champ); border: 1px solid var(--socle-bord-controle); color: var(--socle-texte-3); box-sizing: border-box; }
+.cr-recherche { display: inline-flex; align-items: center; gap: 8px; width: 210px; height: 36px; padding: 0 12px; border-radius: var(--socle-rayon-champ); background: var(--socle-champ); border: 1px solid var(--socle-bord-controle); color: var(--socle-texte-3); box-sizing: border-box; }
 .cr-recherche input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--socle-texte-1); font: inherit; font-size: 13px; }
 .cr-parc { margin-left: auto; white-space: nowrap; flex: none; display: inline-flex; align-items: center; gap: 10px; font-size: 12.5px; color: var(--socle-texte-2); }
 .cr-parc__barre { display: inline-flex; width: 150px; height: 5px; border-radius: 3px; overflow: hidden; background: var(--socle-piste); }
@@ -949,7 +951,7 @@ button.cr-ph-case { cursor: pointer; }
 .cr-q-note { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin: 0 0 4px 36px; padding: 8px 12px; border-radius: 8px; border-left: 3px solid var(--socle-etat-attention); background: color-mix(in srgb, var(--socle-etat-attention) 8%, transparent); font-size: 13px; color: var(--socle-texte-1); }
 .cr-q-note[data-ton='rouge'] { border-left-color: var(--socle-etat-critique); background: color-mix(in srgb, var(--socle-etat-critique) 8%, transparent); }
 .cr-q-note small { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--socle-texte-3); white-space: nowrap; }
-.cr-q-repli { display: flex; align-items: center; gap: 8px; width: 100%; height: 34px; margin-top: 4px; padding: 0; border: 0; background: transparent; font: inherit; font-size: 13px; color: var(--socle-texte-3); text-align: left; cursor: pointer; }
+.cr-q-repli { display: flex; align-items: center; gap: 8px; width: 100%; height: 36px; margin-top: 4px; padding: 0; border: 0; background: transparent; font: inherit; font-size: 13px; color: var(--socle-texte-3); text-align: left; cursor: pointer; }
 .cr-q-repli svg[data-ouvert='true'] { transform: rotate(180deg); }
 .cr-q-doc > footer { display: flex; align-items: center; gap: 10px; padding: 8px 20px 14px; }
 .cr-q-doc > footer button { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
@@ -997,7 +999,7 @@ button.cr-ph-case { cursor: pointer; }
 :is(.cr-bouton-verre, .cr-bouton-plein, .cr-controle, .cr-sommaire__entree, .cr-plus, .cr-cellule-btn, .cr-jeton-commande, .cr-ph-case, .cr-q-ib, .cr-q-verdict button, .cr-fiche-produit > header button, button.cr-rail__noeud, .cr-modules__lien, .cr-fl-ajout, .cr-ajouter, .cr-pastille-couleur)::after {
   content: ''; position: absolute; left: 50%; top: 50%; width: max(100%, 36px); height: max(100%, 36px); transform: translate(-50%, -50%);
 }
-.cr-recherche input { align-self: stretch; height: 34px; margin: -1px 0; }
+.cr-recherche input { align-self: stretch; height: 36px; margin: -1px 0; }
 /* La zone passe au-dessus de ce qui suit dans la page ; deux cibles voisines gardent un pas de 34 px, pour que leurs zones ne se recouvrent pas. */
 :is(.cr-bouton-verre, .cr-bouton-plein, .cr-controle, .cr-sommaire__entree, .cr-plus, .cr-cellule-btn, .cr-jeton-commande, .cr-ph-case, .cr-q-ib, .cr-q-verdict button, .cr-fiche-produit > header button, button.cr-rail__noeud, .cr-modules__lien, .cr-fl-ajout, .cr-ajouter, .cr-pastille-couleur) { z-index: 1; }
 .cr-controle { height: 36px; }
@@ -1019,7 +1021,8 @@ button.cr-ph-case { cursor: pointer; }
 .cr-fiche footer::after { right: -6px; }
 
 /* §1.41 (14 nov.) : zones invisibles de 36 px, y compris sur les briques du socle que les écrans de ce lot emploient
-   (boutons de l'en-tête de page, puces de filtre, segments). Règle posée ici, pour ces écrans seulement ; le socle garde sa valeur. */
+   (boutons de l'en-tête de page, puces de filtre, segments). Règle posée ici, pour ces écrans seulement ; le socle garde sa valeur.
+   À RETIRER quand S0 aura passé le socle à 36 px (§1.38 n° 6). */
 .cr-page { --sc-v-cible: 36px; }
 .cr-page .sc-page__actions [data-socle='bouton']::after { height: 36px; }
 .cr-page .sc-segment::after { width: max(100%, 36px); height: max(100%, 36px); }

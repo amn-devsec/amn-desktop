@@ -1,6 +1,27 @@
 {
-  "_": "Écarts de LOT-01 (Ma journée, la moitié de S1 : H01, H03, G08, MJ01 à MJ05) au-dessus de 15 % en comparaison brute, sur le modèle de justifies-LOT-02.json. Aucun écran ne dépasse 15 % en disposition (couleur ± 10, la barre de T1). H03 (7,8 %) et G08 (14,4 %) sont sous 15 % même en brut. MJ03 et MJ04 s'y ajoutent ;",
+  "_": "Écarts de LOT-01 (Ma journée) au-dessus de 15 % en comparaison brute, une entrée par écran, pour les deux moitiés : S7 (N01, H25, H02, H04, L01, L02, L03, L07) et S1 (H01, H03, G08, MJ01 à MJ05). Aucun écran ne dépasse 15 % en disposition (couleur ± 10). Les raisons : données d'exemple de l'aperçu, champs « non disponibles » (STATUT §1.27 n° 4), écarts de coquille de LOT-00. Fichier réuni par le CO à la fusion des deux branches.",
   "ecrans": {
+    "H02": {
+      "raison": "tâches, échéances, durées et catégories de l'aperçu viennent de données d'exemple ; les vraies tâches n'ont ni échéance, ni durée, ni catégorie (urgent = priorité haute, important = client ou site, case choisie gardée sur ce poste) ; mêmes écarts de coquille que LOT-00 (sélecteur d'organisation dans l'en-tête, section « Développement » de la barre latérale, états de la barre « Aujourd'hui », décalage du titre de page du socle), absents de l'image"
+    },
+    "H04": {
+      "raison": "semaines, montants et jalons d'exemple, pas ceux de l'image ; semaines « calculées » et non « clôturées » (aucune clôture stockée) ; boîte à zéro, messages et rondes de La Garde « non disponibles » ; mêmes écarts de coquille que LOT-00 (sélecteur d'organisation dans l'en-tête, section « Développement » de la barre latérale, états de la barre « Aujourd'hui », décalage du titre de page du socle), absents de l'image"
+    },
+    "N01": {
+      "raison": "rendez-vous, tâches, encaissements et courbe d'exemple ; messages à traiter, rondes de La Garde, « lu par » et point d'équipe « non disponibles » (pas de source dans le dépôt, §1.10 règle A1, aucun faux chiffre) ; mêmes écarts de coquille que LOT-00 (sélecteur d'organisation dans l'en-tête, section « Développement » de la barre latérale, états de la barre « Aujourd'hui », décalage du titre de page du socle), absents de l'image"
+    },
+    "L07": {
+      "raison": "défi de la semaine, relais, engagements, défis passés et célébrations de l'aperçu sont fictifs ; le dépôt ne stocke pas encore de défi (§1.27, pas de collection nouvelle sans l'accord de Harun) : l'écran réel montre l'état vide de la fiche et le seul défi calculable, « Zéro impayé » (factures) ; les cinq barres du relais sont plus étroites que sur l'image d'environ 20 px (largeur proportionnelle aux messages du jour) ; mêmes écarts de coquille que LOT-00 (sélecteur d'organisation dans l'en-tête, section « Développement » de la barre latérale, états de la barre « Aujourd'hui », décalage du titre de page du socle), absents de l'image"
+    },
+    "H25": {
+      "raison": "valeurs des widgets (chiffre d'affaires, objectif, tâches, agenda, tickets, utilisateurs actifs, factures, activité) et 30 barres du graphique issues des données d'exemple de l'aperçu, pas de celles de l'image ; en réel, tout vient des collections du dépôt et ce qui manque est « non disponible » (§1.27) ; disposition à ±10 : 8,1 % ; mêmes écarts de coquille que LOT-00 (sélecteur d'organisation dans l'en-tête, section « Développement » de la barre latérale, états de la barre « Aujourd'hui », décalage du titre de page du socle), absents de l'image"
+    },
+    "L01": {
+      "raison": "série, record, rails (tâches, boîte à zéro, rituels), médailles et badges d'équipe viennent de données d'exemple, pas de ceux de l'image ; l'escalier des paliers est dessiné par le code, pas en image ; en réel, ce qui n'existe pas dans le dépôt est « non disponible » ; disposition à ±10 : 7,2 % ; mêmes écarts de coquille que LOT-00 (sélecteur d'organisation dans l'en-tête, section « Développement » de la barre latérale, états de la barre « Aujourd'hui », décalage du titre de page du socle), absents de l'image"
+    },
+    "L02": {
+      "raison": "le cadran, le minuteur (15:12), la tâche courante, la file, le bruit coupé (4 / 2 / 3) et la matinée viennent de données d'exemple posées dans l'aperçu ; le cadran est un tracé SVG dessiné par le code (arc, graduations, halo) et non l'image de la maquette ; en réel, le bruit coupé et la durée estimée sont « non disponibles » ; disposition à ±10 : 5,9 % ; mêmes écarts de coquille que LOT-00 (sélecteur d'organisation dans l'en-tête, section « Développement » de la barre latérale, états de la barre « Aujourd'hui », décalage du titre de page du socle), absents de l'image"
+    },
     "H01": {
       "brut": "16,3 %",
       "disposition": "6,2 %",

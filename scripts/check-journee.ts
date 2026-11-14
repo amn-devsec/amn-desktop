@@ -62,6 +62,11 @@ async function charger<T>(code: string): Promise<T> {
 const M = await charger<any>(
   [
     `export * as L from '../${ZONE}';`,
+    `export * as G from '../${ZONE}/grille';`,
+    `export * as MX from '../${ZONE}/matrice';`,
+    `export * as ES from '../${ZONE}/escalier';`,
+    `export * as MT from '../${ZONE}/matin';`,
+    `export * as RL from '../${ZONE}/relais';`,
     "export * as monde from '../src/refonte/donnees';",
     "export * as attendus from '../src/refonte/donnees/attendus';",
     "export { avancementProjet, statutProjet } from '../src/refonte/donnees/ma-journee';",
@@ -72,7 +77,7 @@ const M = await charger<any>(
     "export { ecartsDeVoix } from '../src/socle/mots/voix';",
   ].join('\n'),
 );
-const { L, monde, attendus, moi, jourDeSim, avancementProjet, statutProjet, joursSansImpayeSim, DICTIONNAIRES_JOURNEE: DICO, ecartsDeVoix } = M;
+const { L, G, MX, ES, MT, RL, monde, attendus, moi, jourDeSim, avancementProjet, statutProjet, joursSansImpayeSim, DICTIONNAIRES_JOURNEE: DICO, ecartsDeVoix } = M;
 
 const VOLUMES = ['vide', 'peu', 'normal', 'beaucoup'] as const;
 const mondes = Object.fromEntries(VOLUMES.map((v) => [v, monde.construireMonde({ volume: v })])) as Record<(typeof VOLUMES)[number], any>;
@@ -93,7 +98,8 @@ function fichiersDe(dossier: string): string[] {
   const sortie: string[] = [];
   for (const e of fs.readdirSync(path.join(racine, dossier), { withFileTypes: true })) {
     const rel = `${dossier}/${e.name}`;
-    // Les sous-dossiers de la zone sont les ÉCRANS construits (`calendrier/`, `missions/`…) : leur garde est `check:journee-ecrans`.
+    // Les sous-dossiers de la zone sont les ÉCRANS construits (`ecrans/` de S7 ; `calendrier/`, `missions/`… de S1) :
+    // leur garde est `check:journee-ecrans`. La logique pure est dans les fichiers à la racine de la zone.
     if (e.isDirectory()) continue;
     else if (/\.(ts|tsx)$/.test(e.name)) sortie.push(rel);
   }
@@ -660,7 +666,7 @@ await dit('MJ04 : sur les notes de SIM — chaque note affichée est permise, l�
 });
 
 await dit('L02 : les règles du Pomodoro existant — trois durées, pause de 5 min, pause longue de 15 min à la quatrième séance', () => {
-  assert.deepEqual([...L.DUREES_DE_SEANCE], [15, 25, 50]);
+  assert.deepEqual([...L.DUREES_DE_SEANCE], [15, 25, 35, 45, 50, 90]);
   assert.deepEqual([L.DUREE_PAR_DEFAUT, L.PAUSE_MIN, L.PAUSE_LONGUE_MIN, L.SEANCES_PAR_CYCLE], [25, 5, 15, 4]);
   assert.equal(L.nouveauFocus(40).dureeSeanceMin, 25, 'une durée inconnue retombe sur 25');
   assert.equal(L.nouveauFocus(50).dureeSeanceMin, 50);
@@ -711,7 +717,7 @@ await dit('L02 : le cadran (arrondi vers le haut), les durées figées une fois 
   assert.equal(L.restantEnTexte(L.lancer(f0, 0), 25 * MIN - 1), '00:01');
   assert.equal(L.restantEnTexte(L.lancer(f0, 0), 25 * MIN), '00:00');
   assert.equal(L.choisirLaDuree(f0, 50).dureeSeanceMin, 50);
-  assert.equal(L.choisirLaDuree(f0, 33).dureeSeanceMin, 25, 'seulement parmi les trois durées');
+  assert.equal(L.choisirLaDuree(f0, 33).dureeSeanceMin, 25, 'seulement parmi les six durées (fiche L02)');
   assert.equal(L.choisirLaDuree(L.lancer(f0, 0), 50).dureeSeanceMin, 25, 'pas en cours de séance');
   const enPause = { ...L.phaseSuivante({ ...f0, rang: 1 }).focus };
   assert.equal(L.choisirLaDuree(enPause, 50), enPause, 'pas pendant une pause');
@@ -777,6 +783,336 @@ await dit('H01, MJ04, L02, L03 : leurs phrases tutoient et ne reprochent rien', 
     'Bonjour Aaron', 'Bonsoir Aaron',
     'On reprend là où tu t’étais arrêté : Regarde ta journée', 'Ta journée est prête.',
   ]);
+});
+
+/* ── 3c. H25 : la grille du tableau de bord ─────────────────────────────── */
+console.log('\nLOT-01 — grille du tableau de bord (H25)\n');
+
+const wd = (id: string, colonne: number, rangee: number, largeur: number, hauteur: number) => ({ id, contenu: id, type: 'note', colonne, rangee, largeur, hauteur });
+
+await dit('H25 : un widget ne chevauche jamais un autre, quoi qu’on pose ; les voisins descendent', () => {
+  const base = [wd('a', 1, 1, 3, 2), wd('b', 4, 1, 3, 2), wd('c', 1, 3, 6, 1)];
+  const apres = G.deplacer(base, 'c', 2, 1);
+  for (const x of apres) for (const y of apres) assert.ok(!G.chevauche(x, y), `${x.id} / ${y.id}`);
+  assert.equal(apres.find((w: any) => w.id === 'c').rangee, 1);
+  assert.ok(apres.find((w: any) => w.id === 'a').rangee > 1, 'le voisin descend');
+  const agrandi = G.redimensionner(base, 'a', 6, 3);
+  for (const x of agrandi) for (const y of agrandi) assert.ok(!G.chevauche(x, y));
+  assert.deepEqual(agrandi.find((w: any) => w.id === 'a'), { ...base[0], largeur: 6, hauteur: 3, colonne: 1, rangee: 1 });
+});
+
+await dit('H25 : tailles de 1 × 1 à 6 × 3, colonnes de 1 à 6, jamais hors de la grille', () => {
+  const w = G.borne(wd('x', 9, 0, 12, 7));
+  assert.equal(w.largeur, 6); assert.equal(w.hauteur, 3); assert.equal(w.colonne, 1); assert.equal(w.rangee, 1);
+  const p = G.borne(wd('y', 6, 2, 3, 1));
+  assert.equal(p.colonne, 4, 'un widget de 3 colonnes ne déborde pas à droite');
+  assert.equal(G.borne(wd('z', 1, 1, 0, 0)).largeur, 1);
+});
+
+await dit('H25 : l’ajout prend la première case libre, la copie une autre, le retrait ne laisse aucun recouvrement ; le même résultat à chaque fois', () => {
+  const base = [wd('a', 1, 1, 3, 2), wd('b', 4, 1, 3, 1)];
+  assert.deepEqual(G.premierEmplacement(base, 3, 1), { colonne: 4, rangee: 2 });
+  assert.deepEqual(G.premierEmplacement(base, 4, 1), { colonne: 1, rangee: 3 });
+  const plus = G.ajouter(base, { contenu: 'note', type: 'note', largeur: 3, hauteur: 1 });
+  assert.equal(plus.length, 3);
+  assert.deepEqual(G.ajouter(base, { contenu: 'note', type: 'note', largeur: 3, hauteur: 1 }), plus, 'déterministe');
+  assert.equal(new Set(plus.map((w: any) => w.id)).size, 3, 'identifiants distincts');
+  const copie = G.dupliquer(plus, 'a');
+  assert.equal(copie.length, 4);
+  assert.equal(G.retirer(copie, 'a').length, 3);
+  assert.equal(G.rangeesUtilisees([]), 0);
+  assert.equal(G.reperDeTaille({ largeur: 2, hauteur: 1 }), '2 × 1');
+});
+
+await dit('H25 : neuf types de widgets, la disposition ne porte ni clé ni valeur', () => {
+  assert.equal(G.TYPES_DE_WIDGET.length, 9);
+  assert.ok(!/(secret|token|cle|apikey|password)/i.test(JSON.stringify(G.ajouter([], { contenu: 'ca', type: 'chiffre', largeur: 3, hauteur: 2, source: 'Stripe' }))));
+});
+
+/* ── 3d. H02 : la matrice des tâches ─────────────────────────────────────── */
+console.log('\nLOT-01 — matrice des tâches (H02)\n');
+
+const VEN = '2026-10-30';
+const tc = (id: string, o: Record<string, unknown> = {}) => ({ id, titre: id, echeance: null, creeLe: `2026-10-0${id.length}`, ...o });
+
+await dit('H02 : quatre cases — urgent + important, important, urgent, ni l’un ni l’autre ; une case choisie à la main est gardée', () => {
+  assert.equal(MX.caseDe(tc('a', { urgente: true, importante: true }), VEN), 'maintenant');
+  assert.equal(MX.caseDe(tc('b', { importante: true }), VEN), 'planifier');
+  assert.equal(MX.caseDe(tc('c', { urgente: true }), VEN), 'deleguer');
+  assert.equal(MX.caseDe(tc('d'), VEN), 'alleger');
+  assert.equal(MX.caseDe(tc('e', { echeance: '2026-10-28', importante: true }), VEN), 'maintenant', 'en retard : urgent');
+  assert.equal(MX.caseDe(tc('f', { echeance: VEN }), VEN), 'deleguer', 'pour aujourd’hui : urgent');
+  assert.equal(MX.caseDe(tc('g', { echeance: '2026-11-02', importante: true }), VEN), 'planifier', 'un vendredi, le lundi n’est pas urgent');
+  assert.equal(MX.caseDe(tc('h', { echeance: '2026-11-02', importante: true }), '2026-10-31'), 'maintenant', 'un samedi, le lundi est le prochain jour ouvré');
+  assert.equal(MX.caseDe(tc('i', { echeance: '2026-10-20', choix: { urgent: false, important: false } }), VEN), 'alleger', 'le choix de la personne gagne');
+});
+
+await dit('H02 : tri d’une case (en retard, échéance, création), compteurs d’en-tête, « dont n en retard »', () => {
+  const taches = [tc('z', { echeance: '2026-11-03' }), tc('y', { echeance: '2026-10-29' }), tc('x', { echeance: '2026-10-28' }), tc('w')];
+  assert.deepEqual(MX.trierLaCase(taches, VEN).map((t: any) => t.id), ['x', 'y', 'z', 'w']);
+  const m = MX.matrice([...taches, tc('fait', { faite: true, urgente: true })], VEN);
+  assert.equal(m.ouvertes, 4);
+  assert.equal(m.enRetard, 2);
+  assert.equal(m.cases.deleguer.ouvertes, 2);
+  assert.equal(m.cases.deleguer.enRetard, 2);
+  assert.equal(m.cases.alleger.ouvertes, 2);
+});
+
+await dit('H02 : l’ajout rapide comprend la date, l’heure, la personne, l’étiquette, urgent, important ; le reste est le titre', () => {
+  const a = MX.analyserLaSaisie('Appeler Menna lundi 10 h, important', VEN);
+  assert.deepEqual({ ...a }, { titre: 'Appeler Menna', echeance: '2026-11-02', heure: '10:00', personne: null, etiquette: null, urgent: false, important: true, case: 'planifier' });
+  const b = MX.analyserLaSaisie('Envoyer le devis demain à 9h30 @Mohamed #facturation !', VEN);
+  assert.deepEqual({ ...b }, { titre: 'Envoyer le devis', echeance: '2026-10-31', heure: '09:30', personne: 'Mohamed', etiquette: 'facturation', urgent: true, important: false, case: 'deleguer' });
+  assert.equal(MX.analyserLaSaisie('Relire le contrat le 12', VEN).echeance, '2026-11-12');
+  assert.equal(MX.analyserLaSaisie('Relire le contrat le 12', '2026-10-05').echeance, '2026-10-12');
+  assert.equal(MX.analyserLaSaisie('Rien de reconnu ici', VEN).titre, 'Rien de reconnu ici');
+  assert.equal(MX.analyserLaSaisie('vendredi', VEN).echeance, '2026-11-06', 'le jour de la semaine est le prochain, jamais aujourd’hui');
+  assert.equal(MX.analyserLaSaisie('', VEN).titre, '');
+});
+
+await dit('H02 : « 5 sur 8 fait » — plus que n, journée finie, bouclée ; le plus grand temps libre du matin', () => {
+  assert.deepEqual(MX.phraseDeLaJourneeDeTaches(5, 8, 6, false), { type: 'plus-que', restantes: 3, serieSiBouclee: 7 });
+  assert.deepEqual(MX.phraseDeLaJourneeDeTaches(5, 8, 6, true), { type: 'finie' });
+  assert.deepEqual(MX.phraseDeLaJourneeDeTaches(8, 8, 6, false), { type: 'bouclee' });
+  assert.deepEqual(MX.phraseDeLaJourneeDeTaches(0, 0, 0, false), { type: 'rien' });
+  assert.equal(MX.plusGrandTempsLibre([{ debut: 9, fin: 9.5 }]), 2.5);
+  assert.equal(MX.plusGrandTempsLibre([]), 4);
+  assert.equal(MX.plusGrandTempsLibre([{ debut: 8, fin: 12 }]), 0);
+});
+
+/* ── 3e. L01 : l'escalier, les rails, les médailles ──────────────────────── */
+console.log('\nLOT-01 — escalier, rails et médailles (L01)\n');
+
+await dit('L01 : l’escalier — départ, paliers parcourus, position, badge de 7 jours, jours jusqu’au prochain palier, paliers à venir ; jamais décroissant', () => {
+  const n = ES.noeudsDeLEscalier(6, 21);
+  assert.deepEqual(n.map((x: any) => `${x.jours}:${x.etat}`), ['0:parcouru', '5:parcouru', '6:ici', '7:badge', '8:pas', '9:pas', '10:prochain', '20:avenir', '30:avenir', '50:avenir', '100:avenir', '200:avenir', '365:avenir']);
+  for (let i = 1; i < n.length; i += 1) assert.ok(n[i].jours >= n[i - 1].jours, 'ordre croissant');
+  const sans = ES.noeudsDeLEscalier(0, 0);
+  assert.equal(sans[0].genre, 'depart');
+  assert.ok(sans.some((x: any) => x.jours === 5 && x.etat === 'prochain'));
+  const haut = ES.noeudsDeLEscalier(400, 400);
+  assert.equal(haut.filter((x: any) => x.etat === 'avenir' || x.etat === 'prochain').length, 0, 'au-delà du dernier : rien à venir');
+  assert.equal(ES.palierDuRecord(21), 20);
+  assert.equal(ES.palierDuRecord(3), null);
+});
+
+await dit('L01 : un rail — marques atteintes, prochaine, ce qu’il reste ; jamais « raté »', () => {
+  const r = ES.railDeCompteur(87, ES.MARQUES_TACHES);
+  assert.deepEqual(r.marques.map((m: any) => m.etat), ['atteinte', 'atteinte', 'prochaine', 'avenir']);
+  assert.equal(r.prochaine, 100); assert.equal(r.reste, 13);
+  assert.ok(r.progression > 0.7 && r.progression < 0.8);
+  assert.equal(ES.railDeCompteur(4, ES.MARQUES_BOITE_A_ZERO).reste, 1);
+  assert.equal(ES.railDeCompteur(14, ES.MARQUES_RITUELS).prochaine, 20);
+  assert.equal(ES.railDeCompteur(999, ES.MARQUES_TACHES).prochaine, null);
+  assert.equal(ES.railDeCompteur(-3, ES.MARQUES_TACHES).valeur, 0);
+});
+
+await dit('L01 : une médaille obtenue le reste ; sinon « à gagner » ; « n sur N obtenus »', () => {
+  assert.equal(ES.etatDeMedaille('2026-03-12'), 'obtenue');
+  assert.equal(ES.etatDeMedaille(null), 'a-gagner');
+  assert.deepEqual(ES.medaillesObtenues([{ obtenueLe: 'x' }, { obtenueLe: null }, { obtenueLe: 'y' }]), { obtenues: 2, total: 3 });
+});
+
+/* ── 3f. L03 : le rituel du matin ────────────────────────────────────────── */
+console.log('\nLOT-01 — rituel du matin (L03)\n');
+
+await dit('L03 : une seule étape ouverte ; « Continuer » replie et ouvre la suivante ; « Revoir » rouvre sans perdre ; une étape à venir n’est pas cliquable', () => {
+  let p = MT.parcoursInitial();
+  assert.deepEqual([p.ouverte, MT.estCliquable(p, 0), MT.estCliquable(p, 1)], [0, true, false]);
+  p = MT.continuer(p, 4);
+  p = MT.continuer(p, 4);
+  assert.deepEqual([p.ouverte, [...p.faites]], [2, [0, 1]]);
+  assert.deepEqual(MT.segments(p, 4), ['fait', 'fait', 'en-cours', 'a-venir']);
+  const v = MT.revoir(p, 0);
+  assert.equal(v.ouverte, 0, 'une étape faite se rouvre');
+  assert.equal(MT.continuer(v, 4).ouverte, 2, 'on reprend à la première étape pas faite');
+  assert.equal(MT.revoir(p, 3), p, 'une étape à venir ne s’ouvre pas');
+  assert.equal(MT.retour(MT.parcoursInitial()).ouverte, 0);
+  assert.equal(MT.retour(p).ouverte, 1);
+});
+
+await dit('L03 : « encore une minute » est une estimation arrondie, jamais un compte à rebours ; sans le droit « argent », trois étapes', () => {
+  const trois = { ouverte: 3, faites: [0, 1, 2], termine: false };
+  assert.equal(MT.minutesEstimees(trois, 4), 1);
+  assert.equal(MT.minutesEstimees(MT.parcoursInitial(), 4), 3);
+  assert.equal(MT.minutesEstimees({ ...trois, termine: true }, 4), null);
+  assert.deepEqual(MT.etapesVisibles({ argent: false }), ['nuit', 'agenda', 'choses']);
+  assert.equal(MT.etapesVisibles({ argent: true }).length, 4);
+});
+
+await dit('L03 : les candidates se trient urgentes, dues aujourd’hui, client ou argent sous 2 jours, en retard, puis le reste ; 3 présélectionnées, 3 autres, jamais plus de 12', () => {
+  const c = (id: string, o: object = {}) => ({ id, titre: id, urgente: false, categorie: null, dureeMin: null, echeance: null, contexte: null, ordre: id, ...o });
+  const j = '2026-10-30';
+  const cs = [
+    c('reste'), c('retard', { echeance: { jour: '2026-10-28', heure: null } }), c('argent2j', { categorie: 'Argent', echeance: { jour: '2026-11-01', heure: null } }),
+    c('auj-14', { echeance: { jour: j, heure: '14:00' } }), c('auj-10', { echeance: { jour: j, heure: '10:00' } }), c('urgente', { urgente: true }),
+  ];
+  assert.deepEqual(MT.trierLesCandidates(cs, j).map((x: any) => x.id), ['urgente', 'auj-10', 'auj-14', 'argent2j', 'retard', 'reste']);
+  const p = MT.preselection(cs, j);
+  assert.deepEqual([p.choisies.length, p.autres.length, p.reste], [3, 3, 0]);
+  const beaucoup = Array.from({ length: 20 }, (_, i) => c(`t${String(i).padStart(2, '0')}`));
+  assert.equal(MT.preselection(beaucoup, j).reste, 14);
+  assert.equal(MT.groupeDeTri(c('x', { categorie: 'Projet', echeance: { jour: '2026-11-01', heure: null } }), j), 5, 'sous 2 jours : seulement client ou argent');
+});
+
+await dit('L03 : étiquette et échéance — « Urgent » prime sur la catégorie ; « avant 17:00 », « ce soir », « lun. », « 12 nov. »', () => {
+  assert.deepEqual(MT.etiquetteDe({ urgente: true, categorie: 'Argent' }), { type: 'urgent' });
+  assert.deepEqual(MT.etiquetteDe({ urgente: false, categorie: 'Client' }), { type: 'categorie', texte: 'Client' });
+  assert.equal(MT.etiquetteDe({ urgente: false, categorie: null }), null);
+  const j = '2026-10-30';
+  assert.deepEqual(MT.echeanceEnTexte({ jour: j, heure: '17:00' }, j), { type: 'avant', heure: '17:00' });
+  assert.deepEqual(MT.echeanceEnTexte({ jour: j, heure: null }, j), { type: 'ce-soir' });
+  assert.equal(MT.echeanceEnTexte({ jour: '2026-11-02', heure: null }, j).type, 'jour-court');
+  assert.equal(MT.echeanceEnTexte({ jour: '2026-11-12', heure: null }, j).type, 'date');
+  assert.equal(MT.echeanceEnTexte(null, j).type, 'aucune');
+});
+
+await dit('L03 : trois priorités au plus (la 4e est refusée), le rang suit l’ordre, on glisse sans toucher aux autres', () => {
+  let ch: readonly string[] = [];
+  for (const id of ['a', 'b', 'c']) ch = MT.choisir(ch, id).choix;
+  const refus = MT.choisir(ch, 'd');
+  assert.deepEqual([refus.refuse, refus.choix.length], [true, 3]);
+  assert.equal(MT.choisir(ch, 'a').refuse, false, 'choisir deux fois la même ne change rien');
+  assert.deepEqual(MT.deplacer(ch, 2, 0), ['c', 'a', 'b']);
+  assert.deepEqual(MT.deplacer(ch, 0, 9), ['b', 'c', 'a']);
+  assert.deepEqual(MT.retirer(ch, 'b'), ['a', 'c']);
+  assert.deepEqual(MT.choixValides(['a', 'zzz', 'b'], [{ id: 'a' }, { id: 'b' }]), ['a', 'b']);
+});
+
+await dit('L03 : « Confier à » — le membre le moins chargé, jamais soi-même ; équipe d’une personne : personne', () => {
+  const eq = [{ email: 'moi@x.fr', prenom: 'Moi', charge: 1 }, { email: 'mo@x.fr', prenom: 'Mohamed', charge: 2 }, { email: 'ri@x.fr', prenom: 'Riyad', charge: 5 }];
+  assert.equal(MT.moinsCharge(eq, 'moi@x.fr').prenom, 'Mohamed');
+  assert.equal(MT.moinsCharge([eq[0]], 'MOI@x.fr'), null);
+});
+
+await dit('L03 : la journée se dessine — les priorités dans les créneaux libres, dans l’ordre des rangs, avec la marge ; rien n’est enregistré', () => {
+  const ev = [
+    { id: 'e1', debut: 570, fin: 585, label: 'Stand-up' }, { id: 'e2', debut: 660, fin: 690, label: 'Menna' },
+    { id: 'e3', debut: 840, fin: 870, label: 'Point facturation' }, { id: 'e4', debut: 960, fin: 990, label: 'Bilan' },
+  ];
+  const pr = [
+    { id: 'p1', rang: 1, label: 'Tableau de bord', dureeMin: 75, avant: 1020 }, { id: 'p2', rang: 2, label: 'Facturation', dureeMin: 90, avant: 840 },
+    { id: 'p3', rang: 3, label: 'Medina', dureeMin: 30, avant: null },
+  ];
+  const r = MT.journeeQuiSeDessine(MT.FENETRE_PAR_DEFAUT, ev, pr, MT.PAUSE_PAR_DEFAUT, 514);
+  const de = (id: string) => r.blocs.find((b: any) => b.id === id);
+  assert.deepEqual([de('p1').debut, de('p1').fin], [585, 660], 'à 08:34 le créneau avant le stand-up est trop court : après le stand-up, jusqu’à Menna');
+  assert.equal(de('p2').debut, 870, 'rien d’assez long avant 14:00 : le premier créneau assez long');
+  assert.equal(de('p3').debut, 990);
+  assert.deepEqual([r.margeDebut, r.finPrevue], [1020, 1020]);
+  assert.equal(de('marge').fin, 1140);
+  assert.deepEqual(r.nonPlacees, []);
+  for (const a of r.blocs.filter((b: any) => b.type === 'priorite')) for (const b of r.blocs.filter((x: any) => x.type !== 'priorite' && x.type !== 'marge')) assert.ok(a.fin <= b.debut || a.debut >= b.fin, `${a.id} ne chevauche pas ${b.id}`);
+  const trop = MT.journeeQuiSeDessine({ debut: 540, fin: 600 }, [], [{ id: 'g', rang: 1, label: 'long', dureeMin: 120, avant: null }], null);
+  assert.deepEqual([trop.nonPlacees, trop.margeDebut], [['g'], null]);
+});
+
+await dit('L03 : l’équilibre — repère de confort à 60 %, phrases, astuce sans durée, jamais de division par zéro', () => {
+  const libre = MT.tempsLibre(MT.FENETRE_PAR_DEFAUT, [{ id: 'e', debut: 540, fin: 600, label: '' }], null);
+  assert.equal(libre, 600);
+  assert.equal(MT.equilibre([{ dureeMin: 75 }, { dureeMin: 90 }, { dureeMin: 30 }], 435).phrase, 'marge');
+  assert.equal(MT.equilibre([{ dureeMin: 75 }, { dureeMin: 90 }, { dureeMin: 30 }], 435).totalMin, 195);
+  assert.equal(MT.equilibre([{ dureeMin: 120 }, { dureeMin: 120 }], 300).phrase, 'remplie');
+  assert.equal(MT.equilibre([{ dureeMin: 120 }, { dureeMin: 120 }], 240).phrase, 'depasse');
+  const sans = MT.equilibre([{ dureeMin: null }, { dureeMin: null }], 400);
+  assert.deepEqual([sans.totalMin, sans.phrase], [50, 'astuce']);
+  assert.equal(MT.equilibre([], 0).ratio, 0);
+  assert.equal(MT.equilibre([{ dureeMin: 30 }], 0).ratio, 1);
+});
+
+await dit('L03 : le brouillon est par jour (écarté le lendemain sans message) ; « reprise » seulement si la personne s’est arrêtée en route', () => {
+  const b = MT.brouillonVide('2026-10-29', 'x');
+  assert.equal(MT.brouillonDuJour(b, '2026-10-30', 'y').jour, '2026-10-30');
+  assert.equal(MT.brouillonDuJour(b, '2026-10-29', 'y'), b);
+  assert.equal(MT.reprise(b, 4), null);
+  assert.equal(MT.reprise({ ...b, parcours: { ouverte: 2, faites: [0, 1], termine: false } }, 4), 3);
+  assert.equal(MT.reprise({ ...b, parcours: { ouverte: 3, faites: [0, 1, 2], termine: true } }, 4), null);
+});
+
+await dit('L03 : les réglages — 08:30 du lundi au vendredi par défaut ; une valeur invalide revient au défaut', () => {
+  assert.deepEqual(MT.REGLAGES_PAR_DEFAUT, { heure: '08:30', jours: [1, 2, 3, 4, 5] });
+  assert.deepEqual(MT.reglagesValides({ heure: '07:15', jours: [3, 1, 1] }), { heure: '07:15', jours: [1, 3] });
+  assert.deepEqual(MT.reglagesValides({ heure: '25:00', jours: [1] }), MT.REGLAGES_PAR_DEFAUT);
+  assert.deepEqual(MT.reglagesValides(null), MT.REGLAGES_PAR_DEFAUT);
+});
+
+/* ── 3g. L07 : le relais, les compteurs longs, les repères du défi ───────── */
+console.log('\nLOT-01 — relais et repères du défi (L07)\n');
+
+await dit('L07 : 47 à temps sur 52 échus donnent 90 % ; les 4 en attente ne comptent ni pour ni contre ; rien d’échu : pas de pourcentage', () => {
+  const sem = [
+    { jour: '2026-10-26', aTemps: 9, echus: 9, enAttente: 0 }, { jour: '2026-10-27', aTemps: 10, echus: 11, enAttente: 0 }, { jour: '2026-10-28', aTemps: 9, echus: 11, enAttente: 0 },
+    { jour: '2026-10-29', aTemps: 12, echus: 13, enAttente: 0 }, { jour: '2026-10-30', aTemps: 7, echus: 8, enAttente: 4 },
+  ];
+  const t = RL.totauxDeLaSemaine(sem);
+  assert.deepEqual([t.aTemps, t.echus, t.enAttente, t.taux], [47, 52, 4, 90]);
+  assert.equal(RL.tauxDeTenue(0, 0), null);
+  assert.equal(RL.tauxDeTenue(9, 4), 100, 'jamais plus de 100 %');
+  const r = RL.relaisDeLaSemaine(sem, '2026-10-30');
+  assert.deepEqual(r.map((b: any) => b.rang), [1, 2, 3, 4, 5]);
+  assert.deepEqual(r.map((b: any) => b.courant), [false, false, false, false, true]);
+  assert.equal(r[3].largeur, 1, 'la plus longue barre (jeudi, 13)');
+  assert.equal(Math.round(r[4].largeur * 100), Math.round((12 / 13) * 100), 'vendredi : échus 8 + en attente 4 = 12');
+  assert.equal(r[1].plusTard, 1);
+  assert.ok(Math.abs(r[4].parts.aTemps + r[4].parts.plusTard + r[4].parts.enAttente - 1) < 1e-9);
+});
+
+await dit('L07 : le relais ne porte aucun nom ni nombre par personne ; début de semaine : cinq barres vides, pas de division par zéro', () => {
+  const r = RL.relaisDeLaSemaine([], '2026-10-26');
+  assert.equal(r.length, 5);
+  assert.ok(r.every((b: any) => b.largeur === 0 && b.echus === 0));
+  assert.deepEqual(Object.keys(r[0]).sort(), ['aTemps', 'courant', 'echus', 'enAttente', 'jour', 'largeur', 'parts', 'plusTard', 'rang']);
+});
+
+await dit('L07 : l’encadré d’action — seulement s’il y a des éléments en attente ; « garde l’objectif » ou « rapproche »', () => {
+  assert.equal(RL.phraseDActionDuRelais(0, 95, 90), null);
+  assert.equal(RL.phraseDActionDuRelais(4, 90, 90), 'garde');
+  assert.equal(RL.phraseDActionDuRelais(4, 80, 90), 'rapproche');
+  assert.equal(RL.phraseDActionDuRelais(4, null, 90), 'rapproche');
+  assert.deepEqual(RL.ageEnHeuresMinutes(80), { h: 1, m: 20 });
+});
+
+await dit('L07 : 21 jours sur 30 = 70 % et « encore 9 jours » ; 142 h sur 168 = 85 % et « plus que 26 heures » ; plafonnés à 100 %', () => {
+  assert.deepEqual(RL.progressionDuCompteur(21, 30), { pct: 70, encore: 9 });
+  assert.deepEqual(RL.progressionDuCompteur(45, 30), { pct: 100, encore: 0 });
+  assert.deepEqual(RL.progressionDeLaDuree(142), { pct: 85, plusQue: 26 });
+  assert.deepEqual(RL.progressionDeLaDuree(500), { pct: 100, plusQue: 0 });
+  assert.equal(RL.heuresDepuis(null, 1000), null);
+  assert.equal(RL.heuresDepuis(0, 142 * 3_600_000 + 5), 142);
+});
+
+await dit('L07 : étiquette de jour (Auj., Hier, jour abrégé, date courte) ; célébrations des 7 derniers jours', () => {
+  const a = '2026-10-30';
+  assert.equal(RL.etiquetteDeJour('2026-10-30', a).type, 'aujourdhui');
+  assert.equal(RL.etiquetteDeJour('2026-10-29', a).type, 'hier');
+  assert.equal(RL.etiquetteDeJour('2026-10-26', a).type, 'jour');
+  assert.equal(RL.etiquetteDeJour('2026-10-23', a).type, 'date');
+  const c = [{ id: 'a', jour: '2026-10-20' }, { id: 'b', jour: '2026-10-29' }, { id: 'c', jour: '2026-10-30' }, { id: 'd', jour: '2026-11-02' }];
+  assert.deepEqual(RL.celebrationsRecentes(c, a).map((x: any) => x.id), ['c', 'b']);
+});
+
+await dit('L07 : semaine 44 = lundi 26 au vendredi 30 octobre ; la fête est le premier vendredi APRÈS la fin du défi (6 novembre)', () => {
+  assert.equal(RL.numeroDeSemaine('2026-10-30'), 44);
+  assert.equal(RL.numeroDeSemaine('2026-10-26'), 44);
+  assert.equal(RL.vendrediDeLaSemaine('2026-10-28'), '2026-10-30');
+  assert.equal(RL.vendrediDeFete('2026-10-30'), '2026-11-06');
+  assert.equal(RL.vendrediDeFete('2026-10-28'), '2026-10-30');
+});
+
+await dit('L07 : « Fêtez ensemble » — défi de la semaine tenu le dernier jour, ou défi long à 70 % avec une fin connue ; sinon l’astuce', () => {
+  assert.equal(RL.proposerLaFete({ principal: { taux: 91, cible: 90, dernierJour: true }, longs: [] }), true);
+  assert.equal(RL.proposerLaFete({ principal: { taux: 91, cible: 90, dernierJour: false }, longs: [] }), false);
+  assert.equal(RL.proposerLaFete({ principal: null, longs: [{ pct: 70, finConnue: true }] }), true);
+  assert.equal(RL.proposerLaFete({ principal: null, longs: [{ pct: 70, finConnue: false }] }), false);
+  assert.equal(RL.proposerLaFete({ principal: null, longs: [] }), false);
+});
+
+await dit('L07 : un engagement est une phrase de 80 caractères au plus ; un défi à un seul participant passe en pause', () => {
+  assert.equal(RL.engagementValide('Je prends les messages du matin.'), true);
+  assert.equal(RL.engagementValide('   '), false);
+  assert.equal(RL.engagementValide('x'.repeat(81)), false);
+  assert.equal(RL.defiEnPause(1), true);
+  assert.equal(RL.defiEnPause(2), false);
 });
 
 /* ── 4. Les éléments ludiques protégés (L07, trophées, défis) ─────────────── */

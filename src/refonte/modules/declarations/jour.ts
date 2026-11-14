@@ -1,4 +1,4 @@
-import { BellRing, Columns3, Gauge, StickyNote } from 'lucide-react';
+import { BellRing, Columns3, Flag, Gauge, StickyNote, Sunrise, Target, Trophy } from 'lucide-react';
 import { declarerFamille, vue } from '../declarer';
 
 /**
@@ -210,6 +210,50 @@ export default declarerFamille({
       vues: [
         vue('personalGoals', '/personnel/objectifs', ['fixer un objectif personnel'], ['objectif', 'perso', 'but'], {
           en: { verbes: ['set a personal goal'], motsCles: ['goal', 'personal', 'target'] },
+        }),
+      ],
+    },
+    {
+      nom: { fr: 'Séries et jalons', en: 'Streaks and milestones' },
+      action: 'suivre',
+      niveau: 'courant',
+      vues: [
+        vue('series', '/series', ['voir ma série', 'voir mes badges', 'voir mes paliers'], ['série', 'jalons', 'badge', 'palier', 'régularité', 'record'], {
+          en: { verbes: ['see my streak', 'see my badges', 'see my milestones'], motsCles: ['streak', 'milestones', 'badge', 'record', 'habit'] },
+          nouveau: { icone: Trophy, ecran: () => import('../../journee/ecrans/L01/SeriesRefonte'), indice: { fr: 'Ta régularité, sans pression', en: 'Your steady habit, no pressure' } },
+        }),
+      ],
+    },
+    {
+      nom: { fr: 'Défis d’équipe', en: 'Team challenges' },
+      action: 'suivre',
+      niveau: 'courant',
+      vues: [
+        vue('defis', '/defis', ['voir le défi de la semaine', 'proposer un défi à l’équipe', 'fêter ensemble'], ['défi', 'équipe', 'objectif commun', 'célébration', 'semaine'], {
+          en: { verbes: ['see the weekly challenge', 'suggest a team challenge', 'celebrate together'], motsCles: ['challenge', 'team', 'shared goal', 'celebration', 'week'] },
+          nouveau: { icone: Flag, ecran: () => import('../../journee/ecrans/L07/DefisRefonte'), indice: { fr: 'Avancer ensemble, sans classement', en: 'Moving forward together, no ranking' } },
+        }),
+      ],
+    },
+    {
+      nom: { fr: 'Rituel du matin', en: 'Morning ritual' },
+      action: 'organiser',
+      niveau: 'courant',
+      vues: [
+        vue('rituel', '/rituel', ['faire mon rituel du matin', 'choisir mes trois priorités', 'préparer ma journée'], ['rituel', 'matin', 'priorités', 'journée', 'trois choses'], {
+          en: { verbes: ['do my morning ritual', 'choose my three priorities', 'plan my day'], motsCles: ['ritual', 'morning', 'priorities', 'day', 'three things'] },
+          nouveau: { icone: Sunrise, ecran: () => import('../../journee/ecrans/L03/RituelRefonte'), indice: { fr: 'Trois minutes pour bien partir', en: 'Three minutes to start well' } },
+        }),
+      ],
+    },
+    {
+      nom: { fr: 'Mode Focus', en: 'Focus mode' },
+      action: 'organiser',
+      niveau: 'courant',
+      vues: [
+        vue('focus', '/focus', ['me concentrer sur une tâche', 'lancer le mode focus', 'couper le bruit'], ['focus', 'concentration', 'session', 'pomodoro', 'minuteur'], {
+          en: { verbes: ['focus on one task', 'start focus mode', 'mute the noise'], motsCles: ['focus', 'concentration', 'session', 'pomodoro', 'timer'] },
+          nouveau: { icone: Target, ecran: () => import('../../journee/ecrans/L02/FocusRefonte'), indice: { fr: 'Une seule chose, le reste attend', en: 'One thing at a time, the rest waits' } },
         }),
       ],
     },

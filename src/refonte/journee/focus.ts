@@ -13,7 +13,7 @@ import { jourDeParis, plafonner, type Jour } from './commun';
  * seconde après seconde). Aucun reproche : s'arrêter est permis, rien ne se perd, aucun compteur de « ratés ».
  */
 
-export const DUREES_DE_SEANCE = [15, 25, 50] as const;
+export const DUREES_DE_SEANCE = [15, 25, 35, 45, 50, 90] as const;
 export const DUREE_PAR_DEFAUT = 25;
 export const PAUSE_MIN = 5;
 export const PAUSE_LONGUE_MIN = 15;
