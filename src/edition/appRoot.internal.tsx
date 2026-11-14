@@ -8,6 +8,8 @@ import { ModuleRoute } from '../components/ModuleRoute';
 import { AppLayout } from '../components/AppLayout';
 import { ROUTE_TOUS_LES_MODULES, TousLesModules } from '@edition/navigation';
 import { routesDuRegistre } from '../refonte/modules/routes';
+// Feuille de « Créer et produire » : chargée ici pour les trois écrans neufs du registre (`nouveau`), dont l'import dynamique ne peut pas la porter.
+import '../refonte/creer/creer.css';
 import { ConnexionRefonte } from '../refonte/systeme/connexion/ConnexionRefonte';
 import { FournisseurToasts } from '../socle/ui/situations';
 import { ROUTE_DEMARRAGE, ROUTE_METIER, ROUTE_NOTIFICATIONS } from '../refonte/systeme/routes';

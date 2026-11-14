@@ -883,8 +883,15 @@ await dit('le sous-titre (km du mois, carburant) et « avant le prochain trajet 
   const jours = [{ jour: '2026-10-05', km: 1000, carburantCents: 15000 }, { jour: '2026-10-20', km: 1140, carburantCents: 16000 }, { jour: '2026-09-10', km: 900, carburantCents: 20000 }, { jour: '2026-08-28', km: 900, carburantCents: 99999 }];
   assert.deepEqual(FL.bilanDuMois(jours, '2026-10-30'), { kmDuMois: 2140, variationCarburantPct: 55 }); // 31 000 contre 20 000, sur les 30 premiers jours de septembre
   assert.equal(FL.bilanDuMois([], '2026-10-30').variationCarburantPct, null);
-  assert.deepEqual(FL.controlesAvantTrajet('thermique').map((c: any) => c.motif), ['carburant', 'pneus', 'papiers']);
-  assert.deepEqual(FL.controlesAvantTrajet('electrique').map((c: any) => c.motif), ['charge', 'pneus', 'papiers']);
+  assert.deepEqual(FL.controlesAvantTrajet('thermique').map((c: any) => c.motif), ['pneus', 'carnet', 'carburant']);
+  assert.deepEqual(FL.controlesAvantTrajet('electrique').map((c: any) => c.motif), ['pneus', 'carnet', 'charge']);
+});
+await dit('la suggestion : échéance au jour près à moins de 30 jours, sans rendez-vous, la plus proche', () => {
+  const v = (id: string, nom: string, le: string, rendezVous = false) => ({ id, nom, kmActuel: 1000, kmSur30Jours: 0, echeances: [{ nom: 'Contrôle technique', nature: 'jours' as const, intervalle: 730, le, rendezVous }, { nom: 'Vidange', nature: 'km' as const, intervalle: 5000, dernierKm: 0 }] });
+  assert.deepEqual(FL.suggestionEcheance([v('a', 'Berlingo', '2026-11-20'), v('b', 'Kangoo', '2026-11-12')], '2026-10-30'), { vehiculeId: 'b', nom: 'Kangoo', echeance: 'Contrôle technique', feminin: false, le: '2026-11-12' });
+  assert.equal(FL.suggestionEcheance([v('a', 'Berlingo', '2026-11-20', true)], '2026-10-30'), null); // rendez-vous pris
+  assert.equal(FL.suggestionEcheance([v('a', 'Berlingo', '2027-03-01')], '2026-10-30'), null); // trop loin ; la vidange (au km) ne déclenche pas
+  assert.equal(FL.suggestionEcheance([], '2026-10-30'), null);
 });
 
 /* ── MR10 Photos de chantier ─────────────────────────────────────────────── */
@@ -936,6 +943,13 @@ await dit('le partage client : lien à durée limitée, sans lieu ni auteur', ()
   assert.deepEqual(r.photos, [{ id: 'a', phase: 'Avant', le: '2026-10-01' }]);
   assert.equal(r.expireLe, '2026-11-13');
   assert.ok(!JSON.stringify(r).includes('Salon') && !JSON.stringify(r).includes('exemple'));
+});
+
+await dit('la suggestion « Compléter » : terminée depuis plus de 2 jours sans photo après, la plus ancienne', () => {
+  const d = (id: string, termineLe: string | null, phases: string[]) => ({ id, termineLe, photos: phases.map((phase, i) => ph(`${id}${i}`, phase, '2026-10-01')) });
+  assert.equal(PH.dossierACompleter([d('a', '2026-10-27', ['Avant']), d('b', '2026-10-20', ['Avant'])], '2026-10-30').id, 'b');
+  assert.equal(PH.dossierACompleter([d('a', '2026-10-28', ['Avant'])], '2026-10-30'), null); // 2 jours : pas encore
+  assert.equal(PH.dossierACompleter([d('a', '2026-10-01', ['Avant', 'Après']), d('c', null, [])], '2026-10-30'), null); // déjà complet ; en cours
 });
 
 /* ── MR11 Qualité ────────────────────────────────────────────────────────── */
@@ -1092,7 +1106,7 @@ await dit('livraisons à l’heure de la semaine, palier, suggestion à partir d
   assert.equal(L.SEIZE_MODULES.length, 16);
   assert.deepEqual([...new Set(L.SEIZE_MODULES.map((m: any) => m.groupe))], ['fabriquer', 'livrer', 'stocker', 'montrer']);
   assert.ok(!L.SEIZE_MODULES.some((m: any) => m.id === L.MODULE_MASQUE), '« Fabrication » reste masqué');
-  assert.equal(L.SEIZE_MODULES.filter((m: any) => m.groupe === 'fabriquer').length, 3);
+  assert.deepEqual(['fabriquer', 'livrer', 'stocker', 'montrer'].map((g) => L.SEIZE_MODULES.filter((m: any) => m.groupe === g).length), [4, 4, 4, 4]); // « Modèles de sites » prend la place de « Fabrication »
   assert.equal(L.SEIZE_MODULES.find((m: any) => m.id === 'modeles-sites').ecran, 'DEV-modeles-sites');
   assert.equal(new Set(L.SEIZE_MODULES.map((m: any) => m.id)).size, 16);
   const tuiles = L.tuilesDesModules(new Set(['chantiers', 'stock']));

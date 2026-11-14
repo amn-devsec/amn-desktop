@@ -1,6 +1,6 @@
 {
   "lot": "LOT-11",
-  "_": "Les 7 écrans de LOT-11 (Espace Développement), claude/refonte-developpement. Horloge : vendredi 30 oct. 2026 à 10:42. DEV-ensemble : image v4 absente du dossier de T1 (la garde l'annonce, ne la compte pas). Vue code de DEV-modeles-sites : non mesurée (geste à fournir).",
+  "_": "Les écrans de LOT-11 (Espace Développement), claude/refonte-developpement. Mesure sur l'aperçu statique (§1.40). DEV-ensemble : pas d'image v4 (proposition de S8 validée par Harun le 12 nov.), ni pour ni contre. La vue code de DEV-modeles-sites s'ouvre par un geste que seul l'aperçu connaît.",
   "defaut": {
     "mac": true,
     "date": "2026-10-30T10:42:00+01:00",
@@ -11,31 +11,123 @@
   "ecrans": [
     {
       "id": "DEV-ensemble",
-      "route": "#/ensemble/developpement"
+      "route": "#/ensemble/developpement",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
     },
     {
       "id": "DEV-projets",
-      "route": "#/developpement/projets"
+      "route": "#/developpement/projets",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
     },
     {
       "id": "DEV-deploiements",
-      "route": "#/developpement/deploiements"
+      "route": "#/developpement/deploiements",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
     },
     {
       "id": "DEV-serveur",
-      "route": "#/developpement/serveur"
+      "route": "#/developpement/serveur",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
     },
     {
       "id": "DEV-editeur",
-      "route": "#/developpement/editeur"
+      "route": "#/developpement/editeur",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
     },
     {
       "id": "DEV-couts",
-      "route": "#/developpement/couts"
+      "route": "#/developpement/couts",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
     },
     {
       "id": "DEV-modeles-sites",
-      "route": "#/developpement/modeles-sites"
+      "route": "#/developpement/modeles-sites",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "DEV-modeles-sites-code",
+      "route": "#/developpement/modeles-sites",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
     }
   ]
 }

@@ -3,10 +3,10 @@
  *
  * Règles de la fiche MR09, rubrique 6. Aucun suivi de position du conducteur : le niveau de
  * carburant ou de charge vient d'une saisie (plein, carnet de bord). Les papiers (cartes grises,
- * attestations) restent dans le coffre-fort H24 et ne passent jamais ici.
+ * attestations) restent dans le coffre-fort H24 et ne passent jamais ici ; le 3e contrôle est le carnet de bord.
  */
 
-import { ajouterJours, borner, ecartJours, type Jour } from './commun';
+import { ajouterJours, ajouterMois, borner, ecartJours, type Jour } from './commun';
 
 export type Energie = 'thermique' | 'electrique';
 export type EtatVehicule = 'Disponible' | 'En tournée' | 'Au garage' | 'Hors service';
@@ -51,6 +51,10 @@ export interface EcheanceEntree {
   le?: Jour | null;
   /** Échéance au kilomètre. */
   aKm?: number | null;
+  /** Un rendez-vous est déjà pris : plus de suggestion pour cette échéance. */
+  rendezVous?: boolean;
+  /** « la vidange » (vrai) ou « le contrôle technique » (faux), pour l'article de la suggestion. */
+  feminin?: boolean;
 }
 
 export interface EcheanceCalculee {
@@ -104,7 +108,7 @@ export interface PointDeFrise { vehiculeId: string; nom: string; le: Jour; estim
 
 /** Frise d'entretien : échéances des 6 prochains mois, une ligne par véhicule plus une ligne « flotte » (toutes), dans l'ordre du temps. */
 export function friseDEntretien(vehicules: readonly VehiculeFrise[], aujourdhui: Jour, mois = 6): { parVehicule: Map<string, PointDeFrise[]>; flotte: PointDeFrise[] } {
-  const horizon = ajouterJours(aujourdhui, Math.round(mois * 30.44));
+  const horizon = ajouterMois(aujourdhui, mois);
   const parVehicule = new Map<string, PointDeFrise[]>();
   for (const v of vehicules) {
     const rythme = kmParJour(v.kmSur30Jours);
@@ -132,10 +136,26 @@ export function bilanDuMois(parJour: readonly { jour: Jour; km: number; carburan
 }
 
 /** « Avant le prochain trajet » : trois contrôles du véhicule du prochain trajet réservé, écrits dans Tâches. */
-export function controlesAvantTrajet(energie: Energie): { id: string; motif: 'carburant' | 'charge' | 'pneus' | 'papiers' }[] {
+export function controlesAvantTrajet(energie: Energie): { id: string; motif: 'carburant' | 'charge' | 'pneus' | 'carnet' }[] {
   return [
-    { id: 'niveau', motif: energie === 'electrique' ? 'charge' : 'carburant' },
     { id: 'pneus', motif: 'pneus' },
-    { id: 'papiers', motif: 'papiers' },
+    { id: 'carnet', motif: 'carnet' },
+    { id: 'niveau', motif: energie === 'electrique' ? 'charge' : 'carburant' },
   ];
+}
+
+/**
+ * Suggestion d'Ajmani : une échéance AU JOUR PRÈS (contrôle technique, assurance) à moins de 30 jours, ou dépassée, sans rendez-vous.
+ * La plus proche l'emporte ; sans déclencheur, rien (la barre garde son astuce). Aucun rendez-vous n'est pris sans la personne.
+ */
+export function suggestionEcheance(vehicules: readonly (VehiculeFrise & { nomCourt?: string })[], aujourdhui: Jour): { vehiculeId: string; nom: string; echeance: string; feminin: boolean; le: Jour } | null {
+  const candidats: { vehiculeId: string; nom: string; echeance: string; feminin: boolean; le: Jour }[] = [];
+  for (const v of vehicules) {
+    for (const e of v.echeances) {
+      if (e.nature !== 'jours' || e.rendezVous) continue;
+      const c = calculerEcheance(e, v.kmActuel, 0, aujourdhui);
+      if (c && c.joursRestants < 30) candidats.push({ vehiculeId: v.id, nom: v.nomCourt ?? v.nom, echeance: e.nom, feminin: e.feminin === true, le: c.le });
+    }
+  }
+  return candidats.sort((a, b) => a.le.localeCompare(b.le))[0] ?? null;
 }

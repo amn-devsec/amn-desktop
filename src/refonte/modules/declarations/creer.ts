@@ -1,3 +1,4 @@
+import { Camera, CalendarCheck, Tags } from 'lucide-react';
 import { declarerFamille, vue } from '../declarer';
 
 /**
@@ -108,6 +109,39 @@ export default declarerFamille({
       vues: [
         vue('shop', '/boutique', ['vendre en ligne', 'voir les paniers abandonnés'], ['boutique', 'e-commerce', 'panier', 'produit'], {
           en: { verbes: ['sell online', 'see abandoned carts'], motsCles: ['shop', 'store', 'e-commerce', 'cart', 'product'] },
+        }),
+      ],
+    },
+    {
+      nom: { fr: 'Catalogue produits', en: 'Product catalogue' },
+      action: 'stocker',
+      niveau: 'courant',
+      vues: [
+        vue('catalogue', '/catalogue', ['fixer un prix', 'voir la marge d’un produit', 'ranger mes produits'], ['catalogue', 'produit', 'prix', 'marge', 'tarif', 'référence'], {
+          en: { verbes: ['set a price', 'see the margin of a product', 'sort my products'], motsCles: ['catalogue', 'product', 'price', 'margin', 'rate', 'reference'] },
+          nouveau: { icone: Tags, ecran: () => import('../../creer/ecrans/MR05/CatalogueRefonte'), indice: { fr: 'Prix, marge et stock de chaque produit', en: 'Price, margin and stock of each product' } },
+        }),
+      ],
+    },
+    {
+      nom: { fr: 'Réservations', en: 'Bookings' },
+      action: 'livrer',
+      niveau: 'courant',
+      vues: [
+        vue('reservations', '/reservations', ['voir le planning des réservations', 'poser un créneau de réservation', 'voir qui a réservé'], ['réservation', 'salle', 'créneau', 'ressource', 'planning'], {
+          en: { verbes: ['see the booking schedule', 'set a booking slot', 'see who has booked'], motsCles: ['booking', 'room', 'slot', 'resource', 'schedule'] },
+          nouveau: { icone: CalendarCheck, ecran: () => import('../../creer/ecrans/MR06/ReservationsRefonte'), indice: { fr: 'Salles et matériel, créneau par créneau', en: 'Rooms and equipment, slot by slot' } },
+        }),
+      ],
+    },
+    {
+      nom: { fr: 'Photos de chantier', en: 'Site photos' },
+      action: 'fabriquer',
+      niveau: 'courant',
+      vues: [
+        vue('photosChantier', '/photos-chantier', ['comparer l’avant et l’après', 'prouver un chantier en photos', 'compléter un dossier photo'], ['photo', 'chantier', 'avant', 'après', 'preuve', 'dossier photo'], {
+          en: { verbes: ['compare before and after', 'prove a job with photos', 'complete a photo file'], motsCles: ['photo', 'job site', 'before', 'after', 'proof', 'photo file'] },
+          nouveau: { icone: Camera, ecran: () => import('../../creer/ecrans/MR10/PhotosRefonte'), indice: { fr: 'Avant, pendant, après, daté et classé', en: 'Before, during, after, dated and filed' } },
         }),
       ],
     },

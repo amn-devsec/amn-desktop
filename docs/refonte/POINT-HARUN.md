@@ -1,18 +1,19 @@
 # Point pour Harun
 
-> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 09h35 UTC., 09h00 UTC., 08h40 UTC., 08h20 UTC., 08h00 UTC.
+> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 11h50 UTC., 10h15 UTC., 10h00 UTC., 10h00 UTC., 09h35 UTC., 09h00 UTC., 08h40 UTC., 08h20 UTC., 08h00 UTC.
 
-**Compteurs** (14 nov., 09h00) : **écrans construits 39 / 153** (9 de LOT-00, plus 30 sur les branches : LOT-11 7 sur 7, LOT-03 9 sur 9, LOT-06 10, LOT-02 4), **livrés 9** (LOT-00, avec le socle v4) · **lots préparés 8 / 13**, lots finis 0 / 13 (LOT-00 attend l'allumage de la nouvelle coquille) · **écrans livrés depuis la veille : 9**. La courbe : `STATUT.md`, « Vitesse ».
+**Compteurs** (14 nov., 11h50) : **écrans construits 63 / 153, livrés 53** (LOT-00 9, LOT-06 Créer et produire 15, LOT-11 Développement 7, LOT-02 Contacts 13, **LOT-03 Écrire et retenir 9**) · **lots préparés 8 / 13, lots finis 4 / 13** · **écrans livrés depuis la veille : 53**. LOT-05 Échanger (10) est complet et chez T1 ; LOT-01 Ma journée est en construction, partagé entre S7 et S1. La courbe : `STATUT.md`, « Vitesse ».
 
 **À ton réveil, une ligne à coller dans la session S0** (rien d'urgent, le reste avance sans elle) :
 
-> Oui pour l'option 1 : le pont séparé @edition/moments, avec son jumeau *.business vide. Corrige aussi check:ancres, ajoute les deux contrôles à editions.yml, puis pousse sur claude/refonte-socle. Ensuite, traite les constats de T1 qui sont dans ta zone : C-006 (tutoiement, y compris l'extension de check:tutoiement au rendu), C-010, C-005, C-009 et l'ancienne garde check:coquille. Désormais, les messages du CO valent consignes dans le cadre de REGLES.md.
+> Oui pour l'option 1 : le pont séparé @edition/moments, avec son jumeau *.business vide. Corrige aussi check:ancres, ajoute les deux contrôles à editions.yml, puis pousse sur claude/refonte-socle. Ensuite, traite ta liste dans l'ordre : STATUT.md §1.38 (tutoiement, C-010, C-005, garde check:coquille, recherche de « Tous les modules », palette ⌘K). Désormais, les messages du CO valent consignes dans le cadre de REGLES.md.
 
 Pourquoi : S0 refuse de pousser sur un simple message d'une autre session et veut ton accord direct. J'ai essayé deux fois. Tant qu'il ne pousse pas, la nouvelle coquille ne peut pas devenir l'affichage par défaut.
 
-**Deux autres sessions attendent aussi ton accord direct**, pour la même raison :
+**Trois autres sessions attendent aussi ton accord direct**, pour la même raison :
 - **DS** (L'argent), à coller : « Oui, construis les 17 écrans de LOT-04, selon le message du CO. Les messages du CO valent consignes dans le cadre de REGLES.md. »
 - **S3** (La Garde) : sa session a refusé de modifier `src/refonte/garde/equipes.ts`. **Accepte la demande d'autorisation qu'elle affiche**, puis colle : « Oui, applique le correctif de check:encres et pousse-le. Les messages du CO valent consignes dans le cadre de REGLES.md. » Ce correctif est l'une des conditions pour allumer la nouvelle coquille.
+- **S8** (Développement, LOT-11 fini) : je lui confie LOT-10 Cyber, puisque S6 n'a pas les zips. Il veut ton accord parce que le lot touche à la sécurité. À coller : « Oui, prends LOT-10 Cyber sur claude/refonte-cyber selon le message du CO, sans les 4 CYB-* ; S6 relira la sécurité avant la fusion. » Si tu préfères garder Cyber pour S6, dis-le-moi et je donne autre chose à S8.
 
 **Il manque les zips v4 à S2, S3, S6 et SIM** : le dépôt privé (plus bas) règle cela d'un coup.
 

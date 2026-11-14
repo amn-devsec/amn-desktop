@@ -1,0 +1,40 @@
+{
+  "_": "Valeurs acceptées de LOT-06 (STATUT §1.30, §1.40) : mesures de T1 sur l'APERÇU STATIQUE du lot (claude/refonte-creer @ 277263a, abaissées à 5177df0 (F50, H17) puis à 42c90a8 (H16, MR01, MR10)), 1440×900, vendredi 30 oct. 2026 à 10:42. `valeurs` = écart brut (±2 px, couleur ±2) ; `disposition` = même comparaison, couleur ±10, surveillée aussi (`surveillerDisposition`) : un écran échoue si l'une ou l'autre monte de plus de 2 points au-dessus de sa valeur. Les écarts au-dessus de 15 % sont justifiés dans justifies-LOT-06.json.",
+  "source": "apercu",
+  "mesure": "strict",
+  "surveillerDisposition": true,
+  "valeurs": {
+    "F50": 31.7,
+    "H15": 23.0,
+    "H16": 27.8,
+    "H17": 23.4,
+    "MR01": 28.9,
+    "MR02": 32.6,
+    "MR03": 30.9,
+    "MR04": 35.8,
+    "MR05": 39.4,
+    "MR06": 22.3,
+    "MR07": 21.3,
+    "MR08": 22.2,
+    "MR09": 21.9,
+    "MR10": 32.2,
+    "MR11": 21.9
+  },
+  "disposition": {
+    "F50": 12.5,
+    "H15": 12.9,
+    "H16": 16.3,
+    "H17": 9.2,
+    "MR01": 18.5,
+    "MR02": 14.9,
+    "MR03": 14.4,
+    "MR04": 17.1,
+    "MR05": 17.6,
+    "MR06": 12.2,
+    "MR07": 12.3,
+    "MR08": 13.9,
+    "MR09": 10.4,
+    "MR10": 20.7,
+    "MR11": 13.5
+  }
+}

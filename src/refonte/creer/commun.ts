@@ -6,33 +6,21 @@
  * monde. Les jours sont des chaînes `AAAA-MM-JJ` du calendrier de Paris ; les
  * instants sont des chaînes ISO ou des millisecondes.
  *
- * Les mises en forme chiffrées (« 3 840 € », « 92 % ») existent dans le module de mise en forme des graphiques du socle,
- * mais `check:socle-graphiques` interdit d'importer ce module hors de la liste qu'il connaît :
- * on en garde ici l'essentiel (espaces et séparateurs), à remplacer par l'import du socle le jour
- * où le CO l'autorise (voir `STATUT.md`, section LOT-06).
+ * Les mises en forme chiffrées (« 3 840 € », « 92 % », « 12 400 ») viennent de `src/socle/formats.ts` (STATUT §1.27 n° 7) :
+ * la copie locale d'avant la fusion du socle v4 est supprimée.
  */
+
+import { ESPACE_FINE, ESPACE_INSECABLE, formaterNombre } from '../../socle/formats';
+
+export { ESPACE_FINE, ESPACE_INSECABLE, formaterNombre };
+export { formaterEuro, formaterPourcent, formaterRatio, TIRET_ABSENT } from '../../socle/formats';
 
 export type Jour = string;
 export type Langue = 'fr' | 'en';
 
 const MS_JOUR = 86_400_000;
 /** Espace insécable : devant `%`, `€`, `h`, `min`. */
-export const INSECABLE = '\u00a0';
-/** Espace insécable fine : entre les milliers. */
-export const ESPACE_FINE = '\u202f';
-
-const formateurs = new Map<number, Intl.NumberFormat>();
-/** « 12 400 », « 1 234,5 » : milliers en insécable fine, virgule décimale, quelle que soit la version d'ICU. */
-export function formaterNombre(valeur: number, options: { decimales?: number } = {}): string {
-  if (!Number.isFinite(valeur)) return '—';
-  const max = Math.min(10, Math.max(0, Math.trunc(options.decimales ?? 2)));
-  let f = formateurs.get(max);
-  if (!f) {
-    f = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: max, useGrouping: true });
-    formateurs.set(max, f);
-  }
-  return f.format(valeur).replace(/[\s\u00a0\u202f]/g, ESPACE_FINE);
-}
+export const INSECABLE = ESPACE_INSECABLE;
 
 /* ------------------------------ Jours ------------------------------ */
 

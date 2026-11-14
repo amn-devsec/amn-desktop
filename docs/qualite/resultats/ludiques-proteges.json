@@ -1,0 +1,71 @@
+{
+  "ecrans": 160,
+  "resultats": [
+    {
+      "id": "L07 · défi d’équipe",
+      "ou": [],
+      "nombre": 0,
+      "absent": true
+    },
+    {
+      "id": "L07 · aussi en cours",
+      "ou": [],
+      "nombre": 0,
+      "absent": true
+    },
+    {
+      "id": "L07 · proposer un défi",
+      "ou": [],
+      "nombre": 0,
+      "absent": true
+    },
+    {
+      "id": "L07 · page « Défis d’équipe »",
+      "ou": [],
+      "nombre": 0,
+      "absent": true
+    },
+    {
+      "id": "défis hebdomadaires",
+      "ou": [],
+      "nombre": 0,
+      "absent": true
+    },
+    {
+      "id": "H02 · série et prochain palier",
+      "ou": [],
+      "nombre": 0,
+      "absent": true
+    },
+    {
+      "id": "H04 · Bilan de la semaine",
+      "ou": [],
+      "nombre": 0,
+      "absent": true
+    },
+    {
+      "id": "L01 · Séries et jalons",
+      "ou": [],
+      "nombre": 0,
+      "absent": true
+    },
+    {
+      "id": "CY01 · Cyber, vue d’ensemble",
+      "ou": [],
+      "nombre": 0,
+      "absent": true
+    },
+    {
+      "id": "CY04 · SOC",
+      "ou": [],
+      "nombre": 0,
+      "absent": true
+    },
+    {
+      "id": "MB04 · Messages et alertes (mobile)",
+      "ou": [],
+      "nombre": 0,
+      "absent": true
+    }
+  ]
+}
