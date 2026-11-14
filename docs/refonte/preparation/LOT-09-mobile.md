@@ -8,7 +8,7 @@
 
 - **11 écrans, tous nouveaux** : 9 écrans de téléphone (H46, MB02 à MB09) et 2 de tablette (T01, T02). Chacun est une **recomposition des écrans du bureau**, pas un second produit : même code, mêmes données, même registre (STATUT §1.4).
 - **Livré ici** : cette note, une logique pure (`src/refonte/mobile/formats.ts`) et sa garde `npm run check:formats` (22 contrôles, ajoutée à `package.json` et à `editions.yml`). Elle dit le format d'une largeur, la navigation, liste/détail, la rotation, l'accueil de la tablette et le repli de chaque fonction d'appareil.
-- **Trois points** (§7) : le CO a tranché les deux premiers à titre provisoire (révisable par Harun) — seuils des fiches v4 (600 / 800 / 1100), une seule disposition de widgets pour H25 et MB06 ; le troisième, les droits du jeton web pour MB03 et MB08, est **à décider (S6, puis Harun si serveur)**.
+- **Trois points** (§7) : le CO a tranché les deux premiers à titre provisoire (révisable par Harun) — seuils des fiches v4 (600 / 800 / 1100), une seule disposition de widgets pour H25 et MB06 ; le troisième, les droits du jeton web pour MB03 et MB08, est une **règle proposée par S6, à décider par Harun** (POINT-HARUN n° 8).
 - **Sept briques à demander à S0** (§6). La plus lourde est la barre basse de 70 px avec son bouton flottant.
 - **Les lots déjà livrés tiennent déjà 390 px pour le contenu** (T1 : rien de coupé sur LOT-03) ; ce qui reste est la **cible tactile de 42 px** et les **ruptures de tablette** (600, 800, 1100), que presque aucun lot ne gère (§4).
 
@@ -20,12 +20,12 @@ Colonnes : le bureau équivalent (les fiches les nomment), l'existant à reprend
 |---|---|---|---|---|---|
 | H46 | Accueil, tâches, ticket urgent | Accueil (cartes du jour), liste des tâches, ticket urgent en plein écran ; barre basse 70 px, bouton flottant 52 px | N01, H02, H03 | `MobileBottomNav`, `PanneauMobile` | l'Accueil du bureau (N01) est au LOT-01, pas fusionné |
 | MB02 | Agenda et clients | Calendrier, liste de clients, fiche client | H01, H05, G04 | LOT-02 (clients, fiche) livré ; H01 au LOT-01 | « Plus > Clients » mène à T02 sur tablette, à la liste en pile sur téléphone |
-| MB03 | Argent | Argent du jour, nouvelle facture, paiement reçu ; « Zéro impayé », mode discret | F30, G03, H40 | LOT-04 (DS), pas construit | **droits du jeton web : à décider (S6, puis Harun si serveur)** (§7, point 3) ; le mode discret masque les montants |
+| MB03 | Argent | Argent du jour, nouvelle facture, paiement reçu ; « Zéro impayé », mode discret | F30, G03, H40 | LOT-04 (DS), pas construit | **droits du jeton web : règle proposée par S6, à décider par Harun** (§7, point 3) ; le mode discret masque les montants |
 | MB04 | Messages et alertes | Messages, conversation, notifications ; Boîte à zéro, réponse suggérée d'Ajmani | G07, H40, H03 | LOT-05 livré (G07, F40) | cibles de 32 à 34 px sur l'image : construire à 42 |
 | MB05 | Recherche, Ajmani, dictée | Recherche, conversation avec Ajmani, dictée vocale ; permission du micro | H41, G05, MJ04, H10 | `voix.ts` ; H10 livré (LOT-03) | dictée **à tester sur iPhone** ; cibles 32 à 34 px sur l'image |
 | MB06 | Tableau de bord, tickets, modules | Tableau de bord, tickets, tous les modules | G08, H25, H03, D02 | LOT-01 (H25, G08), pas fusionné | une seule disposition avec H25 (§7, point 2) |
 | MB07 | Scan de reçu, dépense, hors ligne | Appareil photo du navigateur, dépense préremplie, file hors ligne | H08, MA05, H02, H16, G03 | `fileEnvoi.ts`, `EnvoiEnAttente.tsx` | caméra via le navigateur ; la file ne perd jamais une donnée |
-| MB08 | La Garde mobile | Salle de contrôle, incident, ronde | N02, H30, H32, H33 | LOT-08 (S3), pas fusionné | interface seule, jamais un détail d'exploitation ni un secret ; **droits du jeton : à décider (S6, puis Harun si serveur)** ; relecture S6 en privé |
+| MB08 | La Garde mobile | Salle de contrôle, incident, ronde | N02, H30, H32, H33 | LOT-08 (S3), pas fusionné | interface seule, jamais un détail d'exploitation ni un secret ; **droits du jeton : règle proposée par S6, à décider par Harun** ; relecture S6 en privé |
 | MB09 | Connexion, démarrage, écran verrouillé | Déverrouillage, démarrage du métier, écran verrouillé | G06, H47, H40 | LOT-00 (H47 livré) | **widgets impossibles en PWA** : première passe = connexion, démarrage, notifications dont l'aperçu est masqué par défaut |
 | T01 | Tablette · Accueil | Cadre 1180 × 700, rail 76 px, 4 KPI de 252 × 92, trois volets de 384 / 338 / 300, lignes de 68 px | N01 | rien | paliers de la fiche, qui font foi (§7, point 1) |
 | T02 | Tablette · Clients en vue scindée | Liste et fiche côte à côte | H05, G04 | `Scinde` du socle | les règles de H05 et de G04 font foi ; le socle ne scinde qu'à partir de 900 px |
@@ -104,7 +104,13 @@ Briques secondaires à confirmer avec S0 : **état hors ligne** : le `BandeauHor
 
 1. **Seuils — décidé (provisoire, révisable par Harun).** Les fiches v4 font foi : T01 §11 donne 600 (téléphone / tablette), 800 (KPI 2 × 2, deux volets) et 1100 (trois volets, KPI sur une rangée). STATUT §1.4 disait 768 / 1200 « ajustables par LOT-09 » : le CO le met à jour. Le bureau reste à 1200 (le STATUT, que les fiches ne contredisent pas) ; **800 et 1100 sont des ruptures internes de la tablette**, `accueilTablette` les applique. À réaligner : la coquille v4 (tiroir à 900 px, allègements à 640 et 460), `Scinde` (900) et la grille des KPI (900 et 1280). Le cadre de T01 (1180 px) reste une tablette.
 2. **Tableau de bord sur téléphone — décidé (provisoire).** Une seule source pour la disposition des widgets : celle de H25. Le mode « modifier » de MB06 écrit dans cette même disposition, il n'en a pas une à lui. L'image de MB06 fait foi pour l'affichage (« Modifier », « Ajouter un bloc »).
-3. **Droits du jeton web — à décider (S6, puis Harun si serveur).** MB03 (Argent) et MB08 (La Garde) lisent et écrivent par le pont navigateur : c'est un point de sécurité, le CO le passe à S6 et ne tranche pas. Vérifier les droits de `WEB_OPERATOR_TOKEN` **avant** de construire ces deux écrans ; S6 relit MB08 en privé. Aucun secret ne figure dans cette note ni dans le code.
+3. **Droits du jeton web — règle proposée par S6, à décider par Harun.** MB03 (Argent) et MB08 (La Garde) lisent et écrivent par le pont navigateur : c'est un point de sécurité, le CO le passe à S6 et ne tranche pas. Vérifier les droits de `WEB_OPERATOR_TOKEN` **avant** de construire ces deux écrans ; S6 relit MB08 en privé. Aucun secret ne figure dans cette note ni dans le code.
+   **Règle proposée par S6, à décider par Harun** (POINT-HARUN n° 8) :
+   - aucune clé partagée dans la version web ; une session au nom de la personne, avec les droits de son rôle ;
+   - MB03 : la banque en lecture seule, et tout envoi à un client demande une confirmation ;
+   - MB08 : réservé au propriétaire et à l'administrateur ; sur mobile, lecture et décision de dossier seulement ;
+   - session de 7 jours au plus, coupée après 24 h sans activité ; verrouillage après 5 min (MB09) ;
+   - H19 liste les appareils ; le cache est vidé à la déconnexion.
 4. **Cibles de 42 px contre images.** MB04 et MB05 montrent 32 à 34 px ; on construit à 42 px (STATUT §1.4). T1 compare à l'image avec cette tolérance, à écrire dans `justifies-LOT-09.json`.
 5. **Capacitor et widgets.** Hors de la première passe (STATUT §1.4). Si Harun les veut, c'est une décision à part, et MB09 change de nature.
 6. **Biométrie.** Aucune biométrie native en PWA. Le déverrouillage de MB09 ne s'allume que si l'appareil offre WebAuthn ; sinon, le code seul (`repliDe`).
