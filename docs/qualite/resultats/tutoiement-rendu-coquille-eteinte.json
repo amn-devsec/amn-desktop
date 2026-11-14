@@ -1,0 +1,692 @@
+{
+  "coquille": false,
+  "ecrans": 38,
+  "lignes": [
+    {
+      "texte": "À votre avis",
+      "mot": "votre",
+      "ecrans": 34,
+      "exemples": [
+        "#/",
+        "#/notifications",
+        "#/demarrage"
+      ]
+    },
+    {
+      "texte": "Vous êtes seul·e ici pour l’instant.",
+      "mot": "vous",
+      "ecrans": 2,
+      "exemples": [
+        "#/",
+        "#/messages"
+      ]
+    },
+    {
+      "texte": "Écrire à votre prestataire",
+      "mot": "votre",
+      "ecrans": 2,
+      "exemples": [
+        "#/",
+        "#/messages"
+      ]
+    },
+    {
+      "texte": "Quel est votre poste ?",
+      "mot": "votre",
+      "ecrans": 2,
+      "exemples": [
+        "#/",
+        "#/messages"
+      ]
+    },
+    {
+      "texte": "Votre barre ne gardera que ce qui sert à votre mission. Ça se change ensuite dans la Bibliothèque, « Alléger ma barre ».",
+      "mot": "votre",
+      "ecrans": 2,
+      "exemples": [
+        "#/",
+        "#/messages"
+      ]
+    },
+    {
+      "texte": "Le bloc-notes : ce qui est à vous, et ce qui est à l’équipe.",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/notes"
+      ]
+    },
+    {
+      "texte": "Ce que vous sortez, avec les reçus photographiés.",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/depenses"
+      ]
+    },
+    {
+      "texte": "Ce que vous sortez, mois par mois.",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/depenses"
+      ]
+    },
+    {
+      "texte": "CE QUE VOUS POUVEZ CHANGER, ET CE QUE ÇA CHANGE",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "« Votre nom » est lu ailleurs dans le produit.",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "« Votre nom » (Profil) est lu par 12 modules : Trombinoscope, Messages privés, Groupes, Annonces, Sondages, Absences, Appels, Tâches, Rapports, Médias, SAV, Réunions. Le changer les réécrit tous d’un ",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "L’historique de vos réglages. Le journal de l’organisation enregistre des gestes — une connexion, un changement de rôle — pas la valeur d’un réglage avant et après.",
+      "mot": "vos",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "Votre photo et votre nom, visibles par l’équipe partout dans l’app.",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "L’écran qui s’ouvre en premier, et qui reste épinglé en tête de la barre latérale. Le choix vaut pour votre compte, sur tous vos postes ; il ne change jamais de lui-même.",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "Ce que la Garde a réglé seule, et ce qu’elle vous rend.",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "La visite guidée et la présentation de chaque module se rejouent quand vous voulez. Votre profil de départ décide des modules épinglés et de vos premiers pas.",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "Un point de couleur par famille, devant le surtitre de chaque écran et dans le lanceur. Dit où vous êtes, jamais ce qui attend.",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "Votre organisation n’y est pas. Rien de chez vous n’y apparaît.",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "Changez votre mot de passe (minimum 8 caractères).",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "Un seul événement peut vous être notifié depuis cette application. Le voici, avec ce qu’il fait exactement.",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "Quelqu’un vous mentionne dans un message.",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "Une tâche vous est attribuée.",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "CE QUE VOUS VERREZ",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "Elle s’applique à toute votre organisation, sur tous les postes. Les teintes proposées ont toutes été vérifiées pour rester lisibles sur fond sombre.",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "La langue de ce poste, pour vous. Elle ne change rien pour personne d’autre.",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "Vos modules",
+      "mot": "vos",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "Ce que votre espace contient, et ce qui existe par ailleurs.",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "Le jeton (« jeton:… ») vous a été remis après votre règlement. Collez-le tel quel : ce qu’il porte s’ouvre tout de suite, ou l’on vous dit pourquoi non.",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "OUVERTS CHEZ VOUS · 109",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "CE QUE VOTRE PRESTATAIRE PEUT OUVRIR",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "Depuis une session d’assistance, votre prestataire peut ouvrir vos modules pour vous aider. Vous pouvez lui fermer le contenu d’un module, et le rouvrir quand vous voulez : chaque geste s’inscrit dans",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "Emportez une copie de votre espace, et vérifiez celles que vous gardez déjà.",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "Un fichier JSON, à conserver en lieu sûr : tout ce que contient votre espace y est, jusqu’à ce que nous avons observé de vos sites. Le coffre-fort en est absent — il ne quitte pas cet appareil.",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "Vous gardez déjà un fichier ? Ouvrez-le ici pour savoir ce qu’il contient vraiment, et de quand il date. Tout se passe sur cet appareil : le fichier n’est envoyé nulle part.",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "Ce que nous gardons. Ce que vous voyez dans l’application, et rien d’autre : le fichier d’export ci-dessus en est la copie exacte, y compris ce qui a été supprimé et qui y figure marqué comme tel. Les",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "Effacer, et remettre en place. L’effacement complet d’un espace se demande à l’équipe qui vous a fourni cette application, et se fait à la main. C’est délibéré : le geste est irréversible et emporte l",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "Accusés de lecture dans l’Équipe : un ✓ indique un message envoyé, un ✓✓ qu’il a été lu par votre binôme.",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "Repères contextuels sur les tâches : « Ajouter un repère » vous laisse pointer un endroit précis de l’app ; le repère devient une étiquette cliquable qui y ramène et le met en évidence.",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "L’assistant devient « Ajmani » : une vraie IA généraliste (via Ollama en local) qui répond à toutes vos questions, en plus de vos rapports et analyses ancrés sur vos données réelles.",
+      "mot": "vos",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "Ajmani : sélecteur de modèle directement dans le chat, blocs de code copiables, et notification quand la réponse est prête si vous avez quitté le panneau.",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "Notification discrète quand votre binôme modifie une donnée partagée (la synchro se voit en direct).",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/settings"
+      ]
+    },
+    {
+      "texte": "Essai Interne (vous)",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/team"
+      ]
+    },
+    {
+      "texte": "PREMIÈRE OUVERTURE · À VOTRE AVIS",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/garde/pile"
+      ]
+    },
+    {
+      "texte": "LA GARDE · À VOTRE AVIS",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/garde/pile"
+      ]
+    },
+    {
+      "texte": "La seule pile où l’on vous attend : triée par gravité puis par ancienneté, chaque point avec son contexte, ses options et ce que la Garde recommande.",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/garde/pile"
+      ]
+    },
+    {
+      "texte": "CE QUE VOUS AVEZ DÉCIDÉ DEPUIS L’OUVERTURE",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/garde/pile"
+      ]
+    },
+    {
+      "texte": "Rien de décidé pour l’instant : le compteur part de votre premier geste, pas de votre historique.",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/garde/pile"
+      ]
+    },
+    {
+      "texte": "Aucun mandat donné : chaque famille repasse par vous.",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/garde/pile"
+      ]
+    },
+    {
+      "texte": "Rien n’a été écrit chez vos clientes sur les 7 derniers jours. Ni sur les 7 précédents : le parc est au repos, pas en panne.",
+      "mot": "vos",
+      "ecrans": 1,
+      "exemples": [
+        "#/tour"
+      ]
+    },
+    {
+      "texte": "VOTRE NOM *",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/formulaires"
+      ]
+    },
+    {
+      "texte": "Votre réponse",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/formulaires"
+      ]
+    },
+    {
+      "texte": "VOTRE COURRIEL *",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/formulaires"
+      ]
+    },
+    {
+      "texte": "VOTRE TÉLÉPHONE",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/formulaires"
+      ]
+    },
+    {
+      "texte": "CE QUE VOUS IMAGINEZ",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/formulaires"
+      ]
+    },
+    {
+      "texte": "Votre nom *",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/formulaires"
+      ]
+    },
+    {
+      "texte": "Votre courriel *",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/formulaires"
+      ]
+    },
+    {
+      "texte": "Votre téléphone",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/formulaires"
+      ]
+    },
+    {
+      "texte": "Ce que vous imaginez",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/formulaires"
+      ]
+    },
+    {
+      "texte": "Votre page publique, avec vos avis et votre portfolio.",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/mini-page"
+      ]
+    },
+    {
+      "texte": "Un mot à tous vos clients, envoyé depuis votre messagerie.",
+      "mot": "vos",
+      "ecrans": 1,
+      "exemples": [
+        "#/lettre"
+      ]
+    },
+    {
+      "texte": "Un mot à tous vos clients, envoyé depuis votre messagerie, sans service tiers.",
+      "mot": "vos",
+      "ecrans": 1,
+      "exemples": [
+        "#/lettre"
+      ]
+    },
+    {
+      "texte": "Cet écran ne compte pas les ouvertures. La lettre part de votre messagerie, sous votre adresse : il n’y a pas de pixel espion dedans, et il n’y en aura pas.",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/lettre"
+      ]
+    },
+    {
+      "texte": "Faire signer un devis ou un bon de livraison sur votre écran, au doigt.",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/signature"
+      ]
+    },
+    {
+      "texte": "Vos réalisations, en fiches avec photos, montrées sur la mini-page.",
+      "mot": "vos",
+      "ecrans": 1,
+      "exemples": [
+        "#/portfolio"
+      ]
+    },
+    {
+      "texte": "Vos réalisations, une par fiche, reprises telles quelles sur la mini-page publique.",
+      "mot": "vos",
+      "ecrans": 1,
+      "exemples": [
+        "#/portfolio"
+      ]
+    },
+    {
+      "texte": "Un cadran au centre, choisi par vous",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/tableau-de-bord"
+      ]
+    },
+    {
+      "texte": "Chaque personne compose son pupitre : celui-ci n’est que le vôtre, et chaque cadran lit son module d’origine.",
+      "mot": "vôtre",
+      "ecrans": 1,
+      "exemples": [
+        "#/tableau-de-bord"
+      ]
+    },
+    {
+      "texte": "Les places de votre formule, la vide comprise — et ce que chacune ouvre.",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/membres"
+      ]
+    },
+    {
+      "texte": "LES COMPTES DE VOTRE ORGANISATION",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/membres"
+      ]
+    },
+    {
+      "texte": "essai.interne@exemple.test(vous)",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/membres"
+      ]
+    },
+    {
+      "texte": "Un espace d’échange entre entreprises clientes, si vous le souhaitez",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/hall"
+      ]
+    },
+    {
+      "texte": "L’espace commun des organisations qui le veulent. Rien n’y entre sans un geste de votre part, et vous en sortez d’un geste.",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/hall"
+      ]
+    },
+    {
+      "texte": "Personne n’y parle encore — vous seriez la première organisation.",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/hall"
+      ]
+    },
+    {
+      "texte": "Le nom sous lequel vous apparaissez (à choisir ci-dessous), la signature que chaque personne choisit pour son message, le texte du message et son heure.",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/hall"
+      ]
+    },
+    {
+      "texte": "Les adresses, les comptes, vos clients, vos tâches, vos factures, vos fichiers : le Hall n’a pas de porte vers vos données. Votre prestataire peut masquer un message signalé, jamais lire chez vous.",
+      "mot": "vos",
+      "ecrans": 1,
+      "exemples": [
+        "#/hall"
+      ]
+    },
+    {
+      "texte": "VOTRE NOM DANS LE HALL",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/hall"
+      ]
+    },
+    {
+      "texte": "Tel qu’il apparaîtra aux autres organisations. Votre nom légal par défaut ; changez-le si vous préférez.",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/hall"
+      ]
+    },
+    {
+      "texte": "Le poste s’examine — vous envoyez le résultat, sans rien décrire.",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/assistance"
+      ]
+    },
+    {
+      "texte": "Le poste s’examine, vous envoyez le résultat — vous n’avez rien à décrire.",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/assistance"
+      ]
+    },
+    {
+      "texte": "Aucun export depuis ce poste. Vos données ne sont sorties nulle part.",
+      "mot": "vos",
+      "ecrans": 1,
+      "exemples": [
+        "#/assistance"
+      ]
+    },
+    {
+      "texte": "Si votre question porte sur « dernière sortie de données », il est inutile d’écrire : c’est déjà vu, et la ligne ci-dessus dit ce qui a été mesuré.",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/assistance"
+      ]
+    },
+    {
+      "texte": "Aucun échange pour l’instant. Le formulaire ci-dessous part chez votre prestataire.",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/assistance"
+      ]
+    },
+    {
+      "texte": "CE QUI PART AVEC VOTRE MESSAGE",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/assistance"
+      ]
+    },
+    {
+      "texte": "Votre objet et votre texte.",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/assistance"
+      ]
+    },
+    {
+      "texte": "Votre demande arrive chez votre prestataire, qui la lit et vous répond ici. Rien ne part par courriel.",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/assistance"
+      ]
+    }
+  ]
+}

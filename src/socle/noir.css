@@ -1,0 +1,415 @@
+/*
+  LE NOIR ET GRIS — les jetons de design de la refonte (session DS).
+  ═══════════════════════════════════════════════════════════════════
+
+  Direction validée par Harun (2026-10-22) : noir et gris, sobre, deluxe,
+  ludique mais pro. Ce fichier est LA source des valeurs ; rien d'autre ne les
+  recopie. Il n'est importé que par le code interne (`Ambiance.tsx`, posé par
+  la couture `@edition/vivant`) : la feuille de l'édition cliente ne change
+  pas d'un octet. L'attribut `data-ambiance="noir"` sur <html> l'allume.
+
+  Deux écritures, volontairement :
+
+    · `--socle-*` — les jetons bruts de la refonte (fonds, bordures, encres,
+      rayons, gabarits). Lus par `src/socle/ui/briques.css` et
+      `src/socle/coquille/coquille.css`.
+    · `--color-socle-*`, `--color-fam-*`, `--color-etat-*` — les noms du
+      socle S0 (`@theme`, `src/index.css`), redéfinis ici pour que les briques
+      d'origine (`Bouton`, `Carte`, `Modale`, `Saisie`) et les utilitaires
+      Tailwind prennent le noir et gris sans qu'on les touche.
+
+  `check:socle` vérifie que les deux écritures disent la même chose, et que
+  chaque encre posée sur un texte tient 4,5:1 sur chaque fond.
+
+  LA RÈGLE DES ENCRES. Trois encres servent au texte : principal, secondaire,
+  atténué (`#8a8a8e` — le PLANCHER, 5,3:1 au pire). « Discret » (`#77777c`) et
+  « très discret » (`#5f5f64`) sont sous 4,5:1 : ils sont réservés aux filets,
+  aux icônes décoratives et aux éléments désactivés, jamais à un texte lu.
+  `check:socle` refuse qu'une feuille ou une brique les pose en `color`.
+*/
+:root[data-ambiance='noir'] {
+  /* ── Fonds ── */
+  --socle-fond-page: #0c0c0d;
+  --socle-fond-lateral: #101011;
+  --socle-carte-haut: #19191c;
+  --socle-carte-bas: #111113;
+  --socle-encart: #141415;
+  --socle-champ: #131314;
+  --socle-survol: #1c1c1e;
+  --socle-piste: #252528;
+
+  /* ── Bordures ── */
+  --socle-bord-lateral: #222224;
+  --socle-bord-carte: #2a2a2e;
+  --socle-bord-controle: #28282b;
+  --socle-bord-entete: #1d1d1f;
+  --socle-bord-ligne: #19191b;
+
+  /* ── Encres ── */
+  --socle-texte-1: #ededed;
+  --socle-texte-2: #a0a0a5;
+  --socle-texte-3: #8a8a8e;
+  /* Filets, icônes décoratives, éléments désactivés — JAMAIS un texte lu. */
+  --socle-trait-discret: #77777c;
+  --socle-trait-tres-discret: #5f5f64;
+  --socle-primaire: #ededed;
+  --socle-primaire-encre: #0c0c0d;
+
+  /* ── Rayons ── */
+  --socle-rayon-carte: 16px;
+  /* La barre Ajmani garde ses 14 px (images v3 et v4), sous le rayon des cartes v4. */
+  --socle-rayon-ajmani: 14px;
+  /* Ce qui n'est pas une carte garde aussi 14 px en v4 (sources néon) : boîte de dialogue, toast, info-bulle, palettes, zone vide. */
+  --socle-rayon-boite: 14px;
+  --socle-rayon-controle: 9px;
+  /* Le bouton (§4) : rayon 9, le même que `--socle-rayon-controle` (STATUT §1.2 : DS avait 10). Le champ fait 10 (`--socle-rayon-champ`). */
+  --socle-rayon-bouton: 9px;
+  --socle-rayon-pastille: 99px;
+
+  /* ── Gabarits ── */
+  --socle-largeur-lateral: 252px;
+  --socle-hauteur-entete: 60px;
+  --socle-hauteur-ajmani: 46px;
+
+  /* ── Familles : de petites pastilles de 7 à 8 px, rien de plus ──
+     Couleurs v4 (06-V4 §2 : les teintes v3 sarcelle, violet, rose, orange, succès et info remplacées partout) ; Outils et
+     La Garde gardent leur gris d'ici aux règles de rendu de 06 §3 (leur paire v4 est plus bas). */
+  --socle-fam-jour: #6ea8ff;
+  --socle-fam-contacts: #4fe3c1;
+  --socle-fam-ecrire: #a58bff;
+  --socle-fam-argent: #5ee6a8;
+  --socle-fam-echanger: #ff7eb6;
+  /* La teinte de SÉLECTION des fiches (MR02 : `#D9A27A` en v3, l'orange `#FFA463` en v4, 06 §2) est cette valeur : employez `--socle-fam-creer`, pas de doublon. */
+  --socle-fam-creer: #ffa463;
+  --socle-fam-outils: #7cc4ff;
+  /* La Garde et la supervision : l'icône bouclier, jamais une pastille (01-SOCLE-DESIGN §1). v4 : son vert, celui de sa
+     paire (les sources v4 dessinent son icône active en #5EE6A8). Outils : sa couleur a, #7CC4FF, comme toute famille
+     (décision du CO ; les sources v4 dessinent encore son icône active et ses tuiles de D02 en #9A9AA0, le gris v3). */
+  --socle-fam-garde: #5ee6a8;
+
+  /* ── v4 (06-V4-NEON §1) : deux couleurs par famille, a (principal) et b (second), pour les onze familles ──
+     Valeurs de `_data/couleurs-familles.json` du dossier v4 ; Développement (absent du fichier) d'après le tableau de 06 ;
+     Système (connexion, modules) = la paire « brand ». Cyber a ses propres couleurs, distinctes de La Garde. La coquille
+     pose la paire de la famille active en `--fam-a` / `--fam-b` (plus bas) ; par défaut, celle de Système. */
+  --socle-fam-jour-a: #6ea8ff;
+  --socle-fam-jour-b: #a58bff;
+  --socle-fam-contacts-a: #4fe3c1;
+  --socle-fam-contacts-b: #6ea8ff;
+  --socle-fam-ecrire-a: #a58bff;
+  --socle-fam-ecrire-b: #f08bd6;
+  --socle-fam-argent-a: #5ee6a8;
+  --socle-fam-argent-b: #ffd166;
+  --socle-fam-echanger-a: #ff7eb6;
+  --socle-fam-echanger-b: #a58bff;
+  --socle-fam-creer-a: #ffa463;
+  --socle-fam-creer-b: #ff6b7a;
+  --socle-fam-outils-a: #7cc4ff;
+  --socle-fam-outils-b: #a58bff;
+  --socle-fam-garde-a: #5ee6a8;
+  --socle-fam-garde-b: #6ea8ff;
+  --socle-fam-cyber-a: #ff6b7a;
+  --socle-fam-cyber-b: #a58bff;
+  --socle-fam-developpement-a: #6ea8ff;
+  --socle-fam-developpement-b: #5ee6a8;
+  --socle-fam-systeme-a: #a58bff;
+  --socle-fam-systeme-b: #6ea8ff;
+  --fam-a: var(--socle-fam-systeme-a);
+  --fam-b: var(--socle-fam-systeme-b);
+
+  /* ── Rendu v4 (06-V4 §3), valeurs des sources néon : surfaces sombres, couleur sur les accents ──
+     Ce qui dépend de la famille (dégradés a → b, lueurs, halos) s'écrit dans les feuilles des briques, sur l'élément même :
+     un jeton déclaré ici se résoudrait avec la paire de la racine (Système), pas avec celle de la famille active. */
+  --socle-blanc: #ffffff;
+  --socle-encre-accent: #0b0b0c;
+  --socle-reflet-carte: rgba(255, 255, 255, 0.065);
+  --socle-ombre-carte: 0 22px 46px -30px rgba(0, 0, 0, 0.95);
+  --socle-verre-haut: #1c1c1f;
+  --socle-verre-bas: #151517;
+  --socle-bord-verre: #303035;
+  --socle-reflet-verre: rgba(255, 255, 255, 0.06);
+  --socle-reflet-principal: rgba(255, 255, 255, 0.35);
+  --socle-ajmani-fond: #121214;
+  --socle-ajmani-fin-bord: rgba(255, 255, 255, 0.07);
+  --socle-suggestion-fond: #151518;
+  --socle-piste-toast: #232325;
+
+  /* ── États (v4, 06-V4 §2 : succès #5EE6A8, attention #FFBE5C, danger #FF6B7A, info #6EA8FF, à la place des v3) ── */
+  --socle-etat-succes: #5ee6a8;
+  --socle-etat-attention: #ffbe5c;
+  --socle-etat-critique: #ff6b7a;
+  --socle-etat-info: #6ea8ff;
+
+  /* ── LOT-00 : les valeurs exactes des 127 maquettes (01-SOCLE-DESIGN, §1 et §4) ──
+     Texte : T1 `texte-1`, T2 `texte-courant`, T3 `texte-2`, T4 `texte-3` (le plancher). */
+  --socle-texte-courant: #c4c4c8;
+  --socle-sous-carte: #111112;
+  --socle-bord-sous-carte: #212123;
+  --socle-bord-bouton: #2e2e31;
+  --socle-bord-champ: #5a5a60;
+  --socle-bord-kanban: #1e1e20;
+  --socle-ticket: #171718;
+  --socle-bord-ticket: #262628;
+  --socle-suggestion-haut: #17181a;
+  --socle-suggestion-bas: #141415;
+  --socle-bord-suggestion: #2c2e32;
+  --socle-pointille: #2e2e33;
+  --socle-tag: #1a1a1c;
+  --socle-pilule: #171718;
+  --socle-bord-pilule: #2a2a2d;
+  --socle-bord-kbd: #333336;
+  --socle-kbd: #111112;
+  --socle-case-vide: #3a3a3e;
+  --socle-toggle-inactif: #242427;
+  --socle-onglet-compteur: #1c1c1e;
+  --socle-segment-actif: #242427;
+  --socle-segment-fond: #141415;
+  --socle-anneau-fond: #1e1e20;
+  --socle-grille-graphique: #1e1e20;
+  --socle-colonne-graphique: #2a2b31;
+  /* Le filet vertical d'une ligne de temps (§4 TimelineItem) : `#222224`, le même que les filets de la barre latérale (§1). */
+  --socle-filet-vertical: #222224;
+  --socle-ligne-active: #1a1a1c;
+  --socle-ligne-choisie: #262629;
+  --socle-sous-element-actif: #242427;
+  /* La connexion (G06, v3) : fond qui veille (lueur, orbites `#2c2c30`, repères `#121213` bordés `#38383c`), carte
+     vitrée (`rgba(24,24,26,.94)` → `rgba(18,18,19,.94)`, ombre `0 30px 90px rgba(0,0,0,.55)`), marque `#f4f4f4` →
+     `#b9b9bd`, champs bordés `#2a2a2d`, pastille d'état `rgba(19,19,20,.9)`, survol du bouton primaire `#ffffff`. */
+  --socle-connexion-halo: radial-gradient(760px 520px at 50% 46%, rgba(255, 255, 255, 0.035), transparent 72%);
+  --socle-connexion-orbite: #2c2c30;
+  --socle-connexion-repere: #121213;
+  --socle-connexion-bord-repere: #38383c;
+  --socle-connexion-carte-haut: rgba(24, 24, 26, 0.94);
+  --socle-connexion-carte-bas: rgba(18, 18, 19, 0.94);
+  --socle-connexion-ombre: 0 30px 90px rgba(0, 0, 0, 0.55);
+  --socle-connexion-logo-haut: #f4f4f4;
+  --socle-connexion-logo-bas: #b9b9bd;
+  --socle-connexion-bord-champ: #2a2a2d;
+  --socle-connexion-pastille: rgba(19, 19, 20, 0.9);
+  /* La vignette sombre des bords (image G06 : 12 → 7 niveaux du bord de l'ellipse aux coins). */
+  --socle-connexion-vignette: rgba(0, 0, 0, 0.42);
+  --socle-logo-haut: #ebebec;
+  --socle-logo-bas: #bfbfc3;
+  --socle-bord-carte-active: #3a3a3e;
+  --socle-carte-active-haut: #1a1a1c;
+
+  /* Squelette : fond, lignes, reflet (H43). */
+  --socle-squelette: #1e1e21;
+  --socle-squelette-ligne: #222225;
+  --socle-squelette-reflet: #26262a;
+
+  /* Dialogue, toast, palette, panneau « Tous les modules » (H41, H43, G05, D02). */
+  --socle-dialogue: #1a1a1c;
+  --socle-bord-dialogue: #34343a;
+  /* Le bord du toast : le succès à 15 % sur le fond du dialogue — v3 #2c3327 (succès v3), v4 #243931 (succès #5ee6a8 ; demande du CO :
+     les sources v4 de H43 dessinent encore #2c3327). L'erreur suit la même règle à 30 % (situations.css). */
+  --socle-bord-toast: #243931;
+  --socle-palette-fond: #141416;
+  --socle-bord-palette: #34343a;
+  --socle-panneau: #111112;
+  --socle-bord-panneau: #29292c;
+
+  /* Avatars : la couleur d'une personne ou d'une organisation (lettre seule, jamais un visage). v4 : six dégradés
+     pastel (sources néon), initiales à l'encre sombre `--socle-encre-accent`. */
+  --socle-avatar-a: linear-gradient(135deg, #ff6b7a, #a58bff);
+  --socle-avatar-m: linear-gradient(135deg, #6ea8ff, #4fe3c1);
+  --socle-avatar-r: linear-gradient(135deg, #5ee6a8, #3bb8c9);
+  --socle-avatar-c: linear-gradient(135deg, #7cc4ff, #6e7bff);
+  --socle-avatar-t: linear-gradient(135deg, #c08bff, #ff7eb6);
+  --socle-avatar-l: linear-gradient(135deg, #ffa463, #ff6b7a);
+
+  /* Rayons des composants (§4). */
+  --socle-rayon-sous-carte: 11px;
+  --socle-rayon-champ: 10px;
+  --socle-rayon-tag: 6px;
+  --socle-rayon-ticket: 12px;
+  --socle-rayon-kanban: 14px;
+
+  /* ── Gris de décor (04-ECARTS B15, validé par le dirigeant, STATUT §1.10 point 15) : les illustrations SEULEMENT
+     (photos, objets, véhicules, aperçus composés). JAMAIS pour un texte ni un état : `check:socle` les refuse en
+     `color`, comme les encres discrètes. ── */
+  --socle-decor-1: #121213;
+  --socle-decor-2: #17171a;
+  --socle-decor-3: #3e3e44;
+
+  /* ── Hachures et pointillés (LOT-06 : réservations, matériel, créneaux tenus ou en attente) : des motifs posés sur
+     les couleurs d'état, jamais une couleur de texte. Hachure : `background-image: var(--socle-hachure-attention)`
+     (orange, trait de 2 sur 8 à 135°) ou `var(--socle-hachure-grise)` (T4, le neutre). Pointillé : `border:
+     var(--socle-pointille-ok)` (vert) ou `var(--socle-pointille-attention)` (orange), 1 px. Le pointillé GRIS des
+     zones vides reste `--socle-pointille` (`#2e2e33`). ── */
+  --socle-hachure-attention: repeating-linear-gradient(135deg, color-mix(in srgb, var(--socle-etat-attention) 45%, transparent) 0 2px, transparent 2px 8px);
+  --socle-hachure-grise: repeating-linear-gradient(135deg, color-mix(in srgb, var(--socle-texte-3) 35%, transparent) 0 2px, transparent 2px 8px);
+  --socle-pointille-ok: 1px dashed var(--socle-etat-succes);
+  --socle-pointille-attention: 1px dashed var(--socle-etat-attention);
+
+  /* ── v3 (01-SOCLE-DESIGN §0.2 et §0.4) ──
+     Survols : bordure de carte `#303033`, ligne `rgba(255,255,255,.03)` (le bouton secondaire reprend `--socle-survol`).
+     Police monospace des données techniques (journaux, heures à la seconde, codes, niveaux, grand livre), 11 à 18 px,
+     toujours en chiffres tabulaires (`.sc-mono`). C'est le jeton du SOCLE : `--font-mono` de `src/index.css`
+     (JetBrains Mono) reste celui de l'ancienne interface. */
+  --socle-bord-survol: #303033;
+  --socle-ligne-survol: rgba(255, 255, 255, 0.03);
+  --socle-police-mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* ── v3 : la coquille (01-SOCLE-DESIGN §0.1 et §0.4) ──
+     Barre latérale : fond en dégradé `#111112` → `#0f0f10`, filet droit `#1f1f21` ; champ et bouton carré de la
+     recherche `#161617` bordés `#262628` (le bouton « Tous les modules » allumé : `#262628` bordé `#3a3a3e`) ;
+     famille active `#19191b`, sous-élément actif `#1f1f21` posé sur le filet `#262629` ; survol de toute ligne
+     `#18181a` ; compteur de Cyber `#262628` ; carte « Aujourd'hui » `#171718` → `#141415` bordée `#242426`.
+     Barre Ajmani : survol bordé `#3a3a3e`. */
+  --socle-lateral-haut: #111112;
+  --socle-lateral-bas: #0f0f10;
+  --socle-lateral-filet: #1f1f21;
+  --socle-lateral-champ: #161617;
+  --socle-lateral-bord-champ: #262628;
+  --socle-lateral-bouton-actif: #262628;
+  --socle-lateral-bord-actif: #3a3a3e;
+  --socle-lateral-sous-actif: #1f1f21;
+  --socle-lateral-sous-filet: #262629;
+  --socle-lateral-survol: #18181a;
+  --socle-lateral-compteur: #262628;
+  --socle-lateral-carte-haut: #171718;
+  --socle-lateral-carte-bas: #141415;
+  --socle-lateral-bord-carte: #242426;
+  --socle-ajmani-bord-survol: #3a3a3e;
+  /* La barre Ajmani au survol (sources v4, .amn-bar-ajm:hover) : le fond passe à #151516, le bord en dégradé reste. */
+  --socle-ajmani-fond-survol: #151516;
+  /* La lueur claire autour du logo « A » (images v3 : +5 niveaux à 1 px du bord, nulle à 5 px). */
+  --socle-logo-lueur: rgba(255, 255, 255, 0.07);
+  /* Le compteur d'une ligne du répertoire « Tous les modules » (fiche D02, `CountBadge` : 16 px, fond `#26262a`). */
+  --socle-pastille-compte: #26262a;
+
+  /* ── L'écran de veille (G09) : le SEUL noir absolu de l'application ──
+     Tout le reste garde les quasi-noirs étagés ; `--socle-veille-noir` n'est lu que par
+     `src/refonte/systeme/veille/veille.css` (`check:systeme-veille` le tient). Orbites pointillées `#202023`,
+     heures à venir `#26262a`, arc écoulé `#3a3a3e`, repères bordés `#2e2e32`, pastille bordée `#1f1f22`,
+     halo de l'instant `rgba(237,237,237,.12)`. */
+  --socle-veille-noir: #000000;
+  --socle-veille-orbite: #202023;
+  --socle-veille-heure-avenir: #26262a;
+  --socle-veille-arc: #3a3a3e;
+  --socle-veille-bord-repere: #2e2e32;
+  --socle-veille-bord-pastille: #1f1f22;
+  --socle-veille-halo: rgba(237, 237, 237, 0.12);
+
+  /* ── Les noms du socle S0, redéfinis ── */
+  --color-bg: #0c0c0d;
+
+  --color-socle-fond: #0c0c0d;
+  --color-socle-creux: #0a0a0b;
+  --color-socle-surface: #111113;
+  --color-socle-eleve: #19191c;
+  --color-socle-survol: #1c1c1e;
+  --color-socle-bord: #2a2a2e;
+  --color-socle-bord-fort: #6e6e73;
+  --color-socle-texte: #ededed;
+  --color-socle-texte-doux: #8a8a8e;
+  --color-socle-texte-discret: #8a8a8e;
+  --color-socle-focus: #ededed;
+  --color-socle-primaire: #ededed;
+  --color-socle-primaire-survol: #ffffff;
+  --color-socle-primaire-encre: #0c0c0d;
+  --color-socle-voile: rgba(0, 0, 0, 0.66);
+
+  /* Sur ce fond, la base d'une famille est déjà lisible en texte (≥ 7:1). */
+  --color-fam-jour: #6ea8ff;
+  --color-fam-jour-texte: #6ea8ff;
+  --color-fam-contacts: #4fe3c1;
+  --color-fam-contacts-texte: #4fe3c1;
+  --color-fam-ecrire: #a58bff;
+  --color-fam-ecrire-texte: #a58bff;
+  --color-fam-argent: #5ee6a8;
+  --color-fam-argent-texte: #5ee6a8;
+  --color-fam-echanger: #ff7eb6;
+  --color-fam-echanger-texte: #ff7eb6;
+  --color-fam-creer: #ffa463;
+  --color-fam-creer-texte: #ffa463;
+  --color-fam-outils: #7cc4ff;
+  --color-fam-outils-texte: #7cc4ff;
+
+  --color-etat-succes: #5ee6a8;
+  --color-etat-succes-texte: #5ee6a8;
+  --color-etat-attention: #ffbe5c;
+  --color-etat-attention-texte: #ffbe5c;
+  --color-etat-danger: #ff6b7a;
+  --color-etat-danger-texte: #ff6b7a;
+  --color-etat-info: #6ea8ff;
+  --color-etat-info-texte: #6ea8ff;
+  --color-etat-info-fond: color-mix(in srgb, var(--color-etat-info) 14%, transparent);
+  --color-etat-info-bord: color-mix(in srgb, var(--color-etat-info) 40%, transparent);
+}
+
+/*
+  LA PAIRE DE COULEURS DE LA FAMILLE (v4, 06-V4-NEON §1) — `--fam-a` / `--fam-b`, que les briques lisent.
+  La coquille pose la famille active sur sa racine (`data-famille-active`, `Coquille`), et sur celle du document tant
+  qu'elle est montée : ce qui s'ouvre dans `document.body` (palettes, dialogues, toasts) la reçoit ; un bloc qui dit sa famille
+  (`data-famille`) pose la sienne pour ce qu'il contient. Ailleurs : la paire de Système, posée sur la racine.
+  Aucun lot n'écrit une de ces couleurs à la main : il lit `var(--fam-a)` et `var(--fam-b)`.
+*/
+:root[data-ambiance='noir'][data-famille-active='jour'], :root[data-ambiance='noir'] :is([data-famille-active='jour'], [data-famille='jour']) { --fam-a: var(--socle-fam-jour-a); --fam-b: var(--socle-fam-jour-b); }
+:root[data-ambiance='noir'][data-famille-active='contacts'], :root[data-ambiance='noir'] :is([data-famille-active='contacts'], [data-famille='contacts']) { --fam-a: var(--socle-fam-contacts-a); --fam-b: var(--socle-fam-contacts-b); }
+:root[data-ambiance='noir'][data-famille-active='ecrire'], :root[data-ambiance='noir'] :is([data-famille-active='ecrire'], [data-famille='ecrire']) { --fam-a: var(--socle-fam-ecrire-a); --fam-b: var(--socle-fam-ecrire-b); }
+:root[data-ambiance='noir'][data-famille-active='argent'], :root[data-ambiance='noir'] :is([data-famille-active='argent'], [data-famille='argent']) { --fam-a: var(--socle-fam-argent-a); --fam-b: var(--socle-fam-argent-b); }
+:root[data-ambiance='noir'][data-famille-active='echanger'], :root[data-ambiance='noir'] :is([data-famille-active='echanger'], [data-famille='echanger']) { --fam-a: var(--socle-fam-echanger-a); --fam-b: var(--socle-fam-echanger-b); }
+:root[data-ambiance='noir'][data-famille-active='creer'], :root[data-ambiance='noir'] :is([data-famille-active='creer'], [data-famille='creer']) { --fam-a: var(--socle-fam-creer-a); --fam-b: var(--socle-fam-creer-b); }
+:root[data-ambiance='noir'][data-famille-active='outils'], :root[data-ambiance='noir'] :is([data-famille-active='outils'], [data-famille='outils']) { --fam-a: var(--socle-fam-outils-a); --fam-b: var(--socle-fam-outils-b); }
+:root[data-ambiance='noir'][data-famille-active='garde'], :root[data-ambiance='noir'] :is([data-famille-active='garde'], [data-famille='garde']) { --fam-a: var(--socle-fam-garde-a); --fam-b: var(--socle-fam-garde-b); }
+:root[data-ambiance='noir'][data-famille-active='cyber'], :root[data-ambiance='noir'] :is([data-famille-active='cyber'], [data-famille='cyber']) { --fam-a: var(--socle-fam-cyber-a); --fam-b: var(--socle-fam-cyber-b); }
+:root[data-ambiance='noir'][data-famille-active='developpement'], :root[data-ambiance='noir'] :is([data-famille-active='developpement'], [data-famille='developpement']) { --fam-a: var(--socle-fam-developpement-a); --fam-b: var(--socle-fam-developpement-b); }
+:root[data-ambiance='noir'][data-famille-active='systeme'], :root[data-ambiance='noir'] :is([data-famille-active='systeme'], [data-famille='systeme']) { --fam-a: var(--socle-fam-systeme-a); --fam-b: var(--socle-fam-systeme-b); }
+
+/*
+  LES HALOS DE LA FAMILLE (06-V4 §3, règle 1) — a à 20 % en haut à droite, b à 15 % en bas à gauche ; et, comme les
+  sources néon (140 pages sur 143), un troisième, b à 6 %, à gauche à mi-hauteur.
+  Le jeton se redéclare partout où la paire change : il se résout avec la famille de l'élément, pas avec celle de la racine.
+  Une page le pose sous son fond : `background: var(--socle-halos), var(--socle-fond-page)`.
+*/
+:root[data-ambiance='noir'],
+:root[data-ambiance='noir'] :is([data-famille-active], [data-famille]) {
+  --socle-halos:
+    radial-gradient(900px 480px at 92% -8%, color-mix(in srgb, var(--fam-a) 20%, transparent), transparent 70%),
+    radial-gradient(800px 520px at 32% 112%, color-mix(in srgb, var(--fam-b) 15%, transparent), transparent 70%),
+    radial-gradient(520px 340px at 0% 45%, color-mix(in srgb, var(--fam-b) 6%, transparent), transparent 70%);
+  /* Le voile des pages pleines (sources néon : D02, G06, G09, H43, mobile) : a à 20 % et b à 16 %, posé PAR-DESSUS en écran. */
+  --socle-halos-ecran:
+    radial-gradient(820px 440px at 94% -8%, color-mix(in srgb, var(--fam-a) 20%, transparent), transparent 70%),
+    radial-gradient(760px 460px at 20% 112%, color-mix(in srgb, var(--fam-b) 16%, transparent), transparent 70%);
+}
+
+/* Une page pleine porte `sc-halos-ecran` : le voile la couvre, en mode écran, sans prendre le clic ni passer devant les calques. */
+:root[data-ambiance='noir'] .sc-halos-ecran::after {
+  position: fixed;
+  z-index: 1;
+  inset: 0;
+  content: '';
+  background: var(--socle-halos-ecran);
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+/*
+  LES CHIFFRES TABULAIRES, SUR LES NOMBRES SEULEMENT (§2 ; écart C11 du LOT-00).
+  `src/index.css` (partagé avec l'édition cliente : on n'y touche pas) les pose sur tout le corps de page ; avec
+  Inter, ils élargissent aussi le trait d'union (« Start - up », « êtes - vous »). En édition interne, le texte
+  courant revient ici aux chiffres normaux. Les nombres du socle (valeurs de KPI, montants, heures, compteurs,
+  pastilles chiffrées, raccourcis, données techniques `.sc-mono`) gardent leurs chiffres tabulaires : leur classe
+  les pose elle-même, ou les reçoit de la seconde règle. `.sc-nombre` sert à tout autre nombre posé dans un texte.
+*/
+:root[data-ambiance='noir'] body { font-variant-numeric: normal; }
+:root[data-ambiance='noir'] :is(.sc-nombre, .sc-compteur, .sc-kbd, .sc-anneau__centre, .sc-cloche__badge, .sc-count-badge, .sc-aujourdhui__detail, .sc-aujourdhui__quand) {
+  font-variant-numeric: tabular-nums;
+}
+
+/* La police de la refonte : Inter, sur les écrans qui ont migré (chiffres tabulaires : les nombres seulement, voir plus haut). */
+[data-refonte-police='inter'] {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-variant-numeric: normal;
+  font-feature-settings: 'cv11', 'ss01';
+}
+
+/* Les données techniques (§0.4) : la police monospace du socle, chiffres tabulaires, sans ligatures. */
+:root[data-ambiance='noir'] .sc-mono {
+  font-family: var(--socle-police-mono);
+  font-variant-numeric: tabular-nums;
+  font-variant-ligatures: none;
+  font-feature-settings: normal;
+}

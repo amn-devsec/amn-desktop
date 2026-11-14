@@ -1,0 +1,65 @@
+import type React from 'react';
+
+/**
+ * SUBSTITUER UN ÉCRAN — édition interne, refonte (STATUT § 1.3).
+ * ═══════════════════════════════════════════════════════════════
+ *
+ * Les écrans à refondre vivent dans `src/screens/**`, partagés avec l'édition
+ * cliente, et sont montés un par un dans `appRoot.internal.tsx`. Un lot ne
+ * touche ni à l'un ni à l'autre : il écrit son écran refondu dans
+ * `src/refonte/<lot>/`, puis le déclare ici, dans
+ * `src/refonte/substitutions/declarations/<lot>.tsx` — un fichier par lot,
+ * ramassé seul (`registre.ts`), sans liste à tenir ailleurs.
+ *
+ * La coque interne (`AppLayout`, `CadreBureau`, `ClientContextLayout`) a un
+ * seul point de substitution par `<Outlet />` (`SubstitutionDEcran`) : quand le chemin
+ * courant est déclaré, c'est le substitut qui est rendu à la place de la
+ * route d'origine ; sinon, l'écran d'origine, à l'identique. Les 164 routes
+ * ne bougent pas, et l'édition cliente ne reçoit rien (jumeau
+ * `substitutions.business.tsx` inerte).
+ *
+ *   export default declarerSubstitutions('jour', [
+ *     { route: '/tasks', composant: lazy(() => import('../../jour/PageTaches')) },
+ *   ]);
+ *
+ * Les hubs F10 à F70 : la route EXACTE de son hub, par son lot seulement
+ * (`/ensemble/contacts`…, voir `hubs.ts`), jamais `/ensemble/:famille`.
+ *
+ * `npm run check:substitutions` refuse une route absente de
+ * `appRoot.internal.tsx` (hors les huit hubs), une route déclarée deux fois, une clé `module` qui
+ * n'est pas celle de la garde de la route d'origine, un substitut hors de
+ * `src/refonte/<lot>/` ou qui importe `src/screens/**`, et un fichier de
+ * `declarations/` qui ne finit pas par `.tsx` (il serait ignoré en silence).
+ */
+export interface Substitution {
+  /** Le chemin EXACT de la route d'origine dans `appRoot.internal.tsx` (`'/tasks'`, `'/garde/bureaux/:equipe'`). */
+  route: string;
+  /**
+   * La clé de la garde `ModuleRoute` de la route d'origine, quand elle en a une : un module fermé à l'organisation
+   * renvoie à l'Accueil, substitut ou non. Aujourd'hui seule la session de support garde ses routes
+   * (`ClientContextRoutes` de `appRoot.internal.tsx`) : la clé y est obligatoire avec `support: 'identique'`, et la
+   * garde s'applique aussi dans l'édition interne. `check:substitutions` la compare à la source : une clé fausse,
+   * oubliée ou en trop est refusée.
+   */
+  module?: string;
+  /** L'écran refondu, de `src/refonte/<lot>/` ; de préférence paresseux (`lazy`). */
+  composant: React.ComponentType | React.LazyExoticComponent<React.ComponentType>;
+  /**
+   * En session de support cliente (`ClientContextLayout`) : `'identique'` rend le même substitut, `'aucune'`
+   * (le défaut) laisse l'écran d'origine, celui que la cliente a sous les yeux.
+   */
+  support?: 'identique' | 'aucune';
+  /** Vrai : le substitut est rendu même coquille éteinte. Faux (le défaut) : seulement quand la nouvelle coquille est allumée. */
+  toujours?: boolean;
+}
+
+/** Ce qu'un fichier de `declarations/` exporte par défaut. */
+export interface DeclarationSubstitutions {
+  /** Le lot : le nom du dossier `src/refonte/<lot>/` où vivent les substituts. */
+  lot: string;
+  substitutions: readonly Substitution[];
+}
+
+export function declarerSubstitutions(lot: string, substitutions: readonly Substitution[]): DeclarationSubstitutions {
+  return { lot, substitutions };
+}

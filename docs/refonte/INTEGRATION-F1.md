@@ -1,7 +1,7 @@
 # Intégrer un module de l'Atelier (F1)
 
-> **Proposition du CO, à valider par Harun.** Tant qu'elle n'est pas validée,
-> aucun module de F1 n'est fusionné dans `claude/refonte-vivante`.
+> **Procédure adoptée.** Premiers modules choisis par Harun le 12 nov. :
+> `tauxHoraire`, `echeancier`, `comparateurDevis` (`STATUT.md` §1.21).
 
 L'Atelier (F1) crée et teste des modules en continu dans `src/ateliers/**`,
 sans rien brancher. Un module ne rejoint l'application que par cette procédure,
