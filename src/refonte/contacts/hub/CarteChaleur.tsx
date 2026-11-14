@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { Bouton } from '../../../socle/ui/Bouton';
 import { IconeEtincelle } from '../../../socle/ui/controles';
-import { formaterEuro } from '../../../socle/ui/graphiques';
+import { formaterEuro } from '../../../socle/formats';
 import type { ChaleurDesRelations, PointChaleur, SuggestionAppel } from './modele';
 import { nomsAffiches, PARTS_BANDES, positionX, positionY, rayonDuPoint } from './nuage';
 import { useMotsHub } from './i18n';

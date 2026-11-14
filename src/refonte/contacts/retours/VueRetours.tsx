@@ -5,7 +5,7 @@ import { Page, PageHead } from '../../../socle/ui/archetypes';
 import { Avatar } from '../../../socle/ui/Pastilles';
 import { BlocEtat } from '../../../socle/ui/situations';
 import { FilterChips } from '../../../socle/ui/vivant';
-import { MiniCourbe } from '../../../socle/ui/graphiques';
+import { MiniCourbe } from '../../../socle/ui';
 import { filtrerMur, repartirMur, type CarteAvis, type FiltreMur, type ModeleRetours } from './modele';
 import { DemiJauge } from './DemiJauge';
 import { useMotsRetours } from './i18n';

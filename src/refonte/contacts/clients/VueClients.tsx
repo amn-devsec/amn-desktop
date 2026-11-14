@@ -6,7 +6,7 @@ import { BoiteRecherche } from '../../../socle/ui/controles';
 import { Avatar } from '../../../socle/ui/Pastilles';
 import { BlocEtat } from '../../../socle/ui/situations';
 import { FilterChips } from '../../../socle/ui/vivant';
-import { formaterEuro } from '../../../socle/ui/graphiques';
+import { formaterEuro } from '../../../socle/formats';
 import { AnneauProgression } from '../../../socle/ui/Indicateurs';
 import { partsDeLaBarre, TAILLE_PAGE, type ModeleClients, type SegmentClient, type TriClient, type TuileClient } from './modele';
 import { useMotsClients } from './i18n';

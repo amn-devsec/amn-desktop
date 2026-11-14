@@ -1,7 +1,7 @@
 import React from 'react';
 import { AnneauProgression } from '../../../socle/ui/Indicateurs';
 import { Avatar } from '../../../socle/ui/Pastilles';
-import { formaterEuro } from '../../../socle/ui/graphiques';
+import { formaterEuro } from '../../../socle/formats';
 import type { TuileClient } from './modele';
 import { moisCourt } from './formats';
 import { useMotsClients } from './i18n';

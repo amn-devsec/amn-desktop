@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowRight, CalendarCheck, ContactRound, HeartHandshake, LifeBuoy, Link2, Send, Star, Target, Trophy, Truck, UsersRound, Users, Workflow } from 'lucide-react';
 import { CountBadge, ModuleGroupGrid, ModuleTile } from '../../../socle/ui';
-import { formaterEuro } from '../../../socle/ui/graphiques';
+import { formaterEuro } from '../../../socle/formats';
 import { Link } from 'react-router-dom';
 import type { GroupeHub, TuileHub } from './modele';
 import { useMotsHub, type CleHub } from './i18n';
