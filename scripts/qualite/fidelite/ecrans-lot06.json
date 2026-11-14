@@ -1,0 +1,25 @@
+{
+  "lot": "LOT-06",
+  "_": "Les écrans livrés de LOT-06 (Créer et produire). Un fichier par lot. Horloge : vendredi 30 oct. 2026 à 10:42. Coquille allumée.",
+  "defaut": {
+    "mac": true,
+    "date": "2026-10-30T10:42:00+01:00",
+    "stockage": {
+      "amn.coquille": "noir"
+    }
+  },
+  "ecrans": [
+    {
+      "id": "F50",
+      "route": "#/ensemble/creer"
+    },
+    {
+      "id": "H15",
+      "route": "#/stock"
+    },
+    {
+      "id": "H16",
+      "route": "#/montage"
+    }
+  ]
+}

@@ -70,6 +70,7 @@ const D = await loadFromSrc<{
   niveauConformite: (d: unknown) => string;
   joursSansImpaye: (f: unknown, j: string) => number;
   attendusPrevisions: (m: MondeBrut, o?: Record<string, unknown>) => Attendu;
+  serieDesPriorites: (m: MondeBrut, email: string, jour: string) => number;
   attendusBilanSemaine: (m: MondeBrut, o?: Record<string, unknown>) => Attendu;
   attendusCockpit: (m: MondeBrut) => Attendu;
   attendusTableauDeBord: (m: MondeBrut, o?: Record<string, unknown>) => Attendu;
@@ -87,6 +88,11 @@ const D = await loadFromSrc<{
   EQUIPE_INTERNE_DE_CHARGE: readonly string[];
   MELANGE_D_ACTIONS: readonly { nom: string; poids: number; ecriture: boolean }[];
 }>('src/refonte/donnees/index.ts');
+
+const S2 = await loadFromSrc<{
+  serieDeLaJournee: (journees: unknown[], aujourdhui: string) => { serie: number };
+  prioritesDeLaCollection: (ligne: unknown, jourDe: (iso: string) => string) => unknown;
+}>('src/refonte/journee/serie.ts');
 
 const S8 = {
   deploiements: await loadFromSrc<{
@@ -253,7 +259,9 @@ dit('aucun secret : ni clé, ni jeton, ni mot de passe, ni longue chaîne opaque
   }
   for (const c of gros.connecteurs) assert.ok(!('cle' in c) && !('secret' in c) && !('jeton' in c), 'un connecteur n’a aucune clé');
   for (const c of gros.sauvegardes) assert.ok(!('chemin' in c) && !('url' in c) && !('bucket' in c), 'une sauvegarde n’a aucun chemin');
-  assert.deepEqual(textes.filter(([, v]) => /[A-Za-z0-9+/_=-]{32,}/.test(v)).slice(0, 3), [], 'chaîne opaque de 32 caractères ou plus');
+  // Seule exception : l'identifiant des priorités du jour, tel que l'application le fabrique (`prio-<courriel en tirets>-<jour>`), lisible et sans rien d'opaque.
+  const identifiantDePriorites = /^prio-[a-z0-9-]+-\d{4}-\d{2}-\d{2}(-\d)?$/;
+  assert.deepEqual(textes.filter(([, v]) => /[A-Za-z0-9+/_=-]{32,}/.test(v) && !identifiantDePriorites.test(v)).slice(0, 3), [], 'chaîne opaque de 32 caractères ou plus');
   assert.deepEqual(textes.filter(([, v]) => /(sk|pk|rk)_(live|test)_|amn_live_/.test(v)), []);
 });
 dit('aucune photo ni pièce jointe réelle : les images sont vides', () => {
@@ -1336,7 +1344,7 @@ dit('H04 bilan de la semaine : lundi à dimanche, les parties font le tout, les 
     assert.ok(b.aReporter.length <= b.tachesFaites.total - b.tachesFaites.faites + 0, `${nom} : à reporter ≤ non faites`);
     assert.ok(b.jalons.prochainPalier === null || (b.jalons.prochainPalier > b.jalons.serie && D.PALIERS_DE_SERIE.includes(b.jalons.prochainPalier) && b.jalons.joursRestants === b.jalons.prochainPalier - b.jalons.serie));
     assert.equal(b.jalons.dixFactures, b.jalons.facturesEnvoyeesOuPayees >= 10);
-    assert.equal(b.boiteAZero, null);
+    assert.ok(b.boiteAZero === null ? m.boiteAZero.length === 0 : b.boiteAZero.jours >= 0 && typeof b.boiteAZero.enCours === 'boolean', `${nom} : Boîte à zéro`);
   }
   const b = D.attendusBilanSemaine(normal);
   assert.ok(b.nouveauxClients.nombre >= 1 && b.encaisse.cents > 0 && b.aReporter.length > 0 && b.tachesFaites.faites > 0, 'normal : nouveaux clients, encaissé, à reporter, tâches faites');
@@ -1344,10 +1352,10 @@ dit('H04 bilan de la semaine : lundi à dimanche, les parties font le tout, les 
   assert.equal(D.attendusBilanSemaine(normal, { jour: '2026-10-28' }).semaine.lundi, '2026-10-26', 'un mercredi donne la même semaine');
 });
 
-dit('H04 jalons : le palier suivant est strictement au-dessus de la série (cas de référence 4, 5 et 100 jours)', () => {
+dit('H04 jalons : le palier suivant est strictement au-dessus de la série (cas de référence 0, 4 et 5 journées bouclées)', () => {
   const moiEmail = str((normal.equipe.find((x) => x.moi === true) as Lien).email);
   const jourOuvres = ['2026-10-29', '2026-10-28', '2026-10-27', '2026-10-26', '2026-10-23', '2026-10-22'];
-  const avec = (n: number) => ({ ...normal, taches: jourOuvres.slice(0, n).map((j, i) => ({ id: `ref-${i}`, assigneeEmail: moiEmail, echeance: j, status: 'done', faiteAt: `${j}T08:30:00Z` })) }) as unknown as MondeBrut;
+  const avec = (n: number) => ({ ...normal, dailyPriorities: jourOuvres.slice(0, n).map((j) => ({ id: `ref-${j}`, email: moiEmail, day: j, items: [{ id: `ref-${j}-1`, label: 'Priorité', doneAt: `${j}T09:00:00Z` }], updatedAt: `${j}T09:00:00Z` })) }) as unknown as MondeBrut;
   const cas: [number, number, number | null][] = [[4, 4, 5], [5, 5, 10], [0, 0, 5]];
   for (const [n, serie, palier] of cas) {
     const j = D.attendusBilanSemaine(avec(n)).jalons;
@@ -1374,7 +1382,24 @@ dit('G08 cockpit : le revenu récurrent est la somme des abonnements actifs, les
     for (const col of Object.values(c.tickets) as Attendu[]) assert.ok(col.visibles.length <= 3 && col.visibles.length <= col.compteur);
     assert.equal(c.impayes, m.factures.filter((f) => f.status === 'issued' && str(f.dueAt) < aujourdhuiDe(m)).length);
     assert.equal(c.sources.length, m.connecteurs.length);
-    assert.ok(c.objectifDuMois === null && c.utilisateursConnectes === null && c.manque.length === 2);
+    assert.equal(c.manque.length, 0, `${nom} : plus rien ne manque à G08`);
+    const o = c.objectifDuMois as Lien;
+    const reg = m.entreprise.reglages as Lien;
+    assert.equal(o.objectifCents, reg.objectifMrrCents);
+    assert.equal(o.mrrCents, c.mrr.cents);
+    assert.equal(o.resteCents, Math.max(0, num(o.objectifCents) - num(o.mrrCents)));
+    assert.equal(o.partPourcent, Math.round((num(o.mrrCents) / num(o.objectifCents)) * 100));
+    assert.equal(o.atteint, num(o.mrrCents) >= num(o.objectifCents));
+    const jm = new Date(Date.UTC(Number(aujourdhuiDe(m).slice(0, 4)), Number(aujourdhuiDe(m).slice(5, 7)), 0)).getUTCDate();
+    assert.equal(o.ecartDeRythmeJours, Math.round((num(o.mrrCents) / num(o.objectifCents)) * jm - Number(aujourdhuiDe(m).slice(8))), `${nom} : avance ou retard sur le rythme`);
+    if (m.utilisateursConnectes.length === 0) assert.equal(c.utilisateursConnectes, null, `${nom} : sans série, rien à montrer`);
+    else {
+      const u = c.utilisateursConnectes as Lien;
+      const sept = u.parJour as Lien[];
+      assert.equal(sept.length, 7, `${nom} : sept jours`);
+      assert.equal(u.aujourdhui, sept[6].connectes);
+      assert.equal(str(sept[6].jour), aujourdhuiDe(m), `${nom} : aujourd'hui en dernier`);
+    }
   }
   const c = D.attendusCockpit(normal);
   assert.ok(c.mrr.ecartPourcent !== null && c.mrr.ecartPourcent !== 0 && c.nouveauxClientsActifs >= 1, 'normal : le MRR a bougé, des nouveaux clients actifs');
@@ -1894,6 +1919,98 @@ dit('serveur (DEV-serveur) : résumé sans hôte ni adresse, disque cohérent av
   }
   assert.equal(num((normal.serveur[0].couts as Lien[]).reduce((t, c) => t + num(c.cents), 0)), 900, 'normal : 9 € tout compris');
   assert.equal(vide.serveur.length, 0);
+});
+
+console.log('  — Ma journée (LOT-01, suite)');
+
+dit('priorités du jour : un enregistrement par personne et par jour ouvré, trois au plus, clôtures dans le passé ; la série de « moi » est de six jours', () => {
+  for (const [nom, m] of [['normal', normal], ['peu', peu], ['beaucoup', gros]] as const) {
+    const parClef = new Set<string>();
+    for (const p of m.dailyPriorities) {
+      assert.ok(!parClef.has(`${str(p.email)}:${str(p.day)}`), `${nom} : un enregistrement par personne et par jour`);
+      parClef.add(`${str(p.email)}:${str(p.day)}`);
+      assert.equal(str(p.id), `prio-${str(p.email).toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${str(p.day)}`, `${nom} : identifiant comme l'application`);
+      assert.ok(str(p.day) <= aujourdhuiDe(m) && [1, 2, 3, 4, 5].includes((new Date(`${str(p.day)}T12:00:00Z`).getUTCDay() + 6) % 7 + 1), `${nom} : jour ouvré dans le passé`);
+      const items = p.items as Lien[];
+      assert.ok(items.length >= 1 && items.length <= 3, `${nom} : une à trois priorités`);
+      for (const i of items) assert.ok(i.doneAt === null || Date.parse(str(i.doneAt)) <= m.contexte.maintenant, `${nom} : clôture dans le futur`);
+      assert.ok(m.equipe.some((x) => x.email === p.email && x.role !== 'guest'), `${nom} : une personne de l'équipe`);
+      assert.ok(Date.parse(str(p.updatedAt)) <= m.contexte.maintenant);
+    }
+    // Aujourd'hui, personne n'a tout bouclé, et « moi » a coché deux priorités sur trois.
+    const aujourdhui = m.dailyPriorities.filter((p) => p.day === aujourdhuiDe(m));
+    assert.ok(aujourdhui.length > 0 && aujourdhui.every((p) => (p.items as Lien[]).some((i) => i.doneAt === null)), `${nom} : la journée d'aujourd'hui n'est pas finie`);
+  }
+  const moiEmail = str((normal.equipe.find((x) => x.moi === true) as Lien).email);
+  const maJournee = normal.dailyPriorities.find((p) => p.email === moiEmail && p.day === aujourdhui) as Lien;
+  assert.deepEqual((maJournee.items as Lien[]).map((i) => i.doneAt !== null), [true, true, false], 'moi : deux priorités sur trois');
+  assert.equal(D.attendusBilanSemaine(normal).jalons.serie, 6, 'moi : six jours bouclés d’affilée');
+  assert.equal(D.attendusBilanSemaine(normal).jalons.prochainPalier, 10);
+  assert.equal(D.attendusBilanSemaine(normal).jalons.joursRestants, 4, 'palier de 10 : quatre jours');
+  assert.equal(vide.dailyPriorities.length, 0);
+});
+
+dit('la série des attendus (H04, H25) égale `serieDeLaJournee` de S2, pour chaque personne, aux quatre volumes, sur plusieurs jours et plusieurs graines', () => {
+  let comparees = 0;
+  const mondes: [string, MondeBrut][] = [['normal', normal], ['peu', peu], ['beaucoup', gros], ['vide', vide], ...[1, 2, 3, 4].map((g) => [`graine ${g}`, D.construireMonde({ volume: 'normal', graine: g })] as [string, MondeBrut])];
+  for (const [nom, m] of mondes) {
+    const emails = [...new Set(m.dailyPriorities.map((p) => str(p.email)))];
+    if (emails.length === 0) emails.push(str((m.equipe[0] ?? { email: 'x@exemple.test' }).email));
+    for (const email of emails) {
+      for (const decalage of [0, 1, 2, 5, 9]) {
+        const jour = D.jourDe(Date.parse(`${aujourdhuiDe(m)}T12:00:00Z`) - decalage * 86_400_000);
+        const journees = m.dailyPriorities.filter((p) => p.email === email).map((p) => S2.prioritesDeLaCollection(p, D.jourDe));
+        const attendu = D.serieDesPriorites(m, email, jour);
+        assert.equal(attendu, S2.serieDeLaJournee(journees as unknown[], jour).serie, `${nom} ${email} au ${jour}`);
+        comparees += 1;
+      }
+    }
+  }
+  assert.ok(comparees > 50);
+  // H04 et H25 prennent cette série.
+  assert.equal(D.attendusTableauDeBord(normal).mesTaches.serie, D.attendusBilanSemaine(normal).jalons.serie);
+});
+
+dit('la série : cas écrits à la main (repos, jour sans priorité, journée d’aujourd’hui, jour manqué), identiques pour les attendus et pour `serieDeLaJournee` de S2', () => {
+  const email = str((normal.equipe.find((x) => x.moi === true) as Lien).email);
+  const ligne = (day: string, faite: boolean) => ({ id: `s-${day}`, email, day, items: [{ id: `s-${day}-1`, label: 'Priorité', doneAt: faite ? `${day}T09:00:00Z` : null }], updatedAt: `${day}T09:00:00Z` });
+  const cas: [string, [string, boolean][], number][] = [
+    ['un jour manqué casse', [['2026-10-29', true], ['2026-10-28', true], ['2026-10-27', false], ['2026-10-26', true]], 2],
+    ['un week-end non fini ne casse pas', [['2026-10-29', true], ['2026-10-24', false], ['2026-10-23', true], ['2026-10-22', true]], 3],
+    ['un week-end fini compte', [['2026-10-30', true], ['2026-10-24', true], ['2026-10-23', true]], 3],
+    ['aujourd’hui non fini ne casse pas', [['2026-10-30', false], ['2026-10-29', true], ['2026-10-28', true]], 2],
+    ['un jour sans priorité ne casse pas', [['2026-10-29', true], ['2026-10-27', true]], 2],
+    ['rien de bouclé : zéro', [['2026-10-29', false], ['2026-10-28', false]], 0],
+  ];
+  for (const [nom, lignes, voulu] of cas) {
+    const m = { ...normal, dailyPriorities: lignes.map(([j, f]) => ligne(j, f)) } as unknown as MondeBrut;
+    assert.equal(D.serieDesPriorites(m, email, '2026-10-30'), voulu, `attendu : ${nom}`);
+    assert.equal(S2.serieDeLaJournee(m.dailyPriorities.map((p) => S2.prioritesDeLaCollection(p, D.jourDe)) as unknown[], '2026-10-30').serie, voulu, `S2 : ${nom}`);
+  }
+});
+
+dit('engagements des défis, utilisateurs connectés, Boîte à zéro, objectif du mois : forme, recoupements, aucune donnée personnelle', () => {
+  for (const [nom, m] of [['normal', normal], ['peu', peu], ['beaucoup', gros]] as const) {
+    const defis = new Map(m.defis.map((d) => [str(d.id), d]));
+    for (const e of m.engagementsDefis) {
+      const d = defis.get(str(e.defiId));
+      assert.ok(d && (d.participants as string[]).includes(str(e.email)), `${nom} : l'engagement est d'un participant du défi`);
+      assert.ok(str(e.texte).length > 0 && str(e.le) <= aujourdhuiDe(m));
+    }
+    const participants = m.defis.reduce((t, d) => t + (d.participants as string[]).length, 0);
+    assert.ok(m.engagementsDefis.length < participants || participants === 0, `${nom} : certaines personnes n'ont pas encore écrit le leur`);
+    for (const c of m.utilisateursConnectes) assert.ok(Number.isInteger(num(c.connectes)) && num(c.connectes) >= 0 && num(c.connectes) < 1000 && str(c.jour) <= aujourdhuiDe(m));
+    assert.equal(m.utilisateursConnectes.length, nom === 'peu' ? 7 : 30);
+    assert.equal(str(m.utilisateursConnectes[m.utilisateursConnectes.length - 1].jour), aujourdhuiDe(m), `${nom} : la dernière barre est celle d'aujourd'hui`);
+    const bz = m.boiteAZero;
+    for (const b of bz) assert.ok(num(b.aTraiter) >= 0 && (b.zeroAtteint === false || num(b.aTraiter) >= 0));
+    for (const b of bz.slice(0, -1)) assert.equal(b.zeroAtteint === true, num(b.aTraiter) === 0 || b.zeroAtteint === true, 'zéro atteint en cours de journée');
+    const reg = m.entreprise.reglages as Lien;
+    const mrr = m.abonnements.filter((a) => a.etat === 'Actif' && str(a.depuis) <= aujourdhuiDe(m)).reduce((t, a) => t + num(a.montantMensuelCents), 0);
+    assert.ok(num(reg.objectifMrrCents) >= Math.max(100_000, mrr) && num(reg.objectifMrrCents) % 10_000 === 0, `${nom} : objectif du mois ≥ revenu récurrent`);
+  }
+  assert.deepEqual(D.attendusBilanSemaine(normal).boiteAZero, { jours: 3, enCours: true }, 'Boîte à zéro : 3 jours, série en cours');
+  assert.equal(vide.boiteAZero.length + vide.utilisateursConnectes.length + vide.engagementsDefis.length, 0);
 });
 
 console.log('  — LOT-14 : la charge');

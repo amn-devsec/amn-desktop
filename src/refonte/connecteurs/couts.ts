@@ -1,6 +1,6 @@
 import { CATALOGUE } from './catalogue';
 import { arreter, briqueChezNousBranchee, modeEffectif, type Changement } from './cycle';
-import { estGratuit, type TarifReleve } from './tarifs';
+import { deviseDe, estGratuit, type TarifReleve } from './tarifs';
 import type { Categorie, CategorieId, ConnecteurInstance, ConsommationMois } from './types';
 
 /**
@@ -33,7 +33,12 @@ export function etatPlafond(payeCents: number, plafondCents: number, seuilPreven
   return 'sous';
 }
 
-/** Le coût d'un tarif relevé pour un volume donné, arrondi au centime supérieur. */
+/**
+ * Le coût d'un tarif relevé pour un volume donné, arrondi au centime supérieur,
+ * DANS LA DEVISE DU TARIF (jamais convertie). Pour un tarif par personne, c'est
+ * le coût d'une personne. Un plafond par transaction n'est pas appliqué : il
+ * est seulement affiché, le coût calculé est donc un maximum.
+ */
 export function coutPour(tarif: TarifReleve, unites: number, encaisseCents = 0): number {
   let c = tarif.fixeMensuelCents ?? 0;
   if (tarif.parUniteCents !== undefined) c += Math.max(0, unites - (tarif.inclusParMois ?? 0)) * tarif.parUniteCents;
@@ -83,6 +88,9 @@ export function arretsDusAuPlafond(
  * « Tout en API payantes, ce mois coûterait environ N € » et « N € économisés ».
  * `references` : pour chaque catégorie, le tarif relevé de l'option de comparaison.
  * Une seule catégorie active sans référence relevée → `null` (la ligne ne s'affiche pas).
+ * Une référence qui n'est pas en euros, ou publiée par personne, → `null` aussi :
+ * on n'additionne jamais euros et dollars, et le nombre de personnes n'est pas
+ * dans la consommation (STATUT §1.34 n° 7).
  */
 export function siToutEnApi(conso: readonly ConsommationMois[], references: Partial<Record<CategorieId, TarifReleve>>): number | null {
   let total = 0;
@@ -91,6 +99,7 @@ export function siToutEnApi(conso: readonly ConsommationMois[], references: Part
     if (unites === 0) continue;
     const t = references[c.categorie];
     if (!t) return null;
+    if (deviseDe(t) !== 'EUR' || t.parUtilisateur) return null;
     total += coutPour(t, unites, c.encaisseCents ?? 0);
   }
   return total;

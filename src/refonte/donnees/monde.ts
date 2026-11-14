@@ -17,6 +17,7 @@ import { genererBulletins, genererCreneaux, genererDefis, genererEcheances, gene
 import { genererAccords, genererAlertesVeille, genererCampagnes, genererConstats, genererDocumentsCyber, genererDossiersConformite, genererFuites, genererLogiciels, genererMissions, genererOutilsCyber, genererParcSecurite } from './cyber';
 import { genererAnnonces, genererAppels, genererCanaux, genererConversations, genererCourriels, genererPartages, genererReponsesAuto, genererReunions, genererSalles, genererSondages } from './echanger';
 import { genererArchives, genererConnaissances, genererDemandesRelecture, genererFichiers, genererJournal, genererModeles, genererPages, genererReglesArchivage, genererSignatures, genererTextes } from './ecrire';
+import { genererBoiteAZero, genererConnexions, genererEngagements, genererPriorites } from './journee';
 import { genererEntonnoir, genererPaniers, genererSessions } from './boutique';
 import { genererDeploiements, genererDeploiementsPlanifies, genererDepots, genererExecutions, genererMesuresServeur, genererPaiementsConnecteurs, genererServeur, genererServicesServeur, genererTachesPlanifiees } from './developpement';
 import { genererActifs, genererAlertes, genererCriteres, genererEvenementsSecurite, genererIncidents, genererJournalAcces, genererOffres, genererOrganisations, genererRondes, genererVulnerabilites, poserEtats } from './garde';
@@ -176,6 +177,17 @@ export function construireMonde(options: OptionsMonde = {}): Monde {
   const modelesMetier = genererModelesMetier(ctx);
   const usagesCalculs = genererUsagesCalculs(ctx);
 
+  // Ma journée (LOT-01) : priorités du jour (la série), engagements des défis, connexions, Boîte à zéro.
+  const dailyPriorities = genererPriorites(ctx, equipe, taches);
+  const engagementsDefis = genererEngagements(ctx, defis);
+  const utilisateursConnectes = genererConnexions(ctx);
+  const boiteAZero = genererBoiteAZero(ctx);
+  // G08 : l'objectif du mois dépasse un peu le revenu récurrent déjà atteint.
+  {
+    const mrr = abonnements.filter((a) => a.etat === 'Actif' && a.depuis <= ctx.aujourdhui).reduce((t, a) => t + a.montantMensuelCents, 0);
+    entreprise.reglages.objectifMrrCents = Math.max(100_000, Math.ceil((mrr * 1.25) / 10_000) * 10_000);
+  }
+
   // Développement (LOT-11) : le journal d'exécutions est la vérité des automatisations (compte du mois, dernier passage).
   const depots = genererDepots(ctx, tickets);
   const deploiements = genererDeploiements(ctx, equipe, depots);
@@ -217,6 +229,7 @@ export function construireMonde(options: OptionsMonde = {}): Monde {
   return {
     contexte: ctx, entreprise, equipe, taches, evenements, projets, tickets, notes, rappels, habitudes, clients, interlocuteurs, prospects,
     fournisseurs, achats, avis, relances, fidelite, devis, factures, paiements, depenses, abonnements, contrats, comptes, mouvements, enveloppes,
+    dailyPriorities, engagementsDefis, utilisateursConnectes, boiteAZero,
     serveur, entonnoirBoutique, paniers, sessionsBoutique,
     depots, deploiements, deploiementsPlanifies, executions, tachesPlanifiees, mesuresServeur, servicesServeur, paiementsConnecteurs,
     avoirs, echeancesFiscales, bulletins, prestations, partenaires, creneaux, defis,

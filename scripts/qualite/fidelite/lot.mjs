@@ -63,7 +63,8 @@ for (const e of scenario.ecrans) {
     continue;
   }
   const reseau = /Réseau : (.*)/.exec(cap.stdout)?.[1] ?? '';
-  const donnees = DATA && fs.readdirSync(DATA).find((f) => f === `${e.id}.json` || (f.startsWith(`${e.id}-`) && f.endsWith('.json')));
+  const fichiersData = DATA ? fs.readdirSync(DATA).filter((f) => f.endsWith('.json')) : [];
+  const donnees = fichiersData.find((f) => f === `${e.id}.json`) ?? fichiersData.find((f) => f.startsWith(`${e.id}-`));
   const b = [path.join(ICI, 'comparer.mjs'), png, '--id', e.id, '--images', IMAGES, '--sortie', SORTIE, '--json', '--zones', '10'];
   if (c.gabarit) b.push('--gabarit', c.gabarit);
   if (donnees) b.push('--textes', path.join(DATA, donnees));

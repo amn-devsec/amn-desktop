@@ -1,0 +1,17 @@
+{
+  "lot": "LOT-03",
+  "_": "Les écrans livrés de LOT-03 (Écrire et retenir). Un fichier par lot : on y ajoute une entrée par écran livré (route, geste éventuel). Horloge des maquettes de bureau : vendredi 30 oct. 2026 à 10:42. Coquille allumée (amn.coquille=noir).",
+  "defaut": {
+    "mac": true,
+    "date": "2026-10-30T10:42:00+01:00",
+    "stockage": {
+      "amn.coquille": "noir"
+    }
+  },
+  "ecrans": [
+    {
+      "id": "F20",
+      "route": "#/ensemble/ecrire"
+    }
+  ]
+}

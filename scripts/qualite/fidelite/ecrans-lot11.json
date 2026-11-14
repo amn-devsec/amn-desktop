@@ -1,0 +1,41 @@
+{
+  "lot": "LOT-11",
+  "_": "Les 7 écrans de LOT-11 (Espace Développement), claude/refonte-developpement. Horloge : vendredi 30 oct. 2026 à 10:42. DEV-ensemble : image v4 absente du dossier de T1 (la garde l'annonce, ne la compte pas). Vue code de DEV-modeles-sites : non mesurée (geste à fournir).",
+  "defaut": {
+    "mac": true,
+    "date": "2026-10-30T10:42:00+01:00",
+    "stockage": {
+      "amn.coquille": "noir"
+    }
+  },
+  "ecrans": [
+    {
+      "id": "DEV-ensemble",
+      "route": "#/ensemble/developpement"
+    },
+    {
+      "id": "DEV-projets",
+      "route": "#/developpement/projets"
+    },
+    {
+      "id": "DEV-deploiements",
+      "route": "#/developpement/deploiements"
+    },
+    {
+      "id": "DEV-serveur",
+      "route": "#/developpement/serveur"
+    },
+    {
+      "id": "DEV-editeur",
+      "route": "#/developpement/editeur"
+    },
+    {
+      "id": "DEV-couts",
+      "route": "#/developpement/couts"
+    },
+    {
+      "id": "DEV-modeles-sites",
+      "route": "#/developpement/modeles-sites"
+    }
+  ]
+}
