@@ -51,8 +51,8 @@ async function charger<T>(code: string): Promise<T> {
 const FICHIERS = ['commun', 'serie', 'pages', 'relecture', 'documents', 'signatures', 'modeles', 'journal', 'redaction', 'archives', 'connaissances', 'hub', 'i18n', 'phrases'];
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerH10 from '../${ZONE}/ecrans/h10/composer';\nexport * as composerF20 from '../${ZONE}/ecrans/f20/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
-const { commun: C, serie: S, pages: P, relecture: R, documents: D, signatures: G, modeles: MO, journal: J, redaction: RE, archives: A, connaissances: K, hub: H, i18n: I, phrases: PH, composerH10: CH10, composerF20: CF20, monde } = M;
+const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerH10 from '../${ZONE}/ecrans/h10/composer';\nexport * as composerF20 from '../${ZONE}/ecrans/f20/composer';\nexport * as composerH11 from '../${ZONE}/ecrans/h11/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
+const { commun: C, serie: S, pages: P, relecture: R, documents: D, signatures: G, modeles: MO, journal: J, redaction: RE, archives: A, connaissances: K, hub: H, i18n: I, phrases: PH, composerH10: CH10, composerF20: CF20, composerH11: CH11, monde } = M;
 
 const NB = ' ';
 const paris = (j: string, hhmm: string) => C.instantParis(j, Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3)));
@@ -1229,6 +1229,30 @@ await dit('F20 · composerHub : le curseur n’existe que s’il y a un coauteur
   assert.ok(f.relecture.lignes[0].action !== null && f.relecture.lignes[1].action === null, 'le bouton n’est que sur ma ligne');
   const sans = CF20.composerHub(e({ documents: docs, signaturesActives: false, modulesOuverts: new Set(['notes']) }), tm, etat);
   assert.deepEqual(sans.modules.map((m: any) => m.cle), ['notes'], 'seuls les modules ouverts ont une tuile');
+});
+
+await dit('H11 · composerDocuments : intercalaires, liste par année, états de ligne, « à renouveler bientôt », espace utilisé', () => {
+  const f = (id: string, nom: string, at: string, plus: object = {}) => ({ id, nom, sous: 's', extension: 'PDF', typeMetier: 'Contrats', tailleOctets: 1, modifieAt: at, archive: false, ...plus });
+  const fichiers = [
+    f('a', 'Signé', '2026-10-28T10:00:00Z', { demande: { etat: 'Signée' } }),
+    f('b', 'En cours', '2026-10-27T10:00:00Z', { demande: { etat: 'Ouverte' } }),
+    f('c', 'À renouveler', '2025-12-01T10:00:00Z', { echeance: '2026-12-01' }),
+    f('d', 'Facture', '2026-10-01T10:00:00Z', { typeMetier: 'Factures' }),
+    f('e', 'Archivé', '2026-10-01T10:00:00Z', { archive: true }),
+  ];
+  const e = { langue: 'fr', maintenant: '2026-10-30T09:42:00Z', fichiers, types: ['Contrats', 'Factures', 'Clients'], type: 'Contrats', selection: 'a', recherche: '', utiliseOctets: 42e9, quotaOctets: 200e9, octetsLisibles: (n: number) => `${Math.round(n / 1e9)} Go` };
+  const v = CH11.composerDocuments(e);
+  assert.deepEqual(v.onglets.map((o: any) => [o.cle, o.compteur]), [['Contrats', 3], ['Factures', 1], ['Clients', 0]]);
+  assert.deepEqual(v.liste.groupes.map((g: any) => [g.annee, g.compteur]), [[2026, 2], [2025, 1]]);
+  assert.deepEqual(v.liste.groupes[0].lignes.map((l: any) => [l.nom, l.etat?.libelle ?? null]), [['Signé', 'Signé'], ['En cours', 'À signer']]);
+  assert.equal(v.liste.groupes[1].lignes[0].etat.libelle, 'À renouveler');
+  assert.equal(v.liste.sous, '3 documents · 1 à renouveler bientôt');
+  assert.equal(v.liste.groupes[0].lignes[0].actif, true);
+  assert.equal(v.liste.espace.pourcent, 21);
+  assert.equal(v.liste.espace.ton, 'neutre');
+  assert.equal(CH11.composerDocuments({ ...e, recherche: 'cours' }).liste.groupes.length, 1);
+  assert.equal(CH11.composerDocuments({ ...e, quotaOctets: 0 }).liste.espace, null, 'pas de quota connu : pas de jauge');
+  assert.deepEqual(CH11.composerDocuments({ ...e, fichiers: [] }).liste.groupes, []);
 });
 
 await dit('rien ne lit l’horloge ni le hasard : « maintenant » est toujours un paramètre', () => {

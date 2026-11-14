@@ -10,4 +10,6 @@ export default declarerSubstitutions('ecrire', [
   { route: '/ensemble/ecrire', composant: lazy(() => import('../../ecrire/ecrans/f20/PageHub')) },
   // H10 — Notes et pages, à la place de l'écran des notes (même route ; la session de support garde l'écran d'origine).
   { route: '/notes', composant: lazy(() => import('../../ecrire/ecrans/h10/PageNotes')) },
+  // H11 — Documents, à la place du classeur (même route).
+  { route: '/classeur', composant: lazy(() => import('../../ecrire/ecrans/h11/PageDocuments')) },
 ]);
