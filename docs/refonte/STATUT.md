@@ -4,7 +4,7 @@
 
 ## REPRISE (à lire en premier après une compaction ; tenu par le CO, réécrit à chaque tour)
 
-Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `87d86b0`.
+Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `dabcd1e`.
 
 **Avoirs** : SIM a refait sa branche par-dessus le retrait (`7570fef`, fusionnée). Les avoirs sont désormais facultatifs (`construireMonde({ avoirs: true })`). Quand DS les lit, SIM passe `avoirs` à `true` par défaut, une ligne dans `monde.ts`.
 
@@ -23,8 +23,6 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 | S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | en pause ; ses jeux sont livrés par SIM | feu vert de l'étape 3 au socle v4 |
 | S9 | `session_01C5DAVygXYax6Q7g436TPQx` | LOT-12 fini, valeurs de MC07 fusionnées (`bcdc65f`) | rien |
 | S2, S3 (première tâche : `check:encres`), F1 | `session_014ZkF6SeGRNi6NR3uEsjM5q`, `session_01FBSpK6n1yYtYXYyxbLAuBV`, `session_01VZHqP3gvzrtnpgsTrrKguV` | arrêtées | relancer au socle v4 (prompts : `PROMPTS-11NOV.md`, §1.21) |
-
-**Fusion en attente** : `541b2bd` (SIM), après les adaptations de S1, DS et S5.
 
 **À dire au prochain message** : à T1, (a) La Garde dans l'API d'essai demande une base sur fichier (SIM), (b) comparer le paquet client de `claude/refonte-outils` @ `f52ef5d` (`AutomationsRunner.tsx` partagé) avant sa fusion.
 
@@ -46,6 +44,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov. : jeux de SIM `541b2bd` fusionnés avec les adaptations de S1 (`c06c8f3`), DS (`d99a197`) et S5 (`17a89e7`, `76a1ed8`), en une passe (`dabcd1e`). Gardes lues avant le push : contacts 93, argent 70, ecrire 99, echanger 94, donnees 116 ; aucune garde nouvelle rouge.
 - 14 nov. : jeux de SIM `541b2bd` (fidélité de MC02, statut H05, liste de LOT-03, règlements partiels, remises, MR08) **pas encore fusionnés**. Ils rendent `check:contacts`, `check:argent` et `check:ecrire` rouges, par des changements commandés. S1, DS et S5 adaptent leur logique, puis le CO fusionne quand les trois sont verts dessus.
 - 14 nov. : arbitrage S6 / S9. S6 étend le modèle des connecteurs (zone de S9, en pause) pour les devises et les plafonds : champs facultatifs seulement, aucune somme mêlant € et $, `check:connecteurs` étendu sans rien assouplir, une ligne dans le rapport de S9.
 - 14 nov. : LOT-03 et LOT-05 complétés d'après les images v4 (S5, `0804131`, `425e4ad`), fusionnés (`d41501a`). Écarts image/texte : tutoiement dans l'interface (F20, MX05) ; humeur et énergie de ME01 comme l'image, bandeau de série non codé tant que la fiche n'a pas de règle ; compteurs de H10 et F40 calculés depuis les données, jamais repris de l'image.
@@ -926,20 +925,20 @@ Mots fr/en par `definirMots`. Gardes : `check:socle-controles|graphiques|situati
 | ID | Écran | Type | État | Écart / note |
 |---|---|---|---|---|
 | F10 | Contacts · Vue d'ensemble | nouveau | en cours (préparation) | préparation : aucune logique propre, lit les autres. Attend `ModuleTile`, `ModuleGroupGrid`, `AddModuleTile` |
-| H05 | Contacts · Clients | mixte | en cours (préparation) | préparation : `ClientsScreen` `/clients` ; santé et statut à recalculer (SIM) |
+| H05 | Contacts · Clients | mixte | en cours (préparation) | préparation : `ClientsScreen` `/clients` ; `clients.ts` : statut et couleur de santé de la fiche, recalculés comme le jeu de SIM |
 | G04 | Contacts · Fiche client | mixte | en cours (préparation) | préparation : `ClientDetail` dans `ClientsScreen` ; « contacts par client » livré (`interlocuteurs.ts`) |
 | H06 | Contacts · Prospects | mixte | en cours (préparation) | préparation : `PipelineScreen` `/pipeline` ; `pipeline.ts` (dont `rouvrir`) et `interet.ts` (échelles à valider) |
 | H44 | Contacts · Retours clients | mixte | en cours (préparation) | préparation : `ReviewsScreen`, `SentimentScreen`, `NpsScreen` ; sentiment et NPS sans jeu propre |
 | H45 | Contacts · Fournisseurs | mixte | en cours (préparation) | préparation : `SuppliersScreen` `/fournisseurs` ; pas de logique neuve |
 | MC01 | Contacts · Pipeline commercial | mixte | en cours (préparation) | préparation : même écran que H06 ; `colonnesPipeline`, `previsionPonderee`, `tauxDePassage`, `transitionsPermises` |
-| MC02 | Contacts · Fidélité | mixte | en cours (préparation) | préparation : points et niveaux = l'écran, **paliers de la fiche 0 / 800 / 1 800** (le jeu de SIM a 500 / 1 500) ; la carte à tampons reste une formule au choix (§1.28) ; `pointsProgramme`, `formuleDe` |
+| MC02 | Contacts · Fidélité | mixte | en cours (préparation) | préparation : points et niveaux = l'écran, paliers de la fiche 0 / 800 / 1 800 (jeu de SIM aligné le 14 nov.) ; la carte à tampons reste une formule au choix (§1.28) ; `pointsProgramme`, `formuleDe` |
 | MC03 | Contacts · Fiches contacts | mixte | en cours (préparation) | préparation : aucun écran existant ; « non disponible » avec la raison tant que Harun n'a pas décidé de la collection d'interlocuteurs (§1.28) |
 | MC04 | Contacts · Équipe | mixte | en cours (préparation) | préparation : se construit sur le trombinoscope (`DirectoryScreen`, §1.28) |
 | MC05 | Contacts · Partenaires | mixte | en cours (préparation) | préparation : aucun écran ; le jeu d'organisations partenaires est commandé à SIM (§1.28) |
 | MC06 | Contacts · Rendez-vous clients | mixte | en cours (préparation) | préparation : `AgendaScreen` partagé (couture requise) et `BookingScreen` ; `rendezvous.ts` (trajets : durées du service d'itinéraire, LOT-12) |
 | MC07 | Contacts · Relances | mixte | en cours (préparation) | préparation : `RemindersScreen` ne relance que les factures ; `relances.ts` applique les huit points de la fiche pour les cinq motifs ; 5 jours et 9:00–18:00 lus de `connecteurs/reglages.ts` (§1.31, réglable de 3 à 14 j) |
 
-Préparation par S1 (14 nov., `claude/refonte-contacts`) : note [`preparation/LOT-02-contacts.md`](preparation/LOT-02-contacts.md), logique dans `src/refonte/contacts/`, garde `check:contacts` (85 contrôles). Aucun écran visuel. **Dossier v4 lu le 14 nov.** (deuxième passe) : les règles « à confirmer » sont levées ou transformées en questions (note §7).
+Préparation par S1 (14 nov., `claude/refonte-contacts`) : note [`preparation/LOT-02-contacts.md`](preparation/LOT-02-contacts.md), logique dans `src/refonte/contacts/`, garde `check:contacts` (93 contrôles). Aucun écran visuel. **Dossier v4 lu le 14 nov.** (deuxième passe) : les règles « à confirmer » sont levées ou transformées en questions (note §7).
 
 **Manque au socle**
 - `ModuleTile`, `ModuleGroupGrid`, `AddModuleTile` (décidés au §1.10, absents de la liste des composants disponibles) pour F10.
@@ -953,8 +952,6 @@ Préparation par S1 (14 nov., `claude/refonte-contacts`) : note [`preparation/LO
 - Sentiment et NPS (H44) : pas de jeu propre, à dériver des `avis`.
 - Une raison de perte sur les prospects perdus (H06).
 - Les avantages de fidélité « offerts / utilisés » côté app : le jeu de SIM les porte, aucune collection ne les garde.
-- **Jeu « fidélité »** : aligner les paliers sur la fiche (800 / 1 800) et ajouter les points des avis (50) et des recommandations (200).
-- **Jeu « clients »** : statut affiché plus fin (fiche H05 : « Impayé » dès 7 jours de retard, « À relancer », « Nouveau » sous 30 jours).
 - **Pipeline** : historique des mouvements d'étape (date d'entrée), montant estimé, signaux d'intérêt (lectures du devis, délai de réponse) pour H06 et MC01.
 - **Relances** : état « reportée » ; ton du message ; préférences d'envoi des contacts (MC03).
 - Une collection d'interlocuteurs côté app (MC03, G04, source de H41) : décision de Harun en attente (§1.28).
