@@ -1,0 +1,26 @@
+{
+  "_": "Écarts de LOT-00 au-dessus de 15 % que T1 a regardés zone par zone (planches côte à côte, docs/qualite/fidelite/ECARTS-LOT-00-v4.md). Ils ne servent que tant qu'un écran n'a pas de valeur acceptée ; LOT-00 en a une pour chacun, ce fichier garde la raison écrite.",
+  "ecrans": {
+    "H40": {
+      "raison": "données d'exemple du bac à sable à la place de celles de la maquette (notifications, noms, heures) ; coquille : sélecteur d'organisation dans l'en-tête et section « Développement » de la barre latérale, absents de l'image"
+    },
+    "H41": {
+      "raison": "page derrière la palette ≠ de l'image (la palette seule est mesurée à part : 14,5 %) ; résultats de recherche issus des données d'exemple ; pied « ⌘↵ » de la palette absent (écart connu de S0) ; mêmes écarts de coquille que H40"
+    },
+    "H42": {
+      "raison": "données d'exemple (étapes, import Excel, devis type) ; mêmes écarts de coquille que H40 (en-tête, section « Développement »)"
+    },
+    "H47": {
+      "raison": "cartes de métier et compteurs de modules issus du registre réel du build, pas du texte de la maquette ; mêmes écarts de coquille que H40"
+    },
+    "H43": {
+      "raison": "page de démonstration des états (dev seulement) : textes et données d'exemple de la maquette ≠ de ceux du build ; écart de disposition de 6,2 % une fois les nuances de néon tolérées"
+    },
+    "D02": {
+      "raison": "lignes du registre de modules : noms et nombres du build (101 modules, familles) ≠ de la maquette ; mêmes écarts de coquille que H40"
+    },
+    "G05": {
+      "raison": "page derrière la palette ⌘J et factures du bac à sable à la place de celles de la maquette (quatre factures en retard semées, mais pas les mêmes montants ni clients) ; « Préparer » absent (écart connu de S0) ; palette seule mesurée à part : 42,5 %"
+    }
+  }
+}
