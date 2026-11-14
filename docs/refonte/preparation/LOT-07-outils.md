@@ -7,7 +7,7 @@
 
 ## 1. En bref
 
-- **Fait** : H20, la couture du moteur (`@edition/automatisations`, §1.22 n° 4), et H21, le relevé des tarifs (7 tarifs, §1.26). Détail dans `rapports/S6-outils.md`. Garde : `check:outils` (18 contrôles).
+- **Fait** : H20, la couture du moteur (`@edition/automatisations`, §1.22 n° 4), et H21, le relevé des tarifs (7 tarifs, §1.26). Détail dans `rapports/S6-outils.md`. Garde : `check:outils` (22 contrôles).
 - **Inventorié ici** : H18, H19 et H21, avec l'existant du dépôt, les données fictives, les dépendances et les questions. Le CO a demandé ces trois écrans en premier (message du 14 nov.).
 - **Attend** : les fiches v4 du lot (avant toute logique d'écran), puis le socle v4 (avant tout écran).
 - **Changement de périmètre noté** : les vues terrain et stock (Métré, Matériel, flotte, stock et prévision) quittent la famille Outils pour Créer et produire (registre `bb54c03`, §1.27 n° 1). Elles ne relèvent plus de F60.
@@ -17,7 +17,7 @@
 | ID | Écran | Existant le plus proche (route) | Clé du registre (famille `outils`) | Dépend de | État |
 |---|---|---|---|---|---|
 | H18 | Paramètres | `SettingsScreen` (`/settings`, 1 197 lignes, fichier sensible) | `settings` | socle v4, fiche | inventorié |
-| H19 | Membres et accès | `MembersScreen` (`/membres`), `TeamScreen` (`/team`), `AccessLogScreen` (`/tour/journal`), sections de sécurité du compte dans `SettingsScreen` | `members` | socle v4, fiche, amn-api (rôles) | inventorié, questions ouvertes |
+| H19 | Membres et accès | `MembersScreen` (`/membres`), `TeamScreen` (`/team`), `AccessLogScreen` (`/tour/journal`), sections de sécurité du compte dans `SettingsScreen` | `members` | socle v4, fiche | droits provisoires livrés (`droits.ts`) |
 | H20 | Automatisations | `AutomationsScreen` (`/outils/automatisations`), `useAutomations`, `AutomationsRunner` | `automations` | socle v4, fiche | couture posée |
 | H21 | Connecteurs | aucun écran ; modèle de LOT-12 (`src/refonte/connecteurs/`) ; pièces locales dans `SettingsScreen` | — (à déclarer) | socle v4, fiche, modèle de LOT-12 | tarifs relevés |
 
@@ -44,13 +44,16 @@
 - **LOT-06** (S7) : `DroitsPage { ecrire, publier, enLigne }` (`src/refonte/creer/pagePublique.ts`, `video.ts`). « Publier les changements » ou « Demander la publication » selon le droit de publier.
 - **H21** (LOT-12) : `Contexte.peutGerer` de `cycle.ts`, « la personne gère les accès (H19) », qui ouvre ou ferme le branchement d'un connecteur.
 
-**Décision déjà prise** (§1.27 n° 9) : le droit de publier est **distinct** du droit d'écrire. D'ici à H19, seul le rôle dirigeant publie, et les autres passent par « Demander la publication ».
+**Décisions** (§1.27 n° 9, puis §1.34 n° 2 à 5, provisoires) :
+- les rôles affichés sont ceux du serveur : Propriétaire (`owner`), Administrateur (`admin`), Membre (`member`), Invité (`guest`) ; « Partenaire » n'est pas un rôle (les partenaires sont des contacts, MC05) ;
+- le droit de publier est distinct du droit d'écrire : seul `owner` (le dirigeant) publie, les autres passent par « Demander la publication ». Une règle par rôle, sans champ nouveau ;
+- `owner` et `admin` gèrent les connecteurs de H21.
 
-**Données fictives.** `Membre` (`src/refonte/donnees/types.ts`) porte un rôle `Administrateur | Membre | Invité | Partenaire` (ceux de MC04), `doubleAuthentification` et `derniereActiviteAt` (pour H19).
+**Logique livrée** (`src/refonte/outils/`, pure) : `droits.ts` (`ROLES_H19`, `peutPublier`, `actionDePublicationPour`, `droitsDePage` pour la `DroitsPage` de LOT-06, `peutGererLesConnecteurs` pour le `peutGerer` du cycle de H21) et `i18n.ts` (noms des rôles, fr et en). `check:outils` les vérifie, y compris contre le vrai cycle de H21. Le droit d'écrire n'y est pas tranché : l'écran qui l'utilise le donne.
+
+**Données fictives.** `Membre` (`src/refonte/donnees/types.ts`) porte encore les rôles de MC04 ; SIM les aligne sur les quatre rôles du serveur (§1.34 n° 2). Il porte aussi `doubleAuthentification` et `derniereActiviteAt`, pour H19.
 
 **Principe.** Le serveur reste juge des droits. L'écran montre et propose ; il ne décide pas seul.
-
-**Questions** (§6, n° 2 à 5).
 
 ## 5. H21 · Connecteurs (mixte)
 
@@ -62,17 +65,14 @@
 
 **Attend la fiche.** La baie d'exemple (déjà rejouée par `check:connecteurs`), la disposition, les puces, le badge de la barre latérale.
 
-**Questions** (§6, n° 6 et 7).
+**Décisions** (§1.34 n° 6 et 7) : l'état des prises reste sur le poste pour l'instant (local d'abord ; il passera au serveur avec LOT-13), et les clés ne sont jamais sur le poste. Les tarifs sont montrés tels que publiés : un prix en dollars reste en dollars, avec la mention « publié en dollars », et le plafond par transaction est indiqué comme publié. L'extension du modèle qui le permet est proposée au CO (§6 n° 2).
 
 ## 6. Constats et questions pour le CO
 
-1. **Fiches v4 de LOT-07** : cette session ne les a pas. Il faut le zip du lot (fiches H18 à MO05 et leurs images), comme pour S5 et S7 (§1.27).
-2. **Rôles** : les rôles fictifs de MC04 (`Administrateur`, `Membre`, `Invité`, `Partenaire`) ne correspondent pas aux rôles du serveur (`owner`, `admin`, `member`, `guest`). « Partenaire » n'a pas d'équivalent, et « propriétaire » n'a pas d'équivalent fictif. Laquelle des deux listes H19 affiche-t-il ?
-3. **« Rôle dirigeant »** (§1.27 n° 9) : c'est le rôle `owner` ?
-4. **Où vit le droit de publier ?** Une règle par rôle ne demande rien de plus. Un droit réglable par personne demande un champ côté serveur, donc une demande à amn-api : aucune collection nouvelle sans l'accord de Harun (§1.27 n° 4).
-5. **Qui gère les connecteurs** (`peutGerer` de H21) : `owner` seul, ou `owner` et `admin` (`isAdminRole`) ?
-6. **Où vivent les prises de H21** (l'état de la baie) : sur le poste, ou côté serveur ? La liste « Demandé à amn-api » de LOT-12 couvre les clés et les autorisations, pas l'état des prises.
-7. **Devise des tarifs** et **plafond par transaction** : voir le rapport de S6 (9 services publiés en dollars ; GoCardless plafonné).
+Les sept questions du premier envoi sont tranchées au §1.34. Restent ouvertes :
+
+1. **Fiches v4 de LOT-07** : pas encore reçues (§1.34 n° 1). Harun les donne, ou le dépôt privé du dossier les rend lisibles.
+2. **Tarifs tels que publiés** (§1.34 n° 7) : il faut toucher au modèle de S9 hors `tarifs.ts`. Proposition envoyée au CO : des champs facultatifs `devise` (euros par défaut), `plafondParTransactionCents` (affiché, non calculé) et `parUtilisateur` (GitHub, Slack et Vercel sont publiés par personne) ; `siToutEnApi` et `economise` rendent `null` dès qu'un tarif de référence n'est pas en euros, pour qu'aucune somme ne mêle euros et dollars. En attente de réponse : qui le fait, S6 ou S9.
 
 ## 7. Dépendances
 

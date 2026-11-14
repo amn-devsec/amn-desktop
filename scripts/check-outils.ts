@@ -315,4 +315,41 @@ await dit('les services non relevés restent « à relever » : aucun montant n�
   }
 });
 
+/* ───────────────────────── 4. Les droits provisoires de H19 ───────────────────────── */
+section('Droits provisoires de H19 (STATUT §1.34)');
+
+const DR = await charger<any>('src/refonte/outils/droits.ts');
+const T = await charger<any>('src/refonte/outils/i18n.ts');
+const ROLES = ['owner', 'admin', 'member', 'guest'];
+
+await dit('les rôles de H19 sont ceux du serveur, dans l’ordre de MembersScreen, avec leurs noms décidés', () => {
+  assert.deepEqual([...DR.ROLES_H19], ROLES);
+  assert.deepEqual(ROLES.map((r) => T.libelleDuRole('fr', r)), ['Propriétaire', 'Administrateur', 'Membre', 'Invité']);
+  assert.deepEqual(ROLES.map((r) => T.libelleDuRole('en', r)), ['Owner', 'Administrator', 'Member', 'Guest']);
+  assert.deepEqual(Object.keys(T.DICTIONNAIRES_OUTILS.fr).sort(), Object.keys(T.DICTIONNAIRES_OUTILS.en).sort());
+});
+
+await dit('seul owner publie ; les autres demandent la publication ; un rôle absent ne publie pas', () => {
+  assert.deepEqual(ROLES.map((r) => DR.actionDePublicationPour(r)), ['publier', 'demander', 'demander', 'demander']);
+  assert.equal(DR.peutPublier(null), false);
+  assert.equal(DR.peutPublier(undefined), false);
+});
+
+await dit('publier suppose d’écrire : sans le droit d’écrire, même owner ne publie pas', () => {
+  assert.deepEqual(DR.droitsDePage('owner', true, true), { ecrire: true, publier: true, enLigne: true });
+  assert.deepEqual(DR.droitsDePage('owner', false, true), { ecrire: false, publier: false, enLigne: true });
+  assert.deepEqual(DR.droitsDePage('admin', true, false), { ecrire: true, publier: false, enLigne: false });
+});
+
+await dit('owner et admin gèrent les connecteurs ; le cycle de H21 refuse les autres, avec le motif nommé', () => {
+  assert.deepEqual(ROLES.map((r) => DR.peutGererLesConnecteurs(r)), [true, true, false, false]);
+  const r = K.RELEVES[0];
+  for (const role of ROLES) {
+    const ctx = { maintenant: MAINTENANT.getTime(), aujourdhui: AUJOURDHUI, peutGerer: DR.peutGererLesConnecteurs(role), enLigne: true, parEmail: EQUIPE, catalogue: K.catalogueTarife() };
+    const res = K.preparerActivation(K.instanceLibre(r.categorie, r.optionId, 1), ctx);
+    if (DR.peutGererLesConnecteurs(role)) assert.equal(res.ok, true, role);
+    else assert.deepEqual(res, { ok: false, raison: 'sans-droit-de-gerer' }, role);
+  }
+});
+
 console.log(`\ncheck:outils — ${vus} contrôles, tous verts.`);
