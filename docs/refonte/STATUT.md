@@ -4,7 +4,7 @@
 
 ## REPRISE (à lire en premier après une compaction ; tenu par le CO, réécrit à chaque tour)
 
-Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `c291123`.
+Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `75dc9fb`.
 
 **Avoirs** : réglé, ils sont présents par défaut (`b0173f3`).
 
@@ -44,6 +44,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov., 05h25 : outils de T1 fusionnés (`be05376`) : contrôle de fidélité v4, garde `check:fidelite` (tests unitaires 2 sur 2), conditions de la coquille v4. Gardes vertes. Le verdict du passage 2 sur le socle est toujours attendu.
 - 14 nov., 05h : **S0, deuxième échec sur le même point** (anti-blocage, règle C). Diagnostic : S0 ne pousse pas sur un message d'une autre session, et attend l'accord direct de Harun. Ce n'est pas un défaut de travail : c'est une règle de prudence de la session. Tentatives : deux messages du CO, dont un avec la règle de `REGLES.md`. Correctif proposé par S0 et retenu par le CO : un pont `@edition/moments` séparé, avec son jumeau `*.business`. Mis dans `POINT-HARUN.md`, une ligne à coller par Harun. Rien d'autre n'est bloqué par là.
 - 14 nov., 04h30 : S0 s'était arrêté pour demander une confirmation avant de corriger `ancres` et `avoirs`. Le CO l'a relancé avec carte blanche dans son cadre (règle « Messages du CO »). Première relance sur ce point.
 - 14 nov. : données de SIM `b0173f3` fusionnées : avoirs par défaut, rôles du serveur, jeu `serveur`. Gardes lues avant le push, toutes vertes (les trois rouges annoncés par SIM étaient déjà réglés sur `refonte-vivante`).

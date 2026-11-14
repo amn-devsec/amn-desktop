@@ -1,6 +1,6 @@
 # Point pour Harun
 
-> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 05h05 UTC., 04h35 UTC., 04h10 UTC., 03h50 UTC.
+> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 05h25 UTC., 05h05 UTC., 04h35 UTC., 04h10 UTC., 03h50 UTC.
 
 **À ton réveil, une ligne à coller dans la session S0** (rien d'urgent, le reste avance sans elle) :
 
