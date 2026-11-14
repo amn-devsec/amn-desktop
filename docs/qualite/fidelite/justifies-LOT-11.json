@@ -1,0 +1,26 @@
+{
+  "_": "Écarts de LOT-11 (Espace Développement) au-dessus de 15 %, mesurés sur les aperçus statiques (`npm run apercu -- DEV-<id>`, jeux de SIM à l'état rempli, STATUT §1.40) contre les images v4. Mesure du 14 nov. (brut / disposition à `--couleur 10`) : projets 39,3 / 17,5 ; déploiements 34,0 / 14,8 ; serveur 45,7 / 19,8 ; éditeur 53,6 / 16,6 ; coûts 34,1 / 15,1 ; modèles de sites 68,5 / 30,6 ; vue code 79,1 / 4,8. Commun à tous : la barre latérale est celle du socle (familles d'abord, puis « Développement » dépliée à cinq lignes et « + N autres », STATUT §1.17 n° 1 et §1.19 n° 1), pas les treize lignes et les étiquettes « À CRÉER » de l'image ; les chiffres, noms et dates viennent des jeux de SIM au « maintenant » de référence, jamais de l'image ; l'étiquette de l'image « Maquette · données d'exemple » devient « Données d'exemple ». DEV-ensemble n'a pas d'image v4 (proposition de LOT-11 validée par Harun) : ni pour ni contre.",
+  "ecrans": {
+    "DEV-projets": {
+      "raison": "dépôts, commits, tests et carte d'activité issus des jeux de SIM (6 dépôts, pas ceux de l'image) : longueurs de texte, nombre de lignes et cases de la carte d'activité diffèrent ; carte d'activité sans jour inventé (cases vides où le jeu n'a rien) ; barre latérale du socle (voir « _ »)"
+    },
+    "DEV-deploiements": {
+      "raison": "déploiements, étapes, durées et planifiés issus des jeux de SIM ; durées d'étape mesurées (« 1 min 48 ») et non les secondes de l'image ; « Revenir » demande une confirmation d'une ligne en production, Préproduction, Interne et Serveur (décision de Harun et §1.23) ; cible « Interne » inerte ; barre latérale du socle (voir « _ »)"
+    },
+    "DEV-serveur": {
+      "raison": "mesures, services et sauvegardes issus des jeux de SIM : courbes à l'échelle des mesures (autre forme que l'image), anneaux calculés ; aucun nom de machine ni adresse (le dépôt est public, le jeu n'en a pas) ; « Journal » et « Redémarrer » secondaires et inertes (décision du CO), alors que l'image montre « Redémarrer » en bouton principal ; barre latérale du socle (voir « _ »)"
+    },
+    "DEV-editeur": {
+      "raison": "une règle fictive posée par l'aperçu (le jeu de SIM n'a pas de règle au format des flux de S9) : mêmes blocs que l'image, placés par la mise en page de l'écran (`placer()`) et non au pixel de l'image ; titre « Éditeur de flux » (menu de l'image) au lieu de « Éditeur d'automatisation » ; palette des blocs issue du modèle de S9 ; barre latérale du socle (voir « _ »)"
+    },
+    "DEV-couts": {
+      "raison": "connecteurs, consommations et paiements issus des jeux de SIM, comptes calculés (STATUT §1.17 n° 5) et non « 5 connecteurs sur 7 » de l'image ; plafond sans valeur imposée (« à fixer », demandé au premier branchement d'un outil payant, décision de Harun) : l'anneau ne montre pas « sur 40 € » ; la suggestion d'Ajmani ne vise qu'un connecteur payant au-dessus du forfait ; barre latérale du socle (voir « _ »)"
+    },
+    "DEV-modeles-sites": {
+      "raison": "l'image est dessinée en v3 grise dans le parcours « Créer et produire » (barre latérale et en-tête différents, sans néon) alors que l'écran est dans l'espace Développement en néon (STATUT §1.17 n° 3) ; les huit vignettes sont des pages FICTIVES écrites pour l'aperçu (`scripts/apercu/modeles-exemple.ts`), pas celles de la maquette, qui n'entrent pas dans le dépôt ; dans l'application la liste livrée reste vide jusqu'à la relecture des textes par Harun (décision du 12 nov.), d'où l'état vide mesuré par T1 sur l'API d'essai (75,6 %)"
+    },
+    "DEV-modeles-sites-code": {
+      "raison": "même disposition que l'image (4,8 % à `--couleur 10`) ; l'écart brut vient du texte du code, celui d'une page FICTIVE écrite pour l'aperçu (47 lignes, pas les 61 de la page de la maquette), donc d'autres lignes et d'autres longueurs à chaque ligne"
+    }
+  }
+}

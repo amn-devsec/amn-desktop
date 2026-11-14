@@ -1,0 +1,83 @@
+/*
+  « RENDEZ-VOUS CLIENTS » (MC06, v4) — mise en page aux cotes de la fiche (zone principale de 1108 px, x = 40, y = 94 → 758).
+
+    surface « journée »   1108 × 383 à (40, 94), sans rembourrage : flèches, titre, puces de jour ; ruban de 1036 px de 08:00 à 19:00
+                          (94,2 px par heure) : cartes de 100 px de haut au-dessus de l'axe (y = 138), bande de route de 30 px (y = 172),
+                          bandeau de suggestion ;
+    bande basse           à y = 491, hauteur 267, écart 14 : « Le trajet du jour » 654 et « Ton lien de réservation » 440.
+
+  Aucune couleur écrite ici : `--socle-*` (src/socle/noir.css) et `--fam-a`/`--fam-b` (posés par la coquille). Le bleu (info) est
+  réservé au prochain rendez-vous et à la ligne « maintenant », qui passe SOUS les cartes. Chargée par `VueRdv.tsx`.
+*/
+.sc-rd__entete.sc-page__entete { flex-wrap: nowrap; gap: 16px; }
+.sc-rd__hors-ligne { margin: 0; font-size: 12px; color: var(--socle-etat-attention); }
+.sc-rd { display: flex; flex-direction: column; gap: 14px; flex: 1 1 0; min-height: 0; }
+.sc-rd-carte { display: flex; flex-direction: column; min-width: 0; padding: 14px 18px; border-radius: var(--socle-rayon-carte); border: 1px solid var(--socle-bord-carte); background: linear-gradient(180deg, var(--socle-carte-haut), var(--socle-carte-bas)); box-shadow: var(--socle-ombre-carte); color: var(--socle-texte-1); }
+.sc-rd-carte__tete { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.sc-rd-carte__titre { margin: 0; font-size: 14px; font-weight: 600; }
+.sc-rd-carte__aide { font-size: 12px; color: var(--socle-texte-3); }
+.sc-rd-vide { display: flex; align-items: flex-start; gap: 10px; margin-top: 12px; color: var(--socle-texte-3); }
+.sc-rd-vide p { margin: 0; font-size: 12.5px; line-height: 1.5; }
+
+.sc-rd-surface { flex: 1 1 383px; min-height: 0; padding: 0; position: relative; overflow: hidden; }
+.sc-rd-surface__tete { display: flex; align-items: center; gap: 8px; padding: 14px 18px 0; }
+.sc-rd-fleche { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 9px; border: 1px solid var(--socle-bord-controle); background: var(--socle-sous-carte); color: var(--socle-texte-2); cursor: pointer; }
+.sc-rd-fleche:focus-visible { outline: 2px solid var(--fam-a); outline-offset: 1px; }
+.sc-rd-surface__titre { margin-left: 8px; }
+.sc-rd-surface__titre h2 { margin: 0; font-size: 16px; font-weight: 600; }
+.sc-rd-surface__titre p { margin: 2px 0 0; font-size: 12.5px; color: var(--socle-texte-3); }
+.sc-rd-puces { display: flex; gap: 6px; margin-left: auto; }
+.sc-rd-puce { display: inline-flex; align-items: center; gap: 8px; height: 30px; padding: 0 12px; border-radius: 9px; border: 1px solid var(--socle-bord-sous-carte); background: none; color: var(--socle-texte-2); font: inherit; font-size: 12.5px; cursor: pointer; }
+.sc-rd-puce b { font-weight: 500; }
+.sc-rd-puce[aria-pressed='true'] { background: var(--socle-ligne-survol); color: var(--socle-texte-1); border-color: var(--socle-bord-controle); }
+.sc-rd-puce:focus-visible { outline: 2px solid var(--fam-a); outline-offset: 1px; }
+.sc-rd-puce__points { display: inline-flex; gap: 3px; }
+.sc-rd-puce__points i { width: 4px; height: 4px; border-radius: 50%; background: var(--socle-texte-3); }
+.sc-rd-puce[aria-pressed='true'] .sc-rd-puce__points i { background: var(--socle-etat-info); }
+
+.sc-rd-ruban { position: relative; width: 1036px; max-width: calc(100% - 36px); height: 232px; margin: 10px 18px 0; }
+.sc-rd-ruban__vide { position: absolute; inset: 0 0 80px 0; display: grid; place-items: center; }
+.sc-rd-carte-rdv { position: absolute; top: 0; height: 100px; display: flex; flex-direction: column; gap: 3px; padding: 10px 14px; text-align: left; border-radius: 12px; border: 1px solid var(--socle-bord-carte); background: linear-gradient(180deg, var(--socle-carte-haut), var(--socle-carte-bas)); color: inherit; font: inherit; cursor: pointer; z-index: 2; transition: transform 120ms ease; }
+.sc-rd-carte-rdv:hover { transform: translateY(-2px); }
+.sc-rd-carte-rdv:focus-visible { outline: 2px solid var(--fam-a); outline-offset: 1px; }
+.sc-rd-carte-rdv[data-etat='passe'] { opacity: 0.78; }
+.sc-rd-carte-rdv[data-prochain] { border-color: var(--socle-etat-info); }
+.sc-rd-carte-rdv__haut { display: flex; align-items: baseline; gap: 5px; font-size: 11px; color: var(--socle-texte-3); white-space: nowrap; }
+.sc-rd-carte-rdv__haut b { font-size: 12px; font-weight: 600; color: var(--socle-texte-1); }
+.sc-rd-carte-rdv__etat { display: inline-flex; align-items: center; gap: 5px; margin-left: auto; font-size: 11px; color: var(--socle-texte-3); }
+.sc-rd-carte-rdv__etat[data-ton='succes'] { color: var(--socle-etat-succes); }
+.sc-rd-carte-rdv__etat[data-ton='info'] { color: var(--socle-etat-info); }
+.sc-rd-carte-rdv__etat i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; animation: sc-rd-ping 2s ease-in-out infinite; }
+@keyframes sc-rd-ping { 50% { opacity: 0.35; } }
+.sc-rd-carte-rdv__nom { font-size: 13.5px; font-weight: 600; color: var(--socle-texte-1); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sc-rd-carte-rdv__sujet { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--socle-texte-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sc-rd-carte-rdv__tige { position: absolute; bottom: -38px; width: 1px; height: 38px; background: var(--socle-pointille); }
+
+.sc-rd-axe { position: absolute; left: 0; right: 0; top: 138px; height: 24px; }
+.sc-rd-axe__ligne { position: absolute; left: 0; right: 0; top: 0; height: 1px; background: var(--socle-grille-graphique); }
+.sc-rd-axe__heure { position: absolute; top: 12px; transform: translateX(-50%); font-size: 11px; color: var(--socle-texte-3); }
+.sc-rd-axe__barre { position: absolute; top: -3px; height: 6px; border-radius: 3px; background: var(--socle-texte-3); opacity: 0.6; }
+.sc-rd-axe__barre[data-prochain] { background: var(--socle-etat-info); opacity: 1; }
+.sc-rd-route { position: absolute; left: 0; right: 0; top: 172px; height: 30px; border-radius: 8px; background: var(--socle-sous-carte); border: 1px solid var(--socle-bord-ligne); overflow: hidden; }
+.sc-rd-route__ligne { position: absolute; left: 0; right: 0; top: 50%; height: 0; border-top: 1px dashed var(--socle-pointille); animation: sc-rd-flux 2.4s linear infinite; }
+@keyframes sc-rd-flux { to { background-position: 16px 0; } }
+.sc-rd-route__pause { position: absolute; top: 0; bottom: 0; display: grid; place-items: center; font-size: 11.5px; color: var(--socle-texte-3); }
+.sc-rd-route__bloc { position: absolute; top: 7px; height: 16px; border-radius: 6px; background: var(--socle-texte-2); opacity: 0.85; }
+.sc-rd-route__bloc[data-mode='pied'] { background: var(--socle-texte-3); }
+.sc-rd-route__bloc[data-serre] { background: var(--socle-etat-attention); opacity: 1; }
+.sc-rd-route__bloc[data-vide] { background: none; border: 1px dashed var(--socle-texte-3); }
+.sc-rd-route-indisponible { position: absolute; left: 0; right: 0; top: 176px; margin: 0; font-size: 12px; color: var(--socle-texte-3); }
+.sc-rd-trajets { position: absolute; left: 0; right: 0; top: 208px; height: 30px; }
+.sc-rd-legende-trajet { position: absolute; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; font-size: 11.5px; color: var(--socle-texte-3); white-space: nowrap; }
+.sc-rd-legende-trajet b { font-weight: 400; color: var(--socle-texte-2); }
+.sc-rd-legende-trajet [data-serre] { color: var(--socle-etat-attention); }
+.sc-rd-maintenant { position: absolute; top: 112px; bottom: 20px; width: 0; border-left: 1.5px solid var(--socle-etat-info); z-index: 1; pointer-events: none; }
+.sc-rd-maintenant__pastille { position: absolute; top: 12px; left: 0; transform: translateX(-50%); padding: 1px 8px; border-radius: 6px; background: var(--socle-etat-info); color: var(--socle-carte-bas); font-size: 11px; font-weight: 600; }
+.sc-rd-bandeau { display: flex; align-items: center; gap: 12px; margin: auto 18px 14px; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--socle-bord-suggestion); background: linear-gradient(180deg, var(--socle-suggestion-haut), var(--socle-suggestion-bas)); font-size: 13px; }
+.sc-rd-bandeau svg { flex: 0 0 auto; color: var(--socle-etat-succes); }
+.sc-rd-bandeau p { flex: 1 1 auto; margin: 0; }
+@media (prefers-reduced-motion: reduce) { .sc-rd-carte-rdv__etat i, .sc-rd-route__ligne { animation: none; } .sc-rd-carte-rdv { transition: none; } }
+
+.sc-rd-bas { display: grid; grid-template-columns: minmax(0, 654fr) minmax(0, 440fr); gap: 14px; flex: 0 0 267px; height: 267px; }
+
+@media (max-width: 1279px) { .sc-rd-surface { overflow-x: auto; } .sc-rd-bas { grid-template-columns: minmax(0, 1fr); height: auto; flex-basis: auto; } }

@@ -1,0 +1,50 @@
+{
+  "_": "Écarts de LOT-06 (Créer et produire) au-dessus de 15 % que T1 peut regarder zone par zone, sur le modèle de justifies-LOT-00.json. Chaque raison dit ce qui diffère de l'image v4 sans être une faute de disposition : données d'exemple du build à la place de celles de la maquette, champs « non disponibles » du dépôt (STATUT §1.27 n° 4), illustrations dessinées à la place des photos, et les écarts de coquille de LOT-00.",
+  "ecrans": {
+    "F50": {
+      "raison": "les 16 tuiles et leurs compteurs viennent du registre et des collections du build (chantiers, commandes, stock), pas des chiffres de l'image ; « Fabrication » masqué et « Modèles de sites » ajouté (STATUT §1.27) ; mêmes écarts de coquille que LOT-00 (sélecteur d'organisation dans l'en-tête, section « Développement » de la barre latérale, états de la barre « Aujourd'hui », absents de l'image)"
+    },
+    "H15": {
+      "raison": "articles, quantités, seuils et projections à 14 jours issus des données d'exemple, pas ceux de l'image ; prix, fournisseur et photos « non disponibles » (pas de champ dans `stockItems`), remplacés par un repère dessiné ; mêmes écarts de coquille que LOT-00 (sélecteur d'organisation dans l'en-tête, section « Développement » de la barre latérale, états de la barre « Aujourd'hui », absents de l'image)"
+    },
+    "H16": {
+      "raison": "Relu le 14 nov., repris : 19,9 → 16,3 % en disposition : étapes, semaines et montants des chantiers d'exemple ≠ de l'image  (jauge de budget et rail remontés) ; suggestion en `SuggestionCompact` (demande de T1) au lieu de la grande carte ; décalage de 26 px des boutons de l'en-tête (socle) ; chantiers, étapes, budgets et agenda issus des données d'exemple (noms, semaines, montants ≠ de l'image) ; budget, dépensé et poids d'étape absents du dépôt : jauge vide « Budget non renseigné » ; suggestion « Risque de retard » posée par la règle réelle (livraison après la pose) avec `SuggestionCompact`, pas la grande carte de l'image ; mêmes écarts de coquille que LOT-00 (sélecteur d'organisation dans l'en-tête, section « Développement » de la barre latérale, états de la barre « Aujourd'hui », absents de l'image)"
+    },
+    "H17": {
+      "raison": "Relu le 14 nov. : le vert de fond venait d'une collision de classe avec la tuile du hub (corrigé : 28,1 → 9,2 % en disposition) ; reste la palette de l'entreprise d'exemple (vert sapin) et les modèles dessinés ; logos, palette et polices de l'entreprise d'exemple ≠ de l'image ; pas de stockage de fichiers (§1.27 n° 7) : visuels remplacés par des repères dessinés ; mêmes écarts de coquille que LOT-00 (sélecteur d'organisation dans l'en-tête, section « Développement » de la barre latérale, états de la barre « Aujourd'hui », absents de l'image)"
+    },
+    "MR01": {
+      "raison": "Relu le 14 nov., repris : 23,7 → 18,5 % en disposition : le reste est le contenu de la frise (clips, sous-titres, voix off d'exemple), les vignettes dessinées et la colonne « Relecture » aux textes d'exemple  (colonnes 244 / 1fr / 291, lecteur 292 px, repères d'angle, relecture sur une ligne ; la carte « Suggestion d'Ajmani » est celle du socle, 13 px plus haute que l'image) ; décalage vertical de 26 px des boutons de l'en-tête de page (cote du `PageHead` du socle, le même sur les 15 écrans) ; rushes, montages et durées issus des données d'exemple, vignettes dessinées à la place des images ; sources vidéo gardées toutes les deux et reliées (§1.27) ; mêmes écarts de coquille que LOT-00 (sélecteur d'organisation dans l'en-tête, section « Développement » de la barre latérale, états de la barre « Aujourd'hui », absents de l'image)"
+    },
+    "MR02": {
+      "raison": "textes, sections et visites de la page publique issus des données d'exemple ; publication distincte de l'écriture (seul le directeur publie, les autres « Demander la publication ») ; aperçu client rendu au vouvoiement (zone cliente) ; mêmes écarts de coquille que LOT-00 (sélecteur d'organisation dans l'en-tête, section « Développement » de la barre latérale, états de la barre « Aujourd'hui », absents de l'image)"
+    },
+    "MR03": {
+      "raison": "tournée, arrêts et distances issus des données d'exemple ; plan SCHÉMATIQUE sans service de cartes ni clé (§1.27 n° 5), donc pas le fond de carte de l'image ; mêmes écarts de coquille que LOT-00 (sélecteur d'organisation dans l'en-tête, section « Développement » de la barre latérale, états de la barre « Aujourd'hui », absents de l'image)"
+    },
+    "MR04": {
+      "raison": "Relu le 14 nov., repris : 17,1 → 17,0 % en disposition : 3 mouvements du jour et 0 entretien du mois dans les données d'exemple au lieu de 5 et 3 (la colonne de droite est donc plus courte que l'image), et carte « Suggestion d'Ajmani » du socle ; équipements d'exemple et vignettes dessinées ; états et numéros de série absents du dépôt ; décalage de 26 px des boutons de l'en-tête (socle) ; équipements, prêts et entretiens issus des données d'exemple ; état, numéro de série, entretien et valeur absents du dépôt : « non disponible » ; vignettes dessinées ; mêmes écarts de coquille que LOT-00 (sélecteur d'organisation dans l'en-tête, section « Développement » de la barre latérale, états de la barre « Aujourd'hui », absents de l'image)"
+    },
+    "MR05": {
+      "raison": "Relu le 14 nov., repris : 17,9 → 17,6 % en disposition : produits d'exemple, photos remplacées par une icône, prix et ventes posés dans l'aperçu  (fiche produit pleine hauteur à côté de la mosaïque ; l'aperçu a 9 produits au lieu de 8, donc une 4e rangée) ; décalage de 26 px des boutons de l'en-tête (socle) ; produits du stock d'exemple ≠ de ceux de l'image ; prix, TVA, photos, fournisseur et ventes « non disponibles » (collection `products` à demander à amn-api, §1.27 n° 2), photos remplacées par une icône ; mêmes écarts de coquille que LOT-00 (sélecteur d'organisation dans l'en-tête, section « Développement » de la barre latérale, états de la barre « Aujourd'hui », absents de l'image)"
+    },
+    "MR06": {
+      "raison": "réservations d'exemple posées sur d'autres jours que ceux de l'image ; pas de demande ni de conflit dans le dépôt ; véhicules non reliés ; mêmes écarts de coquille que LOT-00 (sélecteur d'organisation dans l'en-tête, section « Développement » de la barre latérale, états de la barre « Aujourd'hui », absents de l'image)"
+    },
+    "MR07": {
+      "raison": "commandes et statuts d'exemple ≠ de ceux de l'image (les 4 étapes de la fiche regroupent les 6 statuts réels) ; articles et montants du bac à sable ; mêmes écarts de coquille que LOT-00 (sélecteur d'organisation dans l'en-tête, section « Développement » de la barre latérale, états de la barre « Aujourd'hui », absents de l'image)"
+    },
+    "MR08": {
+      "raison": "ventes, entonnoir et paniers d'exemple ≠ de ceux de l'image ; objectif et canaux absents du dépôt ; mêmes écarts de coquille que LOT-00 (sélecteur d'organisation dans l'en-tête, section « Développement » de la barre latérale, états de la barre « Aujourd'hui », absents de l'image)"
+    },
+    "MR09": {
+      "raison": "véhicules, compteurs et échéances d'exemple ; énergie, niveau de carburant ou de charge, autonomie, conducteur et lieu absents du dépôt (« Aucun plein enregistré ») ; silhouette dessinée ; la vidange du Kangoo est rouge (règle de la fiche, moins de 30 jours) là où l'image l'a orange ; mêmes écarts de coquille que LOT-00 (sélecteur d'organisation dans l'en-tête, section « Développement » de la barre latérale, états de la barre « Aujourd'hui », absents de l'image)"
+    },
+    "MR10": {
+      "raison": "Relu le 14 nov., repris : 21,0 → 20,7 % en disposition : cadres alignés à l'image (liste 256 px, comparateur 355 px, rangées de 50 px) ; le reste est le dessin de la scène et des vignettes (repères, jamais de photo), les pourcentages de la règle de la fiche et le décalage de 26 px des boutons de l'en-tête (socle) ; photos remplacées par des repères dessinés (jamais d'image dans le dépôt) ; complétude en tiers (avant, après, signature) donc 67 / 67 / 33 % au lieu de 72 / 60 / 25 % de l'image, et « jours de travaux » de la règle (première photo pendant → dernière après) ; date, lieu, auteur et signature « à la prise » absents du dépôt ; mêmes écarts de coquille que LOT-00 (sélecteur d'organisation dans l'en-tête, section « Développement » de la barre latérale, états de la barre « Aujourd'hui », absents de l'image)"
+    },
+    "MR11": {
+      "raison": "contrôle, écarts et conformité du mois d'exemple ≠ de l'image ; sections, écarts (cause, responsable, échéance) et « non conforme » absents du dépôt ; « validés du premier coup » compté sur les contrôles signés ; mêmes écarts de coquille que LOT-00 (sélecteur d'organisation dans l'en-tête, section « Développement » de la barre latérale, états de la barre « Aujourd'hui », absents de l'image)"
+    }
+  }
+}

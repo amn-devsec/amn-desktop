@@ -27,7 +27,8 @@
  *   · `garde`    : l'état de La Garde (`calme` par défaut, `attention`, `critique`).
  *   · `epingles`, `aujourdhui`, `notifications`, `cyber` : pour changer les données fictives d'un écran.
  *   · `developpement` : les deux signaux fictifs de l'entrée « Développement » (défaut : 1 déploiement en cours,
- *                  2 tests en échec) ; `famille: 'developpement'` la déplie.
+ *                  2 tests en échec) ; `famille: 'developpement'` la déplie, avec sa sous-liste (`sousPage` : `projets`,
+ *                  `deploiements`, `serveur`, `editeur`, `couts`, `modeles-sites`, ou `ensemble`).
  */
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
@@ -157,6 +158,28 @@ const GARDE: FamilleFictive = {
   ],
 };
 
+/**
+ * La sous-liste « Développement » (LOT-11), dans l'ordre de `ORDRE_DEVELOPPEMENT` (src/refonte/coquille/sousListeDeveloppement.ts) :
+ * les six modules de LOT-11 et les vues reprises qui sont au registre. Montrée seulement quand la famille est dépliée.
+ */
+const DEVELOPPEMENT: FamilleFictive = {
+  cle: 'developpement',
+  nom: 'Développement',
+  teinte: 'outils',
+  total: 9,
+  modules: [
+    { cle: 'projets', libelle: 'Projets de code' },
+    { cle: 'deploiements', libelle: 'Déploiements' },
+    { cle: 'serveur', libelle: 'Serveur et santé' },
+    { cle: 'editeur', libelle: 'Éditeur de flux' },
+    { cle: 'automatisations', libelle: 'Automatisations' },
+    { cle: 'couts', libelle: 'Coûts et API' },
+    { cle: 'coffre', libelle: 'Coffre-fort' },
+    { cle: 'modeles-sites', libelle: 'Modèles de sites' },
+    { cle: 'connaissances', libelle: 'Base de connaissances' },
+  ],
+};
+
 /** Les lignes montrées sous une famille ouverte : au plus cinq (Vue d'ensemble d'abord, sauf Ma journée), le module actif toujours visible. */
 function deplier(f: FamilleFictive, active: boolean, sousPage: string | null | undefined): FamilleLaterale {
   const ensemble = f.cle !== 'jour';
@@ -238,15 +261,16 @@ export function ApercuBureau({
   const familles = FAMILLES.map((f) => deplier(f, f.cle === famille, sousPage));
   const laGarde = deplier(GARDE, famille === 'garde', sousPage);
   const surDev = famille === 'developpement';
+  const sousDev = surDev ? deplier(DEVELOPPEMENT, true, sousPage) : null;
   const leDev: FamilleLaterale = {
     cle: 'developpement',
     nom: 'Développement',
     famille: 'outils',
-    modules: [],
+    modules: sousDev?.modules ?? [],
     badge: 0,
     active: surDev,
-    ensemble: { cle: 'ensemble-developpement', libelle: '', vers: '/ensemble/developpement', badge: 0, courant: surDev },
-    autres: 0,
+    ensemble: { cle: 'ensemble-developpement', libelle: '', vers: '/ensemble/developpement', badge: 0, courant: surDev && (sousPage ?? 'ensemble') === 'ensemble' },
+    autres: sousDev?.autres ?? 0,
     signaux: [
       ...(developpement.deploiements > 0 ? [{ cle: 'deploiements', n: developpement.deploiements, ton: 'info' as const, enCours: true, libelle: `${developpement.deploiements} déploiement(s) en cours` }] : []),
       ...(developpement.tests > 0 ? [{ cle: 'tests', n: developpement.tests, ton: 'critique' as const, libelle: `${developpement.tests} test(s) en échec` }] : []),

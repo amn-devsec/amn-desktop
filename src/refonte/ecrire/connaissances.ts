@@ -102,7 +102,21 @@ export interface ReponseSourcee {
 }
 
 const VIDES = new Set(['le', 'la', 'les', 'un', 'une', 'des', 'de', 'du', 'd', 'l', 'a', 'au', 'aux', 'et', 'ou', 'en', 'je', 'tu', 'mon', 'ma', 'mes', 'ton', 'ta', 'tes', 'comment', 'pour', 'sur', 'dans', 'est', 'que', 'qui', 'quoi', 'the', 'to', 'how', 'do', 'i', 'my']);
-const mots = (t: string): string[] => aplatir(t).split(/[^a-z0-9]+/).filter((m) => m.length > 1 && !VIDES.has(m));
+/**
+ * Les mots qui disent la même chose pour une personne qui cherche : « annuler » une facture, c'est la « supprimer » ou la
+ * « corriger ». Chaque groupe compte pour UN mot ; on compare des racines de six lettres (« supprime », « supprimer »).
+ */
+const SYNONYMES: readonly (readonly string[])[] = [
+  ['annuler', 'supprimer', 'effacer', 'retirer', 'corriger', 'rectifier'],
+  ['modifier', 'changer', 'editer', 'corriger'],
+  ['envoyer', 'emettre', 'expedier'],
+  ['rembourser', 'avoir', 'creditnote'],
+];
+const racine = (m: string): string => (m.length > 6 ? m.slice(0, 6) : m);
+const GROUPES = new Map<string, string>();
+for (const g of SYNONYMES) for (const m of g) if (!GROUPES.has(racine(m))) GROUPES.set(racine(m), racine(g[0]));
+const canon = (m: string): string => GROUPES.get(racine(m)) ?? racine(m);
+const mots = (t: string): string[] => aplatir(t).split(/[^a-z0-9]+/).filter((m) => m.length > 1 && !VIDES.has(m)).map(canon);
 const phrases = (t: string): string[] => t.split(/(?<=[.!?])\s+/).map((p) => p.trim()).filter(Boolean);
 
 /**

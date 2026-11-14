@@ -80,7 +80,17 @@ for (const f of fichiers) {
     signal(retraits > 0 ? 'Bloquant' : 'Majeur', `jumeau \`${f.fichier}\` modifié (${retraits > 0 ? `${retraits} ligne(s) retirée(s)` : 'ajouts seulement : vérifier que la zone le permet et que l\'ajout ne fait rien'})`);
   }
   if (jumeau && f.statut === 'A') signal('Info', `nouveau jumeau \`${f.fichier}\` : vérifier qu'il ne fait rien`);
-  if (INTERDITS_SANS_CO.includes(f.fichier)) signal('Bloquant', `\`${f.fichier}\` est interdit sans accord du CO`);
+  if (f.fichier === 'docs/refonte/STATUT.md') {
+    // Accord du CO (14 nov.) : un lot qui fait passer SES lignes du §7 à « fait » est accepté, pour tous les lots : signalé, pas bloquant.
+    // Tout autre changement du STATUT (texte hors tableau, ligne ajoutée ou retirée sans « fait ») reste bloquant.
+    const lignes = git('diff', '-U0', `${mb}..${REF}`, '--', f.fichier).split('\n').filter((l) => /^[+-]/.test(l) && !/^(\+\+\+|---)/.test(l));
+    const ajoutees = lignes.filter((l) => l.startsWith('+'));
+    const retirees = lignes.filter((l) => l.startsWith('-'));
+    const tableau = lignes.every((l) => /^[+-]\| /.test(l));
+    const fait = ajoutees.length > 0 && ajoutees.every((l) => /^\+\|.*\| fait\b/.test(l)) && ajoutees.length === retirees.length;
+    if (tableau && fait) signal('Signalé', `\`docs/refonte/STATUT.md\` : ${ajoutees.length} ligne(s) du §7 passées à « fait » par le lot (accord du CO, 14 nov.)`);
+    else signal('Bloquant', `\`${f.fichier}\` est modifié au-delà des lignes du lot qui passent à « fait » (interdit sans accord du CO)`);
+  } else if (INTERDITS_SANS_CO.includes(f.fichier)) signal('Bloquant', `\`${f.fichier}\` est interdit sans accord du CO`);
   if (['src/i18n/fr.ts', 'src/i18n/en.ts'].includes(f.fichier)) signal('Majeur', `\`${f.fichier}\` modifié : les textes vont dans l'i18n.ts de la zone`);
   if (f.fichier === 'package-lock.json' || f.fichier === 'package.json') {
     const d = git('diff', `${mb}..${REF}`, '--', 'package.json');
@@ -105,7 +115,14 @@ for (const f of fichiers.filter((x) => x.statut !== 'D' && /\.(tsx?|css|mjs|js)$
 }
 const ajout = git('diff', '-U0', `${mb}..${REF}`, '--', '.', ':(exclude)*.md').split('\n').filter((l) => l.startsWith('+') && !l.startsWith('+++'));
 for (const rx of SECRETS) { const l = ajout.find((x) => rx.test(x)); if (l) signal('Bloquant', `motif de secret (${rx.source.slice(0, 30)}…) : \`${l.slice(0, 120)}\``); }
-for (const rx of REELLES) { const l = ajout.find((x) => rx.test(x)); if (l) signal('Bloquant', `donnée réelle possible (${rx.source}) : \`${l.slice(0, 120)}\``); }
+// Un motif de garde déjà présent dans la base (70 premiers caractères) (ex. la liste de noms interdits d'un check-*.ts) n'est pas une donnée réelle ajoutée : on le signale en Info.
+const dejaDansLaBase = (l) => { const t = l.slice(1).trim().slice(0, 70); return t.length > 20 && spawnSync('git', ['grep', '-qF', '-e', t, BASE, '--', 'scripts', 'src'], { cwd: ROOT }).status === 0; };
+for (const rx of REELLES) {
+  const l = ajout.find((x) => rx.test(x) && !dejaDansLaBase(x));
+  if (l) signal('Bloquant', `donnée réelle possible (${rx.source}) : \`${l.slice(0, 120)}\``);
+  else if (ajout.some((x) => rx.test(x))) signal('Info', `motif de garde (${rx.source}) repris de la base (même début de ligne) : pas une donnée réelle ajoutée`);
+}
+if (fichiers.some((f) => f.fichier === 'node_modules' && f.statut !== 'D')) signal('Bloquant', '`node_modules` est suivi par git (lien symbolique commité) : à retirer de la branche (`git rm --cached node_modules`), sinon la fusion le pose dans le dépôt');
 const ajmani = ajout.filter((l) => /ajmani/i.test(l) && /mascotte|svg|personnage|robot|regard|cligne|expression/i.test(l));
 if (ajmani.length) signal('Info', `à relire : ${ajmani.length} ligne(s) ajoutée(s) associent Ajmani à un personnage (mascotte, svg, regard…) — décision « sans personnage » ; ex. \`${ajmani[0].slice(0, 120)}\``);
 const fetchs = ajout.filter((l) => /\bfetch\(|new WebSocket\(|XMLHttpRequest/.test(l));
@@ -117,6 +134,7 @@ if (!SANS_GARDES) {
   const wt = fs.mkdtempSync(path.join(os.tmpdir(), 'tester-branche-'));
   git('worktree', 'add', '--detach', wt, REF);
   try {
+    fs.rmSync(path.join(wt, 'node_modules'), { force: true, recursive: true }); // un node_modules suivi par git (signalé plus haut) ne doit pas empêcher les gardes
     fs.symlinkSync(path.join(ROOT, 'node_modules'), path.join(wt, 'node_modules'));
     const yml = fs.readFileSync(path.join(wt, '.github', 'workflows', 'editions.yml'), 'utf8');
     const checks = [...new Set([...yml.matchAll(/npm run (check:[a-z-]+)/g)].map((m) => m[1]))].filter((c) => c !== 'check:business');

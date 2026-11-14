@@ -1,3 +1,4 @@
+import { Inbox, Mail, Reply, Share2 } from 'lucide-react';
 import { declarerFamille, vue } from '../declarer';
 
 /**
@@ -5,7 +6,8 @@ import { declarerFamille, vue } from '../declarer';
  *
  * Décisions validées : la RH (Recrutement, Procédures, Formation,
  * Habilitations, Bulletins de paie) vit ici ; Équipe (l’ancien onglet du
- * bureau Supervisor) est une vue de la Messagerie. Regroupés aussi : Appels et salles.
+ * bureau Supervisor) est une vue de « Canaux » (la messagerie d’équipe) ; « Messagerie » est la boîte des clients (G07).
+ * Regroupés aussi : Appels et salles.
  */
 
 export default declarerFamille({
@@ -22,7 +24,20 @@ export default declarerFamille({
   },
   modules: [
     {
+      // G07 : la boîte des CLIENTS (courriel, WhatsApp, SMS). L'ancienne « Messagerie » (équipe) devient « Canaux » (STATUT §1.32 n° 1).
       nom: { fr: 'Messagerie', en: 'Messaging' },
+      action: 'discuter',
+      niveau: 'essentiel',
+      vues: [
+        vue('clientInbox', '/messagerie', ['répondre à un client', 'voir qui attend une réponse', 'écrire à un client'], ['messagerie', 'client', 'courriel', 'whatsapp', 'sms', 'boîte', 'réponse'], {
+          en: { verbes: ['reply to a client', 'see who is waiting for an answer', 'write to a client'], motsCles: ['messaging', 'client', 'email', 'whatsapp', 'sms', 'inbox', 'reply'] },
+          etiquette: { fr: 'Messagerie', en: 'Messaging' },
+          nouveau: { icone: Inbox, ecran: () => import('../../echanger/ecrans/g07/PageBoite'), indice: { fr: 'Répondre à tes clients, tous canaux mêlés', en: 'Answer your clients, every channel in one thread' } },
+        }),
+      ],
+    },
+    {
+      nom: { fr: 'Canaux', en: 'Channels' },
       action: 'discuter',
       niveau: 'essentiel',
       vues: [
@@ -35,6 +50,19 @@ export default declarerFamille({
         vue('team', '/team', ['écrire à l’équipe', 'voir qui est en ligne'], ['équipe', 'messagerie', 'présence', 'canal'], {
           etiquette: { fr: 'Équipe', en: 'Team' },
           en: { verbes: ['write to the team', 'see who is online'], motsCles: ['team', 'messaging', 'presence', 'channel', 'online'] },
+        }),
+      ],
+    },
+    {
+      // MX01 : la boîte partagée de l'équipe (courriel), en trois volets. La connexion se règle dans les connecteurs (H21).
+      nom: { fr: 'Courriel', en: 'Email' },
+      action: 'discuter',
+      niveau: 'courant',
+      vues: [
+        vue('sharedMail', '/courriel', ['lire le courriel de l’équipe', 'répondre à un courriel', 'archiver un message'], ['courriel', 'mail', 'email', 'boîte', 'message', 'réception', 'fil'], {
+          en: { verbes: ['read the team’s email', 'reply to an email', 'archive a message'], motsCles: ['email', 'mail', 'mailbox', 'message', 'inbox', 'thread'] },
+          etiquette: { fr: 'Courriel', en: 'Email' },
+          nouveau: { icone: Mail, ecran: () => import('../../echanger/ecrans/mx01/PageCourriel'), indice: { fr: 'La boîte partagée de l’équipe, en fils', en: 'The team’s shared mailbox, in threads' } },
         }),
       ],
     },
@@ -79,6 +107,19 @@ export default declarerFamille({
       ],
     },
     {
+      // MX03 : partager un fichier par un lien protégé (jamais une pièce jointe, jamais sans protection).
+      nom: { fr: 'Partage de fichiers', en: 'File sharing' },
+      action: 'annoncer',
+      niveau: 'courant',
+      vues: [
+        vue('sharedFiles', '/partages', ['envoyer un fichier à un client', 'créer un lien protégé', 'voir qui a ouvert un fichier'], ['partage', 'fichier', 'lien', 'envoyer', 'document', 'protégé'], {
+          en: { verbes: ['send a file to a client', 'create a protected link', 'see who opened a file'], motsCles: ['sharing', 'file', 'link', 'send', 'document', 'protected'] },
+          etiquette: { fr: 'Partage de fichiers', en: 'File sharing' },
+          nouveau: { icone: Share2, ecran: () => import('../../echanger/ecrans/mx03/PagePartages'), indice: { fr: 'Envoyer un lien protégé, pas une pièce jointe', en: 'Send a protected link, not an attachment' } },
+        }),
+      ],
+    },
+    {
       action: 'annoncer',
       niveau: 'courant',
       vues: [
@@ -93,6 +134,19 @@ export default declarerFamille({
       vues: [
         vue('newsletter', '/lettre', ['envoyer une newsletter', 'écrire à tous mes clients'], ['newsletter', 'lettre', 'emailing', 'mail groupé', 'mailing', 'campagne'], {
           en: { verbes: ['send a newsletter', 'write to all my customers'], motsCles: ['newsletter', 'email campaign', 'mailing', 'bulk mail'] },
+        }),
+      ],
+    },
+    {
+      // MX06 : répondre vite selon des règles écrites en phrases ; une règle neuve naît désactivée.
+      nom: { fr: 'Réponses automatiques', en: 'Automatic replies' },
+      action: 'public',
+      niveau: 'courant',
+      vues: [
+        vue('autoReplies', '/reponses-automatiques', ['répondre automatiquement aux clients', 'écrire une règle de réponse', 'répondre hors horaires'], ['réponse', 'automatique', 'règle', 'hors horaires', 'absence', 'répondeur'], {
+          en: { verbes: ['reply automatically to clients', 'write a reply rule', 'reply outside opening hours'], motsCles: ['automatic', 'reply', 'rule', 'out of hours', 'away', 'auto-responder'] },
+          etiquette: { fr: 'Réponses automatiques', en: 'Automatic replies' },
+          nouveau: { icone: Reply, ecran: () => import('../../echanger/ecrans/mx06/PageReponses'), indice: { fr: 'Répondre en 2 secondes, selon tes règles', en: 'Reply in 2 seconds, following your rules' } },
         }),
       ],
     },

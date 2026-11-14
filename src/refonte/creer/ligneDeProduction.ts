@@ -235,6 +235,7 @@ export const SEIZE_MODULES: readonly ModuleDeLaFamille[] = [
   { id: 'chantiers', groupe: 'fabriquer', ecran: 'H16' },
   { id: 'qualite', groupe: 'fabriquer', ecran: 'MR11' },
   { id: 'bons-intervention', groupe: 'fabriquer', ecran: 'à créer' },
+  { id: 'modeles-sites', groupe: 'fabriquer', ecran: 'DEV-modeles-sites' }, // tuile de lien vers LOT-11 (sans entrée au registre), à la place de « Fabrication » : 4 groupes de 4
   { id: 'commandes', groupe: 'livrer', ecran: 'MR07' },
   { id: 'tournees', groupe: 'livrer', ecran: 'MR03' },
   { id: 'flotte', groupe: 'livrer', ecran: 'MR09' },
@@ -247,7 +248,6 @@ export const SEIZE_MODULES: readonly ModuleDeLaFamille[] = [
   { id: 'visuels', groupe: 'montrer', ecran: 'H17' },
   { id: 'page-publique', groupe: 'montrer', ecran: 'MR02' },
   { id: 'photos-chantier', groupe: 'montrer', ecran: 'MR10' },
-  { id: 'modeles-sites', groupe: 'montrer', ecran: 'DEV-modeles-sites' }, // tuile de lien vers LOT-11, sans entrée au registre
 ];
 
 /** Une tuile est grisée (« Non activée pour votre métier ») si son module n'est pas activé ; elle ouvre alors D02 pour l'activer. */

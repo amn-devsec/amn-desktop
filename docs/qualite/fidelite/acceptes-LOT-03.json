@@ -1,0 +1,28 @@
+{
+  "_": "Valeurs acceptées de LOT-03 (STATUT §1.30, §1.40) : mesures de T1 sur l'APERÇU STATIQUE du lot (claude/refonte-ecrire @ 2da78ad5 fusionné sur vivante), 1440×900, vendredi 30 oct. 2026 à 10:42. `valeurs` = écart brut ; `disposition` = couleur ±10, surveillée aussi ; +2 points au-dessus de la valeur : échec. Les écarts au-dessus de 15 % sont justifiés dans justifies-LOT-03.json (S5).",
+  "source": "apercu",
+  "mesure": "strict",
+  "surveillerDisposition": true,
+  "valeurs": {
+    "F20": 16.0,
+    "H10": 27.3,
+    "H11": 22.9,
+    "H12": 34.8,
+    "ME01": 15.2,
+    "ME02": 46.0,
+    "ME03": 35.8,
+    "ME04": 30.7,
+    "ME05": 23.3
+  },
+  "disposition": {
+    "F20": 8.3,
+    "H10": 8.9,
+    "H11": 8.6,
+    "H12": 12.6,
+    "ME01": 8.3,
+    "ME02": 9.9,
+    "ME03": 10.0,
+    "ME04": 14.2,
+    "ME05": 8.4
+  }
+}

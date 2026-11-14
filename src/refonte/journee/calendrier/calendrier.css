@@ -1,0 +1,135 @@
+/*
+  « CALENDRIER » (H01, v4) — mise en page aux cotes de la fiche (zone principale de 1108 px, x = 40, y = 94 → 758).
+
+    rail gauche           240 : mini-mois 265, « Ensuite » 165, suggestion 206, écart 14 ;
+    carte de la semaine   854 × 664 à x = 294, sans rembourrage : en-tête des jours 62, ligne « journée » 30, 11 px d'air,
+                          grille de 8:00 à 19:00 (47 px par heure = 517 px), 8 px d'air, pied 36 ;
+    colonnes              gouttière 44, cinq jours ouvrés égaux (138,4), samedi et dimanche 58.
+
+  Aucune couleur écrite ici : `--socle-*` (src/socle/noir.css). Couleur de famille en FILET GAUCHE de 3 px, jamais en aplat ;
+  concentration hachurée ; trajet en filet pointillé ; créneau proposé en pointillé de succès. Jamais de rouge sur un événement.
+  Chargée par `VueCalendrier.tsx`.
+*/
+.sc-cal__entete.sc-page__entete { flex-wrap: nowrap; gap: 16px; align-items: flex-end; }
+.sc-cal__entete .sc-page__actions { gap: 9px; align-items: center; }
+.sc-cal__hors-ligne { margin: 0; font-size: 12px; color: var(--socle-etat-attention); }
+.sc-cal-fleche { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 9px; border: 1px solid var(--socle-bord-controle); background: var(--socle-sous-carte); color: var(--socle-texte-2); cursor: pointer; position: relative; }
+.sc-cal-fleche:focus-visible { outline: 2px solid var(--socle-texte-1); outline-offset: 1px; }
+.sc-cal { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 14px; flex: 1 1 0; min-height: 0; }
+.sc-cal-carte { display: flex; flex-direction: column; min-width: 0; min-height: 0; border-radius: var(--socle-rayon-carte); border: 1px solid var(--socle-bord-carte); background: linear-gradient(180deg, var(--socle-carte-haut), var(--socle-carte-bas)); box-shadow: var(--socle-ombre-carte); color: var(--socle-texte-1); }
+.sc-cal-rail { display: flex; flex-direction: column; gap: 14px; min-width: 0; min-height: 0; }
+
+/* Mini-mois */
+.sc-cal-mois { flex: 0 0 265px; padding: 14px 15px; }
+.sc-cal-mois header { display: flex; align-items: center; justify-content: space-between; }
+.sc-cal-mois h2 { margin: 0; font-size: 14px; font-weight: 600; }
+.sc-cal-mois header span { display: inline-flex; gap: 13px; }
+.sc-cal-mois header button { position: relative; display: grid; place-items: center; width: 24px; height: 24px; border: 0; border-radius: 7px; background: none; color: var(--socle-texte-2); cursor: pointer; }
+.sc-cal-mois__grille { display: grid; grid-template-columns: repeat(7, 26px); justify-content: space-between; margin-top: 8px; row-gap: 4px; }
+.sc-cal-mois__lettre { height: 18px; display: grid; place-items: center; font-size: 10.5px; color: var(--socle-texte-3); }
+.sc-cal-mois__semaine { display: contents; }
+.sc-cal-mois__jour { position: relative; width: 26px; height: 26px; display: grid; place-items: center; padding: 0; border: 0; background: none; border-radius: 8px; font: inherit; font-size: 12px; color: var(--socle-texte-1); cursor: pointer; }
+.sc-cal-mois__jour[data-hors], .sc-cal-mois__jour[data-weekend] { color: var(--socle-texte-3); }
+.sc-cal-mois__jour i { position: absolute; bottom: 2px; left: 50%; width: 3px; height: 3px; margin-left: -1.5px; border-radius: 50%; background: var(--socle-texte-3); }
+.sc-cal-mois__jour[data-aujourdhui] { background: var(--socle-blanc); color: var(--socle-primaire-encre); font-weight: 600; border-radius: 50%; }
+.sc-cal-mois__jour[data-aujourdhui] i { background: var(--socle-primaire-encre); }
+.sc-cal-mois__jour:focus-visible { outline: 2px solid var(--socle-texte-1); outline-offset: 1px; }
+.sc-cal-mois__pied { display: flex; align-items: center; gap: 8px; margin: auto 0 0; padding-top: 9px; border-top: 1px solid var(--socle-bord-ligne); font-size: 12px; white-space: nowrap; color: var(--socle-texte-2); }
+.sc-cal-mois__pied svg { color: var(--socle-etat-info); }
+
+/* Ensuite */
+.sc-cal-ensuite { flex: 0 0 165px; padding: 14px 16px; }
+.sc-cal-ensuite header { display: flex; align-items: baseline; justify-content: space-between; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--socle-texte-3); }
+.sc-cal-ensuite header b { font-size: 12px; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--fam-a); }
+.sc-cal-ensuite h2 { margin: 6px 0 0; font-size: 15px; font-weight: 600; }
+.sc-cal-ensuite__quand { margin: 4px 0 0; font-size: 12.5px; color: var(--socle-texte-3); }
+.sc-cal-ensuite__qui { display: flex; align-items: center; gap: 8px; margin: 10px 0 0; font-size: 12px; color: var(--socle-texte-2); }
+.sc-cal-ensuite__qui span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sc-cal-ensuite__actions { display: flex; gap: 8px; margin-top: auto; }
+.sc-cal-suggestion { flex: 0 0 206px; min-height: 0; }
+.sc-cal-astuce { height: 100%; padding: 14px 16px; border-radius: var(--socle-rayon-carte); border: 1px solid var(--socle-bord-sous-carte); background: var(--socle-sous-carte); font-size: 12.5px; color: var(--socle-texte-3); }
+.sc-cal-astuce span { font-weight: 600; color: var(--socle-texte-1); }
+.sc-cal-astuce p { margin: 6px 0 0; line-height: 1.5; }
+
+/* La semaine */
+.sc-cal-semaine { --sc-cal-gouttiere: 44px; overflow: hidden; }
+.sc-cal-tete, .sc-cal-journee { display: grid; grid-template-columns: var(--sc-cal-gouttiere) repeat(5, minmax(0, 1fr)) 58px 58px; }
+.sc-cal-tete { height: 62px; border-bottom: 1px solid var(--socle-bord-ligne); }
+.sc-cal-gouttiere { display: block; padding: 12px 0 0 14px; font-size: 11px; color: var(--socle-texte-3); }
+.sc-cal-journee { height: 30px; align-items: center; }
+.sc-cal-journee .sc-cal-gouttiere { padding: 0 0 0 6px; font-size: 10.5px; }
+.sc-cal-journee__cols { grid-column: 2 / -1; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)) 58px 58px; padding: 0 4px; }
+.sc-cal-puce { display: inline-flex; align-items: center; gap: 7px; height: 20px; margin: 0 2px; padding: 0 8px; border-radius: 6px; border: 1px solid var(--socle-bord-sous-carte); background: var(--socle-sous-carte); font-size: 11.5px; color: var(--socle-texte-1); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.sc-cal-puce i { flex: 0 0 6px; width: 6px; height: 6px; border-radius: 50%; background: var(--sc-cal-f, var(--socle-texte-3)); }
+.sc-cal-entete { position: relative; display: flex; flex-direction: column; justify-content: flex-start; gap: 8px; padding: 10px 10px 0; border: 0; background: none; font: inherit; color: inherit; text-align: left; cursor: pointer; min-width: 0; }
+.sc-cal-entete[data-aujourdhui] { background: color-mix(in srgb, var(--socle-blanc) 2.5%, transparent); }
+.sc-cal-entete:focus-visible { outline: 2px solid var(--socle-texte-1); outline-offset: -2px; }
+.sc-cal-entete__haut { display: flex; align-items: baseline; gap: 8px; }
+.sc-cal-entete__jour { font-size: 11px; letter-spacing: 0.05em; color: var(--socle-texte-3); }
+.sc-cal-entete__numero { font-size: 17px; font-weight: 600; }
+.sc-cal-entete[data-aujourdhui] .sc-cal-entete__numero { display: grid; place-items: center; width: 28px; height: 28px; margin: -6px 0; border-radius: 50%; background: var(--fam-a); color: var(--socle-primaire-encre); font-size: 14px; }
+.sc-cal-entete[data-weekend] { padding: 10px 6px 0; }
+.sc-cal-entete[data-weekend] .sc-cal-entete__haut { gap: 5px; }
+.sc-cal-entete[data-weekend] .sc-cal-entete__jour { font-size: 10.5px; }
+.sc-cal-entete[data-weekend] .sc-cal-entete__numero { font-size: 15px; }
+.sc-cal-charge { display: flex; align-items: center; gap: 8px; }
+.sc-cal-charge__barre { flex: 1 1 auto; height: 3px; border-radius: 2px; background: var(--socle-piste); overflow: hidden; }
+.sc-cal-charge__barre i { display: block; height: 100%; border-radius: 2px; background: var(--socle-texte-3); animation: sc-cal-remplir 900ms ease both; }
+.sc-cal-entete[data-aujourdhui] .sc-cal-charge__barre i { background: linear-gradient(90deg, var(--fam-a), var(--fam-b)); }
+@keyframes sc-cal-remplir { from { width: 0; } }
+.sc-cal-charge__duree { flex: 0 0 auto; font-size: 11px; color: var(--socle-texte-3); }
+
+.sc-cal-corps { position: relative; margin-top: 11px; flex: 0 0 auto; }
+.sc-cal-heures { position: absolute; left: 0; top: 0; bottom: 0; width: var(--sc-cal-gouttiere); }
+.sc-cal-heures span { position: absolute; right: 6px; transform: translateY(-50%); font-size: 11px; color: var(--socle-texte-3); }
+.sc-cal-heures span[data-masquee] { visibility: hidden; }
+.sc-cal-jours { position: absolute; inset: 0 0 0 var(--sc-cal-gouttiere); display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)) 58px 58px; background:
+  repeating-linear-gradient(180deg, var(--socle-grille-graphique) 0 1px, transparent 1px 47px); }
+.sc-cal-jours::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(180deg, transparent 0 23px, var(--socle-trait-tres-discret) 23px 24px, transparent 24px 47px); opacity: 0.6; }
+.sc-cal-jour { position: relative; border-left: 1px solid var(--socle-bord-ligne); min-width: 0; }
+.sc-cal-jour[data-aujourdhui] { background: color-mix(in srgb, var(--socle-blanc) 2.5%, transparent); }
+.sc-cal-bloc { position: absolute; display: flex; flex-direction: column; gap: 1px; padding: 5px 8px 4px 10px; margin: 0 3px; box-sizing: border-box; text-align: left; border-radius: 8px; border: 1px solid var(--socle-bord-ligne); border-left: 3px solid var(--sc-cal-f, var(--socle-texte-3)); background: color-mix(in srgb, var(--sc-cal-f, var(--socle-texte-3)) 9%, var(--socle-carte-bas)); color: var(--socle-texte-1); font: inherit; overflow: hidden; cursor: pointer; transition: transform 120ms ease; animation: sc-cal-entree 220ms ease both; }
+.sc-cal-bloc:hover { transform: translateY(-2px); }
+.sc-cal-bloc:focus-visible { outline: 2px solid var(--socle-texte-1); outline-offset: 1px; }
+.sc-cal-bloc[data-etat='passe'] { opacity: 0.72; }
+.sc-cal-bloc[data-prochain] { border-color: color-mix(in srgb, var(--sc-cal-f) 30%, transparent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--sc-cal-f) 10%, transparent); }
+.sc-cal-bloc[data-famille='personnel'] { background: var(--socle-sous-carte); }
+.sc-cal-bloc[data-genre='concentration'] { border-left-width: 1px; border-color: color-mix(in srgb, var(--socle-etat-info) 20%, transparent); background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--socle-etat-info) 8.5%, transparent) 0 2px, transparent 2px 7px), var(--socle-carte-bas); }
+.sc-cal-bloc__titre { display: flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sc-cal-bloc__titre svg { color: var(--socle-etat-info); flex: 0 0 auto; }
+.sc-cal-bloc__heure, .sc-cal-bloc__detail { font-size: 11px; color: var(--socle-texte-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sc-cal-bloc__ligne { display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 11.5px; white-space: nowrap; }
+.sc-cal-bloc__ligne b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+.sc-cal-bloc__ligne span { font-size: 11px; color: var(--socle-texte-3); }
+.sc-cal-bloc[data-ligne] { padding-top: 3px; padding-bottom: 3px; justify-content: center; }
+@keyframes sc-cal-entree { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.sc-cal-trajet { position: absolute; left: 12px; display: flex; align-items: flex-start; gap: 5px; padding-top: 1px; border-left: 1px dashed var(--socle-trait-discret); padding-left: 8px; font-size: 11px; color: var(--socle-texte-3); white-space: nowrap; pointer-events: none; }
+.sc-cal-propose { position: absolute; left: 0; right: 0; margin: 0 3px; display: flex; align-items: flex-end; justify-content: space-between; gap: 6px; padding: 5px 8px; box-sizing: border-box; border-radius: 8px; border: 1.5px dashed color-mix(in srgb, var(--socle-etat-succes) 55%, transparent); background: color-mix(in srgb, var(--socle-etat-succes) 5%, transparent); color: var(--socle-texte-1); font: inherit; font-size: 11px; font-weight: 600; text-align: left; cursor: pointer; }
+.sc-cal-propose span { display: block; flex: 1 1 auto; }
+.sc-cal-propose svg { color: var(--socle-etat-succes); }
+.sc-cal-propose:focus-visible { outline: 2px solid var(--socle-texte-1); outline-offset: 1px; }
+.sc-cal-enplus { position: absolute; right: 6px; top: 4px; font-size: 10.5px; color: var(--socle-texte-3); }
+.sc-cal-maintenant { position: absolute; left: calc(-1 * var(--sc-cal-gouttiere)); right: 0; height: 0; pointer-events: none; z-index: 3; }
+.sc-cal-maintenant__pastille { position: absolute; left: 4px; top: -9px; padding: 2px 6px; border-radius: 999px; background: var(--socle-etat-info); color: var(--socle-primaire-encre); font-size: 11px; font-weight: 600; }
+.sc-cal-maintenant__trait { position: absolute; left: var(--sc-cal-gouttiere); right: 0; top: 0; border-top: 1px solid color-mix(in srgb, var(--socle-etat-info) 28%, transparent); }
+.sc-cal-maintenant__fort { position: absolute; left: 0; right: 0; height: 0; border-top: 2px solid var(--socle-etat-info); z-index: 3; pointer-events: none; }
+.sc-cal-maintenant__fort::before { content: ''; position: absolute; left: -4px; top: -5px; width: 8px; height: 8px; border-radius: 50%; background: var(--socle-etat-info); animation: sc-cal-vivant 2s ease-in-out infinite; }
+@keyframes sc-cal-vivant { 50% { opacity: 0.4; } }
+.sc-cal-vide { position: absolute; inset: 0; display: grid; place-items: center; z-index: 4; }
+.sc-cal-pied { display: flex; align-items: center; gap: 16px; height: 36px; margin-top: 8px; padding: 0 16px; border-top: 1px solid var(--socle-bord-ligne); font-size: 12px; color: var(--socle-texte-2); flex: 0 0 auto; }
+.sc-cal-legende { display: inline-flex; align-items: center; gap: 7px; }
+.sc-cal-legende i { width: 8px; height: 8px; border-radius: 2px; background: var(--sc-cal-f, var(--socle-texte-3)); }
+.sc-cal-legende[data-genre='concentration'] i { background: repeating-linear-gradient(135deg, var(--socle-etat-info) 0 1px, transparent 1px 3px); border: 1px solid var(--socle-etat-info); }
+.sc-cal-legende[data-genre='trajet'] i { width: 1px; height: 12px; border-radius: 0; background: none; border-left: 1px dashed var(--socle-trait-discret); }
+.sc-cal-legende[data-genre='propose'] i { background: none; border: 1.5px dashed var(--socle-etat-succes); }
+
+/* Les familles : un jeton du socle chacune. */
+[data-famille='equipe'] { --sc-cal-f: var(--socle-fam-jour); }
+[data-famille='clients'] { --sc-cal-f: var(--socle-fam-contacts); }
+[data-famille='argent'] { --sc-cal-f: var(--socle-fam-argent); }
+[data-famille='chantiers'] { --sc-cal-f: var(--socle-fam-creer); }
+[data-famille='securite'] { --sc-cal-f: var(--socle-texte-2); }
+[data-famille='personnel'] { --sc-cal-f: var(--socle-texte-3); }
+
+@media (prefers-reduced-motion: reduce) { .sc-cal-bloc, .sc-cal-charge__barre i, .sc-cal-maintenant__fort::before { animation: none; } .sc-cal-bloc { transition: none; } }
+@media (max-width: 1279px) { .sc-cal { grid-template-columns: minmax(0, 1fr); } .sc-cal-rail { display: none; } }

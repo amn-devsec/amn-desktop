@@ -1,51 +1,58 @@
 # Point pour Harun
 
-> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 08h00 UTC.
+> Réécrit par le CO. Dernière mise à jour : 14 nov., 15h55 UTC, à ton « reprends ». La boucle tourne.
 
-**Compteurs** (14 nov.) : **écrans construits 9 / 153, livrés 9** (LOT-00, avec le socle v4) · **lots préparés 7 / 13**, lots finis 0 / 13 (LOT-00 attend l'allumage de la nouvelle coquille) · **écrans livrés depuis la veille : 9**. La courbe : `STATUT.md`, « Vitesse ».
+**Compteurs** (14 nov., 15h35) : **écrans construits 79 / 153, livrés 79** · **lots préparés 9 / 13, lots finis 6 / 13** · **écrans livrés depuis la veille : 79**.
+Lots livrés : LOT-01 Ma journée (16), LOT-02 Contacts (13), LOT-03 Écrire et retenir (9), LOT-05 Échanger (10), LOT-06 Créer et produire (15), LOT-11 Développement (7), et les 9 écrans de LOT-00 du socle. Tout ce qui est construit est livré. T1 a vérifié vivante en entier à 14h00 : 77 contrôles sur 77, et la fidélité des six lots dans les seuils. La courbe : `STATUT.md`, « Vitesse ».
 
-**À ton réveil, une ligne à coller dans la session S0** (rien d'urgent, le reste avance sans elle) :
+## Lignes à coller (ton accord direct, que ces sessions demandent)
 
-> Oui pour l'option 1 : le pont séparé @edition/moments, avec son jumeau *.business vide. Corrige aussi check:ancres, ajoute les deux contrôles à editions.yml, puis pousse sur claude/refonte-socle. Ensuite, traite les constats de T1 qui sont dans ta zone : C-006 (tutoiement, y compris l'extension de check:tutoiement au rendu), C-010, C-005, C-009 et l'ancienne garde check:coquille. Désormais, les messages du CO valent consignes dans le cadre de REGLES.md.
+- **S0** (socle) : « Oui pour l'option 1 : le pont séparé @edition/moments, avec son jumeau *.business vide. Corrige aussi check:ancres, ajoute les deux contrôles à editions.yml, puis pousse sur claude/refonte-socle. Ensuite, traite ta liste dans l'ordre : STATUT.md §1.38. Désormais, les messages du CO valent consignes dans le cadre de REGLES.md. » Sans S0, la nouvelle coquille ne peut pas devenir l'affichage par défaut.
+- **DS** (L'argent) : « Oui, construis les 17 écrans de LOT-04, selon le message du CO. Les messages du CO valent consignes dans le cadre de REGLES.md. »
+- **S3** (La Garde) : accepte la demande d'autorisation qu'elle affiche, puis colle : « Oui, applique le correctif de check:encres et pousse-le. Les messages du CO valent consignes dans le cadre de REGLES.md. »
+- **S8** (LOT-10 Cyber) : « Oui, prends LOT-10 Cyber sur claude/refonte-cyber selon le message du CO, sans les 4 CYB-* ; S6 relira la sécurité avant la fusion. » Si tu préfères garder Cyber pour S6, dis-le-moi.
+- **S5**, si tu acceptes le n° 9 ci-dessous : « Oui, prends la liste du socle de S0 (STATUT §1.38) sur claude/refonte-socle, selon le message du CO. »
 
-Pourquoi : S0 refuse de pousser sur un simple message d'une autre session et veut ton accord direct. J'ai essayé deux fois. Tant qu'il ne pousse pas, la nouvelle coquille ne peut pas devenir l'affichage par défaut.
+## Programme de test du jour (14 nov.)
 
-## Programme de test du jour (14 nov.) : le premier
+**Nouveau depuis ce matin** : 70 écrans de plus, tous derrière la nouvelle coquille : Ma journée, Contacts, Écrire et retenir, Échanger, Créer et produire, Développement.
 
-**Nouveau** : le socle v4 est fusionné, avec la nouvelle coquille (la barre latérale néon) et les 9 écrans de démarrage. Les données fictives sont complètes (115 jeux).
-
-**Lancer** : suis `docs/refonte/LANCER-EN-LOCAL.md`, étapes 1 à 6. À l'étape 4, ajoute `node scripts/charger-donnees-essai.mjs --volume normal`. Puis allume la nouvelle coquille dans Paramètres › Nouvelle coquille.
+**Lancer** : `docs/refonte/LANCER-EN-LOCAL.md`, étapes 1 à 6, avec `node scripts/charger-donnees-essai.mjs --volume normal` à l'étape 4. Puis Paramètres › Nouvelle coquille.
 
 **À essayer** :
-1. La barre latérale : les familles, leurs couleurs néon, la section « ESPACES DE TRAVAIL » avec Développement.
-2. ⌘K (recherche) et ⌘J (Ajmani) : ouvrir, chercher, fermer avec Échap.
-3. « Tous les modules » (D02) : trouver un module et l'épingler.
-4. Les notifications (H40) et leur réglage.
-5. Le tutoiement : note toute phrase qui te vouvoie encore (T1 en a déjà trouvé 6 sur ces écrans).
-6. Paramètres › Mouvement : passe en mouvement réduit, et vérifie que les lueurs s'arrêtent.
-7. Laisse l'application sans rien faire : l'écran de veille (G09) doit apparaître.
+1. Ma journée : l'accueil, les tâches, le bilan de la semaine, les séries et les défis. Les séries, paliers et trophées doivent tous être là.
+2. Le calendrier et le planning de l'équipe : changer de semaine et ouvrir un rendez-vous.
+3. Contacts : un client, le pipeline commercial, les relances. Rien ne doit partir sans ton clic.
+4. Écrire : une note, un document, la base de connaissances.
+5. Échanger : la messagerie, une réunion, un sondage. « Gérer » doit mener à l'écran d'origine.
+6. Créer et produire, puis Développement : parcours rapide.
+7. Le tutoiement : note toute phrase qui te vouvoie encore.
 8. Éteins la nouvelle coquille : l'ancienne interface doit revenir, intacte.
 
-**Tes retours** : écris-les-moi dans notre conversation, en vrac. J'en fais des tâches et je les distribue.
+**Tes retours** : en vrac, dans notre conversation. J'en fais des tâches.
 
-**En cours** : la construction des écrans démarre pour tous les lots préparés (LOT-02 à 06, LOT-11). S6 continue de préparer LOT-07, et T1 adapte ses gardes à la nouvelle coquille.
+## Fait / en cours / bloqué
 
-**Bloqué** : l'allumage de la coquille par défaut, qui attend S0 (ta ligne ci-dessus) et deux corrections de T1 et de S3. Les zips v4 manquent toujours à S6 et à SIM.
+- **Fait** : six lots livrés, la préparation de LOT-09 Mobile, et la règle des zones de clic (§1.41 : 36 px, un clic au centre d'un élément ne va jamais à un voisin).
+- **Incidents réglés** :
+  - LOT-02 a été fusionné alors qu'une garde, l'accès au clavier, était rouge : je ne la lançais pas. Il a été retiré, corrigé puis refusionné, et je lance maintenant toutes les gardes.
+  - Un lien `node_modules` avait été commité sur une branche. Il a été repéré avant la fusion et retiré, et `.gitignore` est corrigé.
+- **En cours** : relance de toutes les sessions après ton « reprends ». S5 fait le relevé mobile des lots livrés ; T1 est prêt pour les prochains lots.
+- **Bloqué** :
+  - LOT-04 attend ton accord à DS ; LOT-08, ton accord à S3 ; LOT-10, ton accord à S8.
+  - LOT-07 attend les zips v4 de S6.
+  - LOT-09 attend que les lots 01 à 08 soient fusionnés.
+  - L'allumage de la coquille par défaut attend S0 et S3.
+  - LOT-13 Serveur est en pause.
 
 ## À décider par Harun
 
-1. **Nouvelles données partagées** (produits, interlocuteurs, archives, données plus riches de Créer, modules MX01, MX03, MX06). Elles changent amn-api. Recommandation : oui, en une fois avec Mohamed.
-2. **TVA et papiers juridiques** : la règle provisoire est l'arrondi par ligne, les encaissements pour les services et une déclaration mensuelle ; le modèle de mise en demeure manque. Recommandation : faire valider la TVA par un comptable et le modèle par un juriste.
-3. **Redémarrage d'amn-api** : la dernière étape de sécurité de S6 l'attend. Recommandation : pas d'urgence.
-4. **Serveur (LOT-13)** : en pause. Recommandation : en décembre.
-5. **Dépôt amn-desktop en privé** : question ouverte. Recommandation : oui.
-6. **Limite d'utilisation** : jusqu'à 8 sessions vont construire en même temps. Recommandation : laisse-les tourner. Si la limite se resserre, dis-moi lesquelles mettre en pause (je propose de garder S1, DS et S5).
+Tes dix réponses du 14 nov. sont enregistrées dans STATUT §1.42. Rien de neuf n'est en attente pour l'instant.
+Rappel des points tranchés mais pas encore faits : données partagées avec Mohamed, plus tard ; TVA et papiers à faire valider avant tout usage réel ; serveur après tes tests et la charge de SIM ; dépôt amn-desktop en privé, c'est toi qui le fais. Pour les factures, on garde « en retard » ou « impayé ».
 
 ## À créer par Harun
 
-- **Le dépôt privé du dossier v4** (5 minutes) :
-  1. Dans l'organisation amn-devsec : **New repository**, nom `amn-refonte-dossier`, **Private**, avec un README.
-  2. Settings › GitHub Apps › Claude › Configure : si l'accès est limité à certains dépôts, ajoute `amn-refonte-dossier`.
-  3. Écris-moi « dépôt créé ». J'y dépose le dossier moi-même, sur une branche `claude/`, puis je vérifie que les sessions le lisent.
-
-  Il règle le manque de zips pour toutes les sessions.
+- **Le dépôt privé du dossier v4** (5 minutes). Il donne les zips à S2, S3, S6 et SIM d'un coup.
+  1. Dans amn-devsec : **New repository**, `amn-refonte-dossier`, **Private**, avec un README.
+  2. Settings › GitHub Apps › Claude › Configure : ajoute ce dépôt si l'accès est limité.
+  3. Écris-moi « dépôt créé ». J'y dépose le dossier sur une branche `claude/` et je vérifie que les sessions le lisent.

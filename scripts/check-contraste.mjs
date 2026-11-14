@@ -144,8 +144,14 @@ await attendre(2000);
    une mesure faussée, aucune mesure du tout. */
 const passer = page.getByRole('button', { name: 'Passer' });
 if ((await passer.count()) > 0) { await passer.click(); await attendre(500); }
-const plusTard = page.getByRole('button', { name: 'Plus tard' });
-if ((await plusTard.count()) > 0) { await plusTard.click(); await attendre(500); }
+/* Un compte neuf peut voir plusieurs « Plus tard » à la suite (Démarrage, puis « Qui êtes-vous ? ») : on les ferme un par
+   un, le premier visible, jusqu'à ce qu'il n'en reste plus (C-009). */
+for (let i = 0; i < 4; i += 1) {
+  const plusTard = page.getByRole('button', { name: 'Plus tard' }).first();
+  if ((await plusTard.count()) === 0) break;
+  await plusTard.click().catch(() => undefined);
+  await attendre(500);
+}
 
 /* La famille « Personnel » lit `localStorage`, pas l'API : sans ce jeu
    d'essai, ses six écrans sont mesurés vides — donc jamais mesurés. Même
@@ -219,10 +225,43 @@ while (aVisiter.length > 0) {
     // Le premier ancêtre VRAIMENT opaque : un fond à 8 % ne cache rien.
     const fond = (el) => {
       for (let n = el; n; n = n.parentElement) {
-        const c = rgb(getComputedStyle(n).backgroundColor);
+        const cs = getComputedStyle(n);
+        const c = rgb(cs.backgroundColor);
         if (c && c.a > 0.99) return c;
       }
       return { r: 10, g: 10, b: 10 };
+    };
+    /*
+      LES DÉGRADÉS OPAQUES (néon de la coquille v4 : avatars, boutons pleins). Un texte sombre posé sur
+      `linear-gradient(135deg, rgb(255,107,122), rgb(165,139,255))` n'est pas « sombre sur le fond de la page » : il est sur
+      CE dégradé. Lire seulement `background-color` rendait 160 « 1,01:1 » sur une page où le vrai contraste est de 7 à 8:1
+      (docs/qualite/constats/C-008). On prend le premier ancêtre qui porte un dégradé dont tous les arrêts sont opaques, et
+      on retient le PIRE arrêt (voir `fondsPossibles`). Un dégradé translucide (halo, voile) ne cache rien : on l'ignore.
+    */
+    const fondsPossibles = (el) => {
+      for (let n = el; n; n = n.parentElement) {
+        const cs = getComputedStyle(n);
+        const plein = rgb(cs.backgroundColor);
+        if (plein && plein.a > 0.99) return [plein];
+        const img = cs.backgroundImage;
+        if (img && /gradient/.test(img)) {
+          // La couche du DESSUS : `linear-gradient(plein, plein), linear-gradient(néon)` est la bordure dégradée — le
+          // néon ne se voit qu'à la bordure, le texte est sur le plein (mesuré sur « Le point d'Ajmani »).
+          let haut = '';
+          let prof = 0;
+          for (const ch of img) {
+            if (ch === '(') prof += 1;
+            if (ch === ')') prof -= 1;
+            if (ch === ',' && prof === 0) break;
+            haut += ch;
+          }
+          if (/gradient/.test(haut)) {
+            const arrets = [...haut.matchAll(/rgba?\([^)]+\)/g)].map((m) => rgb(m[0]));
+            if (arrets.length >= 2 && arrets.every((a) => a && a.a > 0.99)) return arrets;
+          }
+        }
+      }
+      return [{ r: 10, g: 10, b: 10 }];
     };
 
     const bas = [];
@@ -245,7 +284,17 @@ while (aVisiter.length > 0) {
       if (!fg) continue;
       lus += 1;
 
-      const bg = fond(el);
+      let bg = fond(el);
+      const candidats = fondsPossibles(el);
+      if (candidats.length > 1) {
+        // le pire arrêt du dégradé : celui dont le contraste avec le texte est le plus faible
+        let pire = Infinity;
+        for (const cand of candidats) {
+          const l1 = lum(composer(fg, cand)); const l2 = lum(cand);
+          const r = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+          if (r < pire) { pire = r; bg = cand; }
+        }
+      }
       const cle = `${cs.color} sur rgb(${bg.r}, ${bg.g}, ${bg.b}) @${parseFloat(cs.fontSize)}px/${cs.fontWeight}`;
       const exemple = propre.replace(/\s+/g, ' ').slice(0, 40);
 

@@ -1,0 +1,348 @@
+/*
+ * ME01 — Journal. Cotes propres : la colonne de gauche (299 px : mois, humeur, souvenir) et la page du jour qui prend le
+ * reste. Couleurs : jetons de la famille et du socle.
+ */
+.ec-me01__corps {
+  gap: 14px;
+}
+.ec-me01__gauche {
+  width: 299px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+}
+.ec-me01__mois,
+.ec-me01__humeur,
+.ec-me01__souvenir {
+  padding: 14px 16px;
+  flex: none;
+}
+.ec-me01__mois h2 {
+  font-size: 15px;
+}
+.ec-me01__fleches {
+  display: inline-flex;
+  gap: 8px;
+}
+.ec-me01__fleches button {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid var(--socle-bord-bouton);
+  background: transparent;
+  color: var(--socle-texte-2);
+  cursor: pointer;
+}
+.ec-me01__fleches button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.ec-me01__grille {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  row-gap: 10px;
+  margin-top: 6px;
+  justify-items: center;
+}
+.ec-me01__initiale {
+  font-size: 11px;
+  color: var(--socle-texte-3);
+}
+.ec-me01__jour {
+  width: 26px;
+  height: 26px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  color: var(--socle-texte-3);
+  cursor: pointer;
+  position: relative;
+}
+.ec-me01__jour:disabled {
+  cursor: default;
+}
+.ec-me01__jour[data-etat='ecrit'],
+.ec-me01__jour[data-etat='aujourdhui'] {
+  color: var(--socle-texte-1);
+  background: color-mix(in srgb, var(--fam-a) calc(14% + 26% * var(--intensite, 0)), var(--socle-piste));
+}
+.ec-me01__jour[data-etat='aujourdhui'] {
+  outline: 1.5px solid var(--fam-a);
+  outline-offset: 1px;
+}
+.ec-me01__jour[data-etat='avenir'] {
+  color: var(--socle-trait-discret);
+}
+.ec-me01__serie {
+  margin-top: 12px;
+}
+.ec-me01__serie-haut {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.ec-me01__grand {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+  background: linear-gradient(180deg, var(--socle-blanc) 30%, var(--fam-a));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.ec-me01__serie-libelle {
+  font-size: 12.5px;
+  color: var(--socle-texte-2);
+}
+.ec-me01__serie-ecrits {
+  margin-left: auto;
+}
+.ec-me01__piste {
+  display: block;
+  height: 5px;
+  margin-top: 8px;
+  border-radius: 99px;
+  background: var(--socle-piste);
+  overflow: hidden;
+}
+.ec-me01__piste i {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--fam-a), var(--fam-b));
+}
+.ec-me01__palier {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--socle-texte-2);
+}
+.ec-me01__barres {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 64px;
+  margin-top: 12px;
+}
+.ec-me01__barres i {
+  flex: 1;
+  border-radius: 2px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--fam-a) 50%, transparent), color-mix(in srgb, var(--fam-a) 10%, transparent));
+}
+.ec-me01__barres i[data-derniere='oui'] {
+  background: linear-gradient(180deg, var(--fam-a), color-mix(in srgb, var(--fam-a) 30%, transparent));
+  box-shadow: 0 0 10px -2px var(--fam-a);
+}
+.ec-me01__bornes {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 10.5px;
+  color: var(--socle-texte-3);
+}
+.ec-me01__souvenir-quand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--socle-texte-3);
+}
+.ec-me01__souvenir blockquote {
+  margin: 8px 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--socle-texte-courant);
+}
+.ec-me01__relire {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--socle-texte-2);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.ec-me01__relire:disabled {
+  cursor: default;
+}
+
+/* — La page du jour — */
+.ec-me01__page {
+  flex: 1;
+  min-width: 0;
+  padding: 18px 24px 14px;
+  gap: 16px;
+  overflow: hidden;
+}
+.ec-me01__page-tete {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+.ec-me01__etiquette {
+  margin: 0;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--socle-texte-3);
+}
+.ec-me01__page-tete h2 {
+  margin: 4px 0 0;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.ec-me01__meta {
+  display: flex;
+  gap: 16px;
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--socle-texte-3);
+}
+.ec-me01__meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.ec-me01__page-actions {
+  display: inline-flex;
+  gap: 8px;
+}
+.ec-me01__plus {
+  width: 34px;
+  height: 31px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  border: 1px solid var(--socle-bord-bouton);
+  background: transparent;
+  color: var(--socle-texte-2);
+}
+.ec-me01__champ-titre {
+  margin: 0 0 8px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--socle-texte-3);
+}
+.ec-me01__humeur-ligne {
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+}
+.ec-me01__niveaux {
+  display: flex;
+  gap: 8px;
+}
+.ec-me01__niveaux button {
+  height: 28px;
+  padding: 0 14px;
+  border-radius: 99px;
+  border: 1px solid var(--socle-bord-pilule);
+  background: transparent;
+  color: var(--socle-texte-2);
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+.ec-me01__niveaux button[data-actif='oui'] {
+  color: var(--socle-encre-accent);
+  font-weight: 600;
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--fam-a), var(--fam-b));
+  box-shadow: 0 0 14px -4px var(--fam-a);
+}
+.ec-me01__energie {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+}
+.ec-me01__energie i {
+  width: 22px;
+  height: 7px;
+  border-radius: 3px;
+  background: var(--socle-piste);
+}
+.ec-me01__energie i[data-plein='oui'] {
+  background: linear-gradient(90deg, var(--fam-a), var(--fam-b));
+}
+.ec-me01__energie span {
+  margin-left: 8px;
+  font-size: 12.5px;
+  color: var(--socle-texte-2);
+}
+.ec-me01__mercis {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.ec-me01__mercis li {
+  display: flex;
+  gap: 14px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--socle-bord-ligne);
+  font-size: 14px;
+  color: var(--socle-texte-1);
+}
+.ec-me01__mercis li span {
+  color: var(--socle-texte-3);
+  font-size: 12px;
+  width: 8px;
+}
+.ec-me01__mercis em {
+  color: var(--socle-texte-3);
+  font-style: normal;
+}
+.ec-me01__retiens {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.ec-me01__retiens textarea {
+  flex: 1;
+  min-height: 60px;
+  resize: none;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  color: var(--socle-texte-1);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.ec-me01__etiquettes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 8px;
+}
+.ec-me01__pied {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--socle-texte-3);
+}
+.ec-me01__pied-droite {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}

@@ -24,6 +24,7 @@
       "@edition/coquille": ["src/edition/coquille.business.tsx"],
       "@edition/substitutions": ["src/edition/substitutions.business.tsx"],
       "@edition/socle-theme.css": ["src/edition/socle-theme.business.css"],
+      "@edition/automatisations": ["src/edition/automatisations.business.tsx"],
       "@edition/mainExclusive": ["src/main/exclusive.business.ts"],
       "@edition/preloadExclusive": ["src/preload.exclusive.business.ts"]
     }
