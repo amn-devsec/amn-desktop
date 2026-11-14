@@ -1,3 +1,4 @@
+import { Inbox } from 'lucide-react';
 import { declarerFamille, vue } from '../declarer';
 
 /**
@@ -5,7 +6,8 @@ import { declarerFamille, vue } from '../declarer';
  *
  * Décisions validées : la RH (Recrutement, Procédures, Formation,
  * Habilitations, Bulletins de paie) vit ici ; Équipe (l’ancien onglet du
- * bureau Supervisor) est une vue de la Messagerie. Regroupés aussi : Appels et salles.
+ * bureau Supervisor) est une vue de « Canaux » (la messagerie d’équipe) ; « Messagerie » est la boîte des clients (G07).
+ * Regroupés aussi : Appels et salles.
  */
 
 export default declarerFamille({
@@ -22,7 +24,20 @@ export default declarerFamille({
   },
   modules: [
     {
+      // G07 : la boîte des CLIENTS (courriel, WhatsApp, SMS). L'ancienne « Messagerie » (équipe) devient « Canaux » (STATUT §1.32 n° 1).
       nom: { fr: 'Messagerie', en: 'Messaging' },
+      action: 'discuter',
+      niveau: 'essentiel',
+      vues: [
+        vue('clientInbox', '/messagerie', ['répondre à un client', 'voir qui attend une réponse', 'écrire à un client'], ['messagerie', 'client', 'courriel', 'whatsapp', 'sms', 'boîte', 'réponse'], {
+          en: { verbes: ['reply to a client', 'see who is waiting for an answer', 'write to a client'], motsCles: ['messaging', 'client', 'email', 'whatsapp', 'sms', 'inbox', 'reply'] },
+          etiquette: { fr: 'Messagerie', en: 'Messaging' },
+          nouveau: { icone: Inbox, ecran: () => import('../../echanger/ecrans/g07/PageBoite'), indice: { fr: 'Répondre à tes clients, tous canaux mêlés', en: 'Answer your clients, every channel in one thread' } },
+        }),
+      ],
+    },
+    {
+      nom: { fr: 'Canaux', en: 'Channels' },
       action: 'discuter',
       niveau: 'essentiel',
       vues: [

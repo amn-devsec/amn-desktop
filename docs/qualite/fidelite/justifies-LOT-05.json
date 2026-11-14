@@ -1,0 +1,11 @@
+{
+  "_": "Écarts de LOT-05 au-dessus de 15 % (aperçu 1440 × 900 contre l'image v4, mesure brute de la session S5 le 14 nov., à refaire par T1 sur le build). Chaque raison dit, zone par zone, ce qui diffère. Mêmes écarts de coquille pour tous les écrans de ce fichier : la barre latérale de l'aperçu porte la section « ESPACES DE TRAVAIL » (Développement) et les compteurs fictifs du bac à sable, absents des images ; l'en-tête porte le sélecteur d'organisation de la coquille. Données d'exemple : les titres, noms, nombres et dates des images sont ceux de la maquette dans l'aperçu (jamais codés en dur dans l'écran) ; les textes du jeu fictif diffèrent par leur longueur, donc par leurs retours à la ligne.",
+  "ecrans": {
+    "F40": {
+      "raison": "16,6 % brut. Le pouls, les canaux actifs, la Boîte à zéro et les dix tuiles tiennent leurs cotes ; l'écart restant est du texte à ± 1 ou 2 px (interligne des étiquettes de la règle, chiffres à chasse fixe des graduations) et les compteurs fictifs de la coquille. Aucune structure ne diffère."
+    },
+    "G07": {
+      "raison": "18,0 % brut. Bandeau 1108 × 72, couloirs 344 de large, lignes de 54 et 42 px, bande de contexte de 71 px et zone de réponse de 127 px tenus. Ce qui diffère : (1) le texte, décalé de 2 à 4 px à l'intérieur des lignes de couloir et des bulles (interligne et chasse des chiffres de l'attente) ; (2) « 2 h 11 » n'est pas orange dans l'aperçu : la promesse compte 2 heures OUVRÉES (9:00–18:00, décision du CO §1.32 n° 3), et le message de 08:31 n'en compte que 1 h 42 à 10:42 ; la règle est gardée contre l'image ; (3) les deux « Medina » de l'image (À répondre et En attente) sont deux clients distincts dans l'aperçu, un fil par client ; (4) les pastilles de canal et les tuiles de client sont dessinées avec les jetons du socle, sans le dégradé exact de la maquette ; (5) la barre latérale de l'aperçu (voir plus haut)."
+    }
+  }
+}

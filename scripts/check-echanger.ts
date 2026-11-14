@@ -51,8 +51,8 @@ async function charger<T>(code: string): Promise<T> {
 const FICHIERS = ['commun', 'boite', 'hub', 'canaux', 'connecteurs', 'appels', 'annonces', 'courriel', 'reunions', 'partages', 'sondages', 'reponsesAuto', 'i18n', 'phrases'];
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerF40 from '../${ZONE}/ecrans/f40/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
-const { commun: C, boite: B, hub: H, canaux: CA, connecteurs: CO, appels: AP, annonces: AN, courriel: CM, reunions: RE, partages: PA, sondages: SO, reponsesAuto: AU, i18n: I, phrases: PH, composerF40: CF40, monde } = M;
+const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerF40 from '../${ZONE}/ecrans/f40/composer';` + `\nexport * as composerG07 from '../${ZONE}/ecrans/g07/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
+const { commun: C, boite: B, hub: H, canaux: CA, connecteurs: CO, appels: AP, annonces: AN, courriel: CM, reunions: RE, partages: PA, sondages: SO, reponsesAuto: AU, i18n: I, phrases: PH, composerF40: CF40, composerG07: CG07, monde } = M;
 
 const NB = ' ';
 const paris = (j: string, hhmm: string): number => C.instantParis(j, Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3)));
@@ -1065,6 +1065,45 @@ await dit('F40 · composerHub : sous-titre, règle en racine carrée sur 3 h, ca
   assert.equal(calme.boite, null, 'rien à compter : pas de Boîte à zéro');
   assert.deepEqual(calme.modules.tuiles.map((t: any) => t.cle), ['appels'], 'seuls les modules ouverts ont une tuile');
   assert.equal(calme.canaux.lignes[0].statut, 'calme');
+});
+
+await dit('G07 · composerBoite : couloirs, filtres, bandeau, fil du client ; le plus ancien d’abord, un fil par client, la note interne dans le fil, rien d’inventé quand le poste n’a rien', () => {
+  const il = (min: number) => MAINT - min * 60_000;
+  const msg = (id: string, clientId: number, min: number, canal: string, sens = 'entrant', extra: any = {}) => ({ id, clientId, canal, sens, at: il(min), lu: id !== 'a', auteur: `Auteur ${clientId}`, texte: `Texte ${id}`, ...extra });
+  const messages = [msg('a', 1, 6, 'whatsapp'), msg('b', 2, 131, 'courriel'), msg('b2', 2, 20, 'whatsapp'), msg('n', 2, 10, 'whatsapp', 'sortant', { noteInterne: true }), msg('c', 3, 300, 'courriel'), msg('c2', 3, 250, 'courriel', 'sortant')];
+  const clients = { 'client:1': { nom: 'Un', initiales: 'UN', sousContrat: false, contexte: {} }, 'client:2': { nom: 'Deux', initiales: 'DE', interlocuteur: 'Une Personne', sousContrat: true, contexte: { contrat: { actif: true, echeance: '2026-12-31' }, contratNom: 'Contrat Z', facturesEnRetard: { nombre: 2, montantCents: 123_400 }, creneauxLibres: ['9:30', '14:00'], creneauxJour: '2026-11-05', creneauxSource: '2026-11-05' } }, 'client:3': { nom: 'Trois', initiales: 'TR', sousContrat: false, contexte: {} } };
+  const canaux = [{ canal: 'courriel', etat: 'actif' }, { canal: 'whatsapp', etat: 'actif' }, { canal: 'sms', etat: 'a-brancher' }];
+  const e = { langue: 'fr', maintenant: MAINT, prenom: 'Sam', messages, gestes: [{ filId: 'client:3', etat: 'en-attente', at: il(200), depuisLe: il(3 * 24 * 60), attend: 'Un accord' }], clients, canaux, soirs: [], filChoisi: 'client:2', filtre: 'tous', pliesOuverts: new Set(), brouillon: { texte: 'Bonjour Madame, à jeudi.', creneau: '9:30' }, initialesJours: ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.'] };
+  const v = CG07.composerBoite(e);
+  assert.equal(v.sousTitre.replace(/[\u00a0\u202f]/g, ' '), 'Bonjour Sam, 2 clients attendent une réponse · le plus ancien depuis 2 h 11');
+  assert.deepEqual(v.couloirs.aRepondre.lignes.map((l: any) => l.id), ['client:2', 'client:1'], 'le plus ancien d’abord');
+  assert.equal(v.couloirs.aRepondre.lignes[0].canal.id, 'whatsapp', 'le canal du dernier message du client, pas de la note interne');
+  assert.ok(!v.couloirs.aRepondre.lignes.some((l: any) => /Texte n\b/.test(l.apercu)), 'l’aperçu n’est jamais une note interne');
+  assert.deepEqual(v.couloirs.enAttente.lignes.map((l: any) => [l.id, l.attend, l.quand.replace(/[\u00a0\u202f]/g, ' ')]), [['client:3', 'Un accord', 'depuis 3 j']]);
+  assert.equal(v.badge, 2);
+  assert.deepEqual(v.filtres.map((f: any) => [f.id, f.n, f.actif]), [['tous', 3, true], ['courriel', 1, false], ['whatsapp', 2, false], ['sms', 0, false]]);
+  assert.equal(v.fil.contrat.texte, 'Client sous contrat');
+  assert.equal(v.fil.messages.length, 3, 'le fil du client mêle ses canaux et porte la note interne');
+  assert.ok(v.fil.messages.some((m: any) => m.genre === 'note'));
+  assert.equal(v.fil.memeFil.texte, 'Même fil sur 2 canaux');
+  const cx = Object.fromEntries(v.fil.contexte.map((c: any) => [c.cle, c]));
+  assert.equal(cx.contrat.valeur, 'Contrat Z');
+  assert.equal(cx.factures.ton, 'orange');
+  assert.equal(cx.factures.valeur, '2 impayées');
+  assert.equal(cx.creneaux.etiquette, 'Créneaux jeudi');
+  assert.equal(cx.creneaux.valeur, '9:30 ou 14:00');
+  assert.equal(cx.passage.valeur, 'Rien à signaler', 'une donnée qui manque ne laisse pas un vide');
+  assert.deepEqual(v.fil.reponse.canaux.map((c: any) => [c.id, c.actif, c.grise]), [['courriel', false, false], ['whatsapp', true, false], ['sms', false, true]], 'le canal du dernier message est choisi, un canal à brancher est grisé');
+  assert.equal(v.fil.reponse.info, 'Brouillon d’Ajmani, à relire avant d’envoyer');
+  const filtre = CG07.composerBoite({ ...e, filtre: 'courriel' });
+  assert.deepEqual(filtre.couloirs.aRepondre.lignes, [], 'les puces de canal filtrent les couloirs');
+  const vide = CG07.composerBoite({ ...e, messages: [], gestes: [], clients: {}, filChoisi: null, prenom: '' });
+  assert.equal(vide.sousTitre, 'Personne n’attend de réponse');
+  assert.equal(vide.fil, null);
+  assert.deepEqual(vide.bandeau.carres, []);
+  assert.equal(vide.bandeau.valeur, '0 sur 0');
+  assert.equal(CG07.depuisLisible(il(30 * 60), MAINT, 'fr'), 'hier');
+  assert.equal(CG07.depuisLisible(il(2 * 24 * 60 + 30), MAINT, 'fr'), '2 j');
 });
 
 await dit('aucune brique visuelle : ni React, ni src/socle/ui, ni code partagé ; seulement les voisins, le dictionnaire du socle et le modèle des connecteurs (S9)', () => {
