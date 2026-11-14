@@ -4,9 +4,9 @@
 
 ## REPRISE (à lire en premier après une compaction ; tenu par le CO, réécrit à chaque tour)
 
-Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `74bb0d4`.
+Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `b76b7cb`.
 
-**À refusionner** : `c9e8713` (SIM). Sa fusion a été retirée par `git revert -m 1`, donc il faut d'abord **annuler ce retrait** (`git revert` du commit de retrait), puis fusionner la suite de SIM, une fois que `check:argent` passe chez DS.
+**Avoirs** : SIM a refait sa branche par-dessus le retrait (`7570fef`, fusionnée). Les avoirs sont désormais facultatifs (`construireMonde({ avoirs: true })`). Quand DS les lit, SIM passe `avoirs` à `true` par défaut, une ligne dans `monde.ts`.
 
 **Si la limite d'utilisation coupe le CO** : à la reprise (un message de Harun, une session, ou le réveil programmé), relire ce bloc, faire `git fetch` des branches `claude/refonte-*`, puis reprendre la boucle (lister, lire, contrôler, fusionner, répondre, mettre à jour). Réveil du CO : `send_later`, toutes les 20 min tant que des sessions travaillent, 45 min quand toutes attendent (consigne de Harun), réarmé à chaque tour.
 
@@ -15,12 +15,12 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 | S0 Socle | `session_01SJe828c2W5EnkMY4fhFY6z` | passe finale v4 finie (`888f7a0`) ; corrige `ancres` et `avoirs` | puis ce que T1 signale |
 | T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | passage 2 sur `888f7a0` en cours (avec le delta d'`ancres` et `avoirs` de S0) | son verdict → fusion du socle v4 et allumage (§1.9) ; puis `check:fidelite` (§1.30) |
 | S6 Sécurité | `session_01RHV8Xq2txWkfjAusKvq9DG` | LOT-07 préparation prête (`f52ef5d`) ; une étape de sécurité attend amn-api | fusion après le contrôle du paquet client par T1 |
-| SIM | `session_011UF2ufZg9moGv2rRZFRuf7` | `c9e8713` prêt mais **retiré** (casse `check:argent`) ; **sans dossier v4** | refusionner quand DS lit les avoirs ; puis fidélité, H05, LOT-03, LOT-11 |
+| SIM | `session_011UF2ufZg9moGv2rRZFRuf7` | `7570fef` fusionné (jeux de LOT-11, avoirs sur demande) ; **sans dossier v4** | fidélité, H05, LOT-03, règlements partiels, remises, MR08, résumé de DEV-serveur ; avoirs par défaut quand DS est prêt |
 | DS | `session_01TZGDvVWristJnnPK59rruY` | LOT-04 relu avec le v4 et fusionné (§1.33) ; a les zips | **lire les avoirs** : encore 2 propriétés rouges sur `c9e8713` |
 | S5 | `session_012jWErBSSkcoVaU3iN895bQ` | LOT-03, registre et LOT-05 fusionnés (§1.32) | attend le socle v4 |
 | S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | LOT-02 relu avec le v4 et fusionné (§1.31) ; a les zips | attend le socle v4 |
 | S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | préparation v4 fusionnée (`526cd63`) | attend le socle v4 |
-| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | en pause | feu vert de l'étape 3 au socle v4 ; jeux à commander à SIM |
+| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | en pause ; ses jeux sont livrés par SIM | feu vert de l'étape 3 au socle v4 |
 | S9 | `session_01C5DAVygXYax6Q7g436TPQx` | LOT-12 fini, valeurs de MC07 fusionnées (`bcdc65f`) | rien |
 | S2, S3 (première tâche : `check:encres`), F1 | `session_014ZkF6SeGRNi6NR3uEsjM5q`, `session_01FBSpK6n1yYtYXYyxbLAuBV`, `session_01VZHqP3gvzrtnpgsTrrKguV` | arrêtées | relancer au socle v4 (prompts : `PROMPTS-11NOV.md`, §1.21) |
 
@@ -44,6 +44,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov. : données de SIM fusionnées (`b76b7cb`, 109 jeux, 114 contrôles). Gardes lues avant le push, toutes vertes, `check:argent` (69) compris. Les avoirs n'entrent dans le monde que sur demande, jusqu'à ce que DS les lise ; ensuite une ligne de `monde.ts` les active par défaut. Les jeux de LOT-11 sont livrés.
 - 14 nov. : LOT-04 relu avec le v4, fusionné (`74bb0d4`) ; neuf décisions, dont le moteur de relances unique et la série de G03 (§1.33).
 - 14 nov. : LOT-07 préparation (S6, `f52ef5d`). Couture `@edition/automatisations` et tarifs de H21 relevés. Fusion à blanc propre : aucune garde nouvelle rouge, typechecks verts, un seul conflit d'ajout dans `editions.yml`. **Fusion en attente** : elle touche `AutomationsRunner.tsx`, partagé avec l'édition cliente, donc T1 compare d'abord le paquet client (règle D). LOT-05 (`df07f85`) fusionné.
 - 14 nov. : LOT-05 préparation et réglages de MC07 fusionnés (`5b2e8d0`), gardes lues avant le push (§1.32).
