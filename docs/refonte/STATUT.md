@@ -44,6 +44,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov., 08h50 : LOT-03, 5 écrans sur 9 (S5, `60de991`). Acceptés : `src/refonte/ecrire` au périmètre de `check:tutoiement`, avec 4 zones client ; « Signatures » qui s'ouvre sur H12 ; la série de ME01, sans devoir (repos le week-end, aucun reproche). S5 doit d'abord passer l'intégration de F1 et la correction durable de `check:navigation`.
 - 14 nov., 08h45 : jeux de LOT-01 (SIM `d8ba0fc7`) et harnais de `check:journee` (S2 `c4f31a7`) fusionnés ensemble. Gardes lues avant le push, toutes vertes (`check:donnees` 122, `check:journee`).
 - 14 nov., 08h40 : LOT-01 (`c978d05`) fusionné. `calculerAujourdhui` lit `serieDeLaJournee`, `defi.tenu` est au catalogue, et deux assertions de `check:socle-coquille` sont mises à jour par S2 pour la nouvelle règle de série. Gardes lues avant le push, toutes vertes.
 - 14 nov., 08h35 : `check:navigation` figeait 101 entrées et aucun écran neuf, ce qui bloquait F1 et S8. S5 en fait une correction durable : 101 + les écrans neufs déclarés, seules les routes `/essai/` sont comparées, et le `nom.en` de la déclaration est accepté, avec des contrôles négatifs. S8 est autorisé à modifier deux assertions de `check:socle-coquille` (zone de S0, bloqué) pour le compteur de LOT-11, sans perdre l'intention de la garde. S7 a 3 écrans sur 15 au-dessus du seuil de fidélité : justifications écrites, puis T1 tranche. T1 passe `check:fidelite` environ une fois par heure.
