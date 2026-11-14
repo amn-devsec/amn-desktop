@@ -4,7 +4,7 @@
 
 ## REPRISE (à lire en premier après une compaction ; tenu par le CO, réécrit à chaque tour)
 
-Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `ed3bdcb`.
+Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `5014f1cc`.
 
 **Avoirs** : réglé, ils sont présents par défaut (`b0173f3`).
 
@@ -12,17 +12,17 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 | Session | Identifiant | État | Prochain geste |
 |---|---|---|---|
-| S0 Socle | `session_01SJe828c2W5EnkMY4fhFY6z` | passe finale v4 finie (`888f7a0`) ; correctifs `ancres` et `avoirs` prêts mais **attend l'accord direct de Harun** pour pousser | ligne à coller par Harun (POINT-HARUN) ; puis ce que T1 signale |
-| T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | passage 2 fini : socle fusionné (§1.35) | C-008 (gardes sous la coquille v4), puis `check:fidelite` sur chaque lot, priorité 2 |
-| S6 Sécurité | `session_01RHV8Xq2txWkfjAusKvq9DG` | LOT-07 préparation **fusionnée** (`3030072`) ; **sans zips v4** ; une étape de sécurité attend amn-api | construire LOT-07 dès qu'il a les zips |
-| SIM | `session_011UF2ufZg9moGv2rRZFRuf7` | tout fusionné (`b0173f3`, 115 jeux) ; **sans dossier v4** | listes « Manque aux données » des lots à venir |
-| DS | `session_01TZGDvVWristJnnPK59rruY` | **construit LOT-04** | lots de 3 à 5 écrans → T1 → fusion |
-| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | **LOT-03 complet, 9 sur 9** (`a565a07`) ; `check:navigation` durable redemandé (2ᵉ fois) | garde durable, puis justifications, puis LOT-05 |
-| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **construit LOT-02** (feu vert le 14 nov., 08h) | lots de 3 à 5 écrans → `check:fidelite` de T1 → fusion |
-| S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **LOT-06 complet, 15 sur 15** (`277263a`) ; entrées de registre prêtes en local (`1c76fdd`) | après la fusion de LOT-03 : pousser `1c76fdd` → T1 → fusion |
-| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | LOT-11, 7 sur 7 ; correction de `check:navigation` fusionnée | pousser ses 6 déclarations → T1 remesure → fusion |
-| S9 | `session_01C5DAVygXYax6Q7g436TPQx` | LOT-12 fini, valeurs de MC07 fusionnées (`bcdc65f`) | rien |
-| S2, S3 (première tâche : `check:encres`), F1 — **relancés le 14 nov., 08h** | `session_014ZkF6SeGRNi6NR3uEsjM5q`, `session_01FBSpK6n1yYtYXYyxbLAuBV`, `session_01VZHqP3gvzrtnpgsTrrKguV` | arrêtées | relancer au socle v4 (prompts : `PROMPTS-11NOV.md`, §1.21) |
+| S0 Socle | `session_01SJe828c2W5EnkMY4fhFY6z` | attend l'accord direct de Harun | sa liste, §1.38 |
+| T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | `check:fidelite` par lot (aperçu + application) | test au clic réel des cibles de LOT-02 (7 routes) ; LOT-03 dès ME05 ; sonde courte de LOT-11 `5523167` |
+| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | LOT-02 **retiré de vivante** (`check:clavier`) ; nuages corrigés (`405e2986`) | 16 éléments cliquables au clavier, MC03, puis contrôle court de T1 → refusion (le CO annule le retrait) |
+| S2 | `session_014ZkF6SeGRNi6NR3uEsjM5q` | préparation de LOT-01 finie ; **sans zips v4** | en pause jusqu'aux zips |
+| S3 | `session_01FBSpK6n1yYtYXYyxbLAuBV` | attend l'accord de Harun (`check:encres`) ; **sans zips v4** | correctif d'`equipes.ts`, puis LOT-08 |
+| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | LOT-03 complet (mise en page acceptée) ; LOT-05 à 4 sur 6 (`078ca378`) | **d'abord ME05** (catalogue.ts) → T1 → fusion de LOT-03 ; puis MX03, MX06, raccord de F40 |
+| S6 | `session_01RHV8Xq2txWkfjAusKvq9DG` | préparation de LOT-07 fusionnée ; **sans zips v4** | construire LOT-07 dès les zips |
+| S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **LOT-06 livré**, suites fusionnées | reprendre MR01, MR10, H16, MR05, MR04 (disposition) |
+| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | **LOT-11 fusionné** (`751f5b67`) | zone de clic de « Relancer » (serveur), puis la suite de son plan |
+| DS | `session_01TZGDvVWristJnnPK59rruY` | attend l'accord direct de Harun pour construire LOT-04 | commencer par MA03, H07, MA12 |
+| SIM, S9, F1 | `session_011UF2ufZg9moGv2rRZFRuf7`, `session_01C5DAVygXYax6Q7g436TPQx`, `session_01VZHqP3gvzrtnpgsTrrKguV` | en pause | F1 : intégration reportée (S0) |
 
 **À dire au prochain message** : à chaque lot, donner dans son rapport la commande d'aperçu de ses écrans (§1.40) ; à chaque lot, ses exigences de cibles et de largeur (§1.37) ; à DS, la place des modules de F1 est corrigée (MA03 ↔ H07, §1.33 n° 4) ; à T1, (a) La Garde dans l'API d'essai demande une base sur fichier (SIM), (b) comparer le paquet client de `claude/refonte-outils` @ `f52ef5d` (`AutomationsRunner.tsx` partagé) avant sa fusion.
 
@@ -40,12 +40,24 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 | Jour | Construits | Livrés (cumul) | Livrés depuis la veille | Lots préparés | Lots finis | Note |
 |---|---|---|---|---|---|---|
-| 14 nov. | 48 / 153 (39 sur les branches des lots, à vérifier ; LOT-11, LOT-03 et LOT-06 complets) | 9 (LOT-00, socle v4) | 9 | 8 / 13 | 0 / 13 (LOT-00 attend l'allumage) | les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. La note de LOT-08 n'est pas fusionnée. |
+| 14 nov. | 57 / 153 | 31 (LOT-00 9, LOT-06 15, LOT-11 7) | 31 | 8 / 13 | 2 / 13 (LOT-06, LOT-11) ; LOT-00 attend l'allumage | LOT-02 (13) fusionné puis retiré à 11h25 (`check:clavier` rouge), refusion après correctif de S1. Les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. |
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov., 10h45 : **LOT-02 complet** (S1, `fbed7734`, 13 sur 13), en file chez T1. Réglages en `localStorage` à titre provisoire ; aucun envoi réel des relances avant la phase 0 de sécurité et le connecteur d'envoi ; formule de fidélité et réglages des relances dans H18. LOT-05 : 4 écrans sur 10 (S5), 17 essentiels acceptés.
+- 14 nov., 10h25 : suites de LOT-06 (S7 `5177df0`) : zones de clic de 34 px, repli de H17, H17 à 9,2 % en disposition. T1 remesure avant la fusion. Deux points du socle vont à la liste de S0 : le Bouton à 31 px et le décalage de PageHead (§1.38 n° 6).
+- 14 nov., 10h20 : LOT-11 (`a86c470`) : structure et paquet client bons (7 routes montées, identique octet pour octet côté client), mais **pas fusionné** : la fidélité n'est pas mesurable, faute d'aperçus dans le dépôt. S8 pousse ses aperçus (`scripts/apercu/ecrans/DEV-*.tsx`) et `justifies-LOT-11.json`, puis vérifie DEV-modeles-sites (75,6 % brut). DEV-ensemble n'a pas d'image, c'est une proposition validée : « ni pour ni contre » accepté. La règle tient : aucune fusion d'écrans sans fidélité mesurée.
+- 14 nov., 10h20 : entrées de registre des 3 écrans neufs de LOT-06 fusionnées (S7 `37152cf`) ; valeurs acceptées de LOT-06 fixées par T1 (brut et disposition surveillés, à +2 points). Gardes vertes.
+- 14 nov., 10h15 : **LOT-06 fusionné** (`e1615090`, 15 écrans), **premier lot livré** de la vague de construction. T1 l'a accepté : fidélité sur l'aperçu, les 15 écrans justifiés ; structure sur l'application, les 12 routes montées dans la coquille v4, rien de coupé à 390 px. Suites demandées à S7 : relire 6 écrans au-dessus de 15 % en disposition (H17, MR01, MR10, H16, MR05, MR04) ; zones de clic de 34 px (§1.39) ; l'état vide de H17 (« Le livre de marque d’ · ») ; les entrées de registre de ses 3 écrans neufs. T1 fixe les valeurs acceptées de LOT-06.
 - 14 nov., 10h00 : **LOT-06 complet** (S7, `277263a`, 15 sur 15). S7 et S8 butent tous deux sur `check:systeme-demarrage` (« le registre ne doit pas bouger », qui perd les fonctions des écrans neufs). Le correctif est sur la branche LOT-03 de S5 et arrive avec sa fusion. Ordre : LOT-03, puis S7 et S8 déclarent leurs écrans neufs, puis LOT-06 et LOT-11.
 - 14 nov., 10h00 : méthode de `check:fidelite` (§1.40). La fidélité se mesure sur l'aperçu statique, rempli avec les jeux de SIM ; l'application sert à la structure. Pas de collection nouvelle dans l'API d'essai.
+- 14 nov., 11h25 : **INCIDENT, LOT-02 retiré de vivante** (retrait de la fusion `d8319fa2`). `check:clavier` n'était pas dans la boucle de gardes du CO (exclusion par erreur). `850f940b` le rend rouge : 16 `<div>`/`<g>` cliquables sans clavier. La garde est verte sans LOT-02. S7 l'a vu en fusionnant vivante. **Correction de méthode** : la boucle lance toutes les `check:*`, sauf `business` (construction) et `fidelite` (outil de T1, avec paramètres). Refusion : S1 corrige le clavier et les nuages, T1 fait un contrôle court, puis le CO annule le retrait et fusionne la branche corrigée.
+- 14 nov., 11h20 : **réserve sur les cibles de LOT-02 tranchée par T1, au clic réel** (`0b04dd0f`). Sur 7 routes, 4 relevés étaient des artefacts de l'état vide. Vrai défaut seulement sur les nuages denses F10, H06 et MC01 : les zones se recouvrent au centre. Va à S1 en suite de lot : zone de Voronoï, ou clic choisi par le conteneur dans un rayon de 17 px.
+- 14 nov., 11h15 : LOT-05 (S5 `078ca378`) à 4 écrans. **Supprimer un sondage (MX05) et dissoudre un canal (MX04)** sont absents des fiches v4. Ils restent accessibles par l'écran d'origine (passage de main, `useOutlet`), avec sa confirmation : aucune fonction perdue. *Provisoire, révisable par Harun.* S5 doit d'abord pousser ME05 (LOT-03).
+- 14 nov., 11h10 : **LOT-02 Contacts fusionné** (S1 `850f940b`, T1 `a3184509` et `e705a8eb`) : troisième lot livré, 13 écrans. Fidélité, structure et paquet client sont bons. **Réserve sur les cibles** (réversible, la coquille n'est pas allumée) : la sonde de T1 ne confirme pas le « 0 sous 34 px » sur 7 routes (pastilles de F10, points de H06, MC01, MC04, MC06, H05 Mosaïque, MC02 recherche). T1 fait un test au clic réel, puis S1 corrige. Fusionnés avec : suite de LOT-06 (S7 `e580cbb3`, T1 `d3d8b455`), zones de 36 px de LOT-11 (S8 `5523167`). Gardes : seuls les échecs connus.
+- 14 nov., 11h05 : zones de clic, règle commune §1.41 : 36 px, et le centre de l'élément ne doit jamais renvoyer un voisin. Bord des zones du socle à 34 px : ajouté à la liste de S0.
+- 14 nov., 11h00 : **LOT-11 Développement fusionné** (S8 `f363811`, T1 `026759b1`), deuxième lot livré : 7 écrans dans les seuils, DEV-modeles-sites justifié (image v3), paquet client identique. Reste « Relancer » 72×26 sur le serveur (S8). Gardes : seuls les échecs connus.
+- 14 nov., 10h55 : **LOT-02 accepté par T1, fusion retenue** : la fusion d'essai rend `check:socle-graphiques` rouge (5 fichiers de `src/refonte/contacts/` importent `socle/ui/graphiques`). Correctif demandé à S1 : `formaterEuro` depuis `socle/formats`, `MiniCourbe` depuis l'index `socle/ui`. La garde de S0 n'est pas touchée.
 - 14 nov., 10h00 : **intégration de F1 reportée**. Elle demande de modifier `check:socle-archetypes` (garde de S0, qui attend Harun) et de pousser une 3ᵉ branche, ce que la session de S5 refuse. Elle reprendra avec S0. LOT-02 : réglages sur le poste et blocs « non disponible » acceptés (S1, 8 écrans sur 13). T1 envoie à S5 les zones exactes qui dépassent pour H11, H12 et ME01.
 - 14 nov., 09h55 : **`check:navigation` et `check:systeme-demarrage` sont durables** (S5, `e9b6c404` + `91ec0f92`, reportés par le CO en `ce524697` et `b9511a5b`). Le compte est 101 + les écrans neufs déclarés, avec des contrôles négatifs. S8 et S7 peuvent déclarer leurs écrans neufs. ME05 : `/knowledge` et `/decisions` sortent de l'« aussi » du Supervisor (`src/bureaux/catalogue.ts`), une modification que **S5 est autorisé à faire** puisque S3 est bloqué. Ces deux écrans passent à la coquille, et la famille Écrire garde leurs entrées.
 - 14 nov., 09h50 : 39 routes, toutes atteignables par un geste : **condition d'allumage remplie**. Fragilité notée : 36 routes ne passent que par la Bibliothèque. D02 et ⌘K vont à la liste de S0. Outils de T1 fusionnés.
@@ -823,7 +835,7 @@ Dans l'ordre :
 5. **Palette ⌘K (H41)**, relevé de T1 sur les 20 tâches courantes :
    - (a) ajouter des actions de création (« Nouvelle tâche », « Nouveau client », « Nouvelle facture », « Nouveau devis », « Nouveau rendez-vous »), pour tenir l'objectif de 3 actions au plus ;
    - (b) quand la saisie correspond à un module, **Entrée ouvre le module**, et « Demander à Ajmani » passe en second. Aujourd'hui, « client » puis Entrée lance Ajmani.
-6. (Aucune route sans geste, relevé de T1.)
+6. **Bouton du socle** : zone de clic invisible de 36 px (§1.41 ; il fait 31 px de haut, comme les fiches), et même bord pour `.sc-segment`, `.sc-interrupteur` et les actions de PageHead, aujourd'hui à 34 px exacts ; de même, dans la coquille : « Ouvrir le menu » et « Notifications » de l'en-tête mobile (34×34), « Chercher un module, un client… » (181×34), « Tous les modules » (34×34), carte « Aujourd'hui » (197×34), relevés par T1 ; **boutons de PageHead** décalés de 26 px par rapport aux images, sur les 15 écrans de LOT-06 (relevé de S7).
 7. **« Tous les modules » (D02)** : montrer les vues secondaires de chaque module (36 écrans n'ont aujourd'hui que la Bibliothèque comme chemin) ; ⌘K les trouve par leur nom.
 
 Éléments ludiques protégés (relevé de T1) : absents partout, parce que leurs écrans (LOT-01, LOT-10) ne sont pas encore construits. Ce n'est **pas une régression**. L'absence devient bloquante dès qu'un lot annonce L07, H02, H04 ou L01 livrés : T1 relance son contrôle à chaque lot concerné.
@@ -839,6 +851,12 @@ Sur l'API d'essai, beaucoup d'écrans s'affichent à l'état vide : seuls 8 jeux
 - l'**application** (build interne, API d'essai, coquille v4) sert aux **contrôles de structure** : écran monté dans la coquille, route, paquet client, cibles de 34 px, largeur à 390 px, contraste, et un état vide propre et honnête.
 
 **Pas de nouvelle collection dans l'API d'essai** : ce serait le contrat d'amn-api, donc une décision de Harun (liste « Nouvelles données partagées »). Chaque lot donne dans son rapport la commande d'aperçu de ses écrans.
+
+### 1.41 Zones de clic : 36 px, et le centre de l'élément reste à lui (14 nov.)
+
+Deux précisions de §1.39, mesurées par T1 et S8.
+1. **Taille** : une zone de 34 px exacts laisse dehors la sonde posée à ±17 px, car le bord est exclusif. Les zones invisibles (`::after`) font donc **36 px**, le dessin ne change pas. Le socle a le même bord à 34 px (`.sc-segment`, `.sc-interrupteur`, actions de `PageHead`) : c'est ajouté à la liste de S0 (§1.38).
+2. **Recouvrement** (règle de T1, dans `scripts/qualite/exigences-ecran.mjs`) : c'est **refusé** si le centre, ou la moitié centrale de la boîte visible, renvoie un voisin (un clic au milieu de l'élément part ailleurs). C'est **accepté** si seuls les bords des marges de 34 px se chevauchent : le dernier élément dessiné reçoit le clic dans la marge.
 
 ## 2. Les lots
 
@@ -1425,17 +1443,22 @@ Lire `05-CYBER-MODELE-COMMUN.md` : consentement d'abord (accord signé, périmè
 
 ### LOT-11 · Développement — `claude/refonte-developpement` — 7 images (6 écrans), plus une vue d'ensemble à proposer
 
-Brief : `07-ESPACE-DEV.md`. Entrée de barre latérale au-dessus de « Surveillance ». Fiches écrites par S8 le 12 nov. : [`fiches/LOT-11/`](fiches/LOT-11/00-COMMUN.md), **relues par Harun le 12 nov.** (8 décisions, tableau en tête de `00-COMMUN.md`), alignées sur les décisions du CO (§1.17, §1.19) ; barre latérale : section « ESPACES DE TRAVAIL » de l'image, sous-liste du socle §0.1 (5 lignes, puis « + N autres »). Construction au feu vert du CO (socle v4 fusionné, fiches relues). Préparation : [`preparation/LOT-11-developpement.md`](preparation/LOT-11-developpement.md) (inventaire, dépendances, 7 constats pour le CO au §5) ; logique pure dans `src/refonte/developpement/` (journal des exécutions, tâches planifiées locales, état des déploiements), garde `check:developpement` (51 contrôles, en CI).
+Brief : `07-ESPACE-DEV.md`. Fiches : [`fiches/LOT-11/`](fiches/LOT-11/00-COMMUN.md), relues par Harun le 12 nov. (tableau en tête de `00-COMMUN.md`), alignées sur §1.17, §1.19 et §1.23. Préparation : [`preparation/LOT-11-developpement.md`](preparation/LOT-11-developpement.md). **Les 7 écrans sont construits** (14 nov., feu vert §1.35) dans `src/refonte/developpement/`, garde `check:developpement` (67 contrôles, en CI). Rapport : [`rapports/LOT-11.md`](rapports/LOT-11.md).
+
+- **Source des écrans** (`donnees.tsx`) : amn-api n'a aucune collection pour le lot. Les jeux fictifs de SIM ne s'affichent que pour un compte d'essai `@exemple.test`, avec l'étiquette « Données d'exemple » ; tout autre compte voit l'état « à brancher », jamais une donnée inventée. L'Éditeur de flux lit et écrit les vraies règles du moteur de H20 (collection `automations`, format de S9).
+- **Registre et barre** : les 6 écrans sont déclarés (`modules/declarations/developpement.ts`, famille `developpement`, teinte `outils`, `a86c470`) et les deux signaux de la barre ont leur source (`compteurs/developpement.ts`). T1 (14 nov.) : les 7 routes sont montées dans la coquille v4, rien n'est coupé à 390 px, paquet client identique.
+- **Fidélité (§1.40)** : aperçus dans le dépôt, `npm run apercu -- DEV-<id>` (`ensemble`, `projets`, `deploiements`, `serveur`, `editeur`, `couts`, `modeles-sites`, `modeles-sites-code`), sur les jeux de SIM à l'état rempli. Les écrans exposent leur vue seule (`EnsembleDev`, `ProjetsDev`… : données passées) ; l'aperçu de l'éditeur pose une règle fictive, celui des modèles huit pages fictives (`scripts/apercu/modeles-exemple.ts`). Écarts justifiés : [`justifies-LOT-11.json`](../qualite/fidelite/justifies-LOT-11.json). Mesures ci-dessous : brut / disposition (couleur ± 10).
+- **Cibles de 34 px (§1.39)** : zone de clic invisible sur les boutons du socle, les puces, les jetons et les noms de poste ; lignes de « À regarder » du hub à 35 px. Relevé sur les 8 aperçus : aucune cible sous 34 px.
 
 | ID | Écran | Type | État | Écart / note |
 |---|---|---|---|---|
-| DEV-ensemble | Développement · Vue d'ensemble | nouveau | fiche validée par Harun | aucune image : sur le modèle des hubs ; 8e hub `/ensemble/developpement` accepté (§1.17 n° 2), posé par S0 |
-| DEV-projets | Développement · Projets de code | nouveau | fiche écrite | attend le connecteur Code (LOT-12) |
-| DEV-deploiements | Développement · Déploiements | mixte | fiche écrite | attend le connecteur Hébergement (LOT-12) ; logique pure livrée (`deploiements.ts`) ; total mesuré de bout en bout (étapes de l'image : 113 s ≠ 1 min 48) ; cible « Interne » inerte (§1.17 n° 6) |
-| DEV-serveur | Développement · Serveur et santé | nouveau | fiche écrite | lié à LOT-13 (reporté) : état « serveur non branché » |
-| DEV-editeur | Développement · Éditeur de flux | mixte | fiche écrite | logique livrée (`journal.ts`, `planification.ts`) ; format des blocs avec Sinon / Puis : S9, relu par S6 (§1.17 n° 7) ; mode API : LOT-12 ; écart : « Éditeur de flux » partout, l'image dit « Éditeur d'automatisation » en h1 (§1.17 n° 4) |
-| DEV-couts | Développement · Coûts et API | nouveau | fiche écrite | modèle de LOT-12 (S9) ; comptes calculés depuis les connecteurs réels (§1.17 n° 5) ; écart : l'image dit « 5 sur 7 » pour 4 lignes « Local » |
-| DEV-modeles-sites | Développement · Modèles de sites (et vue code) | nouveau | fiche écrite | famille Développement, seconde entrée possible dans Créer et produire (§1.17 n° 3) ; prototype v3 gris : néon et tutoiement à appliquer |
+| DEV-ensemble | Développement · Vue d'ensemble | nouveau | fait | `/ensemble/developpement` (substitution, 8e hub). Un jeton par poste (« deux au plus ») pour tenir au-dessus de la barre Ajmani ; « Personnaliser » inactif (réordonner : plus tard). Pas d'image de référence |
+| DEV-projets | Développement · Projets de code | nouveau | fait | carte d'activité par semaine (le jeu n'a pas de commits par jour : aucune case inventée) ; « tests verts » = part des dépôts verts. Écart 39,3 % / 17,5 % |
+| DEV-deploiements | Développement · Déploiements | mixte | fait | `PageDeploiements.tsx`. Total mesuré de bout en bout ; « Revenir » : une ligne de confirmation sauf Aperçu (§1.23) ; « Déployer » et « Planifier » inactifs jusqu'au connecteur Hébergement ; cible « Interne » inerte. Écart 34,0 % / 14,8 % |
+| DEV-serveur | Développement · Serveur et santé | nouveau | fait | « Redémarrer » secondaire et inerte, « Relancer » inerte (LOT-13) ; courbes cadrées sur la plus haute mesure. Écart 45,7 % / 19,8 % |
+| DEV-editeur | Développement · Éditeur de flux | mixte | fait | format de S9, règles du moteur de H20 ; « Éditeur de flux » partout (§1.17 n° 4) ; titre du bloc Si = libellé de S9 (le format ne nomme pas la condition) ; « Tester » attend le connecteur de la boîte. Écart 53,6 % / 16,6 % (règle fictive posée par l'aperçu) |
+| DEV-couts | Développement · Coûts et API | nouveau | fait | comptes calculés (§1.17 n° 5) ; aucun plafond imposé (Harun) ; tableau = connecteurs branchés, « À brancher plus tard » = les autres (les jeux de SIM ne portent pas la catégorie du catalogue de S9). Écart 34,1 % / 15,1 % |
+| DEV-modeles-sites | Développement · Modèles de sites (et vue code) | nouveau | fait | famille Développement (§1.17 n° 3), néon ; aucun modèle livré avant la relecture de Harun ; ajoutés gardés sur le poste. Image de référence en v3 grise avec sa propre barre ; l'état vide de l'application (75,6 %, T1) attend les modèles relus. Aperçu rempli : 68,5 % / 30,6 % (bibliothèque, pages fictives), 79,1 % / 4,8 % (vue code : même disposition, autre texte) |
 
 ### LOT-12 · Connecteurs et autonomie — `claude/refonte-connecteurs` — aucun écran
 

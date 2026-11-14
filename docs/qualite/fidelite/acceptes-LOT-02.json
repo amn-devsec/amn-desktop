@@ -1,0 +1,36 @@
+{
+  "_": "Valeurs acceptées de LOT-02 (STATUT §1.30, §1.40) : mesures de T1 sur l'APERÇU STATIQUE du lot (claude/refonte-contacts @ 0b194352 fusionné sur vivante), 1440×900, vendredi 30 oct. 2026 à 10:42. `valeurs` = écart brut ; `disposition` = couleur ±10, surveillée aussi ; +2 points au-dessus de la valeur : échec. F10 est passé de 25,2/11,2 (fbed7734) à 27,7/11,7 (0b194352) : retenu tel quel, sous les seuils et justifié.",
+  "source": "apercu",
+  "mesure": "strict",
+  "surveillerDisposition": true,
+  "valeurs": {
+    "F10": 27.7,
+    "H05": 23.6,
+    "H06": 12.7,
+    "G04": 18.5,
+    "H44": 26.2,
+    "H45": 14.1,
+    "MC01": 19.0,
+    "MC02": 17.8,
+    "MC03": 15.9,
+    "MC04": 26.6,
+    "MC05": 16.9,
+    "MC06": 24.5,
+    "MC07": 16.7
+  },
+  "disposition": {
+    "F10": 11.7,
+    "H05": 11.5,
+    "H06": 5.8,
+    "G04": 8.5,
+    "H44": 12.8,
+    "H45": 7.6,
+    "MC01": 11.5,
+    "MC02": 8.4,
+    "MC03": 7.9,
+    "MC04": 13.5,
+    "MC05": 8.0,
+    "MC06": 7.7,
+    "MC07": 9.1
+  }
+}
