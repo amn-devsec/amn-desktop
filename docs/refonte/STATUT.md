@@ -1194,7 +1194,7 @@ La colonne « État » reste `à faire` : un écran n'est « fait » qu'une fois
 
 | ID | Écran | Type | État | Écart / note |
 |---|---|---|---|---|
-| F50 | Créer · Vue d'ensemble | nouveau | à faire | Logique prête : `ligneDeProduction.ts`. « Fabrication » n'existe pas dans le dépôt, « Bons d'intervention » = `InterventionsScreen` ; les 16 modules sont dans 5 familles du registre (question 1) |
+| F50 | Créer · Vue d'ensemble | nouveau | fait | Hub branché sur `assemblies`, `orders`, `videoProductions`, `stockItems` (substitution `/ensemble/creer`) ; « Fabrication » masqué, tuile « Modèles de sites » (LOT-11) ; 16 tuiles en 4 groupes de 4. Aperçu `npm run apercu -- F50` : écart brut 31,6 % à ± 2 px contre l'image v4, dû surtout aux données fictives de SIM (noms, nombre de jetons, mesures de tuiles absentes) et à l'en-tête de page 5 px plus haut (socle). Pas de contrôle qualité ouvert ni d'échéance de commande dans les modules réels : postes « Contrôler » vides. |
 | H15 | Créer · Stock | mixte | à faire | Logique prête : `stock.ts`. Le module réel n'a ni emplacement, ni mouvements, ni commandes fournisseur par article (champs à ajouter) |
 | H16 | Créer · Chantiers | mixte | à faire | Logique prête : `chantiers.ts`. Le module réel (`AssemblyScreen`) n'a ni budget, ni poids d'étape, ni dates : nouveau modèle à brancher |
 | H17 | Créer · Visuels et marque | mixte | à faire | Logique prête : `marque.ts`. Le kit réel est un monogramme : logos, palette nommée et modèles à créer |

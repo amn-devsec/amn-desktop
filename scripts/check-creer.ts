@@ -1092,7 +1092,7 @@ await dit('livraisons à l’heure de la semaine, palier, suggestion à partir d
   assert.equal(L.SEIZE_MODULES.length, 16);
   assert.deepEqual([...new Set(L.SEIZE_MODULES.map((m: any) => m.groupe))], ['fabriquer', 'livrer', 'stocker', 'montrer']);
   assert.ok(!L.SEIZE_MODULES.some((m: any) => m.id === L.MODULE_MASQUE), '« Fabrication » reste masqué');
-  assert.equal(L.SEIZE_MODULES.filter((m: any) => m.groupe === 'fabriquer').length, 3);
+  assert.deepEqual(['fabriquer', 'livrer', 'stocker', 'montrer'].map((g) => L.SEIZE_MODULES.filter((m: any) => m.groupe === g).length), [4, 4, 4, 4]); // « Modèles de sites » prend la place de « Fabrication »
   assert.equal(L.SEIZE_MODULES.find((m: any) => m.id === 'modeles-sites').ecran, 'DEV-modeles-sites');
   assert.equal(new Set(L.SEIZE_MODULES.map((m: any) => m.id)).size, 16);
   const tuiles = L.tuilesDesModules(new Set(['chantiers', 'stock']));
