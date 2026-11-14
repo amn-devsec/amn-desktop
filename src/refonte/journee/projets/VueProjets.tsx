@@ -81,7 +81,8 @@ export function VueProjets(p: VueProjetsProps) {
               </div>
             </header>
             {m.vide && p.statut === 'pret' ? (
-              <div className="sc-pj-vide"><BlocEtat icone={<Folder size={20} strokeWidth={1.7} />} ton="neutre" titre={tm('vide.titre')} texte={tm('vide.texte')} actions={<><Bouton variante="primaire" onClick={p.actions.nouveau}>{tm('vide.nouveau')}</Bouton><Bouton variante="secondaire" onClick={p.actions.modele}>{tm('vide.modeles')}</Bouton></>} /></div>
+              <div className="sc-pj-vide">
+                <BlocEtat icone={<Folder size={20} strokeWidth={1.7} />} ton="neutre" titre={tm('vide.titre')} texte={tm('vide.texte')} actions={<><Bouton variante="primaire" onClick={p.actions.nouveau}>{tm('vide.nouveau')}</Bouton><Bouton variante="secondaire" onClick={p.actions.modele}>{tm('vide.modeles')}</Bouton></>} /></div>
             ) : (
               <div className="sc-pj-corps">
                 <div className="sc-pj-colonne">
@@ -176,7 +177,12 @@ function Piste({ c, i, tm, fmt, onAjouter, lecture }: { c: Couloir; i: number; t
   const b = c.barre;
   return (
     <div className="sc-pj-piste" style={{ top: i * HAUTEUR_COULOIR, height: HAUTEUR_COULOIR }} data-statut={c.statut}>
-      {c.sansDates && <span className="sc-pj-sansdates">{tm('couloir.sansDates')}{!lecture && <button type="button" onClick={() => onAjouter(c.id)}>{tm('couloir.ajouterDates')}</button>}</span>}
+      {c.sansDates && (
+        <span className="sc-pj-sansdates">
+          {tm('couloir.sansDates')}
+          {!lecture && <button type="button" onClick={() => onAjouter(c.id)}>{tm('couloir.ajouterDates')}</button>}
+        </span>
+      )}
       {c.horsFenetre && <span className="sc-pj-hors" data-cote={c.horsFenetre.cote}>{tm(c.horsFenetre.cote === 'gauche' ? 'couloir.horsGauche' : 'couloir.horsDroite', { jour: fmt(c.horsFenetre.jour, { day: 'numeric', month: 'short' }) })}</span>}
       {b && (
         <span className="sc-pj-barre" data-gauche={b.coupeAGauche ? '' : undefined} data-droite={b.coupeADroite ? '' : undefined} style={{ left: b.x, width: b.largeur }}>

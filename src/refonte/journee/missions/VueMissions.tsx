@@ -90,7 +90,10 @@ export function VueMissions(p: VueMissionsProps) {
             </div>
           </div>
           {p.lecture && p.actions.ouvrirSav && (
-            <p className="sc-ms-lecture">{tm('lecture.sav')} <button type="button" onClick={p.actions.ouvrirSav}>{tm('lecture.ouvrir')}</button></p>
+            <p className="sc-ms-lecture">
+              {tm('lecture.sav')}{' '}
+              <button type="button" onClick={p.actions.ouvrirSav}>{tm('lecture.ouvrir')}</button>
+            </p>
           )}
           {p.vue === 'kanban' && (
             <div className="sc-ms-tableau" role="group" aria-label={tm('vue.kanban')}>
@@ -105,7 +108,8 @@ export function VueMissions(p: VueMissionsProps) {
             </div>
           )}
           {p.vue === 'liste' && <Liste tickets={p.tickets} tm={tm} onOuvrir={p.actions.ouvrir} />}
-          {p.vue === 'chrono' && <div className="sc-ms-etat"><BlocEtat icone={<Clock size={20} strokeWidth={1.7} />} ton="neutre" titre={tm('chrono.indisponible.titre')} texte={tm('chrono.indisponible.texte')} actions={<Bouton variante="secondaire" onClick={() => p.actions.vue('kanban')}>{tm('vue.kanban')}</Bouton>} /></div>}
+          {p.vue === 'chrono' && <div className="sc-ms-etat">
+            <BlocEtat icone={<Clock size={20} strokeWidth={1.7} />} ton="neutre" titre={tm('chrono.indisponible.titre')} texte={tm('chrono.indisponible.texte')} actions={<Bouton variante="secondaire" onClick={() => p.actions.vue('kanban')}>{tm('vue.kanban')}</Bouton>} /></div>}
           {p.annulation && <div className="sc-ms-annuler" role="status"><span>{p.annulation.texte}</span><button type="button" onClick={p.onAnnuler}>{tm('deplace.annuler')}</button></div>}
         </div>
       )}
@@ -143,7 +147,8 @@ function Colonne({ c, prevenu, tm, langue, glisse, peutGlisser, lecture, actions
         {!lecture && <button type="button" className="sc-ms-plus" aria-label={tm('colonne.plus', { colonne: libelle })} onClick={() => actions.plus(c.cle)}><Plus size={14} strokeWidth={2} /></button>}
       </header>
       <div className="sc-ms-colonne__corps">
-        {vide && <div className="sc-ms-colonne__vide"><BlocEtat taille="compact" icone={null} ton="neutre" titre={tm('vide.titre')} texte={tm('vide.texte')} actions={lecture ? <span /> : <Bouton variante="secondaire" taille="petit" onClick={() => actions.ajouter(c.cle)}>{tm('vide.creer')}</Bouton>} /></div>}
+        {vide && <div className="sc-ms-colonne__vide">
+          <BlocEtat taille="compact" icone={null} ton="neutre" titre={tm('vide.titre')} texte={tm('vide.texte')} actions={lecture ? <span /> : <Bouton variante="secondaire" taille="petit" onClick={() => actions.ajouter(c.cle)}>{tm('vide.creer')}</Bouton>} /></div>}
         {cible && glisse && !origine && (
           <div className="sc-ms-depot" data-ton={c.cle === 'termine' ? 'succes' : c.pleine ? 'attention' : 'neutre'}>
             {c.cle === 'termine' ? <><b>{tm('depot.terminer')}</b>{prevenu && <span>{tm('depot.prevenu', { nom: prevenu })}</span>}</> : <b>{tm('depot.ici')}</b>}

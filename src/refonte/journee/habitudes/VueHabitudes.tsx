@@ -71,7 +71,14 @@ export function VueHabitudes({ statut, horsLigne = false, modele: m, filtre, act
             {m.vide && statut === 'pret' ? (
               <div className="sc-hb-vide">
                 <BlocEtat icone={null} ton="neutre" titre={tm('vide.titre')} texte={tm('vide.texte')} actions={<Bouton variante="secondaire" onClick={actions.bibliotheque}>{tm('vide.bibliotheque')}</Bouton>} />
-                <ul>{(['planifier', 'boite', 'marcher'] as const).map((k) => <li key={k}><span>{tm(`vide.${k === 'planifier' ? 'planifier' : k === 'boite' ? 'boite' : 'marcher'}` as const)}</span>{!lecture && <button type="button" onClick={() => actions.ajouter(k)}>{tm('vide.ajouter')}</button>}</li>)}</ul>
+                <ul>
+                  {(['planifier', 'boite', 'marcher'] as const).map((k) => (
+                    <li key={k}>
+                      <span>{tm(`vide.${k}` as const)}</span>
+                      {!lecture && <button type="button" onClick={() => actions.ajouter(k)}>{tm('vide.ajouter')}</button>}
+                    </li>
+                  ))}
+                </ul>
               </div>
             ) : (
               <>

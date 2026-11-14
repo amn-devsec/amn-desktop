@@ -82,7 +82,13 @@ export function VueCalendrier({ statut, horsLigne = false, modele, actions, lect
         <div className="sc-cal" aria-busy={statut === 'chargement' || undefined}>
           <div className="sc-cal-rail">
             <section className="sc-cal-carte sc-cal-mois" aria-label={titreMois}>
-              <header><h2>{titreMois}</h2><span><button type="button" aria-label={tm('mois.precedent')} onClick={actions.moisPrecedent}><ChevronLeft size={14} strokeWidth={2} /></button><button type="button" aria-label={tm('mois.suivant')} onClick={actions.moisSuivant}><ChevronRight size={14} strokeWidth={2} /></button></span></header>
+              <header>
+                <h2>{titreMois}</h2>
+                <span>
+                  <button type="button" aria-label={tm('mois.precedent')} onClick={actions.moisPrecedent}><ChevronLeft size={14} strokeWidth={2} /></button>
+                  <button type="button" aria-label={tm('mois.suivant')} onClick={actions.moisSuivant}><ChevronRight size={14} strokeWidth={2} /></button>
+                </span>
+              </header>
               <div className="sc-cal-mois__grille" role="grid">
                 {initialesJours.map((l, i) => <span key={`l${i}`} className="sc-cal-mois__lettre" role="columnheader">{l}</span>)}
                 {m.mois.semaines.map((sem) => (
@@ -151,7 +157,8 @@ export function VueCalendrier({ statut, horsLigne = false, modele, actions, lect
                 )}
               </div>
               {m.vide && statut === 'pret' && (
-                <div className="sc-cal-vide"><BlocEtat icone={<CalendarDays size={20} strokeWidth={1.7} />} ton="neutre" titre={tm('vide.titre')} texte={tm('vide.texte')} actions={lecture ? <span /> : <Bouton variante="secondaire" onClick={actions.nouveau}>{tm('action.nouveau')}</Bouton>} /></div>
+                <div className="sc-cal-vide">
+                  <BlocEtat icone={<CalendarDays size={20} strokeWidth={1.7} />} ton="neutre" titre={tm('vide.titre')} texte={tm('vide.texte')} actions={lecture ? <span /> : <Bouton variante="secondaire" onClick={actions.nouveau}>{tm('action.nouveau')}</Bouton>} /></div>
               )}
             </div>
             <footer className="sc-cal-pied">
