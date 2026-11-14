@@ -1,17 +1,17 @@
 # LOT-02 · Mes contacts et clients — note de préparation
 
 > Branche `claude/refonte-contacts`, partie de `claude/refonte-vivante` @ `8333822`. Rédigée le 14 nov. 2026 par S1, en MODE PRÉPARATION (socle v4 non fusionné : aucun écran visuel, aucun import de `src/socle/ui`).
-> Sources lues : `REGLES.md`, `STATUT.md` (§1.4, §1.8, §1.10 à §1.26, §5, §7), `PROMPTS-12NOV.md`, le code des modules existants (relevé du 14 nov.), les jeux fictifs de SIM (`src/refonte/donnees/`), la note modèle `LOT-11-developpement.md`.
-> **Non lues : le dossier v4 (5 zips), donc les 13 fiches, leurs images, `06-V4-NEON-ET-TUTOIEMENT.md` et `_data/tutoiement.json`.** Ils ne sont pas dans l'environnement de la session et le dépôt ne les contient pas (REGLES : « hors du dépôt »). Tout ce qui dépend d'une fiche est marqué **à confirmer** ; rien n'a été deviné au-delà des règles écrites dans `STATUT.md` et dans les types de SIM. Voir le §6.
+> Sources lues : `REGLES.md`, `STATUT.md` (§1.4, §1.8, §1.10 à §1.28, §5, §7), `PROMPTS-12NOV.md`, le code des modules existants (relevé du 14 nov.), les jeux fictifs de SIM (`src/refonte/donnees/`), la note modèle `LOT-11-developpement.md`.
+> **Dossier v4 lu le 14 nov. (deuxième passe)** : `06-V4-NEON-ET-TUTOIEMENT.md`, `_data/tutoiement.json`, les 13 fiches de `lots/LOT-02-contacts/` (rubriques 2, 6 et 8 en entier) et les images `MC07-relances.png`. La première passe n'avait pas les zips ; ce que la fiche a changé est au §7. Les images des autres écrans n'ont pas été comparées (aucun écran n'est construit).
 > Rien ici ne décrit une faiblesse de sécurité ; aucune donnée réelle ; les noms et courriels sont ceux des jeux fictifs (`@exemple.test`).
 
 ## 1. En bref
 
-- **Livré** : `src/refonte/contacts/` (8 fichiers, logique pure, sans React) et `scripts/check-contacts.ts` (`npm run check:contacts`, **63 contrôles**, ajouté à `package.json` et `editions.yml`). Quatre sujets, comme demandé : **pipeline**, **relances**, **fidélité**, **rendez-vous**, plus la source **« Contacts par client »** de H41.
-- **La règle de relance** : on ne harcèle jamais un client. Quatre garde-fous, tous testés, aucun contournable par un écran : 7 jours minimum entre deux relances du même objet (valeur de départ du CO, §1.22, **lue chez S9** pour qu'il n'y ait qu'une source), 3 relances au plus par objet, un seul message par client et par jour, envoi seulement lun.–ven. 08:00–19:00 heure de Paris.
-- **Deux voix** : l'interface tutoie, tout ce qui part chez un client vouvoie. `check:contacts` vérifie les deux sens sur les clés fr.
-- **Ce qui attend** : tous les écrans (socle v4), les 13 fiches (à relire avec le dossier v4), `check:tutoiement` (pas encore dans la base).
-- **Cinq constats pour le CO** (§5).
+- **Livré** : `src/refonte/contacts/` (9 fichiers, logique pure, sans React) et `scripts/check-contacts.ts` (`npm run check:contacts`, **85 contrôles**, ajouté à `package.json` et `editions.yml`). Quatre sujets : **pipeline** (H06, MC01), **relances** (MC07), **fidélité** (MC02), **rendez-vous** (MC06), plus la source **« Contacts par client »** de H41.
+- **La règle de relance** est celle de la fiche MC07, en huit points, tous testés (§7, point 1) : une relance par client et par semaine glissante, espacement d'un même objet, trois relances au plus, jamais le week-end ni un jour férié, préférences du contact, arrêt dès que le client répond, rien dans les 24 h après un échange, **rien ne part sans un clic**.
+- **Deux voix** : l'interface tutoie, tout ce qui part chez un client vouvoie. Les phrases de la fiche sont reprises telles quelles.
+- **Les fiches ont corrigé trois de mes suppositions** (messagerie ≠ courriel ; « un message par client et par jour » → « par semaine » ; paliers de fidélité 800 / 1 800 et pas 500 / 1 500) et **deux jeux de SIM** ne les suivent pas (§7).
+- **Ce qui attend** : tous les écrans (socle v4) et `check:tutoiement` (pas encore dans la base).
 
 ## 2. Les 13 écrans
 
@@ -50,38 +50,58 @@ H41 (Recherche ⌘K, LOT-00) propose « Écrire à X » : il lui faut, pour un c
 | Fichier | Contenu |
 |---|---|
 | `commun.ts` | jours et heure de Paris (repris de SIM, heure d'été comprise), `euros`, `jourFrancais`. Rien ne lit l'horloge : « maintenant » est un paramètre. |
-| `pipeline.ts` | les 6 étapes et 4 colonnes ; `valeurPonderee` ; `colonnesPipeline` (tri : urgent, prochaine action, nom) ; `resumePipeline` (en retard, taux de conversion) ; `transitionsPermises` (avancer librement, reculer d'une, perdre partout, terminaux) ; `deplacer` (signature, 100 %, client à créer) |
-| `relances.ts` | `REGLES_PAR_DEFAUT` ; `verdictRelance` (raison + prochain instant permis) ; `ordonnerFile` (un départ par client) ; `marquerEnvoyee` (refuse ce que le verdict interdit) ; `phraseAttente` ; `messageClient` (vouvoiement) |
-| `fidelite.ts` | paliers 0 / 500 / 1 500 ; `pointsDe` (1 point par euro TTC payé sur 12 mois) ; `progression` ; `resumeFidelite` |
-| `rendezvous.ts` | états, `aConfirmer`, `manques`, `chevauchements`, `creneauxLibres`, `relanceDepuisManque` |
-| `interlocuteurs.ts` | la source « Contacts par client » (§3) |
-| `i18n.ts` | 52 clés fr/en (`definirMots`), l'anglais est le schéma. Interface au tutoiement, clés `client.*` au vouvoiement. |
+| `pipeline.ts` | étapes et colonnes ; `valeurPonderee` (par prospect, H06) ; `colonnesPipeline` ; `resumePipeline` ; `transitionsPermises`, `deplacer`, `rouvrir` ; entonnoir de MC01 : `CHANCES_MC01`, `enJeu`, `previsionPonderee`, `tauxDePassage`, `ageMoyenDansEtape`, `joursSansReponse`, `signesDuMois`, `objectifDuMois`, `signaturesParMois`, `faitEncourageant` |
+| `interet.ts` | H06 : `interet` (35 / 25 / 20 / 20), `fraicheur`, `libelleInteret`, quadrant « À appeler cette semaine », `appelsDeLaSemaine`, `trainee` |
+| `relances.ts` | les huit points de MC07 : `REGLES_PAR_DEFAUT`, `verdictRelance` (raison + prochain instant permis), `ordonnerFile`, `marquerEnvoyee` (clic humain exigé), `arreterPour`, `reporterADemain`, `cadence`, `progressionFile`, `serieBoiteAZero`, `joursFeries`, `PreferencesEnvoi`, `phraseAttente`, `messageClient` (vouvoiement) |
+| `fidelite.ts` | paliers de la fiche (0 / 800 / 1 800) et du jeu de SIM ; `pointsDe`, `pointsProgramme` (1 € = 1, avis = 50, recommandation = 200), `progression`, `bientotAuPalier`, `descenteDePalier`, `clientsAffiches` ; les deux formules : `formuleDe`, `progressionTampons` |
+| `rendezvous.ts` | états, `aConfirmer`, `manques`, `chevauchements`, `creneauxLibres`, `relanceDepuisManque` ; la journée de MC06 : `pauseDejeuner`, `trajetsDeLaJournee` (durées données par le service d'itinéraire), `resumeJournee`, `tauxReservation` |
+| `interlocuteurs.ts` | la source « Contacts par client » (§3), `moyenDeJoindre` |
+| `i18n.ts` | 74 clés fr/en (`definirMots`), l'anglais est le schéma. Interface au tutoiement, clés `client.*` au vouvoiement. |
 | `index.ts` | exports |
 
 **Choix à connaître**
 
-- Les relances rendent un **verdict** (`possible` ou la raison et l'instant) plutôt qu'un booléen : l'écran affiche « Tu l'as relancé il y a moins de 7 jours. La prochaine sera possible le 06/11. » sans inventer de phrase.
-- `marquerEnvoyee` **lève une erreur** si le verdict ne le permet pas : un écran ne peut pas, par erreur, envoyer deux fois le même jour.
-- Les jeux de SIM (`relances`, `fidelite`) servent de **comparaison**, pas de source : `pointsDe` redonne exactement les points du jeu, et la file recalculée respecte les quatre garde-fous sur chaque volume.
+- Les relances rendent un **verdict** (`possible` ou la raison et l'instant) plutôt qu'un booléen : l'écran affiche « Pas avant le 03/11 : une relance par semaine au plus. » sans inventer de phrase.
+- `marquerEnvoyee` **lève une erreur** sans `clic: true` (rien ne part seul) et si le verdict ne le permet pas : un écran ne peut pas, par erreur, envoyer deux fois la même semaine.
+- Les jeux de SIM (`relances`, `fidelite`) servent de **comparaison**, pas de source : `pointsDe` redonne exactement les points du jeu (avec `PALIERS_DU_JEU_SIM`), et la file recalculée respecte les règles de la fiche sur chaque volume.
 
-## 5. Constats et questions pour le CO
+## 5. Constats et décisions du CO (`STATUT.md` §1.28, 14 nov.)
 
-1. **Fidélité : deux mécaniques.** L'écran actuel `/fidelite` est une carte à tampons (collection `loyaltyCards` : 10 tampons, le 11e offert). Le jeu de SIM et la logique livrée suivent la fiche MC02 (points, niveaux Bronze/Argent/Or, avantages). Lire la fiche avant de construire : garder les tampons, les remplacer, ou proposer les deux ? Une décision de Harun.
-2. **Relances : le périmètre grandit.** `RemindersScreen` relance les factures seules (paliers `rappel` → `dernier-avis`, moteur `src/lib/relances.ts` que S9 réutilise). MC07 en attend cinq (devis, rendez-vous, prospects, inactifs). La logique livrée traite les cinq ; **elle ne reprend pas les paliers d'escalade des factures**, déjà dans `src/lib/relances.ts` et `connecteurs/moteurs/relances.ts`. À arbitrer à la construction : un seul moteur pour les cinq motifs (recommandé) ou deux côte à côte.
-3. **Collection d'interlocuteurs.** MC03 et la source de H41 supposent une collection d'interlocuteurs ; l'app n'en a pas. Il faut un schéma, un hook et une migration (sans toucher à l'édition cliente). À planifier, avec l'accord du CO.
-4. **Plafond de 3 relances et un message par client et par jour.** Ces deux garde-fous découlent de « on ne harcèle jamais un client » ; leurs valeurs viennent de moi (3 et 1), pas d'une fiche. L'espacement (7 jours) et la plage (lun.–ven. 08:00–19:00) viennent du CO. Valeurs à confirmer avec MC07.
-5. **MC04 Équipe et MC05 Partenaires.** MC04 recoupe le trombinoscope (déjà au registre) ; MC05 n'a ni écran ni jeu d'organisations partenaires. À décider : jeu à commander à SIM, ou écrans plus simples.
+| # | Constat | Décision du CO | Où c'est dans la logique |
+|---|---|---|---|
+| 1 | Fidélité : l'écran actuel est une carte à tampons, la fiche MC02 des points et niveaux | **Les deux formules, sans rien perdre.** Points et niveaux = l'écran. La carte à tampons reste une formule au choix de l'organisation, et la formule par défaut là où elle sert déjà | `fidelite.ts` : `Formule`, `formuleDe`, `progressionTampons` |
+| 2 | Relances : cinq motifs, l'écran actuel n'en relance qu'un | **Un seul moteur** pour les cinq motifs, `src/lib/relances.ts` étendu ; les paliers des factures restent tels quels | `relances.ts` (verdicts) est la couche « quand et à qui » ; l'extension de `src/lib/relances.ts` se fait à la construction, avec S9 |
+| 3 | Collection d'interlocuteurs absente | **À Harun**, présenté par le CO. D'ici là, MC03 s'affiche « non disponible », avec la raison | clé `contacts.indisponible` (`i18n.ts`) |
+| 4 | Plafond de 3 relances, un message par client et par jour | **Adoptés comme valeurs de départ, modifiables.** À relire avec MC07 | `REGLES_PAR_DEFAUT`. **MC07 lue : le plafond de 3 est confirmé ; « un message par client et par jour » est remplacé par « une relance par client et par semaine glissante »** (plus strict) |
+| 5 | MC04 Équipe et MC05 Partenaires | MC04 se construit sur le trombinoscope ; le jeu d'organisations partenaires est **commandé à SIM** | liste « Manque aux données » de `STATUT.md` |
+| — | Rouvrir un prospect | Selon la fiche H06. À défaut : un perdu se rouvre, **avec confirmation et une trace** ; un gagné ne se rouvre pas | `pipeline.ts` : `rouvrir`, `TraceReouverture`. **Fiches H06 et MC01 lues : elles n'en disent rien** (MC01 : « existence d'un état Perdu (non dessiné) ») → la règle du CO s'applique |
+| — | « Messagerie » comme moyen de joindre | Selon la fiche MC03. À défaut : le courriel | **La fiche MC03 le dit** : « Écrire » ouvre un courriel (MX01) **ou la messagerie (G07)** selon la préférence. `moyenDeJoindre` rend donc `messagerie` (≠ courriel) |
+| — | Raccourci « Relancer » | Aucun (⌘R est pris par Electron) | — |
 
-Questions de mise en œuvre, à trancher avant les écrans :
+Choix de la session, que les fiches ne contredisent pas : un prospect rouvert repart en « Nouveau » (`ETAPE_DE_REOUVERTURE`) et sa probabilité reste à 0, pour qu'aucune valeur pondérée n'apparaisse sans que la personne l'ait fixée.
 
-- Reculer d'une étape dans le pipeline, rouvrir un prospect gagné ou perdu : la logique les interdit pour l'instant (terminaux). La fiche H06 dit-elle autre chose ?
-- « Messagerie » comme moyen de joindre : ce que la fiche MC03 entend par là (message interne ? courriel ?) n'est pas lu. Aujourd'hui `moyenDeJoindre` rend l'adresse courriel.
-- ⌘R est pris par le rechargement d'Electron (`STATUT.md` §1.8 n° 14) : aucun raccourci « Relancer » tant qu'une touche libre n'est pas choisie.
+## 6. Ce qui n'a pas été fait
 
-## 6. Ce qui n'a pas été fait, et pourquoi
-
-- **Lecture du dossier v4 et des 13 fiches** : les zips ne sont pas dans l'environnement. Ni la mise en page, ni les textes des écrans, ni `tutoiement.json` n'ont été lus. Les textes de `i18n.ts` sont donc écrits par la session, au tutoiement de l'interface et au vouvoiement des messages clients, **sans être comparés à la table du dossier**. À faire dès que les zips sont posés : lire les 13 fiches et leurs images v4, aligner `i18n.ts` sur `_data/tutoiement.json`, relire les règles marquées « à confirmer ».
-- **`check:tutoiement`** : n'existe pas dans la base actuelle (il arrive avec la passe finale v4 de S0). `check:contacts` en reprend l'esprit sur ses propres clés ; il faudra le brancher quand la garde commune existera.
-- **Aucun écran, aucune brique visuelle, aucun import de `src/socle/ui`** : mode préparation, comme demandé.
-- **Aucune capture** et aucune comparaison aux images : pas d'écran, pas de dossier d'images.
+- **Aucun écran, aucune brique visuelle, aucun import de `src/socle/ui`** : mode préparation.
+- **Aucune capture, aucune comparaison aux images** (sauf `MC07-relances.png`, vue pour contrôler les textes et les réglages d'envoi).
+- **Images des 12 autres écrans non comparées** : elles le seront à la construction.
+- **`check:tutoiement`** : n'existe pas dans la base (il arrive avec la passe finale v4 de S0). `check:contacts` en reprend l'esprit sur ses propres clés ; la table `_data/tutoiement.json` reste hors du dépôt, donc hors de la CI.
+- **Règles des fiches non portées en logique** (H05, H44, H45, MC04, MC05, F10) : listées au §7, point 10. Elles ne font pas partie des quatre sujets demandés.
 - **Aucune édition cliente touchée** : tout est dans `src/refonte/contacts/` (code interne), `scripts/`, `package.json`, `editions.yml` et `docs/`.
+
+## 7. Ce que les fiches du dossier v4 ont changé (lues le 14 nov.)
+
+| # | Point | Ce que disent les fiches | Effet sur la logique |
+|---|---|---|---|
+| 1 | **Règle d'espacement (MC07, rubrique 6)** | Huit points : (1) au plus une relance par client et par semaine glissante, objets regroupés ; (2) au moins 5 jours entre deux relances d'un même objet (réglable de 3 à 14) ; (3) trois relances au plus par objet, appel proposé après la 2e, suivi manuel après la 3e ; (4) jamais le week-end, un jour férié ni hors de la plage d'envoi, les préférences d'une fiche MC03 décalent l'envoi ; (5) arrêt dès que le client répond, paie, signe ou demande à ne plus être relancé ; (6) rien dans les 24 h après un échange humain ; (7) entrée dans la file seulement le jour où c'est permis ; (8) **rien ne part sans un clic humain** | `relances.ts` : les huit points, un test chacun ; `joursFeries` (11 jours, Pâques calculée) ; `PreferencesEnvoi` ; `marquerEnvoyee` exige `clic: true` ; `reglesBornees` (3 à 14) |
+| 2 | **Valeurs : fiche ≠ CO** | La fiche dit **5 jours** entre deux relances d'un objet et la plage **9:00–18:00** (l'image aussi : « 9:00 à 18:00, jours ouvrés », « Préparée après 5 jours »). Le CO a adopté **7 jours** et **08:00–19:00** (§1.22), lus chez S9 | **Écart à trancher par Harun.** Le code lit les valeurs du CO (une seule source) ; l'espacement se règle de 3 à 14, donc 5 est un réglage. Pour passer à la fiche : changer `VALEURS_DE_DEPART` chez S9 |
+| 3 | **« Un message par client et par jour »** (valeur de S1, adoptée au §1.28) | Remplacée par « **une relance par client et par semaine glissante** » | `clientDelaiJours` = 7. Le §1.28 point 4 est donc à corriger : ce plafond-là vient de la fiche, pas de S1 |
+| 4 | **Plafond de 3 relances** | Confirmé (« trois relances au plus par objet ») | `maxParObjet` = 3, `suiteApres` (message, appel, suivi à la main) |
+| 5 | **Messagerie** (MC03) | « Écrire » ouvre un courriel (MX01) ou la messagerie (G07) selon la préférence | `moyenDeJoindre` rend `messagerie` (≠ courriel). **Manque** : un identifiant de messagerie dans le modèle ; la valeur rendue est l'adresse |
+| 6 | **Rouvrir un prospect** | H06 et MC01 n'en parlent pas (« existence d'un état Perdu (non dessiné) ») | Règle du CO conservée (§5) |
+| 7 | **Fidélité (MC02)** | Paliers **Bronze 0–799, Argent 800–1 799, Or dès 1 800** (réglables), 12 mois glissants ; points : 1 € payé = 1, **avis = 50, client recommandé = 200** ; jamais de point retiré ; descente d'un palier seulement après 12 mois sans activité, avec un message avant ; « bientôt au palier suivant » à moins de 100 points ; au plus 4 clients par barreau. **Pas un mot sur les tampons** | `fidelite.ts` : `PALIERS` = la fiche ; `PALIERS_DU_JEU_SIM` pour rejouer le jeu ; `pointsProgramme`, `bientotAuPalier`, `descenteDePalier`, `clientsAffiches`. La décision du CO (deux formules, tampons au choix de l'organisation) tient, la fiche ne la contredit pas |
+| 8 | **Jeu de SIM « fidélité »** | — | **À aligner par SIM** : paliers 500 / 1 500 au lieu de 800 / 1 800, points des factures seulement (ni avis ni recommandations) |
+| 9 | **Pipeline : deux calculs** | MC01 : chance **par étape** (Nouveau 20 %, Rendez-vous 40 %, Devis envoyé 55 %, Signé 100 %), « en jeu » hors signés et perdus, prévision pondérée, taux de passage sur 90 jours, âge moyen dans l'étape, « N j sans réponse » dès 5 jours, signé ce mois, objectif du mois, signatures par mois. H06 : chance **par prospect** modifiable, **intérêt** de 0 à 100 (35 % lectures, 25 % réponses, 20 % rendez-vous, 20 % fraîcheur), quadrant « À appeler cette semaine » (intérêt ≥ 60 et montant ≥ 3 000 €), traînée ≥ 10 points | `pipeline.ts` (MC01) et `interet.ts` (H06). **Les échelles de trois signaux d'intérêt ne sont pas dans la fiche** : `ECHELLES` est un choix de la session, à valider |
+| 10 | **Données absentes du modèle** | MC01 : date d'entrée dans l'étape, historique des mouvements, montant estimé, objectif du mois, état « Perdu » ; H06 : lectures du devis, délai de réponse, intérêt d'il y a 14 jours ; MC07 : état « reportée », suivi d'ouverture (« Ouvert 2 fois », MX03, à confirmer), ton du message ; MC06 : durées de trajet (service d'itinéraire, LOT-12), point de départ réglé | La logique reçoit ces données en **entrée** ; SIM les ajoutera (liste « Manque aux données » de `STATUT.md`) |
+| 11 | **Textes** | `tutoiement.json` : 353 textes des maquettes (vouvoiement → tutoiement), dont « Rien ne part sans ton accord », « Tes réglages d'envoi » ; l'image dit « rien ne part sans ton clic » | `i18n.ts` reprend les phrases de la fiche : « Pas avant le {date} : une relance par semaine au plus », « Dernière relance par message, ensuite suivi à la main », « Un appel plutôt qu'un message », « Encore {n} et la boîte est à zéro », « Rédigé par Ajmani avec tes mots · rien ne part sans ton clic ». Le message de relance d'un devis suit le corps de la fiche (« Je reviens vers vous au sujet du devis… Avez-vous pu le parcourir ? ») |
+| 12 | **Règles des autres fiches du lot** (non portées en logique, à reprendre à la construction) | H05 : statut « Impayé » = facture échue **depuis plus de 7 jours**, « À relancer » = échue depuis 7 jours ou moins, ou dernier échange > 5 jours, ou santé < 45, « Nouveau » = créé depuis moins de 30 jours ; couleur de santé 70 / 45. H44 : recommandation = % recommandent − % déçus. H45 : score fournisseur = Σ note × poids, par type de besoin. MC04 : charge = heures planifiées ÷ 35 h (< 80 % vert, 80–100 % orange, > 100 % rouge). MC05 : orbite par fréquence d'échanges sur 90 jours, force de la relation 50 / 30 / 20. F10 : chaleur des relations (< 7 j, 7 à 29 j, ≥ 30 j) | **Jeu de SIM « clients »** : son statut affiché est « Impayé » dès l'échéance passée et n'a pas de « Nouveau » ; la fiche H05 est plus fine. À aligner par SIM |
