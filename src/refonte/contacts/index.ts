@@ -10,4 +10,5 @@ export * from './fidelite';
 export * from './rendezvous';
 export * from './interlocuteurs';
 export * from './clients';
+export * from './derivees';
 export { dire, direCompte, DICTIONNAIRES_CONTACTS, useMotsContacts, type CleContacts } from './i18n';

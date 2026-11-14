@@ -1,0 +1,60 @@
+{
+  "_": "Écarts de LOT-02 (Mes contacts et clients) au-dessus de 15 % en comparaison brute, sur le modèle de justifies-LOT-00.json. Aucun écran ne dépasse 15 % en disposition (couleur ± 10, la barre de T1) : le plus haut est MC04 à 13,5 %. Chaque raison dit ce qui diffère de l'image v4 sans être une faute de disposition : données d'exemple de SIM à la place de celles de la maquette, données « non disponibles » dans l'application (STATUT §7), et les écarts de coquille de LOT-00. H06 (12,7 %) et H45 (14,1 %) sont sous 15 % même en brut.",
+  "ecrans": {
+    "F10": {
+      "brut": "25,2 %",
+      "disposition": "11,2 %",
+      "raison": "les tuiles, compteurs et la phrase d'Ajmani viennent des données d'exemple, pas des chiffres de l'image ; mêmes écarts de coquille que LOT-00 (barre latérale de l'aperçu : liste des modules, section « Développement », états de la barre « Aujourd'hui »)"
+    },
+    "H05": {
+      "brut": "23,6 %",
+      "disposition": "11,5 %",
+      "raison": "noms, montants et statuts des clients viennent du jeu d'exemple, pas de l'image ; mêmes écarts de coquille que LOT-00 (barre latérale de l'aperçu : liste des modules, section « Développement », états de la barre « Aujourd'hui »)"
+    },
+    "G04": {
+      "brut": "18,5 %",
+      "disposition": "8,5 %",
+      "raison": "identité, frise, factures et devis du client d'exemple, pas ceux de l'image ; mêmes écarts de coquille que LOT-00 (barre latérale de l'aperçu : liste des modules, section « Développement », états de la barre « Aujourd'hui »)"
+    },
+    "H44": {
+      "brut": "26,2 %",
+      "disposition": "12,8 %",
+      "raison": "avis, thèmes et citations du jeu d'exemple ; réponses, thèmes et collecte « non disponibles » dans l'application ; mêmes écarts de coquille que LOT-00 (barre latérale de l'aperçu : liste des modules, section « Développement », états de la barre « Aujourd'hui »)"
+    },
+    "MC01": {
+      "brut": "19,0 %",
+      "disposition": "11,5 %",
+      "raison": "opportunités, mouvements et objectif du jeu d'exemple ; taux de passage « non disponible » sans historique d'étapes ; mêmes écarts de coquille que LOT-00 (barre latérale de l'aperçu : liste des modules, section « Développement », états de la barre « Aujourd'hui »)"
+    },
+    "MC02": {
+      "brut": "17,8 %",
+      "disposition": "8,4 %",
+      "raison": "comptes et paliers du jeu d'exemple ; avantage d'un palier « à définir » (pas de catalogue) ; mêmes écarts de coquille que LOT-00 (barre latérale de l'aperçu : liste des modules, section « Développement », états de la barre « Aujourd'hui »)"
+    },
+    "MC03": {
+      "brut": "15,9 %",
+      "disposition": "7,9 %",
+      "raison": "personnes du jeu d'exemple ; « non disponible » dans l'application (collection d'interlocuteurs, décision de Harun) ; mêmes écarts de coquille que LOT-00 (barre latérale de l'aperçu : liste des modules, section « Développement », états de la barre « Aujourd'hui »)"
+    },
+    "MC04": {
+      "brut": "26,6 %",
+      "disposition": "13,5 %",
+      "raison": "membres, compétences et charge du jeu d'exemple ; charge et défi d'équipe « non disponibles » sans tâches ; mêmes écarts de coquille que LOT-00 (barre latérale de l'aperçu : liste des modules, section « Développement », états de la barre « Aujourd'hui »)"
+    },
+    "MC05": {
+      "brut": "16,9 %",
+      "disposition": "8,0 %",
+      "raison": "partenaires du jeu d'exemple ; « non disponible » dans l'application (pas de collection de partenaires) ; mêmes écarts de coquille que LOT-00 (barre latérale de l'aperçu : liste des modules, section « Développement », états de la barre « Aujourd'hui »)"
+    },
+    "MC06": {
+      "brut": "24,5 %",
+      "disposition": "7,7 %",
+      "raison": "rendez-vous du jeu d'exemple et durées de trajet fabriquées dans l'aperçu seulement ; trajet et lien de réservation « non disponibles » dans l'application ; mêmes écarts de coquille que LOT-00 (barre latérale de l'aperçu : liste des modules, section « Développement », états de la barre « Aujourd'hui »)"
+    },
+    "MC07": {
+      "brut": "16,7 %",
+      "disposition": "9,1 %",
+      "raison": "relances, réponses et compteurs d'une sélection du jeu d'exemple ; texte préparé d'après les données (pas rédigé par Ajmani), pas de pièce jointe protégée ; mêmes écarts de coquille que LOT-00 (barre latérale de l'aperçu : liste des modules, section « Développement », états de la barre « Aujourd'hui »)"
+    }
+  }
+}
