@@ -39,6 +39,7 @@ export const ZONES_CLIENT: readonly { fichier: string; debut: string; raison: st
   { fichier: 'scripts/apercu/ecrans/ME02.tsx', debut: 'Je reviens vers vous', raison: 'le brouillon de courriel montré par l’aperçu de ME02 : il part chez le client' },
   { fichier: 'scripts/apercu/ecrans/ME02.tsx', debut: ' au sujet du devis D-2026-117', raison: 'le brouillon de courriel montré par l’aperçu de ME02 : il part chez le client' },
   { fichier: 'scripts/apercu/ecrans/ME02.tsx', debut: ' si le devis vous convient.', raison: 'le brouillon de courriel montré par l’aperçu de ME02 : il part chez le client' },
+  { fichier: 'scripts/apercu/ecrans/ME04.tsx', debut: '18 messages, le dernier en avril', raison: 'l’extrait d’un message REÇU d’un client, montré par l’aperçu de ME04 : il garde le vouvoiement de son auteur' },
   { fichier: 'scripts/apercu/ecrans/H12.tsx', debut: 'Bonjour Menna, le devis', raison: 'la relance préparée montrée par l’aperçu de H12 : elle part chez le client' },
 ];
 

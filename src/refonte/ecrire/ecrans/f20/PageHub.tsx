@@ -7,7 +7,7 @@ import { useProfilesOptionnel } from '../../../../state/ProfilesContext';
 import { useCollection } from '../../../../state/SyncContext';
 import { useNotes } from '../../../../state/useNotes';
 import { usePageCoquille } from '../../../coquille/page';
-import { prenomAffichable } from '../../../systeme/demarrage/etapes';
+import { prenomAffichable } from '../commun/prenom';
 import type { FiltreDePages, PageMin } from '../../pages';
 import { motsParJour } from '../../serie';
 import { composerHub } from './composer';

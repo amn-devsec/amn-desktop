@@ -89,6 +89,8 @@ async function charger<T>(code: string): Promise<T> {
     target: 'es2022',
     charset: 'utf8',
     jsx: 'automatic',
+    // Un écran neuf du registre (`nouveau`) est importé à la demande : ses feuilles de style ne comptent pas ici.
+    loader: { '.css': 'empty' },
     tsconfig: path.join(racine, 'tsconfig.json'),
     define: { 'process.env.NODE_ENV': '"production"', 'import.meta.env.DEV': 'false', __AMN_EDITION__: '"internal"', __AMN_VERSION__: '"0.0.0"' },
     logLevel: 'silent',
@@ -346,7 +348,7 @@ const REGROUPEMENTS: string[][] = [
   ['dm', 'groups', 'team'],
   ['calls', 'rooms'],
   ['binder', 'media'],
-  ['remoteSign', 'esign'],
+  ['esign', 'remoteSign'],
   ['calculators', 'calcPro', 'converters'],
   ['writing', 'translation'],
   ['logbook', 'diary'],
@@ -398,7 +400,7 @@ await dit('Créer et produire rapatrie les modules des écrans de LOT-06 (STATUT
   }
   const creer = R.familles.find((f) => f.id === 'creer');
   assert.deepEqual(creer?.actions.map((a) => a.id).slice(0, 3), ['fabriquer', 'livrer', 'stocker'], 'les trois groupes de F50 d’abord');
-  assert.equal(R.entrees.length, 101, 'on déplace, on ne perd rien');
+  assert.equal(R.entrees.length, 102, 'on déplace, on ne perd rien (101 entrées, plus Archives, écran neuf de LOT-03)');
   assert.deepEqual(fautes, [], fautes.join('\n'));
 });
 
@@ -557,12 +559,12 @@ await dit('une famille ajoutée (un fichier) arrive aux familles, aux essentiels
   assert.ok(item, 'absent du catalogue');
   assert.equal(item.to, '/essai/gabarits');
   assert.equal(sections.find((s) => s.items.includes(item))?.space, 'workspace');
-  assert.deepEqual(m.ecransNeufs(r).map((e) => e.route), ['/essai/gabarits'], 'route non montée');
+  assert.ok(m.ecransNeufs(r).some((e) => e.route === '/essai/gabarits'), 'route non montée');
   const g = m.composerRail({ catalogue: [...catalogue, item].map((i) => ({ key: i.key })), epingles: [], recents: [], quand: new Date(2026, 9, 21, 9), essentiels });
   assert.ok(g.essentiels.some((i) => i.key === 'essaiGabarits'), 'absent du rail');
-  // Le registre réel n'a aucun écran neuf : rien n'est ajouté au catalogue ni aux routes.
-  assert.deepEqual(m.sectionsDuRegistre(R), []);
-  assert.deepEqual(m.ecransNeufs(R), []);
+  // Le registre réel n'a qu'un écran neuf : Archives (ME04, LOT-03). Rien d'autre n'est ajouté au catalogue ni aux routes.
+  assert.deepEqual(m.sectionsDuRegistre(R).flatMap((s) => s.items.map((i) => i.key)), ['archives']);
+  assert.deepEqual(m.ecransNeufs(R).map((e) => e.route), ['/archives']);
 });
 
 await dit('un module ajouté seul (un fichier) rejoint sa famille, après ceux du fichier de la famille', () => {

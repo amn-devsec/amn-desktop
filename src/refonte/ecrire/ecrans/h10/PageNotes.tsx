@@ -4,7 +4,7 @@ import { useAuth } from '../../../../auth/AuthContext';
 import { useProfilesOptionnel } from '../../../../state/ProfilesContext';
 import { useNotes } from '../../../../state/useNotes';
 import { usePageCoquille } from '../../../coquille/page';
-import { prenomAffichable } from '../../../systeme/demarrage/etapes';
+import { prenomAffichable } from '../commun/prenom';
 import type { PageMin } from '../../pages';
 import { motsParJour } from '../../serie';
 import { composerNotes } from './composer';
