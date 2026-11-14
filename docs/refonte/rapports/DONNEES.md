@@ -1,42 +1,25 @@
-# Rapport de fin de session — Données fictives (bac à sable), la suite
+# Rapport de fin de session — Données fictives (bac à sable), mission du 12 nov.
 
 ## Résumé (5 lignes au plus)
 
-1. 75 jeux de plus, soit **100 jeux** entièrement inventés, en français : Écrire, Échanger, Créer, Outils, La Garde, le lot Cyber (LOT-10, 14 écrans) et les écrans manquants des lots déjà faits (TVA et impôts, paie, tarifs, partenaires, planning de l'équipe, défis).
-2. Même mécanique qu'avant : quatre volumes (vide, peu, normal, beaucoup), reproductibles à la graine, datés du vendredi 30 octobre 2026 à 10 h 15, sans jamais lire l'horloge.
-3. Les jeux se recoupent : TVA à payer = TVA des factures − TVA des dépenses ; salaires de la banque = net des bulletins ; quantité d'un article = somme de ses mouvements ; non-lus = messages non lus ; état d'une organisation = score, alertes ouvertes, dernière ronde ; mission Cyber = état de son accord.
-4. Rien de sensible : secrets **masqués**, identifiants `FICT-AAAA-NNNN`, aucune adresse réseau, aucun nom d'outil de sécurité réel, constats réduits à un titre et une gravité, campagnes réduites à des agrégats.
-5. `scripts/check-donnees.ts` : 87 contrôles (55 avant), dont les invariants sur 12 graines, 4 graines « beaucoup » et 4 dates ; essayés par mutation. Reste : les chargeurs vers l'API et les écrans à brancher.
+1. **Dates alignées** sur les images v3 : vendredi 30 oct. 2026 à 10 h 42 pour le bureau, mardi 3 nov. 2026 pour Cyber (second « maintenant » dans le contexte). Le libellé de la bande du milieu de La Garde est « Attention ».
+2. **Chargeur** `scripts/charger-donnees-essai.mjs` : écrit un volume choisi dans l'API d'essai locale (127.0.0.1 seulement, comptes `@exemple.test`), huit collections ; La Garde par `seed-supervision.mjs`. Ligne ajoutée à `LANCER-EN-LOCAL.md`.
+3. **Attendus** des écrans calculés H09, H04, G08 et H25 (`attendus.ts`), avec les cas que leurs fiches montrent garantis dans les jeux.
+4. **LOT-14** : 1 000 organisations fictives reproductibles (`charge.ts`), scénarios dans `docs/simulation/charge.md`, exécution locale `simulation/charge/executer.mjs` : les trois scénarios tournent, aucune écriture perdue.
+5. **Champs réclamés** par les lots 02, 04 et 06 : une partie ajoutée avec contrôle (le reste est listé plus bas). `check:donnees` : **106 contrôles** (87 avant).
 
 ## Branche et sha
 
 - Branche : `claude/refonte-donnees-fictives`
-- Dernier commit de code : `b49278f`
-- Partie de : `claude/refonte-vivante` @ `d6e25d3`
+- Dernier commit de code : voir le message au CO (le sha change si une fusion de `refonte-vivante` arrive après ce rapport)
+- Partie de : `claude/refonte-vivante`, fusionnée trois fois pendant la mission (`8333822`, `37ca20c`, puis `892c436`)
 
 ## Fichiers touchés
 
-Sortie de `git diff --name-status origin/claude/refonte-vivante...HEAD` (avant ce rapport) :
+Nouveaux : `scripts/charger-donnees-essai.mjs`, `src/refonte/donnees/attendus.ts`, `src/refonte/donnees/charge.ts`, `simulation/charge/executer.mjs`, `docs/simulation/charge.md`.
+Modifiés : `src/refonte/donnees/` (`argent.ts`, `contacts.ts`, `creer.ts`, `equipe.ts`, `garde.ts`, `index.ts`, `ma-journee.ts`, `monde.ts`, `outils.ts`, `types.ts`, `types-suite.ts`, `LISEZ-MOI.md`), `scripts/check-donnees.ts`, `docs/refonte/LANCER-EN-LOCAL.md` (une ligne, demandée), ce rapport.
 
-```
-M	scripts/check-donnees.ts
-M	src/refonte/donnees/LISEZ-MOI.md
-M	src/refonte/donnees/argent.ts
-A	src/refonte/donnees/boite-outils.ts
-A	src/refonte/donnees/commun.ts
-A	src/refonte/donnees/complements.ts
-A	src/refonte/donnees/creer.ts
-A	src/refonte/donnees/cyber.ts
-A	src/refonte/donnees/echanger.ts
-A	src/refonte/donnees/ecrire.ts
-A	src/refonte/donnees/garde.ts
-M	src/refonte/donnees/index.ts
-M	src/refonte/donnees/monde.ts
-A	src/refonte/donnees/types-suite.ts
-M	src/refonte/donnees/types.ts
-```
-
-Fichiers **sensibles** ou **hors zone** touchés : **aucun**. Tout est dans `src/refonte/donnees/**` et `scripts/check-donnees.ts`. `package.json` n'est pas touché (`check:donnees` y est déjà branché).
+Fichiers **sensibles** ou **hors zone** : aucun (ni `package.json`, ni `editions.yml`, ni `STATUT.md`, ni `REGLES.md`). `docs/simulation/` et `simulation/` sont dans ma zone ; seuls `charge.md` et `executer.mjs` y sont poussés.
 
 ## Gardes
 
@@ -44,47 +27,59 @@ Fichiers **sensibles** ou **hors zone** touchés : **aucun**. Tout est dans `src
 |---|---|
 | `typecheck` | vert |
 | `typecheck:business` | vert |
-| `lint` (sur `src/refonte/donnees` et `scripts/check-donnees.ts`) | vert, 0 avertissement |
-| `check:accueils` | vert |
-| `check:socle` | vert |
-| `check:moments` | vert |
+| `lint` | vert |
+| `check:accueils`, `check:socle`, `check:moments` | vert |
 | `check:langue`, `check:accent`, `check:naming`, `check:modules` | vert |
-| `check:donnees` (87 contrôles) | vert |
+| `check:donnees` (106 contrôles) | vert |
 
-Le `lint` complet du dépôt n'a pas été relancé : seule ma zone l'a été.
+Le scénario de charge « cible » est rejoué par `check:donnees` quand amn-api est à côté (sinon le contrôle le dit et passe).
 
-## Les jeux ajoutés
+## Ce qui est livré
 
-| Lot | Jeux | Fiches |
+| N° | Livré | Où |
 |---|---|---|
-| Écrans manquants | `echeancesFiscales` (TVA et impôts), `bulletins` (paie), `prestations` (tarifs), `partenaires`, `creneaux` (planning de l'équipe), `defis` | MA08, MA11, MA12, MC05, MJ03, L07 |
-| Écrire | `fichiers`, `signatures`, `pages`, `modeles`, `journal`, `textes`, `archives`, `connaissances` | H10, H11, H12, ME01 à ME05 |
-| Échanger | `conversations`, `messages`, `canaux`, `annonces`, `courriels`, `salles`, `appels`, `reunions`, `partages`, `sondages`, `reponsesAuto` | G07, MX01 à MX06, H13, H14 |
-| Créer | `articles`, `produits`, `commandes`, `chantiers`, `dossiersPhotos`, `marque`, `videos`, `pagesPubliques`, `etapesTournee`, `equipements`, `ressources`, `reservations`, `vehicules`, `modelesControle`, `controles`, `ecarts` | H15 à H17, MR01 à MR11 |
-| Outils | `corbeille`, `aide`, `secrets`, `sites`, `trackers`, `sauvegardes`, `operations`, `raccourcis`, `automatisations`, `connecteurs`, `notifications`, `modelesMetier`, `usagesCalculs` | H20 à H24, H40, H47, MO02 à MO05 |
-| La Garde | `organisations`, `actifs`, `alertes`, `incidents`, `vulnerabilites`, `rondes`, `evenementsSecurite`, `journalAcces`, `criteresMaturite`, `offresCyber` | H30 à H35, MG01 à MG03 |
-| Cyber (LOT-10) | `outilsCyber`, `accords`, `missions`, `constats`, `documentsCyber`, `logicielsClients`, `alertesVeille`, `fuites`, `dossiersConformite`, `campagnes`, `parcSecurite` | les 14 écrans du lot |
+| 1 | Dates 10 h 42 et 3 nov. (Cyber), libellé « Attention », contrôles | `outils.ts`, `monde.ts`, `types.ts`, `garde.ts` |
+| 2 | Chargeur, refus de toute cible autre que 127.0.0.1 (et des redirections), refus des comptes hors `@exemple.test`, « moi » remplacé par le compte connecté, 9 écritures par seconde | `scripts/charger-donnees-essai.mjs` |
+| 3 | Attendus H09, H04, G08, H25 | `attendus.ts` |
+| 4 | Générateur d'organisations, scénarios, exécution | `charge.ts`, `charge.md`, `executer.mjs` |
+| 5 | Champs des listes « Manque aux données » (LOT-02, LOT-04, LOT-06) | voir ci-dessous |
 
-Mode d'emploi, volumes, conventions et catalogue complet : `src/refonte/donnees/LISEZ-MOI.md`.
+### Ce que les attendus ont demandé aux jeux
+
+Pour que les cas des fiches existent : prévisions de trésorerie sur quatre mois (abonnements actifs et impôts à payer en plus des factures et charges) ; trois clients arrivés cette semaine et deux la précédente ; deux règlements cette semaine, deux la semaine d'avant et deux tôt le mois précédent (dès « normal ») ; la semaine suivante plus chargée que la moyenne des quatre dernières ; les nouveaux clients du mois s'abonnent.
+
+### Champs ajoutés (avec un contrôle chacun)
+
+- **LOT-02** : référents de partenaires (interlocuteurs de type partenaire), sentiment des avis et NPS (`calculerNps`), raison de perte des prospects.
+- **LOT-04** : régime de TVA ; lignes à 10 % et 5,5 % (factures, devis) et dépenses à 5,5 % ; historique des soldes (90 jours) et des enveloppes (6 mois) ; indicateur « échue » sur les encaissements prévus ; attendus de H09.
+- **LOT-06** : MR07 (création, heure d'échéance, livraison, paiement en ligne) ; MR03 (durée et distance de trajet, état « Sur place ») ; MR04 (dernier contrôle, dernier entretien, réforme).
 
 ## Ce qui reste à faire (par ordre d'utilité)
 
-1. **Un chargeur vers le bac à sable API** (comme `scripts/seed-essai.mjs`) : les jeux sont des objets en mémoire, pas des enregistrements de collections. À faire avec S3 pour La Garde (`src/refonte/garde`, `scripts/seed-supervision.mjs`).
-2. **Relecture des champs écran par écran** : un écran qui consomme un jeu trouvera peut-être un champ manquant. Ajouter le champ et un contrôle, dans la même zone.
-3. **Calculables non stockés** : trésorerie prévisionnelle (H09), bilan de la semaine (H04), cockpit client (G08), configuration du tableau de bord (H25) se calculent depuis les jeux existants ; aucun jeu dédié n'a été créé.
-4. **Cyber : volumes `beaucoup`** sont éprouvés par le contrôle, mais pas par un écran (listes très longues de missions et d'outils).
+1. **Champs réclamés, non faits** (relus sur `STATUT.md` de `refonte-vivante` pour LOT-02, et sur les branches `refonte-argent` et `refonte-creer` pour LOT-04 et LOT-06, pas encore fusionnées) :
+   - LOT-04 : règlements partiels et avoirs, remises sur devis et prestations ;
+   - LOT-06 : H15 (niveau cible, emplacement par mouvement, commandes fournisseur, franco), H16 (poids et part réalisée par étape, interventions, livraisons), H17 (rôle des couleurs, règles « à éviter »), MR01 (étape « Sous-titrage », plans, sous-titres, commentaires), MR02 (sections, visites par jour, avis avec accord), MR04 (affectation datée), MR05 (photos, TVA, prix d'achat, niveau conseillé, ventes par semaine), MR06 (indisponibilité, historique des conflits), MR08 (aucun jeu : sessions en direct, entonnoir, paniers, objectif), MR09 (énergie, niveau, autonomie, kilomètres), MR10 (orientation des photos, signature du client), MR11 (« sans objet », cause et date de relevé), F50 (contrôle ouvert rattaché à un chantier, étape « Réception »).
+   - LOT-02 : deux points ne sont pas des jeux mais des collections côté application (avantages de fidélité offerts et utilisés, collection d'interlocuteurs).
+2. **LOT-03 (Écrire)** a inscrit sa liste pendant la mission (arrivée par la dernière fusion) ; **rien n'en est fait** : pages (blocs avec échéance et liens, commentaires ancrés, propriétés, présence), documents (intercalaires, partage externe, faits relevés), signatures (champs posés, rôle « en copie », relances planifiées), journal (humeur sur 5 niveaux, énergie, mercis : les noms des niveaux sont dans la fiche ME01, que je n'ai pas relue), base de connaissances, archives, relecture de F20. Les lots 01, 05, 07, 08 et 10 n'ont inscrit aucune liste à ce jour.
+3. **Le chargeur n'écrit que huit jeux sur cent** : voir « Points à trancher ».
+4. **Cyber** : le volume « beaucoup » n'est toujours pas éprouvé par un écran (§1.11, n° 4).
 
-## Points à trancher
+## Points à trancher (CO)
 
-- **Règles « à confirmer dans le code » implémentées comme propositions**, nommées dans le code, en plus de celles du rapport précédent : bandes de l'état d'une organisation (Sain ≥ 70, À surveiller 45 à 69, Critique < 45 ; une alerte Critique ouverte rend Critique, une alerte Moyenne ouverte rend À surveiller ; ronde en retard de plus de 2 intervalles → À surveiller, de plus de 24 h → Critique) ; niveaux de maturité (score = points obtenus ÷ points possibles) ; cotisations sociales = 46 % du net ; états d'un accord Cyber (En attente, Valide, Expire bientôt, Expiré). À valider avant que les écrans s'y fient.
-- **Écarts de maquettes tranchés par défaut** : comme avant, les compteurs et totaux sont ceux des enregistrements, pas ceux des images (04-ECARTS).
-- **Outils Cyber** : le catalogue est volontairement **générique** (9 familles × 6 outils, sans nom d'outil réel). Si un écran réclame des noms précis, à trancher avec le CO.
+- **Collections d'accueil dans amn-api.** La liste `ALLOWED` d'amn-api est fermée. Huit jeux ont une collection d'accueil (sept dont la forme est prouvée par `compat.ts`, plus les tâches) ; les **92 autres** n'ont pas de collection confirmée (équipe, tickets, paiements, abonnements, contrats, mouvements, bulletins, partenaires, Écrire, Échanger, Créer, Outils, La Garde, Cyber…). Ouvrir des collections, ou dire dans quelles collections existantes les ranger, est une décision du CO et un travail côté amn-api. Tant que ce n'est pas fait, l'application d'essai ne voit que ces huit jeux.
+- **La Garde dans l'API d'essai.** `seed-supervision.mjs` écrit dans un **fichier** sqlite de bac à sable ; `scripts/qualite/api-essai.mjs` (T1) travaille en mémoire. Proposition : T1 ajoute à `api-essai.mjs` une base sur fichier facultative (une variable d'environnement), et `--garde` fonctionne tel quel. Vérifié avec une copie locale de `api-essai.mjs` qui prend le chemin d'un fichier : le parc de supervision s'écrit bien.
+- **L'heure de Cyber.** Les fiches donnent le jour (mardi 3 nov.), pas l'heure : j'ai pris 10 h 42, comme le bureau.
+- **Le runner de charge démarre sa propre API d'essai** (même code, `createApp`, base en mémoire ou fichier jetable, 127.0.0.1) au lieu de viser le port 4171 : il doit créer des organisations, ce que l'API n'offre pas depuis l'extérieur. Est-ce acceptable pour « contre l'API d'essai » ?
+- **Règles ajoutées comme propositions** : paliers de série 5, 10, 20, 30, 50, 100 (H04) ; « à reporter » = non faites dont l'échéance tombe dans la semaine ; « nouveaux clients actifs » (G08) = clients du mois au statut actif ; le prévisionnel de H09 vient de la liste `mouvements` (MA07) ; fourchette = entrées retardées de 15 jours / entrées à l'échéance ; coût d'embauche saisi (3 200 € par mois, jamais calculé), premier prélèvement le 1er du mois, trois mois après le mois courant.
+
+## Signalement
+
+Aucun point faible d'amn-api n'a été trouvé par ces essais.
 
 ## Ce qui n'a pas été vérifié
 
-- **Aucun écran n'a encore consommé ces jeux** : compatibilité vérifiée par le compilateur et 87 contrôles, pas en situation. Pas de navigateur, rien comparé aux images.
-- **Lecture des fiches des nouveaux lots** : par extraction des entités puis relecture ciblée, pas fiche par fiche en entier.
-- **Plausibilité des montants et des noms** : relue à l'œil sur un échantillon, pas validée par un comptable ni par un spécialiste sécurité. Une ressemblance d'un nom complet avec une vraie personne reste possible par coïncidence.
-- **Plages de téléphone fictives** (`01 99 00`, `06 39 98`) : confirmées par plusieurs sources secondaires, pas par le texte de l'ARCEP.
-- **Le `lint` complet du dépôt** n'a pas été relancé (seule ma zone).
-- **Chargement dans l'API** : non fait, donc non testé.
+- **Aucun écran n'a encore consommé** ces jeux ni ces attendus : tout est vérifié par le compilateur et 106 contrôles, pas en situation. Pas de navigateur.
+- **Les chiffres de charge ne valent pas pour le serveur réel** (même processus pour le serveur et les personnes simulées). Le palier de 1 000 organisations connectées et les 72 h n'ont pas été joués : seulement 100 organisations dont 20 connectées pendant 30 s, des paliers jusqu'à 40, et 80 s d'essai long avec coupures et redémarrages.
+- **Le chargeur a été essayé** sur une API d'essai locale (volumes « peu », « normal » et « vide », retour d'un volume à l'autre, refus des cibles et des comptes) mais **pas** contre le port 4171 de T1.
+- **Les formes des huit collections** sont celles de `compat.ts` ; les tâches n'y figurent pas (leur type dans le dépôt est lâche) et n'ont pas de champ `priority` : un écran qui l'exigerait le dira.
+- **Plausibilité des montants et des noms** : relue à l'œil sur un échantillon, pas validée.

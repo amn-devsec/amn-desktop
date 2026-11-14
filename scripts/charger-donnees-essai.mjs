@@ -28,8 +28,8 @@
  * ## Ce qu'il écrit
  *
  * Seulement les jeux dont une collection d'amn-api existe ET dont la forme est
- * vérifiée à la compilation (`compat.ts`) : clients, projets, tâches, rendez-vous,
- * notes, devis, factures, dépenses. Les autres jeux n'ont pas de collection
+ * vérifiée à la compilation (`compat.ts`) : clients, projets, rendez-vous, notes,
+ * devis, factures, dépenses ; plus les tâches, dont le type du dépôt est lâche. Les autres jeux n'ont pas de collection
  * d'accueil dans amn-api (`ALLOWED` est une liste fermée) : le script les nomme
  * en fin de passage au lieu de les ranger dans une collection qui n'est pas la
  * leur. Ouvrir des collections est une décision du CO.
@@ -98,7 +98,7 @@ export function compteAutorise(email) {
 
 /* ---------------------------------- Les jeux ---------------------------------- */
 
-/** Jeu → collection d'amn-api. Seuls les jeux dont `compat.ts` prouve la forme. */
+/** Jeu → collection d'amn-api. Les jeux dont `compat.ts` prouve la forme, et les tâches (type lâche dans le dépôt). */
 export const CHARGES = [
   { jeu: 'clients', collection: 'clients' },
   { jeu: 'projets', collection: 'projects' },

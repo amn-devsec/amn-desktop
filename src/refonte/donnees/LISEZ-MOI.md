@@ -62,13 +62,38 @@ Aides communes : `commun.ts` (horodatages bornés au passé, cycles, hasard par 
 
 **Pas encore faits** : voir le rapport `docs/refonte/rapports/DONNEES.md`.
 
+## Les valeurs attendues des écrans calculés (`attendus.ts`)
+
+Quatre écrans calculent au lieu de lire un jeu. Leurs **attendus de test** sont des fonctions littérales du monde (pas une seconde implémentation : le calcul reste à la session du lot, qui compare) :
+
+| Écran | Fonction | Ce qu'elle rend |
+|---|---|---|
+| H09 Prévisions de trésorerie | `attendusPrevisions(monde, { horizonJours })` | solde, série jour par jour, point le plus bas et creux, entrées attendues, six prochains mouvements, trois scénarios, fourchette, bannière |
+| H04 Bilan de la semaine | `attendusBilanSemaine(monde, { jour, email })` | tâches faites sur total, encaissé, nouveaux clients, tâches par jour, à reporter, jalons, suggestion de la semaine suivante |
+| G08 Cockpit | `attendusCockpit(monde)` | revenu récurrent, encaissé du mois, clients actifs, tickets par colonne, sources |
+| H25 Tableau de bord | `attendusTableauDeBord(monde)` | chiffre d'affaires, tickets, factures impayées, mes tâches, prochain rendez-vous, activité |
+
+Ce que les jeux ne portent pas (boîte à zéro de N01, objectif du mois de G08, utilisateurs connectés) est rendu `null` et nommé dans `manque`. Les règles que les fiches disent « Proposition » ou « à confirmer » le restent dans les commentaires.
+
+## Charger les jeux dans l'API d'essai (`scripts/charger-donnees-essai.mjs`)
+
+```
+node scripts/charger-donnees-essai.mjs --volume normal      # vide | peu | normal | beaucoup
+```
+
+N'écrit que sur `127.0.0.1` et que pour un compte `@exemple.test`. Huit jeux ont une collection d'accueil dans amn-api (clients, projets, tâches, rendez-vous, notes, devis, factures, dépenses ; sept sont prouvés par `compat.ts`, les tâches ont un type lâche) ; le script nomme les autres en fin de passage. Mode d'emploi pour Harun : `docs/refonte/LANCER-EN-LOCAL.md`, étape 4. La Garde (`--garde`) passe par `scripts/seed-supervision.mjs`, qui exige une API d'essai sur un fichier.
+
+## La charge (LOT-14, `charge.ts`)
+
+`genererOrganisationsDeCharge({ graine, nombre })` : jusqu'à 1 000 organisations fictives de 10 à 600 personnes, reproductibles et emboîtées ; `choisirConnectees` désigne celles qui travaillent en même temps. Scénarios, seuils et mode d'emploi : `docs/simulation/charge.md` ; exécution : `simulation/charge/executer.mjs`.
+
 ## Vérifier
 
 ```
 node --experimental-strip-types --disable-warning=ExperimentalWarning --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-donnees.ts
 ```
 
-87 contrôles : reproductibilité, volumes, absence de données réelles, références
+106 contrôles : reproductibilité, volumes, absence de données réelles, références
 qui existent, numérotation continue des factures, chiffres qui se recoupent,
 français correct, absence de secret, d'adresse réseau et de nom d'outil de sécurité réel, et les mêmes invariants sur 12 graines (« peu » et « normal »), 4 graines (« beaucoup ») et 4 dates de référence.
 
