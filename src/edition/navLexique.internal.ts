@@ -30,6 +30,8 @@ const NAV_EN_INTERNE: Record<string, TraductionNav> = {
   access: { label: 'Access log', hint: 'Who entered where' },
   // Trois modules du catalogue sans anglais : l'interface les montrait en français (refonte S5).
   // Ici, côté interne seulement : `nav.en.ts` est commun aux deux éditions, et celle des clientes ne bouge pas.
+  // Écran neuf de LOT-03 (ME04), ajouté au catalogue par le registre : son nom anglais, côté interne seulement.
+  archives: { label: 'Archives', hint: 'Find what is filed, by date or by word' },
   health: { label: 'Health log', hint: 'Dates and deadlines, nothing medical' },
   calcPro: { label: 'Pro calculator', hint: 'A till-roll tape you reread before pricing' },
   interventions: { label: 'Field visits', hint: 'Before, during, after — the report of a call-out' },

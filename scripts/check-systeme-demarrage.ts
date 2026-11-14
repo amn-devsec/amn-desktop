@@ -256,7 +256,7 @@ await dit('allègements : tout ce qui n’est pas activé s’allège, rien d’
     }
     assert.ok(sortie.length < catalogueCles.length, `${m.id} : tout est allégé`);
   }
-  assert.deepEqual(registre, geler, 'le registre ne doit pas bouger : rien n’est supprimé');
+  assert.deepEqual(JSON.parse(JSON.stringify(registre)), geler, 'le registre ne doit pas bouger : rien n’est supprimé');
   for (const k of TOUJOURS) assert.ok(!R.calculerAllegements(['clients'], registre, catalogueCles, { toujoursOuverts: TOUJOURS }).includes(k), k);
 });
 

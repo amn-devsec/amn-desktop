@@ -89,6 +89,8 @@ async function charger<T>(code: string): Promise<T> {
     target: 'es2022',
     charset: 'utf8',
     jsx: 'automatic',
+    // Un écran neuf du registre (`nouveau`) est importé à la demande : ses feuilles de style ne comptent pas ici.
+    loader: { '.css': 'empty' },
     tsconfig: path.join(racine, 'tsconfig.json'),
     define: { 'process.env.NODE_ENV': '"production"', 'import.meta.env.DEV': 'false', __AMN_EDITION__: '"internal"', __AMN_VERSION__: '"0.0.0"' },
     logLevel: 'silent',

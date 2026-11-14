@@ -1,0 +1,65 @@
+import { definirMots } from '../../../../socle/mots';
+
+/** LES TEXTES FIXES DE H11 (Documents), fr et en. Les phrases calculées viennent de la logique du lot. L'interface tutoie. */
+export const { useMots, traduire, dictionnaires } = definirMots(
+  {
+    'titre': 'Documents',
+    'sousTitre': 'Your team’s binder · {n} documents filed by tab, every version kept',
+    'sousTitreVide': 'Your team’s binder · nothing filed yet',
+    'dossier': 'Folder',
+    'televerser': 'Upload',
+    'intercalaires': 'Tabs',
+    'intercalaire': 'Tab',
+    'chercher': 'Search the binder',
+    'espace': 'Space used',
+    'document': 'Document',
+    'actuelle': 'current',
+    'videTitre': 'Nothing filed yet',
+    'videTexte': 'Upload a contract, an invoice or a quote: it is kept with every version.',
+    'tri': 'Recent',
+    'ouvrir': 'Open',
+    'partager': 'Share',
+    'signer': 'Send to sign',
+    'liste.autres.1': '{n} other document',
+    'liste.autres.n': '{n} other documents',
+    'espace.sur': '{u} of {q}',
+  } as const,
+  {
+    'titre': 'Documents',
+    'sousTitre': 'Ton classeur d’équipe · {n} documents rangés par intercalaire, chaque version gardée',
+    'sousTitreVide': 'Ton classeur d’équipe · rien n’est encore rangé',
+    'dossier': 'Dossier',
+    'televerser': 'Téléverser',
+    'intercalaires': 'Intercalaires',
+    'intercalaire': 'Intercalaire',
+    'chercher': 'Chercher dans le classeur',
+    'espace': 'Espace utilisé',
+    'document': 'Document',
+    'actuelle': 'actuelle',
+    'videTitre': 'Rien n’est encore rangé',
+    'videTexte': 'Téléverse un contrat, une facture ou un devis : il est gardé avec toutes ses versions.',
+    'tri': 'Récents',
+    'ouvrir': 'Ouvrir',
+    'partager': 'Partager',
+    'signer': 'Envoyer à signer',
+    'liste.autres.1': '{n} autre document',
+    'liste.autres.n': '{n} autres documents',
+    'espace.sur': '{u} sur {q}',
+  },
+);
+
+export function libellesDe(tm: (cle: keyof (typeof dictionnaires)['fr'] & string, params?: Record<string, string | number>) => string): Record<string, string> {
+  return {
+    titre: tm('titre'),
+    dossier: tm('dossier'),
+    televerser: tm('televerser'),
+    intercalaires: tm('intercalaires'),
+    intercalaire: tm('intercalaire'),
+    chercher: tm('chercher'),
+    espace: tm('espace'),
+    document: tm('document'),
+    actuelle: tm('actuelle'),
+    videTitre: tm('videTitre'),
+    videTexte: tm('videTexte'),
+  };
+}
