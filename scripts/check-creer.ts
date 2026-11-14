@@ -945,6 +945,13 @@ await dit('le partage client : lien à durée limitée, sans lieu ni auteur', ()
   assert.ok(!JSON.stringify(r).includes('Salon') && !JSON.stringify(r).includes('exemple'));
 });
 
+await dit('la suggestion « Compléter » : terminée depuis plus de 2 jours sans photo après, la plus ancienne', () => {
+  const d = (id: string, termineLe: string | null, phases: string[]) => ({ id, termineLe, photos: phases.map((phase, i) => ph(`${id}${i}`, phase, '2026-10-01')) });
+  assert.equal(PH.dossierACompleter([d('a', '2026-10-27', ['Avant']), d('b', '2026-10-20', ['Avant'])], '2026-10-30').id, 'b');
+  assert.equal(PH.dossierACompleter([d('a', '2026-10-28', ['Avant'])], '2026-10-30'), null); // 2 jours : pas encore
+  assert.equal(PH.dossierACompleter([d('a', '2026-10-01', ['Avant', 'Après']), d('c', null, [])], '2026-10-30'), null); // déjà complet ; en cours
+});
+
 /* ── MR11 Qualité ────────────────────────────────────────────────────────── */
 console.log('\nMR11 · Qualité et contrôles\n');
 
