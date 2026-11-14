@@ -1,5 +1,5 @@
 import type {
-  Achat, Avis, CompteFidelite, Devis, Evenement, Facture, FicheClient, Fournisseur, Interlocuteur, Membre, Prospect, Relance,
+  Achat, Avis, CompteFidelite, Devis, Evenement, Facture, FicheClient, Fournisseur, Interlocuteur, Membre, Prospect, Relance, Tache,
 } from '../../donnees/types';
 import type { Partenaire } from '../../donnees/types-suite';
 import type { Jour } from '../commun';
@@ -35,7 +35,7 @@ export interface Echange {
 }
 
 /** Ce que les écrans lisent d'un membre de l'équipe. */
-export type MembreSource = Pick<Membre, 'id' | 'prenom' | 'nom' | 'nomComplet' | 'initiales' | 'email' | 'teinte' | 'statut'>;
+export type MembreSource = Pick<Membre, 'id' | 'prenom' | 'nom' | 'nomComplet' | 'initiales' | 'email' | 'teinte' | 'statut'> & Partial<Pick<Membre, 'role' | 'fonction' | 'specialites' | 'heuresSemaine' | 'congesJours'>>;
 
 export interface SourcesContacts {
   maintenant: number;
@@ -57,6 +57,8 @@ export interface SourcesContacts {
   achats: Achat[] | null;
   partenaires: Partenaire[] | null;
   equipe: MembreSource[];
+  /** `null` : l'application ne donne pas les tâches à cette couche (la charge de l'équipe, MC04, dit « charge inconnue »). */
+  taches: Tache[] | null;
   /** Vrai quand `equipe[].statut` est la VRAIE présence ; faux : l'application ne la connaît pas ici (la tuile dit « membres », pas « en ligne »). */
   presence: boolean;
   /** `null` : pas de collection d'interlocuteurs dans l'application (décision de Harun en attente, STATUT §1.28). */

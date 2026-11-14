@@ -198,6 +198,7 @@ export function useSourcesContacts(maintenant: number): ResultatSources {
       fidelite: fideliteDepuis({ aujourdhui, clients: fiches, factures, avis: avisSimples }),
       fournisseurs,
       achats: null,
+      taches: null,
       partenaires: null,
       equipe,
       presence: false,

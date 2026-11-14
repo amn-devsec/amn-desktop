@@ -55,9 +55,9 @@ async function charger<T>(code: string): Promise<T> {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const M = await charger<any>(
-  "export * as L from '../src/refonte/contacts';\nexport * as monde from '../src/refonte/donnees';\nexport { DICTIONNAIRES_CONTACTS } from '../src/refonte/contacts/i18n';\nexport * as V from '../src/refonte/connecteurs/reglages';\nexport * as H from '../src/refonte/contacts/hub/modele';\nexport * as N from '../src/refonte/contacts/hub/nuage';\nexport { DICTIONNAIRES_HUB } from '../src/refonte/contacts/hub/i18n';\nexport { depuisMonde } from '../src/refonte/contacts/sources/depuisMonde';\nexport * as C from '../src/refonte/contacts/clients/modele';\nexport { DICTIONNAIRES_CLIENTS } from '../src/refonte/contacts/clients/i18n';\nexport * as G from '../src/refonte/contacts/fiche/modele';\nexport { DICTIONNAIRES_FICHE } from '../src/refonte/contacts/fiche/i18n';\nexport * as P from '../src/refonte/contacts/prospects/modele';\nexport * as PN from '../src/refonte/contacts/prospects/nuage';\nexport { DICTIONNAIRES_PROSPECTS } from '../src/refonte/contacts/prospects/i18n';\nexport * as RT from '../src/refonte/contacts/retours/modele';\nexport { DICTIONNAIRES_RETOURS } from '../src/refonte/contacts/retours/i18n';\nexport * as FO from '../src/refonte/contacts/fournisseurs/modele';\nexport { DICTIONNAIRES_FOURNISSEURS } from '../src/refonte/contacts/fournisseurs/i18n';\nexport * as PL from '../src/refonte/contacts/pipeline/modele';\nexport * as PG from '../src/refonte/contacts/pipeline/geometrie';\nexport { DICTIONNAIRES_PIPELINE } from '../src/refonte/contacts/pipeline/i18n';\nexport * as FI from '../src/refonte/contacts/fidelite/modele';\nexport { DICTIONNAIRES_FIDELITE } from '../src/refonte/contacts/fidelite/i18n';\nexport * as PE from '../src/refonte/contacts/personnes/modele';\nexport { DICTIONNAIRES_CONTACTS_PERSONNES } from '../src/refonte/contacts/personnes/i18n';",
+  "export * as L from '../src/refonte/contacts';\nexport * as monde from '../src/refonte/donnees';\nexport { DICTIONNAIRES_CONTACTS } from '../src/refonte/contacts/i18n';\nexport * as V from '../src/refonte/connecteurs/reglages';\nexport * as H from '../src/refonte/contacts/hub/modele';\nexport * as N from '../src/refonte/contacts/hub/nuage';\nexport { DICTIONNAIRES_HUB } from '../src/refonte/contacts/hub/i18n';\nexport { depuisMonde } from '../src/refonte/contacts/sources/depuisMonde';\nexport * as C from '../src/refonte/contacts/clients/modele';\nexport { DICTIONNAIRES_CLIENTS } from '../src/refonte/contacts/clients/i18n';\nexport * as G from '../src/refonte/contacts/fiche/modele';\nexport { DICTIONNAIRES_FICHE } from '../src/refonte/contacts/fiche/i18n';\nexport * as P from '../src/refonte/contacts/prospects/modele';\nexport * as PN from '../src/refonte/contacts/prospects/nuage';\nexport { DICTIONNAIRES_PROSPECTS } from '../src/refonte/contacts/prospects/i18n';\nexport * as RT from '../src/refonte/contacts/retours/modele';\nexport { DICTIONNAIRES_RETOURS } from '../src/refonte/contacts/retours/i18n';\nexport * as FO from '../src/refonte/contacts/fournisseurs/modele';\nexport { DICTIONNAIRES_FOURNISSEURS } from '../src/refonte/contacts/fournisseurs/i18n';\nexport * as PL from '../src/refonte/contacts/pipeline/modele';\nexport * as PG from '../src/refonte/contacts/pipeline/geometrie';\nexport { DICTIONNAIRES_PIPELINE } from '../src/refonte/contacts/pipeline/i18n';\nexport * as FI from '../src/refonte/contacts/fidelite/modele';\nexport { DICTIONNAIRES_FIDELITE } from '../src/refonte/contacts/fidelite/i18n';\nexport * as PE from '../src/refonte/contacts/personnes/modele';\nexport { DICTIONNAIRES_CONTACTS_PERSONNES } from '../src/refonte/contacts/personnes/i18n';\nexport * as EQ from '../src/refonte/contacts/equipe/modele';\nexport { DICTIONNAIRES_EQUIPE } from '../src/refonte/contacts/equipe/i18n';",
 );
-const { L, monde, V, H, N, C, G, DICTIONNAIRES_HUB: DICO_HUB, DICTIONNAIRES_CLIENTS: DICO_CLIENTS, DICTIONNAIRES_FICHE: DICO_FICHE, P, PN, DICTIONNAIRES_PROSPECTS: DICO_PROSPECTS, RT, DICTIONNAIRES_RETOURS: DICO_RETOURS, FO, DICTIONNAIRES_FOURNISSEURS: DICO_FOURNISSEURS, PL, PG, DICTIONNAIRES_PIPELINE: DICO_PIPELINE, FI, DICTIONNAIRES_FIDELITE: DICO_FIDELITE, PE, DICTIONNAIRES_CONTACTS_PERSONNES: DICO_PERSONNES, depuisMonde, DICTIONNAIRES_CONTACTS: DICO } = M;
+const { L, monde, V, H, N, C, G, DICTIONNAIRES_HUB: DICO_HUB, DICTIONNAIRES_CLIENTS: DICO_CLIENTS, DICTIONNAIRES_FICHE: DICO_FICHE, P, PN, DICTIONNAIRES_PROSPECTS: DICO_PROSPECTS, RT, DICTIONNAIRES_RETOURS: DICO_RETOURS, FO, DICTIONNAIRES_FOURNISSEURS: DICO_FOURNISSEURS, PL, PG, DICTIONNAIRES_PIPELINE: DICO_PIPELINE, FI, DICTIONNAIRES_FIDELITE: DICO_FIDELITE, PE, DICTIONNAIRES_CONTACTS_PERSONNES: DICO_PERSONNES, EQ, DICTIONNAIRES_EQUIPE: DICO_EQUIPE, depuisMonde, DICTIONNAIRES_CONTACTS: DICO } = M;
 const paris = (jour: string, hhmm: string): number => L.instantParis(jour, hhmm);
 const VOLUMES = ['vide', 'peu', 'normal', 'beaucoup'] as const;
 const mondes = Object.fromEntries(VOLUMES.map((v) => [v, monde.construireMonde({ volume: v })])) as Record<(typeof VOLUMES)[number], any>;
@@ -880,7 +880,7 @@ console.log('\nContacts — F10, vue d’ensemble (chaleur, attentes, rendez-vou
 
 const base = (o: Record<string, unknown> = {}): any => ({
   maintenant: paris('2026-10-30', '10:42'), aujourdhui: '2026-10-30', moi: { prenom: 'Camille', email: 'camille@exemple.test' },
-  clients: [], devis: [], factures: [], avis: [], evenements: [], prospects: [], relances: [], fidelite: [], fournisseurs: [], achats: [], partenaires: [],
+  clients: [], devis: [], factures: [], avis: [], evenements: [], prospects: [], relances: [], fidelite: [], fournisseurs: [], achats: [], taches: [], partenaires: [],
   equipe: [], presence: true, interlocuteurs: [], attentes: [], echanges: [], ...o,
 });
 const fiche = (id: number, jours: number, o: Record<string, unknown> = {}): any => ({
@@ -2088,6 +2088,129 @@ await dit('MC03 · textes : mêmes clés en fr et en, mêmes paramètres, compte
   }
   for (const b of new Set(en.filter((k) => /\.(1|n)$/.test(k)).map((k) => k.replace(/\.(1|n)$/, '')))) for (const l of ['fr', 'en']) assert.ok(DICO_PERSONNES[l][`${b}.1`] && DICO_PERSONNES[l][`${b}.n`], `${b} (${l})`);
   assert.equal(DICO_PERSONNES.fr['sousTitre'], 'Tout ce que tu sais sur une personne, au même endroit', 'la phrase de tutoiement.json');
+});
+
+/* ── MC04 : Équipe ─────────────────────────────────────────────────────── */
+console.log('\nContacts — MC04, Équipe (charge de la semaine, maintenant, suggestion)\n');
+
+const membre = (email: string, prenom: string, o: Record<string, unknown> = {}): any => ({ id: email, prenom, nom: '', nomComplet: prenom, initiales: prenom[0], email, teinte: 1, statut: 'en ligne', role: 'member', fonction: 'Rôle', specialites: ['Réseau'], heuresSemaine: 35, congesJours: [], ...o });
+const tacheMC04 = (email: string, jour: string, o: Record<string, unknown> = {}): any => ({ id: `t-${Math.round(Math.random() * 1e9)}`, title: 'Tâche', assigneeEmail: email, status: 'todo', echeance: jour, etiquettes: [], ...o });
+const rdvMC04 = (id: string, email: string, jour: string, heure: string, minutes: number, o: Record<string, unknown> = {}): any => ({ id, clientId: null, type: 'réunion', systeme: false, confirmation: 'confirmé', title: `Réunion ${id}`, location: 'Salle', participants: [email], startAt: new Date(paris(jour, heure)).toISOString(), durationMin: minutes, ...o });
+const srcMC04 = (equipe: any[], o: Record<string, unknown> = {}): any => base({ equipe, taches: [], moi: { prenom: equipe[0]?.prenom ?? '', email: equipe[0]?.email ?? '' }, ...o });
+
+await dit('MC04 · charge : heures des rendez-vous + 1 h par tâche échue, lundi à vendredi, capacité = semaine ÷ 5 (7 h), total et part sur 35 h, dépassement par jour', () => {
+  const a = membre('a@exemple.test', 'Aaron');
+  const src = srcMC04([a], {
+    taches: [...Array.from({ length: 3 }, () => tacheMC04('a@exemple.test', '2026-10-28')), tacheMC04('autre@exemple.test', '2026-10-28'), tacheMC04('a@exemple.test', '2026-10-30')],
+    evenements: [rdvMC04('r1', 'a@exemple.test', '2026-10-28', '09:00', 270), rdvMC04('r2', 'a@exemple.test', '2026-10-26', '10:00', 90), rdvMC04('r3', 'a@exemple.test', '2026-10-28', '16:00', 60, { systeme: true })],
+  });
+  const c = EQ.chargeDe(src, a);
+  assert.deepEqual(c.jours.map((j: any) => j.jour), ['2026-10-26', '2026-10-27', '2026-10-28', '2026-10-29', '2026-10-30']);
+  assert.deepEqual(c.jours.map((j: any) => j.heures), [1.5, 0, 7.5, 0, 1]);
+  assert.deepEqual(c.jours.map((j: any) => j.etat), ['passe', 'passe', 'passe', 'passe', 'aujourdhui']);
+  assert.deepEqual(c.jours.map((j: any) => j.depasse), [false, false, true, false, false], 'seul mercredi dépasse 7 h');
+  assert.deepEqual([c.totalHeures, c.capaciteHeures, c.capaciteJour], [10, 35, 7]);
+  assert.equal(Math.round(c.part * 100), 29);
+  assert.equal(c.ton, 'vert');
+});
+
+await dit('MC04 · couleur du total : moins de 80 % vert, de 80 à 100 % orange, au-delà rouge ; la moyenne du sous-titre = moyenne des parts', () => {
+  assert.deepEqual([0.58, 0.79, 0.8, 0.82, 1, 1.01].map((p) => EQ.tonDeCharge(p)), ['vert', 'vert', 'orange', 'orange', 'orange', 'rouge']);
+  const taches = (email: string, n: number) => Array.from({ length: n }, (_, i) => tacheMC04(email, `2026-10-${26 + (i % 5)}`));
+  const equipe = [membre('a@exemple.test', 'Aaron'), membre('b@exemple.test', 'Mohamed'), membre('c@exemple.test', 'Riyad')];
+  const m = EQ.modeleEquipe(srcMC04(equipe, { taches: [...taches('a@exemple.test', 29), ...taches('b@exemple.test', 26), ...taches('c@exemple.test', 20)] }));
+  assert.deepEqual(m.cartes.map((c: any) => Math.round(c.charge.part * 100)), [83, 74, 57]);
+  assert.equal(m.chargeMoyenne, Math.round(((29 / 35 + 26 / 35 + 20 / 35) / 3) * 100));
+  assert.deepEqual(m.cartes.map((c: any) => c.prenom), ['Aaron', 'Mohamed', 'Riyad'], 'jamais trié par charge');
+});
+
+await dit('MC04 · capacité réglable par personne, congés = jour hachuré hors de la charge, personne absente = carte sans encadré', () => {
+  const part = membre('p@exemple.test', 'Pia', { heuresSemaine: 20, congesJours: ['2026-10-27'] });
+  const src = srcMC04([part], { taches: [tacheMC04('p@exemple.test', '2026-10-26'), tacheMC04('p@exemple.test', '2026-10-26'), tacheMC04('p@exemple.test', '2026-10-27')] });
+  const c = EQ.chargeDe(src, part);
+  assert.equal(c.capaciteJour, 4);
+  assert.deepEqual(c.jours.map((j: any) => j.etat), ['passe', 'absent', 'passe', 'passe', 'aujourdhui']);
+  assert.equal(c.jours[0].depasse, false);
+  const absent = membre('z@exemple.test', 'Zoé', { statut: 'absent' });
+  const m = EQ.modeleEquipe(srcMC04([absent]));
+  assert.equal(m.cartes[0].absent, true);
+  assert.equal(m.cartes[0].maintenant.genre, 'absent');
+  assert.equal(EQ.lundiDeLaSemaine('2026-10-30'), '2026-10-26');
+  assert.equal(EQ.lundiDeLaSemaine('2026-11-01'), '2026-10-26');
+  assert.equal(EQ.lundiDeLaSemaine('2026-11-02'), '2026-11-02');
+});
+
+await dit('MC04 · maintenant : le rendez-vous en cours ou dans l’heure, sinon « disponible » ; libre à partir de la fin des blocs qui s’enchaînent', () => {
+  const a = membre('a@exemple.test', 'Aaron');
+  const src = srcMC04([a], { evenements: [rdvMC04('r1', 'a@exemple.test', '2026-10-30', '10:30', 30), rdvMC04('r2', 'a@exemple.test', '2026-10-30', '11:00', 60), rdvMC04('r3', 'a@exemple.test', '2026-10-30', '15:00', 30)] });
+  const r = EQ.maintenantDe(src, a);
+  assert.equal(r.maintenant.genre, 'evenement');
+  assert.equal(r.maintenant.titre, 'Réunion r1');
+  assert.equal(r.libreA, '12:00', 'r1 puis r2 s’enchaînent');
+  const dans = srcMC04([a], { evenements: [rdvMC04('r4', 'a@exemple.test', '2026-10-30', '11:30', 45)] });
+  assert.equal(EQ.maintenantDe(dans, a).maintenant.genre, 'evenement');
+  const loin = srcMC04([a], { evenements: [rdvMC04('r5', 'a@exemple.test', '2026-10-30', '16:00', 45)] });
+  assert.deepEqual(EQ.maintenantDe(loin, a), { maintenant: { genre: 'disponible', titre: '', detail: '' }, libreA: null });
+});
+
+await dit('MC04 · charge inconnue (ni tâches ni participants) : null, jamais des zéros ; sans charge connue, pas de moyenne dans le sous-titre', () => {
+  const a = membre('a@exemple.test', 'Aaron');
+  const src = srcMC04([a], { taches: null });
+  assert.equal(EQ.chargeDe(src, a), null);
+  const m = EQ.modeleEquipe(src);
+  assert.deepEqual([m.cartes[0].charge, m.cartes[0].enCours, m.chargeMoyenne, m.suggestion], [null, null, null, null]);
+});
+
+await dit('MC04 · suggestion « alléger » : une personne au-dessus de 80 % et une autre sous 65 %, jamais une personne absente ; la tâche proposée a une compétence chez l’autre', () => {
+  const taches = (email: string, n: number, o: Record<string, unknown> = {}) => Array.from({ length: n }, (_, i) => tacheMC04(email, `2026-10-${26 + (i % 5)}`, o));
+  const equipe = [membre('a@exemple.test', 'Aaron', { specialites: ['Sécurité'] }), membre('b@exemple.test', 'Mohamed', { specialites: ['Développement'] }), membre('c@exemple.test', 'Riyad', { specialites: ['Relances'] })];
+  const src = srcMC04(equipe, { taches: [...taches('a@exemple.test', 29), tacheMC04('a@exemple.test', '2026-11-03', { title: 'Relances clients', status: 'todo' }), ...taches('b@exemple.test', 26), ...taches('c@exemple.test', 20)] });
+  const s = EQ.modeleEquipe(src).suggestion;
+  assert.equal(s.de.prenom, 'Aaron');
+  assert.equal(s.vers.prenom, 'Riyad');
+  assert.equal(s.partDe, 83);
+  assert.equal(s.tache, 'Relances clients');
+  const absent = srcMC04([equipe[0], equipe[1], { ...equipe[2], statut: 'absent' }], { taches: [...taches('a@exemple.test', 29), ...taches('b@exemple.test', 26), ...taches('c@exemple.test', 20)] });
+  assert.equal(EQ.modeleEquipe(absent).suggestion, null);
+  const calme = srcMC04(equipe, { taches: [...taches('a@exemple.test', 10), ...taches('b@exemple.test', 8), ...taches('c@exemple.test', 5)] });
+  assert.equal(EQ.modeleEquipe(calme).suggestion, null, 'personne au-dessus de 80 % : la carte « astuce »');
+});
+
+await dit('MC04 · accès externes = les invités de l’équipe ; aucun invité = non disponible (null) ; les invités n’ont pas de carte', () => {
+  const equipe = [membre('a@exemple.test', 'Aaron'), membre('g@exemple.test', 'Sarah', { role: 'guest', fonction: 'Invitée · lecture seule' })];
+  const m = EQ.modeleEquipe(srcMC04(equipe));
+  assert.equal(m.total, 1);
+  assert.deepEqual(m.acces, [{ id: 'g@exemple.test', nom: 'Sarah', initiale: 'S', role: 'Invitée · lecture seule' }]);
+  assert.equal(EQ.modeleEquipe(srcMC04([equipe[0]])).acces, null);
+});
+
+await dit('MC04 · sur les jeux de SIM (quatre volumes) : le modèle se construit, une carte par membre non invité, 5 jours par charge, parts entre 0 et plus', () => {
+  for (const v of VOLUMES) {
+    const src = depuisMonde(mondes[v]);
+    const m = EQ.modeleEquipe(src);
+    assert.equal(m.total, src.equipe.filter((x: any) => x.role !== 'guest').length, v);
+    for (const c of m.cartes) {
+      if (c.charge) {
+        assert.equal(c.charge.jours.length, 5, v);
+        assert.ok(c.charge.part >= 0 && c.charge.jours.every((j: any) => j.heures >= 0), v);
+        assert.equal(c.charge.ton, EQ.tonDeCharge(c.charge.part), v);
+      }
+      assert.ok(c.competences.length <= 4, v);
+    }
+  }
+});
+
+await dit('MC04 · textes : mêmes clés en fr et en, mêmes paramètres, comptes à deux formes, l’interface tutoie', () => {
+  const en = Object.keys(DICO_EQUIPE.en).sort();
+  assert.deepEqual(Object.keys(DICO_EQUIPE.fr).sort(), en);
+  const params = (t: string) => [...t.matchAll(/\{(\w+)\}/g)].map((x) => x[1]).sort().join(',');
+  for (const k of en) {
+    assert.ok(DICO_EQUIPE.en[k].trim() && DICO_EQUIPE.fr[k].trim(), k);
+    assert.equal(params(DICO_EQUIPE.fr[k]), params(DICO_EQUIPE.en[k]), `paramètres de ${k}`);
+    assert.ok(!VOUVOIEMENT_UI.test(DICO_EQUIPE.fr[k]), `${k} vouvoie : ${DICO_EQUIPE.fr[k]}`);
+  }
+  for (const b of new Set(en.filter((k) => /\.(1|n)$/.test(k)).map((k) => k.replace(/\.(1|n)$/, '')))) for (const l of ['fr', 'en']) assert.ok(DICO_EQUIPE[l][`${b}.1`] && DICO_EQUIPE[l][`${b}.n`], `${b} (${l})`);
+  assert.equal(DICO_EQUIPE.fr['suggestion.astuce.texte'], 'Un statut « Concentré » met tes notifications en pause jusqu’à l’heure choisie.', 'la phrase de tutoiement.json');
 });
 
 /* ── Structure ──────────────────────────────────────────────────────────── */

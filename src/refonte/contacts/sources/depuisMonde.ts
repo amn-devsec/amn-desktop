@@ -49,6 +49,7 @@ export function depuisMonde(m: Monde): SourcesContacts {
     achats: m.achats,
     partenaires: m.partenaires,
     equipe: m.equipe,
+    taches: m.taches,
     presence: true,
     interlocuteurs: m.interlocuteurs,
     attentes,

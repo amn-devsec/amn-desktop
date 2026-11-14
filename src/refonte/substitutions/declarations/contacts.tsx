@@ -27,4 +27,7 @@ export default declarerSubstitutions('contacts', [
 
   // H45 — Fournisseurs : la matrice « Comparer pour un besoin ». La liste des fournisseurs reste servie par l'écran d'origine (`useOutlet`).
   { route: '/fournisseurs', composant: lazy(() => import('../../contacts/fournisseurs/PageFournisseurs')) },
+
+  // MC04 — Équipe : les cartes de personne. L'organigramme reste servi par l'écran d'origine (`useOutlet`).
+  { route: '/trombinoscope', composant: lazy(() => import('../../contacts/equipe/PageEquipe')) },
 ]);

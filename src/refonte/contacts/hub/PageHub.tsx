@@ -119,6 +119,7 @@ const VIDE = modeleHub({
   fidelite: [],
   fournisseurs: [],
   achats: null,
+  taches: null,
   partenaires: null,
   equipe: [],
   presence: false,
