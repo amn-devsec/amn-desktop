@@ -3,7 +3,7 @@
 > Tenu par le CO. Une session ne modifie que **la section de son lot** dans « 7. Écrans » (une ligne par écran) ; tout le reste est au CO. Règles : [`REGLES.md`](REGLES.md).
 
 - Branche d'intégration : **`claude/refonte-vivante`** (décision du 31 oct., §1.1). Base `main` @ `630ef45`.
-- Dernière mise à jour : 2026-11-13. LOT-12 terminé côté S9, fusionné : §1.26. Passe finale v4 de S0 terminée, passage 2 de T1 : §1.25.
+- Dernière mise à jour : 2026-11-14. Messages directs du CO aux sessions (REGLES). LOT-02 préparation fusionnée : §1.28. Réponses à S7 : §1.27. Passage 2 de T1 : §1.25.
 - LOT-00 (socle v2) est fusionné (`488cdcc`), avec les 4 commits de S5. **Le socle v3 s'y ajoute avant la construction visuelle des lots** (S0 a ses consignes). D'ici là, chaque lot prépare et construit sa logique : §5.
 - Fusionnés aussi le 1er nov. : T1 (API d'essai, bac à sable, contrôle de fidélité) et les données fictives de SIM (100 jeux, `4fe559b`), avec `check:donnees` en CI (87 contrôles).
 - Gardes locales sur `refonte-vivante` : `typecheck`, `typecheck:business`, `lint` et les 55 contrôles sans navigateur de `editions.yml` verts.
@@ -533,6 +533,46 @@ Ce qui reste, hors S9 :
 - **La couture du moteur de H20** : S6, dans LOT-07 (§1.22 n° 4).
 - **Le relevé des tarifs pour H21** : S6, dans LOT-07, au moment de construire H21. Chaque prix est relevé sur la page officielle de l'outil, avec la date du relevé, et il est montré comme « indicatif au <date> ». Aucun prix n'est inventé.
 
+### 1.27 S6 passe à LOT-07 ; réponses du CO à S7 (LOT-06), 14 nov.
+
+**S6** : sa priorité de sécurité est terminée, sauf une étape qui attend le redémarrage d'amn-api (le détail reste privé). Le verrou de distribution reste fermé (§1.16). S6 passe à **LOT-07**, en préparation jusqu'à la fusion du socle v4. La couture du moteur de H20 et le relevé des tarifs de H21 (§1.26) en font partie.
+
+**S7, LOT-06** (`claude/refonte-creer` @ `f417bfe`) :
+
+| # | Question | Décision |
+|---|---|---|
+| 1 | Familles du registre (F50 annonce 16 modules, 11 rangés ailleurs) | **On rapatrie dans `creer`** les modules dont l'écran est un écran de LOT-06 (les 15 du §7), avec les actions `fabriquer`, `livrer` et `stocker`. C'est ce que montre la barre latérale v4. Un module qui est l'écran d'un autre lot garde sa famille : F50 le montre comme une tuile de lien, sans doublon dans le registre (§1.19 n° 1). **S7 donne la liste exacte dans sa note, et S5 (propriétaire du registre) fait le déplacement** sur sa branche, en prévenant les lots concernés par le CO. |
+| 2 | MR05 : collection `products` | **Pas de nouvelle collection synchronisée pour l'instant.** Elle toucherait la synchronisation et le contrat d'amn-api. MR05 se construit sur les articles de stock (`stockItems`), et ce qui manque s'affiche « non disponible », avec la raison. La collection `products` devient une **demande à amn-api** (Harun, Mohamed suppléant). |
+| 3 | « Fabrication » et « Bons d'intervention » | « Bons d'intervention » est **gardé**, comme libellé de la fiche posé sur `InterventionsScreen` (`/interventions`). « Fabrication » est **masqué** tant qu'il n'existe pas : rien n'est simulé. |
+| 4 | Modèles de données plus riches que le réel | Même règle que la n° 2 : aucune session n'ajoute de collection synchronisée sans l'accord de Harun. Les écrans se construisent sur l'existant, et le reste est « non disponible » avec une demande à amn-api, notée dans la section du lot. |
+| 5 | Géocodage et plan (MR03) | **Plan schématique**, comme `ItinerairesScreen`. Aucun service externe et aucune clé pour l'instant : un futur connecteur, local d'abord, dans le modèle de S9. |
+| 6 | Vidéo : deux sources | **Garder les deux et les relier**, sans fusion de modèle. |
+| 7 | Formats chiffrés | Importer `src/socle/formats.ts` (socle v4) une fois fusionné, et **supprimer la copie** de `commun.ts`. |
+| 8 | Apostrophes courbes | **Oui** : `check:langue` l'emporte sur la fiche. |
+| 9 | Droit de publier (MR01, MR02) | **Distinct du droit d'écrire.** Il sera défini dans H19 (LOT-07). D'ici là, seul le rôle dirigeant publie, et les autres passent par « Demander la publication ». |
+| 10 | Fichiers lourds (logos, photos, rushes) | **Aucun stockage nouveau.** On réutilise ce que le dépôt sait déjà stocker ; le reste est « non disponible », avec une demande à amn-api. Le stockage d'équipe attend le serveur (LOT-13). |
+| 11 | Dates des jeux | Le recalage à 10:42 est confié à SIM (§1.24). |
+| 12 | Champs manquants | SIM les reprend depuis la section LOT-06 (§1.24, sa tâche 5). |
+| c | Routes de MR06 et MR10 | Deux routes nouvelles, dans `appRoot.internal.tsx` seulement : **`/reservations`** (MR06) et **`/photos-chantier`** (MR10). |
+| d | Tuile « Modèles de sites » dans F50 | **Oui** : une tuile de lien vers DEV-modeles-sites (LOT-11), sans doublon dans le registre (§1.17 n° 3). |
+
+**Zips v4** : S5 et S7 les ont reçus le 14 nov. S7 lève ses points « à vérifier », et S5 démarre LOT-03 puis LOT-05.
+
+### 1.28 LOT-02 préparation (S1, `00d9198`) : fusionnée, décisions du CO
+
+Fusionnée (`66ba5c4`). Après la fusion : `check:contacts` (63 contrôles), les typechecks des deux éditions, lint, `check:navigation` et `check:connecteurs` sont verts. S1 n'avait pas le dossier v4 : textes et règles « à confirmer » à relire dès qu'il l'a.
+
+| # | Question de S1 | Décision |
+|---|---|---|
+| 1 | Fidélité : tampons (`loyaltyCards`, réel) ou points et niveaux (fiche MC02) | **Les deux, sans rien perdre.** MC02 (points et niveaux) est l'écran. La carte à tampons existante reste une formule au choix de l'organisation, et c'est la formule par défaut là où elle sert déjà. Aucune donnée existante n'est convertie de force. |
+| 2 | Relances : un moteur ou deux | **Un seul moteur** pour les cinq motifs, celui de `src/lib/relances.ts`, étendu (même règle que §1.19 n° 4). Les paliers d'escalade des factures restent tels quels. |
+| 3 | Collection d'interlocuteurs | **Décision de Harun** (nouvelle collection synchronisée, §1.27 n° 4). Elle lui est présentée avec `products` et les modèles plus riches de LOT-06. D'ici là, MC03 s'affiche « non disponible », avec la raison. |
+| 4 | Plafonds de 3 relances et d'un message par client et par jour | **Adoptés comme valeurs de départ**, modifiables dans les réglages, comme au §1.22 n° 3. À relire avec MC07. |
+| 5 | MC04 Équipe et MC05 Partenaires | MC04 se construit sur le trombinoscope existant. Pour MC05, le jeu d'organisations partenaires est **commandé à SIM** (liste « Manque aux données »). |
+| — | Rouvrir un prospect gagné ou perdu | Selon la fiche H06. Si elle ne dit rien : un prospect **perdu** se rouvre, avec confirmation et une trace. Un prospect **gagné** ne se rouvre pas, car il est devenu client. |
+| — | « Messagerie » (MC03) | Selon la fiche MC03. Si elle ne dit rien : le courriel. |
+| — | Raccourci « Relancer » | Aucun, confirmé (§1.8 n° 14). |
+
 ## 2. Les lots
 
 Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en parallèle, une branche chacun ; **LOT-09 en dernier**. Les chiffres viennent de `03-INDEX.md` : 9 + 16 + 13 + 9 + 17 + 10 + 15 + 16 + 12 + 11 + 14 = **142**. (Le tableau du fichier 00 compte G05 dans LOT-05 ; l'index et les prompts le rangent dans LOT-00. Le CO suit l'index.)
@@ -725,19 +765,34 @@ Mots fr/en par `definirMots`. Gardes : `check:socle-controles|graphiques|situati
 
 | ID | Écran | Type | État | Écart / note |
 |---|---|---|---|---|
-| F10 | Contacts · Vue d'ensemble | nouveau | à faire | |
-| H05 | Contacts · Clients | mixte | à faire | |
-| G04 | Contacts · Fiche client | mixte | à faire | |
-| H06 | Contacts · Prospects | mixte | à faire | |
-| H44 | Contacts · Retours clients | mixte | à faire | |
-| H45 | Contacts · Fournisseurs | mixte | à faire | |
-| MC01 | Contacts · Pipeline commercial | mixte | à faire | |
-| MC02 | Contacts · Fidélité | mixte | à faire | |
-| MC03 | Contacts · Fiches contacts | mixte | à faire | |
-| MC04 | Contacts · Équipe | mixte | à faire | |
-| MC05 | Contacts · Partenaires | mixte | à faire | |
-| MC06 | Contacts · Rendez-vous clients | mixte | à faire | |
-| MC07 | Contacts · Relances | mixte | à faire | |
+| F10 | Contacts · Vue d'ensemble | nouveau | en cours (préparation) | préparation : aucune logique propre, lit les autres. Attend `ModuleTile`, `ModuleGroupGrid`, `AddModuleTile` |
+| H05 | Contacts · Clients | mixte | en cours (préparation) | préparation : `ClientsScreen` `/clients` ; santé et statut à recalculer (SIM) |
+| G04 | Contacts · Fiche client | mixte | en cours (préparation) | préparation : `ClientDetail` dans `ClientsScreen` ; « contacts par client » livré (`interlocuteurs.ts`) |
+| H06 | Contacts · Prospects | mixte | en cours (préparation) | préparation : `PipelineScreen` `/pipeline` ; logique `pipeline.ts` |
+| H44 | Contacts · Retours clients | mixte | en cours (préparation) | préparation : `ReviewsScreen`, `SentimentScreen`, `NpsScreen` ; sentiment et NPS sans jeu propre |
+| H45 | Contacts · Fournisseurs | mixte | en cours (préparation) | préparation : `SuppliersScreen` `/fournisseurs` ; pas de logique neuve |
+| MC01 | Contacts · Pipeline commercial | mixte | en cours (préparation) | préparation : même écran que H06 ; `colonnesPipeline`, `transitionsPermises` |
+| MC02 | Contacts · Fidélité | mixte | en cours (préparation) | préparation : l'écran actuel est une carte à tampons, la fiche des points et niveaux → question au CO (note §5, 1) |
+| MC03 | Contacts · Fiches contacts | mixte | en cours (préparation) | préparation : aucun écran existant ; collection d'interlocuteurs à créer (note §5, 3) |
+| MC04 | Contacts · Équipe | mixte | en cours (préparation) | préparation : recoupe le trombinoscope (`DirectoryScreen`) |
+| MC05 | Contacts · Partenaires | mixte | en cours (préparation) | préparation : aucun écran ni jeu d'organisations partenaires |
+| MC06 | Contacts · Rendez-vous clients | mixte | en cours (préparation) | préparation : `AgendaScreen` partagé (couture requise) et `BookingScreen` ; logique `rendezvous.ts` |
+| MC07 | Contacts · Relances | mixte | en cours (préparation) | préparation : `RemindersScreen` ne relance que les factures ; logique `relances.ts` pour les cinq motifs |
+
+Préparation par S1 (14 nov., `claude/refonte-contacts`) : note [`preparation/LOT-02-contacts.md`](preparation/LOT-02-contacts.md), logique dans `src/refonte/contacts/`, garde `check:contacts` (63 contrôles). Aucun écran visuel. **Les 13 fiches et le dossier v4 n'ont pas pu être lus** (zips absents de l'environnement) : les règles qui en dépendent sont marquées « à confirmer ».
+
+**Manque au socle**
+- `ModuleTile`, `ModuleGroupGrid`, `AddModuleTile` (décidés au §1.10, absents de la liste des composants disponibles) pour F10.
+- `PageHead`, `IconTile`, `FlagUrgent` : cités au §1.10, à confirmer par S0 (`Page`, `Etiquette` et `PastilleEtat` existent).
+- Un `Kanban` existe ; son glisser-déposer doit appliquer `transitionsPermises` (MC01).
+- `check:tutoiement` : pas encore dans la base.
+
+**Manque aux données**
+- Un jeu d'organisations partenaires (MC05) : seuls des interlocuteurs de type `partenaire` existent.
+- Sentiment et NPS (H44) : pas de jeu propre, à dériver des `avis`.
+- Une raison de perte sur les prospects perdus (H06).
+- Les avantages de fidélité « offerts / utilisés » côté app : le jeu de SIM les porte, aucune collection ne les garde.
+- Une collection d'interlocuteurs côté app (MC03, G04, source de H41).
 
 ### LOT-03 · Écrire et retenir — `claude/refonte-ecrire` — 9 écrans
 
