@@ -80,7 +80,17 @@ for (const f of fichiers) {
     signal(retraits > 0 ? 'Bloquant' : 'Majeur', `jumeau \`${f.fichier}\` modifié (${retraits > 0 ? `${retraits} ligne(s) retirée(s)` : 'ajouts seulement : vérifier que la zone le permet et que l\'ajout ne fait rien'})`);
   }
   if (jumeau && f.statut === 'A') signal('Info', `nouveau jumeau \`${f.fichier}\` : vérifier qu'il ne fait rien`);
-  if (INTERDITS_SANS_CO.includes(f.fichier)) signal('Bloquant', `\`${f.fichier}\` est interdit sans accord du CO`);
+  if (f.fichier === 'docs/refonte/STATUT.md') {
+    // Accord du CO (14 nov.) : un lot qui fait passer SES lignes du §7 à « fait » est accepté, pour tous les lots : signalé, pas bloquant.
+    // Tout autre changement du STATUT (texte hors tableau, ligne ajoutée ou retirée sans « fait ») reste bloquant.
+    const lignes = git('diff', '-U0', `${mb}..${REF}`, '--', f.fichier).split('\n').filter((l) => /^[+-]/.test(l) && !/^(\+\+\+|---)/.test(l));
+    const ajoutees = lignes.filter((l) => l.startsWith('+'));
+    const retirees = lignes.filter((l) => l.startsWith('-'));
+    const tableau = lignes.every((l) => /^[+-]\| /.test(l));
+    const fait = ajoutees.length > 0 && ajoutees.every((l) => /^\+\|.*\| fait\b/.test(l)) && ajoutees.length === retirees.length;
+    if (tableau && fait) signal('Signalé', `\`docs/refonte/STATUT.md\` : ${ajoutees.length} ligne(s) du §7 passées à « fait » par le lot (accord du CO, 14 nov.)`);
+    else signal('Bloquant', `\`${f.fichier}\` est modifié au-delà des lignes du lot qui passent à « fait » (interdit sans accord du CO)`);
+  } else if (INTERDITS_SANS_CO.includes(f.fichier)) signal('Bloquant', `\`${f.fichier}\` est interdit sans accord du CO`);
   if (['src/i18n/fr.ts', 'src/i18n/en.ts'].includes(f.fichier)) signal('Majeur', `\`${f.fichier}\` modifié : les textes vont dans l'i18n.ts de la zone`);
   if (f.fichier === 'package-lock.json' || f.fichier === 'package.json') {
     const d = git('diff', `${mb}..${REF}`, '--', 'package.json');
