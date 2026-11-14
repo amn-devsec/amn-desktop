@@ -28,6 +28,11 @@ export function euros(c: Centimes, langue: 'fr' | 'en' = 'fr'): string {
   return (langue === 'fr' ? EUROS_FR : EUROS_EN).format(c / 100).replace(/\u202f/g, '\u00a0');
 }
 
+/** Un montant sans centimes, pour une tuile étroite : « 16 200 € ». */
+export function eurosRond(c: Centimes, langue: 'fr' | 'en' = 'fr'): string {
+  return euros(Math.round(c / 100) * 100, langue).replace(/[.,]00(?=\D*$)/, '');
+}
+
 export function nombre(x: number, decimales = 2, langue: 'fr' | 'en' = 'fr'): string {
   return new Intl.NumberFormat(langue === 'fr' ? 'fr-FR' : 'en-GB', { maximumFractionDigits: decimales })
     .format(x)
