@@ -19,7 +19,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 | DS | `session_01TZGDvVWristJnnPK59rruY` | **construit LOT-04** | lots de 3 à 5 écrans → T1 → fusion |
 | S5 | `session_012jWErBSSkcoVaU3iN895bQ` | **LOT-03 complet, 9 sur 9** (`a565a07`) ; `check:navigation` durable redemandé (2ᵉ fois) | garde durable, puis justifications, puis LOT-05 |
 | S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **construit LOT-02** (feu vert le 14 nov., 08h) | lots de 3 à 5 écrans → `check:fidelite` de T1 → fusion |
-| S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **construit LOT-06** | lots de 3 à 5 écrans → T1 → fusion |
+| S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **LOT-06 complet, 15 sur 15** (`277263a`) ; entrées de registre prêtes en local (`1c76fdd`) | après la fusion de LOT-03 : pousser `1c76fdd` → T1 → fusion |
 | S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | LOT-11, 7 sur 7 ; correction de `check:navigation` fusionnée | pousser ses 6 déclarations → T1 remesure → fusion |
 | S9 | `session_01C5DAVygXYax6Q7g436TPQx` | LOT-12 fini, valeurs de MC07 fusionnées (`bcdc65f`) | rien |
 | S2, S3 (première tâche : `check:encres`), F1 — **relancés le 14 nov., 08h** | `session_014ZkF6SeGRNi6NR3uEsjM5q`, `session_01FBSpK6n1yYtYXYyxbLAuBV`, `session_01VZHqP3gvzrtnpgsTrrKguV` | arrêtées | relancer au socle v4 (prompts : `PROMPTS-11NOV.md`, §1.21) |
@@ -40,10 +40,11 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 | Jour | Construits | Livrés (cumul) | Livrés depuis la veille | Lots préparés | Lots finis | Note |
 |---|---|---|---|---|---|---|
-| 14 nov. | 43 / 153 (34 sur les branches des lots, à vérifier ; LOT-11 et LOT-03 complets) | 9 (LOT-00, socle v4) | 9 | 8 / 13 | 0 / 13 (LOT-00 attend l'allumage) | les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. La note de LOT-08 n'est pas fusionnée. |
+| 14 nov. | 48 / 153 (39 sur les branches des lots, à vérifier ; LOT-11, LOT-03 et LOT-06 complets) | 9 (LOT-00, socle v4) | 9 | 8 / 13 | 0 / 13 (LOT-00 attend l'allumage) | les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. La note de LOT-08 n'est pas fusionnée. |
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov., 10h00 : **LOT-06 complet** (S7, `277263a`, 15 sur 15). S7 et S8 butent tous deux sur `check:systeme-demarrage` (« le registre ne doit pas bouger », qui perd les fonctions des écrans neufs). Le correctif est sur la branche LOT-03 de S5 et arrive avec sa fusion. Ordre : LOT-03, puis S7 et S8 déclarent leurs écrans neufs, puis LOT-06 et LOT-11.
 - 14 nov., 10h00 : méthode de `check:fidelite` (§1.40). La fidélité se mesure sur l'aperçu statique, rempli avec les jeux de SIM ; l'application sert à la structure. Pas de collection nouvelle dans l'API d'essai.
 - 14 nov., 10h00 : **intégration de F1 reportée**. Elle demande de modifier `check:socle-archetypes` (garde de S0, qui attend Harun) et de pousser une 3ᵉ branche, ce que la session de S5 refuse. Elle reprendra avec S0. LOT-02 : réglages sur le poste et blocs « non disponible » acceptés (S1, 8 écrans sur 13). T1 envoie à S5 les zones exactes qui dépassent pour H11, H12 et ME01.
 - 14 nov., 09h55 : **`check:navigation` et `check:systeme-demarrage` sont durables** (S5, `e9b6c404` + `91ec0f92`, reportés par le CO en `ce524697` et `b9511a5b`). Le compte est 101 + les écrans neufs déclarés, avec des contrôles négatifs. S8 et S7 peuvent déclarer leurs écrans neufs. ME05 : `/knowledge` et `/decisions` sortent de l'« aussi » du Supervisor (`src/bureaux/catalogue.ts`), une modification que **S5 est autorisé à faire** puisque S3 est bloqué. Ces deux écrans passent à la coquille, et la famille Écrire garde leurs entrées.
