@@ -92,3 +92,85 @@ export function relanceDepuisManque(e: Evenement): Omit<Relance, 'id'> | null {
   };
 }
 
+
+/* ------------------------------ La journée en tournée (fiche MC06) ------------------------------ */
+
+/**
+ * LA JOURNÉE : les rendez-vous, les trajets entre eux, la pause déjeuner, le résumé. Les DURÉES de
+ * trajet viennent d'un service d'itinéraire (connecteur, LOT-12) : cette logique les reçoit en
+ * entrée, elle n'en calcule aucune. Sans durée (adresse manquante), le trajet est « à préciser ».
+ */
+
+/** La pause déjeuner : la plage libre de plus de 45 minutes entre 12:00 et 14:00, la plus longue. */
+export function pauseDejeuner(evenements: readonly Evenement[], jour: Jour, minLibreMin = 45): { debut: number; fin: number } | null {
+  const ouvre = instantParis(jour, '12:00');
+  const ferme = instantParis(jour, '14:00');
+  const pris = duJour(evenements, jour).filter((e) => e.confirmation !== 'manqué' && finMs(e) > ouvre && debutMs(e) < ferme);
+  let meilleur: { debut: number; fin: number } | null = null;
+  let curseur = ouvre;
+  const fermer = (fin: number) => {
+    if (fin - curseur > minLibreMin * MS_MINUTE && (!meilleur || fin - curseur > meilleur.fin - meilleur.debut)) meilleur = { debut: curseur, fin };
+  };
+  for (const e of pris) {
+    fermer(Math.min(debutMs(e), ferme));
+    curseur = Math.max(curseur, finMs(e));
+  }
+  fermer(ferme);
+  return meilleur;
+}
+
+export interface Trajet {
+  /** Du rendez-vous précédent (ou du point de départ) au suivant. */
+  verId: string;
+  /** Durée du trajet en minutes, `null` si le lieu est à préciser. */
+  dureeMin: number | null;
+  /** Début conseillé (ms) pour arriver à l'heure ; `null` sans durée. */
+  departConseille: number | null;
+  /** Le trajet ne tient pas entre les deux rendez-vous : bloc orange, « départ conseillé {heure} ». */
+  tropJuste: boolean;
+}
+
+/**
+ * Les trajets d'une journée. `durees[id]` : minutes pour rejoindre le rendez-vous `id` depuis le
+ * précédent. Un rendez-vous en visio n'a pas de trajet. Le bloc commence à la fin du rendez-vous
+ * précédent ; s'il ne tient pas avant le début du suivant, il est « trop juste ».
+ */
+export function trajetsDeLaJournee(evenements: readonly Evenement[], jour: Jour, durees: Readonly<Record<string, number | null>>): Trajet[] {
+  // La chaîne de la journée compte TOUS les rendez-vous clients : partir pendant une visio n'est pas possible.
+  const chaine = duJour(evenements, jour).filter((e) => estRendezVousClient(e) && e.confirmation !== 'manqué');
+  const trajets: Trajet[] = [];
+  chaine.forEach((e, i) => {
+    if (e.mode === 'visio') return;
+    const dureeMin = durees[e.id] ?? null;
+    if (dureeMin == null) {
+      trajets.push({ verId: e.id, dureeMin: null, departConseille: null, tropJuste: false });
+      return;
+    }
+    const depart = debutMs(e) - dureeMin * MS_MINUTE;
+    const libreDepuis = i === 0 ? null : finMs(chaine[i - 1]);
+    trajets.push({ verId: e.id, dureeMin, departConseille: depart, tropJuste: libreDepuis != null && depart < libreDepuis });
+  });
+  return trajets;
+}
+
+export interface ResumeJournee {
+  rendezVous: number;
+  trajetTotalMin: number;
+  /** Fin du dernier rendez-vous plus le trajet de retour (ms) ; `null` sans rendez-vous. */
+  finDeJournee: number | null;
+}
+
+export function resumeJournee(evenements: readonly Evenement[], jour: Jour, durees: Readonly<Record<string, number | null>>, retourMin = 0): ResumeJournee {
+  const l = duJour(evenements, jour).filter((e) => estRendezVousClient(e) && e.confirmation !== 'manqué');
+  if (l.length === 0) return { rendezVous: 0, trajetTotalMin: 0, finDeJournee: null };
+  const trajets = trajetsDeLaJournee(evenements, jour, durees);
+  const total = trajets.reduce((s, t) => s + (t.dureeMin ?? 0), 0) + retourMin;
+  return { rendezVous: l.length, trajetTotalMin: total, finDeJournee: finMs(l[l.length - 1]) + retourMin * MS_MINUTE };
+}
+
+/** Le lien de réservation : « 13 sur 20 pris » = créneaux pris ÷ créneaux ouverts. `null` si rien n'est ouvert. */
+export const tauxReservation = (ouverts: number, pris: number): { pris: number; ouverts: number; part: number | null } => ({
+  pris: Math.min(pris, ouverts),
+  ouverts,
+  part: ouverts === 0 ? null : Math.min(pris, ouverts) / ouverts,
+});

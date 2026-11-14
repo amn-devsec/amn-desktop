@@ -1,14 +1,15 @@
 import { totauxDeFacture } from '../donnees/argent';
 import type { CompteFidelite, Facture } from '../donnees/types';
-import { ajouterJours, type Jour } from './commun';
+import { ajouterJours, ecartJours, type Jour } from './commun';
 
 /**
  * LOT-02 · LA FIDÉLITÉ (MC02) — logique pure.
  *
- * Les règles sont celles du jeu de SIM (`derives.ts › genererFidelite`), qui suit
- * la fiche : 1 point par euro encaissé (TTC, arrondi à l'euro inférieur) sur les
- * 12 derniers mois ; Bronze dès 0, Argent dès 500 points, Or dès 1 500. Un écran
- * REFAIT ce calcul à partir des factures : le jeu sert à comparer, pas à recopier.
+ * Règles de la fiche MC02 : 1 € facturé et payé = 1 point (TTC, arrondi à l'euro inférieur), un
+ * avis = 50, un client recommandé = 200, sur 12 mois glissants ; Bronze dès 0, Argent dès 800, Or
+ * dès 1 800 (réglables). Le jeu de SIM (`derives.ts › genererFidelite`) compte les factures
+ * seulement, avec des paliers à 500 et 1 500 : un écran REFAIT le calcul à partir des sources, le
+ * jeu sert à comparer — `PALIERS_DU_JEU_SIM` permet de le rejouer à l'identique.
  *
  * LES DEUX FORMULES (décision du CO, `STATUT.md` §1.28). Les points et niveaux de MC02
  * sont l'écran. La carte à tampons de l'écran actuel `/fidelite` (`LoyaltyScreen` :
@@ -46,13 +47,34 @@ export function progressionTampons(tampons: number): ProgressionTampons {
 
 export type Niveau = CompteFidelite['niveau'];
 
-export const PALIERS: readonly { niveau: Niveau; depuis: number }[] = [
+/** Un palier : son nom et le nombre de points à partir duquel on y est. */
+export interface Palier {
+  niveau: Niveau;
+  depuis: number;
+}
+
+/**
+ * Les paliers de la FICHE MC02 (réglables) : Bronze 0 à 799, Argent 800 à 1 799, Or dès 1 800,
+ * sur 12 mois glissants. C'est la référence de l'écran.
+ */
+export const PALIERS: readonly Palier[] = [
+  { niveau: 'Bronze', depuis: 0 },
+  { niveau: 'Argent', depuis: 800 },
+  { niveau: 'Or', depuis: 1800 },
+];
+
+/**
+ * Les paliers du JEU de SIM (`derives.ts › genererFidelite`) : 500 et 1 500. Ils ne sont plus ceux de la
+ * fiche ; ils ne servent qu'à rejouer le jeu et à comparer. Écart signalé au CO : SIM doit les aligner.
+ */
+export const PALIERS_DU_JEU_SIM: readonly Palier[] = [
   { niveau: 'Bronze', depuis: 0 },
   { niveau: 'Argent', depuis: 500 },
   { niveau: 'Or', depuis: 1500 },
 ];
 
-export const niveauPour = (points: number): Niveau => [...PALIERS].reverse().find((p) => points >= p.depuis)?.niveau ?? 'Bronze';
+export const niveauPour = (points: number, paliers: readonly Palier[] = PALIERS): Niveau =>
+  [...paliers].reverse().find((p) => points >= p.depuis)?.niveau ?? 'Bronze';
 
 /** Les points d'un client : 1 par euro payé (TTC) sur les 12 derniers mois. */
 export function pointsDe(factures: readonly Facture[], clientId: number, aujourdhui: Jour): number {
@@ -71,10 +93,10 @@ export interface Progression {
   part: number;
 }
 
-export function progression(points: number): Progression {
-  const i = PALIERS.reduce((k, p, j) => (points >= p.depuis ? j : k), 0);
-  const courant = PALIERS[i];
-  const suivant = PALIERS[i + 1];
+export function progression(points: number, paliers: readonly Palier[] = PALIERS): Progression {
+  const i = paliers.reduce((k, p, j) => (points >= p.depuis ? j : k), 0);
+  const courant = paliers[i];
+  const suivant = paliers[i + 1];
   if (!suivant) return { niveau: courant.niveau, suivant: null, manque: null, part: 1 };
   return {
     niveau: courant.niveau,
@@ -106,4 +128,68 @@ export function resumeFidelite(comptes: readonly CompteFidelite[], aujourdhui: J
 }
 
 /** Un compte est cohérent quand son niveau découle de ses points : sert à contrôler les jeux et les écrans. */
-export const niveauCoherent = (c: Pick<CompteFidelite, 'points' | 'niveau'>): boolean => niveauPour(c.points) === c.niveau;
+export const niveauCoherent = (c: Pick<CompteFidelite, 'points' | 'niveau'>, paliers: readonly Palier[] = PALIERS): boolean => niveauPour(c.points, paliers) === c.niveau;
+
+/* ------------------------------ Le programme (fiche MC02) ------------------------------ */
+
+/** « Règles du programme » (réglage) : 1 € facturé et payé = 1 point, un avis = 50, un client recommandé = 200. */
+export interface ReglesProgramme {
+  pointsParEuro: number;
+  pointsParAvis: number;
+  pointsParRecommandation: number;
+  /** Un client à moins de ce nombre de points du palier suivant est mis en avant (proposition de la fiche : 100). */
+  seuilBientot: number;
+}
+
+export const REGLES_PROGRAMME: ReglesProgramme = { pointsParEuro: 1, pointsParAvis: 50, pointsParRecommandation: 200, seuilBientot: 100 };
+
+export interface ActiviteClient {
+  clientId: number;
+  factures: readonly Facture[];
+  /** Jours des avis laissés par ce client. */
+  avis: readonly Jour[];
+  /** Jours où ce client en a recommandé un autre. */
+  recommandations: readonly Jour[];
+}
+
+/**
+ * Les points du programme sur 12 mois glissants : euros payés, avis, recommandations. Jamais de
+ * point retiré pour punir : la fonction ne fait qu'additionner.
+ */
+export function pointsProgramme(a: ActiviteClient, aujourdhui: Jour, regles: ReglesProgramme = REGLES_PROGRAMME): number {
+  const an = `${Number(aujourdhui.slice(0, 4)) - 1}${aujourdhui.slice(4)}`;
+  const dans = (j: Jour) => j >= an && j <= aujourdhui;
+  const euros = a.factures
+    .filter((f) => f.clientId === a.clientId && f.status === 'paid' && dans(f.paidAt))
+    .reduce((s, f) => s + Math.floor((totauxDeFacture(f).ttcCents / 100) * regles.pointsParEuro), 0);
+  return euros + a.avis.filter(dans).length * regles.pointsParAvis + a.recommandations.filter(dans).length * regles.pointsParRecommandation;
+}
+
+/** « Plus que {n} points » : le client est à moins de `seuilBientot` points du palier suivant. */
+export function bientotAuPalier(points: number, paliers: readonly Palier[] = PALIERS, regles: ReglesProgramme = REGLES_PROGRAMME): { manque: number; vers: Niveau } | null {
+  const p = progression(points, paliers);
+  return p.suivant && p.manque != null && p.manque < regles.seuilBientot ? { manque: p.manque, vers: p.suivant } : null;
+}
+
+/**
+ * Un palier ne se perd qu'après 12 mois sans activité, et la personne en est prévenue avant :
+ * `prevenir` s'allume `prevenirAvantJours` jours avant l'échéance.
+ */
+export function descenteDePalier(derniereActiviteLe: Jour, niveau: Niveau, aujourdhui: Jour, prevenirAvantJours = 30): { descend: boolean; prevenir: boolean; vers: Niveau | null } {
+  const inactif = Math.max(0, ecartJours(derniereActiviteLe, aujourdhui));
+  const vers: Niveau | null = niveau === 'Or' ? 'Argent' : niveau === 'Argent' ? 'Bronze' : null;
+  return { descend: vers != null && inactif >= 365, prevenir: vers != null && inactif >= 365 - prevenirAvantJours && inactif < 365, vers };
+}
+
+/** Clients fidèles = au moins 1 point actif sur 12 mois ÷ clients actifs. `null` sans client actif. */
+export const partFideles = (clientsAvecPoints: number, clientsActifs: number): number | null => (clientsActifs === 0 ? null : clientsAvecPoints / clientsActifs);
+
+/**
+ * Sur chaque barreau, au plus `max` clients (les plus proches du palier suivant d'abord, puis les
+ * plus actifs) ; les autres sont comptés dans « N autres clients ».
+ */
+export function clientsAffiches<T extends { points: number; derniereActiviteLe: Jour }>(clients: readonly T[], paliers: readonly Palier[], max = 4): { affiches: T[]; autres: number } {
+  const manque = (c: T) => progression(c.points, paliers).manque ?? Number.POSITIVE_INFINITY;
+  const tries = [...clients].sort((a, b) => manque(a) - manque(b) || b.derniereActiviteLe.localeCompare(a.derniereActiviteLe));
+  return { affiches: tries.slice(0, max), autres: Math.max(0, tries.length - max) };
+}

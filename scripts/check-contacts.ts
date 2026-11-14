@@ -153,25 +153,104 @@ await dit('un mouvement refusé lève une erreur ; l’objet d’origine n’est
   assert.equal(q.etape, 'nouveau');
 });
 
-/* ── Relances : la règle d'espacement ───────────────────────────────────── */
-console.log('\nContacts — relances (MC07) : on ne harcèle jamais un client\n');
+await dit('MC01 : chance par étape (20 / 40 / 55 / 100), en jeu hors signés et perdus, prévision pondérée et part de chaque colonne', () => {
+  assert.deepEqual(L.CHANCES_MC01, { Nouveau: 20, 'Rendez-vous': 40, 'Devis envoyé': 55, Signé: 100 });
+  // 1 900 + 900 + 15 600 = 18 400 en jeu ; 15 600 × 55 % + 900 × 40 % + 1 900 × 20 % = 9 320 (valeurs de la fiche)
+  const l = [
+    prospect({ id: 'a', etape: 'devis envoyé', montantCents: 1_560_000 }), prospect({ id: 'b', etape: 'rendez-vous', montantCents: 90_000 }),
+    prospect({ id: 'c', etape: 'nouveau', montantCents: 190_000 }), prospect({ id: 'd', etape: 'gagné', montantCents: 620_000 }), prospect({ id: 'e', etape: 'perdu', montantCents: 500_000 }),
+  ];
+  assert.equal(L.enJeu(l), 1_840_000);
+  const p = L.previsionPonderee(l);
+  assert.equal(p.totalCents, 932_000);
+  assert.deepEqual(p.contributions.map((c: any) => [c.colonne, c.cents]), [['Nouveau', 38_000], ['Rendez-vous', 36_000], ['Devis envoyé', 858_000]]);
+  assert.ok(Math.abs(p.contributions.reduce((s: number, c: any) => s + c.part, 0) - 932_000 / 1_840_000) < 1e-9);
+  assert.equal(L.previsionPonderee([]).totalCents, 0);
+});
+
+await dit('MC01 : taux de passage sur 90 jours glissants, âge moyen dans l’étape, « N j sans réponse » dès 5 jours', () => {
+  const m = [
+    { prospectId: 'a', vers: 'nouveau', le: '2026-09-01' }, { prospectId: 'a', vers: 'rendez-vous', le: '2026-09-10' },
+    { prospectId: 'b', vers: 'nouveau', le: '2026-09-05' }, { prospectId: 'c', vers: 'contacté', le: '2026-10-01' }, { prospectId: 'c', vers: 'rendez-vous', le: '2026-10-05' },
+    { prospectId: 'z', vers: 'nouveau', le: '2026-05-01' },
+  ];
+  assert.deepEqual(L.tauxDePassage(m, 'Nouveau', '2026-10-30'), { entrees: 3, passees: 2, taux: 2 / 3 });
+  assert.deepEqual(L.tauxDePassage(m, 'Signé', '2026-10-30'), { entrees: 0, passees: 0, taux: null });
+  assert.equal(L.tauxDePassage([], 'Nouveau', '2026-10-30').taux, null);
+  assert.equal(L.ageMoyenDansEtape([{ depuis: '2026-10-20' }, { depuis: '2026-10-28' }], '2026-10-30'), 6);
+  assert.equal(L.ageMoyenDansEtape([], '2026-10-30'), null);
+  assert.equal(L.joursSansReponse('2026-10-24', null, '2026-10-30'), 6);
+  assert.equal(L.joursSansReponse('2026-10-27', null, '2026-10-30'), null, '3 jours : pas encore');
+  assert.equal(L.joursSansReponse('2026-10-24', '2026-10-26', '2026-10-30'), null, 'le client a répondu');
+});
+
+await dit('MC01 : signé ce mois, objectif du mois (rien de négatif), signatures par mois et fait encourageant', () => {
+  const sig = (id: string, le: string, c = 100_000) => prospect({ id, etape: 'gagné', signeLe: le, montantCents: c });
+  const l = [sig('1', '2026-10-02', 200_000), sig('2', '2026-10-10', 420_000), sig('3', '2026-09-30'), sig('4', '2026-10-31')];
+  assert.deepEqual(L.signesDuMois(l, '2026-10-30'), { nb: 3, totalCents: 720_000 });
+  assert.deepEqual(L.objectifDuMois(620_000, 800_000), { reste: 180_000, atteint: false });
+  assert.deepEqual(L.objectifDuMois(800_000, 800_000), { reste: 0, atteint: true });
+  assert.equal(L.objectifDuMois(100, null), null, 'pas d’objectif : « Fixez votre objectif du mois »');
+  const serie = L.signaturesParMois(l, '2026-10-30', 6);
+  assert.deepEqual(serie.map((x: any) => x.mois), ['2026-05', '2026-06', '2026-07', '2026-08', '2026-09', '2026-10']);
+  assert.equal(serie[5].nb, 3);
+  assert.deepEqual(L.faitEncourageant([{ mois: 'a', nb: 1 }, { mois: 'b', nb: 4 }, { mois: 'c', nb: 2 }, { mois: 'd', nb: 4 }]), { genre: 'egale-meilleur', nb: 4 });
+  assert.deepEqual(L.faitEncourageant([{ mois: '2026-05', nb: 5 }, { mois: '2026-06', nb: 2 }, { mois: '2026-07', nb: 3 }, { mois: '2026-08', nb: 1 }, { mois: '2026-09', nb: 2 }, { mois: '2026-10', nb: 4 }]), { genre: 'meilleur-depuis', depuis: '2026-05' });
+  assert.deepEqual(L.faitEncourageant([{ mois: 'a', nb: 1 }, { mois: 'b', nb: 2 }, { mois: 'c', nb: 3 }]), { genre: 'record' });
+  assert.deepEqual(L.faitEncourageant([{ mois: 'a', nb: 2 }, { mois: 'b', nb: 3 }, { mois: 'c', nb: 2 }, { mois: 'd', nb: 3 }, { mois: 'e', nb: 1 }, { mois: 'f', nb: 2 }]), { genre: 'meilleur-depuis', depuis: 'd' });
+  assert.deepEqual(L.faitEncourageant([{ mois: 'a', nb: 2 }, { mois: 'b', nb: 3 }, { mois: 'c', nb: 3 }, { mois: 'd', nb: 3 }, { mois: 'e', nb: 3 }, { mois: 'f', nb: 2 }]), { genre: 'regularite', mois: 6, auDessusDe: 2 });
+  assert.equal(L.faitEncourageant([{ mois: 'a', nb: 4 }, { mois: 'b', nb: 1 }]), null, 'un mois faible : aucune ligne, rien de négatif');
+  assert.equal(L.faitEncourageant([{ mois: 'a', nb: 4 }, { mois: 'b', nb: 0 }]), null);
+});
+
+await dit('H06 : l’intérêt pondère 35 / 25 / 20 / 20, la fraîcheur va de 100 (aujourd’hui) à 0 (30 jours), libellés froid / tiède / chaud', () => {
+  assert.deepEqual(L.POIDS_INTERET, { lectures: 35, reponses: 25, rendezVous: 20, fraicheur: 20 });
+  assert.deepEqual([0, 15, 30, 45].map((j) => L.fraicheur(j)), [100, 50, 0, 0]);
+  assert.equal(L.fraicheur(null), 0);
+  const tout = { lectures14j: 99, delaiReponseHeures: 1, rendezVous: 9, joursDepuisContact: 0 };
+  assert.equal(L.interet(tout), 100);
+  assert.equal(L.interet({ lectures14j: 0, delaiReponseHeures: null, rendezVous: 0, joursDepuisContact: null }), 0);
+  assert.equal(L.interet({ ...tout, lectures14j: 0 }), 65, 'sans lecture : 100 − 35');
+  assert.deepEqual([0, 33, 34, 66, 67, 100].map((v) => L.libelleInteret(v)), ['froid', 'froid', 'tiede', 'tiede', 'chaud', 'chaud']);
+});
+
+await dit('H06 : « À appeler cette semaine » = intérêt ≥ 60 ET montant ≥ 3 000 €, classé par intérêt × montant ; repli hors quadrant ; traînée d’au moins 10 points', () => {
+  const n = (id: string, i: number, c: number | null, etape = 'devis envoyé') => ({ prospect: prospect({ id, nom: id, montantCents: c, etape }), interet: i });
+  const notes = [n('a', 80, 800_000), n('b', 60, 300_000), n('c', 59, 900_000), n('d', 90, 299_999), n('e', 95, 900_000), n('f', 99, 900_000, 'perdu'), n('g', 70, null)];
+  assert.deepEqual(L.appelsDeLaSemaine(notes).map((x: any) => x.prospect.id), ['e', 'a', 'b']);
+  assert.deepEqual(L.candidatsHorsQuadrant(notes, L.QUADRANT_PAR_DEFAUT, 2).map((x: any) => x.prospect.id), ['c', 'd']);
+  assert.equal(L.trainee(70, 55), 55);
+  assert.equal(L.trainee(70, 65), null, 'moins de 10 points : pas de traînée');
+  assert.equal(L.trainee(70, null), null);
+  assert.equal(L.nouveaux([prospect({ creeLe: '2026-10-20' }), prospect({ creeLe: '2026-09-01' })], '2026-10-30').length, 1);
+});
+
+/* ── Relances : la règle d'espacement (fiche MC07, rubrique 6) ───────────── */
+console.log('\nContacts — relances (MC07) : on ne harcèle jamais un client — les huit points de la fiche\n');
 
 const R = L.REGLES_PAR_DEFAUT;
 const VENDREDI_10H = paris('2026-10-30', '10:15');
+const J = 86_400_000;
+const clic = { clic: true };
 
-await dit('valeurs de départ du CO (STATUT §1.22) : 7 jours entre relances, plage clients lun.–ven. 08:00–19:00, lues chez S9', () => {
+await dit('valeurs de départ : 7 jours (CO, §1.22, lus chez S9), 3 relances par objet, un client par semaine, 24 h après un échange, plage 08:00–19:00', () => {
   assert.equal(R.espacementJours, 7);
   assert.equal(R.espacementJours, V.VALEURS_DE_DEPART.delaiEntreRelancesJours, 'même source que les réglages de l’autonomie');
   assert.deepEqual(R.fenetre, V.VALEURS_DE_DEPART.plageClients);
-  assert.deepEqual(R.fenetre, { debut: '08:00', fin: '19:00', jours: [1, 2, 3, 4, 5] });
-  assert.equal(R.unParClientEtParJour, true);
+  assert.deepEqual([R.maxParObjet, R.clientDelaiJours, R.heuresApresEchange, R.pauseAvisJours], [3, 7, 24, 7]);
 });
 
-await dit('première relance : permise en semaine, dans la plage', () => {
+await dit('l’espacement se règle de 3 à 14 jours, jamais au-delà', () => {
+  assert.equal(L.reglesBornees({ espacementJours: 1 }).espacementJours, 3);
+  assert.equal(L.reglesBornees({ espacementJours: 30 }).espacementJours, 14);
+  assert.equal(L.reglesBornees({ espacementJours: 5 }).espacementJours, 5);
+});
+
+await dit('première relance : permise un jour ouvré, dans la plage', () => {
   assert.deepEqual(L.verdictRelance(relance(), [], VENDREDI_10H), { possible: true });
 });
 
-await dit('espacement : 3 jours après un envoi → attendre ; exactement 7 jours → permis', () => {
+await dit('point 2 — espacement d’un même objet : 3 jours après → attendre ; 7 jours pile → permis', () => {
   const r = relance({ etat: 'envoyée', nbEnvoyees: 1, derniereEnvoiLe: '2026-10-27' });
   const v = L.verdictRelance(r, [], VENDREDI_10H);
   assert.equal(v.possible, false);
@@ -181,41 +260,44 @@ await dit('espacement : 3 jours après un envoi → attendre ; exactement 7 jour
   assert.equal(L.verdictRelance(relance({ etat: 'envoyée', nbEnvoyees: 1, derniereEnvoiLe: '2026-10-24' }), [], VENDREDI_10H).possible, false, '6 jours : trop tôt');
 });
 
-await dit('l’espacement suit le réglage : à 14 jours, 10 jours ne suffisent pas', () => {
-  const r = relance({ etat: 'envoyée', nbEnvoyees: 1, derniereEnvoiLe: '2026-10-20' });
-  assert.equal(L.verdictRelance(r, [], VENDREDI_10H).possible, true);
-  const v = L.verdictRelance(r, [], VENDREDI_10H, { ...R, espacementJours: 14 });
-  assert.equal(v.raison, 'espacement');
-  assert.equal(v.prochaineLe, paris('2026-11-03', '08:00'));
+await dit('l’espacement suit le réglage : à 5 jours (valeur de la fiche), 5 jours suffisent', () => {
+  const r = relance({ etat: 'envoyée', nbEnvoyees: 1, derniereEnvoiLe: '2026-10-23' });
+  const cinq = L.reglesBornees({ espacementJours: 5, clientDelaiJours: 5 });
+  assert.equal(L.verdictRelance(r, [], VENDREDI_10H, cinq).possible, true);
+  const quatorze = L.reglesBornees({ espacementJours: 14 });
+  assert.equal(L.verdictRelance(relance({ etat: 'envoyée', nbEnvoyees: 1, derniereEnvoiLe: '2026-10-20' }), [], VENDREDI_10H, quatorze).raison, 'espacement');
 });
 
-await dit('changement d’heure : l’ouverture du lendemain reste 08:00 à Paris (heure d’hiver, UTC+1)', () => {
+await dit('changement d’heure : l’ouverture suivante reste 08:00 à Paris (heure d’hiver, UTC+1)', () => {
   const r = relance({ etat: 'envoyée', nbEnvoyees: 1, derniereEnvoiLe: '2026-10-22' });
   const v = L.verdictRelance(r, [], paris('2026-10-25', '12:00'));
   assert.equal(v.possible, false);
   assert.equal(new Date(v.prochaineLe).toISOString(), '2026-10-29T07:00:00.000Z');
 });
 
-await dit('plafond : au bout de 3 relances, plus aucune, et la phrase propose un autre geste', () => {
+await dit('point 3 — trois relances au plus par objet ; appel proposé après la 2e, suivi à la main après la 3e', () => {
   const v = L.verdictRelance(relance({ etat: 'envoyée', nbEnvoyees: 3, derniereEnvoiLe: '2026-09-01' }), [], VENDREDI_10H);
   assert.deepEqual([v.possible, v.raison, v.prochaineLe], [false, 'plafond', null]);
-  assert.match(L.phraseAttente(v, 'fr'), /3 relances/);
-  assert.match(L.phraseAttente(v, 'fr'), /appel/);
+  assert.match(L.phraseAttente(v, 'fr'), /3 relances envoyées : ensuite, suivi à la main/);
+  assert.deepEqual([0, 1, 2, 3].map((n) => L.suiteApres(n)), ['message', 'message', 'appel', 'manuel']);
 });
 
-await dit('répondue ou arrêtée : terminée, jamais renvoyée', () => {
+await dit('point 5 — arrêt immédiat dès que le client répond, paie, signe ou demande à ne plus être relancé', () => {
+  for (const raison of ['reponse', 'paiement', 'signature']) assert.equal(L.arreterPour(relance(), raison).etat, 'répondue', raison);
+  assert.equal(L.arreterPour(relance(), 'demande').etat, 'arrêtée');
   for (const etat of ['répondue', 'arrêtée']) assert.equal(L.verdictRelance(relance({ etat }), [], VENDREDI_10H).raison, 'terminee');
   assert.equal(L.arreter(relance()).etat, 'arrêtée');
   assert.equal(L.marquerRepondue(relance()).etat, 'répondue');
 });
 
-await dit('plage d’envoi : samedi, dimanche, 07:59 et 19:00 attendent l’ouverture suivante', () => {
+await dit('point 4 — plage : samedi, dimanche, 07:59 et 19:00 attendent l’ouverture suivante', () => {
   const cas: [string, string, string, string][] = [
-    ['2026-10-31', '11:00', '2026-11-02', '08:00'], // samedi → lundi
-    ['2026-11-01', '09:00', '2026-11-02', '08:00'], // dimanche → lundi
+    ['2026-10-31', '11:00', '2026-11-03', '08:00'], // samedi → lundi 2 nov. : Toussaint (1er nov. un dimanche, lundi 2 ouvré)
+    ['2026-11-01', '09:00', '2026-11-02', '08:00'], // dimanche (Toussaint) → lundi
     ['2026-10-30', '07:59', '2026-10-30', '08:00'],
     ['2026-10-30', '19:00', '2026-11-02', '08:00'], // vendredi soir → lundi
   ];
+  cas[0] = ['2026-10-31', '11:00', '2026-11-02', '08:00'];
   for (const [j, h, jOk, hOk] of cas) {
     const v = L.verdictRelance(relance(), [], paris(j, h));
     assert.deepEqual([v.possible, v.raison, v.prochaineLe], [false, 'horsPlage', paris(jOk, hOk)], `${j} ${h}`);
@@ -224,56 +306,132 @@ await dit('plage d’envoi : samedi, dimanche, 07:59 et 19:00 attendent l’ouve
   assert.equal(L.verdictRelance(relance(), [], paris('2026-10-30', '18:59')).possible, true);
 });
 
-await dit('un seul message par client et par jour, tous objets confondus', () => {
-  const dejaEcrit = relance({ id: 'rl-a', objetId: 'f-9', etat: 'envoyée', nbEnvoyees: 1, derniereEnvoiLe: '2026-10-30' });
+await dit('point 4 — jamais un jour férié : Pâques, Ascension, 14 juillet, 11 novembre', () => {
+  assert.deepEqual(L.joursFeries(2026).sort(), ['2026-01-01', '2026-04-06', '2026-05-01', '2026-05-08', '2026-05-14', '2026-05-25', '2026-07-14', '2026-08-15', '2026-11-01', '2026-11-11', '2026-12-25']);
+  assert.deepEqual(L.joursFeries(2027).filter((j: string) => j.startsWith('2027-03') || j.startsWith('2027-04')), ['2027-03-29']);
+  const v = L.verdictRelance(relance(), [], paris('2026-11-11', '10:00'));
+  assert.deepEqual([v.possible, v.raison, v.prochaineLe], [false, 'horsPlage', paris('2026-11-12', '08:00')]);
+  const pont = L.verdictRelance(relance(), [], paris('2026-07-14', '10:00'));
+  assert.equal(pont.prochaineLe, paris('2026-07-15', '08:00'));
+});
+
+await dit('point 4 — les préférences de la fiche contact décalent l’envoi (« avant 11:00 », « jamais le vendredi après-midi »)', () => {
+  const ctx = { preferences: { avant: '11:00', joursAEviter: [{ jour: 5, apresMidi: true }] } };
+  assert.equal(L.verdictRelance(relance(), [], paris('2026-10-30', '10:00'), R, ctx).possible, true, 'vendredi matin, avant 11:00');
+  const apres = L.verdictRelance(relance(), [], paris('2026-10-30', '11:30'), R, ctx);
+  assert.deepEqual([apres.possible, apres.raison, apres.prochaineLe], [false, 'horsPlage', paris('2026-11-02', '08:00')], 'vendredi 11:30 : pas avant lundi');
+  const lundi = L.verdictRelance(relance(), [], paris('2026-11-02', '11:30'), R, ctx);
+  assert.equal(lundi.prochaineLe, paris('2026-11-03', '08:00'), 'lundi après 11:00 : le lendemain');
+  const jamais = L.verdictRelance(relance(), [], paris('2026-10-30', '09:00'), R, { preferences: { joursAEviter: [{ jour: 5 }] } });
+  assert.equal(jamais.prochaineLe, paris('2026-11-02', '08:00'), 'jour évité en entier');
+  const tard = L.verdictRelance(relance(), [], paris('2026-10-29', '08:30'), R, { preferences: { apres: '10:00' } });
+  assert.equal(tard.prochaineLe, paris('2026-10-29', '10:00'));
+});
+
+await dit('point 1 — un client, une relance par semaine glissante, tous objets regroupés', () => {
+  const dejaEcrit = relance({ id: 'rl-a', objetId: 'f-9', etat: 'envoyée', nbEnvoyees: 1, derniereEnvoiLe: '2026-10-27' });
   const v = L.verdictRelance(relance({ id: 'rl-b' }), [dejaEcrit], VENDREDI_10H);
-  assert.deepEqual([v.possible, v.raison, v.prochaineLe], [false, 'memeClient', paris('2026-11-02', '08:00')]);
+  assert.deepEqual([v.possible, v.raison, v.prochaineLe], [false, 'client', paris('2026-11-03', '08:00')]);
+  assert.match(L.phraseAttente(v, 'fr'), /Pas avant le 03\/11 : une relance par semaine au plus/);
   assert.equal(L.verdictRelance(relance({ id: 'rl-b' }), [{ ...dejaEcrit, clientId: 2 }], VENDREDI_10H).possible, true, 'un autre client ne compte pas');
-  assert.equal(L.verdictRelance(relance({ id: 'rl-b' }), [{ ...dejaEcrit, derniereEnvoiLe: '2026-10-29' }], VENDREDI_10H).possible, true, 'hier ne compte pas');
+  assert.equal(L.verdictRelance(relance({ id: 'rl-b' }), [{ ...dejaEcrit, derniereEnvoiLe: '2026-10-23' }], VENDREDI_10H).possible, true, 'il y a 7 jours : permis');
+  assert.equal(L.verdictRelance(relance({ id: 'rl-b' }), [{ ...dejaEcrit, derniereEnvoiLe: '2026-10-30' }], VENDREDI_10H).raison, 'client', 'le jour même aussi');
 });
 
 await dit('un prospect (sans fiche) se reconnaît à son nom', () => {
   const a = relance({ id: 'a', clientId: null, clientNom: 'Atelier Neuf', motif: 'prospect', derniereEnvoiLe: '2026-10-30', etat: 'envoyée', nbEnvoyees: 1 });
   const b = relance({ id: 'b', clientId: null, clientNom: 'Atelier Neuf', motif: 'prospect' });
-  assert.equal(L.verdictRelance(b, [a], VENDREDI_10H).raison, 'memeClient');
+  assert.equal(L.verdictRelance(b, [a], VENDREDI_10H).raison, 'client');
 });
 
-await dit('la file : un seul départ par client (le plus gros montant), les autres attendent le jour suivant', () => {
+await dit('point 6 — rien dans les 24 h qui suivent un échange humain', () => {
+  const echange = paris('2026-10-30', '09:00');
+  const v = L.verdictRelance(relance(), [], VENDREDI_10H, R, { dernierEchangeHumainAt: echange });
+  assert.deepEqual([v.possible, v.raison], [false, 'echangeRecent']);
+  assert.equal(v.prochaineLe, paris('2026-11-02', '08:00'), 'vendredi 09:00 + 24 h = samedi : lundi à l’ouverture');
+  assert.equal(L.verdictRelance(relance(), [], VENDREDI_10H, R, { dernierEchangeHumainAt: echange - 25 * 3_600_000 }).possible, true, '25 h : permis');
+});
+
+await dit('H44 — un avis sans réponse met les relances en pause, 7 jours au plus', () => {
+  const ctx = { avisEnAttenteDepuis: '2026-10-28' };
+  const v = L.verdictRelance(relance(), [], VENDREDI_10H, R, ctx);
+  assert.deepEqual([v.possible, v.raison, v.prochaineLe], [false, 'pauseAvis', paris('2026-11-04', '08:00')]);
+  assert.equal(L.verdictRelance(relance(), [], paris('2026-11-04', '09:00'), R, ctx).possible, true, 'au bout de 7 jours, la pause cesse');
+});
+
+await dit('point 7 — la file : une relance n’entre que le jour permis, un seul départ par client (le plus gros montant)', () => {
   const file = L.ordonnerFile([
     relance({ id: 'petite', objetId: 'f-1', montantCents: 10_000 }),
     relance({ id: 'grosse', objetId: 'f-2', montantCents: 900_000 }),
     relance({ id: 'autre', clientId: 2, clientNom: 'Autre', objetId: 'f-3', montantCents: 50_000 }),
     relance({ id: 'finie', clientId: 3, etat: 'répondue' }),
     relance({ id: 'plafonnee', clientId: 4, nbEnvoyees: 3, etat: 'envoyée', derniereEnvoiLe: '2026-09-01' }),
-  ], VENDREDI_10H);
+    relance({ id: 'prefere', clientId: 5, clientNom: 'Matinal' }),
+  ], VENDREDI_10H, R, new Map([['c:5', { preferences: { avant: '09:00' } }]]));
   assert.deepEqual(file.maintenant.map((e: any) => e.relance.id), ['grosse', 'autre']);
-  assert.deepEqual(file.plusTard.map((e: any) => [e.relance.id, e.verdict.raison]), [['petite', 'memeClient']]);
+  assert.deepEqual(file.plusTard.map((e: any) => [e.relance.id, e.verdict.raison]), [['prefere', 'horsPlage'], ['petite', 'client']]);
   assert.deepEqual(file.plafond.map((e: any) => e.relance.id), ['plafonnee']);
   assert.deepEqual(file.terminees.map((e: any) => e.relance.id), ['finie']);
 });
 
-await dit('envoyer : compte +1, date du jour ; refusé (erreur) si le verdict ne le permet pas', () => {
-  const r = L.marquerEnvoyee(relance(), [], VENDREDI_10H);
+await dit('point 8 — rien ne part sans un clic humain ; refusé aussi si le verdict l’interdit', () => {
+  assert.throws(() => L.marquerEnvoyee(relance(), [], VENDREDI_10H, { clic: false }), /clic humain/);
+  assert.throws(() => L.marquerEnvoyee(relance(), [], VENDREDI_10H, {}), /clic humain/);
+  const r = L.marquerEnvoyee(relance(), [], VENDREDI_10H, clic);
   assert.deepEqual([r.etat, r.nbEnvoyees, r.derniereEnvoiLe], ['envoyée', 1, '2026-10-30']);
-  assert.throws(() => L.marquerEnvoyee(r, [], VENDREDI_10H), /espacement/);
-  assert.throws(() => L.marquerEnvoyee(relance(), [], paris('2026-10-31', '10:00')), /horsPlage/);
+  assert.throws(() => L.marquerEnvoyee(r, [], VENDREDI_10H, clic), /espacement/);
+  assert.throws(() => L.marquerEnvoyee(relance(), [], paris('2026-10-31', '10:00'), clic), /horsPlage/);
 });
 
-await dit('à trois relances d’un même objet espacées de 7 jours, la quatrième est refusée', () => {
+await dit('trois relances d’un même objet espacées de 7 jours, puis la quatrième est refusée', () => {
   let r = relance();
   let t = paris('2026-10-05', '10:00'); // lundi
   for (let i = 0; i < 3; i += 1) {
-    r = L.marquerEnvoyee(r, [], t);
-    t += 7 * 86_400_000;
+    r = L.marquerEnvoyee(r, [], t, clic);
+    t += 7 * J;
   }
   assert.equal(r.nbEnvoyees, 3);
   assert.equal(L.verdictRelance(r, [], t).raison, 'plafond');
 });
 
-await dit('les cinq phrases d’attente existent en fr et en, avec la date et les heures de la règle', () => {
+await dit('« Reporter à demain » : demain à l’ouverture, ou plus tard si une règle l’impose', () => {
+  assert.equal(L.reporterADemain(relance(), [], paris('2026-10-29', '10:00')), paris('2026-10-30', '08:00'));
+  assert.equal(L.reporterADemain(relance(), [], VENDREDI_10H), paris('2026-11-02', '08:00'), 'vendredi → lundi');
+  const r = relance({ etat: 'envoyée', nbEnvoyees: 1, derniereEnvoiLe: '2026-10-29' });
+  assert.equal(L.reporterADemain(r, [], paris('2026-10-29', '10:00')), paris('2026-11-05', '08:00'), 'l’espacement prime');
+});
+
+await dit('la cadence d’un devis : départ, 1re relance, 2e, appel proposé, puis suivi à la main — jamais un week-end ni un férié', () => {
+  const c = L.cadence('2026-10-24', R, 6);
+  assert.deepEqual(c.map((e: any) => e.genre), ['depart', 'relance', 'relance', 'appel', 'manuel']);
+  assert.deepEqual(c.slice(0, 4).map((e: any) => e.le), ['2026-10-24', '2026-10-30', '2026-11-06', '2026-11-13']);
+  assert.deepEqual(c.slice(0, 4).map((e: any) => e.jourN), [0, 6, 13, 20]);
+  assert.equal(c[4].le, undefined, 'le suivi à la main n’a pas de date');
+  for (const e of c.filter((x: any) => x.le && x.genre !== 'depart')) assert.ok(!L.estFerie(e.le) && L.jourSemaine(e.le) <= 5, e.le);
+  const cinq = L.cadence('2026-10-24', L.reglesBornees({ espacementJours: 5 }), 6);
+  assert.deepEqual(cinq.slice(1, 4).map((e: any) => e.le), ['2026-10-30', '2026-11-04', '2026-11-09']);
+});
+
+await dit('la file du jour : « 1 sur 5 traitée », la boîte à zéro, la série qui ignore week-ends et fériés', () => {
+  assert.deepEqual(L.progressionFile(5, 1), { traitees: 1, total: 5, reste: 4, videe: false });
+  assert.equal(L.progressionFile(5, 9).videe, true);
+  assert.equal(L.progressionFile(0, 0).videe, false, 'une file vide dès le matin n’est pas « vidée »');
+  // lundi 26 → jeudi 29 octobre vidés, vendredi 30 en cours : 4 jours de suite
+  assert.equal(L.serieBoiteAZero(['2026-10-26', '2026-10-27', '2026-10-28', '2026-10-29'], '2026-10-30'), 4);
+  assert.equal(L.serieBoiteAZero(['2026-10-26', '2026-10-27', '2026-10-28', '2026-10-29', '2026-10-30'], '2026-10-30'), 5);
+  // vendredi 30 puis lundi 2 : le week-end ne casse pas la série ; le 11 nov. (férié) non plus
+  assert.equal(L.serieBoiteAZero(['2026-10-29', '2026-10-30', '2026-11-02'], '2026-11-02'), 3);
+  assert.equal(L.serieBoiteAZero(['2026-11-09', '2026-11-10', '2026-11-12'], '2026-11-12'), 3, 'le 11 nov. est férié');
+  assert.equal(L.serieBoiteAZero(['2026-10-26', '2026-10-28'], '2026-10-30'), 0, 'un trou casse la série');
+});
+
+await dit('les phrases d’attente existent en fr et en, avec la date et les heures de la règle', () => {
   const v = L.verdictRelance(relance(), [], paris('2026-10-31', '11:00'));
-  assert.match(L.phraseAttente(v, 'fr'), /08:00.*19:00.*02\/11/);
-  assert.match(L.phraseAttente(v, 'en'), /08:00.*19:00.*02\/11/);
+  assert.match(L.phraseAttente(v, 'fr'), /02\/11 à 08:00.*08:00 et 19:00/);
+  assert.match(L.phraseAttente(v, 'en'), /02\/11 at 08:00.*08:00 and 19:00/);
+  for (const raison of ['terminee', 'plafond', 'espacement', 'client', 'echangeRecent', 'pauseAvis', 'horsPlage']) {
+    for (const langue of ['fr', 'en']) assert.ok(L.phraseAttente({ possible: false, raison, prochaineLe: paris('2026-11-05', '09:00') }, langue).length > 10, `${raison} ${langue}`);
+  }
 });
 
 /* ── Messages vers le client : vouvoiement ──────────────────────────────── */
@@ -296,24 +454,56 @@ await dit('les cinq messages de relance vouvoient et ne tutoient jamais, avec le
   assert.match(f, /01\/10\/2026/);
 });
 
-await dit('après une première relance, le message le dit ; le devis donne son ancienneté', () => {
+await dit('après une première relance, le message le dit ; le devis reprend la phrase de la fiche, avec le prénom', () => {
   assert.match(L.messageClient(relance({ nbEnvoyees: 1 }), 'fr', '2026-10-30'), /revenir vers vous/);
   assert.ok(!/revenir vers vous/.test(L.messageClient(relance({ nbEnvoyees: 0 }), 'fr', '2026-10-30')));
-  assert.match(L.messageClient(relance({ motif: 'devis', departLe: '2026-10-16' }), 'fr', '2026-10-30'), /il y a 14 jours/);
+  assert.match(L.messageClient(relance({ motif: 'devis', objetLibelle: 'D-2026-117', departLe: '2026-10-24' }), 'fr', '2026-10-30', 'Karim'), /^Bonjour Karim, je reviens vers vous au sujet du devis D-2026-117 envoyé le 24\/10\/2026\. Avez-vous pu le parcourir/);
 });
 
 /* ── Fidélité ───────────────────────────────────────────────────────────── */
 console.log('\nContacts — fidélité (MC02)\n');
 
-await dit('paliers : Bronze dès 0, Argent dès 500, Or dès 1 500', () => {
-  for (const [pts, niv] of [[0, 'Bronze'], [499, 'Bronze'], [500, 'Argent'], [1499, 'Argent'], [1500, 'Or'], [9000, 'Or']] as const) assert.equal(L.niveauPour(pts), niv, String(pts));
+await dit('paliers de la fiche : Bronze dès 0, Argent dès 800, Or dès 1 800', () => {
+  for (const [pts, niv] of [[0, 'Bronze'], [799, 'Bronze'], [800, 'Argent'], [1799, 'Argent'], [1800, 'Or'], [9000, 'Or']] as const) assert.equal(L.niveauPour(pts), niv, String(pts));
+  assert.equal(L.niveauPour(500), 'Bronze', '500 points ne suffisent plus pour Argent');
+  assert.equal(L.niveauPour(500, L.PALIERS_DU_JEU_SIM), 'Argent', 'les paliers du jeu de SIM, eux, restent à 500');
 });
 
 await dit('progression : points qui manquent, part dans le niveau, Or = plafond', () => {
-  assert.deepEqual(L.progression(0), { niveau: 'Bronze', suivant: 'Argent', manque: 500, part: 0 });
-  assert.deepEqual(L.progression(250), { niveau: 'Bronze', suivant: 'Argent', manque: 250, part: 0.5 });
-  assert.deepEqual(L.progression(1000), { niveau: 'Argent', suivant: 'Or', manque: 500, part: 0.5 });
-  assert.deepEqual(L.progression(1500), { niveau: 'Or', suivant: null, manque: null, part: 1 });
+  assert.deepEqual(L.progression(0), { niveau: 'Bronze', suivant: 'Argent', manque: 800, part: 0 });
+  assert.deepEqual(L.progression(400), { niveau: 'Bronze', suivant: 'Argent', manque: 400, part: 0.5 });
+  assert.deepEqual(L.progression(1300), { niveau: 'Argent', suivant: 'Or', manque: 500, part: 0.5 });
+  assert.deepEqual(L.progression(1800), { niveau: 'Or', suivant: null, manque: null, part: 1 });
+});
+
+await dit('le programme : 1 € payé = 1 point, un avis = 50, un client recommandé = 200, sur 12 mois, rien de retiré', () => {
+  const facture = { clientId: 1, status: 'paid', paidAt: '2026-06-01', lines: [{ id: 'l', label: 'x', quantity: 1, unitPriceCents: 10_000, vatRate: 20 }] };
+  const base = { clientId: 1, factures: [facture], avis: [], recommandations: [] };
+  assert.equal(L.pointsProgramme(base, '2026-10-30'), 120);
+  assert.equal(L.pointsProgramme({ ...base, avis: ['2026-09-01', '2025-01-01'] }, '2026-10-30'), 170, 'l’avis d’il y a plus d’un an ne compte plus');
+  assert.equal(L.pointsProgramme({ ...base, recommandations: ['2026-10-01'] }, '2026-10-30'), 320);
+  assert.equal(L.pointsProgramme({ ...base, factures: [] }, '2026-10-30'), 0);
+  assert.equal(L.pointsProgramme(base, '2026-10-30', { ...L.REGLES_PROGRAMME, pointsParEuro: 2 }), 240, 'le réglage s’applique');
+});
+
+await dit('« bientôt au palier suivant » : moins de 100 points du seuil ; la descente seulement après 12 mois, avec un message avant', () => {
+  assert.deepEqual(L.bientotAuPalier(750), { manque: 50, vers: 'Argent' });
+  assert.equal(L.bientotAuPalier(700), null, '100 points pile : pas encore');
+  assert.equal(L.bientotAuPalier(1800), null);
+  assert.deepEqual(L.descenteDePalier('2026-10-01', 'Or', '2026-10-30'), { descend: false, prevenir: false, vers: 'Argent' });
+  assert.equal(L.descenteDePalier('2025-11-20', 'Or', '2026-10-30').prevenir, true, 'à moins de 30 jours de l’échéance');
+  assert.equal(L.descenteDePalier('2025-12-01', 'Or', '2026-10-30').prevenir, false, 'encore loin');
+  assert.deepEqual(L.descenteDePalier('2025-10-30', 'Argent', '2026-10-30'), { descend: true, prevenir: false, vers: 'Bronze' });
+  assert.equal(L.descenteDePalier('2020-01-01', 'Bronze', '2026-10-30').descend, false, 'Bronze ne descend pas');
+});
+
+await dit('au plus 4 clients par barreau (les plus proches du palier suivant d’abord), les autres comptés', () => {
+  const c = (points: number, j = '2026-10-01') => ({ points, derniereActiviteLe: j });
+  const r = L.clientsAffiches([c(10), c(790), c(500), c(780), c(100), c(795, '2026-10-20')], L.PALIERS, 4);
+  assert.deepEqual(r.affiches.map((x: any) => x.points), [795, 790, 780, 500]);
+  assert.equal(r.autres, 2);
+  assert.equal(L.partFideles(46, 72), 46 / 72);
+  assert.equal(L.partFideles(0, 0), null);
 });
 
 await dit('deux formules : le choix de l’organisation, sinon tampons là où des cartes existent déjà, sinon points', () => {
@@ -345,11 +535,11 @@ await dit('les points d’un client = euros TTC payés sur 12 mois, jamais une f
 });
 
 for (const v of VOLUMES) {
-  await dit(`SIM (${v}) : chaque compte de fidélité redonne ses points depuis les factures, et son niveau découle de ses points`, () => {
+  await dit(`SIM (${v}) : chaque compte de fidélité redonne ses points depuis les factures, et son niveau découle de ses points (paliers du jeu de SIM : 500 et 1 500)`, () => {
     const m = mondes[v];
     for (const c of m.fidelite) {
       assert.equal(L.pointsDe(m.factures, c.clientId, m.contexte.aujourdhui), c.points, c.clientNom);
-      assert.ok(L.niveauCoherent(c), `${c.clientNom} : ${c.points} → ${c.niveau}`);
+      assert.ok(L.niveauCoherent(c, L.PALIERS_DU_JEU_SIM), `${c.clientNom} : ${c.points} → ${c.niveau}`);
     }
     const r = L.resumeFidelite(m.fidelite, m.contexte.aujourdhui);
     assert.equal(r.total, m.fidelite.length);
@@ -416,6 +606,41 @@ await dit('un rendez-vous manqué appelle une relance « rendez-vous » ; un aut
   assert.equal(L.relanceDepuisManque(ev({ confirmation: 'manqué', systeme: true })), null);
 });
 
+await dit('MC06 : la pause déjeuner = la plus longue plage libre de plus de 45 min entre 12:00 et 14:00', () => {
+  const hm = (t: number | undefined) => (t == null ? null : `${String(Math.floor(L.minutesParis(t) / 60)).padStart(2, '0')}:${String(L.minutesParis(t) % 60).padStart(2, '0')}`);
+  const lib = L.pauseDejeuner([ev({ startAt: a('2026-11-02', '11:00'), durationMin: 60 }), ev({ startAt: a('2026-11-02', '13:15'), durationMin: 30 })], '2026-11-02');
+  assert.deepEqual([hm(lib.debut), hm(lib.fin)], ['12:00', '13:15'], '12:00 à 13:15 : 75 min');
+  const trou = L.pauseDejeuner([ev({ startAt: a('2026-11-02', '12:00'), durationMin: 60 }), ev({ startAt: a('2026-11-02', '13:30'), durationMin: 60 })], '2026-11-02');
+  assert.equal(trou, null, '13:00 à 13:30 : 30 min, trop court');
+  assert.ok(L.pauseDejeuner([], '2026-11-02'), 'journée vide : pause entière');
+  assert.equal(L.pauseDejeuner([ev({ startAt: a('2026-11-02', '12:00'), durationMin: 120 })], '2026-11-02'), null);
+});
+
+await dit('MC06 : les trajets — durée donnée par le service d’itinéraire, « départ conseillé », bloc trop juste, visio sans trajet', () => {
+  const l = [
+    ev({ id: 'm', startAt: a('2026-11-02', '09:00'), durationMin: 60 }),
+    ev({ id: 'v', startAt: a('2026-11-02', '10:00'), durationMin: 30, mode: 'visio' }),
+    ev({ id: 'n', startAt: a('2026-11-02', '11:00'), durationMin: 60 }),
+    ev({ id: 'x', startAt: a('2026-11-02', '14:00'), durationMin: 60 }),
+  ];
+  const t = L.trajetsDeLaJournee(l, '2026-11-02', { m: 20, v: 99, n: 50, x: null });
+  assert.deepEqual(t.map((x: any) => x.verId), ['m', 'n', 'x'], 'la visio n’a pas de trajet');
+  assert.deepEqual(t.map((x: any) => x.tropJuste), [false, true, false], 'départ conseillé 10:10, mais la visio de 10:00 à 10:30 n’est pas finie : bloc orange');
+  assert.equal(t[0].departConseille, paris('2026-11-02', '08:40'));
+  assert.equal(t[1].departConseille, paris('2026-11-02', '10:10'));
+  assert.deepEqual([t[2].dureeMin, t[2].departConseille, t[2].tropJuste], [null, null, false], 'lieu à préciser');
+  const r = L.resumeJournee(l, '2026-11-02', { m: 20, n: 50, x: 30 }, 25);
+  assert.deepEqual([r.rendezVous, r.trajetTotalMin], [4, 20 + 50 + 30 + 25]);
+  assert.equal(r.finDeJournee, paris('2026-11-02', '15:25'));
+  assert.deepEqual(L.resumeJournee([], '2026-11-02', {}), { rendezVous: 0, trajetTotalMin: 0, finDeJournee: null });
+});
+
+await dit('MC06 : « 13 sur 20 pris » = pris ÷ ouverts, null si rien d’ouvert', () => {
+  assert.deepEqual(L.tauxReservation(20, 13), { pris: 13, ouverts: 20, part: 0.65 });
+  assert.deepEqual(L.tauxReservation(0, 0), { pris: 0, ouverts: 0, part: null });
+  assert.equal(L.tauxReservation(4, 9).part, 1, 'jamais plus de 100 %');
+});
+
 for (const v of VOLUMES) {
   await dit(`SIM (${v}) : les états des rendez-vous se recalculent, les manqués sont les manqués`, () => {
     const m = mondes[v];
@@ -453,8 +678,9 @@ await dit('le résumé d’un client : principal, non lus, dernier échange, jou
   assert.deepEqual([vide.principal, vide.tous, vide.nonLus, L.joursSansEchange(vide, '2026-10-30')], [null, [], 0, null]);
 });
 
-await dit('moyen de joindre : la préférence, avec repli quand le champ manque ; « messagerie » se lit comme le courriel', () => {
-  assert.deepEqual(L.moyenDeJoindre(it({ preference: 'messagerie' })), { moyen: 'courriel', valeur: 'a@exemple.test' });
+await dit('moyen de joindre : la préférence, avec repli quand le champ manque ; « messagerie » (G07) n’est pas le courriel (MX01)', () => {
+  assert.deepEqual(L.moyenDeJoindre(it({ preference: 'messagerie' })), { moyen: 'messagerie', valeur: 'a@exemple.test' });
+  assert.deepEqual(L.moyenDeJoindre(it({ preference: 'messagerie', email: '' })), { moyen: 'téléphone', valeur: '06 39 98 00 01' });
   assert.deepEqual(L.moyenDeJoindre(it({ preference: 'téléphone' })), { moyen: 'téléphone', valeur: '06 39 98 00 01' });
   assert.deepEqual(L.moyenDeJoindre(it({ preference: 'téléphone', telephone: '' })), { moyen: 'courriel', valeur: 'a@exemple.test' });
   assert.deepEqual(L.moyenDeJoindre(it({ email: '', telephone: '06 39 98 00 01' })), { moyen: 'téléphone', valeur: '06 39 98 00 01' });
@@ -485,7 +711,7 @@ for (const v of VOLUMES) {
     assert.equal(r.ouverts + r.gagnes + r.perdus, m.prospects.length);
     for (const c of cols) assert.equal(c.totalCents, c.prospects.reduce((s: number, p: any) => s + (p.montantCents ?? 0), 0));
   });
-  await dit(`SIM (${v}) : la file de relances respecte les quatre garde-fous, recalculés à part`, () => {
+  await dit(`SIM (${v}) : la file de relances respecte les règles de la fiche (plafond, espacement, un client par semaine, jour ouvré non férié, plage), recalculées à part`, () => {
     const m = mondes[v];
     const file = L.ordonnerFile(m.relances, m.contexte.maintenant);
     const tous = [...file.maintenant, ...file.plusTard, ...file.plafond, ...file.terminees];
@@ -500,6 +726,12 @@ for (const v of VOLUMES) {
       parClient.set(k, (parClient.get(k) ?? 0) + 1);
     }
     assert.ok([...parClient.values()].every((n) => n === 1), 'un seul départ par client');
+    const j = L.jourDeInstant(m.contexte.maintenant);
+    for (const { relance: r } of file.maintenant) {
+      const recentes = m.relances.filter((o: any) => o.id !== r.id && L.cleClient(o) === L.cleClient(r) && o.derniereEnvoiLe && L.ecartJours(o.derniereEnvoiLe, j) < 7);
+      assert.deepEqual(recentes, [], `une relance par client et par semaine : ${r.id}`);
+    }
+    assert.equal(file.maintenant.length === 0 || (L.jourSemaine(j) <= 5 && !L.estFerie(j)), true, 'jamais un week-end ni un jour férié');
     for (const { verdict } of file.plusTard) assert.ok(verdict.prochaineLe != null && verdict.prochaineLe > m.contexte.maintenant, 'une date future');
   });
 }

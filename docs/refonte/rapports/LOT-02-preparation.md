@@ -4,11 +4,11 @@
 
 ## Résumé (5 lignes au plus)
 
-1. La logique pure de LOT-02 est livrée dans `src/refonte/contacts/` : pipeline, relances (règle d'espacement), fidélité, rendez-vous, et la source « Contacts par client » de H41.
-2. `check:contacts` : 63 contrôles, sur des cas écrits à la main et sur les jeux de SIM aux quatre volumes. Branché dans `package.json` et `editions.yml`.
-3. La note `docs/refonte/preparation/LOT-02-contacts.md` décrit les 13 écrans (module existant, données, ce qui manque) et la section LOT-02 du §7 de `STATUT.md` est à jour.
-4. **Limite importante : les 5 zips du dossier v4 n'étaient pas dans l'environnement.** Les 13 fiches, leurs images, `06-V4-NEON-ET-TUTOIEMENT.md` et `_data/tutoiement.json` n'ont pas été lus. Les règles qui en dépendent sont marquées « à confirmer ».
-5. Aucun écran, aucun composant React, aucun import de `src/socle/ui`, rien côté édition cliente.
+1. Logique pure de LOT-02 dans `src/refonte/contacts/` (9 fichiers) : pipeline (H06, MC01), relances (MC07), fidélité (MC02), rendez-vous (MC06), « Contacts par client » (H41). `check:contacts` : 85 contrôles.
+2. **Dossier v4 lu** (fiches du lot, `06`, `tutoiement.json`, image MC07) : la règle de relance est celle de la fiche, en huit points testés ; trois de mes suppositions sont corrigées (messagerie ≠ courriel ; une relance par client et par **semaine** ; paliers de fidélité 800 / 1 800).
+3. Décisions du CO du §1.28 appliquées (réouverture d'un perdu, deux formules de fidélité, MC03 « non disponible », pas de raccourci).
+4. **Deux écarts à trancher** : la fiche dit 5 jours et 9:00–18:00, le CO a adopté 7 jours et 08:00–19:00 ; et deux jeux de SIM (fidélité, statut des clients) ne suivent pas la fiche.
+5. Aucun écran, aucun import de `src/socle/ui`, rien côté édition cliente.
 
 ## Branche et sha
 
@@ -29,6 +29,7 @@ A	src/refonte/contacts/commun.ts
 A	src/refonte/contacts/fidelite.ts
 A	src/refonte/contacts/i18n.ts
 A	src/refonte/contacts/index.ts
+A	src/refonte/contacts/interet.ts
 A	src/refonte/contacts/interlocuteurs.ts
 A	src/refonte/contacts/pipeline.ts
 A	src/refonte/contacts/relances.ts
@@ -57,30 +58,21 @@ Lecture seule dans d'autres zones : `src/refonte/connecteurs/` (S9) est **import
 | `check:moments` | OK |
 | `check:navigation` | OK |
 | `check:donnees` | OK |
-| `check:contacts` (nouveau, dans `editions.yml`) | OK, 63 contrôles |
+| `check:contacts` (dans `editions.yml`) | OK, 85 contrôles |
 | `check:tutoiement` | n'existe pas dans la base (arrive avec la passe finale v4 de S0) |
 
 ## Points à trancher (CO, Harun)
 
-1. **Fiches non lues.** Poser les zips du dossier v4 (ou les 13 fiches) à un endroit lisible, puis relancer S1 pour : relire les règles « à confirmer », aligner `i18n.ts` sur `_data/tutoiement.json`, comparer aux images.
-2. **Fidélité : deux mécaniques.** L'écran actuel `/fidelite` est une carte à tampons ; MC02 et le jeu de SIM parlent de points et de niveaux. Les garder, les remplacer ou proposer les deux ?
-3. **Relances : un moteur ou deux.** La logique livrée traite les cinq motifs de MC07 ; l'escalade des factures (paliers) reste dans `src/lib/relances.ts` et chez S9. Recommandé : un seul moteur à la construction.
-4. **Collection d'interlocuteurs.** Absente côté app ; indispensable à MC03 et à « Contacts par client » (H41). Schéma et migration à planifier.
-5. **Deux valeurs venues de moi, pas d'une fiche** : 3 relances au plus par objet, un message par client et par jour. À confirmer avec MC07 (l'espacement de 7 jours et la plage lun.–ven. 08:00–19:00 viennent du CO, §1.22).
-6. **MC04 Équipe et MC05 Partenaires** : le premier recoupe le trombinoscope, le second n'a ni écran ni jeu. Jeu d'organisations partenaires à commander à SIM ?
-7. **Socle** : `ModuleTile`, `ModuleGroupGrid`, `AddModuleTile` ne sont pas dans la liste des composants disponibles (F10 en dépend).
+1. **Valeurs de relance : fiche ≠ CO.** Fiche et image : **5 jours** entre deux relances, plage **9:00–18:00**. CO (§1.22) : **7 jours**, **08:00–19:00**. Le code lit celles du CO ; 5 jours est un réglage permis (3 à 14). Pour suivre la fiche, changer `VALEURS_DE_DEPART` chez S9.
+2. **§1.28 point 4 à corriger** : « un message par client et par jour » n'est plus la règle ; la fiche dit **une relance par client et par semaine glissante**. Le plafond de 3 est confirmé.
+3. **SIM** : jeu « fidélité » (paliers 500 / 1 500 → 800 / 1 800, avis et recommandations) et jeu « clients » (statut affiché : « Impayé » dès 7 jours, « Nouveau »). Les autres manques sont dans `STATUT.md`, section LOT-02.
+4. **Échelles de l'intérêt (H06)** : la fiche donne les poids et la fraîcheur, pas l'échelle des trois autres signaux. `ECHELLES` est un choix de la session, à valider par Harun.
+5. **Un identifiant de messagerie (G07)** manque au modèle des interlocuteurs : `moyenDeJoindre` rend l'adresse faute de mieux.
+6. Restent les décisions déjà prises par le CO et en attente de Harun : collection d'interlocuteurs (MC03).
 
 ## Ce qui n'a pas été vérifié
 
-- Le contenu des 13 fiches et des images v4 : non lu (zips absents).
-- Tous les textes de `i18n.ts` face à `_data/tutoiement.json` : non comparés.
-- Aucun écran, donc aucune capture, aucune comparaison à ± 2 px.
-- `build:web` et l'application : non lancés, inutile en préparation.
-- Le comportement des écrans actuels (`RemindersScreen`, `LoyaltyScreen`…) : lu dans le code, jamais exécuté.
-
-## Mise à jour du 14 nov. (après les décisions du CO, `STATUT.md` §1.28)
-
-- Appliqué dans la logique : `rouvrir` (perdu seulement, confirmation, trace), les deux formules de fidélité (`formuleDe`, `progressionTampons`), « messagerie » = courriel, la clé « non disponible » de MC03. `check:contacts` : 66 contrôles.
-- Note §5 et section LOT-02 de `STATUT.md` : réponses du CO reportées, jeu des partenaires marqué « commandé à SIM ».
-- **Toujours bloqué** : les 5 zips du dossier v4 ne sont pas dans l'environnement de la session. Les 13 fiches, leurs images et `_data/tutoiement.json` ne sont toujours pas lus : `i18n.ts` n'est pas aligné et les règles « à confirmer » ne sont pas levées. À reprendre dès que Harun pose les zips à un endroit lisible par la session.
-- Extension de `src/lib/relances.ts` (un seul moteur) : fichier partagé, non touché ici ; à la construction, avec S9.
+- Les images des 12 autres écrans : non comparées (aucun écran construit). `MC07-relances.png` a été vue pour contrôler les textes et les réglages d'envoi.
+- `_data/tutoiement.json` reste hors du dépôt : l'alignement des textes est fait à la main, la CI ne peut pas le contrôler. `check:tutoiement` n'existe pas encore dans la base.
+- Les règles des fiches H05, H44, H45, MC04, MC05 et F10 ne sont pas portées en logique (hors des quatre sujets) ; elles sont listées dans la note, §7.
+- Aucun écran, donc aucune capture ni comparaison à ± 2 px ; l'application n'a pas été lancée.
