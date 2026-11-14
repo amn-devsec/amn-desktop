@@ -125,11 +125,11 @@ export default declarerFamille({
       action: 'signer',
       niveau: 'courant',
       vues: [
-        vue('esign', '/signature', ['faire signer un devis', 'signer sur l’écran', 'faire signer un bon'], ['signature', 'signer', 'tablette'], {
-          en: { verbes: ['have a quote signed', 'sign on screen', 'have a slip signed'], motsCles: ['signature', 'sign', 'tablet', 'on-site'] },
-        }),
         vue('remoteSign', '/signature-a-distance', ['faire signer à distance', 'envoyer un document à signer'], ['signature électronique', 'signer', 'distance'], {
           en: { verbes: ['have it signed remotely', 'send a document to sign'], motsCles: ['e-signature', 'sign', 'remote', 'electronic signature'] },
+        }),
+        vue('esign', '/signature', ['faire signer un devis', 'signer sur l’écran', 'faire signer un bon'], ['signature', 'signer', 'tablette'], {
+          en: { verbes: ['have a quote signed', 'sign on screen', 'have a slip signed'], motsCles: ['signature', 'sign', 'tablet', 'on-site'] },
         }),
       ],
     },

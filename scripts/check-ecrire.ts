@@ -51,8 +51,8 @@ async function charger<T>(code: string): Promise<T> {
 const FICHIERS = ['commun', 'serie', 'pages', 'relecture', 'documents', 'signatures', 'modeles', 'journal', 'redaction', 'archives', 'connaissances', 'hub', 'i18n', 'phrases'];
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerH10 from '../${ZONE}/ecrans/h10/composer';\nexport * as composerF20 from '../${ZONE}/ecrans/f20/composer';\nexport * as composerH11 from '../${ZONE}/ecrans/h11/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
-const { commun: C, serie: S, pages: P, relecture: R, documents: D, signatures: G, modeles: MO, journal: J, redaction: RE, archives: A, connaissances: K, hub: H, i18n: I, phrases: PH, composerH10: CH10, composerF20: CF20, composerH11: CH11, monde } = M;
+const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerH10 from '../${ZONE}/ecrans/h10/composer';\nexport * as composerF20 from '../${ZONE}/ecrans/f20/composer';\nexport * as composerH11 from '../${ZONE}/ecrans/h11/composer';\nexport * as composerH12 from '../${ZONE}/ecrans/h12/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
+const { commun: C, serie: S, pages: P, relecture: R, documents: D, signatures: G, modeles: MO, journal: J, redaction: RE, archives: A, connaissances: K, hub: H, i18n: I, phrases: PH, composerH10: CH10, composerF20: CF20, composerH11: CH11, composerH12: CH12, monde } = M;
 
 const NB = ' ';
 const paris = (j: string, hhmm: string) => C.instantParis(j, Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3)));
@@ -1253,6 +1253,33 @@ await dit('H11 · composerDocuments : intercalaires, liste par année, états de
   assert.equal(CH11.composerDocuments({ ...e, recherche: 'cours' }).liste.groupes.length, 1);
   assert.equal(CH11.composerDocuments({ ...e, quotaOctets: 0 }).liste.espace, null, 'pas de quota connu : pas de jauge');
   assert.deepEqual(CH11.composerDocuments({ ...e, fichiers: [] }).liste.groupes, []);
+});
+
+await dit('H12 · composerSignatures : tickets, circuit, relance « 1 sur 3 », preuve conservée dans l’ordre du temps', () => {
+  const sg = (id: string, ordre: number, nom: string, role: string, statut: string, envoyeAt: string | null, ouvertAt: string | null, signeAt: string | null) => ({ id, ordre, role, statut, envoyeAt, ouvertAt, signeAt, nom, fonction: 'f' });
+  const d = (id: string, signataires: any[], extra: object = {}) => ({ id, titre: `Doc ${id}`, client: 'C', envoyeAt: '2026-10-27T09:00:00Z', devis: true, signataires, relancesEnvoyees: [], ...extra });
+  const demandes = [
+    d('a', [sg('1', 1, 'Un', 'signataire', 'Signé', '2026-10-27T09:00:00Z', '2026-10-27T09:10:00Z', '2026-10-28T09:20:00Z')]),
+    d('b', [sg('1', 1, 'Un Deux', 'signataire', 'Signé', '2026-10-30T09:40:00Z', '2026-10-30T09:41:00Z', '2026-10-30T09:44:00Z'), sg('2', 2, 'Trois', 'signataire', 'Ouvert', '2026-10-30T09:45:00Z', '2026-10-29T17:40:00Z', null), sg('3', 3, 'Copie', 'copie', 'En attente', '2026-10-30T09:46:00Z', null, null)], { envoyeAt: '2026-10-30T09:40:00Z', texteDeRelance: 'Bonjour, votre signature est attendue.' }),
+    d('c', [sg('1', 1, 'Seul', 'signataire', 'En attente', '2026-10-27T09:00:00Z', null, null)], { envoyeAt: '2026-10-27T09:00:00Z' }),
+  ];
+  const e = { langue: 'fr', maintenant: '2026-10-30T09:42:00Z', demandes, choisie: 'b', relanceActive: true };
+  const v = CH12.composerSignatures(e);
+  assert.deepEqual(v.tickets.map((t: any) => t.etat.libelle), ['Signé le 28 oct.', 'Ouvert hier', 'Envoyé il y a 3 j']);
+  assert.deepEqual(v.tickets[0].segments, ['fait', 'fait', 'fait']);
+  assert.equal(v.tickets[1].actif, true);
+  assert.equal(v.circuit.progression, '1 sur 2 signé');
+  assert.deepEqual(v.circuit.signataires.map((s: any) => s.badge.libelle), ['Signé', 'À signer']);
+  assert.equal(v.circuit.copie.nom, 'Copie');
+  assert.ok(/1 sur 3/.test(v.relance.quand), 'la prochaine relance est la 1 sur 3');
+  assert.equal(v.relance.relancer, 'Relancer Trois');
+  assert.equal(v.preuve.traces[0].genre, 'ouverture', 'la piste commence par le fait le plus ancien');
+  assert.ok(v.preuve.traces.every((t: any, i: number, a: any[]) => i === 0 || a[i - 1].quand.length > 0));
+  const sans = CH12.composerSignatures({ ...e, choisie: 'a' });
+  assert.equal(sans.relance, null, 'circuit signé : plus de relance');
+  assert.equal(CH12.composerSignatures({ ...e, demandes: [], choisie: null }).circuit, null);
+  assert.equal(C.dateCourte('2026-10-28'), '28 oct.');
+  assert.equal(C.quandRelatif('2026-10-29T12:00:00Z', '2026-10-30T09:42:00Z'), 'hier');
 });
 
 await dit('rien ne lit l’horloge ni le hasard : « maintenant » est toujours un paramètre', () => {

@@ -346,7 +346,7 @@ const REGROUPEMENTS: string[][] = [
   ['dm', 'groups', 'team'],
   ['calls', 'rooms'],
   ['binder', 'media'],
-  ['esign', 'remoteSign'],
+  ['remoteSign', 'esign'],
   ['calculators', 'calcPro', 'converters'],
   ['writing', 'translation'],
   ['logbook', 'diary'],
