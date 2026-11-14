@@ -1,3 +1,4 @@
+import { Trophy } from 'lucide-react';
 import { declarerFamille, vue } from '../declarer';
 
 /**
@@ -149,6 +150,17 @@ export default declarerFamille({
       vues: [
         vue('personalGoals', '/personnel/objectifs', ['fixer un objectif personnel'], ['objectif', 'perso', 'but'], {
           en: { verbes: ['set a personal goal'], motsCles: ['goal', 'personal', 'target'] },
+        }),
+      ],
+    },
+    {
+      nom: { fr: 'Séries et jalons', en: 'Streaks and milestones' },
+      action: 'suivre',
+      niveau: 'courant',
+      vues: [
+        vue('series', '/series', ['voir ma série', 'voir mes badges', 'voir mes paliers'], ['série', 'jalons', 'badge', 'palier', 'régularité', 'record'], {
+          en: { verbes: ['see my streak', 'see my badges', 'see my milestones'], motsCles: ['streak', 'milestones', 'badge', 'record', 'habit'] },
+          nouveau: { icone: Trophy, ecran: () => import('../../journee/ecrans/L01/SeriesRefonte'), indice: { fr: 'Ta régularité, sans pression', en: 'Your steady habit, no pressure' } },
         }),
       ],
     },

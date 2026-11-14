@@ -64,6 +64,7 @@ const M = await charger<any>(
     `export * as L from '../${ZONE}';`,
     `export * as G from '../${ZONE}/grille';`,
     `export * as MX from '../${ZONE}/matrice';`,
+    `export * as ES from '../${ZONE}/escalier';`,
     "export * as monde from '../src/refonte/donnees';",
     "export * as attendus from '../src/refonte/donnees/attendus';",
     "export { avancementProjet, statutProjet } from '../src/refonte/donnees/ma-journee';",
@@ -74,7 +75,7 @@ const M = await charger<any>(
     "export { ecartsDeVoix } from '../src/socle/mots/voix';",
   ].join('\n'),
 );
-const { L, G, MX, monde, attendus, moi, jourDeSim, avancementProjet, statutProjet, joursSansImpayeSim, DICTIONNAIRES_JOURNEE: DICO, ecartsDeVoix } = M;
+const { L, G, MX, ES, monde, attendus, moi, jourDeSim, avancementProjet, statutProjet, joursSansImpayeSim, DICTIONNAIRES_JOURNEE: DICO, ecartsDeVoix } = M;
 
 const VOLUMES = ['vide', 'peu', 'normal', 'beaucoup'] as const;
 const mondes = Object.fromEntries(VOLUMES.map((v) => [v, monde.construireMonde({ volume: v })])) as Record<(typeof VOLUMES)[number], any>;
@@ -875,6 +876,39 @@ await dit('H02 : « 5 sur 8 fait » — plus que n, journée finie, bouclée ; l
   assert.equal(MX.plusGrandTempsLibre([{ debut: 9, fin: 9.5 }]), 2.5);
   assert.equal(MX.plusGrandTempsLibre([]), 4);
   assert.equal(MX.plusGrandTempsLibre([{ debut: 8, fin: 12 }]), 0);
+});
+
+/* ── 3e. L01 : l'escalier, les rails, les médailles ──────────────────────── */
+console.log('\nLOT-01 — escalier, rails et médailles (L01)\n');
+
+await dit('L01 : l’escalier — départ, paliers parcourus, position, badge de 7 jours, jours jusqu’au prochain palier, paliers à venir ; jamais décroissant', () => {
+  const n = ES.noeudsDeLEscalier(6, 21);
+  assert.deepEqual(n.map((x: any) => `${x.jours}:${x.etat}`), ['0:parcouru', '5:parcouru', '6:ici', '7:badge', '8:pas', '9:pas', '10:prochain', '20:avenir', '30:avenir', '50:avenir', '100:avenir', '200:avenir', '365:avenir']);
+  for (let i = 1; i < n.length; i += 1) assert.ok(n[i].jours >= n[i - 1].jours, 'ordre croissant');
+  const sans = ES.noeudsDeLEscalier(0, 0);
+  assert.equal(sans[0].genre, 'depart');
+  assert.ok(sans.some((x: any) => x.jours === 5 && x.etat === 'prochain'));
+  const haut = ES.noeudsDeLEscalier(400, 400);
+  assert.equal(haut.filter((x: any) => x.etat === 'avenir' || x.etat === 'prochain').length, 0, 'au-delà du dernier : rien à venir');
+  assert.equal(ES.palierDuRecord(21), 20);
+  assert.equal(ES.palierDuRecord(3), null);
+});
+
+await dit('L01 : un rail — marques atteintes, prochaine, ce qu’il reste ; jamais « raté »', () => {
+  const r = ES.railDeCompteur(87, ES.MARQUES_TACHES);
+  assert.deepEqual(r.marques.map((m: any) => m.etat), ['atteinte', 'atteinte', 'prochaine', 'avenir']);
+  assert.equal(r.prochaine, 100); assert.equal(r.reste, 13);
+  assert.ok(r.progression > 0.7 && r.progression < 0.8);
+  assert.equal(ES.railDeCompteur(4, ES.MARQUES_BOITE_A_ZERO).reste, 1);
+  assert.equal(ES.railDeCompteur(14, ES.MARQUES_RITUELS).prochaine, 20);
+  assert.equal(ES.railDeCompteur(999, ES.MARQUES_TACHES).prochaine, null);
+  assert.equal(ES.railDeCompteur(-3, ES.MARQUES_TACHES).valeur, 0);
+});
+
+await dit('L01 : une médaille obtenue le reste ; sinon « à gagner » ; « n sur N obtenus »', () => {
+  assert.equal(ES.etatDeMedaille('2026-03-12'), 'obtenue');
+  assert.equal(ES.etatDeMedaille(null), 'a-gagner');
+  assert.deepEqual(ES.medaillesObtenues([{ obtenueLe: 'x' }, { obtenueLe: null }, { obtenueLe: 'y' }]), { obtenues: 2, total: 3 });
 });
 
 /* ── 4. Les éléments ludiques protégés (L07, trophées, défis) ─────────────── */
