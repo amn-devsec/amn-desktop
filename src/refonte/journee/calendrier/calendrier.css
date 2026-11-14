@@ -23,7 +23,7 @@
 .sc-cal-mois { flex: 0 0 265px; padding: 14px 15px; }
 .sc-cal-mois header { display: flex; align-items: center; justify-content: space-between; }
 .sc-cal-mois h2 { margin: 0; font-size: 14px; font-weight: 600; }
-.sc-cal-mois header span { display: inline-flex; gap: 2px; }
+.sc-cal-mois header span { display: inline-flex; gap: 13px; }
 .sc-cal-mois header button { position: relative; display: grid; place-items: center; width: 24px; height: 24px; border: 0; border-radius: 7px; background: none; color: var(--socle-texte-2); cursor: pointer; }
 .sc-cal-mois__grille { display: grid; grid-template-columns: repeat(7, 26px); justify-content: space-between; margin-top: 8px; row-gap: 4px; }
 .sc-cal-mois__lettre { height: 18px; display: grid; place-items: center; font-size: 10.5px; color: var(--socle-texte-3); }
