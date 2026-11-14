@@ -320,7 +320,7 @@ export interface EtapeCadence {
   jourN?: number;
 }
 
-export const prochainJourOuvre = (jour: Jour, regles: ReglesRelance): Jour => {
+const prochainJourOuvre = (jour: Jour, regles: ReglesRelance): Jour => {
   let j = jour;
   for (let i = 0; i < 30 && intervalleDuJour(j, regles) === null; i += 1) j = ajouterJours(j, 1);
   return j;
@@ -386,31 +386,20 @@ export function phraseAttente(v: Extract<Verdict, { possible: false }>, langue: 
   }
 }
 
-/** « Facture 2026-0023 » → « 2026-0023 » : la référence seule, pour les phrases qui disent déjà « la facture » ou « le devis ». */
-export const referenceDe = (r: Pick<Relance, 'motif' | 'objetLibelle'>): string => r.objetLibelle.replace(/^(Facture|Devis)\s+/i, '');
-
-export type TonMessage = 'courtois' | 'chaleureux' | 'bref';
-
 /**
  * Le message qui PART chez le client — vouvoiement en français (`REGLES.md`, « Produit »).
  * C'est la version de repli : en fonctionnement normal, Ajmani rédige dans le ton choisi et la
  * personne relit (rien ne part sans clic). Les chiffres, dates et libellés viennent de la relance.
- * Le ton ne change que l'entrée et la fin : « courtois » (par défaut), « chaleureux » (une phrase d'accueil),
- * « bref » (sans rappel du message précédent).
  */
-export function messageClientTon(r: Relance, langue: Langue, aujourdhui: Jour, prenom?: string, ton: TonMessage = 'courtois'): string {
+export function messageClient(r: Relance, langue: Langue, aujourdhui: Jour, prenom?: string): string {
   const motif = (m: MotifRelance): string =>
     dire(langue, `client.${m}` as const, {
-      objet: referenceDe(r),
+      objet: r.objetLibelle,
       montant: r.montantCents != null ? euros(r.montantCents, langue) : '',
       depuis: Math.max(0, ecartJours(r.departLe, aujourdhui)),
       jour: jourFrancais(r.departLe),
     });
+  const suite = r.nbEnvoyees > 0 ? `${dire(langue, 'client.suite')} ` : '';
   const salut = prenom ? dire(langue, 'client.bonjour.prenom', { prenom }) : dire(langue, 'client.bonjour');
-  const suite = r.nbEnvoyees > 0 && ton !== 'bref' ? `${dire(langue, 'client.suite')} ` : '';
-  const accueil = ton === 'chaleureux' ? `${dire(langue, 'client.chaleureux.intro')} ` : '';
-  const fin = dire(langue, ton === 'chaleureux' ? 'client.chaleureux.fin' : ton === 'bref' ? 'client.bref.fin' : 'client.cordialement');
-  return `${salut} ${accueil}${suite}${motif(r.motif)}\n\n${fin}`;
+  return `${salut} ${suite}${motif(r.motif)} ${dire(langue, 'client.cordialement')}`;
 }
-
-export const messageClient = (r: Relance, langue: Langue, aujourdhui: Jour, prenom?: string): string => messageClientTon(r, langue, aujourdhui, prenom, 'courtois');

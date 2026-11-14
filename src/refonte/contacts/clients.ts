@@ -1,5 +1,5 @@
 import type { Facture, FicheClient, StatutClientAffiche } from '../donnees/types';
-import { ajouterJours, ecartJours, jourDeInstant, type Jour } from './commun';
+import { ecartJours, jourDeInstant, type Jour } from './commun';
 
 /**
  * LOT-02 · LES CLIENTS (H05, G04) — le statut et la couleur de santé, logique pure.
@@ -69,46 +69,4 @@ export function comparerATraiter(
   if (a.statut === 'Impayé') return b.retardMaxJours - a.retardMaxJours;
   if (a.statut === 'À relancer') return a.sante - b.sante;
   return b.dernierEchangeAt.localeCompare(a.dernierEchangeAt);
-}
-
-/* ------------------------------ La santé d'un client ------------------------------ */
-
-const moyenne = (l: readonly number[]): number => (l.length ? l.reduce((s, x) => s + x, 0) / l.length : 0);
-
-/**
- * La santé d'un client, de 0 à 100 (fiche H05, proposition retenue par le jeu de SIM) : 40 % délai de paiement
- * (100 à l'heure, 0 à 30 jours de retard moyen), 25 % réactivité (dernier échange : 100 aujourd'hui, 0 à 30 jours),
- * 20 % activité sur 90 jours (35 points par facture ou devis), 15 % satisfaction (moyenne des avis sur 5, 60 sans avis).
- * Recalculée depuis les sources : `check:contacts` la compare au jeu de SIM sur les quatre volumes.
- */
-export function facteursSante(
-  client: Pick<FicheClient, 'id' | 'dernierEchangeAt'>,
-  donnees: {
-    factures: readonly Pick<Facture, 'clientId' | 'status' | 'dueAt' | 'paidAt' | 'issuedAt'>[];
-    devis: readonly { clientId: number; createdAt: string }[];
-    avis: readonly { clientId: number; noteSur5: number }[];
-  },
-  aujourdhui: Jour,
-): { delai: number; reactivite: number; activite: number; satisfaction: number } {
-  const emises = donnees.factures.filter((f) => f.clientId === client.id && (f.status === 'issued' || f.status === 'paid'));
-  const retards = emises.map((f) => {
-    const fin = f.status === 'paid' ? f.paidAt : aujourdhui > f.dueAt ? aujourdhui : f.dueAt;
-    return Math.max(0, ecartJours(f.dueAt, fin));
-  });
-  const delai = Math.max(0, 100 - (moyenne(retards) * 100) / 30);
-  const reactivite = Math.max(0, 100 - (ecartJours(jourDeInstant(client.dernierEchangeAt), aujourdhui) * 100) / 30);
-  const depuis = ajouterJours(aujourdhui, -90);
-  const activite = Math.min(100, 35 * (emises.filter((f) => f.issuedAt >= depuis).length + donnees.devis.filter((d) => d.clientId === client.id && d.createdAt.slice(0, 10) >= depuis).length));
-  const avis = donnees.avis.filter((a) => a.clientId === client.id);
-  const satisfaction = avis.length ? (moyenne(avis.map((a) => a.noteSur5)) / 5) * 100 : 60;
-  return { delai, reactivite, activite, satisfaction };
-}
-
-export function santeClient(
-  client: Pick<FicheClient, 'id' | 'dernierEchangeAt'>,
-  donnees: Parameters<typeof facteursSante>[1],
-  aujourdhui: Jour,
-): number {
-  const { delai, reactivite, activite, satisfaction } = facteursSante(client, donnees, aujourdhui);
-  return Math.round(0.4 * delai + 0.25 * reactivite + 0.2 * activite + 0.15 * satisfaction);
 }

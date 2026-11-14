@@ -1,4 +1,3 @@
-import { Award, CalendarClock, Contact, Filter, Handshake } from 'lucide-react';
 import { declarerFamille, vue } from '../declarer';
 
 /**
@@ -31,36 +30,6 @@ export default declarerFamille({
       ],
     },
     {
-      nom: { fr: 'Rendez-vous clients', en: 'Client meetings' },
-      action: 'clients',
-      niveau: 'courant',
-      vues: [
-        vue('rdvClients', '/rendez-vous-clients', ['voir mes rendez-vous avec les clients', 'préparer ma journée de rendez-vous', 'voir le prochain rendez-vous client'], ['rendez-vous', 'rdv', 'journée', 'trajet', 'créneau', 'réservation'], {
-          en: { verbes: ['see my client meetings', 'plan my day of meetings', 'see the next client meeting'], motsCles: ['meeting', 'appointment', 'day', 'route', 'slot', 'booking'] },
-          nouveau: {
-            icone: CalendarClock,
-            ecran: () => import('../../contacts/rdv/PageRdv'),
-            indice: { fr: 'La journée de tes rendez-vous clients, heure par heure', en: 'The day of your client meetings, hour by hour' },
-          },
-        }),
-      ],
-    },
-    {
-      nom: { fr: 'Fiches contacts', en: 'Contact sheets' },
-      action: 'clients',
-      niveau: 'courant',
-      vues: [
-        vue('contactsFiches', '/contacts/fiches', ['retrouver une personne', 'voir ce que je sais d’un contact', 'préparer un échange avec une personne'], ['personne', 'contact', 'interlocuteur', 'carnet', 'fonction', 'préférences'], {
-          en: { verbes: ['find a person', 'see what I know about a contact', 'prepare a conversation with a person'], motsCles: ['person', 'contact', 'phonebook', 'role', 'preferences'] },
-          nouveau: {
-            icone: Contact,
-            ecran: () => import('../../contacts/personnes/PageContacts'),
-            indice: { fr: 'Les personnes derrière tes clients : fonction, coordonnées, relation', en: 'The people behind your clients: role, details, relationship' },
-          },
-        }),
-      ],
-    },
-    {
       action: 'clients',
       niveau: 'courant',
       vues: [
@@ -79,21 +48,6 @@ export default declarerFamille({
         }),
         vue('leadScoring', '/scoring-leads', ['savoir quel prospect appeler', 'classer mes prospects'], ['scoring', 'score', 'lead', 'priorité'], {
           en: { verbes: ['know which lead to call', 'rank my leads'], motsCles: ['scoring', 'score', 'lead', 'priority'] },
-        }),
-      ],
-    },
-    {
-      nom: { fr: 'Pipeline commercial', en: 'Sales pipeline' },
-      action: 'prospecter',
-      niveau: 'courant',
-      vues: [
-        vue('pipelineCommercial', '/pipeline-commercial', ['suivre mes opportunités', 'voir ce qui va se signer', 'fixer mon objectif du mois', 'voir la prévision de ventes'], ['entonnoir', 'opportunité', 'prévision', 'objectif du mois', 'signature'], {
-          en: { verbes: ['follow my opportunities', 'see what is about to sign', 'set my goal for the month', 'see the sales forecast'], motsCles: ['funnel', 'opportunity', 'forecast', 'monthly goal', 'signature'] },
-          nouveau: {
-            icone: Filter,
-            ecran: () => import('../../contacts/pipeline/PagePipeline'),
-            indice: { fr: 'L’entonnoir des opportunités, de la prise de contact à la signature', en: 'The opportunity funnel, from first contact to signature' },
-          },
         }),
       ],
     },
@@ -123,36 +77,6 @@ export default declarerFamille({
         }),
         vue('referrals', '/parrainage', ['noter un parrainage', 'récompenser un parrain'], ['parrainage', 'parrain', 'recommandation'], {
           en: { verbes: ['note a referral', 'reward a referrer'], motsCles: ['referral', 'referrer', 'recommendation', 'sponsor'] },
-        }),
-      ],
-    },
-    {
-      nom: { fr: 'Niveaux de fidélité', en: 'Loyalty tiers' },
-      action: 'fideliser',
-      niveau: 'courant',
-      vues: [
-        vue('fideliteNiveaux', '/fidelite/niveaux', ['voir mes clients fidèles', 'offrir un avantage à un client', 'voir qui approche du palier suivant', 'récompenser ceux qui reviennent'], ['palier', 'bronze', 'argent', 'or', 'points', 'niveau', 'client fidèle'], {
-          en: { verbes: ['see my loyal clients', 'give a perk to a client', 'see who is close to the next tier', 'reward those who come back'], motsCles: ['tier', 'bronze', 'silver', 'gold', 'points', 'level', 'loyal client'] },
-          nouveau: {
-            icone: Award,
-            ecran: () => import('../../contacts/fidelite/PageFidelite'),
-            indice: { fr: 'L’échelle des paliers : qui est Bronze, Argent ou Or', en: 'The tier ladder: who is Bronze, Silver or Gold' },
-          },
-        }),
-      ],
-    },
-    {
-      nom: { fr: 'Partenaires', en: 'Partners' },
-      action: 'partenaires',
-      niveau: 'courant',
-      vues: [
-        vue('partenaires', '/partenaires', ['voir mes partenaires', 'garder le lien avec un prestataire', 'renouveler un contrat de partenaire', 'voir qui m’a recommandé un client'], ['partenaire', 'prestataire', 'réseau', 'apporteur', 'contrat', 'recommandation'], {
-          en: { verbes: ['see my partners', 'keep in touch with a provider', 'renew a partner contract', 'see who referred a client'], motsCles: ['partner', 'provider', 'network', 'referrer', 'contract', 'referral'] },
-          nouveau: {
-            icone: Handshake,
-            ecran: () => import('../../contacts/partenaires/PagePartenaires'),
-            indice: { fr: 'Ceux qui font avancer l’activité sans être des clients', en: 'Those who move the business forward without being clients' },
-          },
         }),
       ],
     },

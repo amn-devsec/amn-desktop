@@ -49,7 +49,6 @@ const EN = {
   'relance.boiteAZero.vide': 'Inbox at zero. Nobody is waiting for news today.',
   'relance.serie.1': '{n} day in a row',
   'relance.serie.n': '{n} days in a row',
-  'relance.reponse.payee': 'paid',
   'relance.redige': 'Written by Ajmani with your words · nothing goes out without your click',
   'relance.envoyee': 'Reminder sent. You have nothing more to do for this one.',
   'relance.vide': 'No reminder to send. Everyone is up to date.',
@@ -97,14 +96,6 @@ const EN = {
   'client.prospect': 'following our first conversation, would you like us to detail our proposal for “{objet}”?',
   'client.inactif': 'we have not spoken for a while. Is there a project we could help you with?',
   'client.cordialement': 'Kind regards.',
-  'client.chaleureux.intro': 'I hope you are well.',
-  'client.chaleureux.fin': 'Warmest regards.',
-  'client.bref.fin': 'Thank you in advance.',
-  'client.sujet.facture': 'Your invoice {objet}',
-  'client.sujet.devis': 'Your quote {objet}',
-  'client.sujet.rendez-vous': 'Our meeting',
-  'client.sujet.prospect': 'Following our conversation',
-  'client.sujet.inactif': 'Catching up',
 } as const;
 
 const FR: Record<keyof typeof EN, string> = {
@@ -139,7 +130,6 @@ const FR: Record<keyof typeof EN, string> = {
   'relance.boiteAZero.vide': 'Boîte à zéro. Personne n’attend de nouvelles aujourd’hui.',
   'relance.serie.1': '{n} jour de suite',
   'relance.serie.n': '{n} jours de suite',
-  'relance.reponse.payee': 'payée',
   'relance.redige': 'Rédigé par Ajmani avec tes mots · rien ne part sans ton clic',
   'relance.envoyee': 'Relance envoyée. Tu n’as plus rien à faire pour celle-ci.',
   'relance.vide': 'Aucune relance à envoyer. Tout le monde est à jour.',
@@ -183,14 +173,6 @@ const FR: Record<keyof typeof EN, string> = {
   'client.prospect': 'suite à notre premier échange, souhaitez-vous que nous précisions notre proposition pour « {objet} » ?',
   'client.inactif': 'nous n’avons pas échangé depuis un moment. Y a-t-il un projet sur lequel nous pourrions vous aider ?',
   'client.cordialement': 'Bien cordialement.',
-  'client.chaleureux.intro': 'J’espère que vous allez bien.',
-  'client.chaleureux.fin': 'Bien chaleureusement.',
-  'client.bref.fin': 'Merci d’avance.',
-  'client.sujet.facture': 'Votre facture {objet}',
-  'client.sujet.devis': 'Votre devis {objet}',
-  'client.sujet.rendez-vous': 'Notre rendez-vous',
-  'client.sujet.prospect': 'Suite à notre échange',
-  'client.sujet.inactif': 'Prendre de vos nouvelles',
 };
 
 const mots = definirMots(EN, FR);
