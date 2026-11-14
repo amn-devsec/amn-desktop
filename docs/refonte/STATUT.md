@@ -4,7 +4,9 @@
 
 ## REPRISE (à lire en premier après une compaction ; tenu par le CO, réécrit à chaque tour)
 
-Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `750d8b3`.
+Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `baff3a3`.
+
+**Si la limite d'utilisation coupe le CO** : à la reprise (un message de Harun, une session, ou le réveil programmé), relire ce bloc, faire `git fetch` des branches `claude/refonte-*`, puis reprendre la boucle (lister, lire, contrôler, fusionner, répondre, mettre à jour). Réveil du CO : `send_later`, toutes les 45 min environ, réarmé à chaque tour.
 
 | Session | Identifiant | État | Prochain geste |
 |---|---|---|---|
@@ -12,20 +14,21 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 | T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | passage 2 sur `888f7a0` en cours | son verdict → fusion du socle v4 et allumage (§1.9) |
 | S6 Sécurité | `session_01RHV8Xq2txWkfjAusKvq9DG` | LOT-07 en préparation ; une étape de sécurité attend amn-api | couture H20, tarifs H21 (§1.26) |
 | SIM | `session_011UF2ufZg9moGv2rRZFRuf7` | chargeur vers l'API d'essai en cours | livrer → mettre à jour `LANCER-EN-LOCAL.md` |
-| DS | `session_01TZGDvVWristJnnPK59rruY` | préparation de LOT-04 en cours | relire et fusionner son rapport |
-| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | LOT-03 en préparation | puis registre (12 vues vers `creer`), puis LOT-05 |
+| DS | `session_01TZGDvVWristJnnPK59rruY` | préparation de LOT-04 fusionnée (§1.29) ; **sans dossier v4** | relire ses points [fiche] dès qu'il a les zips |
+| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | LOT-03 fusionné (§1.29) | registre (12 vues vers `creer`), puis LOT-05 |
 | S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | décisions reçues (§1.28) ; lecture du v4 | relire et fusionner sa reprise |
 | S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | préparation v4 fusionnée (`526cd63`) | attend le socle v4 |
 | S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | en pause | feu vert de l'étape 3 au socle v4 ; jeux à commander à SIM |
 | S9 | `session_01C5DAVygXYax6Q7g436TPQx` | LOT-12 fini (§1.26) | rien |
 | S2, S3, F1 | `session_014ZkF6SeGRNi6NR3uEsjM5q`, `session_01FBSpK6n1yYtYXYyxbLAuBV`, `session_01VZHqP3gvzrtnpgsTrrKguV` | arrêtées | relancer au socle v4 (prompts : `PROMPTS-11NOV.md`, §1.21) |
 
-**Décisions provisoires en cours** (révisables par Harun) : valeurs de départ des connecteurs (§1.22 n° 3) ; plafonds de relance 3 et 1 par jour (§1.28 n° 4) ; seuils de charge (validés, §1.20). Liste « À décider par Harun » : `POINT-HARUN.md`.
+**Décisions provisoires en cours** (révisables par Harun) : arrondi et régime de TVA, seuils de l'argent (§1.29) ; valeurs de départ des connecteurs (§1.22 n° 3) ; plafonds de relance 3 et 1 par jour (§1.28 n° 4) ; seuils de charge (validés, §1.20). Liste « À décider par Harun » : `POINT-HARUN.md`.
 
 **Échecs connus à faire baisser** (gardes rouges, aussi sur `main` selon S0, à confirmer par T1) : migration, encres, xss, visite, support. Aucune fusion n'en ajoute un nouveau.
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov. : LOT-04 et LOT-03 préparations fusionnées (`baff3a3`). TVA par ligne comme `money.ts` (provisoire), régime de TVA réglable (provisoire), numérotation existante, archives sans nouvelle collection (§1.29).
 - 14 nov. : LOT-06 préparation v4 fusionnée (`750d8b3`). Les 12 vues à rapatrier dans `creer` sont listées par S7, et S5 fait le déplacement.
 - 14 nov. : messages directs du CO aux sessions, règle dans `REGLES.md`.
 - 14 nov. : LOT-02 préparation fusionnée ; fidélité aux deux formules ; un seul moteur de relances (§1.28).
@@ -604,6 +607,34 @@ Fusionnée (`66ba5c4`). Après la fusion : `check:contacts` (63 contrôles), les
 | — | Rouvrir un prospect gagné ou perdu | Selon la fiche H06. Si elle ne dit rien : un prospect **perdu** se rouvre, avec confirmation et une trace. Un prospect **gagné** ne se rouvre pas, car il est devenu client. |
 | — | « Messagerie » (MC03) | Selon la fiche MC03. Si elle ne dit rien : le courriel. |
 | — | Raccourci « Relancer » | Aucun, confirmé (§1.8 n° 14). |
+
+### 1.29 LOT-04 (DS, `11e05e2`) et LOT-03 (S5, `a59198f`) : préparations fusionnées, décisions du CO
+
+Fusionnées (`baff3a3`). Seul conflit : deux ajouts côte à côte dans `editions.yml` et `package.json`, tous deux gardés. Après la fusion, tout est vert : `check:argent` (53), `check:ecrire` (94), `check:contacts`, `check:creer`, `check:connecteurs`, `check:developpement`, `check:donnees`, `check:navigation`, `check:money`, `check:moments`, `check:socle`, `check:accueils`, les typechecks des deux éditions et lint. **DS et S1 n'avaient pas le dossier v4** : leurs points [fiche] restent à relire.
+
+**LOT-04, L'argent :**
+
+| # | Point | Décision |
+|---|---|---|
+| 1 | Arrondi de la TVA (par taux ou par ligne) | **Provisoire, révisable par Harun** : la refonte suit `src/lib/money.ts`, par ligne. `money.ts` sert aussi l'édition cliente, qui ne change pas, et toutes les factures d'une organisation doivent suivre la même règle. L'écart est porté à Harun, pour l'avis d'un comptable. |
+| 2 | Régime de TVA | **Provisoire, révisable par Harun** : c'est un réglage de l'entreprise. Par défaut, TVA sur les encaissements pour les prestations de services, sur les débits pour les ventes de biens. La mention « à valider par un comptable » reste affichée. |
+| 3 | Seuils (30 j, 60 j, le 20, 14 j, 12 semaines, 80 %, 5 j, 30 j, 2 j) | **Adoptés comme valeurs de départ**, modifiables (provisoire, révisable par Harun). |
+| 4 | Numérotation | **Le format du module existant** (`AAAA-NNNN`, `AV-AAAA-NNNN`) : la suite des numéros ne doit jamais se rompre. Les jeux de SIM s'y alignent. |
+| 5 | Revenu récurrent | Comme proposé : « Paiement échoué » compté, « En pause » non, sous réserve de la fiche. |
+| 6 | Taux des pénalités | Un réglage de l'**identité de facturation**, repris par H18. Par défaut, le minimum légal, présenté comme tel. |
+| 7 | Comptes de la trésorerie | Le **compte courant par défaut**. L'épargne s'ajoute par un interrupteur et reste montrée à part. |
+| 8 | Doublon de format | Remplacé par `src/socle/formats.ts` à la construction. La copie ne sert plus qu'aux textes envoyés aux clients. |
+
+**LOT-03, Écrire et retenir :**
+
+| # | Point | Décision |
+|---|---|---|
+| 1 | Série d'écriture | La règle unique est validée. **Repos par défaut : samedi et dimanche** (la série ne casse pas), réglable. |
+| 2 | ME04 Archives | **Pas de nouvelle collection.** L'écran puise dans les sources existantes : la corbeille (H22) et les fichiers archivés (H11). La collection `archives` rejoint la liste présentée à Harun. |
+| 3 | Présence en direct | Acceptable au premier jet : « Enregistré » seulement, sans curseur simulé. |
+| 4 | Contrat arrivant à échéance | « À renouveler » à l'approche de l'échéance, sinon « Signé ». |
+| 5 | Menu « / » (14 annoncées, 13 listées) | On suit la liste : **13**. L'écart avec la fiche est noté. |
+| 6 | Dictée (tuile de F20) | **Oui** : la tuile ouvre la barre ⌘J avec la commande vocale existante, sans toucher à `src/assistant/**`. |
 
 ## 2. Les lots
 
