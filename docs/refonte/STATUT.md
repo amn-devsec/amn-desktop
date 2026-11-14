@@ -20,7 +20,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 | S5 | `session_012jWErBSSkcoVaU3iN895bQ` | LOT-03 complet, mise en page acceptée ; ME05 encore dans l'ancien bureau | retirer `/knowledge` et `/decisions` du Supervisor → T1 → fusion ; puis LOT-05 |
 | S6 | `session_01RHV8Xq2txWkfjAusKvq9DG` | préparation de LOT-07 fusionnée ; **sans zips v4** | construire LOT-07 dès les zips |
 | S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **LOT-06 livré**, suites fusionnées | reprendre MR01, MR10, H16, MR05, MR04 (disposition) |
-| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | LOT-11, 7 sur 7, aperçus et justifications poussés (`f363811`) | T1 → fusion |
+| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | **LOT-11 fusionné** (`751f5b67`) | zone de clic de « Relancer » (serveur), puis la suite de son plan |
 | DS | `session_01TZGDvVWristJnnPK59rruY` | attend l'accord direct de Harun pour construire LOT-04 | commencer par MA03, H07, MA12 |
 | SIM, S9, F1 | `session_011UF2ufZg9moGv2rRZFRuf7`, `session_01C5DAVygXYax6Q7g436TPQx`, `session_01VZHqP3gvzrtnpgsTrrKguV` | en pause | F1 : intégration reportée (S0) |
 
@@ -40,7 +40,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 | Jour | Construits | Livrés (cumul) | Livrés depuis la veille | Lots préparés | Lots finis | Note |
 |---|---|---|---|---|---|---|
-| 14 nov. | 57 / 153 | 24 (LOT-00 9, LOT-06 15) | 24 | 8 / 13 | 1 / 13 (LOT-06) ; LOT-00 attend l'allumage | les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. La note de LOT-08 n'est pas fusionnée. |
+| 14 nov. | 57 / 153 | 31 (LOT-00 9, LOT-06 15, LOT-11 7) | 31 | 8 / 13 | 2 / 13 (LOT-06, LOT-11) ; LOT-00 attend l'allumage | LOT-02 (13) accepté par T1, retenu sur un import de graphiques (S1 corrige). Les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. |
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
@@ -51,6 +51,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 - 14 nov., 10h15 : **LOT-06 fusionné** (`e1615090`, 15 écrans), **premier lot livré** de la vague de construction. T1 l'a accepté : fidélité sur l'aperçu, les 15 écrans justifiés ; structure sur l'application, les 12 routes montées dans la coquille v4, rien de coupé à 390 px. Suites demandées à S7 : relire 6 écrans au-dessus de 15 % en disposition (H17, MR01, MR10, H16, MR05, MR04) ; zones de clic de 34 px (§1.39) ; l'état vide de H17 (« Le livre de marque d’ · ») ; les entrées de registre de ses 3 écrans neufs. T1 fixe les valeurs acceptées de LOT-06.
 - 14 nov., 10h00 : **LOT-06 complet** (S7, `277263a`, 15 sur 15). S7 et S8 butent tous deux sur `check:systeme-demarrage` (« le registre ne doit pas bouger », qui perd les fonctions des écrans neufs). Le correctif est sur la branche LOT-03 de S5 et arrive avec sa fusion. Ordre : LOT-03, puis S7 et S8 déclarent leurs écrans neufs, puis LOT-06 et LOT-11.
 - 14 nov., 10h00 : méthode de `check:fidelite` (§1.40). La fidélité se mesure sur l'aperçu statique, rempli avec les jeux de SIM ; l'application sert à la structure. Pas de collection nouvelle dans l'API d'essai.
+- 14 nov., 11h00 : **LOT-11 Développement fusionné** (S8 `f363811`, T1 `026759b1`), deuxième lot livré : 7 écrans dans les seuils, DEV-modeles-sites justifié (image v3), paquet client identique. Reste « Relancer » 72×26 sur le serveur (S8). Gardes : seuls les échecs connus.
 - 14 nov., 10h55 : **LOT-02 accepté par T1, fusion retenue** : la fusion d'essai rend `check:socle-graphiques` rouge (5 fichiers de `src/refonte/contacts/` importent `socle/ui/graphiques`). Correctif demandé à S1 : `formaterEuro` depuis `socle/formats`, `MiniCourbe` depuis l'index `socle/ui`. La garde de S0 n'est pas touchée.
 - 14 nov., 10h00 : **intégration de F1 reportée**. Elle demande de modifier `check:socle-archetypes` (garde de S0, qui attend Harun) et de pousser une 3ᵉ branche, ce que la session de S5 refuse. Elle reprendra avec S0. LOT-02 : réglages sur le poste et blocs « non disponible » acceptés (S1, 8 écrans sur 13). T1 envoie à S5 les zones exactes qui dépassent pour H11, H12 et ME01.
 - 14 nov., 09h55 : **`check:navigation` et `check:systeme-demarrage` sont durables** (S5, `e9b6c404` + `91ec0f92`, reportés par le CO en `ce524697` et `b9511a5b`). Le compte est 101 + les écrans neufs déclarés, avec des contrôles négatifs. S8 et S7 peuvent déclarer leurs écrans neufs. ME05 : `/knowledge` et `/decisions` sortent de l'« aussi » du Supervisor (`src/bureaux/catalogue.ts`), une modification que **S5 est autorisé à faire** puisque S3 est bloqué. Ces deux écrans passent à la coquille, et la famille Écrire garde leurs entrées.

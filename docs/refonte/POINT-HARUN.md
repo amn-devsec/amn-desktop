@@ -1,8 +1,8 @@
 # Point pour Harun
 
-> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 10h45 UTC., 10h15 UTC., 10h00 UTC., 10h00 UTC., 09h35 UTC., 09h00 UTC., 08h40 UTC., 08h20 UTC., 08h00 UTC.
+> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 11h00 UTC., 10h15 UTC., 10h00 UTC., 10h00 UTC., 09h35 UTC., 09h00 UTC., 08h40 UTC., 08h20 UTC., 08h00 UTC.
 
-**Compteurs** (14 nov., 10h15) : **écrans construits 57 / 153, livrés 24** (LOT-00 9, **LOT-06 Créer et produire 15, premier lot livré**) · **lots préparés 8 / 13, lots finis 1 / 13** (LOT-06) · **écrans livrés depuis la veille : 24**. La courbe : `STATUT.md`, « Vitesse ».
+**Compteurs** (14 nov., 11h00) : **écrans construits 57 / 153, livrés 31** (LOT-00 9, LOT-06 Créer et produire 15, **LOT-11 Développement 7**) · **lots préparés 8 / 13, lots finis 2 / 13** (LOT-06, LOT-11) · **écrans livrés depuis la veille : 31**. LOT-02 Contacts (13) est accepté, il attend un petit correctif d'imports. La courbe : `STATUT.md`, « Vitesse ».
 
 **À ton réveil, une ligne à coller dans la session S0** (rien d'urgent, le reste avance sans elle) :
 
