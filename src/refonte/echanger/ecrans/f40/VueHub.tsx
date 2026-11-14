@@ -216,7 +216,8 @@ export function VueHub(p: VueHubProps) {
               accessoire: m.avatar ? <Avatar nom={m.avatar} taille={20} enLigne /> : m.pastille ? <CountBadge n={m.pastille} /> : undefined,
               title: m.nom,
             };
-            return <li key={m.cle}>{m.vers ? <ModuleTile {...commun} vers={m.vers} /> : <ModuleTile {...commun} onClick={m.onClick ?? (() => undefined)} />}</li>;
+            const tuile = m.vers ? <ModuleTile {...commun} vers={m.vers} /> : <ModuleTile {...commun} onClick={m.onClick ?? (() => undefined)} />;
+            return <li key={m.cle}>{tuile}</li>;
           })}
         </ul>
       </section>
