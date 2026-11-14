@@ -798,15 +798,33 @@ Préparation par S1 (14 nov., `claude/refonte-contacts`) : note [`preparation/LO
 
 | ID | Écran | Type | État | Écart / note |
 |---|---|---|---|---|
-| F20 | Écrire · Vue d'ensemble | nouveau | à faire | |
-| H10 | Écrire · Notes | mixte | à faire | |
-| H11 | Écrire · Documents | mixte | à faire | |
-| H12 | Écrire · Signatures | mixte | à faire | |
-| ME03 | Écrire · Modèles | mixte | à faire | |
-| ME01 | Écrire · Journal | mixte | à faire | |
-| ME02 | Écrire · Rédaction et traduction | mixte | à faire | |
-| ME04 | Écrire · Archives | mixte | à faire | |
-| ME05 | Écrire · Base de connaissances | mixte | à faire | |
+| F20 | Écrire · Vue d'ensemble | nouveau | en cours (préparation) | préparation : page sans module ; logique `hub.ts`, `relecture.ts`, `serie.ts`. Attend `ModuleTile`, `ModuleGroupGrid`, `AddModuleTile` |
+| H10 | Écrire · Notes | mixte | en cours (préparation) | préparation : `PagesScreen` `/pages` (les notes rapides `/notes` sont MJ04, LOT-01) ; logique `pages.ts` ; écart : le menu « / » compte 12 blocs, la fiche en annonce 14 |
+| H11 | Écrire · Documents | mixte | en cours (préparation) | préparation : `ClasseurScreen` `/classeur` et `/media` ; logique `documents.ts` ; téléversement, partage et faits relevés « non disponibles » |
+| H12 | Écrire · Signatures | mixte | en cours (préparation) | préparation : `SignatureDistanceScreen` `/signature-a-distance` ; logique `signatures.ts` (circuit, délai moyen, relances automatiques) |
+| ME03 | Écrire · Modèles | mixte | en cours (préparation) | préparation : `TemplatesScreen` `/outils/modeles` ; logique `modeles.ts` (variables `{nom}`, case proposée) |
+| ME01 | Écrire · Journal | mixte | en cours (préparation) | préparation : `DiaryScreen` `/personnel/journal`, local au poste ; logique `journal.ts` ; humeur à 5 niveaux absente des données |
+| ME02 | Écrire · Rédaction et traduction | mixte | en cours (préparation) | préparation : `RedactionScreen`, `TraductionScreen` ; logique `redaction.ts` |
+| ME04 | Écrire · Archives | mixte | en cours (préparation) | préparation : **aucun module existant** ; logique `archives.ts` ; collection à décider (note §6, 2) |
+| ME05 | Écrire · Base de connaissances | mixte | en cours (préparation) | préparation : `KnowledgeScreen` `/knowledge` (titre, texte, date) ; logique `connaissances.ts` dont la réponse sourcée d'Ajmani |
+
+Préparation par S5 (14 nov., `claude/refonte-ecrire`) : note [`preparation/LOT-03-ecrire.md`](preparation/LOT-03-ecrire.md), logique dans `src/refonte/ecrire/`, garde `check:ecrire` (94 contrôles), rapport [`rapports/LOT-03-preparation.md`](rapports/LOT-03-preparation.md). Aucun écran visuel. Dossier v4 lu (fiches, `06`, `tutoiement.json`) ; **les images v4 n'ont pas été ouvertes**. La série d'écriture est une seule règle pour F20, H10 et ME01 (« Proposition » de F20 §9, à valider). La note épinglée d'un client, source demandée par H41, est dans `pages.ts`.
+
+**Manque au socle**
+- `ModuleTile` (hauteur 50), `ModuleGroupGrid`, `AddModuleTile` pour F20 ; `ShortcutList` ; `SuggestionCompact` (cités, à confirmer par S0).
+- L'icône de « Téléverser » (H11) est une flèche vers le bas dans le socle ; elle doit pointer vers le haut.
+- `formats.ts` : le lot garde une copie de `nombre`, `pct`, `tailleLisible` à retirer à la fusion du socle v4.
+- `check:tutoiement` : pas encore dans la base (la garde du lot refuse « vous / votre / vos » et les impératifs en « -ez » dans ses textes).
+
+**Manque aux données**
+- Pages : blocs avec échéance et liens vers d'autres pages ; commentaires ancrés ; propriétés (client lié, statut) ; présence en direct.
+- Documents : intercalaires, partage avec lien externe, faits relevés d'un contrat, quota (aucun stockage nouveau, §1.27 n° 10).
+- Signatures : champs posés, rôle « en copie », relances automatiques planifiées.
+- Journal : humeur sur 5 niveaux, énergie, mercis (le jeu fictif a 4 niveaux).
+- Base de connaissances : étapes, rubriques, journal de lectures, statut ; articles liés.
+- Archives : éléments archivés, règles, restaurations, texte indexé.
+- F20 : une demande de relecture comme objet.
+- Aucune collection synchronisée n'est ajoutée sans l'accord de Harun (§1.27 n° 4) : en attendant, « non disponible », avec la raison.
 
 ### LOT-04 · L'argent — `claude/refonte-argent` — 17 écrans
 
