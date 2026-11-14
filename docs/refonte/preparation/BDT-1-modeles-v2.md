@@ -1,6 +1,6 @@
-# LOT-14 · Modèles de sites v2 — note de préparation
+# BDT-1 · Modèles de sites v2 — note de préparation
 
-> Branche `claude/refonte-modeles`, partie de `claude/refonte-vivante` @ `98ae31ef`. Rédigée le 14 nov. 2026 par S2, en mode PRÉPARATION (étape 1 du CO : aucune ligne d'écran, aucun modèle livré).
+> Branche `claude/refonte-modeles`, partie de `claude/refonte-vivante` @ `98ae31ef`. Rédigée le 14 nov. 2026 par S2. Le lot s'appelait « BDT-1 » dans le plan ; le CO l'a renommé **BDT-1** (Bureau de travail, BDT-1 à BDT-5) après cette note. **Décisions du CO du 14 nov., 16h** : voir §11.
 > Sources : `PLAN-BUREAU-DE-TRAVAIL.md` §1 et `STATUT.md` §1.43, le code de LOT-11 (`src/refonte/developpement/ModelesDeSites.tsx`, `modeles.ts`) et sa note, le skill `signes-ia` (94 signes), le socle (`src/socle/ui/**`), et quatre essais jetables faits ici (§9 : isolation, taille de Prettier et de Shiki, licences).
 > **Mesuré** = observé sur cette machine ; **proposition** = choix que je recommande ; **à vérifier** = non éprouvé. Rien ici ne décrit une faiblesse de sécurité ; aucune donnée réelle.
 
@@ -12,17 +12,16 @@
 - **Une porte de qualité** rejouée par `check:modeles` (rapide, sans navigateur) et `check:modeles:rendu` (Chromium : axe-core, 390/768/1280 px, sans JavaScript, Lighthouse). Sur les 94 signes d'IA, **une soixantaine se vérifient par programme** ; le reste est une relecture écrite de Harun (§7.2).
 - **Dépendances** : Prettier, Shiki, TanStack Virtual, fflate à l'exécution ; axe-core, Lighthouse, html-validate en développement. **Un piège de licence trouvé** : Lighthouse 13.6.0 tire un paquet sous licence FSL (non ouverte). On épingle une version antérieure (§8).
 - **Deux modèles pilotes** (§10) écrits ici de toutes pièces et marqués `pilote` : ils prouvent la chaîne de bout en bout sans attendre la liste de Harun, et n'entrent pas dans la bibliothèque livrée.
-- **Un conflit de numéro à régler par le CO** : `STATUT.md` §2 donne déjà « LOT-14 » à *Charge et essais longs* (SIM et T1). Les branches ne se heurtent pas (`claude/refonte-modeles` ici), mais deux lots ne peuvent pas porter le même numéro dans le tableau.
 
 ## 2. Ce qui existe (LOT-11, S8) et ce qu'on en fait
 
-| Élément | Aujourd'hui | Dans LOT-14 |
+| Élément | Aujourd'hui | Dans BDT-1 |
 |---|---|---|
 | `ModelesDeSites.tsx` (285 l.) | une page : recherche, puces de secteur, **un `<iframe sandbox="">` par tuile** (échelle 0,28), fiche plein écran aperçu/code, copie du HTML, « Ajouter » (HTML collé, `localStorage`) | remplacé par la bibliothèque v2 ; **un iframe par tuile ne tient pas à 100 modèles** (chaque tuile rend une page entière) |
 | `modeles.ts` (96 l.) | `ModeleSite` = un HTML ; `puces`, `filtrer`, `poids`, `lignes`, `fauteDAjout`, `lireAjoutes`, `jetonsHtml` (colorateur maison) | `filtrer` et `puces` repris en facettes (§5.3) ; `jetonsHtml` remplacé par Shiki, gardé en repli si le chargement échoue |
 | `MODELES_LIVRES` | vide, en attendant la relecture de Harun | supprimé : la liste vient de l'index (§4.2) |
-| `scripts/apercu/modeles-exemple.ts` | 8 pages de remplissage, **non gardées** (plan §1) | restent des données d'aperçu de LOT-11 ; l'aperçu de LOT-14 lit l'index des pilotes + un jeu de charge (§10.3) |
-| Route `/developpement/modeles-sites`, vue `devModelesSites` (fichier de S8) | déclarée dans `declarations/developpement.ts` | LOT-14 garde la route ; **comment la reprendre sans toucher le fichier de S8** est une question (§11 n° 10) |
+| `scripts/apercu/modeles-exemple.ts` | 8 pages de remplissage, **non gardées** (plan §1) | restent des données d'aperçu de LOT-11 ; l'aperçu de BDT-1 lit l'index des pilotes + un jeu de charge (§10.3) |
+| Route `/developpement/modeles-sites`, vue `devModelesSites` (fichier de S8) | déclarée dans `declarations/developpement.ts` | BDT-1 garde la route ; **comment la reprendre sans toucher le fichier de S8** est une question (§11 n° 10) |
 | Flux « Ajouter un modèle » (code collé) | fonctionne, local au poste | **à conserver** comme voie rapide (un seul fichier, étiquette « Ajouté », hors porte de qualité) ; question posée à S8 |
 
 ## 3. Écrans et archétypes du socle
@@ -52,7 +51,7 @@ modeles/                         ← racine du dépôt, hors de src/ (ni tsc, ni
     site/                        ← le site, tel qu'on le livre
       index.html, a-propos.html, contact.html, 404.html, robots.txt, sitemap.xml
       css/…  img/…  polices/…  (js/… seulement s'il est utile)
-src/refonte/modeles/             ← le code des trois écrans, la logique pure, i18n.ts (zone de LOT-14)
+src/refonte/modeles/             ← le code des trois écrans, la logique pure, i18n.ts (zone de BDT-1)
 scripts/modeles/                 ← indexer, capturer, empaqueter, porte (statique et rendu), jeu de charge
 ```
 
@@ -155,8 +154,8 @@ Raccourcis (proposition, à valider par T1 pour le clavier) : `I` inspecteur, `�
 
 ## 6. Ce qu'il manque au socle (à dire au CO, jamais contourné)
 
-1. **Grille virtualisée** : `GrilleCartes` rend toutes ses cartes. LOT-14 écrit sa grille dans sa zone en réutilisant `deplacerDansGrille` et le style de `CarteModule` ; elle pourra être promue au socle plus tard.
-2. **Cadre isolé** : aucune brique « aperçu de page isolé » au socle. LOT-14 écrit `CadreIsole` dans sa zone ; LOT-16 (Atelier développement) en aura besoin aussi pour les extraits.
+1. **Grille virtualisée** : `GrilleCartes` rend toutes ses cartes. BDT-1 écrit sa grille dans sa zone en réutilisant `deplacerDansGrille` et le style de `CarteModule` ; elle pourra être promue au socle plus tard.
+2. **Cadre isolé** : aucune brique « aperçu de page isolé » au socle. BDT-1 écrit `CadreIsole` dans sa zone ; LOT-16 (Atelier développement) en aura besoin aussi pour les extraits.
 
 ## 7. La porte de qualité
 
@@ -241,19 +240,20 @@ La liste des sites d'AMN viendra de Harun ; en attendant, la chaîne (manifeste 
 
 ## 11. Décisions et questions
 
-**Au CO**
-1. **Numéro** : « LOT-14 » existe déjà dans `STATUT.md` §2 (Charge et essais longs). Renuméroter l'un des deux ?
-2. **Emplacement et poids** : racine `modeles/` hors de `src/`, vignettes WebP committées, 100 à 150 Mo à terme dans un dépôt public. Accord ? Seuil à partir duquel on sort les ressources vers le serveur maison ?
-4. **Dépendances** (ajouts à `package.json` à l'étape 2) : celles du §8, Lighthouse épinglé. T1 : `check:licences` doit lire l'arbre complet et signaler la FSL.
-5. **Socle** : grille virtualisée et cadre isolé écrits dans la zone du lot, promotion plus tard (§6).
-6. **Moments et collection** : la collection de l'atelier a besoin de deux moments du bus (un modèle *allumé*, un palier collectif) et d'un stockage **collectif** (jamais par personne) ; sans amn-api, un stockage local au poste. Données fictives à commander à SIM (usages des sections et composants).
-8. **Zone** : `src/refonte/modeles/`, `scripts/modeles/`, `modeles/`.
-9. **Textes** : périmètre de `check:tutoiement` étendu à `src/refonte/modeles` seulement ; le dossier `modeles/` (contenu de sites clients) reste au vouvoiement.
-10. **Reprise de la route** de `devModelesSites` sans toucher au fichier de S8 (substitution ou déclaration à reprendre ?). Question posée à S8, réponse attendue.
+**Décidé par le CO (14 nov., réversible)**
+1. Le lot s'appelle **BDT-1** ; cette note est `BDT-1-modeles-v2.md`.
+2. **Inspecteur dans un cadre `sandbox` sans script : oui.** La règle « un modèle marche sans JavaScript » est soumise à Harun, avec la recommandation du CO : oui. On avance sur cette base.
+3. **Lighthouse épinglé en 13.3.x**, et T1 ajoute la licence FSL aux licences signalées.
+4. **Aucun témoignage inventé** : la section existe, avec des emplacements marqués « à remplir par le client » (`data-a-remplir`) ; **tarifs neutres**, sans prix d'appât.
+5. **La grille virtualisée reste dans la zone du lot**, écrite pour pouvoir passer au socle.
+6. **Suite** : les deux modèles pilotes de bout en bout (manifeste, inspecteur, porte de qualité), sans attendre la liste de Harun : deux sites écrits ici, sobres, à 0 signe, l'un **clair**, l'autre **sombre**, de secteurs différents ; ils servent de modèles d'essai jusqu'à la liste.
 
-**À Harun** (via le CO)
-3. **Aperçu sans JavaScript** (option A, recommandée) ou démos interactives (option B, plus lourde) ? Dans les deux cas, un modèle doit marcher sans script.
-7. **Seuils Lighthouse**, **vocabulaire** des styles, **sections témoignages et tarifs** (§7.2), **liste des sites** d'AMN et accord écrit des clients concernés.
+**Encore ouvert**
+- **Emplacement et poids** : racine `modeles/` hors de `src/`, vignettes WebP committées, 100 à 150 Mo à terme dans un dépôt public ; seuil à partir duquel on sort les ressources vers le serveur maison.
+- **Moments et collection** : deux moments du bus (un modèle *allumé*, un palier collectif) et un stockage **collectif** ; données fictives à commander à SIM.
+- **Reprise de la route** de `devModelesSites` sans toucher au fichier de S8 (question posée à S8).
+- **À Harun** : seuils Lighthouse, vocabulaire des styles, liste des sites d'AMN et accord écrit des clients concernés.
+- **Textes** : `check:tutoiement` étendu à `src/refonte/modeles` seulement ; le dossier `modeles/` (contenu de sites clients) reste au vouvoiement.
 
 ## 12. Étapes suivantes (au feu vert du CO)
 
