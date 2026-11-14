@@ -4,9 +4,9 @@
 
 ## REPRISE (à lire en premier après une compaction ; tenu par le CO, réécrit à chaque tour)
 
-Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `dabcd1e`.
+Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `c291123`.
 
-**Avoirs** : SIM a refait sa branche par-dessus le retrait (`7570fef`, fusionnée). Les avoirs sont désormais facultatifs (`construireMonde({ avoirs: true })`). Quand DS les lit, SIM passe `avoirs` à `true` par défaut, une ligne dans `monde.ts`.
+**Avoirs** : réglé, ils sont présents par défaut (`b0173f3`).
 
 **Si la limite d'utilisation coupe le CO** : à la reprise (un message de Harun, une session, ou le réveil programmé), relire ce bloc, faire `git fetch` des branches `claude/refonte-*`, puis reprendre la boucle (lister, lire, contrôler, fusionner, répondre, mettre à jour). Réveil du CO : `send_later`, toutes les 20 min tant que des sessions travaillent, 45 min quand toutes attendent (consigne de Harun), réarmé à chaque tour.
 
@@ -15,7 +15,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 | S0 Socle | `session_01SJe828c2W5EnkMY4fhFY6z` | passe finale v4 finie (`888f7a0`) ; corrige `ancres` et `avoirs` | puis ce que T1 signale |
 | T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | passage 2 sur `888f7a0` en cours (avec le delta d'`ancres` et `avoirs` de S0) | son verdict → fusion du socle v4 et allumage (§1.9) ; puis `check:fidelite` (§1.30) |
 | S6 Sécurité | `session_01RHV8Xq2txWkfjAusKvq9DG` | LOT-07 préparation (`afdbccf`) ; **sans zips v4** ; une étape de sécurité attend amn-api | fusion après le contrôle du paquet client par T1 |
-| SIM | `session_011UF2ufZg9moGv2rRZFRuf7` | `7570fef` fusionné (jeux de LOT-11, avoirs sur demande) ; **sans dossier v4** | fidélité, H05, LOT-03, règlements partiels, remises, MR08, résumé de DEV-serveur ; avoirs par défaut quand DS est prêt |
+| SIM | `session_011UF2ufZg9moGv2rRZFRuf7` | tout fusionné (`b0173f3`, 115 jeux) ; **sans dossier v4** | listes « Manque aux données » des lots à venir |
 | DS | `session_01TZGDvVWristJnnPK59rruY` | LOT-04 avec les avoirs, fusionné (§1.34) | appliquer §1.33, comparer H09 aux attendus de SIM |
 | S5 | `session_012jWErBSSkcoVaU3iN895bQ` | LOT-03, registre et LOT-05 fusionnés (§1.32) | attend le socle v4 |
 | S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | LOT-02 relu avec le v4 et fusionné (§1.31) ; a les zips | attend le socle v4 |
@@ -44,6 +44,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov. : données de SIM `b0173f3` fusionnées : avoirs par défaut, rôles du serveur, jeu `serveur`. Gardes lues avant le push, toutes vertes (les trois rouges annoncés par SIM étaient déjà réglés sur `refonte-vivante`).
 - 14 nov. : jeux de SIM `541b2bd` fusionnés avec les adaptations de S1 (`c06c8f3`), DS (`d99a197`) et S5 (`17a89e7`, `76a1ed8`), en une passe (`dabcd1e`). Gardes lues avant le push : contacts 93, argent 70, ecrire 99, echanger 94, donnees 116 ; aucune garde nouvelle rouge.
 - 14 nov. : jeux de SIM `541b2bd` (fidélité de MC02, statut H05, liste de LOT-03, règlements partiels, remises, MR08) **pas encore fusionnés**. Ils rendent `check:contacts`, `check:argent` et `check:ecrire` rouges, par des changements commandés. S1, DS et S5 adaptent leur logique, puis le CO fusionne quand les trois sont verts dessus.
 - 14 nov. : arbitrage S6 / S9. S6 étend le modèle des connecteurs (zone de S9, en pause) pour les devises et les plafonds : champs facultatifs seulement, aucune somme mêlant € et $, `check:connecteurs` étendu sans rien assouplir, une ligne dans le rapport de S9.
