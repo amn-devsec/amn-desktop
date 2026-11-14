@@ -19,7 +19,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 | S3 | `session_01FBSpK6n1yYtYXYyxbLAuBV` | attend l'accord de Harun (`check:encres`) ; **sans zips v4** | correctif d'`equipes.ts`, puis LOT-08 |
 | S5 | `session_012jWErBSSkcoVaU3iN895bQ` | **LOT-03 et LOT-05 livrés**, préparation de LOT-09 fusionnée | en pause ; proposé pour la liste du socle (POINT-HARUN n° 9) |
 | S6 | `session_01RHV8Xq2txWkfjAusKvq9DG` | préparation de LOT-07 fusionnée ; **sans zips v4** ; LOT-10 passe à S8 | construire LOT-07 dès les zips ; relire la sécurité de LOT-10 avant sa fusion |
-| S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **LOT-06 livré** (`66719328` fusionné) | zones de 34 → 36 px et « Réduire » (#/tournees), puis **LOT-01, moitié S7** (N01, H25, H02, H04, L01, L02, L03, L07) |
+| S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **LOT-01, ses 8 écrans faits** (`8f719768`) ; restes de LOT-06 à situer | T1 mesure ; accorder `check-journee.ts` avec S1 |
 | S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | **LOT-11 livré** (`6a87e35` fusionné) | attend l'accord de Harun pour LOT-10 Cyber (POINT-HARUN) |
 | DS | `session_01TZGDvVWristJnnPK59rruY` | attend l'accord direct de Harun pour construire LOT-04 | commencer par MA03, H07, MA12 |
 | SIM, S9, F1 | `session_011UF2ufZg9moGv2rRZFRuf7`, `session_01C5DAVygXYax6Q7g436TPQx`, `session_01VZHqP3gvzrtnpgsTrrKguV` | en pause | F1 : intégration reportée (S0) |
@@ -40,7 +40,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 | Jour | Construits | Livrés (cumul) | Livrés depuis la veille | Lots préparés | Lots finis | Note |
 |---|---|---|---|---|---|---|
-| 14 nov. | 72 / 153 | 63 (LOT-00 9, LOT-06 15, LOT-11 7, LOT-02 13, LOT-03 9, LOT-05 10) | 63 | 9 / 13 | 5 / 13 (LOT-06, LOT-11, LOT-02, LOT-03, LOT-05) ; LOT-00 attend l'allumage | LOT-02 retiré à 11h25 (`check:clavier`), refusionné corrigé à 11h40. LOT-01 en construction (S7 4/8, S1 5/8). Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. |
+| 14 nov. | 76 / 153 | 63 (LOT-00 9, LOT-06 15, LOT-11 7, LOT-02 13, LOT-03 9, LOT-05 10) | 63 | 9 / 13 | 5 / 13 (LOT-06, LOT-11, LOT-02, LOT-03, LOT-05) ; LOT-00 attend l'allumage | LOT-02 retiré à 11h25 (`check:clavier`), refusionné corrigé à 11h40. LOT-01 en construction (S7 8/8, S1 5/8). Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. |
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
@@ -923,7 +923,7 @@ Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en para
 | S4 | — | annulée | — | — | — |
 | S5 | `session_012jWErBSSkcoVaU3iN895bQ` | **LOT-03 et LOT-05 livrés**, préparation de LOT-09 fusionnée | en pause ; proposé pour la liste du socle (POINT-HARUN n° 9) |
 | S6 | `claude/refonte-sec-*` | phase 1 en cours, privée. **Ne pas fusionner sans décision de Harun.** | — | `docs/securite/**`, hors dépôt | Prend LOT-07 puis LOT-10 |
-| S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **LOT-06 livré** (`66719328` fusionné) | zones de 34 → 36 px et « Réduire » (#/tournees), puis **LOT-01, moitié S7** (N01, H25, H02, H04, L01, L02, L03, L07) |
+| S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **LOT-01, ses 8 écrans faits** (`8f719768`) ; restes de LOT-06 à situer | T1 mesure ; accorder `check-journee.ts` avec S1 |
 | F1 | `claude/refonte-atelier-f1` | prête, non fusionnée, rien de branché | `59056ad` | `docs/atelier/PRET.md` | C-003 à appliquer ; 3 modules choisis (§1.21), à intégrer après le socle v4 |
 | T1 | `claude/refonte-qualite-t1`, `claude/refonte-qualite` | **les deux fusionnées** (`97929c1`, `3cc8dff`) | `51a962d`, `f2e243a` | [`../qualite/SANTE.md`](../qualite/SANTE.md) | Passage 2 à faire sur `refonte-vivante` |
 | SIM | `claude/refonte-donnees-fictives`, `claude/refonte-sim-bac-a-sable` | **données fusionnées** (`4fe559b`) + `check:donnees` en CI ; bac à sable non fusionné | `4fe559b`, `95d9765` | [`rapports/DONNEES.md`](rapports/DONNEES.md) | Suite : §1.11 |
