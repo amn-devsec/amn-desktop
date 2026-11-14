@@ -4,7 +4,9 @@
 
 ## REPRISE (à lire en premier après une compaction ; tenu par le CO, réécrit à chaque tour)
 
-Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `5b2e8d0`.
+Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `bf46299`.
+
+**À refusionner** : `c9e8713` (SIM). Sa fusion a été retirée par `git revert -m 1`, donc il faut d'abord **annuler ce retrait** (`git revert` du commit de retrait), puis fusionner la suite de SIM, une fois que `check:argent` passe chez DS.
 
 **Si la limite d'utilisation coupe le CO** : à la reprise (un message de Harun, une session, ou le réveil programmé), relire ce bloc, faire `git fetch` des branches `claude/refonte-*`, puis reprendre la boucle (lister, lire, contrôler, fusionner, répondre, mettre à jour). Réveil du CO : `send_later`, toutes les 20 min tant que des sessions travaillent, 45 min quand toutes attendent (consigne de Harun), réarmé à chaque tour.
 
@@ -12,7 +14,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 |---|---|---|---|
 | S0 Socle | `session_01SJe828c2W5EnkMY4fhFY6z` | passe finale v4 finie (`888f7a0`) ; corrige `ancres` et `avoirs` | puis ce que T1 signale |
 | T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | passage 2 sur `888f7a0` en cours (avec le delta d'`ancres` et `avoirs` de S0) | son verdict → fusion du socle v4 et allumage (§1.9) ; puis `check:fidelite` (§1.30) |
-| S6 Sécurité | `session_01RHV8Xq2txWkfjAusKvq9DG` | LOT-07 en préparation ; une étape de sécurité attend amn-api | couture H20, tarifs H21 (§1.26) |
+| S6 Sécurité | `session_01RHV8Xq2txWkfjAusKvq9DG` | LOT-07 préparation prête (`f52ef5d`) ; une étape de sécurité attend amn-api | fusion après le contrôle du paquet client par T1 |
 | SIM | `session_011UF2ufZg9moGv2rRZFRuf7` | `c9e8713` prêt mais **retiré** (casse `check:argent`) ; **sans dossier v4** | refusionner quand DS lit les avoirs ; puis fidélité, H05, LOT-03, LOT-11 |
 | DS | `session_01TZGDvVWristJnnPK59rruY` | préparation de LOT-04 fusionnée (§1.29) ; **sans dossier v4** | **lire les avoirs (nature creditNote)** pour que `check:argent` passe sur `c9e8713` |
 | S5 | `session_012jWErBSSkcoVaU3iN895bQ` | LOT-03, registre et LOT-05 fusionnés (§1.32) | attend le socle v4 |
@@ -22,7 +24,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 | S9 | `session_01C5DAVygXYax6Q7g436TPQx` | LOT-12 fini, valeurs de MC07 fusionnées (`bcdc65f`) | rien |
 | S2, S3 (première tâche : `check:encres`), F1 | `session_014ZkF6SeGRNi6NR3uEsjM5q`, `session_01FBSpK6n1yYtYXYyxbLAuBV`, `session_01VZHqP3gvzrtnpgsTrrKguV` | arrêtées | relancer au socle v4 (prompts : `PROMPTS-11NOV.md`, §1.21) |
 
-**À dire au prochain message** : à T1, La Garde dans l'API d'essai demande une base sur fichier (SIM) ; à S6, les vues terrain et stock quittent Outils pour Créer (`bb54c03`).
+**À dire au prochain message** : à T1, (a) La Garde dans l'API d'essai demande une base sur fichier (SIM), (b) comparer le paquet client de `claude/refonte-outils` @ `f52ef5d` (`AutomationsRunner.tsx` partagé) avant sa fusion.
 
 **Décisions provisoires en cours** (révisables par Harun) : arrondi et régime de TVA, seuils de l'argent (§1.29) ; valeurs de départ des connecteurs (§1.22 n° 3) ; plafonds de relance 3 et 1 par jour (§1.28 n° 4) ; seuils de charge (validés, §1.20). Liste « À décider par Harun » : `POINT-HARUN.md`.
 
@@ -42,6 +44,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov. : LOT-07 préparation (S6, `f52ef5d`). Couture `@edition/automatisations` et tarifs de H21 relevés. Fusion à blanc propre : aucune garde nouvelle rouge, typechecks verts, un seul conflit d'ajout dans `editions.yml`. **Fusion en attente** : elle touche `AutomationsRunner.tsx`, partagé avec l'édition cliente, donc T1 compare d'abord le paquet client (règle D). LOT-05 (`df07f85`) fusionné.
 - 14 nov. : LOT-05 préparation et réglages de MC07 fusionnés (`5b2e8d0`), gardes lues avant le push (§1.32).
 - 14 nov. : **incident**. La fusion de `c9e8713` (SIM) a été poussée (`c565bd7`) avant que ses gardes soient lues : `check:argent` était rouge (avoirs rangés avec les factures). Elle a été retirée quelques minutes après (`8121e07`), et tout est revenu au vert. DS adapte sa logique aux avoirs, puis le CO refusionne. **Correction de méthode : le CO lit toutes les gardes avant chaque push, jamais après.**
 - 14 nov. : LOT-02 (`1c036fd`) fusionné : les relances lisent `connecteurs/reglages.ts`.
