@@ -16,9 +16,10 @@ import { VueHub } from './VueHub';
  * F40 — Échanger, vue d'ensemble, branché sur le poste. Route `/ensemble/echanger` (substitution du hub). Ce que le poste
  * sait : les annonces à confirmer, les sondages en cours, les réunions de la semaine, les messages privés non lus, les
  * messages de l'équipe pour « Canaux actifs ». Ce qu'il ne sait pas n'est pas montré (fiche F40, rubrique 8 ; STATUT
- * §1.27 n° 4) : pas de boîte des clients (G07), de courriel (MX01), de partage (MX03), de réponses automatiques (MX06) ni
- * de messages programmés : leurs tuiles ne se montrent pas tant que leur écran n'existe pas ; donc pas de règle d'attente
- * (« Personne n'attend ») ni de Boîte à zéro ; pas de présence (STATUT §1.32 n° 4).
+ * §1.27 n° 4) : pas de boîte des clients (G07), de courriel (MX01), de partage (MX03), de réponses automatiques (MX06) : leurs
+ * quatre écrans existent, donc leurs tuiles se montrent, mais elles disent « à brancher » (jamais « 0 »), vers leur écran ;
+ * pas de messages programmés (aucun écran) ; donc pas de règle d'attente (« Personne n'attend ») ni de Boîte à zéro ; pas
+ * de présence (STATUT §1.32 n° 4).
  */
 interface AnnonceData {
   authorEmail: string;
@@ -32,8 +33,10 @@ interface ReunionData {
   duree?: number;
 }
 
-const ROUTES: Record<string, string> = { canaux: '/groupes', appels: '/appels', reunions: '/reunions', annonces: '/annonces', sondages: '/sondages' };
-const VUES: Record<string, string> = { canaux: 'groups', appels: 'calls', reunions: 'meetings', annonces: 'announcements', sondages: 'polls' };
+const ROUTES: Record<string, string> = { messagerie: '/messagerie', courriel: '/courriel', canaux: '/groupes', appels: '/appels', reunions: '/reunions', annonces: '/annonces', partages: '/partages', sondages: '/sondages', reponsesAuto: '/reponses-automatiques' };
+const VUES: Record<string, string> = { messagerie: 'clientInbox', courriel: 'sharedMail', canaux: 'groups', appels: 'calls', reunions: 'meetings', annonces: 'announcements', partages: 'sharedFiles', sondages: 'polls', reponsesAuto: 'autoReplies' };
+/** Les quatre écrans nés du lot dont la source n'est pas au poste : leur tuile dit « à brancher ». */
+const A_BRANCHER = new Set<ModuleDEchanger>(['messagerie', 'courriel', 'partages', 'reponsesAuto']);
 const ICONES: Record<string, React.ReactNode> = {
   messagerie: <MessageSquare size={14} />,
   courriel: <Mail size={14} />,
@@ -96,6 +99,7 @@ export default function PageHub() {
         envoisProgrammes: 0,
       },
       modulesOuverts: ouverts,
+      aBrancher: A_BRANCHER,
       routes: ROUTES,
       nomsCourts: {},
       prenomDeFil: () => '',

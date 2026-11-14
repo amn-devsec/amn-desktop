@@ -33,6 +33,8 @@ export interface EntreesHub {
   archivesAujourdhui: number;
   mesures: MesuresDEchanger;
   modulesOuverts: ReadonlySet<ModuleDEchanger> | null;
+  /** Les modules dont l'écran existe mais dont la source (connecteur, collection) n'est pas branchée : « à brancher », jamais « 0 ». */
+  aBrancher?: ReadonlySet<ModuleDEchanger>;
   routes: Readonly<Record<string, string>>;
   nomsCourts: Readonly<Record<string, string>>;
   prenomDeFil: (filId: string) => string;
@@ -75,7 +77,8 @@ export function composerHub(e: EntreesHub, actions: { onResumer: () => void; onC
   const tuiles = tuilesDuHub(e.mesures, e.modulesOuverts).map<TuileDEchangeVue>((u) => {
     const n = u.nombres[0] ?? 0;
     const sous =
-      u.cle === 'messagerie' ? t('tuile.messagerie', { n })
+      e.aBrancher?.has(u.cle) ? t('tuile.aBrancher')
+      : u.cle === 'messagerie' ? t('tuile.messagerie', { n })
       : u.cle === 'courriel' ? t('tuile.courriel', { n })
       : u.cle === 'canaux' ? t('tuile.canaux', { n, t: u.detail?.canauxTotal ?? 0 })
       : u.cle === 'appels' ? (n > 0 ? t('tuile.appels', { n }) : t('tuile.appelsAucun'))
