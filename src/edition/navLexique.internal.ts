@@ -41,6 +41,7 @@ const NAV_EN_INTERNE: Record<string, TraductionNav> = {
   comply: { label: 'Comply', hint: 'GDPR compliance' },
   ssl: { label: 'SSL Monitor', hint: 'TLS certificates' },
   // LOT-02 (refonte) : les écrans neufs de « Mes contacts et clients », déclarés au registre des modules.
+  missions: { label: 'Missions and tickets', hint: 'Team and client tickets, in columns' },
   pipelineCommercial: { label: 'Sales pipeline', hint: 'The opportunity funnel, from first contact to signature' },
   rdvClients: { label: 'Client meetings', hint: 'The day of your client meetings, hour by hour' },
   partenaires: { label: 'Partners', hint: 'Those who move the business forward without being clients' },

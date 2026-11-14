@@ -27,3 +27,6 @@
 .sc-fi-tige, .sc-fi-montee { pointer-events: none; }
 /* Étroit : le bas de la page laisse la place de la barre d'Ajmani, pour que les derniers points d'un nuage ne passent pas dessous. */
 @media (max-width: 900px) { .sc-ct-cibles { padding-bottom: calc(var(--socle-hauteur-ajmani, 64px) + 12px); } }
+
+/* H03 : les petits boutons de Missions et tickets. */
+.sc-ct-cibles :is(.sc-ms-plus, .sc-ms-ajouter, .sc-ms-voir, .sc-ms-pastille)::after { content: ''; position: absolute; top: 50%; left: 50%; width: max(100%, var(--sc-zone, 38px)); height: max(100%, var(--sc-zone, 38px)); transform: translate(-50%, -50%); }

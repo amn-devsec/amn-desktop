@@ -1,3 +1,4 @@
+import { Columns3 } from 'lucide-react';
 import { declarerFamille, vue } from '../declarer';
 
 /**
@@ -69,6 +70,21 @@ export default declarerFamille({
         }),
         vue('board', '/tableau-projets', ['voir les projets en colonnes', 'déplacer un projet'], ['kanban', 'tableau', 'colonnes', 'projet', 'trello', 'tableau de projets'], {
           en: { verbes: ['see projects in columns', 'move a project'], motsCles: ['kanban', 'board', 'columns', 'project'] },
+        }),
+      ],
+    },
+    {
+      nom: { fr: 'Missions et tickets', en: 'Missions and tickets' },
+      action: 'suivre',
+      niveau: 'courant',
+      vues: [
+        vue('missions', '/missions', ['suivre les tickets de l’équipe', 'voir qui traite quoi', 'prendre en charge un ticket', 'déplacer un ticket'], ['mission', 'ticket', 'kanban', 'prise en charge', 'délai', 'file'], {
+          en: { verbes: ['follow the team tickets', 'see who handles what', 'take a ticket', 'move a ticket'], motsCles: ['mission', 'ticket', 'kanban', 'first response', 'queue'] },
+          nouveau: {
+            icone: Columns3,
+            ecran: () => import('../../journee/missions/PageMissions'),
+            indice: { fr: 'Les tickets de l’équipe et des clients, en colonnes', en: 'Team and client tickets, in columns' },
+          },
         }),
       ],
     },

@@ -202,6 +202,101 @@ if (M.CAL_modele) {
   });
 }
 
+/* ── H03 · Missions et tickets ──────────────────────────────────────────── */
+if (M.MIS_modele) {
+  console.log('\nMa journée — H03, Missions et tickets (colonnes, limites, minuteurs, dépôt)\n');
+  const MIS = M.MIS_modele;
+  const NOW = paris('2026-10-30', '10:42');
+  const tk = (id: string, colonne: string, o: Record<string, unknown> = {}): any => ({
+    id, titre: `Ticket ${id}`, colonne, urgent: false, client: null, etiquette: '', sousTaches: null, assigne: null, echeance: null, termineLe: null, commentaires: 0, partageClient: false, ordre: 0,
+    creeAt: iso('2026-10-27', '09:00'), priseEnChargeAt: null, entreeColonneAt: null, ...o,
+  });
+  const mis = (tickets: any[], o: Record<string, unknown> = {}) => MIS.modeleMissions({ tickets, maintenant: NOW, ...o });
+
+  await dit('l’ordre d’une colonne : urgents en tête, puis l’ordre manuel ; Terminé : le plus récent en haut, sept jours seulement', () => {
+    const m = mis([tk('b', 'a-faire', { ordre: 1 }), tk('a', 'a-faire', { ordre: 0 }), tk('u', 'a-faire', { urgent: true, ordre: 5 }), tk('t1', 'termine', { termineLe: '2026-10-27' }), tk('t2', 'termine', { termineLe: '2026-10-29' }), tk('t3', 'termine', { termineLe: '2026-10-20' })]);
+    assert.deepEqual(m.colonnes[0].cartes.map((c: any) => c.id), ['u', 'a', 'b']);
+    assert.deepEqual(m.colonnes[3].cartes.map((c: any) => c.id), ['t2', 't1'], 'le ticket de 10 jours est aux archives');
+    assert.equal(m.colonnes[3].total, 3, 'le compteur d’en-tête est le total réel');
+  });
+
+  await dit('trois cartes par colonne puis « Voir n autres » ; la colonne dépliée les montre toutes', () => {
+    const tous = ['1', '2', '3', '4', '5'].map((i) => tk(i, 'a-faire', { ordre: Number(i) }));
+    const m = mis(tous);
+    assert.deepEqual([m.colonnes[0].cartes.length, m.colonnes[0].reste, m.colonnes[0].total], [3, 2, 5]);
+    assert.equal(mis(tous, { depliees: new Set(['a-faire']) }).colonnes[0].reste, 0);
+  });
+
+  await dit('les limites : « 3 sur 3 » et colonne pleine pour En cours, 3 sur 4 pour En revue ; jamais de limite pour À faire et Terminé', () => {
+    const m = mis([tk('1', 'en-cours'), tk('2', 'en-cours'), tk('3', 'en-cours'), tk('4', 'en-revue'), tk('5', 'en-revue'), tk('6', 'en-revue')]);
+    const [af, ec, er, te] = m.colonnes;
+    assert.deepEqual([ec.limite, ec.pleine, ec.segments], [3, true, { total: 3, pris: 3 }]);
+    assert.deepEqual([er.limite, er.pleine, er.segments], [4, false, { total: 4, pris: 3 }]);
+    assert.deepEqual([af.limite, te.limite], [null, null]);
+    assert.equal(mis([tk('1', 'en-cours')], { limites: { 'en-cours': 1 } }).colonnes[1].pleine, true, 'la limite est un réglage');
+  });
+
+  await dit('les pastilles : urgents non terminés, En cours « n sur N », terminés depuis lundi, partagés non terminés ; un filtre ne change pas les compteurs', () => {
+    const tickets = [tk('1', 'a-faire', { urgent: true, partageClient: true }), tk('2', 'en-cours'), tk('3', 'termine', { termineLe: '2026-10-26', urgent: true, partageClient: true }), tk('4', 'termine', { termineLe: '2026-10-25' }), tk('5', 'en-revue', { partageClient: true })];
+    const m = mis(tickets);
+    assert.deepEqual(m.pastilles, { urgents: 1, enCours: { n: 1, limite: 3 }, termines: 1, partages: 2 });
+    const f = mis(tickets, { filtre: 'urgents' });
+    assert.deepEqual(f.pastilles, m.pastilles, 'compteurs globaux');
+    assert.deepEqual(f.colonnes.map((c: any) => c.cartes.length), [1, 0, 0, 0]);
+    assert.equal(mis(tickets, { filtre: 'partages' }).colonnes.flatMap((c: any) => c.cartes).length, 2);
+  });
+
+  await dit('le minuteur : prise en charge (urgent 30 min), résolution avant 17:00, délai dépassé en mots, revue à partir d’un jour, rien pour un ticket sans client', () => {
+    const urgent = MIS.minuteurDe(tk('u', 'a-faire', { urgent: true, client: 'Medina', creeAt: iso('2026-10-30', '10:24') }), NOW);
+    assert.deepEqual([urgent.genre, urgent.minutes, urgent.depasse, urgent.ton], ['prise', 12, false, 'attention']);
+    const tard = MIS.minuteurDe(tk('u', 'a-faire', { urgent: true, client: 'Medina', creeAt: iso('2026-10-30', '09:50') }), NOW);
+    assert.deepEqual([tard.depasse, tard.minutes, tard.ton], [true, 22, 'danger']);
+    const resolution = MIS.minuteurDe(tk('r', 'en-cours', { urgent: true, client: 'Menna', priseEnChargeAt: iso('2026-10-30', '08:48') }), NOW);
+    assert.deepEqual([resolution.genre, resolution.heureLimite, resolution.minutes], ['resolution', '17:00', 378]);
+    assert.equal(MIS.minuteurDe(tk('n', 'a-faire', { client: 'Menna', creeAt: iso('2026-10-30', '09:00') }), NOW), null, 'un délai normal loin de son terme ne se montre pas');
+    assert.equal(MIS.minuteurDe(tk('x', 'en-cours', { urgent: true }), NOW), null, 'sans client : pas de délai engagé');
+    assert.equal(MIS.minuteurDe(tk('d', 'termine', { client: 'Menna' }), NOW), null);
+    assert.equal(MIS.minuteurDe(tk('v', 'en-revue', { entreeColonneAt: iso('2026-10-30', '09:00') }), NOW), null, 'moins d’un jour en revue : rien à dire');
+    assert.equal(MIS.minuteurDe(tk('v', 'en-revue', { entreeColonneAt: iso('2026-10-28', '10:42') }), NOW).minutes, 2 * 24 * 60);
+  });
+
+  await dit('minutes ouvrées : vendredi 17:00 + 2 h → lundi 10:00 ; ni week-end, ni nuit', () => {
+    assert.equal(MIS.ajouterMinutesOuvrees(paris('2026-10-30', '17:00'), 120), paris('2026-11-02', '10:00'));
+    assert.equal(MIS.ajouterMinutesOuvrees(paris('2026-10-31', '11:00'), 30), paris('2026-11-02', '09:30'));
+    assert.equal(MIS.ajouterMinutesOuvrees(paris('2026-10-29', '10:00'), 60), paris('2026-10-29', '11:00'));
+  });
+
+  await dit('le délai moyen de prise en charge : sur les tickets clients des 30 derniers jours, null sans donnée', () => {
+    const m = mis([tk('a', 'en-cours', { client: 'X', creeAt: iso('2026-10-30', '08:30'), priseEnChargeAt: iso('2026-10-30', '08:48') }), tk('b', 'en-cours', { client: 'Y', creeAt: iso('2026-10-29', '09:00'), priseEnChargeAt: iso('2026-10-29', '09:26') }), tk('c', 'en-cours', { client: null, creeAt: iso('2026-10-29', '09:00'), priseEnChargeAt: iso('2026-10-29', '19:00') }), tk('d', 'en-cours', { client: 'Z', creeAt: iso('2026-08-01', '09:00'), priseEnChargeAt: iso('2026-08-01', '19:00') })]);
+    assert.equal(m.delaiMoyenMin, 22);
+    assert.equal(mis([tk('a', 'a-faire', { client: 'X' })]).delaiMoyenMin, null);
+    assert.equal(MIS.dureeCourte(22), '22 min');
+  });
+
+  await dit('déposer une carte : colonne pleine → renvoyée avec la limite (« Dépasser quand même » passe) ; vers Terminé, la personne assignée est prévenue', () => {
+    const t = tk('x', 'a-faire', { assigne: { nom: 'Riyad' } });
+    const tous = [t, tk('1', 'en-cours'), tk('2', 'en-cours'), tk('3', 'en-cours')];
+    assert.deepEqual(MIS.deposer(t, 'en-cours', tous), { genre: 'limite', vers: 'en-cours', limite: 3 });
+    assert.deepEqual(MIS.deposer(t, 'en-cours', tous, MIS.LIMITES_PAR_DEFAUT, true), { genre: 'ok', vers: 'en-cours', prevenu: null });
+    assert.deepEqual(MIS.deposer(t, 'termine', tous), { genre: 'ok', vers: 'termine', prevenu: 'Riyad' });
+    assert.deepEqual(MIS.deposer(t, 'a-faire', tous), { genre: 'meme-colonne' });
+  });
+
+  await dit('les dates d’une carte : Aujourd’hui, Demain, « Lun. 2 » à moins de 4 jours, « 3 nov. » au-delà, « Mar. 27 » en Terminé', () => {
+    const d = (j: string, termine = false) => MIS.dateDeCarte(j, '2026-10-30', termine);
+    assert.deepEqual(d('2026-10-30'), { genre: 'aujourdhui', texte: '' });
+    assert.deepEqual(d('2026-10-31'), { genre: 'demain', texte: '' });
+    assert.equal(d('2026-11-02').texte, 'Lun. 2');
+    assert.equal(d('2026-11-03').texte, '3 nov.');
+    assert.equal(d('2026-10-27', true).texte, 'Mar. 27');
+  });
+
+  await dit('H03 · textes : mêmes clés en fr et en, tutoiement', () => {
+    motsJustes(M.DICTIONNAIRES_MISSIONS, 'H03');
+    assert.equal(M.DICTIONNAIRES_MISSIONS.fr['sousTitre.delai'], 'Un seul tableau pour l’équipe et nos clients · délai moyen de prise en charge : {duree}');
+  });
+}
+
 /* ── Structure ──────────────────────────────────────────────────────────── */
 console.log('\nMa journée — structure des écrans de S1\n');
 const lister = (d: string): string[] => (fs.existsSync(path.join(racine, d)) ? fs.readdirSync(path.join(racine, d), { recursive: true, withFileTypes: true }).filter((f: any) => f.isFile()).map((f: any) => path.relative(racine, path.join(f.parentPath ?? f.path, f.name)).replace(/\\/g, '/')) : []);
