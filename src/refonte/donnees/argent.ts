@@ -276,7 +276,7 @@ export function genererFactures(ctx: Contexte, clients: readonly FicheClient[], 
     const an = f.issuedAt.slice(0, 4);
     const k = (suite.get(an) ?? 0) + 1;
     suite.set(an, k);
-    numeros.set(f, `F-${an}-${String(k).padStart(4, '0')}`);
+    numeros.set(f, `${an}-${String(k).padStart(4, '0')}`);
   }
   const factures: Facture[] = brutes
     .map((f, i) => ({ ...f, id: `fa-${String(i + 1).padStart(4, '0')}`, number: numeros.get(f) ?? '' }))
@@ -293,6 +293,66 @@ export function genererFactures(ctx: Contexte, clients: readonly FicheClient[], 
     d.paymentStatus = f.status === 'paid' ? 'paid' : f.status === 'issued' ? (f.dueAt < ctx.aujourdhui ? 'late' : 'pending') : 'unpaid';
   }
   return factures;
+}
+
+/* -------------------------------- Avoirs -------------------------------- */
+
+/**
+ * Les avoirs (G03, H07, MA04) : des factures de nature `creditNote`, `AV-AAAA-NNNN`, qui réduisent une facture d'origine.
+ * Sur une facture réglée, un avoir total ou partiel est un crédit à rembourser ou à reporter ; sur une facture encore due, un
+ * avoir PARTIEL (jamais total : la facture reste due) baisse le reste dû, et `soldeCents` le dit.
+ */
+export function genererAvoirs(ctx: Contexte, factures: Facture[]): Facture[] {
+  const h = hasard(graineDe(ctx.graine, 'avoirs'));
+  const eligibles = factures.filter((f) => (f.status === 'paid' || f.status === 'issued') && f.issuedAt !== '' && f.issuedAt <= ajouterJours(ctx.aujourdhui, -5) && (f.kind ?? 'invoice') === 'invoice');
+  const n = Math.min(compter(ctx.volumes.avoirs, [0, 1, 4, 30]), eligibles.length);
+  if (n === 0) return [];
+  // Un tiers sur des factures encore dues (avoir partiel), le reste sur des factures réglées.
+  const dues = h.melanger(eligibles.filter((f) => f.status === 'issued'));
+  const reglees = h.melanger(eligibles.filter((f) => f.status === 'paid'));
+  const nDues = n >= 3 ? Math.min(dues.length, Math.ceil(n / 3)) : 0;
+  const cibles = [...dues.slice(0, nDues), ...reglees.slice(0, n - nDues)];
+  if (cibles.length < n) cibles.push(...[...dues.slice(nDues), ...reglees.slice(n - nDues)].slice(0, n - cibles.length));
+  const bruts = cibles.map((f) => {
+    const partiel = f.status === 'issued' || h.chance(0.4);
+    const emis = [ajouterJours(f.issuedAt, 3 + h.entier(0, 25)), ctx.aujourdhui].sort()[0];
+    return { f, partiel, emis };
+  });
+  const parAn = new Map<string, number>();
+  const ordonnes = [...bruts].sort((a, b) => a.emis.localeCompare(b.emis) || a.f.id.localeCompare(b.f.id));
+  const avoirs = ordonnes.map(({ f, partiel, emis }, i): Facture => {
+    const an = emis.slice(0, 4);
+    const k = (parAn.get(an) ?? 0) + 1;
+    parAn.set(an, k);
+    const lines = f.lines.map((l, j) => ({ ...l, id: `av-l-${i + 1}-${j + 1}`, quantity: partiel ? Math.max(0.5, Math.round((l.quantity / 2) * 100) / 100) : l.quantity }));
+    const avoir: Facture = {
+      ...f,
+      id: `av-${String(i + 1).padStart(4, '0')}`,
+      number: `AV-${an}-${String(k).padStart(4, '0')}`,
+      issuedAt: emis,
+      dueAt: emis,
+      lines,
+      status: 'issued',
+      paidAt: '',
+      paymentMethod: '',
+      cancelReason: '',
+      notes: `Avoir sur la facture ${f.number}.`,
+      quoteId: null,
+      kind: 'creditNote',
+      creditNoteFor: f.id,
+      createdAt: iso(instantParis(emis, '10:00')),
+      updatedAt: iso(instantParis(emis, '10:00')),
+      soldeCents: 0,
+    };
+    return avoir;
+  });
+  // Le reste dû d'une facture encore due baisse de ce que ses avoirs ont repris (jamais sous zéro).
+  for (const f of factures) {
+    if (f.status !== 'issued') continue;
+    const repris = avoirs.filter((a) => a.creditNoteFor === f.id).reduce((s, a) => s + totauxDeFacture(a).ttcCents, 0);
+    f.soldeCents = Math.max(0, totauxDeFacture(f).ttcCents - repris);
+  }
+  return avoirs.sort((a, b) => b.issuedAt.localeCompare(a.issuedAt) || b.number.localeCompare(a.number));
 }
 
 /* ------------------------------- Paiements ------------------------------- */
@@ -514,7 +574,7 @@ export function genererMouvements(
   for (const f of factures) {
     if (f.status !== 'issued') continue;
     const attendu = f.dueAt < ctx.aujourdhui ? ajouterJours(ctx.aujourdhui, h.entier(2, 14)) : ajouterJours(f.dueAt, h.entier(0, 8));
-    liste.push({ compteId: principal.id, libelle: `Encaissement attendu ${f.clientNom}`, nature: 'Encaissement attendu', categorie: 'Ventes', date: attendu, montantCents: totauxDeFacture(f).ttcCents, reel: false, rapprochement: 'sans objet', lien: { type: 'facture', id: f.id }, recurrent: false });
+    liste.push({ compteId: principal.id, libelle: `Encaissement attendu ${f.clientNom}`, nature: 'Encaissement attendu', categorie: 'Ventes', date: attendu, montantCents: f.soldeCents > 0 ? f.soldeCents : totauxDeFacture(f).ttcCents, reel: false, rapprochement: 'sans objet', lien: { type: 'facture', id: f.id }, recurrent: false });
   }
   for (const [libelle, categorie, montant, jour] of fixes) {
     // Quatre mois : de quoi couvrir l'horizon de 90 jours de H09 (prévisions de trésorerie).
