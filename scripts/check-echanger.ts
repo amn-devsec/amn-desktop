@@ -959,12 +959,17 @@ await dit('aucun écran visuel avant le socle v4 : que des .ts, aucun fichier .t
   assert.deepEqual(tous.filter((f) => !f.endsWith('.ts')), []);
   assert.deepEqual(tous.map((f) => f.replace(/\.ts$/, '')).sort(), [...FICHIERS].sort(), 'un fichier de la zone n’est pas dans la liste du contrôle');
 });
+await dit('heures ouvrées : une seule source, la plage « clients » des réglages (lun.–ven. 9:00–18:00), rien de recopié', () => {
+  assert.deepEqual(B.HORAIRES_PAR_DEFAUT, { jours: [1, 2, 3, 4, 5], debut: 540, fin: 1080 });
+  assert.deepEqual(B.horairesDepuis({ jours: [1, 2], debut: '08:30', fin: '12:00' }), { jours: [1, 2], debut: 510, fin: 720 });
+});
+
 await dit('aucune brique visuelle : ni React, ni src/socle/ui, ni code partagé ; seulement les voisins, le dictionnaire du socle et le modèle des connecteurs (S9)', () => {
   const fautes: string[] = [];
   for (const { f, src } of sources) {
     for (const m of src.matchAll(/(?:import|export)[^'"]*?from\s+['"]([^'"]+)['"]/g)) {
       const i = m[1];
-      if (i.startsWith('./') || i === '../../socle/mots' || i === '../connecteurs/baie' || i === '../connecteurs/types') continue;
+      if (i.startsWith('./') || i === '../../socle/mots' || i === '../connecteurs/baie' || i === '../connecteurs/types' || i === '../connecteurs/reglages') continue;
       fautes.push(`${f}.ts importe ${i}`);
     }
   }

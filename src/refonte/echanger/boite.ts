@@ -1,3 +1,4 @@
+import { VALEURS_DE_DEPART } from '../connecteurs/reglages';
 import { ajouterJours, estJourOuvre, instantParis, jourDe, ms, partiesParis, pourcent, MS_MINUTE, type Instant, type Jour } from './commun';
 
 /**
@@ -43,8 +44,15 @@ export interface Horaires {
   debut: number;
   fin: number;
 }
-/** Les horaires d'ouverture de l'organisation (MX06 §6) : lundi à vendredi, 9 h à 18 h. Réglage d'équipe. */
-export const HORAIRES_PAR_DEFAUT: Horaires = { jours: [1, 2, 3, 4, 5], debut: 9 * 60, fin: 18 * 60 };
+const enMinutes = (hhmm: string) => Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3, 5));
+/**
+ * Les heures ouvrées (MX06 §6) : UNE seule source, la plage « clients » de `connecteurs/reglages.ts`
+ * (lundi à vendredi, 09:00–18:00, décision du CO, STATUT §1.32 n° 3). Rien n'est recopié ici.
+ */
+export function horairesDepuis(plage: { jours: readonly number[]; debut: string; fin: string }): Horaires {
+  return { jours: plage.jours, debut: enMinutes(plage.debut), fin: enMinutes(plage.fin) };
+}
+export const HORAIRES_PAR_DEFAUT: Horaires = horairesDepuis(VALEURS_DE_DEPART.plageClients);
 /** La promesse : 2 heures ouvrées (G07 §6, F40 §6), réglable dans « Règles de tri ». */
 export const PROMESSE_MINUTES = 120;
 /** La fin de la journée de travail : 19 h (G07 §6, Proposition), réglable. */

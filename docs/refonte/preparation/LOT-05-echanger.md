@@ -6,7 +6,7 @@
 
 ## 1. En bref
 
-- **Logique pure livrée** : `src/refonte/echanger/` (14 fichiers, sans React ni brique visuelle) et `scripts/check-echanger.ts` (`npm run check:echanger`, **88 contrôles**, ajouté à `package.json` et `editions.yml`). Les cas sont écrits à la main d'après la rubrique 6 de chaque fiche, puis rejoués sur les jeux fictifs aux volumes `vide`, `peu`, `normal`, `beaucoup`.
+- **Logique pure livrée** : `src/refonte/echanger/` (14 fichiers, sans React ni brique visuelle) et `scripts/check-echanger.ts` (`npm run check:echanger`, **89 contrôles**, ajouté à `package.json` et `editions.yml`). Les cas sont écrits à la main d'après la rubrique 6 de chaque fiche, puis rejoués sur les jeux fictifs aux volumes `vide`, `peu`, `normal`, `beaucoup`.
 - **G07 devient la boîte des CLIENTS** (courriel, WhatsApp, SMS) ; les échanges internes passent par Canaux (MX04) : la logique de `boite.ts` ne lit jamais les messages d'équipe. WhatsApp, SMS, le courriel et la téléphonie sont des **prises de la baie de S9** : `connecteurs.ts` lit leur état (`etatDePrise`) et dit « connecteur à brancher », « à reconnecter », sans rien simuler.
 - **H13 sans ligne pro** : `modeDAppel` répond `application-seulement` tant que la prise « téléphonie » n'est pas branchée et en forme (pas de pavé, pas de pièce « Standard »).
 - **Ce qui part chez un client reste au vouvoiement** : `reponsesAuto.ts` ne produit aucun texte client ; il **repère le tutoiement** dans un modèle destiné à un client (`tutoiementDansUnTexteClient`). L'interface (`i18n.ts`, ≈ 100 clés fr/en) tutoie.
