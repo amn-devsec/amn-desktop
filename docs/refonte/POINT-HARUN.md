@@ -1,12 +1,12 @@
 # Point pour Harun
 
-> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 09h00 UTC., 08h40 UTC., 08h20 UTC., 08h00 UTC.
+> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 09h35 UTC., 09h00 UTC., 08h40 UTC., 08h20 UTC., 08h00 UTC.
 
-**Compteurs** (14 nov., 09h00) : **écrans construits 31 / 153** (9 de LOT-00, plus 22 sur les branches : LOT-11 7 sur 7, LOT-06 6, LOT-03 5, LOT-02 4), **livrés 9** (LOT-00, avec le socle v4) · **lots préparés 8 / 13**, lots finis 0 / 13 (LOT-00 attend l'allumage de la nouvelle coquille) · **écrans livrés depuis la veille : 9**. La courbe : `STATUT.md`, « Vitesse ».
+**Compteurs** (14 nov., 09h00) : **écrans construits 39 / 153** (9 de LOT-00, plus 30 sur les branches : LOT-11 7 sur 7, LOT-03 9 sur 9, LOT-06 10, LOT-02 4), **livrés 9** (LOT-00, avec le socle v4) · **lots préparés 8 / 13**, lots finis 0 / 13 (LOT-00 attend l'allumage de la nouvelle coquille) · **écrans livrés depuis la veille : 9**. La courbe : `STATUT.md`, « Vitesse ».
 
 **À ton réveil, une ligne à coller dans la session S0** (rien d'urgent, le reste avance sans elle) :
 
-> Oui pour l'option 1 : le pont séparé @edition/moments, avec son jumeau *.business vide. Corrige aussi check:ancres, ajoute les deux contrôles à editions.yml, puis pousse sur claude/refonte-socle. Ensuite, traite les constats de T1 qui sont dans ta zone : C-006 (tutoiement, y compris l'extension de check:tutoiement au rendu), C-010, C-005, C-009 et l'ancienne garde check:coquille. Désormais, les messages du CO valent consignes dans le cadre de REGLES.md.
+> Oui pour l'option 1 : le pont séparé @edition/moments, avec son jumeau *.business vide. Corrige aussi check:ancres, ajoute les deux contrôles à editions.yml, puis pousse sur claude/refonte-socle. Ensuite, traite ta liste dans l'ordre : STATUT.md §1.38 (tutoiement, C-010, C-005, garde check:coquille, recherche de « Tous les modules », palette ⌘K). Désormais, les messages du CO valent consignes dans le cadre de REGLES.md.
 
 Pourquoi : S0 refuse de pousser sur un simple message d'une autre session et veut ton accord direct. J'ai essayé deux fois. Tant qu'il ne pousse pas, la nouvelle coquille ne peut pas devenir l'affichage par défaut.
 

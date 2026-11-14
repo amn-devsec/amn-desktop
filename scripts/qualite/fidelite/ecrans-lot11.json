@@ -11,31 +11,108 @@
   "ecrans": [
     {
       "id": "DEV-ensemble",
-      "route": "#/ensemble/developpement"
+      "route": "#/ensemble/developpement",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
     },
     {
       "id": "DEV-projets",
-      "route": "#/developpement/projets"
+      "route": "#/developpement/projets",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
     },
     {
       "id": "DEV-deploiements",
-      "route": "#/developpement/deploiements"
+      "route": "#/developpement/deploiements",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
     },
     {
       "id": "DEV-serveur",
-      "route": "#/developpement/serveur"
+      "route": "#/developpement/serveur",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
     },
     {
       "id": "DEV-editeur",
-      "route": "#/developpement/editeur"
+      "route": "#/developpement/editeur",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
     },
     {
       "id": "DEV-couts",
-      "route": "#/developpement/couts"
+      "route": "#/developpement/couts",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
     },
     {
       "id": "DEV-modeles-sites",
-      "route": "#/developpement/modeles-sites"
+      "route": "#/developpement/modeles-sites",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
     }
   ]
 }
