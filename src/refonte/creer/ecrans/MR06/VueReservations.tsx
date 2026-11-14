@@ -6,7 +6,6 @@ import { positionMaintenant, type FiltreRessource } from '../../reservations';
 import { compte } from '../../i18n';
 import { useMots, type CleMR06 } from './textes';
 import type { BlocVue, ModeleReservations } from './modele';
-import '../../creer.css';
 
 export interface VueReservationsProps {
   modele: ModeleReservations;

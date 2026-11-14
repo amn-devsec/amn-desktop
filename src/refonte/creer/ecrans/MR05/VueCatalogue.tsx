@@ -5,7 +5,6 @@ import { FilterChips } from '../../../../socle/ui/vivant';
 import { formaterEuro } from '../../commun';
 import { fichesCompletes, jaugeDuStock, margeDuProduit, ordreDeLaMosaique, prixTtcCents, tonDuStock, type ProduitEntree } from '../../catalogue';
 import { useMots } from './textes';
-import '../../creer.css';
 
 export interface ProduitVue extends ProduitEntree { reference?: string; fournisseur?: string; contenu?: string[]; ventes?: number[] }
 export interface VueCatalogueProps {

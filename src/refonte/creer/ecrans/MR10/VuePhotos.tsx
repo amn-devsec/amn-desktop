@@ -8,7 +8,6 @@ import {
   type DossierEntree, type Phase, type PhotoEntree, type TonCompletude,
 } from '../../photos';
 import { useMots, type CleMR10 } from './textes';
-import '../../creer.css';
 
 export interface PhotoVue extends PhotoEntree {
   /** L'image (lue en `data:` dans le dépôt) ; sans elle, la vignette est un repère dessiné. */

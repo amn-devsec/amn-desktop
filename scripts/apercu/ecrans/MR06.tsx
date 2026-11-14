@@ -9,6 +9,7 @@ import React, { useState } from 'react';
 import { VueReservations } from '../../../src/refonte/creer/ecrans/MR06/VueReservations';
 import { modeleDesReservations, type ReservationVue } from '../../../src/refonte/creer/ecrans/MR06/modele';
 import type { FiltreRessource } from '../../../src/refonte/creer/reservations';
+import '../../../src/refonte/creer/creer.css';
 import { ApercuBureau } from '../coquille';
 
 const jour = '2026-10-30';

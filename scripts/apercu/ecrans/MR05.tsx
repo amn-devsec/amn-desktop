@@ -7,6 +7,7 @@
 import React, { useState } from 'react';
 import { construireMonde } from '../../../src/refonte/donnees';
 import { VueCatalogue, type ProduitVue } from '../../../src/refonte/creer/ecrans/MR05/VueCatalogue';
+import '../../../src/refonte/creer/creer.css';
 import { ApercuBureau } from '../coquille';
 
 const monde = construireMonde();
