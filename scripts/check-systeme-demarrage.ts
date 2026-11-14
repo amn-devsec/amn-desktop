@@ -131,7 +131,8 @@ await dit('huit familles, dans l’ordre de la fiche, avec leurs titres et leurs
 
 await dit('le registre est sain (101 entrées) et CHAQUE identifiant de module de chaque modèle y est une entrée — aucun identifiant inventé', () => {
   assert.deepEqual(registre.fautes, []);
-  assert.equal(registre.entrees.length, 101);
+  // Les écrans neufs des lots (`nouveau`) s'ajoutent au registre ; les entrées d'origine restent 101.
+  assert.equal(registre.entrees.filter((e) => !e.vues.some((v) => 'nouveau' in v)).length, 101);
   for (const m of MODELES) {
     assert.equal(new Set(m.modules).size, m.modules.length, `${m.id} : un module revient deux fois`);
     for (const id of m.modules) assert.ok(idsEntrees.has(id), `${m.id} : « ${id} » n’est pas une entrée du registre`);
@@ -237,7 +238,8 @@ await dit('allègements : tout ce qui n’est pas activé s’allège, rien d’
     }
     assert.ok(sortie.length < catalogueCles.length, `${m.id} : tout est allégé`);
   }
-  assert.deepEqual(registre, geler, 'le registre ne doit pas bouger : rien n’est supprimé');
+  // Comparé sous forme JSON : un écran neuf porte des fonctions (`nouveau.ecran`, son icône), que la copie gelée ne garde pas.
+  assert.deepEqual(JSON.parse(JSON.stringify(registre)), geler, 'le registre ne doit pas bouger : rien n’est supprimé');
   for (const k of TOUJOURS) assert.ok(!R.calculerAllegements(['clients'], registre, catalogueCles, { toujoursOuverts: TOUJOURS }).includes(k), k);
 });
 

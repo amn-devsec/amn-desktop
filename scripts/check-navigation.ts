@@ -82,6 +82,8 @@ async function charger<T>(code: string): Promise<T> {
   const construit = await esbuild.build({
     plugins: [globVite],
     stdin: { contents: code, resolveDir: path.join(racine, 'scripts'), loader: 'ts' },
+    // Un écran neuf du registre importe sa feuille de style : le contrôle ne lit que la logique, la feuille est ignorée.
+    loader: { '.css': 'empty' },
     bundle: true,
     write: false,
     format: 'esm',
@@ -398,7 +400,8 @@ await dit('Créer et produire rapatrie les modules des écrans de LOT-06 (STATUT
   }
   const creer = R.familles.find((f) => f.id === 'creer');
   assert.deepEqual(creer?.actions.map((a) => a.id).slice(0, 3), ['fabriquer', 'livrer', 'stocker'], 'les trois groupes de F50 d’abord');
-  assert.equal(R.entrees.length, 101, 'on déplace, on ne perd rien');
+  // Les écrans neufs des lots (`nouveau`, LOT-04 : Tarifs et remises…) s'ajoutent ; les entrées d'origine restent 101.
+  assert.equal(R.entrees.filter((e) => !e.vues.some((v) => v.nouveau)).length, 101, 'on déplace, on ne perd rien');
   assert.deepEqual(fautes, [], fautes.join('\n'));
 });
 
@@ -468,7 +471,8 @@ await dit('une entrée à une seule vue garde le nom du catalogue (le rail et la
 });
 
 await dit('chaque module du catalogue a un nom anglais (l’interface anglaise ne retombe pas sur le français)', () => {
-  const sans = catalogue.filter((i) => !m.NAV_EN[i.key]?.label).map((i) => `${i.key} (${i.label})`);
+  // Un écran neuf du registre porte son nom anglais dans sa déclaration (`nom.en`), pas dans NAV_EN.
+  const sans = catalogue.filter((i) => !m.NAV_EN[i.key]?.label && !entreeDe(i.key)?.vues.find((v) => v.id === i.key && v.nouveau && v.entreeNom?.en)).map((i) => `${i.key} (${i.label})`);
   assert.deepEqual(sans, [], `sans nom anglais : ${sans.join(', ')}`);
 });
 
@@ -557,12 +561,13 @@ await dit('une famille ajoutée (un fichier) arrive aux familles, aux essentiels
   assert.ok(item, 'absent du catalogue');
   assert.equal(item.to, '/essai/gabarits');
   assert.equal(sections.find((s) => s.items.includes(item))?.space, 'workspace');
-  assert.deepEqual(m.ecransNeufs(r).map((e) => e.route), ['/essai/gabarits'], 'route non montée');
+  assert.deepEqual(m.ecransNeufs(r).map((e) => e.route).filter((x) => !m.ecransNeufs(R).some((e) => e.route === x)), ['/essai/gabarits'], 'route non montée');
   const g = m.composerRail({ catalogue: [...catalogue, item].map((i) => ({ key: i.key })), epingles: [], recents: [], quand: new Date(2026, 9, 21, 9), essentiels });
   assert.ok(g.essentiels.some((i) => i.key === 'essaiGabarits'), 'absent du rail');
-  // Le registre réel n'a aucun écran neuf : rien n'est ajouté au catalogue ni aux routes.
-  assert.deepEqual(m.sectionsDuRegistre(R), []);
-  assert.deepEqual(m.ecransNeufs(R), []);
+  // Le registre réel : chaque écran neuf déclaré par un lot est au catalogue (section « Nouveaux modules ») et monté, rien d'autre.
+  const neufs = R.vues.filter((v) => v.nouveau).map((v) => v.route).sort();
+  assert.deepEqual(m.ecransNeufs(R).map((e) => e.route).sort(), neufs);
+  assert.deepEqual(m.sectionsDuRegistre(R).flatMap((x) => x.items.map((i) => i.to)).sort(), neufs);
 });
 
 await dit('un module ajouté seul (un fichier) rejoint sa famille, après ceux du fichier de la famille', () => {

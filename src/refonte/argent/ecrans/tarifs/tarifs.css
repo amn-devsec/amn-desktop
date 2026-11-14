@@ -1,0 +1,110 @@
+/*
+  MA12 · TARIFS ET REMISES — cotes de la fiche (rubrique 3) : simulateur 804 × 274 (curseurs, jauge 224, décomposition
+  236, écart 24) ; marge moyenne 290 × 274 ; bandeau 1108 × 53 ; tuiles 360 × 148 en 3 colonnes, écart 14.
+*/
+
+.ar-tarifs__haut { display: grid; grid-template-columns: minmax(0, 804px) minmax(0, 290px); gap: 14px; }
+.ar-tarifs__vide { min-height: 400px; align-items: center; justify-content: center; }
+.ar-tarifs__simu { height: 274px; }
+.ar-tarifs__simu-titre { display: inline-flex; align-items: baseline; gap: 14px; }
+.ar-tarifs__simu-titre .ar-discret { font-size: 12.5px; font-weight: 400; }
+.ar-tarifs__simu-corps { display: grid; flex: 1; grid-template-columns: minmax(0, 1fr) 224px 236px; gap: 24px; padding: 14px 18px 16px; }
+.ar-tarifs__sans-cout { margin: 14px 18px; color: var(--socle-texte-3); font-size: 12.5px; }
+
+/* Les curseurs : piste 6 px, remplissage dégradé gris vers blanc, bouton blanc de 18 px. */
+.ar-tarifs__curseurs { display: flex; flex-direction: column; gap: 6px; }
+.ar-tarifs__curseur { display: flex; flex-direction: column; gap: 6px; padding-bottom: 8px; }
+.ar-tarifs__curseur-ligne { display: flex; justify-content: space-between; color: var(--socle-texte-courant); font-size: 12.5px; }
+.ar-tarifs__curseur-valeur { color: var(--socle-texte-1); font-size: 15px; font-weight: 600; }
+.ar-tarifs__piste { position: relative; display: block; height: 18px; }
+.ar-tarifs__piste::before,
+.ar-tarifs__piste::after { position: absolute; top: 6px; left: 0; height: 6px; border-radius: 3px; content: ''; }
+.ar-tarifs__piste::before { right: 0; background: var(--socle-piste); }
+.ar-tarifs__piste::after { width: var(--ar-rempli); background: linear-gradient(90deg, var(--socle-texte-2), var(--socle-texte-1)); }
+.ar-tarifs__piste input { position: absolute; inset: 0; z-index: 2; width: 100%; height: 18px; margin: 0; background: transparent; appearance: none; cursor: pointer; }
+.ar-tarifs__piste input::-webkit-slider-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--socle-texte-1); appearance: none; }
+.ar-tarifs__piste input::-moz-range-thumb { width: 18px; height: 18px; border: 0; border-radius: 50%; background: var(--socle-texte-1); }
+.ar-tarifs__curseur[data-actif='oui'] input::-webkit-slider-thumb { background: var(--fam-a); box-shadow: 0 0 0 5px color-mix(in srgb, var(--fam-a) 25%, transparent); }
+.ar-tarifs__piste input:focus-visible { outline: 2px solid var(--socle-focus); outline-offset: 2px; }
+.ar-tarifs__repere { position: absolute; top: 3px; z-index: 1; width: 1px; height: 12px; background: var(--socle-trait-tres-discret); }
+.ar-tarifs__repere[data-pointille='oui'] { width: 0; border-left: 1px dashed var(--socle-texte-2); background: transparent; }
+.ar-tarifs__reperes { position: relative; display: block; height: 14px; color: var(--socle-texte-3); font-size: 10.5px; }
+.ar-tarifs__reperes span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+.ar-tarifs__accord { margin: 0; font-size: 11.5px; }
+
+/* La jauge et son objectif. */
+.ar-tarifs__jauge { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.ar-tarifs__objectif-jauge { align-self: flex-end; color: var(--socle-texte-courant); font-size: 11.5px; }
+.ar-tarifs__jauge-valeur { display: block; margin-top: -58px; color: var(--socle-texte-1); font-size: 40px; font-weight: 600; line-height: 44px; text-align: center; }
+.ar-tarifs__jauge-legende { display: block; color: var(--socle-texte-2); font-size: 12px; text-align: center; }
+.ar-tarifs__jauge-texte { margin: 6px 0 0; color: var(--socle-texte-2); font-size: 12px; line-height: 17px; text-align: center; }
+
+/* La décomposition d'une unité. */
+.ar-tarifs__decomposition { display: flex; flex-direction: column; gap: 8px; }
+.ar-tarifs__pour-une { margin: 0 0 4px; color: var(--socle-texte-3); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+.ar-tarifs__unite-barre { position: relative; display: block; height: 20px; overflow: hidden; border-radius: 5px; background: color-mix(in srgb, var(--socle-etat-succes) 55%, transparent); }
+.ar-tarifs__unite-barre span { display: block; height: 100%; background: var(--socle-piste); }
+.ar-tarifs__unite-legende { display: flex; justify-content: space-between; margin: 0; font-size: 11px; }
+.ar-tarifs__kv { display: flex; flex-direction: column; gap: 8px; margin: 2px 0 0; }
+.ar-tarifs__kv > div { display: flex; justify-content: space-between; }
+.ar-tarifs__kv dt { color: var(--socle-texte-courant); font-size: 12.5px; }
+.ar-tarifs__kv dd { margin: 0; color: var(--socle-texte-1); font-size: 12.5px; }
+.ar-tarifs__effet { display: flex; font-size: 12px; flex-direction: column; gap: 2px; margin-top: auto; padding: 10px 12px; border: 1px solid color-mix(in srgb, var(--socle-etat-succes) 45%, transparent); border-radius: 10px; background: color-mix(in srgb, var(--socle-etat-succes) 7%, transparent); }
+.ar-tarifs__effet-titre { color: var(--socle-texte-3); font-size: 10.5px; letter-spacing: 0.08em; }
+.ar-tarifs__effet-valeur { color: var(--socle-etat-succes); font-size: 17px; font-weight: 700; }
+
+/* La marge moyenne et les règles. */
+.ar-tarifs__moyenne { height: 274px; padding: 14px 16px; }
+.ar-tarifs__moyenne-tete { display: flex; align-items: center; gap: 14px; }
+.ar-tarifs__moyenne-tete > span:last-child { display: flex; flex-direction: column; gap: 3px; }
+.ar-tarifs__anneau-valeur { color: var(--socle-texte-1); font-size: 13px; font-weight: 600; }
+.ar-tarifs__objectif { font-size: 12.5px; }
+.ar-tarifs__regles { margin-top: 18px; }
+.ar-tarifs__regles-titre { display: flex; justify-content: space-between; margin: 0 0 8px; color: var(--socle-texte-1); font-size: 13px; font-weight: 600; }
+.ar-tarifs__regles-titre .ar-discret { font-size: 11.5px; font-weight: 400; }
+.ar-tarifs__regles dl { margin: 0; }
+.ar-tarifs__regles dl > div { display: flex; justify-content: space-between; padding: 5px 0; color: var(--socle-texte-courant); font-size: 12.5px; }
+.ar-tarifs__regles dd { margin: 0; color: var(--socle-texte-1); }
+.ar-tarifs__regles-note { margin: 8px 0 0; color: var(--socle-texte-3); font-size: 11.5px; line-height: 16px; }
+
+.ar-tarifs__suggestion { margin-top: 14px; }
+
+/* La grille des prestations. */
+.ar-tarifs__grille { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 14px 0 0; padding: 0; list-style: none; }
+.ar-tarifs__tuile {
+  display: flex;
+  width: 100%;
+  height: 148px;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  border: 1px solid var(--socle-bord-carte);
+  border-radius: var(--socle-rayon-carte);
+  background: linear-gradient(180deg, var(--socle-carte-haut), var(--socle-carte-bas));
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.ar-tarifs__tuile:hover { border-color: var(--socle-bord-bouton); }
+.ar-tarifs__tuile[data-choisie='oui'] { border-color: var(--socle-bord-champ); }
+.ar-tarifs__tuile:focus-visible { outline: 2px solid var(--socle-focus); outline-offset: 2px; }
+.ar-tarifs__tuile-tete { display: flex; align-items: center; gap: 12px; }
+.ar-tarifs__tuile-nom { display: flex; min-width: 0; flex: 1; flex-direction: column; color: var(--socle-texte-1); font-size: 13.5px; font-weight: 600; }
+.ar-tarifs__tuile-nom span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ar-tarifs__tuile-nom .ar-discret { overflow: hidden; font-size: 11.5px; font-weight: 400; text-overflow: ellipsis; white-space: nowrap; }
+.ar-tarifs__vendue { font-size: 11.5px; white-space: nowrap; }
+.ar-tarifs__dans { padding: 3px 8px; border-radius: 99px; background: var(--socle-pilule); color: var(--socle-texte-courant); font-size: 11px; white-space: nowrap; }
+.ar-tarifs__prix { display: flex; align-items: baseline; gap: 10px; }
+.ar-tarifs__prix .ar-montant { color: var(--socle-texte-1); font-size: 20px; font-weight: 600; }
+.ar-tarifs__prix .ar-discret { font-size: 12px; }
+.ar-tarifs__marge { color: var(--socle-texte-courant); font-size: 12.5px; }
+.ar-tarifs__barre { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 14px; margin-top: auto; font-size: 12.5px; }
+.ar-tarifs__mention { margin: 10px 2px 0; }
+
+@container (max-width: 1100px) {
+  .ar-tarifs__haut { grid-template-columns: minmax(0, 1fr); }
+  .ar-tarifs__simu { height: auto; }
+  .ar-tarifs__simu-corps { grid-template-columns: minmax(0, 1fr); }
+  .ar-tarifs__grille { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

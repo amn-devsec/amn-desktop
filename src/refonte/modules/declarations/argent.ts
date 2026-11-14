@@ -1,3 +1,4 @@
+import { Tag } from 'lucide-react';
 import { declarerFamille, vue } from '../declarer';
 
 /**
@@ -75,6 +76,18 @@ export default declarerFamille({
       vues: [
         vue('donations', '/dons', ['collecter des dons', 'lancer une collecte'], ['don', 'collecte', 'cagnotte'], {
           en: { verbes: ['collect donations', 'start a fundraiser'], motsCles: ['donation', 'fundraiser', 'collection', 'crowdfunding'] },
+        }),
+      ],
+    },
+    {
+      // MA12 · Tarifs et remises (LOT-04) : un écran neuf, sans route d'origine.
+      nom: { fr: 'Tarifs et remises', en: 'Prices and discounts' },
+      action: 'vendre',
+      niveau: 'courant',
+      vues: [
+        vue('pricing', '/tarifs', ['fixer un prix', 'voir mes marges', 'accorder une remise', 'simuler un prix'], ['tarif', 'prix', 'marge', 'remise', 'grille tarifaire', 'prestation'], {
+          en: { verbes: ['set a price', 'see my margins', 'grant a discount', 'simulate a price'], motsCles: ['price', 'pricing', 'margin', 'discount', 'price list', 'service'] },
+          nouveau: { icone: Tag, ecran: () => import('../../argent/ecrans/tarifs/PageTarifs'), indice: { fr: 'La grille de prix, les marges et les remises', en: 'Price list, margins and discounts' } },
         }),
       ],
     },

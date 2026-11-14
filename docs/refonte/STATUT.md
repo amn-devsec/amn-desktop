@@ -1137,7 +1137,7 @@ Préparation par DS (14 nov.) : logique pure `src/refonte/argent/` (18 fichiers)
 | MA09 | Argent · Abonnements récurrents | mixte | en cours (préparation) | `abonnements.ts` : revenu récurrent, résiliations, prélèvements des 15 jours |
 | MA10 | Argent · Banque | mixte | en cours (préparation) | `banque.ts` : **lecture seule**, pièce proposée jamais appliquée seule, ordre préparé |
 | MA11 | Argent · Paie | mixte | en cours (préparation) | `paie.ts` : montants masqués par défaut ; aucune cotisation calculée à l'écran (les 46 % ne servent qu'aux jeux) |
-| MA12 | Argent · Tarifs et remises | mixte | en cours (préparation) | `tarifs.ts` : marge entière, objectif 55 %, remise au-delà de 5 % avec accord ; place des modules de F1 à décider |
+| MA12 | Argent · Tarifs et remises | mixte | **construit** (écran neuf du registre, `/tarifs`) | `ecrans/tarifs/` : simulateur (curseurs, jauge, unité, effet sur un mois), marge moyenne et règle de remise, suggestion, grille ; lien « Taux horaire de revient » (F1) quand il est au registre ; aperçu `MA12` : 21,4 % brut (données fictives) ; page réelle « grille non servie » ; seule la règle « sans validation 5 % » est connue (les autres règles sont un réglage à venir) ; `check:navigation` et `check:systeme-demarrage` acceptent désormais les écrans neufs des lots (les 101 entrées d'origine restent comptées) |
 
 **Manque au socle** (à vérifier sur la liste v4) :
 - brique « montant masqué / révélé » (MA11, aussi G09) ;
