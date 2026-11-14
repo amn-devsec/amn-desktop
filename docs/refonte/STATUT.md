@@ -3,7 +3,7 @@
 > Tenu par le CO. Une session ne modifie que **la section de son lot** dans « 7. Écrans » (une ligne par écran) ; tout le reste est au CO. Règles : [`REGLES.md`](REGLES.md).
 
 - Branche d'intégration : **`claude/refonte-vivante`** (décision du 31 oct., §1.1). Base `main` @ `630ef45`.
-- Dernière mise à jour : 2026-11-13. LOT-12 terminé côté S9, fusionné : §1.26. Passe finale v4 de S0 terminée, passage 2 de T1 : §1.25.
+- Dernière mise à jour : 2026-11-14. S6 passe à LOT-07 ; réponses à S7 (LOT-06) : §1.27. LOT-12 terminé : §1.26. Passage 2 de T1 sur le socle v4 : §1.25.
 - LOT-00 (socle v2) est fusionné (`488cdcc`), avec les 4 commits de S5. **Le socle v3 s'y ajoute avant la construction visuelle des lots** (S0 a ses consignes). D'ici là, chaque lot prépare et construit sa logique : §5.
 - Fusionnés aussi le 1er nov. : T1 (API d'essai, bac à sable, contrôle de fidélité) et les données fictives de SIM (100 jeux, `4fe559b`), avec `check:donnees` en CI (87 contrôles).
 - Gardes locales sur `refonte-vivante` : `typecheck`, `typecheck:business`, `lint` et les 55 contrôles sans navigateur de `editions.yml` verts.
@@ -532,6 +532,31 @@ Fusionnée (`refonte-vivante`, après `6d51dcb`), et tout reste vert après la f
 Ce qui reste, hors S9 :
 - **La couture du moteur de H20** : S6, dans LOT-07 (§1.22 n° 4).
 - **Le relevé des tarifs pour H21** : S6, dans LOT-07, au moment de construire H21. Chaque prix est relevé sur la page officielle de l'outil, avec la date du relevé, et il est montré comme « indicatif au <date> ». Aucun prix n'est inventé.
+
+### 1.27 S6 passe à LOT-07 ; réponses du CO à S7 (LOT-06), 14 nov.
+
+**S6** : sa priorité de sécurité est terminée, sauf une étape qui attend le redémarrage d'amn-api (le détail reste privé). Le verrou de distribution reste fermé (§1.16). S6 passe à **LOT-07**, en préparation jusqu'à la fusion du socle v4. La couture du moteur de H20 et le relevé des tarifs de H21 (§1.26) en font partie.
+
+**S7, LOT-06** (`claude/refonte-creer` @ `f417bfe`) :
+
+| # | Question | Décision |
+|---|---|---|
+| 1 | Familles du registre (F50 annonce 16 modules, 11 rangés ailleurs) | **On rapatrie dans `creer`** les modules dont l'écran est un écran de LOT-06 (les 15 du §7), avec les actions `fabriquer`, `livrer` et `stocker`. C'est ce que montre la barre latérale v4. Un module qui est l'écran d'un autre lot garde sa famille : F50 le montre comme une tuile de lien, sans doublon dans le registre (§1.19 n° 1). **S7 donne la liste exacte dans sa note, et S5 (propriétaire du registre) fait le déplacement** sur sa branche, en prévenant les lots concernés par le CO. |
+| 2 | MR05 : collection `products` | **Pas de nouvelle collection synchronisée pour l'instant.** Elle toucherait la synchronisation et le contrat d'amn-api. MR05 se construit sur les articles de stock (`stockItems`), et ce qui manque s'affiche « non disponible », avec la raison. La collection `products` devient une **demande à amn-api** (Harun, Mohamed suppléant). |
+| 3 | « Fabrication » et « Bons d'intervention » | « Bons d'intervention » est **gardé**, comme libellé de la fiche posé sur `InterventionsScreen` (`/interventions`). « Fabrication » est **masqué** tant qu'il n'existe pas : rien n'est simulé. |
+| 4 | Modèles de données plus riches que le réel | Même règle que la n° 2 : aucune session n'ajoute de collection synchronisée sans l'accord de Harun. Les écrans se construisent sur l'existant, et le reste est « non disponible » avec une demande à amn-api, notée dans la section du lot. |
+| 5 | Géocodage et plan (MR03) | **Plan schématique**, comme `ItinerairesScreen`. Aucun service externe et aucune clé pour l'instant : un futur connecteur, local d'abord, dans le modèle de S9. |
+| 6 | Vidéo : deux sources | **Garder les deux et les relier**, sans fusion de modèle. |
+| 7 | Formats chiffrés | Importer `src/socle/formats.ts` (socle v4) une fois fusionné, et **supprimer la copie** de `commun.ts`. |
+| 8 | Apostrophes courbes | **Oui** : `check:langue` l'emporte sur la fiche. |
+| 9 | Droit de publier (MR01, MR02) | **Distinct du droit d'écrire.** Il sera défini dans H19 (LOT-07). D'ici là, seul le rôle dirigeant publie, et les autres passent par « Demander la publication ». |
+| 10 | Fichiers lourds (logos, photos, rushes) | **Aucun stockage nouveau.** On réutilise ce que le dépôt sait déjà stocker ; le reste est « non disponible », avec une demande à amn-api. Le stockage d'équipe attend le serveur (LOT-13). |
+| 11 | Dates des jeux | Le recalage à 10:42 est confié à SIM (§1.24). |
+| 12 | Champs manquants | SIM les reprend depuis la section LOT-06 (§1.24, sa tâche 5). |
+| c | Routes de MR06 et MR10 | Deux routes nouvelles, dans `appRoot.internal.tsx` seulement : **`/reservations`** (MR06) et **`/photos-chantier`** (MR10). |
+| d | Tuile « Modèles de sites » dans F50 | **Oui** : une tuile de lien vers DEV-modeles-sites (LOT-11), sans doublon dans le registre (§1.17 n° 3). |
+
+**Zips v4** : S5 et S7 les ont reçus le 14 nov. S7 lève ses points « à vérifier », et S5 démarre LOT-03 puis LOT-05.
 
 ## 2. Les lots
 
