@@ -48,7 +48,7 @@ automatique, relance (voir `reminders`), périodicités autres que mensuelle.
   un seul bouton principal par écran. Aucune couleur écrite à la main.
 - Textes français **au tutoiement** (guide de voix `src/socle/mots/voix.ts`), vérifié par `verifier.mjs`. Ce
   qui part chez un client reste au vouvoiement (le texte « pour le client » de l'échéancier).
-- **Place dans les écrans de DS** (provisoire, STATUT §1.33 n° 4) : H07 Devis (`/facturation/devis`), par un lien vers `/echeancier`.
+- **Place dans les écrans de DS** (provisoire, STATUT §1.33 n° 4) : MA03 Paiements en ligne (`/acompte`), par un lien vers `/echeancier` (place corrigée par le CO le 14 nov.).
   Le lien appartient à l'écran de DS, qui n'existe pas encore : ce module ne l'écrit pas.
 - Déclaration au registre de S5 : `src/refonte/modules/declarations/echeancier.ts` — **pas encore posée** (`declarerModule` + `nouveau`, qui monte
   la route par `routesDuRegistre()`).

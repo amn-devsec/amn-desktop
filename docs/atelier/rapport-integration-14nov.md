@@ -90,10 +90,9 @@ Ni `check:isolation`, `check:mouvement`, `check:contraste`, `check:signal`, `che
 3. **`tauxHoraire` : « courant » et non « essentiel »**, parce que le rail est plafonné à 16 essentiels
    (`check:navigation`) et en compterait 17. Pour l'avoir dans le rail, le CO doit relever le plafond ou retirer un
    essentiel.
-4. **Place dans les écrans de DS** (§1.33 n° 4, provisoire) : MA12 (Taux horaire), H07 (Paiement en plusieurs fois),
-   MA03 (Comparateur de devis). Elle me semble **inversée pour les deux derniers** : un échéancier irait avec les
-   paiements (MA03), et un comparateur de devis fournisseurs avec les achats plutôt qu'avec le Devis client (H07).
-   Appliquée telle qu'écrite dans `PRET.md` ; à confirmer. Les liens appartiennent aux écrans de DS (inexistants).
+4. **Place dans les écrans de DS** (§1.33 n° 4) : **corrigée par le CO le 14 nov.** : Taux horaire dans MA12, Paiement en
+   plusieurs fois dans MA03 (Paiements en ligne), Comparateur de devis dans H07 (Devis). Les liens appartiennent aux
+   écrans de DS (inexistants) ; mes fiches et mes déclarations proposées portent la place corrigée.
 5. **Les modules travaillent sur des données d'exemple** : rien n'est enregistré. Un module fermé à l'organisation
    (liste explicite de modules) renvoie à l'Accueil, comme les autres. Les brancher aux collections de
    l'organisation (isolées par organisation) est un second temps, hors de cette intégration.

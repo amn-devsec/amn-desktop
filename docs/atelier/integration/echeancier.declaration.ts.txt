@@ -6,7 +6,7 @@ import { declarerModule, vue } from '../declarer';
  *
  * L'écran vit dans `src/ateliers/echeancier/` (supprimable seul) ; ce fichier le range dans la famille Argent et monte sa
  * route par le registre (`nouveau`). Pour le retirer : ce fichier et ce dossier. Place provisoire dans les écrans
- * de DS : H07 Devis, par un lien (STATUT §1.33 n° 4).
+ * de DS : MA03 Paiements en ligne, par un lien (STATUT §1.33 n° 4).
  */
 export default declarerModule({
   famille: 'argent',

@@ -17,11 +17,11 @@
 **12 novembre 2026** (STATUT §1.21, relayé par le CO le 14 novembre 2026) : Harun
 a choisi trois modules, intégrés en premier, un commit de fusion `--no-ff` chacun.
 
-| Module | Famille · action | Place dans les écrans de DS (provisoire, §1.33 n° 4) | État |
+| Module | Famille · action | Place dans les écrans de DS (§1.33 n° 4, corrigée par le CO le 14 nov.) | État |
 |---|---|---|---|
 | `tauxHoraire` Taux horaire de revient | argent · prévoir | MA12 Tarifs et remises (`/calculateurs`) | au socle v4 (14 nov.) ; déclaration au registre de S5 **pas encore posée** (en attente d’accord, voir le rapport) |
-| `echeancier` Paiement en plusieurs fois | argent · facturer | H07 Devis (`/facturation/devis`) | au socle v4 (14 nov.) ; déclaration au registre de S5 **pas encore posée** (en attente d’accord, voir le rapport) |
-| `comparateurDevis` Comparateur de devis | argent · depenser | MA03 Paiements en ligne (`/acompte`) | au socle v4 (14 nov.) ; déclaration au registre de S5 **pas encore posée** (en attente d’accord, voir le rapport) |
+| `echeancier` Paiement en plusieurs fois | argent · facturer | MA03 Paiements en ligne (`/acompte`) | au socle v4 (14 nov.) ; déclaration au registre de S5 **pas encore posée** (en attente d’accord, voir le rapport) |
+| `comparateurDevis` Comparateur de devis | argent · depenser | H07 Devis (`/facturation/devis`) | au socle v4 (14 nov.) ; déclaration au registre de S5 **pas encore posée** (en attente d’accord, voir le rapport) |
 
 **Les autres attendent**, y compris le Rétroplanning. `bonsCadeaux` reste bloqué
 (code devinable). Rien d'autre n'est branché.
