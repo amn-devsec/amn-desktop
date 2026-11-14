@@ -68,6 +68,10 @@ const M = await charger<any>(
     "export * from '../src/refonte/garde/fil';",
     "export * from '../src/refonte/garde/alertes';",
     "export * as carte from '../src/refonte/garde/carte';",
+    "export * from '../src/refonte/garde/etat';",
+    "export * from '../src/refonte/garde/maturite';",
+    "export * from '../src/refonte/garde/alertes-ouvertes';",
+    "export * from '../src/refonte/garde/rondes';",
   ].join('\n'),
 );
 
@@ -304,6 +308,123 @@ await dit('les quartiers et les gardes : sans NaN, pour 1 à 12 équipes et 0 à
       const lien = C.cheminLien(q.milieu, i, C.polaire(300, q.milieu + 170));
       assert.ok(!/NaN/.test(lien), lien);
     }
+  }
+});
+
+/* ── 6 bis. La logique de LOT-08 ─────────────────────────────────────────── */
+console.log('\nGarde visible — la logique de La Garde et la supervision (LOT-08)\n');
+
+const H = 3_600_000;
+const MAINT = Date.parse('2026-11-14T10:42:00Z');
+const il = (heures: number) => new Date(MAINT - heures * H).toISOString();
+const base = { score: 80, alertes: [] as string[], ronde: { dernierePasseeAt: il(1), intervalleMs: 2 * H }, maintenant: MAINT };
+
+await dit('état : le score seul donne Sain à 70, Attention de 45 à 69, Critique sous 45', () => {
+  const e = (score: number) => M.etatDOrganisation({ ...base, score }).etat;
+  assert.deepEqual([100, 70, 69, 45, 44, 0].map(e), ['sain', 'sain', 'attention', 'attention', 'critique', 'critique']);
+});
+await dit('état : une alerte Critique rend Critique, une Moyenne Attention, une Faible ne change rien', () => {
+  assert.equal(M.etatDOrganisation({ ...base, alertes: ['critique'] }).etat, 'critique');
+  assert.equal(M.etatDOrganisation({ ...base, alertes: ['faible', 'moyenne'] }).etat, 'attention');
+  assert.equal(M.etatDOrganisation({ ...base, alertes: ['faible', 'faible'] }).etat, 'sain');
+});
+await dit('état : une ronde en retard de plus de 2 intervalles donne Attention, de plus de 24 h Critique', () => {
+  const r = (heures: number) => M.etatDOrganisation({ ...base, ronde: { dernierePasseeAt: il(heures), intervalleMs: 2 * H } }).etat;
+  assert.equal(r(4), 'sain', 'exactement 2 intervalles : pas encore en retard');
+  assert.equal(r(4.01), 'attention');
+  assert.equal(r(24), 'attention');
+  assert.equal(r(24.01), 'critique');
+});
+await dit('état : le plus grave des trois l’emporte, et chaque motif est rendu', () => {
+  const s = M.etatDOrganisation({ ...base, score: 90, alertes: ['moyenne'], ronde: { dernierePasseeAt: il(30), intervalleMs: H } });
+  assert.equal(s.etat, 'critique');
+  assert.deepEqual(s.motifs.map((m: any) => [m.critere, m.etat]), [['score', 'sain'], ['alertes', 'attention'], ['ronde', 'critique']]);
+});
+await dit('état : un critère inconnu est dit « indisponible », jamais deviné', () => {
+  const s = M.etatDOrganisation({ score: null, alertes: [], ronde: null, maintenant: MAINT });
+  assert.equal(s.etat, 'sain');
+  assert.deepEqual(s.indisponibles, ['score', 'ronde']);
+  assert.equal(M.etatDOrganisation({ score: null, alertes: ['critique'], ronde: null, maintenant: MAINT }).etat, 'critique');
+  assert.equal(M.etatDOrganisation({ ...base, ronde: { dernierePasseeAt: 'pas une date', intervalleMs: H } }).indisponibles[0], 'ronde');
+});
+await dit('maturité : cinq niveaux par tranches de 20, bornes comprises', () => {
+  const n = (x: number) => M.niveauDeScore(x);
+  assert.deepEqual([0, 19, 20, 39, 40, 59, 60, 79, 80, 100].map(n), [1, 1, 2, 2, 3, 3, 4, 4, 5, 5]);
+  assert.deepEqual([-5, 250, Number.NaN].map(n), [1, 5, 1], 'hors bornes : ramené entre 0 et 100');
+});
+await dit('maturité : les points qui manquent au niveau suivant', () => {
+  assert.equal(M.pointsAuNiveauSuivant(62), 18);
+  assert.equal(M.pointsAuNiveauSuivant(79), 1);
+  assert.equal(M.pointsAuNiveauSuivant(80), 0);
+  assert.equal(M.pointsAuNiveauSuivant(100), 0);
+  assert.equal(M.seuilDuNiveauSuivant(62), 80);
+  assert.equal(M.seuilDuNiveauSuivant(95), null);
+  assert.equal(M.seuilDuNiveau(3), 40);
+});
+
+const rem = (id: string, gravite: string, etat = 'ouverte', orgId: string | null = 'o1') => ({ id, gravite, etat, orgId, titre: `R ${id}`, createdAt: il(1) });
+await dit('alertes : trois niveaux affichés, un mot inconnu tombe en Moyenne', () => {
+  const g = M.graviteAffichee;
+  assert.deepEqual(['critique', 'critical', 'CRITIQUE'].map(g), ['critique', 'critique', 'critique']);
+  assert.deepEqual(['haute', 'moyenne', 'normale', 'warning', 'inconnue', '', null].map(g), ['moyenne', 'moyenne', 'moyenne', 'moyenne', 'moyenne', 'moyenne', 'moyenne']);
+  assert.deepEqual(['faible', 'basse', 'info'].map(g), ['faible', 'faible', 'faible']);
+});
+await dit('alertes : remontées ouvertes + incidents non résolus + alertes Cyber non prises, chacune une fois', () => {
+  const b = M.alertesOuvertes({
+    remontees: [rem('r1', 'critique'), rem('r2', 'normale'), rem('r3', 'haute', 'resolue'), rem('r1', 'critique')],
+    incidents: [
+      { id: 'i1', orgId: 'o1', severity: 'critical', status: 'new', titre: 'I1', depuis: il(2) },
+      { id: 'i2', orgId: 'o2', severity: 'info', status: 'resolved', titre: 'I2', depuis: il(3) },
+      { id: 'i3', orgId: 'o2', severity: 'warning', status: 'acknowledged', titre: 'I3', depuis: il(4) },
+    ],
+    cyber: [
+      { id: 'c1', gravite: 'faible', orgId: 'o2', titre: 'C1', depuis: il(5), statut: 'ouverte', remonteesDuDossier: [] },
+      { id: 'c2', gravite: 'critique', orgId: 'o1', titre: 'C2', depuis: il(6), statut: 'prise', remonteesDuDossier: [] },
+    ],
+  });
+  assert.equal(b.total, 5, 'r1 compté une fois, r3 résolue et i2 résolu écartés, c2 prise écartée');
+  assert.deepEqual(b.parSource, { garde: 2, incident: 2, cyber: 1 });
+  assert.deepEqual(b.parGravite, { critique: 2, moyenne: 2, faible: 1 });
+  assert.equal(b.parGravite.critique + b.parGravite.moyenne + b.parGravite.faible, b.total);
+  assert.equal(b.alertes[0].gravite, 'critique');
+  assert.equal(b.alertes[b.alertes.length - 1].gravite, 'faible');
+});
+await dit('alertes : les remontées du dossier d’une alerte Cyber ne sont pas recomptées', () => {
+  const b = M.alertesOuvertes({
+    remontees: [rem('r1', 'haute'), rem('r2', 'haute'), rem('r9', 'haute')],
+    incidents: [],
+    cyber: [{ id: 'c1', gravite: 'haute', orgId: 'o1', titre: 'C1', depuis: il(1), statut: 'ouverte', remonteesDuDossier: ['r1', 'r2'] }],
+  });
+  assert.equal(b.total, 2);
+  assert.deepEqual(b.alertes.map((a: any) => a.cle).sort(), ['cyber:c1', 'garde:r9']);
+});
+await dit('alertes : le filtre d’organisation ne garde que les siennes', () => {
+  const src = { remontees: [rem('r1', 'critique', 'ouverte', 'o1'), rem('r2', 'critique', 'ouverte', 'o2'), rem('r3', 'faible', 'ouverte', null)], incidents: [], cyber: [] };
+  assert.equal(M.alertesOuvertes(src, 'o1').total, 1);
+  assert.equal(M.alertesOuvertes(src, 'o2').alertes[0].id, 'r2');
+  assert.equal(M.alertesOuvertes(src).total, 3);
+});
+
+const ligne = (orgId: string | null, rondeId: string | null, at: string, agent = 'sites.a') => ({ id: `${orgId}${at}`, agent, equipe: 'sites', orgId, ressource: null, action: 'a', pourquoi: 'p', regle: null, resultat: 'regle', detail: null, rondeId, mauvais: false, mauvaisNote: null, mauvaisPar: null, correction: null, createdAt: at });
+await dit('dernière ronde d’une organisation : la plus récente ligne qui porte un rondeId', () => {
+  const j = [ligne('o1', 'x1', il(5)), ligne('o1', 'x2', il(2)), ligne('o1', null, il(1)), ligne('o2', 'y1', il(0.5)), ligne(null, 'z', il(0.1))];
+  const r = M.derniereRondeDOrganisation(j, 'o1');
+  assert.equal(r.rondeId, 'x2');
+  assert.equal(r.at, il(2));
+  assert.equal(M.derniereRondeDOrganisation(j, 'o3'), null, 'aucune ronde connue : null, jamais un retard supposé');
+  assert.equal(M.derniereRondeDOrganisation([ligne('o1', null, il(1))], 'o1'), null);
+});
+await dit('dernières rondes : tout le parc en un passage, mêmes réponses', () => {
+  const j = [ligne('o1', 'x1', il(5)), ligne('o1', 'x2', il(2)), ligne('o2', 'y1', il(0.5)), ligne(null, 'z', il(0.1)), ligne('o3', null, il(1))];
+  const m = M.dernieresRondesParOrganisation(j);
+  assert.deepEqual([...m.keys()].sort(), ['o1', 'o2']);
+  for (const o of ['o1', 'o2']) assert.deepEqual(m.get(o), M.derniereRondeDOrganisation(j, o));
+});
+await dit('la logique de LOT-08 ne lit ni l’horloge ni le réseau', () => {
+  for (const f of ['etat', 'maturite', 'alertes-ouvertes', 'rondes']) {
+    const src = lire(`src/refonte/garde/${f}.ts`).replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+    assert.ok(!/Date\.now\(|new Date\(\)|fetch\(|bridge\(|garde\.\w+\(/.test(src), `${f}.ts lit l'horloge ou le réseau`);
+    assert.ok(!/from '\.\.\/\.\.\/(bureaux|components|screens|state)/.test(src), `${f}.ts importe un écran`);
   }
 });
 

@@ -38,20 +38,27 @@ function useRelecture(types: string[], delaiMs = 1500): number {
   return n;
 }
 
-export function useJournalGarde(depuis: Date | null, limit = 200): { journal: GardeJournalEntree[]; erreur: boolean; pret: boolean } {
+export interface FiltresJournal {
+  /** Seulement les lignes de cette organisation. */
+  org?: string;
+  resultat?: GardeJournalEntree['resultat'];
+}
+
+export function useJournalGarde(depuis: Date | null, limit = 200, filtres: FiltresJournal = {}): { journal: GardeJournalEntree[]; erreur: boolean; pret: boolean } {
   const [etat, setEtat] = useState<{ journal: GardeJournalEntree[]; erreur: boolean; pret: boolean }>({ journal: [], erreur: false, pret: false });
   const relu = useRelecture(['garde:journal', 'garde:correction']);
   const since = depuis ? depuis.toISOString() : undefined;
+  const { org, resultat } = filtres;
   useEffect(() => {
     let vivant = true;
     garde
-      .journal({ since, limit })
+      .journal({ since, limit, ...(org ? { org } : {}), ...(resultat ? { resultat } : {}) })
       .then((journal) => vivant && setEtat({ journal, erreur: false, pret: true }))
       .catch(() => vivant && setEtat((e) => ({ ...e, erreur: true, pret: true })));
     return () => {
       vivant = false;
     };
-  }, [since, limit, relu]);
+  }, [since, limit, org, resultat, relu]);
   return etat;
 }
 
