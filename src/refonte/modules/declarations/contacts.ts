@@ -1,4 +1,4 @@
-import { Award, Filter } from 'lucide-react';
+import { Award, Contact, Filter } from 'lucide-react';
 import { declarerFamille, vue } from '../declarer';
 
 /**
@@ -27,6 +27,21 @@ export default declarerFamille({
       vues: [
         vue('clients', '/clients', ['ajouter un client', 'retrouver un client', 'faire un devis', 'créer un devis', 'trouver un contact', 'voir l’historique d’un client'], ['client', 'cliente', 'fiche', 'devis', 'crm', 'contact', 'répertoire', 'carnet d’adresses'], {
           en: { verbes: ['add a customer', 'find a customer', 'make a quote', 'create a quote'], motsCles: ['customer', 'client', 'contact', 'quote', 'estimate', 'crm'] },
+        }),
+      ],
+    },
+    {
+      nom: { fr: 'Fiches contacts', en: 'Contact sheets' },
+      action: 'clients',
+      niveau: 'courant',
+      vues: [
+        vue('contactsFiches', '/contacts/fiches', ['retrouver une personne', 'voir ce que je sais d’un contact', 'préparer un échange avec une personne'], ['personne', 'contact', 'interlocuteur', 'carnet', 'fonction', 'préférences'], {
+          en: { verbes: ['find a person', 'see what I know about a contact', 'prepare a conversation with a person'], motsCles: ['person', 'contact', 'phonebook', 'role', 'preferences'] },
+          nouveau: {
+            icone: Contact,
+            ecran: () => import('../../contacts/personnes/PageContacts'),
+            indice: { fr: 'Les personnes derrière tes clients : fonction, coordonnées, relation', en: 'The people behind your clients: role, details, relationship' },
+          },
         }),
       ],
     },

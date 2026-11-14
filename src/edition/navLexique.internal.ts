@@ -42,6 +42,7 @@ const NAV_EN_INTERNE: Record<string, TraductionNav> = {
   ssl: { label: 'SSL Monitor', hint: 'TLS certificates' },
   // LOT-02 (refonte) : les écrans neufs de « Mes contacts et clients », déclarés au registre des modules.
   pipelineCommercial: { label: 'Sales pipeline', hint: 'The opportunity funnel, from first contact to signature' },
+  contactsFiches: { label: 'Contact sheets', hint: 'The people behind your clients: role, details, relationship' },
   fideliteNiveaux: { label: 'Loyalty tiers', hint: 'The tier ladder: who is Bronze, Silver or Gold' },
 };
 

@@ -55,9 +55,9 @@ async function charger<T>(code: string): Promise<T> {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const M = await charger<any>(
-  "export * as L from '../src/refonte/contacts';\nexport * as monde from '../src/refonte/donnees';\nexport { DICTIONNAIRES_CONTACTS } from '../src/refonte/contacts/i18n';\nexport * as V from '../src/refonte/connecteurs/reglages';\nexport * as H from '../src/refonte/contacts/hub/modele';\nexport * as N from '../src/refonte/contacts/hub/nuage';\nexport { DICTIONNAIRES_HUB } from '../src/refonte/contacts/hub/i18n';\nexport { depuisMonde } from '../src/refonte/contacts/sources/depuisMonde';\nexport * as C from '../src/refonte/contacts/clients/modele';\nexport { DICTIONNAIRES_CLIENTS } from '../src/refonte/contacts/clients/i18n';\nexport * as G from '../src/refonte/contacts/fiche/modele';\nexport { DICTIONNAIRES_FICHE } from '../src/refonte/contacts/fiche/i18n';\nexport * as P from '../src/refonte/contacts/prospects/modele';\nexport * as PN from '../src/refonte/contacts/prospects/nuage';\nexport { DICTIONNAIRES_PROSPECTS } from '../src/refonte/contacts/prospects/i18n';\nexport * as RT from '../src/refonte/contacts/retours/modele';\nexport { DICTIONNAIRES_RETOURS } from '../src/refonte/contacts/retours/i18n';\nexport * as FO from '../src/refonte/contacts/fournisseurs/modele';\nexport { DICTIONNAIRES_FOURNISSEURS } from '../src/refonte/contacts/fournisseurs/i18n';\nexport * as PL from '../src/refonte/contacts/pipeline/modele';\nexport * as PG from '../src/refonte/contacts/pipeline/geometrie';\nexport { DICTIONNAIRES_PIPELINE } from '../src/refonte/contacts/pipeline/i18n';\nexport * as FI from '../src/refonte/contacts/fidelite/modele';\nexport { DICTIONNAIRES_FIDELITE } from '../src/refonte/contacts/fidelite/i18n';",
+  "export * as L from '../src/refonte/contacts';\nexport * as monde from '../src/refonte/donnees';\nexport { DICTIONNAIRES_CONTACTS } from '../src/refonte/contacts/i18n';\nexport * as V from '../src/refonte/connecteurs/reglages';\nexport * as H from '../src/refonte/contacts/hub/modele';\nexport * as N from '../src/refonte/contacts/hub/nuage';\nexport { DICTIONNAIRES_HUB } from '../src/refonte/contacts/hub/i18n';\nexport { depuisMonde } from '../src/refonte/contacts/sources/depuisMonde';\nexport * as C from '../src/refonte/contacts/clients/modele';\nexport { DICTIONNAIRES_CLIENTS } from '../src/refonte/contacts/clients/i18n';\nexport * as G from '../src/refonte/contacts/fiche/modele';\nexport { DICTIONNAIRES_FICHE } from '../src/refonte/contacts/fiche/i18n';\nexport * as P from '../src/refonte/contacts/prospects/modele';\nexport * as PN from '../src/refonte/contacts/prospects/nuage';\nexport { DICTIONNAIRES_PROSPECTS } from '../src/refonte/contacts/prospects/i18n';\nexport * as RT from '../src/refonte/contacts/retours/modele';\nexport { DICTIONNAIRES_RETOURS } from '../src/refonte/contacts/retours/i18n';\nexport * as FO from '../src/refonte/contacts/fournisseurs/modele';\nexport { DICTIONNAIRES_FOURNISSEURS } from '../src/refonte/contacts/fournisseurs/i18n';\nexport * as PL from '../src/refonte/contacts/pipeline/modele';\nexport * as PG from '../src/refonte/contacts/pipeline/geometrie';\nexport { DICTIONNAIRES_PIPELINE } from '../src/refonte/contacts/pipeline/i18n';\nexport * as FI from '../src/refonte/contacts/fidelite/modele';\nexport { DICTIONNAIRES_FIDELITE } from '../src/refonte/contacts/fidelite/i18n';\nexport * as PE from '../src/refonte/contacts/personnes/modele';\nexport { DICTIONNAIRES_CONTACTS_PERSONNES } from '../src/refonte/contacts/personnes/i18n';",
 );
-const { L, monde, V, H, N, C, G, DICTIONNAIRES_HUB: DICO_HUB, DICTIONNAIRES_CLIENTS: DICO_CLIENTS, DICTIONNAIRES_FICHE: DICO_FICHE, P, PN, DICTIONNAIRES_PROSPECTS: DICO_PROSPECTS, RT, DICTIONNAIRES_RETOURS: DICO_RETOURS, FO, DICTIONNAIRES_FOURNISSEURS: DICO_FOURNISSEURS, PL, PG, DICTIONNAIRES_PIPELINE: DICO_PIPELINE, FI, DICTIONNAIRES_FIDELITE: DICO_FIDELITE, depuisMonde, DICTIONNAIRES_CONTACTS: DICO } = M;
+const { L, monde, V, H, N, C, G, DICTIONNAIRES_HUB: DICO_HUB, DICTIONNAIRES_CLIENTS: DICO_CLIENTS, DICTIONNAIRES_FICHE: DICO_FICHE, P, PN, DICTIONNAIRES_PROSPECTS: DICO_PROSPECTS, RT, DICTIONNAIRES_RETOURS: DICO_RETOURS, FO, DICTIONNAIRES_FOURNISSEURS: DICO_FOURNISSEURS, PL, PG, DICTIONNAIRES_PIPELINE: DICO_PIPELINE, FI, DICTIONNAIRES_FIDELITE: DICO_FIDELITE, PE, DICTIONNAIRES_CONTACTS_PERSONNES: DICO_PERSONNES, depuisMonde, DICTIONNAIRES_CONTACTS: DICO } = M;
 const paris = (jour: string, hhmm: string): number => L.instantParis(jour, hhmm);
 const VOLUMES = ['vide', 'peu', 'normal', 'beaucoup'] as const;
 const mondes = Object.fromEntries(VOLUMES.map((v) => [v, monde.construireMonde({ volume: v })])) as Record<(typeof VOLUMES)[number], any>;
@@ -1957,6 +1957,137 @@ await dit('MC02 · textes : mêmes clés en fr et en, mêmes paramètres, compte
   }
   for (const b of new Set(en.filter((k) => /\.(1|n)$/.test(k)).map((k) => k.replace(/\.(1|n)$/, '')))) for (const l of ['fr', 'en']) assert.ok(DICO_FIDELITE[l][`${b}.1`] && DICO_FIDELITE[l][`${b}.n`], `${b} (${l})`);
   assert.equal(DICO_FIDELITE.fr['sousTitre'], 'Récompense ceux qui reviennent · 3 paliers, aucun effort', 'la phrase de tutoiement.json');
+});
+
+/* ── MC03 : Fiches contacts ─────────────────────────────────────────────── */
+console.log('\nContacts — MC03, Fiches contacts (liste par récence, profil, frise)\n');
+
+const personne = (id: string, nom: string, jours: number, o: Record<string, unknown> = {}): any => ({
+  id, prenom: nom.split(' ')[0], nom: nom.split(' ')[1] ?? '', nomComplet: nom, fonction: 'Directrice', organisationType: 'client', organisationId: '7', organisationNom: 'Menna Conseil',
+  email: `${id}@exemple.test`, telephone: '01 00 00 00 00', notes: '', favori: false, nonLu: false, preference: 'messagerie',
+  dernierEchangeAt: new Date(paris('2026-10-30', '10:42') - jours * 86_400_000).toISOString(), ...o,
+});
+const srcMC03 = (gens: any[], o: Record<string, unknown> = {}): any => base({ clients: [fiche(7, 1, { debutLe: '2024-03-04', ville: 'Paris 8e' })], interlocuteurs: gens, ...o });
+
+await dit('MC03 · groupes par récence : aujourd’hui et hier, cette semaine (jusqu’à 6 jours), plus ancien ; étiquettes relatives (Hier, jour, sem., mois)', () => {
+  assert.deepEqual([0, 1, 2, 6, 7, 400].map((j) => PE.groupeDe(j)), ['recent', 'recent', 'semaine', 'semaine', 'ancien', 'ancien']);
+  const g = (j: number) => PE.recenceDe(j, '2026-10-01');
+  assert.deepEqual([0, 1, 3, 14, 27, 28, 65].map((j) => [g(j).genre, g(j).n]), [['aujourdhui', 0], ['hier', 1], ['jour', 3], ['semaines', 2], ['semaines', 3], ['mois', 1], ['mois', 2]]);
+});
+
+await dit('MC03 · liste : la plus récente d’abord, favoris et récents (30 jours) en filtres, recherche sur le nom, l’organisation, la fonction et le courriel sans accent ni casse', () => {
+  const gens = [personne('a', 'Amina Menna', 1), personne('b', 'Karim Médina', 3, { organisationNom: 'Medina Services', fonction: 'Gérant' }), personne('c', 'Léo Martin', 14, { favori: true }), personne('d', 'Paul Dupont', 40, { favori: true })];
+  const src = srcMC03(gens);
+  assert.deepEqual(PE.lignesDe(src).map((l: any) => l.id), ['a', 'b', 'c', 'd']);
+  assert.deepEqual(PE.lignesDe(src, '', 'favoris').map((l: any) => l.id), ['c', 'd']);
+  assert.deepEqual(PE.lignesDe(src, '', 'recents').map((l: any) => l.id), ['a', 'b', 'c']);
+  assert.deepEqual(PE.lignesDe(src, 'medina').map((l: any) => l.id), ['b']);
+  assert.deepEqual(PE.lignesDe(src, 'GÉRANT').map((l: any) => l.id), ['b']);
+  assert.deepEqual(PE.lignesDe(src, 'zzz'), []);
+  const m = PE.modeleContacts(src, { filtre: 'tous' });
+  assert.deepEqual(m.groupes.map((g: any) => [g.groupe, g.lignes.length]), [['recent', 1], ['semaine', 1], ['ancien', 2]]);
+  assert.deepEqual(m.chips, { tous: 4, favoris: 2, recents: 3 });
+  assert.equal(m.profil.id, 'a', 'sans sélection : la première ligne');
+  assert.equal(PE.modeleContacts(src, { selectionId: 'c' }).profil.id, 'c');
+  assert.equal(PE.modeleContacts(src, { selectionId: 'inconnu' }).profil.id, 'a');
+});
+
+await dit('MC03 · profil d’une personne cliente : encaissé de l’année civile, retard, échanges du trimestre, palier, « client depuis », prochain rendez-vous', () => {
+  const f = (statut: string, jour: string, cents: number, o: Record<string, unknown> = {}) => factureH05(7, { status: statut, paidAt: statut === 'paid' ? jour : '', issuedAt: jour, lines: [{ id: 'l', label: 'x', quantity: 1, unitPriceCents: cents, vatRate: 0 }], ...o });
+  const rdv: any = { id: 'e1', clientId: 7, type: 'rendez-vous client', systeme: false, confirmation: 'confirmé', title: 'Démonstration', mode: 'visio', startAt: new Date(paris('2026-10-30', '11:00')).toISOString(), durationMin: 45 };
+  const src = srcMC03([personne('a', 'Amina Menna', 1)], {
+    factures: [f('paid', '2026-03-10', 500_000), f('paid', '2025-12-10', 900_000), f('issued', '2026-09-20', 124_000, { number: 'F-2041', dueAt: '2026-10-26' })],
+    fidelite: [compteMC02(7, 2140, '2026-10-20')],
+    evenements: [rdv],
+    echanges: [{ clientId: 7, at: '2026-10-29T08:48:00.000Z' }, { clientId: 7, at: '2026-10-28T10:00:00.000Z' }, { clientId: 7, at: '2026-10-15T10:00:00.000Z' }, { clientId: 7, at: '2026-05-02T10:00:00.000Z' }, { clientId: 8, at: '2026-10-29T10:00:00.000Z' }],
+  });
+  const p = PE.profilDe(src, 'a');
+  assert.equal(p.faits.encaisseCents, 500_000, 'année civile 2026 seulement');
+  assert.deepEqual(p.faits.enRetard, { numero: 'F-2041', jours: 4 });
+  assert.equal(p.faits.echangesTrimestre, 3, 'octobre, trimestre civil, ce client seulement');
+  assert.equal(p.palier, 'Or');
+  assert.equal(p.clientDepuis, '2024-03');
+  assert.equal(p.ville, 'Paris 8e');
+  assert.equal(p.faits.prochainRdv.heure, '11:00');
+  assert.equal(p.faits.prochainRdv.dansMin, 18);
+  assert.deepEqual(p.preparation, { heure: '11:00', titre: 'Démonstration' });
+  assert.equal(p.derniers.length, 3);
+  assert.equal(p.derniers[0].jours, 1);
+});
+
+await dit('MC03 · frise : un mois par barre (plafonné à 7 échanges), premier contact, devis signés, dernier échange ; record du mois ; rythme habituel', () => {
+  const echanges = [...['2026-07-02', '2026-08-03', '2026-08-04', '2026-09-05'].map((j) => ({ clientId: 7, at: `${j}T10:00:00.000Z` })), ...Array.from({ length: 9 }, (_, i) => ({ clientId: 7, at: `2026-10-${String(i + 1).padStart(2, '0')}T10:00:00.000Z` }))];
+  const src = srcMC03([personne('a', 'Amina Menna', 1)], { echanges, devis: [devisG04(1, 7, { status: 'accepted', acceptéLe: '2026-08-20', title: 'Contrat de maintenance' })] });
+  const r = PE.profilDe(src, 'a').relation;
+  assert.deepEqual(r.mois.map((m: any) => m.cle), ['2026-07', '2026-08', '2026-09', '2026-10']);
+  assert.deepEqual(r.mois.map((m: any) => m.echanges), [1, 2, 1, 9]);
+  assert.equal(r.recordCeMois, true);
+  assert.equal(r.debut, '2026-07');
+  assert.deepEqual(r.evenements.map((e: any) => [e.indice, e.premier, e.dernier, e.titre]), [[0, true, false, ''], [1, false, false, 'Contrat de maintenance'], [3, false, true, '']]);
+  assert.equal(r.rythme, Math.round(13 / 3));
+  const calme = PE.profilDe(srcMC03([personne('a', 'Amina Menna', 1)], { echanges: [{ clientId: 7, at: '2026-08-02T10:00:00.000Z' }, { clientId: 7, at: '2026-08-03T10:00:00.000Z' }, { clientId: 7, at: '2026-10-03T10:00:00.000Z' }] }), 'a');
+  assert.equal(calme.relation.recordCeMois, false);
+});
+
+await dit('MC03 · libellés de la frise : deux rangées, jamais deux libellés qui se touchent, le bord droit ancré à droite, l’excédent omis', () => {
+  const evs = [{ x: 20, largeur: 110, ancreDroite: false }, { x: 60, largeur: 110, ancreDroite: false }, { x: 90, largeur: 110, ancreDroite: false }, { x: 400, largeur: 110, ancreDroite: false }, { x: 756, largeur: 120, ancreDroite: true }];
+  const r = PE.rangerLibelles(evs);
+  assert.deepEqual(r, [0, 1, null, 0, 0]);
+  for (let rang = 0; rang < 2; rang += 1) {
+    const boites = evs.map((e, i) => ({ e, i })).filter(({ i }) => r[i] === rang).map(({ e }) => [e.ancreDroite ? e.x - e.largeur : e.x - 6, (e.ancreDroite ? e.x - e.largeur : e.x - 6) + e.largeur]).sort((a, b) => a[0] - b[0]);
+    for (let k = 1; k < boites.length; k += 1) assert.ok(boites[k][0] >= boites[k - 1][1], `rangée ${rang}`);
+  }
+  assert.deepEqual(PE.rangerLibelles([]), []);
+});
+
+await dit('MC03 · personne sans historique ou d’une autre organisation : faits vides (null), frise vide, jamais un zéro qui mentirait', () => {
+  const fournisseur = personne('f', 'Yanis Benali', 20, { organisationType: 'fournisseur', organisationId: 'F-1', organisationNom: 'Distri Réseau', preference: 'courriel', notes: 'À joindre le matin.' });
+  const p = PE.profilDe(srcMC03([fournisseur]), 'f');
+  assert.deepEqual([p.clientId, p.palier, p.clientDepuis, p.faits.encaisseCents, p.faits.echangesTrimestre, p.faits.prochainRdv, p.preparation], [null, null, null, null, null, null, null]);
+  assert.deepEqual([p.relation.mois, p.relation.debut, p.derniers], [[], null, []]);
+  assert.equal(p.faits.dernierEchange.jours, 20, 'le dernier échange de la personne est connu');
+  assert.deepEqual([p.preference, p.notes], ['courriel', 'À joindre le matin.']);
+  const neuf = PE.profilDe(srcMC03([personne('n', 'Nouvelle Personne', 0)]), 'n');
+  assert.deepEqual(neuf.relation.mois, []);
+  assert.equal(PE.profilDe(srcMC03([]), 'x'), null);
+});
+
+await dit('MC03 · collection absente (interlocuteurs null) : aucune ligne, aucun profil — la page dit « non disponible »', () => {
+  const src = srcMC03([], { interlocuteurs: null });
+  assert.deepEqual(PE.lignesDe(src), []);
+  const m = PE.modeleContacts(src);
+  assert.deepEqual([m.total, m.groupes, m.profil], [0, [], null]);
+  assert.equal(PE.profilDe(src, 'a'), null);
+});
+
+await dit('MC03 · sur les jeux de SIM (quatre volumes) : la liste et le profil se construisent, les groupes somment la liste, les libellés restent sans chevauchement possible', () => {
+  for (const v of VOLUMES) {
+    const src = depuisMonde(mondes[v]);
+    const m = PE.modeleContacts(src);
+    assert.equal(m.total, src.interlocuteurs.length, v);
+    assert.equal(m.groupes.reduce((s: number, g: any) => s + g.lignes.length, 0), m.total, v);
+    if (m.total > 0) assert.ok(m.profil, v);
+    for (const i of src.interlocuteurs.slice(0, 30)) {
+      const p = PE.profilDe(src, i.id);
+      assert.ok(p, `${v} ${i.id}`);
+      assert.ok(p.relation.mois.every((b: any) => b.echanges >= 0), v);
+      assert.ok(p.relation.evenements.every((e: any) => e.indice >= 0 && e.indice < Math.max(1, p.relation.mois.length)), v);
+      assert.ok(p.derniers.length <= 3, v);
+    }
+  }
+});
+
+await dit('MC03 · textes : mêmes clés en fr et en, mêmes paramètres, comptes à deux formes, l’interface tutoie', () => {
+  const en = Object.keys(DICO_PERSONNES.en).sort();
+  assert.deepEqual(Object.keys(DICO_PERSONNES.fr).sort(), en);
+  const params = (t: string) => [...t.matchAll(/\{(\w+)\}/g)].map((x) => x[1]).sort().join(',');
+  for (const k of en) {
+    assert.ok(DICO_PERSONNES.en[k].trim() && DICO_PERSONNES.fr[k].trim(), k);
+    assert.equal(params(DICO_PERSONNES.fr[k]), params(DICO_PERSONNES.en[k]), `paramètres de ${k}`);
+    assert.ok(!VOUVOIEMENT_UI.test(DICO_PERSONNES.fr[k]), `${k} vouvoie : ${DICO_PERSONNES.fr[k]}`);
+  }
+  for (const b of new Set(en.filter((k) => /\.(1|n)$/.test(k)).map((k) => k.replace(/\.(1|n)$/, '')))) for (const l of ['fr', 'en']) assert.ok(DICO_PERSONNES[l][`${b}.1`] && DICO_PERSONNES[l][`${b}.n`], `${b} (${l})`);
+  assert.equal(DICO_PERSONNES.fr['sousTitre'], 'Tout ce que tu sais sur une personne, au même endroit', 'la phrase de tutoiement.json');
 });
 
 /* ── Structure ──────────────────────────────────────────────────────────── */
