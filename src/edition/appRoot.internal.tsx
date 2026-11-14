@@ -8,6 +8,8 @@ import { ModuleRoute } from '../components/ModuleRoute';
 import { AppLayout } from '../components/AppLayout';
 import { ROUTE_TOUS_LES_MODULES, TousLesModules } from '@edition/navigation';
 import { routesDuRegistre } from '../refonte/modules/routes';
+// Feuille de « Créer et produire » : chargée ici pour les trois écrans neufs du registre (`nouveau`), dont l'import dynamique ne peut pas la porter.
+import '../refonte/creer/creer.css';
 import { ConnexionRefonte } from '../refonte/systeme/connexion/ConnexionRefonte';
 import { FournisseurToasts } from '../socle/ui/situations';
 import { ROUTE_DEMARRAGE, ROUTE_METIER, ROUTE_NOTIFICATIONS } from '../refonte/systeme/routes';
@@ -19,6 +21,10 @@ const PageMetier = lazy(() => import('../refonte/systeme/demarrage/PageMetier'))
 const PageNotificationsRoute = lazy(() => import('../refonte/systeme/PageNotificationsRoute'));
 const PageEnsembleFamille = lazy(() => import('../refonte/systeme/PageEnsembleFamille'));
 const PageDemoSocle = lazy(() => import('../refonte/systeme/demo/PageDemoSocle'));
+// LOT-06 : les trois écrans NOUVEAUX de « Créer et produire » (STATUT §1.27 c ; routes acceptées par le CO, ici seulement).
+const CatalogueRefonte = lazy(() => import('../refonte/creer/ecrans/MR05/CatalogueRefonte'));
+const ReservationsRefonte = lazy(() => import('../refonte/creer/ecrans/MR06/ReservationsRefonte'));
+const PhotosChantierRefonte = lazy(() => import('../refonte/creer/ecrans/MR10/PhotosRefonte'));
 const PageEtatsMessages = lazy(() => import('../refonte/systeme/h43-etats/PageEtatsMessages'));
 import { InvitationScreen } from '../screens/InvitationScreen';
 import { ReinitialisationScreen } from '../screens/ReinitialisationScreen';
@@ -414,6 +420,10 @@ function AmnRoutes() {
             montent ici leur route, sans qu'on ait à l'écrire ; les vues remplacées y renvoient ailleurs
             (/garde/ajmani ouvre le panneau ⌘J). */}
         {routesDuRegistre()}
+        {/* LOT-06 (MR05, MR06, MR10) : entrées de registre en attente de la correction de `check:systeme-demarrage` (S5). */}
+        <Route path="/catalogue" element={<Suspense fallback={null}><CatalogueRefonte /></Suspense>} />
+        <Route path="/reservations" element={<Suspense fallback={null}><ReservationsRefonte /></Suspense>} />
+        <Route path="/photos-chantier" element={<Suspense fallback={null}><PhotosChantierRefonte /></Suspense>} />
         <Route path="/vault" element={<VaultScreen />} />
 
         {/* LES BUREAUX DE SUPERVISION (cahiers 11 à 16) : Supervisor, Cyber,
