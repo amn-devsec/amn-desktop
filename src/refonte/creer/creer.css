@@ -1017,3 +1017,11 @@ button.cr-ph-case { cursor: pointer; }
 .cr-fiche footer::before, .cr-fiche footer::after { content: ''; position: absolute; top: -6px; width: 11px; height: 11px; border-radius: 50%; background: var(--socle-fond-page); border: 1px solid var(--socle-bord-carte); box-sizing: border-box; }
 .cr-fiche footer::before { left: -6px; }
 .cr-fiche footer::after { right: -6px; }
+
+/* §1.41 (14 nov.) : zones invisibles de 36 px, y compris sur les briques du socle que les écrans de ce lot emploient
+   (boutons de l'en-tête de page, puces de filtre, segments). Règle posée ici, pour ces écrans seulement ; le socle garde sa valeur. */
+.cr-page { --sc-v-cible: 36px; }
+.cr-page .sc-page__actions [data-socle='bouton']::after { height: 36px; }
+.cr-page .sc-segment::after { width: max(100%, 36px); height: max(100%, 36px); }
+/* La légende du plan (MR03) est décorative : elle ne reçoit aucun clic, la zone de « Réduire » reste libre. */
+.cr-plan__legende { pointer-events: none; }
