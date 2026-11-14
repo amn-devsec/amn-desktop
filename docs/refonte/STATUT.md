@@ -1287,10 +1287,10 @@ La colonne « État » reste `à faire` : un écran n'est « fait » qu'une fois
 | ID | Écran | Type | État | Écart / note |
 |---|---|---|---|---|
 | F60 | Outils · Vue d'ensemble | nouveau | à faire | |
-| H18 | Outils · Paramètres | mixte | à faire | |
-| H19 | Outils · Membres et accès | mixte | à faire | |
-| H20 | Outils · Automatisations | mixte | à faire | |
-| H21 | Outils · Connecteurs | mixte | à faire | |
+| H18 | Outils · Paramètres | mixte | en cours (préparation) | Existant inventorié (`preparation/LOT-07-outils.md` §3) ; attend la fiche v4, puis le socle v4. |
+| H19 | Outils · Membres et accès | mixte | en cours (préparation) | Existant inventorié (§4 de la note). Droits provisoires livrés (`src/refonte/outils/droits.ts`, §1.34 n° 2 à 5) : rôles du serveur, seul `owner` publie, `owner` et `admin` gèrent les connecteurs. Attend la fiche v4. |
+| H20 | Outils · Automatisations | mixte | en cours (préparation) | Couture `@edition/automatisations` posée (§1.22 n° 4) : le moteur actuel reste tel quel dans les deux éditions ; l'interne exécute en plus les règles `'flux'` (`src/refonte/outils/`), en entier ou pas du tout ; la cliente reçoit un jumeau vide. Écran : après le socle v4. |
+| H21 | Outils · Connecteurs | mixte | en cours (préparation) | 14 tarifs relevés le 14 nov. sur les pages officielles, tels que publiés (§1.34 n° 7) : 7 en euros (Mailjet, Gmail et Google Agenda par leurs API, Stripe, Mollie, GoCardless, OVHcloud SMS) et 7 en dollars (Postmark, Resend, Vercel, Netlify, GitHub, Slack, Twilio). Les autres restent « à relever » (détail dans `rapports/S6-outils.md`). Écran : après le socle v4. |
 | H22 | Outils · Corbeille et historique | mixte | à faire | |
 | H23 | Outils · Assistance | mixte | à faire | |
 | H24 | Outils · Coffre-fort | mixte | à faire | |
@@ -1302,6 +1302,12 @@ La colonne « État » reste `à faire` : un écran n'est « fait » qu'une fois
 | MO03 | Outils · Sauvegardes | mixte | à faire | |
 | MO04 | Outils · Import et export | mixte | à faire | |
 | MO05 | Outils · Raccourcis et favoris | mixte | à faire | |
+
+**Garde** : `check:outils` (22 contrôles, en CI).
+
+**Manque aux données** : un champ d'échéance des tâches (une tâche « à échéance » d'un flux attend) ; le montant et l'expéditeur dans les sources du moteur de H20 (un SI « montant » ou « expéditeur connu » attend).
+
+**Modèle des connecteurs** (LOT-12, S9 en pause) : devise, plafond par transaction et prix par personne ajoutés par S6 le 14 nov., avec l'accord du CO (§1.34 n° 7).
 
 ### LOT-08 · La Garde et la supervision — `claude/refonte-garde` — 12 écrans
 

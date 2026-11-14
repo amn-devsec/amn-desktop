@@ -101,6 +101,15 @@ export type Tarif =
       commissionDixMillieme?: number;
       /** Partie fixe d'une commission, par transaction, en centimes. */
       commissionFixeCents?: number;
+      /**
+       * La devise de la page, telle que publiée ; absente = euros. Jamais convertie
+       * (STATUT §1.34 n° 7) : un tarif en dollars s'affiche « publié en dollars ».
+       */
+      devise?: Devise;
+      /** Plafond par transaction d'une commission, tel que publié, en centimes. AFFICHÉ, jamais calculé. */
+      plafondParTransactionCents?: number;
+      /** L'abonnement est publié par personne (par siège) : `fixeMensuelCents` est le prix d'une personne. */
+      parUtilisateur?: boolean;
       /** Page publique du service où le tarif a été lu (https). */
       source: string;
       /** Le jour du relevé. */
@@ -110,6 +119,9 @@ export type Tarif =
     };
 
 export type UniteTarif = 'envoi' | 'sms' | 'message' | 'transaction' | 'minute' | 'go' | 'requete' | 'signature';
+
+/** La devise d'un tarif relevé, telle que publiée par le service. */
+export type Devise = 'EUR' | 'USD';
 
 /** Où en est la version locale d'une catégorie. */
 export type DisponibiliteLocale = 'prete' | 'partielle' | 'a-construire';

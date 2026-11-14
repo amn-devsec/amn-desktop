@@ -173,6 +173,8 @@ jobs:
         run: npm run check:ecrire
       - name: L’argent (LOT-04) — facturation, TVA, impayés, trésorerie, cas écrits à l’avance, banque en lecture seule
         run: npm run check:argent
+      - name: Outils et réglages (LOT-07) — couture du moteur de H20, tarifs relevés de H21
+        run: npm run check:outils
 
       - name: Fidélité aux images v4 — tests de la règle de décision (les images restent hors du dépôt)
         run: npm run test:fidelite

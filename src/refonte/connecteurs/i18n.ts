@@ -97,6 +97,9 @@ const EN = {
   'cout.prevenir': 'Warn me at {pct} %',
   'cout.au-plafond': 'At the cap, everything stops and the app goes back to local.',
   'cout.part-locale': '{pct} % done locally',
+  'cout.publie-en-dollars': 'published in US dollars',
+  'cout.par-personne': 'per person',
+  'cout.plafond-par-transaction': 'capped at {montant} per transaction',
 
   'unite.envoi': 'email',
   'unite.sms': 'text',
@@ -271,6 +274,9 @@ const FR: Record<CleConnecteurs, string> = {
   'cout.prevenir': 'Me prévenir à {pct} %',
   'cout.au-plafond': 'Au plafond, tout s’arrête et l’application repasse en local.',
   'cout.part-locale': '{pct} % fait en local',
+  'cout.publie-en-dollars': 'publié en dollars',
+  'cout.par-personne': 'par personne',
+  'cout.plafond-par-transaction': 'plafonné à {montant} par transaction',
 
   'unite.envoi': 'envoi',
   'unite.sms': 'SMS',
