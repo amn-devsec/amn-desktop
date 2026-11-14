@@ -14,11 +14,11 @@
  */
 
 import { cle, cycle, fabriquer, hasardDe, nomClient, salaries } from './commun';
-import { ajouterJours, compter, ecartJours, slug, type Jour } from './outils';
+import { ajouterJours, compter, ecartJours, HEURE, MINUTE, slug, type Jour } from './outils';
 import type { Contexte, FicheClient, Membre } from './types';
 import type {
-  AccordCyber, AlerteVeille, CampagneSensibilisation, ConstatCyber, DocumentCyber, DossierConformite, EtatAccord, FamilleCyber, Fuite,
-  LogicielClient, MissionCyber, OutilCyber, ParcSecurite, PhaseMission,
+  AccordCyber, AlerteVeille, AppareilParc, CampagneSensibilisation, CibleOutil, ConstatCyber, DocumentCyber, DossierConformite, EtatAccord, FamilleCyber, Fuite,
+  GraviteAlerte, LogicielClient, MissionCyber, OutilCyber, ParcSecurite, PhaseMission,
 } from './types-suite';
 
 /* ---------------------------------- Accords ---------------------------------- */
@@ -41,6 +41,8 @@ export function genererAccords(ctx: Contexte, clients: readonly FicheClient[]): 
   const h = hasardDe(ctx.graine, 'accords');
   const n = clients.length ? Math.min(compter(ctx.volumes.accords, [0, 2, 8, 24]), clients.length) : 0;
   const etats = cycle(h, ['Valide', 'Valide', 'Expire bientôt', 'En attente', 'Expiré', 'Valide'] as const, n);
+  // Le nombre d'adresses du périmètre vient d'un hasard à part : les tirages des accords restent ce qu'ils étaient.
+  const hAdresses = hasardDe(ctx.graine, 'accordsAdresses');
   return h.echantillon(clients, n).map((c, i) => {
     const etat = etats[i];
     const domaine = (() => { try { return c.siteWeb ? new URL(c.siteWeb).hostname.replace(/^www\./, '') : `${slug(nomClient(c))}.exemple.test`; } catch { return `${slug(nomClient(c))}.exemple.test`; } })();
@@ -49,7 +51,7 @@ export function genererAccords(ctx: Contexte, clients: readonly FicheClient[]): 
     return {
       id: cle('ac', i + 1),
       clientId: c.id,
-      perimetre: { domaines: [domaine, `app.${domaine}`], locaux: h.chance(0.4) ? [`Locaux de ${c.ville}`] : [] },
+      perimetre: { domaines: [domaine, `app.${domaine}`], locaux: h.chance(0.4) ? [`Locaux de ${c.ville}`] : [], nbAdresses: hAdresses.chance(0.7) ? hAdresses.entier(2, 14) : 0 },
       creneau: h.chance(0.7) ? '19 h – 7 h' : null,
       debutLe: etat === 'En attente' ? ajouterJours(ctx.aujourdhui, h.entier(2, 15)) : ajouterJours(fin, -duree),
       finLe: etat === 'En attente' ? ajouterJours(ctx.aujourdhui, h.entier(40, 100)) : fin,
@@ -111,6 +113,13 @@ const CATALOGUE: Record<Exclude<FamilleCyber, 'Automatisation'>, readonly Modele
   ],
 };
 
+/** Ce que vise chaque outil « Accord requis » (CY02) : un nom de domaine, des adresses (leur nombre figure à l'accord) ou des locaux. */
+const CIBLES: Readonly<Record<string, CibleOutil>> = {
+  'Cartographie du périmètre': 'domaine', 'Revue des configurations': 'domaine', 'Contrôle des accès exposés': 'adresse', 'Simulation de scénario': 'locaux',
+  'Durcissement des configurations': 'domaine', 'Isolation d’un service': 'domaine', 'Collecte de preuves': 'domaine',
+  'Simulation de phishing': 'domaine', 'Bouton de signalement': 'domaine',
+};
+
 export function genererOutilsCyber(ctx: Contexte): OutilCyber[] {
   const h = hasardDe(ctx.graine, 'outilsCyber');
   const n = compter(ctx.volumes.outilsCyber, [0, 9, 54, 54]);
@@ -124,6 +133,7 @@ export function genererOutilsCyber(ctx: Contexte): OutilCyber[] {
     description: m[1],
     type: m[2],
     accord: m[3],
+    cible: m[3] === 'Accord requis' ? CIBLES[m[0]] ?? 'domaine' : null,
     dernierUsageAt: h.chance(0.82) ? new Date(ctx.maintenant - h.entier(1, 60 * 24 * 40) * 60_000).toISOString() : null,
     action: m[4],
     actif: h.chance(0.7),
@@ -133,8 +143,9 @@ export function genererOutilsCyber(ctx: Contexte): OutilCyber[] {
 /* ---------------------------------- Missions ---------------------------------- */
 
 const TYPES_MISSION: readonly (readonly [string, Exclude<FamilleCyber, 'Automatisation'>])[] = [
-  ['Audit de sécurité', 'Red Team'], ['Veille mensuelle', 'Veille'], ['Sensibilisation des équipes', 'Sensibilisation'], ['Évaluation de configuration', 'Blue Team'],
-  ['Suivi de conformité', 'Conformité'], ['Réponse à un incident', 'Réponse à incident'], ['Recherche sur l’organisation', 'OSINT'], ['Supervision', 'SOC'],
+  // La recherche sur l'organisation (OSINT, CY06) est la deuxième : dès « peu », elle a sa mission, donc son empreinte.
+  ['Audit de sécurité', 'Red Team'], ['Recherche sur l’organisation', 'OSINT'], ['Sensibilisation des équipes', 'Sensibilisation'], ['Évaluation de configuration', 'Blue Team'],
+  ['Suivi de conformité', 'Conformité'], ['Réponse à un incident', 'Réponse à incident'], ['Veille mensuelle', 'Veille'], ['Supervision', 'SOC'],
 ];
 const PHASES: readonly PhaseMission[] = ['Accord', 'Reconnaissance', 'Tests', 'Constats', 'Rapport'];
 
@@ -241,30 +252,63 @@ export function genererDocumentsCyber(
 
 /* -------------------------------------- Veille -------------------------------------- */
 
-const LOGICIELS = ['Gestionnaire de contenu du site', 'Logiciel de caisse', 'Messagerie hébergée', 'Système des postes de travail', 'Extension de paiement', 'Outil de réservation'];
+/**
+ * Les produits suivis (CY05) : nom, secteur du radar, éditeur fictif. Deux éditeurs en ont deux : l'anneau « Même éditeur »
+ * a quelque chose à montrer. Aucun éditeur ni produit réel.
+ */
+export const PRODUITS_VEILLE: readonly { nom: string; categorie: string; editeur: string }[] = [
+  { nom: 'Gestionnaire de contenu du site', categorie: 'Site web', editeur: 'Éditeur Aster' },
+  { nom: 'Logiciel de caisse', categorie: 'Caisse et paiement', editeur: 'Éditeur Borée' },
+  { nom: 'Messagerie hébergée', categorie: 'Messagerie', editeur: 'Éditeur Cèdre' },
+  { nom: 'Système des postes de travail', categorie: 'Postes de travail', editeur: 'Éditeur Cèdre' },
+  { nom: 'Extension de paiement', categorie: 'Caisse et paiement', editeur: 'Éditeur Aster' },
+  { nom: 'Outil de réservation', categorie: 'Réservation', editeur: 'Éditeur Dune' },
+];
 
 export function genererLogiciels(ctx: Contexte, clients: readonly FicheClient[]): LogicielClient[] {
   const h = hasardDe(ctx.graine, 'logiciels');
   const n = clients.length ? compter(ctx.volumes.logicielsClients, [0, 4, 20, 120]) : 0;
-  return fabriquer(n, (i) => ({
-    id: cle('lg', i), clientId: h.choix(clients).id, nom: LOGICIELS[(i - 1) % LOGICIELS.length], version: `${h.entier(2, 9)}.${h.entier(0, 9)}`,
-    correctifDisponible: h.chance(0.35), concerneParVeille: false,
-  }));
+  return fabriquer(n, (i) => {
+    const produit = PRODUITS_VEILLE[(i - 1) % PRODUITS_VEILLE.length];
+    return {
+      id: cle('lg', i), clientId: h.choix(clients).id, nom: produit.nom, categorie: produit.categorie, editeur: produit.editeur, version: `${h.entier(2, 9)}.${h.entier(0, 9)}`,
+      correctifDisponible: h.chance(0.35), concerneParVeille: false,
+    };
+  });
 }
 
-const TITRES_VEILLE: readonly (readonly [string, ConstatCyber['gravite']])[] = [
-  ['Mise à jour de sécurité d’un gestionnaire de contenu', 'Critique'], ['Correctif d’une extension de paiement', 'Moyenne'], ['Faille corrigée dans un système de messagerie', 'Moyenne'],
-  ['Bulletin d’un éditeur de logiciel de caisse', 'Faible'], ['Correctif d’un outil de réservation', 'Moyenne'], ['Avis sur un système de postes de travail', 'Critique'],
+/** Titre, gravité, et le produit visé (indice dans `PRODUITS_VEILLE`). */
+const TITRES_VEILLE: readonly (readonly [string, GraviteAlerte, number])[] = [
+  ['Mise à jour de sécurité d’un gestionnaire de contenu', 'Critique', 0], ['Correctif d’une extension de paiement', 'Moyenne', 4], ['Faille corrigée dans un système de messagerie', 'Moyenne', 2],
+  ['Bulletin d’un éditeur de logiciel de caisse', 'Faible', 1], ['Correctif d’un outil de réservation', 'Moyenne', 5], ['Avis sur un système de postes de travail', 'Critique', 3],
 ];
+
+/**
+ * Le score publié, par gravité (une décimale) : Critique de 9,0 à 10,0 ; Moyenne de 4,0 à 8,9 (« Importante » dès 7,0, « Modérée » en dessous) ;
+ * Faible de 1,0 à 3,9. Les seuils sont ceux de la proposition de CY05 ; ils sont dans `SEUILS_SCORE` pour qu'un changement ne touche qu'un endroit.
+ */
+export const SEUILS_SCORE = { critique: 9, importante: 7, moderee: 4 } as const;
+export type BandeScore = 'Critique' | 'Importante' | 'Modérée' | 'Faible';
+export function bandeDuScore(score: number): BandeScore {
+  return score >= SEUILS_SCORE.critique ? 'Critique' : score >= SEUILS_SCORE.importante ? 'Importante' : score >= SEUILS_SCORE.moderee ? 'Modérée' : 'Faible';
+}
 
 export function genererAlertesVeille(ctx: Contexte, logiciels: LogicielClient[]): AlerteVeille[] {
   const h = hasardDe(ctx.graine, 'alertesVeille');
+  const hScores = hasardDe(ctx.graine, 'alertesVeilleScores');
   const n = compter(ctx.volumes.alertesVeille, [0, 3, 12, 40]);
   const liste = fabriquer(n, (i) => {
-    const [titre, gravite] = TITRES_VEILLE[(i - 1) % TITRES_VEILLE.length];
-    // Publiées aujourd'hui ou récemment ; une partie touche un logiciel de l'inventaire d'un client (« N vous concernent »).
-    const concernes = logiciels.length && gravite !== 'Faible' && h.chance(0.4) ? h.echantillon(logiciels, h.entier(1, 2)).map((l) => l.id) : [];
-    return { id: cle('av', i), idFictif: `FICT-${ctx.aujourdhui.slice(0, 4)}-${String(200 + i).padStart(4, '0')}`, titre, gravite, publieeLe: i <= Math.ceil(n / 2) ? ctx.aujourdhui : ajouterJours(ctx.aujourdhui, -h.entier(1, 20)), logicielsConcernes: concernes };
+    const [titre, gravite, k] = TITRES_VEILLE[(i - 1) % TITRES_VEILLE.length];
+    const produit = PRODUITS_VEILLE[k];
+    // Publiées aujourd'hui ou récemment ; une partie touche un logiciel de l'inventaire d'un client (« N vous concernent »), du produit visé seulement.
+    const pool = logiciels.filter((l) => l.nom === produit.nom);
+    const concernes = pool.length && gravite !== 'Faible' && h.chance(0.4) ? h.echantillon(pool, h.entier(1, Math.min(2, pool.length))).map((l) => l.id) : [];
+    // Une « Moyenne » sur deux est « Importante » (de 7,0 à 8,9), l'autre « Modérée » (de 4,0 à 6,9) : les trois bandes existent dès « peu ».
+    const dixiemes = gravite === 'Critique' ? hScores.entier(90, 100) : gravite === 'Faible' ? hScores.entier(10, 39) : i % 2 === 0 ? hScores.entier(70, 89) : hScores.entier(40, 69);
+    return {
+      id: cle('av', i), idFictif: `FICT-${ctx.aujourdhui.slice(0, 4)}-${String(200 + i).padStart(4, '0')}`, titre, gravite, scorePublie: dixiemes / 10, categorie: produit.categorie, editeur: produit.editeur,
+      publieeLe: i <= Math.ceil(n / 2) ? ctx.aujourdhui : ajouterJours(ctx.aujourdhui, -h.entier(1, 20)), logicielsConcernes: concernes,
+    };
   });
   const marques = new Set(liste.flatMap((a) => a.logicielsConcernes));
   for (const l of logiciels) l.concerneParVeille = marques.has(l.id);
@@ -279,7 +323,7 @@ export function genererFuites(ctx: Contexte, clients: readonly FicheClient[]): F
 
 /* ------------------------------- Conformité (CY09) ------------------------------- */
 
-const POINTS_RGPD = ['Registre des traitements revu depuis moins de 12 mois', 'Politique de confidentialité publiée', 'Durées de conservation définies', 'Procédure pour les droits des personnes', 'Liste des sous-traitants à jour'];
+export const POINTS_RGPD = ['Registre des traitements revu depuis moins de 12 mois', 'Politique de confidentialité publiée', 'Durées de conservation définies', 'Procédure pour les droits des personnes', 'Liste des sous-traitants à jour'];
 
 /** Conforme = 100 % des points essentiels ; Partiel = au moins la moitié ; À traiter sinon. */
 export function niveauConformite(d: Pick<DossierConformite, 'points'>): 'Conforme' | 'Partiel' | 'À traiter' {
@@ -289,7 +333,7 @@ export function niveauConformite(d: Pick<DossierConformite, 'points'>): 'Conform
 
 export function genererDossiersConformite(ctx: Contexte, clients: readonly FicheClient[]): DossierConformite[] {
   const h = hasardDe(ctx.graine, 'dossiersConformite');
-  const n = clients.length ? Math.min(compter(ctx.volumes.dossiersConformite, [0, 2, 6, 12]), clients.length) : 0;
+  const n = clients.length ? Math.min(compter(ctx.volumes.dossiersConformite, [0, 2, 7, 12]), clients.length) : 0;
   const cibles = cycle(h, [5, 4, 2, 3, 5, 1] as const, n);
   return h.echantillon(clients, n).map((c, i) => ({
     id: cle('dg', i + 1), clientId: c.id, referentiel: 'RGPD' as const,
@@ -302,28 +346,78 @@ export function genererDossiersConformite(ctx: Contexte, clients: readonly Fiche
 
 const EQUIPES_CLIENT = ['Accueil', 'Administration', 'Atelier', 'Direction', 'Commercial'];
 
-export function genererCampagnes(ctx: Contexte, clients: readonly FicheClient[]): CampagneSensibilisation[] {
+export function genererCampagnes(ctx: Contexte, clients: readonly FicheClient[], accords: readonly AccordCyber[] = []): CampagneSensibilisation[] {
   const h = hasardDe(ctx.graine, 'campagnes');
+  const hAccord = hasardDe(ctx.graine, 'campagnesAccord');
   const n = clients.length ? compter(ctx.volumes.campagnes, [0, 1, 4, 10]) : 0;
+  const clientsAvecAccord = clients.filter((c) => accords.some((a) => a.clientId === c.id && a.signe));
   return fabriquer(n, (i) => {
     const c = h.choix(clients);
-    const type = h.pondere([['Simulation', 4], ['Quiz', 3], ['Module', 3]] as const);
-    const parEquipe = h.echantillon(EQUIPES_CLIENT, h.entier(2, 4)).map((equipe) => { const envoyes = h.entier(3, 18); const cliques = type === 'Simulation' ? h.entier(0, Math.ceil(envoyes / 4)) : 0; return { equipe, envoyes, cliques, signales: type === 'Simulation' ? h.entier(0, envoyes - cliques) : 0 }; });
+    const tire = h.pondere([['Simulation', 4], ['Quiz', 3], ['Module', 3]] as const);
+    const type = i === 1 ? 'Simulation' : tire; // la première est une simulation : l'historique de CY10 existe dès « peu »
+    // La Direction est une petite équipe (3 ou 4 personnes) : CY10 la regroupe plutôt que de la montrer seule.
+    const parEquipe = h.echantillon(EQUIPES_CLIENT, h.entier(2, 4)).map((equipe) => { const envoyes = equipe === 'Direction' ? h.entier(3, 4) : h.entier(3, 18); const cliques = type === 'Simulation' ? h.entier(0, Math.ceil(envoyes / 4)) : 0; return { equipe, envoyes, cliques, signales: type === 'Simulation' ? h.entier(0, envoyes - cliques) : 0 }; });
     const envoyes = parEquipe.reduce((s, e) => s + e.envoyes, 0);
     const cliques = parEquipe.reduce((s, e) => s + e.cliques, 0);
     const signales = parEquipe.reduce((s, e) => s + e.signales, 0);
     const etat = (['Terminée', 'En cours', 'Planifiée'] as const)[i % 3];
-    return { id: cle('cs', i), clientId: c.id, titre: `${type === 'Simulation' ? 'Simulation d’hameçonnage' : type === 'Quiz' ? 'Quiz de sécurité' : 'Module : les bons réflexes'} — ${nomClient(c)}`, type, le: etat === 'Planifiée' ? ajouterJours(ctx.aujourdhui, h.entier(3, 30)) : ajouterJours(ctx.aujourdhui, -h.entier(1, 60)), etat, envoyes: etat === 'Planifiée' ? 0 : envoyes, ouverts: etat === 'Planifiée' ? 0 : Math.max(cliques, Math.round(envoyes * 0.7)), cliques: etat === 'Planifiée' ? 0 : cliques, signales: etat === 'Planifiée' ? 0 : signales, parEquipe: etat === 'Planifiée' ? [] : parEquipe };
+    // Une simulation (outil « Accord requis ») est menée chez un client qui a signé un accord ; la première garde son client tiré au sort, avec ou sans accord.
+    const client = type === 'Simulation' && clientsAvecAccord.length && i > 1 ? hAccord.choix(clientsAvecAccord) : c;
+    const accordId = type === 'Simulation' ? accords.find((a) => a.clientId === client.id && a.signe)?.id ?? null : null;
+    return { id: cle('cs', i), clientId: client.id, accordId, titre: `${type === 'Simulation' ? 'Simulation d’hameçonnage' : type === 'Quiz' ? 'Quiz de sécurité' : 'Module : les bons réflexes'} — ${nomClient(client)}`, type, le: etat === 'Planifiée' ? ajouterJours(ctx.aujourdhui, h.entier(3, 30)) : ajouterJours(ctx.aujourdhui, -h.entier(1, 60)), etat, envoyes: etat === 'Planifiée' ? 0 : envoyes, ouverts: etat === 'Planifiée' ? 0 : Math.max(cliques, Math.round(envoyes * 0.7)), cliques: etat === 'Planifiée' ? 0 : cliques, signales: etat === 'Planifiée' ? 0 : signales, parEquipe: etat === 'Planifiée' ? [] : parEquipe };
   });
 }
 
-export function genererParcSecurite(ctx: Contexte, clients: readonly FicheClient[]): ParcSecurite[] {
+/* ------------------------------ Le parc, appareil par appareil (CY03) ------------------------------ */
+
+/** Un appareil sans nouvelles depuis plus de ce délai est « hors ligne » (CY03). */
+export const HORS_LIGNE_APRES_HEURES = 48;
+
+/**
+ * Le parc et ses appareils, générés ensemble : les totaux du parc SONT la somme des appareils. Jamais de nom réel
+ * de machine ni de compte : « Poste 03 », « Serveur 1 ».
+ */
+export function genererParcEtAppareils(ctx: Contexte, clients: readonly FicheClient[]): { parcs: ParcSecurite[]; appareils: AppareilParc[] } {
   const h = hasardDe(ctx.graine, 'parcSecurite');
   const n = clients.length ? Math.min(compter(ctx.volumes.parcSecurite, [0, 2, 6, 12]), clients.length) : 0;
-  return h.echantillon(clients, n).map((c, i) => {
-    const postes = h.entier(3, 40);
-    const enAttente = h.entier(0, 5);
-    const total = h.entier(1, 3);
-    return { id: cle('pc', i + 1), clientId: c.id, postes, postesAJour: Math.max(0, postes - Math.min(postes, enAttente + h.entier(0, 3))), correctifsEnAttente: enAttente, correctifsImportants: Math.min(enAttente, h.entier(0, 2)), sauvegardes: { total, verifiees: Math.max(0, total - h.entier(0, 1)) }, comptesSansDoubleValidation: h.chance(0.5) ? h.entier(1, 4) : 0 };
+  const parcs: ParcSecurite[] = [];
+  const appareils: AppareilParc[] = [];
+  h.echantillon(clients, n).forEach((c, i) => {
+    const parcId = cle('pc', i + 1);
+    const total = h.entier(3, 40);
+    const serveurs = h.entier(0, Math.min(2, total - 1));
+    const mine: AppareilParc[] = [];
+    for (let k = 0; k < total; k++) {
+      const estServeur = k < serveurs;
+      const enAttente = h.chance(0.4) ? h.entier(1, 4) : 0;
+      const importants = Array.from({ length: enAttente }, () => h.chance(0.25)).filter(Boolean).length;
+      // La plupart ont donné des nouvelles dans la journée ; quelques-uns se sont tus depuis plusieurs jours.
+      const silence = h.chance(0.12) ? h.entier(HORS_LIGNE_APRES_HEURES + 2, 12 * 24) : h.entier(1, 30);
+      mine.push({
+        id: cle('ap', appareils.length + k + 1), parcId, clientId: c.id,
+        nom: estServeur ? `Serveur ${k + 1}` : `Poste ${String(k - serveurs + 1).padStart(2, '0')}`,
+        type: estServeur ? 'Serveur' : 'Poste',
+        dernierContactAt: new Date(ctx.maintenant - silence * HEURE - h.entier(0, 59) * MINUTE).toISOString(),
+        correctifsEnAttente: enAttente, correctifsImportants: importants,
+        antivirus: h.chance(0.93) ? 'Actif' : 'Inactif',
+        sauvegarde: null,
+      });
+    }
+    // Les sauvegardes couvrent d'abord les serveurs, puis quelques postes : un petit nombre, comme sur le terrain.
+    const couverts = Math.min(total, Math.max(1, serveurs) + h.entier(0, 2));
+    mine.slice(0, couverts).forEach((a) => { a.sauvegarde = h.chance(0.8) ? 'Vérifiée' : 'À vérifier'; });
+    appareils.push(...mine);
+    parcs.push({
+      id: parcId, clientId: c.id, postes: total, postesAJour: mine.filter((a) => a.correctifsEnAttente === 0).length,
+      correctifsEnAttente: mine.reduce((t, a) => t + a.correctifsEnAttente, 0), correctifsImportants: mine.reduce((t, a) => t + a.correctifsImportants, 0),
+      sauvegardes: { total: couverts, verifiees: mine.filter((a) => a.sauvegarde === 'Vérifiée').length },
+      comptesSansDoubleValidation: h.chance(0.5) ? h.entier(1, 4) : 0,
+      antivirusActifs: mine.filter((a) => a.antivirus === 'Actif').length,
+    });
   });
+  return { parcs, appareils };
+}
+
+export function genererParcSecurite(ctx: Contexte, clients: readonly FicheClient[]): ParcSecurite[] {
+  return genererParcEtAppareils(ctx, clients).parcs;
 }

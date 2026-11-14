@@ -75,6 +75,22 @@ const D = await loadFromSrc<{
   attendusCockpit: (m: MondeBrut) => Attendu;
   attendusTableauDeBord: (m: MondeBrut, o?: Record<string, unknown>) => Attendu;
   PALIERS_DE_SERIE: readonly number[];
+  bandeDuScore: (score: number) => string;
+  serieDigest: (digests: { jour: string; lu: boolean }[], aujourdhui: string) => number;
+  attendusCyber: (m: MondeBrut) => Attendu;
+  HORS_LIGNE_APRES_HEURES: number;
+  PHASES_MISSION: readonly string[];
+  SOUS_ETAPES: Record<string, readonly string[]>;
+  CATEGORIES_EMPREINTE: readonly string[];
+  DELAI_NOTIFICATION_HEURES: number;
+  CONTROLES: readonly (readonly [string, string, boolean, readonly string[]])[];
+  POINTS_RGPD: readonly string[];
+  PRODUITS_VEILLE: readonly { nom: string; categorie: string; editeur: string }[];
+  SEUILS_SCORE: { critique: number; importante: number; moderee: number };
+  MODULES: readonly (readonly [string, number])[];
+  EFFECTIF_MINIMUM_EQUIPE: number;
+  CRENEAU_BUREAU: string;
+  ROLES_INCIDENT: readonly string[];
   calculerNps: (a: unknown) => number | null;
   instantParis: (jour: string, hhmm?: string) => number;
   RAISONS_DE_PERTE: readonly string[];
@@ -782,7 +798,7 @@ dit('aucun contenu d’attaque : un constat n’a qu’un titre et une gravité,
   for (const c of gros.constats) assert.deepEqual(Object.keys(c).sort(), ['creeLe', 'etat', 'gravite', 'id', 'missionId', 'titre']);
   for (const f of gros.fuites) assert.deepEqual(Object.keys(f).sort(), ['clientId', 'detecteeLe', 'etat', 'id', 'nature']);
   for (const c of gros.campagnes) {
-    assert.deepEqual(Object.keys(c).sort(), ['clientId', 'cliques', 'envoyes', 'etat', 'id', 'le', 'ouverts', 'parEquipe', 'signales', 'titre', 'type']);
+    assert.deepEqual(Object.keys(c).sort(), ['accordId', 'clientId', 'cliques', 'envoyes', 'etat', 'id', 'le', 'ouverts', 'parEquipe', 'signales', 'titre', 'type']);
     for (const e of c.parEquipe as Lien[]) assert.deepEqual(Object.keys(e).sort(), ['cliques', 'envoyes', 'equipe', 'signales']);
   }
   for (const p of gros.parcSecurite) assert.ok(Object.values(p).every((v) => typeof v !== 'string' || /^(ps|pc)-\d+$/.test(v)), 'le parc ne porte aucun nom');
@@ -2070,6 +2086,356 @@ dit('les seuils et la cible du code sont ceux de STATUT §1.20 et de docs/simula
   // Le dépôt est public : le document ne décrit aucune faille et ne contient ni secret ni adresse hors 127.0.0.1.
   assert.ok(!/(mot de passe|token|jeton|secret)\s*[:=]\s*\S{6,}/i.test(texte), 'aucun secret dans charge.md');
   assert.ok((texte.match(/\b\d{1,3}(\.\d{1,3}){3}\b/g) ?? []).every((ip) => ip === '127.0.0.1'), 'aucune adresse autre que 127.0.0.1');
+});
+
+console.log('  — LOT-10 Cyber (S8) : les champs de la note de préparation, §6');
+
+/** Les invariants des jeux Cyber de LOT-10 : ils tiennent pour toute graine, tout volume et toute date. */
+function invariantsCyber10(m: MondeBrut, nom: string): void {
+  const aujCyber = joursCyber(m);
+  const maintenant = m.contexte.maintenantCyber;
+  const existe = (liste: Lien[], id: unknown, ou: string) => assert.ok(liste.some((x) => x.id === id), `${nom} : ${ou}`);
+  const unique = (liste: Lien[], ou: string) => assert.equal(new Set(liste.map((x) => x.id)).size, liste.length, `${nom} : ${ou} — identifiants uniques`);
+  for (const jeu of ['sousEtapesMission', 'journalMission', 'equipeMission', 'appareilsParc', 'digestVeille', 'elementsEmpreinte', 'playbooksIncident', 'reponsesIncident', 'communicationsIncident', 'preuvesIncident', 'controlesConformite', 'maturiteConformite', 'modulesFormation', 'parcoursFormation', 'historiqueCampagnes']) unique(m[jeu], jeu);
+
+  // CY02 : le type de cible d'un outil, et le nombre d'adresses d'un accord (jamais les adresses).
+  for (const o of m.outilsCyber) {
+    assert.equal(o.cible === null, o.accord !== 'Accord requis', `${nom} : cible d’un outil`);
+    assert.ok(o.cible === null || ['domaine', 'adresse', 'locaux'].includes(str(o.cible)), `${nom} : cible connue`);
+  }
+  for (const a of m.accords) {
+    const p = a.perimetre as Lien;
+    assert.ok(Number.isInteger(p.nbAdresses) && num(p.nbAdresses) >= 0, `${nom} : nombre d’adresses`);
+    assert.deepEqual(Object.keys(p).sort(), ['domaines', 'locaux', 'nbAdresses']);
+  }
+
+  // CY02, CY14 : sous-étapes — une phase passée est faite, la suivante n'a rien, « Accord signé » dit la vérité de l'accord.
+  if (m.sousEtapesMission.length > 0) {
+    for (const mi of m.missions) {
+      const etapes = m.sousEtapesMission.filter((e) => e.missionId === mi.id);
+      assert.equal(etapes.length, D.PHASES_MISSION.length * 3, `${nom} : 15 sous-étapes par mission`);
+      const courante = D.PHASES_MISSION.indexOf(str(mi.phase));
+      const accord = m.accords.find((a) => a.id === mi.accordId);
+      for (const e of etapes) {
+        const pi = D.PHASES_MISSION.indexOf(str(e.phase));
+        assert.equal(e.libelle, D.SOUS_ETAPES[str(e.phase)][num(e.rang) - 1], `${nom} : libellé de sous-étape`);
+        if (e.phase === 'Accord' && e.rang === 2) assert.equal(e.fait, Boolean(accord?.signe), `${nom} : « Accord signé » = l’accord`);
+        else if (mi.etat === 'Terminée' || pi < courante) assert.equal(e.fait, true, `${nom} : phase passée faite`);
+        else if (pi > courante) assert.equal(e.fait, false, `${nom} : phase à venir vide`);
+      }
+      const dernieres = etapes.filter((e) => e.phase === mi.phase && e.rang === 3);
+      if (mi.etat !== 'Terminée') assert.ok(dernieres.every((e) => e.fait === false), `${nom} : la phase courante n’est pas finie`);
+    }
+  }
+
+  // CY02, CY14 : journal — dans la vie de la mission, jamais dans le futur, rien avant le début, rien pour une mission à préparer.
+  const typesJournal = ['Accord', 'Phase', 'Constat', 'Document', 'Contact', 'Note'];
+  for (const e of m.journalMission) {
+    const mi = m.missions.find((x) => x.id === e.missionId);
+    assert.ok(mi, `${nom} : journal → mission`);
+    assert.ok(typesJournal.includes(str(e.type)) && str(e.le) >= str(mi.debutLe) && str(e.le) <= aujCyber, `${nom} : entrée de journal`);
+    assert.notEqual(mi.etat, 'À préparer', `${nom} : pas de journal avant le début`);
+    assert.ok(e.parEmail === null || m.equipe.some((p) => p.email === e.parEmail), `${nom} : auteur du journal`);
+  }
+  if (m.journalMission.length > 0) {
+    for (const mi of m.missions.filter((x) => x.etat !== 'À préparer' && str(x.debutLe) <= aujCyber)) {
+      const mien = m.journalMission.filter((e) => e.missionId === mi.id);
+      assert.ok(mien.some((e) => e.type === 'Accord'), `${nom} : le journal commence par l’accord`);
+      assert.equal(mien.filter((e) => e.type === 'Phase').length, D.PHASES_MISSION.indexOf(str(mi.phase)), `${nom} : une entrée par phase franchie`);
+      assert.equal(mien.filter((e) => e.type === 'Constat').length, m.constats.filter((c) => c.missionId === mi.id).length, `${nom} : une entrée par constat`);
+    }
+  }
+  const trie = m.journalMission.map((e) => str(e.le));
+  assert.deepEqual(trie, [...trie].sort().reverse(), `${nom} : journal du plus récent au plus ancien`);
+
+  // CY14 : équipe — un responsable, un seul contact d'urgence, des créneaux et jamais un numéro.
+  if (m.equipeMission.length > 0) {
+    for (const mi of m.missions) {
+      const eq = m.equipeMission.filter((e) => e.missionId === mi.id);
+      assert.equal(eq.filter((e) => e.contactUrgence).length, 1, `${nom} : un contact d’urgence`);
+      assert.deepEqual(eq.filter((e) => e.role === 'Responsable').map((e) => e.membreEmail), [mi.responsableEmail], `${nom} : le responsable de la mission`);
+      assert.equal(new Set(eq.map((e) => e.membreEmail)).size, eq.length, `${nom} : une personne une fois`);
+      const accord = m.accords.find((a) => a.id === mi.accordId);
+      assert.equal(eq.find((e) => e.contactUrgence)?.joignable, accord?.creneau ?? D.CRENEAU_BUREAU, `${nom} : joignabilité du contact d’urgence`);
+      for (const e of eq) assert.ok(m.equipe.some((p) => p.email === e.membreEmail) && /^\d{1,2} h – \d{1,2} h$/.test(str(e.joignable)), `${nom} : membre de la mission`);
+    }
+  }
+
+  // CY03 : le parc est la somme de ses appareils.
+  for (const p of m.parcSecurite) {
+    const mes = m.appareilsParc.filter((a) => a.parcId === p.id);
+    assert.equal(mes.length, p.postes, `${nom} : appareils = postes`);
+    assert.equal(mes.filter((a) => a.correctifsEnAttente === 0).length, p.postesAJour, `${nom} : postes à jour`);
+    assert.equal(mes.reduce((t, a) => t + num(a.correctifsEnAttente), 0), p.correctifsEnAttente, `${nom} : correctifs`);
+    assert.equal(mes.reduce((t, a) => t + num(a.correctifsImportants), 0), p.correctifsImportants, `${nom} : correctifs importants`);
+    assert.equal(mes.filter((a) => a.antivirus === 'Actif').length, p.antivirusActifs, `${nom} : antivirus`);
+    const s = p.sauvegardes as Lien;
+    assert.equal(mes.filter((a) => a.sauvegarde !== null).length, s.total, `${nom} : sauvegardes couvertes`);
+    assert.equal(mes.filter((a) => a.sauvegarde === 'Vérifiée').length, s.verifiees, `${nom} : sauvegardes vérifiées`);
+    for (const a of mes) assert.equal(a.clientId, p.clientId);
+  }
+  for (const a of m.appareilsParc) {
+    existe(m.parcSecurite, a.parcId, 'appareil → parc');
+    assert.match(str(a.nom), a.type === 'Serveur' ? /^Serveur \d$/ : /^Poste \d{2}$/, `${nom} : nom générique`);
+    assert.ok(Date.parse(str(a.dernierContactAt)) <= maintenant && num(a.correctifsImportants) <= num(a.correctifsEnAttente), `${nom} : appareil`);
+    assert.deepEqual(Object.keys(a).sort(), ['antivirus', 'clientId', 'correctifsEnAttente', 'correctifsImportants', 'dernierContactAt', 'id', 'nom', 'parcId', 'sauvegarde', 'type'], 'un appareil ne porte que ces champs');
+  }
+
+  // CY05 : produit, catégorie, éditeur, score ; un logiciel « concerné » est du produit de l'alerte ; le digest recoupe les alertes.
+  for (const l of m.logicielsClients) assert.ok(D.PRODUITS_VEILLE.some((p) => p.nom === l.nom && p.categorie === l.categorie && p.editeur === l.editeur), `${nom} : logiciel → produit`);
+  for (const a of m.alertesVeille) {
+    assert.ok(D.PRODUITS_VEILLE.some((p) => p.categorie === a.categorie && p.editeur === a.editeur), `${nom} : alerte → produit`);
+    const sc = num(a.scorePublie);
+    assert.ok(Math.round(sc * 10) / 10 === sc && sc >= 0 && sc <= 10, `${nom} : score à une décimale`);
+    if (a.gravite === 'Critique') assert.ok(sc >= D.SEUILS_SCORE.critique, `${nom} : Critique ⇒ score élevé`);
+    else if (a.gravite === 'Moyenne') assert.ok(sc >= D.SEUILS_SCORE.moderee && sc < D.SEUILS_SCORE.critique, `${nom} : Moyenne ⇒ score moyen`);
+    else assert.ok(sc < D.SEUILS_SCORE.moderee, `${nom} : Faible ⇒ score bas`);
+    for (const id of a.logicielsConcernes as string[]) {
+      const l = m.logicielsClients.find((x) => x.id === id);
+      assert.ok(l && l.categorie === a.categorie && l.editeur === a.editeur, `${nom} : logiciel concerné du même produit`);
+    }
+  }
+  const joursDigest = m.digestVeille.map((d) => str(d.jour));
+  assert.equal(new Set(joursDigest).size, joursDigest.length, `${nom} : un digest par jour`);
+  for (const d of m.digestVeille) {
+    assert.ok(str(d.jour) <= aujCyber && new Date(`${str(d.jour)}T12:00:00Z`).getUTCDay() % 6 !== 0, `${nom} : digest d’un jour ouvré passé`);
+    assert.equal(d.nouvelles, m.alertesVeille.filter((a) => a.publieeLe === d.jour).length, `${nom} : « nouvelles » = alertes du jour`);
+  }
+  // Un week-end, il n'y a pas de digest ce jour-là (le jour de référence peut y tomber quand « maintenant » est décalé).
+  if (m.digestVeille.length && new Date(`${aujCyber}T12:00:00Z`).getUTCDay() % 6 !== 0) assert.equal(m.digestVeille.find((d) => d.jour === aujCyber)?.lu, true, `${nom} : le digest du jour est lu`);
+
+  // CY06 : l'empreinte publique d'une mission de recherche qui a un accord signé — des libellés, jamais un contenu.
+  for (const e of m.elementsEmpreinte) {
+    const mi = m.missions.find((x) => x.id === e.missionId);
+    assert.ok(mi && mi.famille === 'OSINT' && m.accords.some((a) => a.id === mi.accordId && a.signe), `${nom} : empreinte → mission de recherche à accord signé`);
+    assert.ok(D.CATEGORIES_EMPREINTE.includes(str(e.categorie)), `${nom} : catégorie d’empreinte`);
+    assert.ok(str(e.decouvertLe) <= aujCyber && str(e.decouvertLe) >= D.jourDe(Date.parse(`${aujCyber}T12:00:00Z`) - 29 * 86_400_000) && str(e.decouvertLe) >= str(mi.debutLe), `${nom} : frise de 30 jours`);
+    assert.ok(!/@|https?:|\d{3}/.test(str(e.valeur)), `${nom} : valeur d’empreinte sans contenu sensible`);
+  }
+
+  // CY08 : un suivi par incident, des étapes dans l'ordre, un chronomètre qui ne ment pas.
+  const playbook = new Map(m.playbooksIncident.map((p) => [p.id, p]));
+  for (const p of m.playbooksIncident) {
+    assert.deepEqual((p.etapes as Lien[]).map((e) => e.rang), (p.etapes as Lien[]).map((_, k) => k + 1), `${nom} : étapes numérotées`);
+    for (const e of p.etapes as Lien[]) assert.ok(D.ROLES_INCIDENT.includes(str(e.role)));
+  }
+  if (m.playbooksIncident.length) assert.equal(m.reponsesIncident.length, m.incidents.length, `${nom} : un suivi par incident`);
+  for (const r of m.reponsesIncident) {
+    const inc = m.incidents.find((i) => i.id === r.incidentId);
+    assert.ok(inc && playbook.has(str(r.playbookId)), `${nom} : suivi → incident, playbook`);
+    const total = (playbook.get(str(r.playbookId))?.etapes as unknown[]).length;
+    const faites = (r.etapesFaites as unknown[]).length;
+    assert.deepEqual(r.etapesFaites, Array.from({ length: faites }, (_, k) => k + 1), `${nom} : étapes faites dans l’ordre`);
+    assert.ok(faites <= total, `${nom} : pas plus d’étapes que le playbook`);
+    if (inc.etape === 'Clôturé') assert.equal(faites, total, `${nom} : incident clôturé = playbook fini`);
+    if (inc.etape === 'Détecté') assert.equal(faites, 0, `${nom} : détecté = rien de fait`);
+    assert.equal(r.notification, inc.donneesPersonnelles === 'oui' ? 'Requise' : inc.donneesPersonnelles === 'non' ? 'Non requise' : 'À évaluer', `${nom} : notification déduite`);
+    assert.equal((r.donneesConcernees as unknown[]).length > 0, inc.donneesPersonnelles === 'oui', `${nom} : données concernées`);
+    const detecte = Date.parse(str(r.detecteAt));
+    assert.ok(detecte <= maintenant, `${nom} : détection passée`);
+    if (r.notifieAt !== null) {
+      const n = Date.parse(str(r.notifieAt));
+      assert.ok(r.notification === 'Requise' && n >= detecte && n <= detecte + D.DELAI_NOTIFICATION_HEURES * 3_600_000 && n <= maintenant, `${nom} : notification dans le délai`);
+    }
+    assert.equal((r.roles as unknown[]).length, D.ROLES_INCIDENT.length);
+    if (inc.etape === 'Détecté') assert.ok((r.roles as Lien[]).every((x) => x.membreEmail === null), `${nom} : personne n’est encore désigné`);
+    for (const c of m.communicationsIncident.filter((x) => x.incidentId === r.incidentId)) assert.ok(Date.parse(str(c.at)) >= detecte && Date.parse(str(c.at)) <= maintenant, `${nom} : communication datée`);
+    for (const p of m.preuvesIncident.filter((x) => x.incidentId === r.incidentId)) assert.ok(Date.parse(str(p.ajouteeAt)) >= detecte && Date.parse(str(p.ajouteeAt)) <= maintenant, `${nom} : preuve datée`);
+  }
+  for (const p of m.preuvesIncident) assert.deepEqual(Object.keys(p).sort(), ['ajouteeAt', 'empreinteVerifiee', 'id', 'incidentId', 'nature', 'nom', 'parEmail'], `${nom} : une preuve = un nom, jamais un contenu`);
+  for (const t of [...m.communicationsIncident, ...m.preuvesIncident]) assert.ok(!/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|\+?\d{2}[ .]\d{2}[ .]\d{2}[ .]\d{2}/.test(JSON.stringify(t)), `${nom} : ni adresse ni numéro`);
+
+  // CY09 : dix contrôles, des cases de 0 à 4, des preuves tirées des preuves attendues.
+  if (m.controlesConformite.length) {
+    assert.equal(m.controlesConformite.length, 10);
+    assert.deepEqual(m.controlesConformite.slice(0, 5).map((c) => c.libelle), [...D.POINTS_RGPD], `${nom} : les cinq contrôles RGPD sont les points du dossier`);
+    assert.equal(m.maturiteConformite.length, m.dossiersConformite.length * 10, `${nom} : dix cases par client`);
+  }
+  for (const d of m.dossiersConformite) {
+    m.controlesConformite.forEach((c, k) => {
+      const cellule = m.maturiteConformite.find((x) => x.clientId === d.clientId && x.controleId === c.id);
+      assert.ok(cellule, `${nom} : case de la matrice`);
+      const niv = num(cellule.niveau);
+      assert.ok(Number.isInteger(niv) && niv >= 0 && niv <= 4, `${nom} : niveau de 0 à 4`);
+      assert.equal(cellule.revueLe === null, niv === 0, `${nom} : pas de revue au niveau 0`);
+      if (k < 5) assert.equal(niv >= 3, (d.points as Lien[])[k].ok, `${nom} : case RGPD = point du dossier`);
+      if (k === 0) assert.equal(cellule.revueLe, d.registreRevuLe, `${nom} : date de revue du registre`);
+      const attendues = c.preuvesAttendues as string[];
+      assert.ok((cellule.preuvesJointes as string[]).every((p) => attendues.includes(p)), `${nom} : preuves jointes ⊆ preuves attendues`);
+      if (niv === 4) assert.equal((cellule.preuvesJointes as unknown[]).length, attendues.length, `${nom} : niveau 4 = tout joint`);
+      if (niv === 0) assert.equal((cellule.preuvesJointes as unknown[]).length, 0);
+      if (niv >= 1 && niv <= 2) assert.ok((cellule.preuvesJointes as unknown[]).length < attendues.length, `${nom} : sous le niveau 3, il manque une preuve`);
+    });
+  }
+
+  // CY10 : un parcours par équipe de client, effectif au moins égal aux envois, 6 simulations d'historique, un accord qui existe.
+  if (m.modulesFormation.length) assert.deepEqual(m.modulesFormation.map((x) => x.rang), [1, 2, 3, 4, 5]);
+  for (const p of m.parcoursFormation) {
+    const envois = m.campagnes.filter((c) => c.clientId === p.clientId).flatMap((c) => c.parEquipe as Lien[]).filter((e) => e.equipe === p.equipe).map((e) => num(e.envoyes));
+    assert.ok(envois.length > 0 && num(p.effectif) >= Math.max(...envois), `${nom} : effectif ≥ envois`);
+    assert.ok(num(p.modulesTermines) >= 0 && num(p.modulesTermines) <= 5, `${nom} : modules terminés`);
+    assert.equal(p.prochainQuizLe === null, num(p.modulesTermines) === 5, `${nom} : prochain quiz tant que le parcours n’est pas fini`);
+    if (p.prochainQuizLe !== null) assert.ok(str(p.prochainQuizLe) > aujCyber, `${nom} : le prochain quiz est à venir`);
+  }
+  for (const clientId of new Set(m.historiqueCampagnes.map((x) => x.clientId))) {
+    const h = m.historiqueCampagnes.filter((x) => x.clientId === clientId);
+    assert.deepEqual(h.map((x) => x.rang), [1, 2, 3, 4, 5, 6], `${nom} : six simulations`);
+    assert.deepEqual(h.map((x) => str(x.le)), h.map((x) => str(x.le)).sort(), `${nom} : du plus ancien au plus récent`);
+    for (const x of h) assert.ok(num(x.cliques) + num(x.signales) <= num(x.envoyes) && str(x.le) < aujCyber, `${nom} : totaux de l’historique`);
+    assert.ok(m.campagnes.some((c) => c.clientId === clientId && c.type === 'Simulation'), `${nom} : historique d’un client qui fait des simulations`);
+  }
+  for (const c of m.campagnes) {
+    assert.equal(c.accordId === null || c.type === 'Simulation', true, `${nom} : seule une simulation porte un accord`);
+    if (c.accordId !== null) {
+      const a = m.accords.find((x) => x.id === c.accordId);
+      assert.ok(a && a.clientId === c.clientId && a.signe, `${nom} : accord d’une simulation`);
+    }
+  }
+}
+
+dit('LOT-10 : les invariants tiennent pour 12 graines (« peu » et « normal »), 4 graines (« beaucoup »), d’autres dates, et au volume « vide »', () => {
+  for (let graine = 1; graine <= 12; graine += 1) for (const volume of ['peu', 'normal'] as const) invariantsCyber10(D.construireMonde({ graine, volume }), `graine ${graine}, ${volume}`);
+  for (const graine of [101, 202, 303, 404]) invariantsCyber10(D.construireMonde({ graine, volume: 'beaucoup' }), `graine ${graine}, beaucoup`);
+  for (const jour of ['2026-03-29T10:00:00Z', '2026-07-14T09:00:00Z', '2026-10-25T11:30:00Z', '2027-01-04T08:00:00Z']) invariantsCyber10(D.construireMonde({ volume: 'normal', maintenant: Date.parse(jour) }), `date ${jour}`);
+  invariantsCyber10(vide, 'vide');
+});
+
+dit('LOT-10 : les cas que les écrans attendent existent au volume « normal » pour 12 graines (seuls les cas garantis par construction)', () => {
+  for (let graine = 1; graine <= 12; graine += 1) {
+    const n = D.construireMonde({ graine, volume: 'normal' });
+    const nom = `graine ${graine}`;
+    const a = D.attendusCyber(n);
+    assert.ok(n.appareilsParc.some((x) => x.type === 'Serveur') && n.appareilsParc.some((x) => x.type === 'Poste'), `${nom} : postes et serveurs`);
+    assert.ok(a.parc.some((p: Attendu) => p.horsLigne > 0 || p.enRetard > 0), `${nom} : un parc avec du retard`);
+    assert.ok(a.veille.parBande.Critique > 0 && a.veille.parBande.Importante > 0 && a.veille.parBande.Modérée > 0, `${nom} : les trois bandes de score`);
+    assert.ok(a.veille.serieDigest >= 6, `${nom} : une série de digests`);
+    assert.ok(new Set(n.elementsEmpreinte.map((e) => e.categorie)).size === 7, `${nom} : les sept catégories d’empreinte`);
+    assert.ok(a.incidents.some((i: Attendu) => i.restantMinutes !== null && i.restantMinutes > 0 && i.restantMinutes < D.DELAI_NOTIFICATION_HEURES * 60), `${nom} : un chronomètre de notification qui tourne`);
+    assert.equal(n.maturiteConformite.length, 70, `${nom} : dix contrôles × sept clients`);
+    assert.ok(new Set(n.maturiteConformite.map((c) => c.niveau)).size >= 4, `${nom} : des niveaux variés`);
+    assert.ok(n.parcoursFormation.length > 0 && n.historiqueCampagnes.length >= 6, `${nom} : formation et historique`);
+  }
+});
+
+dit('LOT-10 : le cas de référence — l’incident en traitement, détecté 26 h 15 min avant le mardi 3 nov. 10 h 42, avec 45 h 45 min devant lui', () => {
+  const a = D.attendusCyber(normal);
+  const premier = normal.reponsesIncident[0];
+  assert.equal(premier.incidentId, 'INC-0412');
+  assert.equal(normal.incidents.find((i) => i.id === 'INC-0412')?.donneesPersonnelles, 'oui');
+  assert.equal(premier.notification, 'Requise');
+  assert.equal(premier.notifieAt, null);
+  assert.equal(Date.parse(str(premier.detecteAt)), normal.contexte.maintenantCyber - (26 * 60 + 15) * 60_000);
+  const i = a.incidents.find((x: Attendu) => x.incidentId === 'INC-0412');
+  assert.equal(i.restantMinutes, D.DELAI_NOTIFICATION_HEURES * 60 - (26 * 60 + 15), 'il reste 45 h 45 min');
+  assert.equal(i.echeanceNotificationAt, new Date(Date.parse(str(premier.detecteAt)) + 72 * 3_600_000).toISOString());
+  assert.equal(i.etapesTotal, 7, 'le playbook « compte compromis » a sept étapes');
+  assert.equal(i.etapesFaites, 4);
+  assert.equal(normal.playbooksIncident[0].type, 'Compte compromis');
+});
+
+dit('LOT-10 : les attendus se recalculent à la main — verrous, parc, bandes de score, conformité, sensibilisation', () => {
+  const a = D.attendusCyber(normal);
+  const j = joursCyber(normal);
+  // Les verrous : on les refait mission par mission avec les seules règles de la note (§4).
+  let attendus = 0;
+  for (const mi of normal.missions) {
+    const accord = normal.accords.find((x) => x.id === mi.accordId);
+    for (const o of normal.outilsCyber.filter((x) => x.famille === mi.famille && x.accord === 'Accord requis')) {
+      attendus += 1;
+      const v = a.verrous.find((x: Attendu) => x.missionId === mi.id && x.outilId === o.id);
+      assert.ok(v, 'un verrou par mission et par outil « Accord requis »');
+      const valide = accord !== undefined && accord.signe === true && str(accord.finLe) >= j;
+      const p = accord?.perimetre as Lien | undefined;
+      const cible = o.cible === 'locaux' ? (p?.locaux as unknown[] | undefined)?.length ?? 0 : o.cible === 'adresse' ? num(p?.nbAdresses ?? 0) : (p?.domaines as unknown[] | undefined)?.length ?? 0;
+      assert.equal(v.disponible, valide && cible > 0, `verrou ${mi.id} / ${o.id}`);
+      assert.equal(v.motif === null, v.disponible);
+    }
+  }
+  assert.equal(a.verrous.length, attendus);
+  assert.ok(a.verrous.some((v: Attendu) => v.motif === 'accord non signé') && a.verrous.some((v: Attendu) => v.disponible), 'des outils ouverts et des outils fermés');
+  // Le parc, appareil par appareil, avec des durées écrites à la main.
+  for (const p of a.parc) {
+    const mes = normal.appareilsParc.filter((x) => x.clientId === p.clientId);
+    assert.equal(p.appareils, mes.length);
+    assert.equal(p.aJour + p.enRetard, p.appareils, 'à jour + en retard = tous');
+    assert.equal(p.horsLigne, mes.filter((x) => normal.contexte.maintenantCyber - Date.parse(str(x.dernierContactAt)) > 48 * 3_600_000).length, 'hors ligne : plus de 48 h');
+  }
+  assert.equal(D.HORS_LIGNE_APRES_HEURES, 48);
+  // Les bandes : 9 / 7 / 4.
+  assert.deepEqual([9.5, 9, 8.9, 7, 6.9, 4, 3.9, 0.5].map(D.bandeDuScore), ['Critique', 'Critique', 'Importante', 'Importante', 'Modérée', 'Modérée', 'Faible', 'Faible']);
+  const bandes: Record<string, number> = { Critique: 0, Importante: 0, Modérée: 0, Faible: 0 };
+  for (const al of normal.alertesVeille) { const s = num(al.scorePublie); bandes[s >= 9 ? 'Critique' : s >= 7 ? 'Importante' : s >= 4 ? 'Modérée' : 'Faible'] += 1; }
+  assert.deepEqual(a.veille.parBande, bandes);
+  assert.equal(a.veille.concernent, normal.alertesVeille.filter((x) => (x.logicielsConcernes as unknown[]).length > 0).length);
+  // La conformité : la moyenne d'un référentiel est la moyenne de ses cases.
+  const rgpd = normal.maturiteConformite.filter((c) => normal.controlesConformite.find((x) => x.id === c.controleId)?.referentiel === 'RGPD');
+  assert.equal(a.conformite.parReferentiel.RGPD.moyenne, Math.round((rgpd.reduce((t, c) => t + num(c.niveau), 0) / rgpd.length) * 100) / 100);
+  assert.equal(a.conformite.parReferentiel.RGPD.partNiveau3Plus, Math.round((rgpd.filter((c) => num(c.niveau) >= 3).length / rgpd.length) * 100));
+  assert.equal(rgpd.length, 5 * 7);
+  // La sensibilisation : taux de clic à une décimale, équipes de moins de 5 regroupées, courbe de 6 points.
+  for (const c of a.sensibilisation.campagnes) {
+    const camp = normal.campagnes.find((x) => x.id === c.campagneId);
+    if (camp?.type === 'Simulation') assert.equal(c.tauxClic, num(camp.envoyes) === 0 ? null : Math.round((num(camp.cliques) / num(camp.envoyes)) * 1000) / 10);
+    else assert.equal(c.tauxClic, null, 'pas de taux de clic hors simulation');
+  }
+  assert.ok(a.sensibilisation.equipesRegroupees.some((e: Attendu) => e.equipes > 0 && e.effectif < e.equipes * D.EFFECTIF_MINIMUM_EQUIPE), 'au moins une équipe de moins de 5 est regroupée');
+  for (const t of a.sensibilisation.tendance) assert.equal(t.tauxClic.length, 6);
+  // Missions : le nombre d'entrées de journal et les sous-étapes.
+  for (const x of a.missions) {
+    assert.equal(x.sousEtapesTotal, 15);
+    assert.equal(x.entreesJournal, normal.journalMission.filter((e) => e.missionId === x.missionId).length);
+    assert.ok(x.contactUrgence);
+  }
+  assert.equal(D.attendusCyber(vide).verrous.length, 0, 'tout est vide sans donnée');
+});
+
+dit('la série du digest : les week-ends ne cassent rien, un digest du jour non lu non plus, un digest manqué avant aujourd’hui arrête la série', () => {
+  const d = (jour: string, lu: boolean) => ({ jour, lu });
+  const mar = '2026-11-03';
+  assert.equal(D.serieDigest([d('2026-10-29', true), d('2026-10-30', true), d('2026-11-02', true), d(mar, true)], mar), 4, 'le week-end n’interrompt pas');
+  assert.equal(D.serieDigest([d('2026-10-29', true), d('2026-10-30', true), d('2026-11-02', true), d(mar, false)], mar), 3, 'aujourd’hui non lu : ne compte pas, ne casse pas');
+  assert.equal(D.serieDigest([d('2026-10-29', true), d('2026-10-30', false), d('2026-11-02', true), d(mar, true)], mar), 2, 'un digest manqué arrête la série');
+  assert.equal(D.serieDigest([d('2026-10-30', true), d('2026-10-31', false), d('2026-11-02', true), d(mar, true)], mar), 3, 'le samedi n’a pas de digest : il est ignoré');
+  assert.equal(D.serieDigest([], mar), 0);
+  assert.equal(D.serieDigest([d(mar, false)], mar), 0);
+  assert.equal(D.attendusCyber(normal).veille.serieDigest, D.serieDigest(normal.digestVeille as never, joursCyber(normal)));
+});
+
+dit('LOT-10 par mutation : chaque garde de cohérence repère un jeu abîmé', () => {
+  const copie = (): MondeBrut => JSON.parse(JSON.stringify(normal)) as MondeBrut;
+  const casse = (nom: string, abimer: (m: MondeBrut) => void) => {
+    const m = copie();
+    abimer(m);
+    assert.throws(() => invariantsCyber10(m, nom), undefined, `la mutation « ${nom} » doit être repérée`);
+  };
+  invariantsCyber10(copie(), 'copie intacte');
+  casse('outil sans cible', (m) => { (m.outilsCyber.find((o) => o.accord === 'Accord requis') as Lien).cible = null; });
+  casse('outil passif avec cible', (m) => { (m.outilsCyber.find((o) => o.accord === 'Passif') as Lien).cible = 'domaine'; });
+  casse('adresses en clair', (m) => { (m.accords[0].perimetre as Lien).adresses = ['x']; });
+  casse('parc ≠ appareils', (m) => { m.parcSecurite[0].postesAJour = num(m.parcSecurite[0].postesAJour) + 1; });
+  casse('antivirus', (m) => { (m.appareilsParc.find((x) => x.antivirus === 'Actif') as Lien).antivirus = 'Inactif'; });
+  casse('appareil au nom réel', (m) => { m.appareilsParc[0].nom = 'PC-COMPTA-01'; });
+  casse('appareil futur', (m) => { m.appareilsParc[0].dernierContactAt = '2027-01-01T00:00:00.000Z'; });
+  casse('score hors gravité', (m) => { (m.alertesVeille.find((x) => x.gravite === 'Critique') as Lien).scorePublie = 5; });
+  casse('score à deux décimales', (m) => { m.alertesVeille[0].scorePublie = 9.55; });
+  casse('digest ≠ alertes', (m) => { m.digestVeille[0].nouvelles = num(m.digestVeille[0].nouvelles) + 1; });
+  casse('digest du week-end', (m) => { m.digestVeille[0].jour = '2026-10-31'; });
+  casse('élément de recherche sans accord signé', (m) => { const mi = m.missions.find((x) => x.id === m.elementsEmpreinte[0].missionId) as Lien; (m.accords.find((x) => x.id === mi.accordId) as Lien).signe = false; });
+  casse('empreinte avec un courriel', (m) => { m.elementsEmpreinte[0].valeur = 'prenom.nom@exemple.test'; });
+  casse('sous-étape fausse', (m) => { (m.sousEtapesMission.find((x) => x.phase === 'Rapport' && x.fait === false) as Lien).fait = true; });
+  casse('« Accord signé » menteur', (m) => { const e = m.sousEtapesMission.find((x) => x.phase === 'Accord' && x.rang === 2) as Lien; e.fait = !e.fait; });
+  casse('journal avant la mission', (m) => { m.journalMission[m.journalMission.length - 1].le = '2020-01-01'; });
+  casse('deux contacts d’urgence', (m) => { const seule = m.equipeMission.find((x) => m.equipeMission.filter((y) => y.missionId === x.missionId).length >= 2) as Lien; for (const e of m.equipeMission.filter((x) => x.missionId === seule.missionId)) e.contactUrgence = true; });
+  casse('numéro de téléphone', (m) => { m.equipeMission[0].joignable = '06 12 34 56 78'; });
+  casse('étapes d’incident dans le désordre', (m) => { m.reponsesIncident[0].etapesFaites = [2, 3]; });
+  casse('notification hors délai', (m) => { const r = m.reponsesIncident.find((x) => x.notifieAt !== null) as Lien; r.notifieAt = new Date(Date.parse(str(r.detecteAt)) + 100 * 3_600_000).toISOString(); });
+  casse('preuve avec contenu', (m) => { (m.preuvesIncident[0] as Lien).contenu = 'secret'; });
+  casse('case RGPD ≠ dossier', (m) => { const c = m.maturiteConformite[1]; c.niveau = num(c.niveau) >= 3 ? 1 : 4; });
+  casse('preuve jointe inconnue', (m) => { (m.maturiteConformite.find((x) => num(x.niveau) >= 1) as Lien).preuvesJointes = ['Une pièce qui n’existe pas']; });
+  casse('niveau 5', (m) => { m.maturiteConformite[0].niveau = 5; });
+  casse('équipe plus petite que ses envois', (m) => { m.parcoursFormation[0].effectif = 1; });
+  casse('historique à cinq points', (m) => { m.historiqueCampagnes.pop(); });
+  casse('simulation avec l’accord d’un autre client', (m) => { const c = m.campagnes.find((x) => x.accordId !== null) as Lien; c.accordId = (m.accords.find((a) => a.clientId !== c.clientId) as Lien).id; });
 });
 
 console.log('  — Le chargeur vers l’API d’essai');

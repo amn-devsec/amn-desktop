@@ -14,7 +14,11 @@
 import { genererAbonnements, genererAvoirs, genererComptes, genererContrats, genererDepenses, genererDevis, genererEnveloppes, genererFactures, genererMouvements, genererPaiements } from './argent';
 import { genererAide, genererAutomatisations, genererConnecteurs, genererCorbeille, genererModelesMetier, genererNotifications, genererOperations, genererRaccourcis, genererSauvegardes, genererSecrets, genererSites, genererTrackers, genererUsagesCalculs } from './boite-outils';
 import { genererBulletins, genererCreneaux, genererDefis, genererEcheances, genererPartenaires, genererPrestations, netMensuelMoyen } from './complements';
-import { genererAccords, genererAlertesVeille, genererCampagnes, genererConstats, genererDocumentsCyber, genererDossiersConformite, genererFuites, genererLogiciels, genererMissions, genererOutilsCyber, genererParcSecurite } from './cyber';
+import { genererAccords, genererAlertesVeille, genererCampagnes, genererConstats, genererDocumentsCyber, genererDossiersConformite, genererFuites, genererLogiciels, genererMissions, genererOutilsCyber, genererParcEtAppareils } from './cyber';
+import {
+  genererControlesConformite, genererDigest, genererEmpreinte, genererEquipeMission, genererHistorique, genererJournalMission, genererMaturite, genererModules, genererParcours, genererPlaybooks,
+  genererSousEtapes, genererSuiviIncidents,
+} from './cyber-suite';
 import { genererAnnonces, genererAppels, genererCanaux, genererConversations, genererCourriels, genererPartages, genererReponsesAuto, genererReunions, genererSalles, genererSondages } from './echanger';
 import { genererArchives, genererConnaissances, genererDemandesRelecture, genererFichiers, genererJournal, genererModeles, genererPages, genererReglesArchivage, genererSignatures, genererTextes } from './ecrire';
 import { genererBoiteAZero, genererConnexions, genererEngagements, genererPriorites } from './journee';
@@ -223,8 +227,21 @@ export function construireMonde(options: OptionsMonde = {}): Monde {
   const alertesVeille = genererAlertesVeille(ctxCyber, logicielsClients);
   const fuites = genererFuites(ctxCyber, clients);
   const dossiersConformite = genererDossiersConformite(ctxCyber, clients);
-  const campagnes = genererCampagnes(ctxCyber, clients);
-  const parcSecurite = genererParcSecurite(ctxCyber, clients);
+  const campagnes = genererCampagnes(ctxCyber, clients, accords);
+  const { parcs: parcSecurite, appareils: appareilsParc } = genererParcEtAppareils(ctxCyber, clients);
+  // Compléments LOT-10 (S8) : le jour de référence Cyber, partout.
+  const sousEtapesMission = genererSousEtapes(ctxCyber, missions, accords);
+  const journalMission = genererJournalMission(ctxCyber, equipe, missions, accords, constats, documentsCyber);
+  const equipeMission = genererEquipeMission(ctxCyber, equipe, missions, accords);
+  const digestVeille = genererDigest(ctxCyber, alertesVeille);
+  const elementsEmpreinte = genererEmpreinte(ctxCyber, missions, accords);
+  const playbooksIncident = genererPlaybooks(ctxCyber);
+  const suiviIncidents = genererSuiviIncidents(ctxCyber, equipe, incidents, playbooksIncident);
+  const controlesConformite = genererControlesConformite(ctxCyber);
+  const maturiteConformite = genererMaturite(ctxCyber, dossiersConformite, controlesConformite);
+  const modulesFormation = genererModules(ctxCyber);
+  const parcoursFormation = genererParcours(ctxCyber, campagnes, modulesFormation);
+  const historiqueCampagnes = genererHistorique(ctxCyber, campagnes);
 
   return {
     contexte: ctx, entreprise, equipe, taches, evenements, projets, tickets, notes, rappels, habitudes, clients, interlocuteurs, prospects,
@@ -240,5 +257,8 @@ export function construireMonde(options: OptionsMonde = {}): Monde {
     corbeille, aide, secrets, sites, trackers, sauvegardes, operations, raccourcis, automatisations, connecteurs, notifications, modelesMetier, usagesCalculs,
     organisations, actifs, alertes, incidents, vulnerabilites, rondes, evenementsSecurite, journalAcces, criteresMaturite, offresCyber,
     outilsCyber, accords, missions, constats, documentsCyber, logicielsClients, alertesVeille, fuites, dossiersConformite, campagnes, parcSecurite,
+    sousEtapesMission, journalMission, equipeMission, appareilsParc, digestVeille, elementsEmpreinte, playbooksIncident,
+    reponsesIncident: suiviIncidents.reponses, communicationsIncident: suiviIncidents.communications, preuvesIncident: suiviIncidents.preuves,
+    controlesConformite, maturiteConformite, modulesFormation, parcoursFormation, historiqueCampagnes,
   };
 }

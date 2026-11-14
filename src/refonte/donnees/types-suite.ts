@@ -48,6 +48,10 @@ export const NOMS_DES_JEUX_SUITE = [
   // Cyber
   'outilsCyber', 'accords', 'missions', 'constats', 'documentsCyber', 'logicielsClients', 'alertesVeille', 'fuites', 'dossiersConformite',
   'campagnes', 'parcSecurite',
+  // Cyber, compléments pour LOT-10 (S8) : sous-étapes, journal et équipe de mission, appareils, digest, empreinte, incident, conformité, formation
+  'sousEtapesMission', 'journalMission', 'equipeMission', 'appareilsParc', 'digestVeille', 'elementsEmpreinte',
+  'playbooksIncident', 'reponsesIncident', 'communicationsIncident', 'preuvesIncident',
+  'controlesConformite', 'maturiteConformite', 'modulesFormation', 'parcoursFormation', 'historiqueCampagnes',
 ] as const;
 export type NomDuJeuSuite = (typeof NOMS_DES_JEUX_SUITE)[number];
 
@@ -1088,6 +1092,8 @@ export type FamilleCyber =
   | 'Red Team' | 'Blue Team' | 'SOC' | 'Veille' | 'OSINT' | 'Sites et vie privée' | 'Réponse à incident' | 'Conformité' | 'Sensibilisation' | 'Automatisation';
 
 /** CY02 à CY11. Noms génériques et descriptions de pilotage : aucun outil réel. */
+export type CibleOutil = 'domaine' | 'adresse' | 'locaux';
+
 export interface OutilCyber {
   id: string;
   famille: FamilleCyber;
@@ -1095,6 +1101,8 @@ export interface OutilCyber {
   description: string;
   type: 'Intégré' | 'Connecté';
   accord: 'Interne' | 'Passif' | 'Accord requis';
+  /** Ce que l'outil vise (CY02) : un outil « Accord requis » en a toujours une, les autres jamais. Il doit figurer au périmètre de l'accord. */
+  cible: CibleOutil | null;
   dernierUsageAt: string | null;
   action: 'Lancer' | 'Ouvrir' | 'Vérifier' | 'Préparer' | 'Lire' | 'Appliquer';
   actif: boolean;
@@ -1106,7 +1114,8 @@ export type EtatAccord = 'Valide' | 'Expire bientôt' | 'Expiré' | 'En attente'
 export interface AccordCyber {
   id: string;
   clientId: number;
-  perimetre: { domaines: string[]; locaux: string[] };
+  /** `nbAdresses` : un nombre, jamais les adresses (CY14). */
+  perimetre: { domaines: string[]; locaux: string[]; nbAdresses: number };
   creneau: string | null;
   debutLe: Jour;
   finLe: Jour;
@@ -1165,6 +1174,10 @@ export interface LogicielClient {
   id: string;
   clientId: number;
   nom: string;
+  /** Secteur du radar (CY05). */
+  categorie: string;
+  /** Éditeur fictif (anneau « Même éditeur »). */
+  editeur: string;
   version: string;
   correctifDisponible: boolean;
   concerneParVeille: boolean;
@@ -1175,6 +1188,10 @@ export interface AlerteVeille {
   idFictif: string;
   titre: string;
   gravite: GraviteAlerte;
+  /** Score publié, de 0,0 à 10,0, une décimale (CY05). Critique : 9,0 et plus ; Moyenne : de 4,0 à 8,9 ; Faible : moins de 4,0. */
+  scorePublie: number;
+  categorie: string;
+  editeur: string;
   publieeLe: Jour;
   logicielsConcernes: string[];
 }
@@ -1201,6 +1218,8 @@ export interface DossierConformite {
 export interface CampagneSensibilisation {
   id: string;
   clientId: number;
+  /** Une simulation porte l'accord du client (l'outil est « Accord requis »). Vide : pas d'accord, donc rien à envoyer. */
+  accordId: string | null;
   titre: string;
   type: 'Simulation' | 'Quiz' | 'Module';
   le: Jour;
@@ -1222,6 +1241,192 @@ export interface ParcSecurite {
   correctifsImportants: number;
   sauvegardes: { total: number; verifiees: number };
   comptesSansDoubleValidation: number;
+  /** Appareils dont l'antivirus est actif (somme de `appareilsParc`). */
+  antivirusActifs: number;
+}
+
+
+/* ------------------- Cyber : compléments pour LOT-10 (S8), jour de référence Cyber ------------------- */
+
+/** CY02 et CY14. Les sous-étapes d'une phase de mission : un libellé et une case cochée, rien d'autre. */
+export interface SousEtapeMission {
+  id: string;
+  missionId: string;
+  phase: PhaseMission;
+  rang: number;
+  libelle: string;
+  fait: boolean;
+}
+
+export type TypeEntreeJournal = 'Accord' | 'Phase' | 'Constat' | 'Document' | 'Contact' | 'Note';
+
+/** CY02 (« N entrées ») et CY14. Un résumé général, jamais un détail technique. */
+export interface EntreeJournalMission {
+  id: string;
+  missionId: string;
+  le: Jour;
+  type: TypeEntreeJournal;
+  resume: string;
+  parEmail: string | null;
+}
+
+export type RoleEquipeMission = 'Responsable' | 'Intervenant' | 'Relecteur';
+
+/** CY14. Joignabilité en créneau (« 19 h – 7 h »), jamais un numéro de téléphone. */
+export interface MembreMission {
+  id: string;
+  missionId: string;
+  membreEmail: string;
+  role: RoleEquipeMission;
+  contactUrgence: boolean;
+  joignable: string | null;
+}
+
+/** CY03. Un appareil suivi : aucun nom réel de machine (« Poste 03 »), aucune adresse, aucun compte. */
+export interface AppareilParc {
+  id: string;
+  /** Le `ParcSecurite` du client. */
+  parcId: string;
+  clientId: number;
+  nom: string;
+  type: 'Poste' | 'Serveur';
+  dernierContactAt: string;
+  correctifsEnAttente: number;
+  correctifsImportants: number;
+  antivirus: 'Actif' | 'Inactif';
+  /** Vide : l'appareil n'est pas couvert par une sauvegarde. */
+  sauvegarde: 'Vérifiée' | 'À vérifier' | null;
+}
+
+/** CY05. Le digest du matin, un par jour ouvré. `nouvelles` = les alertes publiées ce jour-là. */
+export interface JourDigest {
+  id: string;
+  jour: Jour;
+  nouvelles: number;
+  lu: boolean;
+}
+
+export type CategorieEmpreinte =
+  | 'Noms de domaine' | 'Sites publics' | 'Registres officiels' | 'Mandataires' | 'Présence en ligne' | 'Documents publics' | 'Hébergement déclaré';
+
+/**
+ * CY06. Un élément de l'empreinte PUBLIQUE de l'organisation du client — jamais une personne privée, jamais un contenu.
+ * La valeur est un libellé général ou un nom de domaine fictif (« 3 dirigeants inscrits (noms non repris) »).
+ */
+export interface ElementEmpreinte {
+  id: string;
+  missionId: string;
+  categorie: CategorieEmpreinte;
+  valeur: string;
+  source: 'Registre public' | 'Site de l’organisation' | 'Annonces légales' | 'Archives publiques';
+  decouvertLe: Jour;
+  niveau: 'Faible' | 'Moyen' | 'Élevé';
+  etat: 'Nouveau' | 'Confirmé' | 'À vérifier' | 'Écarté';
+}
+
+export type TypeIncidentCyber = 'Compte compromis' | 'Message suspect' | 'Service indisponible';
+export type RoleIncident = 'Pilote' | 'Technique' | 'Communication' | 'Contact client';
+
+/** CY08. Le modèle d'un type d'incident : des étapes générales dans l'ordre, chacune confiée à un rôle. Aucune procédure technique. */
+export interface PlaybookIncident {
+  id: string;
+  type: TypeIncidentCyber;
+  titre: string;
+  etapes: { rang: number; libelle: string; role: RoleIncident }[];
+}
+
+/** CY08. Le suivi Cyber d'un incident de La Garde (`incidentId`). Les dates sont du jour de référence Cyber. */
+export interface ReponseIncident {
+  id: string;
+  incidentId: string;
+  playbookId: string;
+  /** Début du chronomètre. Même horloge que le reste de Cyber (3 nov.), pas celle de `IncidentGarde.ouvertAt`. */
+  detecteAt: string;
+  /** Les rangs des étapes du playbook déjà faites. */
+  etapesFaites: number[];
+  roles: { role: RoleIncident; membreEmail: string | null }[];
+  /** Déduit de `IncidentGarde.donneesPersonnelles` : oui → Requise, non → Non requise, inconnu → À évaluer. */
+  notification: 'Requise' | 'Non requise' | 'À évaluer';
+  notifieAt: string | null;
+  /** Catégories générales (« Identifiants de comptes »), jamais les données. Vide si aucune donnée personnelle. */
+  donneesConcernees: string[];
+}
+
+/** CY08. Le journal de communication : qui a été prévenu, par quel canal, en une phrase. */
+export interface CommunicationIncident {
+  id: string;
+  incidentId: string;
+  at: string;
+  sens: 'Interne' | 'Client' | 'Autorité';
+  canal: 'Message' | 'Appel' | 'Courriel' | 'Réunion';
+  resume: string;
+  parEmail: string | null;
+}
+
+/** CY08. Une preuve : son nom et si son empreinte a été vérifiée. Jamais le contenu. */
+export interface PreuveIncident {
+  id: string;
+  incidentId: string;
+  nom: string;
+  nature: 'Journal' | 'Capture d’écran' | 'Message' | 'Copie de configuration';
+  empreinteVerifiee: boolean;
+  ajouteeAt: string;
+  parEmail: string | null;
+}
+
+export type ReferentielConformite = 'RGPD' | 'Sécurité de base' | 'NIS2';
+
+/** CY09. Le catalogue des 10 contrôles. `aValiderParConseiller` : la liste vient de la fiche, elle reste ici en donnée. */
+export interface ControleConformite {
+  id: string;
+  referentiel: ReferentielConformite;
+  libelle: string;
+  aValiderParConseiller: boolean;
+  preuvesAttendues: string[];
+}
+
+/** CY09. Une case de la matrice : un client, un contrôle, un niveau de 0 (rien) à 4 (démontré). */
+export interface MaturiteConformite {
+  id: string;
+  clientId: number;
+  controleId: string;
+  niveau: 0 | 1 | 2 | 3 | 4;
+  /** Un sous-ensemble de `ControleConformite.preuvesAttendues`, les libellés seulement. */
+  preuvesJointes: string[];
+  revueLe: Jour | null;
+}
+
+/** CY10. Les 5 modules du parcours. */
+export interface ModuleFormation {
+  id: string;
+  rang: number;
+  titre: string;
+  dureeMin: number;
+}
+
+/** CY10. L'avancement d'une ÉQUIPE d'un client dans le parcours : jamais une personne. */
+export interface ParcoursFormation {
+  id: string;
+  clientId: number;
+  equipe: string;
+  /** Moins de 5 : l'équipe est regroupée à l'affichage. */
+  effectif: number;
+  /** Modules terminés (0 à 5). */
+  modulesTermines: number;
+  /** Avancement du module suivant, en pourcents (0 si le parcours est fini). */
+  avancementSuivantPourcent: number;
+  prochainQuizLe: Jour | null;
+}
+
+/** CY10. Les 6 dernières simulations d'un client, du plus ancien au plus récent : des totaux, pour la mini-courbe. */
+export interface HistoriqueCampagne {
+  id: string;
+  clientId: number;
+  rang: number;
+  le: Jour;
+  envoyes: number;
+  cliques: number;
+  signales: number;
 }
 
 /* ============================= Le monde, suite ============================= */
@@ -1532,4 +1737,19 @@ export interface MondeSuite {
   dossiersConformite: DossierConformite[];
   campagnes: CampagneSensibilisation[];
   parcSecurite: ParcSecurite[];
+  sousEtapesMission: SousEtapeMission[];
+  journalMission: EntreeJournalMission[];
+  equipeMission: MembreMission[];
+  appareilsParc: AppareilParc[];
+  digestVeille: JourDigest[];
+  elementsEmpreinte: ElementEmpreinte[];
+  playbooksIncident: PlaybookIncident[];
+  reponsesIncident: ReponseIncident[];
+  communicationsIncident: CommunicationIncident[];
+  preuvesIncident: PreuveIncident[];
+  controlesConformite: ControleConformite[];
+  maturiteConformite: MaturiteConformite[];
+  modulesFormation: ModuleFormation[];
+  parcoursFormation: ParcoursFormation[];
+  historiqueCampagnes: HistoriqueCampagne[];
 }

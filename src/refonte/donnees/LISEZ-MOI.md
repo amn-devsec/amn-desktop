@@ -60,6 +60,7 @@ Les 119 jeux sont dans `types.ts` (`NOMS_DES_JEUX`, 25) et `types-suite.ts` (`NO
 | La Garde | `organisations`, `actifs`, `alertes`, `incidents`, `vulnerabilites`, `rondes`, `evenementsSecurite`, `journalAcces`, `criteresMaturite`, `offresCyber` | `garde.ts` |
 | Développement (LOT-11) | `depots`, `deploiements`, `deploiementsPlanifies`, `executions`, `tachesPlanifiees`, `mesuresServeur`, `servicesServeur`, `serveur` (résumé : jours en ligne, disque, sauvegardes, coût du mois), `paiementsConnecteurs` ; `connecteurs` complétés (mode, modèle de coût, consommation, payé) | `developpement.ts` |
 | Cyber (LOT-10) | `outilsCyber`, `accords`, `missions`, `constats`, `documentsCyber`, `logicielsClients`, `alertesVeille`, `fuites`, `dossiersConformite`, `campagnes`, `parcSecurite` | `cyber.ts` |
+| Cyber, compléments de LOT-10 (S8) | `sousEtapesMission`, `journalMission`, `equipeMission`, `appareilsParc` (CY03, un par un), `digestVeille`, `elementsEmpreinte`, `playbooksIncident`, `reponsesIncident`, `communicationsIncident`, `preuvesIncident`, `controlesConformite`, `maturiteConformite`, `modulesFormation`, `parcoursFormation`, `historiqueCampagnes` ; champs ajoutés : `cible` d'un outil, `perimetre.nbAdresses`, `categorie` / `editeur` / `scorePublie`, `accordId` d'une campagne, `antivirusActifs` | `cyber.ts`, `cyber-suite.ts`, `attendus-cyber.ts` |
 
 Aides communes : `commun.ts` (horodatages bornés au passé, cycles, hasard par jeu).
 
@@ -111,3 +112,22 @@ français correct, absence de secret, d'adresse réseau et de nom d'outil de sé
 3. Son appel dans `monde.ts`, **après** les jeux dont il dépend.
 4. Les cas que les écrans montrent doivent être **garantis**, pas laissés au tirage (voir `garantir` dans `argent.ts`).
 5. Des contrôles dans `scripts/check-donnees.ts` : références, passé et futur, recoupements.
+
+## Cyber, LOT-10 (S8) : ce que les jeux donnent aux écrans CY01 à CY14
+
+Jour de référence : **mardi 3 novembre 2026, 10 h 42** (`contexte.aujourdhuiCyber`). Tout est fictif : aucune adresse IP, aucun numéro, aucun nom de personne privée, aucun contenu de preuve ou de fuite. `attendusCyber(monde)` (fichier `attendus-cyber.ts`) rend les valeurs attendues des écrans calculés.
+
+| Écran | Jeu ou champ | Ce qu'il faut savoir |
+|---|---|---|
+| CY02 | `outilsCyber[].cible` (`domaine`, `adresse`, `locaux`, ou vide) | Un outil « Accord requis » en a toujours une, les autres jamais. L'accord porte `perimetre.domaines`, `locaux` et `nbAdresses` (un nombre, jamais les adresses). |
+| CY02, CY14 | `sousEtapesMission` | 3 par phase, 15 par mission. Phase passée faite, phase courante entamée, phases suivantes vides ; « Accord signé » dit la vérité de l'accord. |
+| CY02, CY14 | `journalMission` | Entrées typées (Accord, Phase, Constat, Document, Contact, Note), du plus récent au plus ancien ; rien pour une mission « À préparer ». |
+| CY14 | `equipeMission` | Un responsable, un seul contact d'urgence par mission, `joignable` = le créneau de l'accord (« 19 h – 7 h »), sinon « 8 h – 19 h ». |
+| CY03 | `appareilsParc` | Un appareil par ligne (« Poste 03 », « Serveur 1 »). Le parc EST la somme de ses appareils (à jour, correctifs, antivirus, sauvegardes). Hors ligne = plus de 48 h sans nouvelles (`HORS_LIGNE_APRES_HEURES`). |
+| CY05 | `alertesVeille[].scorePublie` / `categorie` / `editeur`, `logicielsClients[].categorie` / `editeur`, `digestVeille` | Bandes proposées : 9 et plus Critique, 7 à 8,9 Importante, 4 à 6,9 Modérée, moins Faible (`SEUILS_SCORE`, `bandeDuScore`). Un logiciel « concerné » est du produit de l'alerte. `serieDigest` : jours ouvrés lus d'affilée, un jour non lu aujourd'hui ne casse pas. |
+| CY06 | `elementsEmpreinte` | 7 catégories (`CATEGORIES_EMPREINTE`, proposition de SIM à confirmer avec la fiche), seulement pour une mission de recherche à accord signé, des libellés généraux (« 2 dirigeants inscrits (noms non repris) »), sur 30 jours. |
+| CY08 | `playbooksIncident`, `reponsesIncident`, `communicationsIncident`, `preuvesIncident` | Un suivi par incident de La Garde. **Les dates sont de l'horloge Cyber**, pas de celle de `IncidentGarde.ouvertAt` : le premier incident (INC-0412, « compte compromis ») est détecté 26 h 15 min avant le 3 nov., 10 h 42 ; il reste 45 h 45 min avant l'échéance de 72 h, la notification n'est pas faite. Une preuve = un nom et une empreinte vérifiée, jamais le contenu. |
+| CY09 | `controlesConformite`, `maturiteConformite` | 10 contrôles (5 RGPD = les points du dossier, 3 Sécurité de base, 2 NIS2) × les clients du dossier (7 au volume « normal »), niveau de 0 à 4, preuves jointes ⊆ preuves attendues. Une case RGPD au niveau 3 ou 4 = point rempli du dossier. La liste « à valider par un conseiller » est en donnée (`aValiderParConseiller`). |
+| CY10 | `modulesFormation`, `parcoursFormation`, `historiqueCampagnes`, `campagnes[].accordId` | Parcours de 5 modules par équipe (jamais par personne). Une équipe de moins de 5 (`EFFECTIF_MINIMUM_EQUIPE`) existe au volume « normal ». L'historique : 6 simulations par client qui en fait. Une simulation porte l'accord signé de son client. |
+
+Choix de SIM à connaître : les 7 catégories d'empreinte, les bandes de score, l'éditeur fictif de chaque produit (« Éditeur Aster »…), le créneau par défaut et le seuil « hors ligne » sont des propositions ; chaque valeur est dans une constante exportée.

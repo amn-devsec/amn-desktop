@@ -229,7 +229,8 @@ export function genererIncidents(ctx: Contexte, equipe: readonly Membre[], organ
         ...(faites >= 2 ? [{ at: new Date(ouvert + 55 * MIN).toISOString(), texte: 'Premières mesures de protection appliquées.', parEmail: responsable?.email ?? null }] : []),
       ].filter((e) => Date.parse(e.at) <= ctx.maintenant),
       clientInforme: faites >= 4,
-      donneesPersonnelles: h.choix(['non', 'non', 'inconnu', 'oui'] as const),
+      // Le premier incident touche des données personnelles : la salle de crise de CY08 a un chronomètre de notification à montrer. Le tirage est fait pour tous, il ne décale personne.
+      donneesPersonnelles: ((tirage) => (i === 1 ? 'oui' : tirage))(h.choix(['non', 'non', 'inconnu', 'oui'] as const)),
     };
   });
   return liste;
