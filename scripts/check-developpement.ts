@@ -51,10 +51,10 @@ async function charger<T>(code: string): Promise<T> {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const M = await charger<any>(
-  ['commun', 'deploiements', 'journal', 'planification', 'i18n', 'vues'].map((f) => `export * as ${f} from '../src/refonte/developpement/${f}';`).join('\n') +
+  ['commun', 'deploiements', 'journal', 'planification', 'i18n', 'vues', 'modeles'].map((f) => `export * as ${f} from '../src/refonte/developpement/${f}';`).join('\n') +
     "\nexport * as monde from '../src/refonte/donnees';",
 );
-const { commun: C, deploiements: D, journal: J, planification: P, i18n: I, vues: V, monde } = M;
+const { commun: C, deploiements: D, journal: J, planification: P, i18n: I, vues: V, modeles: MS, monde } = M;
 
 const NB = ' ';
 const t = (iso: string) => Date.parse(iso);
@@ -558,6 +558,44 @@ await dit('jeux de SIM : les dépôts se lisent sans adaptateur (volumes vide à
     }
     assert.equal(V.carteDActivite(mm.depots).length, 31);
   }
+});
+
+/* ── Modèles de sites (modeles.ts) ──────────────────────────────────────── */
+console.log('\nDéveloppement — modèles de sites (DEV-modeles-sites)\n');
+
+const modele = (id: string, nom: string, secteur: string, etiquettes: string[] = [], html = '<!doctype html>\n<html lang="fr"><body>x</body></html>') => ({ id, nom, secteur, etiquettes, html, origine: 'ajoute' });
+await dit('aucun modèle livré avant la relecture de Harun ; les ajoutés restent sur le poste', () => {
+  assert.deepEqual(MS.MODELES_LIVRES, []);
+  const brut = MS.ecrireAjoutes([modele('a', 'Atelier', 'Artisan')]);
+  assert.deepEqual(MS.lireAjoutes(brut).map((m: any) => [m.nom, m.secteur, m.origine, m.etiquettes[0]]), [['Atelier', 'Artisan', 'ajoute', 'Ajouté']]);
+  assert.deepEqual(MS.lireAjoutes('pas du json'), []);
+  assert.deepEqual(MS.lireAjoutes('{"a":1}'), []);
+  assert.deepEqual(MS.lireAjoutes(null), []);
+});
+await dit('puces : « Tous » d’abord, puis les secteurs en ordre alphabétique français, avec leur compte', () => {
+  const ms = [modele('1', 'B', 'Restauration'), modele('2', 'A', 'Artisan'), modele('3', 'C', 'Écoles'), modele('4', 'D', 'Artisan')];
+  assert.deepEqual(MS.puces(ms).map((p: any) => `${p.cle}:${p.compte}`), [':4', 'Artisan:2', 'Écoles:1', 'Restauration:1']);
+});
+await dit('recherche : chaque mot, dans nom, secteur et étiquettes, sans casse ni accent ; combinée à la puce', () => {
+  const ms = [modele('1', 'Veillance', 'Services B2B', ['Cybersécurité', 'Sombre']), modele('2', 'Optique Lumière', 'Commerce local', ['Clair'])];
+  assert.deepEqual(MS.filtrer(ms, '', 'cyber sombre').map((m: any) => m.id), ['1']);
+  assert.deepEqual(MS.filtrer(ms, '', 'LUMIERE').map((m: any) => m.id), ['2']);
+  assert.deepEqual(MS.filtrer(ms, 'Commerce local', 'sombre'), []);
+  assert.equal(MS.filtrer(ms, '', '  ').length, 2);
+});
+await dit('poids « 4,5 Ko » (octets UTF-8), lignes, et refus d’un ajout incomplet', () => {
+  assert.equal(MS.poids('x'.repeat(4608)), `4,5${NB}Ko`);
+  assert.equal(MS.poids('é'.repeat(512)), `1,0${NB}Ko`);
+  assert.equal(MS.lignes('a\nb\nc'), 3);
+  assert.equal(MS.fauteDAjout('', 'Artisan', '<html></html>'), 'nom');
+  assert.equal(MS.fauteDAjout('Garage', '', '<html></html>'), 'secteur');
+  assert.equal(MS.fauteDAjout('Garage', 'Artisan', 'bonjour'), 'code');
+  assert.equal(MS.fauteDAjout('Garage', 'Artisan', '<!doctype html><title>x</title>'), null);
+});
+await dit('le code est découpé en jetons colorables, rendus en texte (jamais interprétés)', () => {
+  const j = MS.jetonsHtml('<meta name="viewport" content="x"><!-- note -->');
+  assert.deepEqual(j.filter((x: any) => x.genre !== 'texte').map((x: any) => `${x.genre}:${x.texte}`), ['balise:meta', 'attribut:name', 'valeur:"viewport"', 'attribut:content', 'valeur:"x"', 'commentaire:<!-- note -->']);
+  assert.equal(j.map((x: any) => x.texte).join(''), '<meta name="viewport" content="x"><!-- note -->');
 });
 
 /* ── Textes ─────────────────────────────────────────────────────────────── */
