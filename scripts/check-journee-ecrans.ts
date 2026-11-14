@@ -482,6 +482,113 @@ if (M.PRO_modele) {
   });
 }
 
+/* ── MJ02 · Habitudes ───────────────────────────────────────────────────── */
+if (M.HAB_modele) {
+  console.log('\nMa journée — MJ02, Habitudes (grille de régularité, séries, jour à protéger)\n');
+  const HAB = M.HAB_modele;
+  const AUJ = '2026-10-30';
+  const jours = (debut: string, fin: string): string[] => { const out: string[] = []; for (let d = new Date(`${debut}T12:00:00Z`); d <= new Date(`${fin}T12:00:00Z`); d = new Date(d.getTime() + 86_400_000)) out.push(d.toISOString().slice(0, 10)); return out; };
+  const hab = (id: string, o: Record<string, unknown> = {}): any => ({ id, nom: `Habitude ${id}`, icone: 'sun', moment: 'matin', rythme: 'Tous les jours', frequence: { type: 'tous les jours' }, mesure: { type: 'case' }, debut: '2026-09-01', historique: Object.fromEntries(jours('2026-09-01', AUJ).map((j) => [j, 1])), ...o });
+  const sauf = (manques: string[], fin = AUJ): Record<string, number> => Object.fromEntries(jours('2026-09-01', fin).filter((j) => !manques.includes(j)).map((j) => [j, 1]));
+  const reg = (habitudes: any[], o: Record<string, unknown> = {}) => HAB.modeleRegularite({ habitudes, aujourdhui: AUJ, ...o });
+
+  await dit('la grille : 4 semaines de lundi (5 oct.) à dimanche (1er nov.), 28 cases par habitude, rangées dans l’ordre', () => {
+    const m = reg([hab('a')]);
+    assert.deepEqual([m.debut, m.fin, m.lignes[0].cases.length], ['2026-10-05', '2026-11-01', 28]);
+    assert.deepEqual(m.semaines, ['2026-10-05', '2026-10-12', '2026-10-19', '2026-10-26']);
+    assert.equal(m.lignes[0].cases[25].jour, '2026-10-30');
+    assert.equal(m.lignes[0].cases[25].aujourdhui, true);
+  });
+
+  await dit('l’état d’une case : fait, pas fait, non prévu (hebdomadaire), à venir, à faire (aujourd’hui), en cours (mesure commencée), absent avant la création', () => {
+    const e = (h: any, j: string) => HAB.etatDeLaCase(h, j, AUJ);
+    const d = hab('a', { historique: sauf(['2026-10-12', AUJ]), debut: '2026-10-05' });
+    assert.deepEqual([e(d, '2026-10-06'), e(d, '2026-10-12'), e(d, AUJ), e(d, '2026-10-31'), e(d, '2026-10-01')], ['fait', 'pas-fait', 'a-faire', 'a-venir', 'absent']);
+    const sport = hab('s', { frequence: { type: 'fois par semaine', fois: 3 }, debut: '2026-10-05', historique: { '2026-10-05': 1, '2026-10-07': 1, '2026-10-09': 1 } });
+    assert.equal(e(sport, '2026-10-06'), 'non-prevu', 'le quota de la semaine est atteint : les autres jours ne sont pas attendus');
+    const pas = hab('p', { mesure: { type: 'objectif', cible: 8000, unite: 'pas' }, historique: { [AUJ]: 3200 } });
+    assert.deepEqual([e(pas, AUJ), HAB.modeleRegularite({ habitudes: [pas], aujourdhui: AUJ }).lignes[0].cases[25].part], ['en-cours', 0.4]);
+    assert.equal(e(hab('x', { mesure: { type: 'objectif', cible: 8000, unite: 'pas' }, historique: { [AUJ]: 8000 } }), AUJ), 'fait');
+  });
+
+  await dit('la série : jours prévus de suite jusqu’à aujourd’hui (hier si aujourd’hui n’est pas encore fait) ; à zéro, « la série reprend ce soir », jamais « 0 »', () => {
+    const l = (manques: string[], fin = AUJ) => reg([hab('a', { historique: sauf(manques, fin) })]).lignes[0];
+    assert.equal(l(['2026-10-09']).serie.valeur, 21);
+    assert.equal(l(['2026-10-24']).serie.valeur, 6);
+    const hier = l([AUJ]);
+    assert.equal(hier.serie.valeur, 59, 'aujourd’hui non fait ne casse rien : tous les jours depuis le 1er septembre');
+    const zero = l(['2026-10-29', AUJ]);
+    assert.deepEqual([zero.serie.valeur, zero.serie.reprend, zero.serie.part], [0, true, 0]);
+  });
+
+  await dit('le palier : la prochaine valeur de 7, 14, 21, 30, 60, 100 jours (4, 6, 10, 20 semaines) ; barre = série ÷ palier', () => {
+    assert.deepEqual([6, 7, 21, 29, 30, 99, 100].map((n) => HAB.palierDe(n, 'jours')), [7, 14, 30, 30, 60, 100, 200]);
+    assert.deepEqual([4, 6, 19].map((n) => HAB.palierDe(n, 'semaines')), [6, 10, 20]);
+    const m = reg([hab('a', { historique: sauf(['2026-10-09']) })]);
+    assert.deepEqual([m.lignes[0].serie.palier, Math.round(m.lignes[0].serie.part * 100)], [30, 70]);
+    const sport = reg([hab('s', { frequence: { type: 'fois par semaine', fois: 3 }, debut: '2026-10-05', historique: Object.fromEntries(['2026-10-05', '2026-10-07', '2026-10-09', '2026-10-12', '2026-10-14', '2026-10-16', '2026-10-19', '2026-10-21', '2026-10-23', '2026-10-26', '2026-10-28', '2026-10-30'].map((j) => [j, 1])) })]).lignes[0].serie;
+    assert.deepEqual([sport.valeur, sport.unite, sport.palier], [4, 'semaines', 6]);
+  });
+
+  await dit('la régularité sur 4 semaines : cases tenues ÷ prévues, jours passés (aujourd’hui exclu) ; l’écart en points avec les 4 semaines précédentes', () => {
+    const parfait = reg([hab('a')]);
+    assert.deepEqual([parfait.regularite.pourcent, parfait.regularite.ecartPoints], [100, 0]);
+    const sept = ['2026-09-09', '2026-09-10', '2026-09-14', '2026-09-16'];
+    const m = reg([hab('a', { historique: sauf(['2026-10-08', '2026-10-15', ...sept]) })]);
+    assert.equal(m.regularite.pourcent, 92, '23 jours passés sur 25 : 2 manqués');
+    assert.equal(m.regularite.ecartPoints, 92 - 86, '+6 points : 24 jours sur 28 avant');
+    assert.equal(reg([hab('a', { debut: AUJ, historique: {} })]).regularite.pourcent, null, 'rien de passé : pas de pourcentage');
+  });
+
+  await dit('les journées complètes : jours passés où toutes les habitudes prévues sont tenues ; opacité = (tenues ÷ prévues)²', () => {
+    const m = reg([hab('a', { historique: sauf(['2026-10-08']) }), hab('b', { historique: sauf(['2026-10-08', '2026-10-09']) })]);
+    assert.deepEqual([m.completes.nbCompletes, m.completes.nbJoursPasses], [23, 25]);
+    const j8 = m.completes.jours.find((c: any) => c.jour === '2026-10-08');
+    const j9 = m.completes.jours.find((c: any) => c.jour === '2026-10-09');
+    assert.deepEqual([j8.complete, j8.opacite, j9.opacite], [false, 0, 0.25]);
+    assert.equal(m.completes.jours.find((c: any) => c.jour === AUJ).aVenir, true, 'aujourd’hui n’est pas encore une journée passée');
+  });
+
+  await dit('« Selon le jour » : régularité par jour de la semaine ; le plus bas passe en orange seulement s’il est à plus de 10 points sous la moyenne ; « Boîte à zéro » manquée chaque jeudi propose de protéger le jeudi', () => {
+    const jeudis = ['2026-10-08', '2026-10-15', '2026-10-22', '2026-10-29'];
+    const m = reg([hab('a'), hab('b', { nom: 'Boîte à zéro', historique: sauf(jeudis) })]);
+    const j = m.parJour.jours;
+    assert.deepEqual([j[3].pourcent, j[0].pourcent, j[3].plusBas, j.filter((x: any) => x.plusBas).length], [50, 100, true, 1]);
+    assert.deepEqual(m.proposition, { habitudeId: 'b', nom: 'Boîte à zéro', jourSemaine: 4 });
+    const calme = reg([hab('a', { historique: sauf(['2026-10-08']) }), hab('b'), hab('c')]);
+    assert.equal(calme.parJour.jours.some((x: any) => x.plusBas), false, 'un seul manqué sur douze : 92 % contre 99 % en moyenne, moins de 10 points d’écart');
+    assert.equal(calme.proposition, null);
+  });
+
+  await dit('« Aujourd’hui » : n/m tenues, les restantes (trois au plus) avec leur mesure ; tout fait → « Journée complète »', () => {
+    const m = reg([hab('a'), hab('b', { historique: sauf([AUJ]) }), hab('p', { nom: 'Marcher', mesure: { type: 'objectif', cible: 8000, unite: 'pas' }, historique: { [AUJ]: 3200 } })], { formater: (n: number) => String(n) });
+    assert.deepEqual([m.aujourdhui.faites, m.aujourdhui.prevues, m.aujourdhui.complete], [1, 3, false]);
+    assert.deepEqual(m.aujourdhui.restantes.map((r: any) => [r.id, r.genre, r.part, r.valeurTexte]), [['b', 'case', 0, ''], ['p', 'mesure', 0.4, '3200']]);
+    assert.equal(reg([hab('a')]).aujourdhui.complete, true);
+    assert.equal(reg([]).vide, true);
+    assert.equal(reg(['1', '2', '3', '4', '5'].map((i) => hab(i, { historique: {} }))).aujourdhui.restantes.length, 3);
+  });
+
+  await dit('le filtre par moment (Matin, Journée, Soir) ne garde que les habitudes de ce moment', () => {
+    const hs = [hab('a', { moment: 'matin' }), hab('b', { moment: 'soir' }), hab('c', { moment: null })];
+    assert.deepEqual(reg(hs, { filtre: 'matin' }).lignes.map((l: any) => l.id), ['a']);
+    assert.deepEqual(reg(hs, { filtre: 'toutes' }).lignes.length, 3);
+    assert.equal(reg(hs, { filtre: 'journee' }).lignes.length, 0);
+  });
+
+  await dit('jamais de reproche : aucun mot de retard ou d’échec dans les textes, aucune couleur d’erreur sur une case « pas fait »', () => {
+    const dico = M.DICTIONNAIRES_HABITUDES;
+    for (const l of ['fr', 'en']) for (const k of Object.keys(dico[l])) assert.ok(!/\b(échec|raté|manqué|retard|paresse|failed?|late)\b/i.test(dico[l][k].replace('glisse chaque', '')), `${k} : ${dico[l][k]}`);
+    const css = fs.readFileSync(path.join(racine, 'src/refonte/journee/habitudes/habitudes.css'), 'utf8');
+    assert.ok(!/etat-critique|etat-erreur/.test(css), 'jamais de rouge dans la grille');
+  });
+
+  await dit('MJ02 · textes : mêmes clés en fr et en, tutoiement', () => {
+    motsJustes(M.DICTIONNAIRES_HABITUDES, 'MJ02');
+    assert.equal(M.DICTIONNAIRES_HABITUDES.fr['action.nouvelle'], 'Nouvelle habitude');
+  });
+}
+
 /* ── Structure ──────────────────────────────────────────────────────────── */
 console.log('\nMa journée — structure des écrans de S1\n');
 const lister = (d: string): string[] => (fs.existsSync(path.join(racine, d)) ? fs.readdirSync(path.join(racine, d), { recursive: true, withFileTypes: true }).filter((f: any) => f.isFile()).map((f: any) => path.relative(racine, path.join(f.parentPath ?? f.path, f.name)).replace(/\\/g, '/')) : []);

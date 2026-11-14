@@ -13,4 +13,7 @@ export default declarerSubstitutions('journee', [
 
   // MJ01 — Projets : la feuille de route. La création, l'ouverture d'un projet et le modèle passent par l'écran d'origine (`useOutlet`).
   { route: '/projets', composant: lazy(() => import('../../journee/projets/PageProjets')) },
+
+  // MJ02 — Habitudes : la grille de régularité. Créer, retirer et la bibliothèque passent par l'écran d'origine (`useOutlet`).
+  { route: '/personnel/habitudes', composant: lazy(() => import('../../journee/habitudes/PageHabitudes')) },
 ]);
