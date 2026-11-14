@@ -31,7 +31,7 @@ const mixte = construireMonde({ volume: 'normal', volumes: { factures: 'vide', c
 | `normal` | le cas des maquettes | 48 / 70 / ≈ 270 |
 | `beaucoup` | défilement, pagination, performance | 300 / 700 / ≈ 1 750 |
 
-`construireMonde` assemble les 115 jeux en quelques centaines de millisecondes, même au volume `beaucoup`.
+`construireMonde` assemble les 119 jeux en quelques centaines de millisecondes, même au volume `beaucoup`.
 
 ## Conventions
 
@@ -45,12 +45,12 @@ const mixte = construireMonde({ volume: 'normal', volumes: { factures: 'vide', c
 
 ## Catalogue des jeux
 
-Les 115 jeux sont dans `types.ts` (`NOMS_DES_JEUX`, 25) et `types-suite.ts` (`NOMS_DES_JEUX_SUITE`, 90). Fiches = celles de `AMN-refonte-CO/lots/`.
+Les 119 jeux sont dans `types.ts` (`NOMS_DES_JEUX`, 25) et `types-suite.ts` (`NOMS_DES_JEUX_SUITE`, 94). Fiches = celles de `AMN-refonte-CO/lots/`.
 
 | Lot | Jeux | Fichier |
 |---|---|---|
 | Base | `equipe`, `entreprise` | `equipe.ts`, `fond.ts` |
-| Ma journée | `taches`, `evenements`, `projets`, `tickets`, `notes`, `rappels`, `habitudes` ; planning de l'équipe : `creneaux` ; défis : `defis` | `ma-journee.ts`, `complements.ts` |
+| Ma journée | `taches`, `evenements`, `projets`, `tickets`, `notes`, `rappels`, `habitudes` ; `dailyPriorities` (la série), `engagementsDefis`, `utilisateursConnectes`, `boiteAZero` ; planning de l'équipe : `creneaux` ; défis : `defis` | `ma-journee.ts`, `complements.ts` |
 | Contacts | `clients`, `interlocuteurs`, `prospects`, `fournisseurs`, `achats`, `avis`, `relances`, `fidelite` ; `partenaires` | `contacts.ts`, `complements.ts` |
 | L'argent | `devis`, `factures`, `avoirs`, `paiements`, `depenses`, `abonnements`, `contrats`, `comptes`, `mouvements`, `enveloppes` ; TVA et impôts : `echeancesFiscales` ; paie : `bulletins` ; tarifs : `prestations` | `argent.ts`, `complements.ts` |
 | Écrire | `fichiers`, `signatures`, `pages`, `modeles`, `journal`, `textes`, `archives`, `connaissances`, `reglesArchivage`, `demandesRelecture` | `ecrire.ts` |
@@ -76,7 +76,7 @@ Quatre écrans calculent au lieu de lire un jeu. Leurs **attendus de test** sont
 | G08 Cockpit | `attendusCockpit(monde)` | revenu récurrent, encaissé du mois, clients actifs, tickets par colonne, sources |
 | H25 Tableau de bord | `attendusTableauDeBord(monde)` | chiffre d'affaires, tickets, factures impayées, mes tâches, prochain rendez-vous, activité |
 
-Ce que les jeux ne portent pas (boîte à zéro de N01, objectif du mois de G08, utilisateurs connectés) est rendu `null` et nommé dans `manque`. Les règles que les fiches disent « Proposition » ou « à confirmer » le restent dans les commentaires.
+**La série** (L01, N01, H04, H25) est celle de la clôture des priorités du jour (`dailyPriorities`, `serieDesPriorites`), relue à la lettre dans `attendus.ts` et comparée à `serieDeLaJournee` de S2. L'objectif du mois et les utilisateurs connectés de G08 restent rendus `null` par `attendusCockpit` (S2 les attend `null`) ; leurs jeux (`utilisateursConnectes`, `objectifMrrCents`) existent. Les règles que les fiches disent « Proposition » ou « à confirmer » le restent dans les commentaires.
 
 ## Charger les jeux dans l'API d'essai (`scripts/charger-donnees-essai.mjs`)
 
