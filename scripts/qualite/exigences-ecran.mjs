@@ -17,6 +17,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
+import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const ICI = path.dirname(fileURLToPath(import.meta.url));
@@ -30,8 +31,11 @@ const ROUTES = (opt('routes') ?? '').split(',').map((r) => r.trim()).filter(Bool
 const SORTIE = opt('sortie');
 const CSS = opt('css'); // contrôle : un style ajouté après le chargement (ex. un ::after qui élargit les boutons) doit faire passer les cibles
 const MIN = Number(opt('min', '34'));
+// `--apercu <worktree du lot> --ids F10,H06` : mesure sur l'APERÇU STATIQUE (état rempli, aucune donnée d'essai à attendre) au lieu de l'application.
+const APERCU = opt('apercu');
+const IDS = (opt('ids') ?? '').split(',').map((x) => x.trim()).filter(Boolean);
 const LARGEUR = Number(opt('largeur', '390'));
-if (!DIST || !ROUTES.length) { console.error("Usage : exigences-ecran.mjs --dist <build-interne> --routes '#/a,#/b' [--api …] [--min 34] [--largeur 390] [--css '<style de contrôle>'] [--sortie f.json]"); process.exit(2); }
+if ((!DIST || !ROUTES.length) && !(APERCU && IDS.length)) { console.error("Usage : exigences-ecran.mjs (--dist <build-interne> --routes '#/a,#/b' | --apercu <worktree> --ids F10,H06) [--api …] [--min 34] [--largeur 390] [--css '<style de contrôle>'] [--sortie f.json]"); process.exit(2); }
 if (!/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/.test(API)) { console.error('--api : cette machine seulement'); process.exit(2); }
 const MAIL = process.env.AMN_E2E_EMAIL ?? 'essai.interne@exemple.test';
 const MDP = process.env.AMN_E2E_PASSWORD ?? 'Interne-2026-Essai';
@@ -59,15 +63,26 @@ await ctx.addInitScript((m) => {
   } catch { /* sans stockage */ }
 }, MAIL);
 const page = await ctx.newPage();
-await page.goto(`${ORIGINE}/`); await attendre(2500);
-await page.locator('input[name="email"]').fill(MAIL);
-await page.locator('input[name="password"]').fill(MDP);
-await page.locator('button:has-text("Se connecter")').click();
-await attendre(4000);
+if (!APERCU) {
+  await page.goto(`${ORIGINE}/`); await attendre(2500);
+  await page.locator('input[name="email"]').fill(MAIL);
+  await page.locator('input[name="password"]').fill(MDP);
+  await page.locator('button:has-text("Se connecter")').click();
+  await attendre(4000);
+}
+// Aperçus : construits par la commande du lot (`npm run apercu -- <ID>`), ouverts en file://.
+const CIBLES_MESURE = APERCU
+  ? IDS.map((id) => {
+      const sortie = path.join(fs.mkdtempSync(path.join(fs.realpathSync('/tmp'), 'apercu-')), id);
+      const b = spawnSync('node', ['--experimental-strip-types', '--disable-warning=ExperimentalWarning', '--disable-warning=MODULE_TYPELESS_PACKAGE_JSON', path.join(path.resolve(APERCU), 'scripts', 'apercu', 'construire.ts'), id, '--sortie', sortie], { encoding: 'utf8', cwd: path.resolve(APERCU) });
+      if (b.status !== 0) { console.error(`aperçu de ${id} : ${(b.stderr || b.stdout).trim().split('\n').pop()}`); process.exit(2); }
+      return { nom: `aperçu ${id}`, url: `file://${path.join(sortie, 'index.html')}` };
+    })
+  : ROUTES.map((r) => ({ nom: r, url: `${ORIGINE}/${r}` }));
 
 const resultats = [];
-for (const route of ROUTES) {
-  await page.goto(`${ORIGINE}/${route}`); await attendre(2200);
+for (const { nom: route, url } of CIBLES_MESURE) {
+  await page.goto(url); await attendre(APERCU ? 1500 : 2200);
   if (CSS) await page.addStyleTag({ content: CSS });
   const m = await page.evaluate(([min, large]) => {
     const doc = document.documentElement;
@@ -91,6 +106,7 @@ for (const route of ROUTES) {
     // (rentrés d'un pixel). La cible tient si chaque point renvoie l'élément ou l'un de ses descendants ; un point qui tombe sur le
     // voisin ou sur le fond dit que la zone de clic ne couvre pas le carré.
     const petites = [];
+    const marques = []; // index dans `petites` des éléments en recouvrement, marqués data-t1-sonde pour le clic réel
     let sauvees = 0;
     const cibles = document.querySelectorAll('a[href], button, input:not([type=hidden]), select, textarea, [role=button], [role=checkbox], [role=tab], [role=menuitem], [role=switch], [role=option]');
     const nom = (e) => ((e.getAttribute('aria-label') || e.textContent || e.getAttribute('title') || e.tagName) + '').trim().replace(/\s+/g, ' ').slice(0, 28);
@@ -130,11 +146,25 @@ for (const route of ROUTES) {
         const t = document.elementFromPoint(x, y);
         if (!(t && (t === e || e.contains(t)))) { recouvre = true; qui = t ? `${t.tagName.toLowerCase()}.${String(t.className).split(' ')[0].slice(0, 28)} « ${((t.getAttribute('aria-label') || t.textContent || '') + '').trim().replace(/\s+/g, ' ').slice(0, 24)} »` : 'rien'; break; }
       }
+      if (rate.length && recouvre) { e.setAttribute('data-t1-sonde', String(marques.length)); marques.push(petites.length); }
       if (rate.length) petites.push(`${Math.round(b.width)}×${Math.round(b.height)} « ${nom(e)} » (zone de clic : ${rate.length} point(s) sur 9 hors de l’élément${recouvre ? ` ; RECOUVREMENT : le clic au milieu de la boîte va à ${qui}` : ''})`);
       else sauvees += 1;
     }
-    return { debord, coupables, petites, sauvees };
+    return { debord, coupables, petites, sauvees, marques };
   }, [MIN, LARGEUR]);
+  // CLIC RÉEL (Playwright, `click({ trial: true })`) : pour chaque élément en recouvrement, Playwright défile jusqu'à lui, vise son centre et
+  // vérifie que c'est bien lui qui reçoit l'événement ; il dit sinon qui l'intercepte. Tranche entre un vrai recouvrement et un artefact de défilement.
+  for (let i = 0; i < m.marques.length; i += 1) {
+    const idx = m.marques[i];
+    const loc = page.locator(`[data-t1-sonde="${i}"]`).first();
+    try {
+      await loc.click({ trial: true, timeout: 3000 });
+      m.petites[idx] = m.petites[idx].replace(/ ; RECOUVREMENT : [^)]*\)/, ' ; clic réel au centre : OK)');
+    } catch (err) {
+      const raison = (String(err.message).split('\n').find((l) => /intercepts pointer events/i.test(l)) ?? String(err.message).split('\n')[0]).replace(/^\s*-?\s*/, '').slice(0, 110);
+      m.petites[idx] = m.petites[idx].replace(/ ; RECOUVREMENT : [^)]*\)/, ` ; CLIC RÉEL : ${raison})`);
+    }
+  }
   const coupe = m.debord > LARGEUR + 1;
   resultats.push({ route, debord: m.debord, coupe, coupables: m.coupables, petites: m.petites, sauvees: m.sauvees });
   console.log(`${coupe || m.petites.length ? '✗' : '✓'} ${route.padEnd(28)} largeur du contenu ${m.debord} px${coupe ? ' (COUPÉ)' : ''} · ${m.petites.length} zone(s) de clic < ${MIN} px${m.sauvees ? ` (+ ${m.sauvees} boîte(s) trop petite(s) mais zone de clic suffisante)` : ''}`);
