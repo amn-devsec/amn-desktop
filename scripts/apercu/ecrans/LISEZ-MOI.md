@@ -15,3 +15,8 @@ principale vide, dans l'état de ces images.
 `REGLAGES-LOT-00` montre, dans la coquille, les trois surfaces de réglages que LOT-00 possède dans les
 Paramètres (Mouvement, Écran de veille, Nouvelle coquille), telles que la porte `MouvementSection` de
 `@edition/socle` les rend. Sans image de référence : la capture sert de contrôle visuel.
+
+Les aperçus `DEV-*` (LOT-11, Espace Développement) passent par `scripts/apercu/developpement.tsx` : jeux de SIM à
+l'état rempli, coquille avec la famille Développement dépliée (sa sous-liste, `sousPage`) et ses deux signaux calculés
+comme dans l'application. `DEV-modeles-sites` et `DEV-modeles-sites-code` montrent huit modèles fictifs
+(`scripts/apercu/modeles-exemple.ts`).

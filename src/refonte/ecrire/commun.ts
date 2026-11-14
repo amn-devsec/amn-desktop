@@ -189,3 +189,27 @@ export function dateFr(j: Jour, langue: Langue = 'fr', options: { mois?: boolean
   const mois = MOIS_LONGS[langue][Number(j.slice(5, 7)) - 1];
   return options.mois ? mois : langue === 'fr' ? `${Number(j.slice(8, 10))} ${mois}` : `${mois} ${Number(j.slice(8, 10))}`;
 }
+
+const NOMS_DES_JOURS = {
+  fr: ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'],
+  en: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+} as const;
+/** « dimanche » : le nom du jour de la semaine d'un jour (« palier de 14 jours dimanche », image H10). */
+export const nomDuJour = (j: Jour, langue: Langue = 'fr'): string => NOMS_DES_JOURS[langue][jourSemaineIso(j) - 1];
+
+const MOIS_COURTS = {
+  fr: ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'],
+  en: ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May', 'Jun.', 'Jul.', 'Aug.', 'Sep.', 'Oct.', 'Nov.', 'Dec.'],
+} as const;
+/** « 28 oct. » ; en anglais « Oct. 28 ». */
+export const dateCourte = (j: Jour, langue: Langue = 'fr'): string => {
+  const m = MOIS_COURTS[langue][Number(j.slice(5, 7)) - 1];
+  return langue === 'fr' ? `${Number(j.slice(8, 10))} ${m}` : `${m} ${Number(j.slice(8, 10))}`;
+};
+
+/** « aujourd'hui », « hier », « il y a 3 j » : l'écart en jours de Paris entre deux instants. */
+export function quandRelatif(at: Instant, maintenant: Instant, langue: Langue = 'fr'): string {
+  const n = ecartJours(jourDe(at), jourDe(maintenant));
+  if (langue === 'fr') return n <= 0 ? 'aujourd’hui' : n === 1 ? 'hier' : `il y a ${n} j`;
+  return n <= 0 ? 'today' : n === 1 ? 'yesterday' : `${n} d ago`;
+}

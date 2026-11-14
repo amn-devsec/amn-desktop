@@ -1,0 +1,187 @@
+/*
+ * LES COTES COMMUNES DES ÉCRANS DE LOT-03 (à partir de H11) : la page qui prend toute la hauteur de la coquille, la carte
+ * v4 (dégradé, bord, reflet, halo de la famille), l'en-tête de carte, les puces. Les cotes propres à un écran restent
+ * dans sa feuille. Couleurs : les jetons du socle et de la famille (--fam-a, --fam-b) ; aucune écrite à la main.
+ */
+@media (min-width: 1280px) {
+  .sc-principal:has(.ec-page) { display: flex; flex-direction: column; }
+  .sc-principal:has(.ec-page) > .sc-principal-fin { display: none; }
+  .sc-principal:has(.ec-page) :has(> .ec-page),
+  .sc-principal:has(.ec-page) :has(> * > .ec-page) { display: flex; min-height: 0; flex: 1 1 0; flex-direction: column; }
+}
+.ec-page {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 0;
+  flex-direction: column;
+  padding-bottom: 4px;
+}
+.ec-page > .sc-page__entete {
+  flex-wrap: nowrap;
+  align-items: flex-end;
+  gap: 20px;
+}
+.ec-page__corps {
+  display: flex;
+  gap: 14px;
+  margin-top: 15px;
+  flex: 1;
+  min-height: 0;
+}
+.ec-carte {
+  position: relative;
+  box-sizing: border-box;
+  border-radius: var(--socle-rayon-carte);
+  background: radial-gradient(440px 160px at 0% 0%, color-mix(in srgb, var(--fam-b) 8.5%, transparent), transparent 70%), linear-gradient(180deg, var(--socle-carte-haut), var(--socle-carte-bas));
+  border: 1px solid var(--socle-bord-carte);
+  box-shadow: var(--socle-reflet-carte), var(--socle-ombre-carte);
+  color: var(--socle-texte-1);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.ec-tete {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 24px;
+  flex: none;
+}
+.ec-tete h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  white-space: nowrap;
+}
+.ec-tete > :last-child:not(:first-child) {
+  margin-left: auto;
+}
+.ec-discret {
+  font-size: 12px;
+  color: var(--socle-texte-3);
+  white-space: nowrap;
+}
+.ec-vide {
+  margin: auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: var(--socle-texte-3);
+}
+.ec-vide h2 {
+  margin: 0;
+  color: var(--socle-texte-1);
+  font-size: 16px;
+}
+.ec-puce {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  box-sizing: border-box;
+  padding: 0 9px;
+  border-radius: 99px;
+  font-size: 11.5px;
+  border: 1px solid var(--socle-bord-pilule);
+  background: var(--socle-pilule);
+  color: var(--socle-texte-2);
+  white-space: nowrap;
+}
+.ec-puce[data-ton='succes'] { color: var(--socle-etat-succes); border-color: color-mix(in srgb, var(--socle-etat-succes) 38%, transparent); background: color-mix(in srgb, var(--socle-etat-succes) 12%, transparent); }
+.ec-puce[data-ton='attention'] { color: var(--socle-etat-attention); border-color: color-mix(in srgb, var(--socle-etat-attention) 38%, transparent); background: color-mix(in srgb, var(--socle-etat-attention) 12%, transparent); }
+.ec-puce[data-ton='info'] { color: var(--socle-etat-info); border-color: color-mix(in srgb, var(--socle-etat-info) 38%, transparent); background: color-mix(in srgb, var(--socle-etat-info) 12%, transparent); }
+.ec-puce[data-ton='critique'] { color: var(--socle-etat-critique); border-color: color-mix(in srgb, var(--socle-etat-critique) 38%, transparent); background: color-mix(in srgb, var(--socle-etat-critique) 12%, transparent); }
+.ec-point {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 6px currentColor;
+  flex: none;
+}
+.ec-mono {
+  font-family: var(--socle-police-mono);
+}
+
+/*
+ * LES CIBLES (décision du CO, STATUT §1.39) : le dessin des fiches v4 est gardé (boutons de 31 px, disques de 26 px…), mais
+ * toute cible a une zone de clic INVISIBLE de 36 px au moins, comme le socle le fait pour `PageHead` et l'interrupteur
+ * (`::after` centré sur la cible, sans changer sa taille ni la mise en page).
+ */
+:is(.ec-page, .ec-f20, .ec-h10) :is(
+    [data-socle='bouton'],
+    .sc-puce,
+    button.ec-puce,
+    .ec-me01__jour,
+    .ec-me01__fleches button,
+    .ec-me01__relire,
+    .ec-me01__plus,
+    .ec-me02__onglet,
+    .ec-me05__rubrique,
+    .ec-me05__article,
+    .ec-me05__aussi button,
+    .ec-h10__element,
+    .ec-f20__ligne-action,
+    .ec-h11__onglet,
+    .ec-me04__annee,
+    .ec-me05__source button,
+    .ec-f20__lien,
+    .ec-h12__modes [role='tab']
+  ) {
+  position: relative;
+}
+:is(.ec-page, .ec-f20, .ec-h10) :is(
+    [data-socle='bouton'],
+    .sc-puce,
+    button.ec-puce,
+    .ec-me01__jour,
+    .ec-me01__fleches button,
+    .ec-me01__relire,
+    .ec-me01__plus,
+    .ec-me02__onglet,
+    .ec-me05__rubrique,
+    .ec-me05__article,
+    .ec-me05__aussi button,
+    .ec-h10__element,
+    .ec-f20__ligne-action,
+    .ec-h11__onglet,
+    .ec-me04__annee,
+    .ec-me05__source button,
+    .ec-f20__lien,
+    .ec-h12__modes [role='tab']
+  )::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100%, 36px);
+  height: max(100%, 36px);
+  transform: translate(-50%, -50%);
+}
+
+/*
+ * LE CALENDRIER DE ME01 (§1.41) : un disque de 26 px par jour, sur un pas de 36 px (rangées de 26 + 10 px d'écart, colonnes
+ * d'au moins 36 px) : la zone de clic de chaque jour est le carré de 36 px centré sur son disque, sans empiéter sur les
+ * voisins. Les flèches du mois (28 px) sont espacées de 8 px pour la même raison. Les recherches et champs (label)
+ * prennent la zone de 36 px sur le label entier, qui donne le focus à son champ.
+ */
+
+/*
+ * LES CHAMPS ET LES INTERRUPTEURS (§1.41) : un champ de recherche remplit son `label` (36 px de haut au moins, bordure comprise) : le clic
+ * tombe sur le champ lui-même, jamais sur une zone posée par-dessus. Les interrupteurs du socle (34 × 20) reçoivent la zone de 36 px.
+ */
+.ec-h10__recherche input, .ec-h11__recherche input, .ec-me04__saisie input, .ec-me05__champ input, .ec-me05__filtre input { align-self: stretch; }
+:is(.ec-page, .ec-f20, .ec-h10) :is([role='switch'], [role='radio'], .sc-bouton-icone) { position: relative; }
+:is(.ec-page, .ec-f20, .ec-h10) :is([role='switch'], [role='radio'], .sc-bouton-icone)::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100%, 36px);
+  height: max(100%, 36px);
+  transform: translate(-50%, -50%);
+}

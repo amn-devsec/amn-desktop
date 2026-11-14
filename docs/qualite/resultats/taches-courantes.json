@@ -1,0 +1,524 @@
+[
+  {
+    "n": 1,
+    "nom": "voir sa journée",
+    "actions": 0,
+    "apresGeste": null,
+    "pourFinir": 0,
+    "total": 0,
+    "arrive": true,
+    "chemin": "déjà sur l’Accueil",
+    "hash": "#/",
+    "essais": [
+      {
+        "actions": 0,
+        "avant": 0,
+        "moduleAtteint": true,
+        "geste": null,
+        "arrive": true,
+        "libelle": "déjà sur l’Accueil",
+        "hash": "#/"
+      }
+    ]
+  },
+  {
+    "n": 2,
+    "nom": "cocher une tâche",
+    "actions": 1,
+    "apresGeste": false,
+    "pourFinir": 0,
+    "total": 1,
+    "arrive": true,
+    "chemin": "barre :  Tâches et priorités",
+    "hash": "#/tasks",
+    "essais": [
+      {
+        "actions": 1,
+        "avant": 1,
+        "moduleAtteint": true,
+        "geste": false,
+        "arrive": true,
+        "libelle": "barre :  Tâches et priorités",
+        "hash": "#/tasks"
+      }
+    ]
+  },
+  {
+    "n": 3,
+    "nom": "créer une tâche",
+    "actions": 2,
+    "apresGeste": true,
+    "pourFinir": 2,
+    "total": 4,
+    "arrive": true,
+    "chemin": "barre :  Tâches et priorités",
+    "hash": "#/tasks",
+    "essais": [
+      {
+        "actions": 2,
+        "avant": 1,
+        "moduleAtteint": true,
+        "geste": true,
+        "arrive": true,
+        "libelle": "barre :  Tâches et priorités",
+        "hash": "#/tasks"
+      },
+      {
+        "actions": 4,
+        "avant": 3,
+        "moduleAtteint": true,
+        "geste": true,
+        "arrive": true,
+        "libelle": "⌘K · « tâche » · clic  Tâches",
+        "hash": "#/tasks"
+      }
+    ]
+  },
+  {
+    "n": 4,
+    "nom": "ajouter un rendez-vous",
+    "actions": 2,
+    "apresGeste": true,
+    "pourFinir": 3,
+    "total": 5,
+    "arrive": true,
+    "chemin": "barre :  Calendrier et RDV",
+    "hash": "#/agenda",
+    "essais": [
+      {
+        "actions": 2,
+        "avant": 1,
+        "moduleAtteint": true,
+        "geste": true,
+        "arrive": true,
+        "libelle": "barre :  Calendrier et RDV",
+        "hash": "#/agenda"
+      },
+      {
+        "actions": 4,
+        "avant": 3,
+        "moduleAtteint": true,
+        "geste": true,
+        "arrive": true,
+        "libelle": "⌘K · « rendez-vous » · clic  Calendrier",
+        "hash": "#/agenda"
+      }
+    ]
+  },
+  {
+    "n": 5,
+    "nom": "créer un client",
+    "actions": 3,
+    "apresGeste": true,
+    "pourFinir": 3,
+    "total": 6,
+    "arrive": true,
+    "chemin": "barre :  Mes contacts et clients  puis  Clients",
+    "hash": "#/clients",
+    "essais": [
+      {
+        "actions": 3,
+        "avant": 2,
+        "moduleAtteint": true,
+        "geste": true,
+        "arrive": true,
+        "libelle": "barre :  Mes contacts et clients  puis  Clients",
+        "hash": "#/clients"
+      },
+      {
+        "actions": 4,
+        "avant": 3,
+        "moduleAtteint": true,
+        "geste": true,
+        "arrive": true,
+        "libelle": "⌘K · « client » · clic  Clients",
+        "hash": "#/clients"
+      }
+    ]
+  },
+  {
+    "n": 6,
+    "nom": "écrire à un client",
+    "actions": 1,
+    "apresGeste": null,
+    "pourFinir": 2,
+    "total": 3,
+    "arrive": true,
+    "chemin": "barre :  Messagerie",
+    "hash": "#/messages-prives",
+    "essais": [
+      {
+        "actions": 1,
+        "avant": 1,
+        "moduleAtteint": true,
+        "geste": null,
+        "arrive": true,
+        "libelle": "barre :  Messagerie",
+        "hash": "#/messages-prives"
+      },
+      {
+        "actions": 3,
+        "avant": 3,
+        "moduleAtteint": true,
+        "geste": null,
+        "arrive": true,
+        "libelle": "⌘K · « messagerie » · clic  (Messages privés|Équipe)",
+        "hash": "#/team"
+      }
+    ]
+  },
+  {
+    "n": 7,
+    "nom": "créer et envoyer un devis",
+    "actions": 1,
+    "pourFinir": 4,
+    "total": null,
+    "arrive": false,
+    "chemin": "chemin — locator.click: Timeout 4000ms exceeded.",
+    "hash": "",
+    "essais": [
+      {
+        "actions": 1,
+        "arrive": false,
+        "libelle": "chemin — locator.click: Timeout 4000ms exceeded.",
+        "hash": ""
+      },
+      {
+        "actions": 0,
+        "arrive": false,
+        "libelle": "chemin — locator.click: Timeout 4000ms exceeded.",
+        "hash": ""
+      }
+    ]
+  },
+  {
+    "n": 8,
+    "nom": "créer une facture",
+    "actions": 0,
+    "pourFinir": 4,
+    "total": null,
+    "arrive": false,
+    "chemin": "chemin — locator.click: Timeout 4000ms exceeded.",
+    "hash": "",
+    "essais": [
+      {
+        "actions": 0,
+        "arrive": false,
+        "libelle": "chemin — locator.click: Timeout 4000ms exceeded.",
+        "hash": ""
+      },
+      {
+        "actions": 0,
+        "arrive": false,
+        "libelle": "chemin — locator.click: Timeout 4000ms exceeded.",
+        "hash": ""
+      }
+    ]
+  },
+  {
+    "n": 9,
+    "nom": "relancer un impayé",
+    "actions": 1,
+    "apresGeste": null,
+    "pourFinir": 1,
+    "total": 2,
+    "arrive": true,
+    "chemin": "barre :  Relancer ou mettre en demeure",
+    "hash": "#/facturation",
+    "essais": [
+      {
+        "actions": 1,
+        "avant": 1,
+        "moduleAtteint": true,
+        "geste": null,
+        "arrive": true,
+        "libelle": "barre :  Relancer ou mettre en demeure",
+        "hash": "#/facturation"
+      }
+    ]
+  },
+  {
+    "n": 10,
+    "nom": "noter une dépense",
+    "actions": 4,
+    "apresGeste": true,
+    "pourFinir": 3,
+    "total": 7,
+    "arrive": true,
+    "chemin": "⌘K · « dépense » · clic  Dépenses",
+    "hash": "#/depenses",
+    "essais": [
+      {
+        "actions": 1,
+        "arrive": false,
+        "libelle": "chemin — locator.click: Timeout 4000ms exceeded.",
+        "hash": ""
+      },
+      {
+        "actions": 4,
+        "avant": 3,
+        "moduleAtteint": true,
+        "geste": true,
+        "arrive": true,
+        "libelle": "⌘K · « dépense » · clic  Dépenses",
+        "hash": "#/depenses"
+      }
+    ]
+  },
+  {
+    "n": 11,
+    "nom": "ajouter une note",
+    "actions": 3,
+    "apresGeste": true,
+    "pourFinir": 2,
+    "total": 5,
+    "arrive": true,
+    "chemin": "barre :  Écrire et retenir  puis  Notes",
+    "hash": "#/notes",
+    "essais": [
+      {
+        "actions": 3,
+        "avant": 2,
+        "moduleAtteint": true,
+        "geste": true,
+        "arrive": true,
+        "libelle": "barre :  Écrire et retenir  puis  Notes",
+        "hash": "#/notes"
+      },
+      {
+        "actions": 4,
+        "avant": 3,
+        "moduleAtteint": true,
+        "geste": true,
+        "arrive": true,
+        "libelle": "⌘K · « note » · clic  Notes",
+        "hash": "#/notes"
+      }
+    ]
+  },
+  {
+    "n": 12,
+    "nom": "déposer un document",
+    "actions": 3,
+    "apresGeste": false,
+    "pourFinir": 2,
+    "total": 5,
+    "arrive": true,
+    "chemin": "⌘K · « document » · clic  Classeur",
+    "hash": "#/classeur",
+    "essais": [
+      {
+        "actions": 1,
+        "arrive": false,
+        "libelle": "chemin — locator.click: Timeout 4000ms exceeded.",
+        "hash": ""
+      },
+      {
+        "actions": 3,
+        "avant": 3,
+        "moduleAtteint": true,
+        "geste": false,
+        "arrive": true,
+        "libelle": "⌘K · « document » · clic  Classeur",
+        "hash": "#/classeur"
+      }
+    ]
+  },
+  {
+    "n": 13,
+    "nom": "chercher n’importe quoi",
+    "actions": 1,
+    "apresGeste": null,
+    "pourFinir": 0,
+    "total": 1,
+    "arrive": true,
+    "chemin": "⌘K",
+    "hash": "#/",
+    "essais": [
+      {
+        "actions": 1,
+        "avant": 1,
+        "moduleAtteint": true,
+        "geste": null,
+        "arrive": true,
+        "libelle": "⌘K",
+        "hash": "#/"
+      }
+    ]
+  },
+  {
+    "n": 14,
+    "nom": "demander à Ajmani",
+    "actions": 1,
+    "apresGeste": null,
+    "pourFinir": 1,
+    "total": 2,
+    "arrive": true,
+    "chemin": "⌘J",
+    "hash": "#/",
+    "essais": [
+      {
+        "actions": 1,
+        "avant": 1,
+        "moduleAtteint": true,
+        "geste": null,
+        "arrive": true,
+        "libelle": "⌘J",
+        "hash": "#/"
+      }
+    ]
+  },
+  {
+    "n": 15,
+    "nom": "ouvrir une alerte de La Garde",
+    "actions": 0,
+    "pourFinir": 1,
+    "total": null,
+    "arrive": false,
+    "chemin": "chemin — locator.click: Timeout 4000ms exceeded.",
+    "hash": "",
+    "essais": [
+      {
+        "actions": 0,
+        "arrive": false,
+        "libelle": "chemin — locator.click: Timeout 4000ms exceeded.",
+        "hash": ""
+      },
+      {
+        "actions": 0,
+        "arrive": false,
+        "libelle": "chemin — locator.click: Timeout 4000ms exceeded.",
+        "hash": ""
+      }
+    ]
+  },
+  {
+    "n": 16,
+    "nom": "prendre en charge un incident",
+    "actions": 0,
+    "pourFinir": 2,
+    "total": null,
+    "arrive": false,
+    "chemin": "chemin — locator.click: Timeout 4000ms exceeded.",
+    "hash": "",
+    "essais": [
+      {
+        "actions": 0,
+        "arrive": false,
+        "libelle": "chemin — locator.click: Timeout 4000ms exceeded.",
+        "hash": ""
+      },
+      {
+        "actions": 0,
+        "arrive": false,
+        "libelle": "chemin — locator.click: Timeout 4000ms exceeded.",
+        "hash": ""
+      }
+    ]
+  },
+  {
+    "n": 17,
+    "nom": "lancer une ronde",
+    "actions": 3,
+    "apresGeste": null,
+    "pourFinir": 1,
+    "total": 4,
+    "arrive": true,
+    "chemin": "⌘K · « ronde » · clic  Organigramme",
+    "hash": "#/garde/organigramme",
+    "essais": [
+      {
+        "actions": 1,
+        "avant": 1,
+        "moduleAtteint": false,
+        "geste": null,
+        "arrive": false,
+        "libelle": "barre :  La Garde",
+        "hash": "#/"
+      },
+      {
+        "actions": 3,
+        "avant": 3,
+        "moduleAtteint": true,
+        "geste": null,
+        "arrive": true,
+        "libelle": "⌘K · « ronde » · clic  Organigramme",
+        "hash": "#/garde/organigramme"
+      }
+    ]
+  },
+  {
+    "n": 18,
+    "nom": "lancer une sauvegarde",
+    "actions": 3,
+    "apresGeste": null,
+    "pourFinir": 1,
+    "total": null,
+    "arrive": false,
+    "chemin": "⌘K · « sauvegarde » · clic  Import . export",
+    "hash": "#/outils/donnees",
+    "essais": [
+      {
+        "actions": 3,
+        "avant": 3,
+        "moduleAtteint": false,
+        "geste": null,
+        "arrive": false,
+        "libelle": "⌘K · « sauvegarde » · clic  Import . export",
+        "hash": "#/outils/donnees"
+      }
+    ]
+  },
+  {
+    "n": 19,
+    "nom": "voir les déploiements",
+    "actions": 1,
+    "apresGeste": null,
+    "pourFinir": 0,
+    "total": null,
+    "arrive": false,
+    "chemin": "barre :  Développement",
+    "hash": "#/",
+    "essais": [
+      {
+        "actions": 1,
+        "avant": 1,
+        "moduleAtteint": false,
+        "geste": null,
+        "arrive": false,
+        "libelle": "barre :  Développement",
+        "hash": "#/"
+      },
+      {
+        "actions": 0,
+        "arrive": false,
+        "libelle": "chemin — locator.click: Timeout 4000ms exceeded.",
+        "hash": ""
+      }
+    ]
+  },
+  {
+    "n": 20,
+    "nom": "reprendre où l’on s’était arrêté",
+    "actions": 0,
+    "pourFinir": 0,
+    "total": null,
+    "arrive": false,
+    "chemin": "chemin — locator.click: Timeout 4000ms exceeded.",
+    "hash": "",
+    "essais": [
+      {
+        "actions": 0,
+        "arrive": false,
+        "libelle": "chemin — locator.click: Timeout 4000ms exceeded.",
+        "hash": ""
+      },
+      {
+        "actions": 0,
+        "arrive": false,
+        "libelle": "chemin — locator.click: Timeout 4000ms exceeded.",
+        "hash": ""
+      }
+    ]
+  }
+]

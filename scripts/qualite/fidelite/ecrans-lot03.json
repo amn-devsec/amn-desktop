@@ -1,0 +1,148 @@
+{
+  "lot": "LOT-03",
+  "_": "Les 9 écrans de LOT-03 (Écrire et retenir), claude/refonte-ecrire. Un fichier par lot. Horloge : vendredi 30 oct. 2026 à 10:42. Coquille allumée. Bandeau « première ouverture » fermé avant la capture.",
+  "defaut": {
+    "mac": true,
+    "date": "2026-10-30T10:42:00+01:00",
+    "stockage": {
+      "amn.coquille": "noir"
+    }
+  },
+  "ecrans": [
+    {
+      "id": "F20",
+      "route": "#/ensemble/ecrire",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "H10",
+      "route": "#/notes",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "H11",
+      "route": "#/classeur",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "H12",
+      "route": "#/signature-a-distance",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "ME01",
+      "route": "#/personnel/journal",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "ME02",
+      "route": "#/outils/redaction",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "ME03",
+      "route": "#/outils/modeles",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "ME04",
+      "route": "#/archives",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "ME05",
+      "route": "#/knowledge",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    }
+  ]
+}

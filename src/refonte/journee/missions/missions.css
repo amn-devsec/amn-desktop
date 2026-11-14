@@ -1,0 +1,105 @@
+/*
+  « MISSIONS ET TICKETS » (H03, v4) — mise en page aux cotes de la fiche (zone principale de 1108 px, x = 40, y = 94 → 758).
+
+    bandeau de filtres   y = 94, 32 px, sans carte : quatre pastilles à gauche, présence + « Alerte immédiate » à droite ;
+    tableau              y = 139, 619 de haut : quatre colonnes de 268 (écart 12), rayon 14, rembourrage 10, écart 9 ;
+    carte                rayon 12, rembourrage 11 / 12 ; carte en déplacement : 246 de large, inclinée de −2,2°.
+
+  Aucune couleur écrite ici : `--socle-*` (src/socle/noir.css). Le rouge et l'orange ne disent que l'urgence et la limite d'une colonne ;
+  un délai dépassé se dit en mots (« dépassé de … ») et la carte ne bouge pas. Chargée par `VueMissions.tsx`.
+*/
+.sc-ms__entete.sc-page__entete { flex-wrap: nowrap; gap: 16px; align-items: flex-end; }
+.sc-ms__hors-ligne { margin: 0; font-size: 12px; color: var(--socle-etat-attention); }
+.sc-ms { position: relative; display: flex; flex-direction: column; gap: 12px; flex: 1 1 0; min-height: 0; }
+.sc-ms-bandeau { display: flex; align-items: center; justify-content: space-between; gap: 14px; height: 32px; flex: 0 0 auto; }
+.sc-ms-pastilles { display: flex; gap: 8px; }
+.sc-ms-pastille { position: relative; display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 14px; border-radius: var(--socle-rayon-pastille); border: 1px solid var(--socle-bord-pilule); background: var(--socle-pilule); color: var(--socle-texte-2); font: inherit; font-size: 12.5px; cursor: pointer; }
+.sc-ms-pastille b { font-weight: 700; color: var(--socle-texte-1); }
+.sc-ms-pastille[aria-pressed='true'] { border-color: var(--socle-bord-controle); background: var(--socle-ligne-choisie); color: var(--socle-texte-1); }
+.sc-ms-pastille:focus-visible { outline: 2px solid var(--socle-texte-1); outline-offset: 2px; }
+.sc-ms-droite { display: flex; align-items: center; gap: 14px; font-size: 12.5px; color: var(--socle-texte-2); }
+.sc-ms-presence { display: inline-flex; align-items: center; gap: 8px; }
+.sc-ms-presence i { width: 7px; height: 7px; border-radius: 50%; background: var(--socle-etat-succes); animation: sc-ms-vivant 2s ease-in-out infinite; }
+@keyframes sc-ms-vivant { 50% { opacity: 0.4; } }
+.sc-ms-filet { width: 1px; height: 18px; background: var(--socle-bord-ligne); }
+.sc-ms-alerte { display: inline-flex; align-items: center; gap: 10px; }
+.sc-ms-lecture { margin: 0; font-size: 12.5px; color: var(--socle-texte-3); }
+.sc-ms-lecture button { margin-left: 8px; border: 0; background: none; color: var(--socle-texte-1); font: inherit; text-decoration: underline; cursor: pointer; }
+
+.sc-ms-tableau { position: relative; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; flex: 1 1 0; min-height: 0; }
+.sc-ms-colonne { position: relative; display: flex; flex-direction: column; gap: 9px; min-width: 0; min-height: 0; padding: 10px; border-radius: 14px; border: 1px solid var(--socle-bord-kanban); background: color-mix(in srgb, var(--socle-blanc) 2%, var(--socle-fond-page)); }
+.sc-ms-colonne[data-colonne='en-cours'][data-pleine] { border-color: color-mix(in srgb, var(--socle-etat-attention) 22%, transparent); }
+.sc-ms-colonne[data-cible] { border-color: var(--socle-bord-controle); }
+.sc-ms-colonne__tete { display: flex; align-items: center; gap: 9px; height: 30px; flex: 0 0 auto; padding: 0 2px; }
+.sc-ms-colonne__tete > i { width: 7px; height: 7px; border-radius: 50%; background: var(--sc-ms-c, var(--socle-texte-3)); }
+.sc-ms-colonne__tete h2 { margin: 0; font-size: 13.5px; font-weight: 600; }
+.sc-ms-colonne[data-colonne='a-faire'] { --sc-ms-c: var(--socle-etat-info); }
+.sc-ms-colonne[data-colonne='en-cours'] { --sc-ms-c: var(--socle-etat-attention); }
+.sc-ms-colonne[data-colonne='en-revue'] { --sc-ms-c: var(--fam-b); }
+.sc-ms-colonne[data-colonne='termine'] { --sc-ms-c: var(--socle-etat-succes); }
+.sc-ms-compte { padding: 1px 8px; border-radius: var(--socle-rayon-tag); background: var(--socle-tag); font-size: 11.5px; color: var(--socle-texte-2); }
+.sc-ms-jauge { display: inline-flex; gap: 3px; }
+.sc-ms-jauge i { width: 14px; height: 4px; border-radius: 2px; background: var(--socle-piste); }
+.sc-ms-jauge i[data-pris] { background: var(--sc-ms-c); }
+.sc-ms-limite { font-size: 12px; color: var(--sc-ms-c); }
+.sc-ms-colonne[data-colonne='en-revue'] .sc-ms-limite { color: var(--socle-texte-3); }
+.sc-ms-plus { position: relative; display: grid; place-items: center; width: 26px; height: 26px; margin-left: auto; border: 0; border-radius: 8px; background: none; color: var(--socle-texte-3); cursor: pointer; }
+.sc-ms-plus:focus-visible { outline: 2px solid var(--socle-texte-1); outline-offset: 1px; }
+.sc-ms-colonne__corps { display: flex; flex-direction: column; gap: 9px; flex: 1 1 0; min-height: 0; overflow-y: auto; }
+.sc-ms-colonne__vide { padding: 14px 6px; }
+.sc-ms-colonne__pied { flex: 0 0 auto; margin-top: auto; min-height: 0; }
+.sc-ms-ajouter { position: relative; display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; height: 40px; border-radius: 12px; border: 1px dashed var(--socle-pointille); background: none; color: var(--socle-texte-3); font: inherit; font-size: 12.5px; cursor: pointer; }
+.sc-ms-ajouter:focus-visible { outline: 2px solid var(--socle-texte-1); outline-offset: 2px; }
+.sc-ms-pleine { display: flex; align-items: flex-start; gap: 8px; margin: 0; padding: 4px 4px 6px; font-size: 12.5px; line-height: 1.45; color: var(--socle-texte-2); }
+.sc-ms-pleine svg { flex: 0 0 auto; margin-top: 2px; color: var(--socle-etat-attention); }
+.sc-ms-voir { position: relative; display: inline-flex; align-items: center; gap: 8px; align-self: flex-start; padding: 4px 6px; border: 0; background: none; color: var(--socle-texte-2); font: inherit; font-size: 12.5px; cursor: pointer; }
+.sc-ms-voir:focus-visible { outline: 2px solid var(--socle-texte-1); outline-offset: 1px; }
+.sc-ms-depot { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; gap: 2px; height: 96px; padding: 0 12px; border-radius: 12px; border: 1.5px dashed var(--socle-pointille); font-size: 12.5px; color: var(--socle-texte-2); }
+.sc-ms-depot[data-ton='succes'] { border-color: color-mix(in srgb, var(--socle-etat-succes) 55%, transparent); background: color-mix(in srgb, var(--socle-etat-succes) 6%, transparent); color: var(--socle-etat-succes); }
+.sc-ms-depot[data-ton='attention'] { border-color: color-mix(in srgb, var(--socle-etat-attention) 55%, transparent); color: var(--socle-etat-attention); }
+.sc-ms-depot b { font-weight: 600; }
+.sc-ms-depot span { color: var(--socle-texte-3); }
+.sc-ms-gabarit { flex: 0 0 96px; border-radius: 12px; border: 1px dashed var(--socle-pointille); background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--socle-texte-3) 35%, transparent) 0 1px, transparent 1px 7px); }
+.sc-ms-refus { margin: 0; padding: 10px 12px; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--socle-etat-attention) 40%, transparent); font-size: 12.5px; line-height: 1.45; color: var(--socle-texte-1); }
+.sc-ms-refus button { display: block; margin-top: 6px; border: 0; background: none; color: var(--socle-etat-attention); font: inherit; font-weight: 600; cursor: pointer; }
+
+.sc-ms-carte { position: relative; display: flex; flex-direction: column; gap: 7px; padding: 11px 12px; border-radius: 12px; border: 1px solid var(--socle-bord-ticket); background: var(--socle-ticket); color: var(--socle-texte-1); flex: 0 0 auto; animation: sc-ms-entree 220ms ease both; cursor: grab; }
+.sc-ms-carte[data-urgent] { border-color: color-mix(in srgb, var(--socle-etat-critique) 55%, transparent); }
+.sc-ms-carte[data-termine] .sc-ms-carte__titre { text-decoration: line-through; color: var(--socle-texte-3); }
+@keyframes sc-ms-entree { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.sc-ms-carte__ouvrir { position: absolute; inset: 0; z-index: 1; border: 0; border-radius: 12px; background: none; cursor: pointer; }
+.sc-ms-carte__ouvrir:focus-visible { outline: 2px solid var(--socle-texte-1); outline-offset: 1px; }
+.sc-ms-carte__haut { display: flex; align-items: center; gap: 8px; min-height: 18px; }
+.sc-ms-carte__id { font-size: 11px; color: var(--socle-texte-3); white-space: nowrap; }
+.sc-ms-urgent { display: inline-flex; align-items: center; gap: 5px; padding: 1px 7px; border-radius: var(--socle-rayon-tag); background: color-mix(in srgb, var(--socle-etat-critique) 14%, transparent); color: var(--socle-etat-critique); font-size: 11px; font-weight: 600; }
+.sc-ms-tag, .sc-ms-etiquette { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--socle-texte-2); align-self: flex-start; }
+.sc-ms-tag i, .sc-ms-etiquette i { width: 6px; height: 6px; border-radius: 50%; background: var(--socle-texte-3); }
+.sc-ms-tag i { background: var(--fam-a); }
+.sc-ms-enligne { position: absolute; top: -9px; right: -7px; z-index: 2; }
+.sc-ms-carte__titre { margin: 0; font-size: 13px; font-weight: 500; line-height: 1.4; }
+.sc-ms-sous { display: flex; align-items: center; gap: 10px; }
+.sc-ms-sous__barre { flex: 1 1 auto; height: 3px; border-radius: 2px; background: var(--socle-piste); overflow: hidden; }
+.sc-ms-sous__barre i { display: block; height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--fam-a), var(--fam-b)); animation: sc-ms-remplir 900ms ease both; }
+@keyframes sc-ms-remplir { from { width: 0; } }
+.sc-ms-sous b { font-size: 11px; font-weight: 500; color: var(--socle-texte-3); }
+.sc-ms-minuteur { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: var(--socle-texte-2); }
+.sc-ms-minuteur i { width: 14px; height: 14px; border-radius: 50%; background: conic-gradient(currentColor var(--part, 15%), var(--socle-piste) 0); }
+.sc-ms-minuteur[data-ton='attention'] { color: var(--socle-etat-attention); }
+.sc-ms-minuteur[data-ton='danger'] { color: var(--socle-etat-critique); }
+.sc-ms-carte__pied { display: flex; align-items: center; gap: 8px; }
+.sc-ms-date { font-size: 11.5px; color: var(--socle-texte-3); }
+.sc-ms-comm { display: inline-flex; align-items: center; gap: 5px; margin-left: auto; font-size: 11.5px; color: var(--socle-texte-3); }
+.sc-ms-flottante { position: absolute; z-index: 5; width: 246px; transform: rotate(-2.2deg); pointer-events: none; filter: drop-shadow(0 18px 24px color-mix(in srgb, var(--socle-noir, black) 55%, transparent)); }
+.sc-ms-flottante .sc-ms-carte { background: var(--socle-carte-active-haut); border-color: var(--socle-bord-carte-active); animation: none; }
+
+.sc-ms-liste { display: flex; flex-direction: column; flex: 1 1 0; min-height: 0; overflow-y: auto; border-radius: var(--socle-rayon-carte); border: 1px solid var(--socle-bord-carte); background: linear-gradient(180deg, var(--socle-carte-haut), var(--socle-carte-bas)); }
+.sc-ms-liste__tete, .sc-ms-liste__ligne { display: grid; grid-template-columns: 90px minmax(0, 1fr) 120px 140px 110px; gap: 12px; align-items: center; min-height: 40px; padding: 0 16px; font: inherit; font-size: 13px; text-align: left; }
+.sc-ms-liste__tete { position: sticky; top: 0; font-size: 11.5px; color: var(--socle-texte-3); border-bottom: 1px solid var(--socle-bord-ligne); background: var(--socle-carte-haut); }
+.sc-ms-liste__ligne { position: relative; width: 100%; border: 0; border-bottom: 1px solid var(--socle-bord-ligne); background: none; color: var(--socle-texte-1); cursor: pointer; }
+.sc-ms-liste__ligne:hover { background: var(--socle-ligne-survol); }
+.sc-ms-liste__ligne:focus-visible { outline: 2px solid var(--socle-texte-1); outline-offset: -2px; }
+.sc-ms-etat { display: grid; place-items: center; flex: 1 1 0; }
+.sc-ms-annuler { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; padding: 8px 14px; border-radius: var(--socle-rayon-controle); border: 1px solid var(--socle-bord-toast); background: var(--socle-dialogue); font-size: 12.5px; z-index: 6; }
+.sc-ms-annuler button { border: 0; background: none; color: var(--fam-a); font: inherit; font-weight: 600; cursor: pointer; }
+@media (prefers-reduced-motion: reduce) { .sc-ms-carte, .sc-ms-sous__barre i, .sc-ms-presence i { animation: none; } }
+@media (max-width: 1279px) { .sc-ms-tableau { grid-template-columns: repeat(2, minmax(0, 1fr)); overflow-y: auto; } }

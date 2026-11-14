@@ -13,11 +13,13 @@ import { Horizon } from '../accueils/interne/Horizon';
 import { DeuxPostes } from '../accueils/interne/DeuxPostes';
 import { Silence } from '../accueils/interne/Silence';
 import { colonnesCarte } from '../accueils/interne/parc';
-import { AccueilVivant } from '../refonte/accueil/AccueilVivant';
+import { AccueilJournee } from '../refonte/journee/ecrans/N01/AccueilJournee';
+import '../refonte/creer/creer.css';
+import '../refonte/journee/journee.css';
 
 /**
  * LES ACCUEILS DE L'ÉDITION INTERNE — 2a, les dix variantes du cahier 10
- * (`42a` → `42j`, ACCUEILS.md), et `42k`, l'Accueil noir et gris de la refonte (S2).
+ * (`42a` → `42j`, ACCUEILS.md), et `42k`, l'Accueil de la refonte (N01, LOT-01).
  * Aucune variante cliente n'est importée ici.
  */
 export const ACCUEILS: AccueilDef[] = [
@@ -104,7 +106,8 @@ export const ACCUEILS: AccueilDef[] = [
     nom: 'La journée rangée',
     phrase: 'Ta journée à cocher, les chiffres qui existent, l’équipe en ligne.',
     vignette: [[4, 6, 18, 48, 'sombre'], [26, 6, 40, 6, 'clair'], [26, 16, 15, 10, 'moyen'], [43, 16, 15, 10, 'moyen'], [60, 16, 15, 10, 'moyen'], [77, 16, 15, 10, 'moyen'], [26, 30, 40, 18, 'sombre'], [68, 30, 24, 18, 'sombre'], [56, 32, 8, 3, 'clair'], [26, 51, 66, 4, 'moyen']],
-    composant: AccueilVivant,
+    // LOT-01 N01 (v4) : l'Accueil de la refonte, par cette couture ; il lit `useAujourdhui` (§1.10 n° 3). `AccueilVivant` reste dans le dépôt.
+    composant: AccueilJournee,
   },
 ];
 

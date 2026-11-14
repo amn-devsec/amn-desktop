@@ -131,6 +131,7 @@ export function genererEntreprise(equipe: readonly Membre[]): Entreprise {
       astreinteEmail: astreinte.email,
       plafondConnecteursCents: 4_000,
       objectifBoutiqueTrimestreCents: 600_000,
+      objectifMrrCents: 600_000,
       prevenirConnecteursAPourcent: 80,
       auPlafondConnecteurs: 'tout s’arrête',
       tauxTva: [20, 10, 5.5, 0],

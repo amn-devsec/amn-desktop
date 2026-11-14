@@ -158,9 +158,11 @@ dit('le catalogue : chaque type a une famille et un ton connus', () => {
     assert.ok(FAMILLES.includes(def.famille), `${type} : famille inconnue ${def.famille}`);
     assert.ok(tons.has(def.ton), `${type} : ton inconnu ${def.ton}`);
   }
-  for (const attendu of ['facture.payee', 'client.cree', 'rdv.proche', 'tentative.suspecte', 'message.recu']) {
+  for (const attendu of ['facture.payee', 'client.cree', 'rdv.proche', 'tentative.suspecte', 'message.recu', 'defi.tenu']) {
     assert.ok(bus.TYPES_DE_MOMENTS.includes(attendu), `type attendu absent : ${attendu}`);
   }
+  // Une célébration est une fête, jamais un critique ni une décision (STATUT §1.36 n° 5).
+  assert.deepEqual(bus.CATALOGUE_DES_MOMENTS['defi.tenu'], { famille: 'jour', ton: 'fete' });
   // Le critique est rare par construction : la liste est fermée, et l'allonger est une décision du CO.
   assert.deepEqual(
     bus.TYPES_DE_MOMENTS.filter((t) => bus.CATALOGUE_DES_MOMENTS[t].ton === 'critique'),

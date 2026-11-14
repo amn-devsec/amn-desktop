@@ -54,7 +54,7 @@ async function chargerAvecCss<T>(code: string): Promise<T> {
 
 /* ── Le registre : les déclarations du dossier, assemblées sans Vite (comme `check:navigation`) ── */
 const declarations = fs.readdirSync(path.join(racine, 'src/refonte/modules/declarations')).filter((f) => f.endsWith('.ts')).sort();
-interface VueR { id: string; route: string }
+interface VueR { id: string; route: string; nouveau?: unknown }
 interface EntreeR { id: string; nom?: { fr: string; en: string }; teinte: string; vues: readonly VueR[] }
 const { registre } = await chargerAvecCss<{ registre: { entrees: readonly EntreeR[]; vues: readonly VueR[]; fautes: readonly string[] } }>(
   [
@@ -129,9 +129,19 @@ await dit('huit familles, dans l’ordre de la fiche, avec leurs titres et leurs
   for (const m of MODELES) for (const t of [m.nom, m.description]) assert.ok(t.fr.trim() && t.en.trim(), `${m.id} : texte sans fr ou sans en`);
 });
 
-await dit('le registre est sain (101 entrées) et CHAQUE identifiant de module de chaque modèle y est une entrée — aucun identifiant inventé', () => {
+/**
+ * Le compte du registre : les 101 entrées d'avant, plus UNE entrée par écran neuf déclaré (`nouveau`) ; il ne se fige plus
+ * à un nombre. (Les 101 identifiants d'avant sont tenus un à un par `check:navigation`.)
+ */
+const ENTREES_D_AVANT = 101;
+const compteDuRegistreJuste = (r: { entrees: readonly EntreeR[]; vues: readonly VueR[] }): boolean => {
+  const neufs = new Set(r.vues.filter((v) => v.nouveau).map((v) => v.id));
+  return r.entrees.length === ENTREES_D_AVANT + r.entrees.filter((e) => e.vues.some((v) => neufs.has(v.id))).length;
+};
+
+await dit('le registre est sain (101 entrées d’avant plus les écrans neufs déclarés) et CHAQUE identifiant de module de chaque modèle y est une entrée — aucun identifiant inventé', () => {
   assert.deepEqual(registre.fautes, []);
-  assert.equal(registre.entrees.length, 101);
+  assert.ok(compteDuRegistreJuste(registre), `${registre.entrees.length} entrées : 101 plus les écrans neufs déclarés`);
   for (const m of MODELES) {
     assert.equal(new Set(m.modules).size, m.modules.length, `${m.id} : un module revient deux fois`);
     for (const id of m.modules) assert.ok(idsEntrees.has(id), `${m.id} : « ${id} » n’est pas une entrée du registre`);
@@ -139,6 +149,15 @@ await dit('le registre est sain (101 entrées) et CHAQUE identifiant de module d
   }
   for (const id of R.JEU_GENERAL) assert.ok(idsEntrees.has(id), `jeu général : « ${id} » absent du registre`);
   assert.deepEqual(R.JEU_GENERAL, ['home', 'tasks', 'agenda', 'clients', 'invoices', 'binder', 'dm']);
+});
+
+await dit('contrôle négatif : une entrée perdue, une entrée en trop ou un écran neuf non compté rougissent le compte du registre', () => {
+  const sans = { entrees: registre.entrees.slice(1), vues: registre.vues };
+  assert.equal(compteDuRegistreJuste(sans), false, 'une entrée perdue');
+  const enTrop = { entrees: [...registre.entrees, { id: 'intrus', teinte: 'x', vues: [{ id: 'intrus', route: '/intrus' }] }], vues: registre.vues };
+  assert.equal(compteDuRegistreJuste(enTrop), false, 'une entrée en trop qui n’est pas un écran neuf');
+  const avecNeuf = { entrees: [...registre.entrees, { id: 'neuf', teinte: 'x', vues: [{ id: 'neuf', route: '/neuf' }] }], vues: [...registre.vues, { id: 'neuf', route: '/neuf', nouveau: {} }] };
+  assert.equal(compteDuRegistreJuste(avecNeuf), true, 'un écran neuf déclaré ajoute exactement une entrée');
 });
 
 await dit('« + N autres » = modules du modèle moins six, jamais écrit à la main ; N = 0 quand tout est affiché ; les modules fermés à l’organisation ne comptent pas', () => {
@@ -237,7 +256,7 @@ await dit('allègements : tout ce qui n’est pas activé s’allège, rien d’
     }
     assert.ok(sortie.length < catalogueCles.length, `${m.id} : tout est allégé`);
   }
-  assert.deepEqual(registre, geler, 'le registre ne doit pas bouger : rien n’est supprimé');
+  assert.deepEqual(JSON.parse(JSON.stringify(registre)), geler, 'le registre ne doit pas bouger : rien n’est supprimé');
   for (const k of TOUJOURS) assert.ok(!R.calculerAllegements(['clients'], registre, catalogueCles, { toujoursOuverts: TOUJOURS }).includes(k), k);
 });
 

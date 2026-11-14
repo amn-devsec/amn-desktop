@@ -33,6 +33,8 @@ export interface GesteDeTri {
   /** Ce qu'on attend (texte saisi ou proposé par Ajmani), ou la date de relance prévue. */
   attend?: string;
   relanceLe?: Jour;
+  /** Depuis quand on attend le client (image v4 : « depuis 2 j ») : le devis est parti il y a deux jours, le fil est mis « En attente » ce matin. Absent : depuis le geste. */
+  depuisLe?: Instant;
 }
 
 export type Couloir = 'a-repondre' | 'en-attente' | 'fait';
@@ -116,6 +118,8 @@ export interface Fil {
   nonLus: number;
   attend?: string;
   relanceLe?: Jour;
+  /** « En attente » : depuis quand la balle est chez le client (le geste, ou `depuisLe`, ou le dernier message envoyé). `null` hors « En attente ». */
+  attendDepuis: number | null;
   /** Un expéditeur inconnu : tuile « ? » et « Rattacher à un client ». */
   inconnu: boolean;
 }
@@ -157,6 +161,7 @@ export function composerFils(messages: readonly MessageDeFil[], gestes: readonly
       canalDuDernier: dernier.canal,
       enAttenteDepuis: couloir === 'a-repondre' ? ms(sansReponse.length ? sansReponse[0].at : dernier.at) : null,
       dernierAt: ms(dernier.at),
+      attendDepuis: couloir === 'en-attente' ? ms(geste && apres(geste) ? (geste.depuisLe ?? geste.at) : dernier.at) : null,
       nonLus: vrais.filter((m) => m.sens === 'entrant' && !m.lu).length,
       ...(geste?.attend ? { attend: geste.attend } : {}),
       ...(geste?.relanceLe ? { relanceLe: geste.relanceLe } : {}),

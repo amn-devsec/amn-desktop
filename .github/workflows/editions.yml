@@ -163,14 +163,22 @@ jobs:
         run: npm run check:developpement
       - name: Contacts et clients — pipeline, relances (espacement), fidélité, rendez-vous, deux voix
         run: npm run check:contacts
+      - name: Ma journée — série, H04, G08 et H25 face à SIM, défis (aucun chiffre individuel, aucun classement), voix
+        run: npm run check:journee
+      - name: Ma journée (S1) — calendrier, missions, cockpit, projets, habitudes, planning, notes, rappels : logique des écrans, voix, structure
+        run: npm run check:journee-ecrans
       - name: Connecteurs et autonomie (LOT-12) — local d'abord, coût avant, trois clics, aucune clé, moteurs locaux
         run: npm run check:connecteurs
       - name: Échanger (LOT-05) — boîte des clients, Boîte à zéro, canaux, appels, annonces, courriel, réunions, partages, sondages, réponses automatiques
         run: npm run check:echanger
+      - name: Mobile et tablette (LOT-09) — seuils téléphone/tablette/bureau, navigation, liste-détail, rotation, cibles tactiles, replis de la PWA
+        run: npm run check:formats
       - name: Écrire et retenir (LOT-03) — série d'écriture, relecture, documents, signatures, journal, archives, connaissances
         run: npm run check:ecrire
       - name: L’argent (LOT-04) — facturation, TVA, impayés, trésorerie, cas écrits à l’avance, banque en lecture seule
         run: npm run check:argent
+      - name: Outils et réglages (LOT-07) — couture du moteur de H20, tarifs relevés de H21
+        run: npm run check:outils
 
       - name: Fidélité aux images v4 — tests de la règle de décision (les images restent hors du dépôt)
         run: npm run test:fidelite

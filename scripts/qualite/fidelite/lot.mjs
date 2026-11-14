@@ -30,10 +30,12 @@ const API = opt('api', 'http://127.0.0.1:4171');
 const SORTIE = path.resolve(opt('sortie', 'fidelite'));
 const SEUL = opt('seulement')?.split(',');
 const RAPPORT = opt('rapport');
+// `--apercu-racine <worktree>` : la fidélité se mesure sur l'APERÇU STATIQUE du lot (npm run apercu -- <ID>), à l'état rempli comme l'image (STATUT §1.40).
+const APERCU_RACINE = opt('apercu-racine');
 const RECOMPARER = args.includes('--recomparer'); // réutilise les PNG déjà capturés
 // Seconde mesure, plus tolérante sur la couleur : un néon dégradé (halos, lueurs) diffère de quelques niveaux sur de grandes surfaces ; elle isole la disposition.
 const COULEUR_STRUCTURE = opt('couleur-structure', '10');
-if (!SCEN || !DIST || !IMAGES) {
+if (!SCEN || (!DIST && !APERCU_RACINE) || !IMAGES) {
   console.error('Usage : lot.mjs --scenarios <fichier.json> --dist <build> --images <dossier> [--data <dossier>] [--api …] [--sortie …] [--seulement ID,ID] [--rapport f.md]');
   process.exit(2);
 }
@@ -48,7 +50,28 @@ for (const e of scenario.ecrans) {
   const etapes = path.join(SORTIE, `${e.id}.etapes.json`);
   fs.writeFileSync(etapes, JSON.stringify(c.etapes ?? []));
   if (c.dev && !DIST_DEV) { resultats.push({ id: e.id, erreur: 'cet écran n’existe qu’en développement : passez --dist-dev <build NODE_ENV=development>' }); console.log(`${e.id.padEnd(4)} ERREUR : ${resultats.at(-1).erreur}`); continue; }
-  const a = [path.join(ICI, 'capturer.mjs'), '--dist', c.dev ? DIST_DEV : DIST, '--api', API, '--sortie', png, '--etapes', etapes];
+  // Aperçu statique : on construit `scripts/apercu/ecrans/<ID>.tsx` du lot, on capture le fichier HTML ; sans aperçu, l'écran est annoncé, pas mesuré.
+  let a;
+  if (APERCU_RACINE) {
+    const idApercu = c.apercu ?? e.id;
+    const source = path.join(path.resolve(APERCU_RACINE), 'scripts', 'apercu', 'ecrans', `${idApercu}.tsx`);
+    if (!fs.existsSync(source)) {
+      resultats.push({ id: e.id, sansApercu: true, erreur: null });
+      console.log(`${e.id.padEnd(4)} sans aperçu statique (${path.relative(path.resolve(APERCU_RACINE), source)} absent) — ni pour ni contre`);
+      continue;
+    }
+    const dossierApercu = path.join(SORTIE, `apercu-${idApercu}`);
+    const b = spawnSync('node', ['--experimental-strip-types', '--disable-warning=ExperimentalWarning', '--disable-warning=MODULE_TYPELESS_PACKAGE_JSON', path.join(path.resolve(APERCU_RACINE), 'scripts', 'apercu', 'construire.ts'), idApercu, '--sortie', dossierApercu], { encoding: 'utf8', cwd: path.resolve(APERCU_RACINE) });
+    if (b.status !== 0) {
+      resultats.push({ id: e.id, erreur: `l'aperçu de ${idApercu} ne se construit pas : ${(b.stderr || b.stdout).trim().split('\n').pop()}` });
+      console.log(`${e.id.padEnd(4)} ERREUR : ${resultats.at(-1).erreur}`);
+      continue;
+    }
+    a = [path.join(ICI, 'capturer.mjs'), '--page', path.join(dossierApercu, 'index.html'), '--sortie', png];
+  } else {
+    a = [path.join(ICI, 'capturer.mjs'), '--dist', c.dev ? DIST_DEV : DIST, '--api', API, '--sortie', png, '--etapes', etapes];
+  }
+  if (!APERCU_RACINE) {
   if (c.route) a.push('--route', c.route);
   if (c.date) a.push('--date', c.date);
   if (c.mac) a.push('--mac');
@@ -56,6 +79,7 @@ for (const e of scenario.ecrans) {
   if (c.sansConnexion) a.push('--sans-connexion');
   const st = Object.entries(c.stockage).map(([k, v]) => `${k}=${v}`).join(';;');
   if (st) a.push('--stockage', st);
+  }
   const cap = RECOMPARER && fs.existsSync(png) ? { status: 0, stdout: '' } : spawnSync('node', a, { encoding: 'utf8' });
   if (cap.status !== 0) {
     resultats.push({ id: e.id, erreur: (cap.stderr || cap.stdout).trim().split('\n').pop() });
@@ -63,7 +87,8 @@ for (const e of scenario.ecrans) {
     continue;
   }
   const reseau = /Réseau : (.*)/.exec(cap.stdout)?.[1] ?? '';
-  const donnees = DATA && fs.readdirSync(DATA).find((f) => f === `${e.id}.json` || (f.startsWith(`${e.id}-`) && f.endsWith('.json')));
+  const fichiersData = DATA ? fs.readdirSync(DATA).filter((f) => f.endsWith('.json')) : [];
+  const donnees = fichiersData.find((f) => f === `${e.id}.json`) ?? fichiersData.find((f) => f.startsWith(`${e.id}-`));
   const b = [path.join(ICI, 'comparer.mjs'), png, '--id', e.id, '--images', IMAGES, '--sortie', SORTIE, '--json', '--zones', '10'];
   if (c.gabarit) b.push('--gabarit', c.gabarit);
   if (donnees) b.push('--textes', path.join(DATA, donnees));

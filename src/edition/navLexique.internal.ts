@@ -30,6 +30,16 @@ const NAV_EN_INTERNE: Record<string, TraductionNav> = {
   access: { label: 'Access log', hint: 'Who entered where' },
   // Trois modules du catalogue sans anglais : l'interface les montrait en français (refonte S5).
   // Ici, côté interne seulement : `nav.en.ts` est commun aux deux éditions, et celle des clientes ne bouge pas.
+  // Écran neuf de LOT-03 (ME04), ajouté au catalogue par le registre : son nom anglais, côté interne seulement.
+  archives: { label: 'Archives', hint: 'Find what is filed, by date or by word' },
+  // Écran neuf de LOT-05 (G07) : la boîte des clients.
+  clientInbox: { label: 'Messaging', hint: 'Answer your clients, every channel in one thread' },
+  // Écran neuf de LOT-05 (MX01) : la boîte partagée de l'équipe.
+  sharedMail: { label: 'Email', hint: 'The team’s shared mailbox, in threads' },
+  // Écran neuf de LOT-05 (MX03) : le partage de fichiers par lien protégé.
+  sharedFiles: { label: 'File sharing', hint: 'Send a protected link, not an attachment' },
+  // Écran neuf de LOT-05 (MX06) : les réponses automatiques.
+  autoReplies: { label: 'Automatic replies', hint: 'Reply in 2 seconds, following your rules' },
   health: { label: 'Health log', hint: 'Dates and deadlines, nothing medical' },
   calcPro: { label: 'Pro calculator', hint: 'A till-roll tape you reread before pricing' },
   interventions: { label: 'Field visits', hint: 'Before, during, after — the report of a call-out' },
@@ -40,6 +50,25 @@ const NAV_EN_INTERNE: Record<string, TraductionNav> = {
   scanner: { label: 'Scanner', hint: 'Vulnerability scanning' },
   comply: { label: 'Comply', hint: 'GDPR compliance' },
   ssl: { label: 'SSL Monitor', hint: 'TLS certificates' },
+  // LOT-01 (Ma journée) : les écrans nouveaux.
+  series: { label: 'Streaks and milestones', hint: 'Your steady habit, no pressure' },
+  defis: { label: 'Team challenges', hint: 'Moving forward together, no ranking' },
+  rituel: { label: 'Morning ritual', hint: 'Three minutes to start well' },
+  focus: { label: 'Focus mode', hint: 'One thing at a time, the rest waits' },
+  // LOT-02 (refonte) : les écrans neufs de « Mes contacts et clients », déclarés au registre des modules.
+  cockpit: { label: 'Client cockpit', hint: 'Their activity online, live: revenue, users, tickets, health' },
+  missions: { label: 'Missions and tickets', hint: 'Team and client tickets, in columns' },
+  notesRapides: { label: 'Quick notes', hint: 'Note in two seconds, sort later' },
+  rappels: { label: 'Reminders', hint: 'What rings now, what is coming, and how you are told' },
+  pipelineCommercial: { label: 'Sales pipeline', hint: 'The opportunity funnel, from first contact to signature' },
+  rdvClients: { label: 'Client meetings', hint: 'The day of your client meetings, hour by hour' },
+  partenaires: { label: 'Partners', hint: 'Those who move the business forward without being clients' },
+  contactsFiches: { label: 'Contact sheets', hint: 'The people behind your clients: role, details, relationship' },
+  fideliteNiveaux: { label: 'Loyalty tiers', hint: 'The tier ladder: who is Bronze, Silver or Gold' },
+  // Les trois écrans neufs de « Créer et produire » (LOT-06, STATUT §1.27 c) : internes pour l'instant.
+  catalogue: { label: 'Product catalogue', hint: 'Price, margin and stock of each product' },
+  reservations: { label: 'Bookings', hint: 'Rooms and equipment, slot by slot' },
+  photosChantier: { label: 'Site photos', hint: 'Before, during, after, dated and filed' },
 };
 
 export const NAV_EN: Record<string, TraductionNav> = {

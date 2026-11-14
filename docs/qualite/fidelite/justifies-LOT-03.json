@@ -1,0 +1,32 @@
+{
+  "_": "Écarts de LOT-03 au-dessus de 15 % (aperçu 1440 × 900 contre l'image v4, mesure brute de la session S5 le 14 nov., à refaire par T1 sur le build). Chaque raison dit, zone par zone, ce qui diffère. Mêmes écarts de coquille pour tous les écrans de ce fichier : la barre latérale de l'aperçu porte la section « ESPACES DE TRAVAIL » (Développement) et les compteurs fictifs du bac à sable, absents des images ; l'en-tête porte le sélecteur d'organisation de la coquille. Données d'exemple : les titres, noms, nombres et dates des images sont ceux de la maquette dans l'aperçu (jamais codés en dur dans l'écran) ; les textes du jeu fictif diffèrent par leur longueur, donc par leurs retours à la ligne.",
+  "ecrans": {
+    "F20": {
+      "raison": "16,0 % brut. Zone index des modules : géométrie tenue (272 × 658, tuiles de 50) ; sous-textes issus de la logique (« 12 jours de suite » calculé sur les jours écrits du jeu), neuf tuiles dont Archives et Dictée vocale. Zone pile : feuilles et aperçu à ± 2 px de géométrie, texte de l'aperçu plus court que celui de la maquette (« 1 min de lecture » au lieu de « 4 min »). Zone relecture : les sous-lignes (« relue par Mohamed ») ne sont pas calculables, la donnée « relue par » n'existe pas. Zone série : disques du calendrier à la teinte de la famille, citation du journal du jeu fictif. 14,6 % en disposition (T1)."
+    },
+    "H10": {
+      "raison": "27,3 % brut. Zone arbre : 204 px tenus ; les sous-pages « Sous-page n » du jeu ne sont pas montrées, les comptes sont ceux du jeu. Zone page : 604 px tenus ; le corps de l'aperçu est un enchaînement de paragraphes, pas les blocs de l'éditeur de l'image (titre, case à cocher, appel « / » ouvert) : le poste n'a ni blocs ni menu « / », écart gardé (STATUT §7). Zone droite : 272 px tenus ; la carte « Sur cette page » et le commentaire sont posés, mais pas le curseur de co-écriture (aucune présence, §1.29 n° 3)."
+    },
+    "H11": {
+      "raison": "22,9 % brut. Zone liste : 372 px tenus, lignes par année ; les compteurs d'onglets sont ceux de la maquette posés par l'aperçu. Zone document ouvert : la feuille du contrat est un papier de texte dans l'aperçu, pas la page dessinée avec ses repères ① à ⑤ ; miniatures sans contenu. Zone frise des versions : tenue (trois versions et la signature en losange). Jauge d'espace : valeur de l'aperçu."
+    },
+    "H12": {
+      "raison": "34,8 % brut. Zone tickets : cinq cartes de 66 px, segments tenus. Zone document : la page de l'image (champs posés, trait de signature, cadre de Menna) est dessinée dans la maquette ; le poste n'a aucune donnée de positions, l'aperçu montre le texte du devis dans la même carte, d'où la plus grande part de l'écart. Zone circuit, relance, preuve : disposition tenue ; l'ordre et l'heure de la piste de preuve viennent de la logique (toutes les traces, six affichées), la maquette n'en montre que quatre."
+    },
+    "ME01": {
+      "raison": "15,9 % brut, juste au-dessus du seuil. Zone calendrier : disques à la teinte de la famille ; le bandeau qui relie les jours de la série n'est pas codé (aucune règle dans la fiche, décision du CO §1.29). Zone page du jour : humeur, énergie, mercis tenus ; 58 mots au lieu de 186 (texte du jeu) ; « ⌘↵ pour passer à demain » absent le jour même (règle de la fiche)."
+    },
+    "ME02": {
+      "raison": "46,0 % brut. Zone réglages (ton, longueur, langue, pièce jointe) : posée dans l'aperçu, absente de l'écran branché (aucune source). Zone lettre : mise en page tenue, mais le texte du jeu (corrections en barré et souligné) passe à la ligne autrement que celui de la maquette, ce qui décale tous les paragraphes ; les trois notes de marge sont alignées en colonne, la maquette les relie au texte par des fils qui ne sont pas dessinés. Anneau de mots : valeur calculée (62 sur 120)."
+    },
+    "ME03": {
+      "raison": "35,8 % brut. Zone galerie : deux rangées de cartes à hauteur égale, miniatures dessinées avec des largeurs de lignes calculées, pas le contenu de la maquette ; la carte de proposition d'Ajmani est tenue. Zone modèle ouvert : 470 px tenus ; le texte du devis est celui du jeu, les variables en puces. Bibliothèque « 24 sur 30 » et filtres par type : posés par l'aperçu, absents de l'écran branché."
+    },
+    "ME04": {
+      "raison": "30,7 % brut. Zone « Par le temps » : 262 px tenus, années repliées avec leur courbe ; les totaux sont ceux du jeu (1 497 au lieu de 1 482). Zone résultats : rangés par mois, 15 résultats pour « Menna » ; extraits et tailles du jeu. Zone droite : quota, règles, restaurations et suggestion posés par l'aperçu ; l'écran branché n'a aucune source d'archives (§1.29 n° 2) et ne montre que l'état vide."
+    },
+    "ME05": {
+      "raison": "23,3 % brut. Zone question : bandeau tenu, réponse sourcée calculée par la logique (la maquette la tire du même article, étape 4). Zone arbre et article : 246 px tenus, étapes numérotées ; les trois articles « à relire » viennent de la maquette dans le pied de l'arbre. Zone droite : plan, progression et « Voir aussi » avec les durées de lecture calculées."
+    }
+  }
+}

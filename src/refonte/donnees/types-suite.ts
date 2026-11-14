@@ -32,7 +32,7 @@ export const NOMS_DES_JEUX_SUITE = [
   // MR08 (boutique en ligne)
   'entonnoirBoutique', 'paniers', 'sessionsBoutique',
   // Développement (LOT-11)
-  'serveur', 'depots', 'deploiements', 'deploiementsPlanifies', 'executions', 'tachesPlanifiees', 'mesuresServeur', 'servicesServeur', 'paiementsConnecteurs',
+  'dailyPriorities', 'engagementsDefis', 'utilisateursConnectes', 'boiteAZero', 'serveur', 'depots', 'deploiements', 'deploiementsPlanifies', 'executions', 'tachesPlanifiees', 'mesuresServeur', 'servicesServeur', 'paiementsConnecteurs',
   // Écrire
   'pages', 'fichiers', 'signatures', 'modeles', 'journal', 'textes', 'archives', 'connaissances', 'reglesArchivage', 'demandesRelecture',
   // Échanger
@@ -1396,7 +1396,51 @@ export interface ResumeServeur {
   couts: { ligne: string; cents: number }[];
 }
 
+/* ============================ Ma journée (LOT-01, suite) ============================ */
+
+/**
+ * Les priorités du jour d'une personne : un enregistrement par personne et par jour, de la forme de la collection
+ * `dailyPriorities` (`PrioritiesScreen`) — `id` = `prio-<courriel en minuscules, tirets>-<jour>`. Au plus trois priorités ;
+ * `doneAt` est l'instant de clôture de la priorité (null : pas faite). Une journée est « bouclée » quand chaque priorité
+ * est faite avant la fin de ce jour-là : c'est la règle de la série (L01, N01, H04, H25).
+ */
+export interface JourDePriorites {
+  id: string;
+  email: string;
+  day: Jour;
+  items: { id: string; label: string; doneAt: string | null }[];
+  updatedAt: string;
+}
+
+/** L07 « Ce que chacun apporte » : l'engagement ÉCRIT d'une personne dans un défi. Forme seulement : l'application ne les stocke pas encore. */
+export interface EngagementDefi {
+  id: string;
+  defiId: string;
+  email: string;
+  texte: string;
+  le: Jour;
+}
+
+/** G08 : les utilisateurs connectés un jour donné, côté client (API du client). Un compteur, jamais un nom. */
+export interface JourDeConnexions {
+  id: string;
+  jour: Jour;
+  connectes: number;
+}
+
+/** N01, H04 « Boîte à zéro » : le nombre de messages à traiter en fin de journée, et si zéro a été atteint ce jour-là. */
+export interface JourBoiteAZero {
+  id: string;
+  jour: Jour;
+  aTraiter: number;
+  zeroAtteint: boolean;
+}
+
 export interface MondeSuite {
+  dailyPriorities: JourDePriorites[];
+  engagementsDefis: EngagementDefi[];
+  utilisateursConnectes: JourDeConnexions[];
+  boiteAZero: JourBoiteAZero[];
   serveur: ResumeServeur[];
   entonnoirBoutique: JourEntonnoir[];
   paniers: PanierBoutique[];
