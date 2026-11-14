@@ -62,7 +62,8 @@ export function VueVideo(p: VueVideoProps) {
       />
       <div className="cr-video-haut">
         <section className="cr-carte cr-videos" data-mvt="entree" aria-label={tm('liste.titre')}>
-          <header><b>{tm('liste.titre')}</b><small>{tm('liste.enCours', { n: p.videos.filter((v) => v.pct > 0 && v.pct < 100).length })}</small><button type="button" className="cr-plus" onClick={p.onNouvelle} aria-label={tm('liste.ajouter')}><Plus size={14} aria-hidden /></button></header>
+          <header><b>{tm('liste.titre')}</b><small>{tm('liste.enCours', { n: p.videos.filter((v) => v.pct > 0 && v.pct < 100).length })}</small>
+            <button type="button" className="cr-plus" onClick={p.onNouvelle} aria-label={tm('liste.ajouter')}><Plus size={14} aria-hidden /></button></header>
           {p.videos.length === 0 ? <p className="cr-t3" style={{ padding: 18 }}>{tm('vide.titre')}</p> : (
             <ul>
               {p.videos.map((v) => (

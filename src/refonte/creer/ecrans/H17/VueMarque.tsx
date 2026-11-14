@@ -73,7 +73,10 @@ export function VueMarque(p: VueMarqueProps) {
         <div className="cr-livre__page cr-livre__page--gauche">
           <h2><span className="cr-mono cr-fam">01</span> {tm('chap.logo')} <small>{tm('logo.sous')}</small></h2>
           {m.logos.length === 0 ? (
-            <div className="cr-vide-page"><b>{tm('vide.logo')}</b><button type="button" className="cr-bouton-verre" onClick={p.onImporter}>{tm('vide.importer')}</button></div>
+            <div className="cr-vide-page">
+              <b>{tm('vide.logo')}</b>
+              <button type="button" className="cr-bouton-verre" onClick={p.onImporter}>{tm('vide.importer')}</button>
+            </div>
           ) : (
             <div className="cr-logo-zone">
               <div className="cr-logo-tuile">
@@ -136,7 +139,9 @@ export function VueMarque(p: VueMarqueProps) {
       </section>
       <div className="cr-marque-bas">
         <section className="cr-carte cr-modeles" data-mvt="entree">
-          <header><h2><span className="cr-mono cr-fam">04</span> {tm('modeles.titre')} <small>{tm('modeles.sous')}</small></h2><button type="button" className="cr-bouton-verre" onClick={p.onCreerVisuel}><Plus size={14} aria-hidden /> {tm('modeles.creer')}</button></header>
+          <header>
+            <h2><span className="cr-mono cr-fam">04</span> {tm('modeles.titre')} <small>{tm('modeles.sous')}</small></h2>
+            <button type="button" className="cr-bouton-verre" onClick={p.onCreerVisuel}><Plus size={14} aria-hidden /> {tm('modeles.creer')}</button></header>
           <div className="cr-modeles__liste">
             {m.modelesVisuels.length === 0 ? <p className="cr-t3">{tm('nonDisponible')}</p> : m.modelesVisuels.slice(0, 4).map((mo) => (
               <div key={mo.nom} className="cr-modele" data-choisi={m.modeleChoisi === mo.nom}>
