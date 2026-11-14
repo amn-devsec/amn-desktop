@@ -1079,6 +1079,49 @@ await dit('aucun écran visuel avant le socle v4 : que des .ts, aucun fichier .t
   assert.deepEqual(tous.filter((f) => !f.endsWith('.ts')), []);
   assert.deepEqual(tous.map((f) => f.replace(/\.ts$/, '')).sort(), [...FICHIERS].sort(), 'un fichier de la zone n’est pas dans la liste du contrôle');
 });
+await dit('images v4 · H10 : « palier de 14 jours dimanche » (écrit aujourd’hui) ; si rien n’est écrit, un jour plus tôt ; aucun palier au-delà du dernier', () => {
+  assert.equal(S.jourDuPalier({ joursAvantPalier: 2, ecritAujourdhui: true }, AUJ), '2026-11-01');
+  assert.equal(C.jourSemaineIso('2026-11-01'), 7, 'dimanche');
+  assert.equal(S.jourDuPalier({ joursAvantPalier: 2, ecritAujourdhui: false }, AUJ), '2026-10-31');
+  assert.equal(S.jourDuPalier({ joursAvantPalier: null, ecritAujourdhui: true }, AUJ), null);
+});
+
+await dit('images v4 · H12 : la preuve conservée est une piste datée, dans l’ordre du temps, sans la copie', () => {
+  const sg = (id: string, ordre: number, role: 'signataire' | 'copie', envoyeAt: string | null, ouvertAt: string | null, signeAt: string | null) => ({ id, ordre, role, statut: 'En attente' as const, envoyeAt, ouvertAt, signeAt });
+  const p = G.pisteDePreuve({ signataires: [
+    sg('menna', 2, 'signataire', '2026-10-30T09:45:00Z', '2026-10-31T17:40:00Z', null),
+    sg('aaron', 1, 'signataire', '2026-10-30T09:40:00Z', '2026-10-30T09:41:00Z', '2026-10-30T09:44:00Z'),
+    sg('lea', 3, 'copie', '2026-10-30T09:46:00Z', '2026-10-30T09:50:00Z', '2026-10-30T09:51:00Z'),
+  ] });
+  assert.deepEqual(p.map((t: any) => `${t.signataireId}:${t.genre}`), ['aaron:envoi', 'aaron:ouverture', 'aaron:signature', 'menna:envoi', 'lea:envoi', 'menna:ouverture']);
+  assert.deepEqual(G.pisteDePreuve({ signataires: [] }), []);
+});
+
+await dit('images v4 · ME02 : trois tons ; l’arabe s’écrit de droite à gauche', () => {
+  assert.deepEqual([...RE.TONS_DE_REDACTION], ['chaleureux', 'courtois', 'direct']);
+  assert.equal(RE.sensDEcriture('ar'), 'rtl');
+  assert.equal(RE.sensDEcriture('ar-MA'), 'rtl');
+  assert.equal(RE.sensDEcriture('en'), 'ltr');
+  assert.equal(RE.sensDEcriture('fr'), 'ltr');
+});
+
+await dit('images v4 · ME03 : « utilisé par Aaron et Mohamed », la plus assidue d’abord, depuis le 1er du mois', () => {
+  const u = (email: string, at: string) => ({ email, at });
+  const qui = MO.utilisateursDuMois([u('m@x.fr', '2026-10-05T08:00:00Z'), u('a@x.fr', '2026-10-06T08:00:00Z'), u('a@x.fr', '2026-10-07T08:00:00Z'), u('r@x.fr', '2026-09-30T08:00:00Z')], '2026-10-01T00:00:00Z');
+  assert.deepEqual(qui, ['a@x.fr', 'm@x.fr']);
+  assert.deepEqual(MO.utilisateursDuMois([], '2026-10-01T00:00:00Z'), []);
+});
+
+await dit('images v4 · ME04 : les années repliées montrent leur total, leurs trouvés et leur courbe de 12 mois', () => {
+  const e = (id: string, archiveLe: string) => ({ id, titre: id, type: 'Facture' as const, tailleOctets: 1, archiveLe });
+  const tous = [e('1', '2026-10-15'), e('2', '2026-09-03'), e('3', '2025-03-01'), e('4', '2025-03-20'), e('5', '2024-12-31')];
+  const r = A.resumeParAnnee(tous, [tous[0], tous[2]]);
+  assert.deepEqual(r.map((x: any) => [x.annee, x.elements, x.trouves]), [[2026, 2, 1], [2025, 2, 1], [2024, 1, 0]]);
+  assert.deepEqual(r[1].courbe, [0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+  assert.equal(r[0].courbe.length, 12);
+  assert.deepEqual(A.resumeParAnnee([]), []);
+});
+
 await dit('aucune brique visuelle : ni React, ni src/socle/ui, ni code partagé ; seuls les voisins et le dictionnaire du socle', () => {
   const fautes: string[] = [];
   for (const { f, src } of sources) {

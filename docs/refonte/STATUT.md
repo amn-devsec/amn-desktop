@@ -4,9 +4,9 @@
 
 ## REPRISE (à lire en premier après une compaction ; tenu par le CO, réécrit à chaque tour)
 
-Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `bf46299`.
+Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `87d86b0`.
 
-**À refusionner** : `c9e8713` (SIM). Sa fusion a été retirée par `git revert -m 1`, donc il faut d'abord **annuler ce retrait** (`git revert` du commit de retrait), puis fusionner la suite de SIM, une fois que `check:argent` passe chez DS.
+**Avoirs** : SIM a refait sa branche par-dessus le retrait (`7570fef`, fusionnée). Les avoirs sont désormais facultatifs (`construireMonde({ avoirs: true })`). Quand DS les lit, SIM passe `avoirs` à `true` par défaut, une ligne dans `monde.ts`.
 
 **Si la limite d'utilisation coupe le CO** : à la reprise (un message de Harun, une session, ou le réveil programmé), relire ce bloc, faire `git fetch` des branches `claude/refonte-*`, puis reprendre la boucle (lister, lire, contrôler, fusionner, répondre, mettre à jour). Réveil du CO : `send_later`, toutes les 20 min tant que des sessions travaillent, 45 min quand toutes attendent (consigne de Harun), réarmé à chaque tour.
 
@@ -14,13 +14,13 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 |---|---|---|---|
 | S0 Socle | `session_01SJe828c2W5EnkMY4fhFY6z` | passe finale v4 finie (`888f7a0`) ; corrige `ancres` et `avoirs` | puis ce que T1 signale |
 | T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | passage 2 sur `888f7a0` en cours (avec le delta d'`ancres` et `avoirs` de S0) | son verdict → fusion du socle v4 et allumage (§1.9) ; puis `check:fidelite` (§1.30) |
-| S6 Sécurité | `session_01RHV8Xq2txWkfjAusKvq9DG` | LOT-07 préparation prête (`f52ef5d`) ; une étape de sécurité attend amn-api | fusion après le contrôle du paquet client par T1 |
-| SIM | `session_011UF2ufZg9moGv2rRZFRuf7` | `c9e8713` prêt mais **retiré** (casse `check:argent`) ; **sans dossier v4** | refusionner quand DS lit les avoirs ; puis fidélité, H05, LOT-03, LOT-11 |
-| DS | `session_01TZGDvVWristJnnPK59rruY` | préparation de LOT-04 fusionnée (§1.29) ; **sans dossier v4** | **lire les avoirs (nature creditNote)** pour que `check:argent` passe sur `c9e8713` |
+| S6 Sécurité | `session_01RHV8Xq2txWkfjAusKvq9DG` | LOT-07 préparation (`afdbccf`) ; **sans zips v4** ; une étape de sécurité attend amn-api | fusion après le contrôle du paquet client par T1 |
+| SIM | `session_011UF2ufZg9moGv2rRZFRuf7` | `7570fef` fusionné (jeux de LOT-11, avoirs sur demande) ; **sans dossier v4** | fidélité, H05, LOT-03, règlements partiels, remises, MR08, résumé de DEV-serveur ; avoirs par défaut quand DS est prêt |
+| DS | `session_01TZGDvVWristJnnPK59rruY` | LOT-04 avec les avoirs, fusionné (§1.34) | appliquer §1.33, comparer H09 aux attendus de SIM |
 | S5 | `session_012jWErBSSkcoVaU3iN895bQ` | LOT-03, registre et LOT-05 fusionnés (§1.32) | attend le socle v4 |
 | S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | LOT-02 relu avec le v4 et fusionné (§1.31) ; a les zips | attend le socle v4 |
 | S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | préparation v4 fusionnée (`526cd63`) | attend le socle v4 |
-| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | en pause | feu vert de l'étape 3 au socle v4 ; jeux à commander à SIM |
+| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | en pause ; ses jeux sont livrés par SIM | feu vert de l'étape 3 au socle v4 |
 | S9 | `session_01C5DAVygXYax6Q7g436TPQx` | LOT-12 fini, valeurs de MC07 fusionnées (`bcdc65f`) | rien |
 | S2, S3 (première tâche : `check:encres`), F1 | `session_014ZkF6SeGRNi6NR3uEsjM5q`, `session_01FBSpK6n1yYtYXYyxbLAuBV`, `session_01VZHqP3gvzrtnpgsTrrKguV` | arrêtées | relancer au socle v4 (prompts : `PROMPTS-11NOV.md`, §1.21) |
 
@@ -44,6 +44,11 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov. : arbitrage S6 / S9. S6 étend le modèle des connecteurs (zone de S9, en pause) pour les devises et les plafonds : champs facultatifs seulement, aucune somme mêlant € et $, `check:connecteurs` étendu sans rien assouplir, une ligne dans le rapport de S9.
+- 14 nov. : LOT-03 et LOT-05 complétés d'après les images v4 (S5, `0804131`, `425e4ad`), fusionnés (`d41501a`). Écarts image/texte : tutoiement dans l'interface (F20, MX05) ; humeur et énergie de ME01 comme l'image, bandeau de série non codé tant que la fiche n'a pas de règle ; compteurs de H10 et F40 calculés depuis les données, jamais repris de l'image.
+- 14 nov. : LOT-04 avec les avoirs fusionné (`0727968`, 70 propriétés). Rôles du serveur dans H19, `owner` publie, `owner` et `admin` gèrent les connecteurs (provisoire), prises de H21 sur le poste, tarifs tels que publiés (§1.34).
+- 14 nov. : données de SIM fusionnées (`b76b7cb`, 109 jeux, 114 contrôles). Gardes lues avant le push, toutes vertes, `check:argent` (69) compris. Les avoirs n'entrent dans le monde que sur demande, jusqu'à ce que DS les lise ; ensuite une ligne de `monde.ts` les active par défaut. Les jeux de LOT-11 sont livrés.
+- 14 nov. : LOT-04 relu avec le v4, fusionné (`74bb0d4`) ; neuf décisions, dont le moteur de relances unique et la série de G03 (§1.33).
 - 14 nov. : LOT-07 préparation (S6, `f52ef5d`). Couture `@edition/automatisations` et tarifs de H21 relevés. Fusion à blanc propre : aucune garde nouvelle rouge, typechecks verts, un seul conflit d'ajout dans `editions.yml`. **Fusion en attente** : elle touche `AutomationsRunner.tsx`, partagé avec l'édition cliente, donc T1 compare d'abord le paquet client (règle D). LOT-05 (`df07f85`) fusionné.
 - 14 nov. : LOT-05 préparation et réglages de MC07 fusionnés (`5b2e8d0`), gardes lues avant le push (§1.32).
 - 14 nov. : **incident**. La fusion de `c9e8713` (SIM) a été poussée (`c565bd7`) avant que ses gardes soient lues : `check:argent` était rouge (avoirs rangés avec les factures). Elle a été retirée quelques minutes après (`8121e07`), et tout est revenu au vert. DS adapte sa logique aux avoirs, puis le CO refusionne. **Correction de méthode : le CO lit toutes les gardes avant chaque push, jamais après.**
@@ -695,6 +700,36 @@ Fusionnés (`5b2e8d0`). Gardes lues **avant** le push, et toutes vertes : `check
 | 5 | « Messages programmés » | Le nom de la fiche est gardé, **provisoire, révisable par Harun**. |
 | 6 | Tutoiement dans MX04 | **La v4 l'emporte** : tutoiement dans l'interface, vouvoiement pour ce qui part chez un client. |
 
+### 1.33 LOT-04 relu avec le dossier v4 (DS, `85aebbd`) : fusionné, décisions du CO
+
+Fusionné (`74bb0d4`). Gardes lues avant le push : `check:argent` (69), les typechecks et lint sont verts, et aucune garde nouvelle n'est rouge. DS a les zips v4. Avec les jeux de SIM (`c9e8713`), 2 propriétés échouent encore : DS les traite (les avoirs).
+
+| # | Point de DS | Décision |
+|---|---|---|
+| 1 | TVA par taux (fiche) ou par ligne | Reste **par ligne** (§1.29 n° 1, provisoire). Aucun écart sur l'exemple de H07 ni sur les jeux. La question va à Harun et à un comptable. |
+| 2 | Relances : « J+7 » de la fiche contre le 8e jour du moteur ; étapes successives | On garde **le moteur unique** (le palier s'ouvre après le seuil) : `src/lib/relances.ts` sert aussi l'édition cliente. L'écart d'un jour est noté, **provisoire, révisable par Harun**. La condition d'étape de MA04 (relance 2 après relance 1) **s'ajoute** dans la couche de la refonte. |
+| 3 | Modèle de mise en demeure | Il se règle dans l'**identité de facturation** (H18). Pas de modèle par défaut : l'étape reste vide tant qu'un modèle validé par un juriste n'est pas posé. La validation revient à Harun. |
+| 4 | Place des modules de F1 | Comme le propose DS, **provisoire** : Taux horaire de revient dans MA12, Paiement en plusieurs fois dans H07, Comparateur de devis dans MA03. Par des liens, F1 garde ses modules. |
+| 5 | Deux « séries » de même nom | **La définition de G03** (aucune facture en retard laissée « non traitée » à 23 h 59). F30 renvoie à G03, donc F30 la suit. |
+| 6 | TVA récupérable | **Deux chiffres distincts**, chacun nommé : indicatif dans H08 (dépenses justifiées), déclaratif dans MA08. |
+| 7 | Période de TVA | Un réglage, mensuel ou trimestriel. **Mensuel par défaut**, comme les jeux ; le trimestre est la somme des mois. **Provisoire**, à valider par un comptable. |
+| 8 | Ordre des cartes de MA04 | **La règle de la fiche** (retard décroissant). L'écart avec l'image est noté. |
+| 9 | Seuils | Les valeurs de la fiche remplacent les miennes là où elles existent. Elles restent réglables. |
+
+### 1.34 Avoirs lus par DS (`0727968`), questions de LOT-07 (S6)
+
+LOT-04 fusionné : `check:argent` passe ses 70 propriétés, avec et sans les avoirs. Gardes lues avant le push, toutes vertes. SIM peut passer `avoirs` à `true` par défaut.
+
+| # | Question de S6 (LOT-07) | Décision |
+|---|---|---|
+| 1 | Zips v4 de LOT-07 | **S6 ne les a pas** : Harun les lui donne, ou le dépôt privé du dossier les rend lisibles (§1.30 n° 2). D'ici là, S6 prépare ce qui ne dépend pas des fiches. |
+| 2 | Rôles : fictifs (MC04) ou serveur | **Les rôles du serveur**, seuls réels : Propriétaire (`owner`), Administrateur (`admin`), Membre (`member`), Invité (`guest`). « Partenaire » n'est pas un rôle : les partenaires sont des contacts (MC05). SIM aligne ses rôles fictifs sur ces quatre. |
+| 3 | « Rôle dirigeant » | **Oui, c'est `owner`.** |
+| 4 | Où vit le droit de publier | **Une règle par rôle**, sans champ nouveau : `owner` publie, les autres passent par « Demander la publication ». Un droit réglable par personne serait une demande à amn-api, présentée à Harun. **Provisoire.** |
+| 5 | Qui gère les connecteurs | **`owner` et `admin`** (`isAdminRole`). **Provisoire, révisable par Harun.** |
+| 6 | Où vit l'état des prises de H21 | **Sur le poste** pour l'instant (local d'abord). Les clés ne sont jamais sur le poste, elles restent chez amn-api. L'état passera au serveur avec LOT-13. |
+| 7 | Devise et plafonds des tarifs | **Tels que publiés** : un prix en dollars reste en dollars, avec la mention « publié en dollars », sans conversion inventée. Le plafond par transaction est indiqué comme publié. |
+
 ## 2. Les lots
 
 Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en parallèle, une branche chacun ; **LOT-09 en dernier**. Les chiffres viennent de `03-INDEX.md` : 9 + 16 + 13 + 9 + 17 + 10 + 15 + 16 + 12 + 11 + 14 = **142**. (Le tableau du fichier 00 compte G05 dans LOT-05 ; l'index et les prompts le rangent dans LOT-00. Le CO suit l'index.)
@@ -935,7 +970,7 @@ Préparation par S1 (14 nov., `claude/refonte-contacts`) : note [`preparation/LO
 | ME04 | Écrire · Archives | mixte | en cours (préparation) | préparation : **aucun module existant** ; logique `archives.ts` ; collection à décider (note §6, 2) |
 | ME05 | Écrire · Base de connaissances | mixte | en cours (préparation) | préparation : `KnowledgeScreen` `/knowledge` (titre, texte, date) ; logique `connaissances.ts` dont la réponse sourcée d'Ajmani |
 
-Préparation par S5 (14 nov., `claude/refonte-ecrire`) : note [`preparation/LOT-03-ecrire.md`](preparation/LOT-03-ecrire.md), logique dans `src/refonte/ecrire/`, garde `check:ecrire` (94 contrôles), rapport [`rapports/LOT-03-preparation.md`](rapports/LOT-03-preparation.md). Aucun écran visuel. Dossier v4 lu (fiches, `06`, `tutoiement.json`) ; **les images v4 n'ont pas été ouvertes**. La série d'écriture est une seule règle pour F20, H10 et ME01 (« Proposition » de F20 §9, à valider). La note épinglée d'un client, source demandée par H41, est dans `pages.ts`.
+Préparation par S5 (14 nov., `claude/refonte-ecrire`) : note [`preparation/LOT-03-ecrire.md`](preparation/LOT-03-ecrire.md), logique dans `src/refonte/ecrire/`, garde `check:ecrire` (99 contrôles), rapport [`rapports/LOT-03-preparation.md`](rapports/LOT-03-preparation.md). Aucun écran visuel. Dossier v4 lu (fiches, `06`, `tutoiement.json`) ; **les images v4 n'ont pas été ouvertes**. La série d'écriture est une seule règle pour F20, H10 et ME01 (« Proposition » de F20 §9, à valider). La note épinglée d'un client, source demandée par H41, est dans `pages.ts`.
 
 **Manque au socle**
 - `ModuleTile` (hauteur 50), `ModuleGroupGrid`, `AddModuleTile` pour F20 ; `ShortcutList` ; `SuggestionCompact` (cités, à confirmer par S0).
@@ -1008,7 +1043,7 @@ Préparation par DS (14 nov.) : logique pure `src/refonte/argent/` (18 fichiers)
 | MX05 | Échanger · Sondages | mixte | en cours (préparation) | préparation : `PollsScreen` `/sondages` ; logique `sondages.ts` |
 | MX06 | Échanger · Réponses automatiques | mixte | en cours (préparation) | préparation : **aucun module existant** ; logique `reponsesAuto.ts` (naît désactivée, vouvoiement vérifié) |
 
-Préparation par S5 (14 nov., `claude/refonte-echanger`) : note [`preparation/LOT-05-echanger.md`](preparation/LOT-05-echanger.md), logique dans `src/refonte/echanger/`, garde `check:echanger` (89 contrôles), rapport [`rapports/LOT-05-preparation.md`](rapports/LOT-05-preparation.md). Aucun écran visuel. Dossier v4 lu (fiches, `06`, `tutoiement.json`) ; **les images v4 n'ont pas été ouvertes**. G07 est la boîte des clients ; WhatsApp, SMS, le courriel et la téléphonie sont des prises de la baie de S9 : `connecteurs.ts` dit « connecteur à brancher » et ne simule rien. Ce qui part chez un client reste au vouvoiement (la logique le vérifie, elle n'écrit aucun texte client).
+Préparation par S5 (14 nov., `claude/refonte-echanger`) : note [`preparation/LOT-05-echanger.md`](preparation/LOT-05-echanger.md), logique dans `src/refonte/echanger/`, garde `check:echanger` (94 contrôles), rapport [`rapports/LOT-05-preparation.md`](rapports/LOT-05-preparation.md). Aucun écran visuel. Dossier v4 lu (fiches, `06`, `tutoiement.json`) ; **les images v4 n'ont pas été ouvertes**. G07 est la boîte des clients ; WhatsApp, SMS, le courriel et la téléphonie sont des prises de la baie de S9 : `connecteurs.ts` dit « connecteur à brancher » et ne simule rien. Ce qui part chez un client reste au vouvoiement (la logique le vérifie, elle n'écrit aucun texte client).
 
 **Manque au socle**
 - `ModuleTile`, `ModuleGroupGrid`, `AddModuleTile` pour F40 ; `SuggestionCompact`, `FlagUrgent`, `Kbd`, `LiveDot`, `Caret` (cités, à confirmer par S0).

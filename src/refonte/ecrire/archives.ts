@@ -191,3 +191,27 @@ export function elementsDuMois(elements: readonly ElementArchive[], mois: string
 /** Mois en cours, à Paris. */
 export const moisEnCours = (maintenant: Instant): string => partiesParis(maintenant).jour.slice(0, 7);
 export const joursDepuisArchivage = (e: Pick<ElementArchive, 'archiveLe'>, aujourdhui: Jour): number => ecartJours(e.archiveLe, aujourdhui);
+
+/**
+ * Les années repliées de « Par le temps » (image v4) : « 2025 · 718 », 3 trouvés, et sa courbe de 12 mois. L'année
+ * ouverte garde sa liste de mois (`indexDuTemps`).
+ */
+export interface ResumeDAnnee {
+  annee: number;
+  elements: number;
+  trouves: number;
+  /** Éléments archivés par mois, de janvier à décembre : la courbe. */
+  courbe: number[];
+}
+export function resumeParAnnee(elements: readonly ElementArchive[], correspondances: readonly ElementArchive[] = []): ResumeDAnnee[] {
+  const annees = [...new Set(elements.map((e) => Number(e.archiveLe.slice(0, 4))))].sort((a, b) => b - a);
+  return annees.map((annee) => {
+    const delAnnee = elements.filter((e) => e.archiveLe.startsWith(`${annee}-`));
+    return {
+      annee,
+      elements: delAnnee.length,
+      trouves: correspondances.filter((e) => e.archiveLe.startsWith(`${annee}-`)).length,
+      courbe: Array.from({ length: 12 }, (_, i) => delAnnee.filter((e) => e.archiveLe.startsWith(`${annee}-${String(i + 1).padStart(2, '0')}`)).length),
+    };
+  });
+}

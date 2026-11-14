@@ -6,7 +6,7 @@
 
 ## 1. En bref
 
-- **Logique pure livrée** : `src/refonte/ecrire/` (14 fichiers, sans React ni brique visuelle) et `scripts/check-ecrire.ts` (`npm run check:ecrire`, **94 contrôles**, ajouté à `package.json` et `editions.yml`). Les cas sont écrits à la main d'après la rubrique 6 de chaque fiche, puis rejoués sur les jeux fictifs aux volumes `vide`, `peu`, `normal`, `beaucoup`.
+- **Logique pure livrée** : `src/refonte/ecrire/` (14 fichiers, sans React ni brique visuelle) et `scripts/check-ecrire.ts` (`npm run check:ecrire`, **99 contrôles**, ajouté à `package.json` et `editions.yml`). Les cas sont écrits à la main d'après la rubrique 6 de chaque fiche, puis rejoués sur les jeux fictifs aux volumes `vide`, `peu`, `normal`, `beaucoup`.
 - **Textes** : `i18n.ts` (≈ 100 clés fr/en, tutoiement, comptes `.1` / `.n`) et `phrases.ts` (phrases composées : « Belle série · prochain palier : 14 jours, dans 2 jours »). Les textes statiques de chaque écran (titres, boutons, vides) seront recopiés de `_data/tutoiement.json` à la construction. Ce qui part chez un client reste au vouvoiement et n'est pas produit ici.
 - **Une seule règle pour la série d'écriture** (F20 rubrique 9, « Proposition »), lue par F20, H10 et ME01 : `serie.ts`. Les maquettes montrent 6 jours dans H10 et 12 dans ME01 ; ici, un jour compte dès qu'un mot est enregistré dans une page, le journal ou Rédaction.
 - **Ce que le lot ne peut pas faire seul** : 5 sources manquent dans les données réelles (§5) et aucune collection synchronisée ne peut être ajoutée sans l'accord de Harun (§1.27 n° 4). Les écrans s'affichent donc « non disponible », avec la raison, là où la donnée n'existe pas.
@@ -125,3 +125,23 @@ Demandes à amn-api (Harun, Mohamed suppléant) ou décisions de Harun ; en atte
 ## 8. Jeux fictifs
 
 Les 8 jeux d'Écrire (`pages`, `fichiers`, `signatures`, `modeles`, `journal`, `textes`, `archives`, `connaissances`) suffisent à rejouer la logique aux quatre volumes. À demander à SIM (liste « Manque aux données » de STATUT) : blocs avec échéance et liens, humeur sur 5 niveaux avec énergie et mercis, étapes et lectures d'un article, rôle « en copie » et champs posés d'une demande, texte indexé d'une archive, présence en direct, demande de relecture. Les noms, montants et dates des images ne sont jamais codés en dur (la garde le vérifie dans la logique).
+
+## 9. Lecture des images v4 (14 nov.)
+
+Les dix images de LOT-03 (F20, H10, H11, H12, ME01 à ME05) ont été ouvertes et comparées à la logique. Presque tout y était déjà. Ajouté, avec ses contrôles :
+
+| Image | Ce qu'elle montre | Ajout |
+|---|---|---|
+| H10, ME01 | « palier de 14 jours dimanche » | `serie.jourDuPalier` : premier jour où le palier serait atteint en écrivant chaque jour |
+| H11 | fait relevé « ajouté en v3 » | `FaitReleve.ajouteEnVersion` |
+| H12 | « Preuve conservée » : envoi, ouverture, signature datés | `signatures.pisteDePreuve` (sans copie, sans empreinte) |
+| ME02 | trois tons ; version arabe | `redaction.TONS_DE_REDACTION`, `sensDEcriture` (droite à gauche pour ar, he, fa, ur) |
+| ME03 | « utilisé par … » | `modeles.utilisateursDuMois` |
+| ME04 | années repliées : total, trouvés, courbe | `archives.resumeParAnnee` |
+
+**Écarts entre les images et le texte du dossier, à garder en tête à la construction**
+- F20 : « le vôtre d'abord » (en-tête de « Attend une relecture »). L'interface tutoie : « le tien d'abord ».
+- ME01 : cinq niveaux d'humeur (Difficile, Moyen, Bien, Très bien, Excellent) et une énergie à cinq barres (« Bonne »). La logique a l'humeur et l'énergie sans fixer le nombre de niveaux : la fiche tranche.
+- ME01 : un bandeau relie les jours d'une même série dans le calendrier (19 au 25). La règle de découpe du bandeau (par semaine ? à partir de 7 jours ?) n'est pas dans la fiche : non codée.
+- H10 : « BLOCS · 2 SUR 14 » : l'image compte 14 blocs, le CO a retenu 13 (STATUT §1.29 n° 5).
+- ME05 : « Voir aussi » avec la durée de lecture de chaque article : `lieA` et `dureeDeLecture` suffisent.

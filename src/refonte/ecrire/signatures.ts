@@ -218,3 +218,27 @@ export function planDeRelance(d: DemandeMin, relancesEnvoyees: readonly Instant[
 /** Relance manuelle : une par signataire toutes les 24 h. */
 export const relanceManuellePossible = (derniereRelanceManuelle: Instant | null, maintenant: Instant): boolean =>
   derniereRelanceManuelle === null || ms(maintenant) - ms(derniereRelanceManuelle) >= RELANCE_MANUELLE_H * MS_HEURE;
+
+/* ------------------------------ La preuve conservée ------------------------------ */
+
+/**
+ * « Preuve conservée · empreinte enregistrée » (H12, image v4) : la piste d'une demande, dans l'ordre du temps :
+ * envoi, ouverture, signature de chaque personne. Seulement des faits horodatés ; ni valeur légale ni empreinte
+ * affichée (l'empreinte reste côté serveur). Les personnes « en copie » n'ont ni ouverture ni signature à prouver.
+ */
+export type GenreDeTrace = 'envoi' | 'ouverture' | 'signature';
+export interface TraceDeLaPiste {
+  at: Instant;
+  genre: GenreDeTrace;
+  signataireId: string;
+}
+export function pisteDePreuve(d: Pick<DemandeMin, 'signataires'>): TraceDeLaPiste[] {
+  const out: TraceDeLaPiste[] = [];
+  for (const s of d.signataires) {
+    if (s.envoyeAt) out.push({ at: s.envoyeAt, genre: 'envoi', signataireId: s.id });
+    if (s.role === 'signataire' && s.ouvertAt) out.push({ at: s.ouvertAt, genre: 'ouverture', signataireId: s.id });
+    if (s.role === 'signataire' && s.signeAt) out.push({ at: s.signeAt, genre: 'signature', signataireId: s.id });
+  }
+  const rang: Record<GenreDeTrace, number> = { envoi: 0, ouverture: 1, signature: 2 };
+  return out.sort((a, b) => ms(a.at) - ms(b.at) || rang[a.genre] - rang[b.genre] || a.signataireId.localeCompare(b.signataireId));
+}
