@@ -15,7 +15,7 @@ dégradés compris) :
 - `« dans 4 h 11 »` (11,5 px) — T4 `rgb(138,138,142)` sur `rgb(31,37,44)` : **4,49:1** < 4,5. Écran `#/tous-les-modules`, pied de barre latérale.
 - Tout le reste passe AA, y compris tous les textes T4 posés sur le halo ailleurs.
 
-Hors condition, à ne pas confondre : sur `#/agenda`, les jours des mois voisins (« 26 » à « 31 », 10 px, opacité réduite) tombent
+Hors condition, à ne pas confondre : sur `#/agenda`, les jours des mois voisins (« 26 » à « 31 », 10 px, couleur atténuée) tombent
 à 1,8:1. C'est identique sur `main` (mêmes 6 jours, mêmes valeurs) : hérité, pas lié à la coquille.
 
 ## Correctif proposé
