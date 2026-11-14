@@ -1,9 +1,9 @@
 {
   "lot": "LOT-00",
-  "_": "Les 8 écrans de S0. Chaque entrée dit comment amener l'app à l'état de l'image : route, horloge, stockage, gestes. 'mac' : les maquettes sont dessinées sur un Mac (⌘). La nouvelle coquille est éteinte par défaut dans l'app : on l'allume par localStorage['amn.coquille'] = 'noir'.",
+  "_": "Les 9 écrans de LOT-00 (v4). Chaque entrée dit comment amener l'app à l'état de l'image : route, horloge, stockage, gestes. 'mac' : les maquettes sont dessinées sur un Mac (⌘). La nouvelle coquille est éteinte par défaut dans l'app : on l'allume par localStorage['amn.coquille'] = 'noir'. Horloge des maquettes de bureau : vendredi 30 oct. 2026 à 10:42 (Cyber : mardi 3 nov. 2026).",
   "defaut": {
     "mac": true,
-    "date": "2026-10-30T09:41:00",
+    "date": "2026-10-30T10:42:00+01:00",
     "stockage": {
       "amn.coquille": "noir"
     }
@@ -32,10 +32,10 @@
         }
       ],
       "zone": [
-        360,
-        90,
-        720,
-        460
+        284,
+        84,
+        880,
+        660
       ]
     },
     {
@@ -47,13 +47,13 @@
       "route": "#/demarrage/metier",
       "etapes": [
         {
-          "attendre": "text=Artisan du bâtiment"
+          "attendre": ".met-carte"
         },
         {
-          "clic": "text=Artisan du bâtiment"
+          "clic": ".met-carte:has-text('Conseil et services')"
         },
         {
-          "pause": 700
+          "pause": 900
         }
       ]
     },
@@ -71,13 +71,6 @@
           "attendre": "input[type=search]"
         },
         {
-          "clic": "input[type=search]"
-        },
-        {
-          "saisie": "envoyer une fac",
-          "delai": 40
-        },
-        {
           "pause": 600
         }
       ]
@@ -91,7 +84,7 @@
     {
       "id": "G05",
       "route": "#/",
-      "date": "2026-10-20T09:41:00",
+      "date": "2026-10-30T10:42:00+01:00",
       "etapes": [
         {
           "touches": "Meta+j"
@@ -100,19 +93,33 @@
           "attendre": "[role=dialog]"
         },
         {
-          "saisie": "Relancer l'Atelier Dupont",
+          "saisie": "Relance les factures en retard, ton courtois",
           "delai": 30
         },
         {
-          "pause": 900
+          "pause": 1200
         }
       ],
       "zone": [
-        400,
-        108,
-        640,
-        530
+        380,
+        80,
+        720,
+        680
       ]
+    },
+    {
+      "id": "G09",
+      "route": "#/",
+      "gabarit": "aucun",
+      "etapes": [
+        {
+          "attendre": "[data-socle=coquille]"
+        },
+        {
+          "pause": 7000
+        }
+      ],
+      "accelerer": 60
     }
   ]
 }

@@ -31,6 +31,8 @@ const arg = (nom) => { const i = process.argv.indexOf(`--${nom}`); return i >= 0
 const DIST = { cliente: arg('cliente'), interne: arg('interne') };
 const SORTIE = path.resolve(arg('sortie') ?? path.join(ROOT, 'docs', 'qualite', 'resultats'));
 const SEULEMENT = arg('seulement')?.split(',') ?? null;
+// `--stockage 'clé=valeur;;clé=valeur'` : du localStorage posé avant le chargement (ex. `amn.coquille=noir` allume la nouvelle coquille).
+const STOCKAGE = (arg('stockage') ?? '').split(';;').filter(Boolean).map((kv) => [kv.slice(0, kv.indexOf('=')), kv.slice(kv.indexOf('=') + 1)]);
 const API_PORT = 4171;
 const API = `http://127.0.0.1:${API_PORT}`;
 fs.mkdirSync(SORTIE, { recursive: true });
@@ -78,7 +80,10 @@ function preparerBundle(ed) {
   fs.rmSync(dest, { recursive: true, force: true });
   fs.cpSync(DIST[ed], dest, { recursive: true });
   const cles = Object.values(COMPTES).flatMap((c) => ['general', 'profil', 'presentation'].map((q) => `amn.guide.${q}.${c.email}`));
-  const script = `<script>try{${cles.map((k) => `localStorage.setItem(${JSON.stringify(k)},'vu')`).join(';')}}catch(e){}</script>`;
+  // L'accueil quotidien (« Bienvenue sur AMN Business », 5 s, une fois par jour) est marqué joué pour le jour de la page,
+  // comme le guide : il masquait lui aussi l'écran pendant les premières secondes de chaque garde.
+  const pose = [...cles.map((k) => `localStorage.setItem(${JSON.stringify(k)},'vu')`), "localStorage.setItem('amn.welcome.lastShown',new Date().toISOString().slice(0,10))", ...STOCKAGE.map(([k, v]) => `localStorage.setItem(${JSON.stringify(k)},${JSON.stringify(v)})`)];
+  const script = `<script>try{${pose.join(';')}}catch(e){}</script>`;
   const idx = path.join(dest, 'index.html');
   const html = fs.readFileSync(idx, 'utf8');
   if (!html.includes('<head>')) throw new Error(`index.html sans <head> : ${idx}`);

@@ -35,6 +35,7 @@
  * --stockage 'clé=valeur;;clé=valeur' (localStorage posé avant le chargement),
  * --etapes <fichier.json> (gestes avant la capture : clic, touches, saisie, remplir, attendre, pause),
  * --sans-connexion (un build : ne se connecte pas, pour l'écran de connexion),
+ * --accelerer <n> (divise par n les minuteries d'au moins 1 min : une veille de 5 min s'ouvre en quelques secondes),
  * --mac (l'app se croit sur un Mac : ⌘ au lieu de Ctrl ; les maquettes sont dessinées ainsi).
  * Écrit aussi <capture>.txt : le texte visible de la page, pour `comparer.mjs --textes`.
  */
@@ -57,7 +58,7 @@ function lireOptions(argv) {
     if (!a.startsWith('--')) throw new Error(`argument inattendu : ${a}`);
     const nom = a.slice(2);
     if (nom === 'sans-connexion' || nom === 'mac') { o[nom] = true; continue; }
-    if (!['page', 'dist', 'route', 'api', 'sortie', 'attendre', 'pause', 'date', 'theme', 'stockage', 'etapes'].includes(nom)) throw new Error(`option inconnue : --${nom}`);
+    if (!['page', 'dist', 'route', 'api', 'sortie', 'attendre', 'pause', 'date', 'theme', 'stockage', 'etapes', 'accelerer'].includes(nom)) throw new Error(`option inconnue : --${nom}`);
     if (i + 1 >= argv.length || argv[i + 1].startsWith('--')) throw new Error(`--${nom} demande une valeur`);
     o[nom] = argv[i + 1];
     i += 1;
@@ -148,6 +149,8 @@ async function principal() {
 
     // Les maquettes sont dessinées sur un Mac (⌘K, ⌘J) : l'app choisit ses glyphes d'après la plateforme.
     if (o.mac) await contexte.addInitScript(() => { Object.defineProperty(navigator, 'platform', { get: () => 'MacIntel' }); });
+    // Une minuterie longue (une veille de 5 min) se raccourcit au lieu de s'attendre : seules les minuteries ≥ 1 min sont divisées.
+    if (o.accelerer) await contexte.addInitScript((f) => { const st = window.setTimeout.bind(window); window.setTimeout = (fn, ms, ...a) => st(fn, ms >= 60000 ? ms / f : ms, ...a); }, Number(o.accelerer));
     if (stockage.length) {
       await contexte.addInitScript((paires) => {
         try { for (const [k, v] of paires) localStorage.setItem(k, v); } catch { /* sans stockage */ }
@@ -192,6 +195,7 @@ async function principal() {
       else if (e.saisie !== undefined) await page.keyboard.type(e.saisie, { delay: e.delai ?? 20 });
       else if (e.remplir) await page.locator(e.remplir.sel).first().fill(e.remplir.texte);
       else if (e.attendre) await page.locator(e.attendre).first().waitFor({ state: 'visible', timeout: 15000 });
+      else if (e.avancer) await page.clock.fastForward(e.avancer); // fait avancer l'horloge simulée (--date requis) : « 05:10 » = 5 min 10 s
       else if (e.pause) await new Promise((r) => setTimeout(r, e.pause));
       else throw new Error(`étape inconnue : ${JSON.stringify(e)}`);
     }

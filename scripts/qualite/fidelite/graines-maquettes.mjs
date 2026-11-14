@@ -50,27 +50,37 @@ const CLIENTS = [
   ['9102', 'dupont', 'Atelier Dupont', 'Chantiers'],
   ['9103', 'leo', 'Boulangerie Léo', 'Commerce'],
   ['9104', 'medina', 'Medina', 'Conseil et services'],
+  ['9105', 'nova', 'Studio Nova', 'Création et agence'],
+  ['9106', 'benali', 'Garage Benali', 'Commerce'],
 ];
 // La clé de la fiche EST le numéro du client : c'est ce que la facture lui renvoie (`clientId`).
 for (const [cle, court, company, notes] of CLIENTS) {
   await poser('clients', cle, { name: company, company, status: 'active', email: `contact@${court}.exemple.test`, phone: '', notes, imageDataUrl: '', linkedSiteIds: [], createdAt: instant(-60), events: [] });
 }
 
-// La facture de la maquette G05 : F-2041, 890 €, en retard de 12 jours au 20 octobre 2026.
-await poser('invoices', 'maq-fac-2041', {
-  number: 'F-2041',
-  clientId: 9102,
-  billTo: { name: 'Atelier Dupont', company: 'Atelier Dupont', email: 'contact@dupont.exemple.test', address: '', vatNumber: '' },
-  issuedAt: '2026-09-08',
-  dueAt: '2026-10-08',
-  lines: [{ id: 'l1', label: 'Intervention de maintenance', quantity: 1, unitPriceCents: 89_000, vatRate: 0 }],
-  status: 'issued',
-  paidAt: '',
-  paymentMethod: '',
-  cancelReason: '',
-  notes: '',
-  quoteId: null,
-});
+// Les factures en retard de la maquette G05 (v4) : quatre factures, 2 840 € au total, au 30 octobre 2026.
+const FACTURES = [
+  ['maq-fac-2041', 'F-2041', 9101, 'Menna Conseil', 124_000, '2026-09-26', '2026-10-26'], // 4 jours de retard
+  ['maq-fac-2039', 'F-2039', 9105, 'Studio Nova', 40_000, '2026-09-15', '2026-10-15'], // 15 jours
+  ['maq-fac-2037', 'F-2037', 9106, 'Garage Benali', 56_000, '2026-09-18', '2026-10-18'], // 12 jours
+  ['maq-fac-2033', 'F-2033', 9102, 'Atelier Dupont', 64_000, '2026-09-10', '2026-10-10'], // 20 jours
+];
+for (const [cle, num, id, nom, cents, emis, echeance] of FACTURES) {
+  await poser('invoices', cle, {
+    number: num,
+    clientId: id,
+    billTo: { name: nom, company: nom, email: `contact@${nom.toLowerCase().replace(/[^a-z]+/g, '-')}.exemple.test`, address: '', vatNumber: '' },
+    issuedAt: emis,
+    dueAt: echeance,
+    lines: [{ id: 'l1', label: 'Prestation', quantity: 1, unitPriceCents: cents, vatRate: 0 }],
+    status: 'issued',
+    paidAt: '',
+    paymentMethod: '',
+    cancelReason: '',
+    notes: '',
+    quoteId: null,
+  });
+}
 
 // Les tâches et le document que la recherche « menna » retrouve (H41).
 for (const [cle, title, status, priorite] of [
@@ -83,4 +93,4 @@ for (const [cle, title, status, priorite] of [
 }
 await poser('knowledge', 'maq-doc-menna', { title: 'Contrat de maintenance Menna', body: 'Contrat de maintenance annuel, reconduit tacitement. Exemple fictif.', createdAt: instant(-40) });
 
-console.log(`${ecrits} fiche(s) ajoutée(s) pour ${EMAIL} (clients, facture F-2041, tâches, document).`);
+console.log(`${ecrits} fiche(s) ajoutée(s) pour ${EMAIL} (clients, quatre factures en retard dont F-2041, tâches, document).`);

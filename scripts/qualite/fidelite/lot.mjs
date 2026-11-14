@@ -30,6 +30,9 @@ const API = opt('api', 'http://127.0.0.1:4171');
 const SORTIE = path.resolve(opt('sortie', 'fidelite'));
 const SEUL = opt('seulement')?.split(',');
 const RAPPORT = opt('rapport');
+const RECOMPARER = args.includes('--recomparer'); // réutilise les PNG déjà capturés
+// Seconde mesure, plus tolérante sur la couleur : un néon dégradé (halos, lueurs) diffère de quelques niveaux sur de grandes surfaces ; elle isole la disposition.
+const COULEUR_STRUCTURE = opt('couleur-structure', '10');
 if (!SCEN || !DIST || !IMAGES) {
   console.error('Usage : lot.mjs --scenarios <fichier.json> --dist <build> --images <dossier> [--data <dossier>] [--api …] [--sortie …] [--seulement ID,ID] [--rapport f.md]');
   process.exit(2);
@@ -49,17 +52,18 @@ for (const e of scenario.ecrans) {
   if (c.route) a.push('--route', c.route);
   if (c.date) a.push('--date', c.date);
   if (c.mac) a.push('--mac');
+  if (c.accelerer) a.push('--accelerer', String(c.accelerer));
   if (c.sansConnexion) a.push('--sans-connexion');
   const st = Object.entries(c.stockage).map(([k, v]) => `${k}=${v}`).join(';;');
   if (st) a.push('--stockage', st);
-  const cap = spawnSync('node', a, { encoding: 'utf8' });
+  const cap = RECOMPARER && fs.existsSync(png) ? { status: 0, stdout: '' } : spawnSync('node', a, { encoding: 'utf8' });
   if (cap.status !== 0) {
     resultats.push({ id: e.id, erreur: (cap.stderr || cap.stdout).trim().split('\n').pop() });
     console.log(`${e.id.padEnd(4)} ERREUR de capture : ${resultats.at(-1).erreur}`);
     continue;
   }
   const reseau = /Réseau : (.*)/.exec(cap.stdout)?.[1] ?? '';
-  const donnees = DATA && fs.readdirSync(DATA).find((f) => f.startsWith(`${e.id}-`) && f.endsWith('.json'));
+  const donnees = DATA && fs.readdirSync(DATA).find((f) => f === `${e.id}.json` || (f.startsWith(`${e.id}-`) && f.endsWith('.json')));
   const b = [path.join(ICI, 'comparer.mjs'), png, '--id', e.id, '--images', IMAGES, '--sortie', SORTIE, '--json', '--zones', '10'];
   if (c.gabarit) b.push('--gabarit', c.gabarit);
   if (donnees) b.push('--textes', path.join(DATA, donnees));
@@ -77,9 +81,13 @@ for (const e of scenario.ecrans) {
     const z = spawnSync('node', [...b, '--zone', c.zone.join(',')], { encoding: 'utf8' });
     if (z.status === 0 || z.status === 1) rz = JSON.parse(z.stdout);
   }
-  resultats.push({ ...r, zone: rz, reseau });
+  // Disposition seule : la même comparaison avec une tolérance de couleur élargie.
+  let rs = null;
+  const sp = spawnSync('node', [...b, '--couleur', COULEUR_STRUCTURE], { encoding: 'utf8' });
+  if (sp.status === 0 || sp.status === 1) rs = JSON.parse(sp.stdout);
+  resultats.push({ ...r, zone: rz, structure: rs, reseau });
   const ligne = (x) => `${x.verdict === 'ok' ? 'OK         ' : 'À CORRIGER '} ${(x.tauxEcart * 100).toFixed(2).padStart(6)} % · ${String(x.zonesTotal).padStart(2)} zone(s)`;
-  console.log(`${e.id.padEnd(4)} ${ligne(r)}${r.textes ? ` · textes ${r.textes.trouves}/${r.textes.total}` : ''}${rz ? `  |  zone ${c.zone.join(',')} : ${ligne(rz)}` : ''}`);
+  console.log(`${e.id.padEnd(4)} ${ligne(r)}${rs ? `  |  disposition (±${COULEUR_STRUCTURE}) : ${(rs.tauxEcart * 100).toFixed(2).padStart(5)} % · ${String(rs.zonesTotal).padStart(2)} zone(s)` : ''}${r.textes ? ` · textes ${r.textes.trouves}/${r.textes.total}` : ''}${rz ? `  |  zone ${c.zone.join(',')} : ${ligne(rz)}` : ''}`);
 }
 
 fs.writeFileSync(path.join(SORTIE, 'resultats.json'), JSON.stringify(resultats, null, 2));
