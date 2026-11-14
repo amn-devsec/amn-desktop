@@ -44,6 +44,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov., 08h55 : attendus du cockpit G08 (SIM `651ba70`) et calcul de S2 (`bf2f29e`) fusionnés ensemble. `check:journee` est à 64, toutes les gardes sont vertes. SIM et S2 n'ont plus rien en attente avant les zips v4.
 - 14 nov., 08h50 : LOT-03, 5 écrans sur 9 (S5, `60de991`). Acceptés : `src/refonte/ecrire` au périmètre de `check:tutoiement`, avec 4 zones client ; « Signatures » qui s'ouvre sur H12 ; la série de ME01, sans devoir (repos le week-end, aucun reproche). S5 doit d'abord passer l'intégration de F1 et la correction durable de `check:navigation`.
 - 14 nov., 08h45 : jeux de LOT-01 (SIM `d8ba0fc7`) et harnais de `check:journee` (S2 `c4f31a7`) fusionnés ensemble. Gardes lues avant le push, toutes vertes (`check:donnees` 122, `check:journee`).
 - 14 nov., 08h40 : LOT-01 (`c978d05`) fusionné. `calculerAujourdhui` lit `serieDeLaJournee`, `defi.tenu` est au catalogue, et deux assertions de `check:socle-coquille` sont mises à jour par S2 pour la nouvelle règle de série. Gardes lues avant le push, toutes vertes.
