@@ -10,6 +10,8 @@ export default declarerSubstitutions('echanger', [
   { route: '/ensemble/echanger', composant: lazy(() => import('../../echanger/ecrans/f40/PageHub')) },
   // H13 — Appels et salles : le combiné, les salles en direct et l'historique.
   { route: '/appels', composant: lazy(() => import('../../echanger/ecrans/h13/PageAppels')) },
+  // MX04 — Canaux : le rail, la conversation du canal et le fil. Route d'origine des groupes.
+  { route: '/groupes', composant: lazy(() => import('../../echanger/ecrans/mx04/PageCanaux')) },
   // MX05 — Sondages : le résultat en direct et l'éditeur.
   { route: '/sondages', composant: lazy(() => import('../../echanger/ecrans/mx05/PageSondages')) },
   // H14 — Annonces : le tableau de l'équipe.

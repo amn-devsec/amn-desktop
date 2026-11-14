@@ -15,6 +15,9 @@
     },
     "MX05": {
       "raison": "15,6 % brut, à peine au-dessus du seuil. Surface « résultat » 738 de large, éditeur 350, barres de 48 px (lignes de 58), participation en 8 cases et partie basse en deux colonnes tiennent leurs cotes. Ce qui diffère : (1) le texte, décalé de 2 à 4 px (interligne des lignes de « Votes en direct » et des « Autres sondages ») ; (2) l'aperçu montre trois puces (les sondages en cours), la fiche en montre quatre dont un terminé ; (3) les initiales des avatars viennent du jeu fictif (une lettre) ; (4) les textes de l'éditeur sont au tutoiement (« préfères-tu ») ; (5) la barre latérale de l'aperçu (voir plus haut)."
+    },
+    "MX04": {
+      "raison": "20,6 % brut. Surface 1108 de large en trois zones (rail de 214, conversation, tiroir de 300), lignes de canal de 31 et de message direct de 34, flux aligné en bas, compositeur et tiroir (origine, réponses, ligne système, abonnés, résumé, champ) tiennent leurs cotes. Ce qui diffère : (1) le texte, décalé de 2 à 4 px dans le flux et le tiroir (interligne, chasse des heures) ; (2) les non lus viennent des données de l'aperçu (3 et 1) et non des « 2 » et « 1 » de la maquette, qui ne comptent pas les réponses de fil ; (3) la pastille « 2 » du canal actif est blanche comme la fiche, mais ses chiffres suivent la logique ; (4) les textes du jeu fictif sont au tutoiement (« Merci aux deux ») ; (5) la barre latérale de l'aperçu (voir plus haut)."
     }
   }
 }

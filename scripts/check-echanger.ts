@@ -51,8 +51,8 @@ async function charger<T>(code: string): Promise<T> {
 const FICHIERS = ['commun', 'boite', 'hub', 'canaux', 'connecteurs', 'appels', 'annonces', 'courriel', 'reunions', 'partages', 'sondages', 'reponsesAuto', 'i18n', 'phrases'];
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerF40 from '../${ZONE}/ecrans/f40/composer';` + `\nexport * as composerG07 from '../${ZONE}/ecrans/g07/composer';` + `\nexport * as composerH14 from '../${ZONE}/ecrans/h14/composer';` + `\nexport * as composerH13 from '../${ZONE}/ecrans/h13/composer';` + `\nexport * as composerMX05 from '../${ZONE}/ecrans/mx05/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
-const { commun: C, boite: B, hub: H, canaux: CA, connecteurs: CO, appels: AP, annonces: AN, courriel: CM, reunions: RE, partages: PA, sondages: SO, reponsesAuto: AU, i18n: I, phrases: PH, composerF40: CF40, composerG07: CG07, composerH14: CH14, composerH13: CH13, composerMX05: CMX05, monde } = M;
+const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerF40 from '../${ZONE}/ecrans/f40/composer';` + `\nexport * as composerG07 from '../${ZONE}/ecrans/g07/composer';` + `\nexport * as composerH14 from '../${ZONE}/ecrans/h14/composer';` + `\nexport * as composerH13 from '../${ZONE}/ecrans/h13/composer';` + `\nexport * as composerMX05 from '../${ZONE}/ecrans/mx05/composer';` + `\nexport * as composerMX04 from '../${ZONE}/ecrans/mx04/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
+const { commun: C, boite: B, hub: H, canaux: CA, connecteurs: CO, appels: AP, annonces: AN, courriel: CM, reunions: RE, partages: PA, sondages: SO, reponsesAuto: AU, i18n: I, phrases: PH, composerF40: CF40, composerG07: CG07, composerH14: CH14, composerH13: CH13, composerMX05: CMX05, composerMX04: CMX04, monde } = M;
 const A_SEG = AN.segmentsDeLecture;
 
 const NB = ' ';
@@ -1208,6 +1208,43 @@ await dit('MX05 · composerSondages : barres, en tête, participation sans nom, 
   const vide = CMX05.composerSondages({ ...base, sondages: [] });
   assert.equal(vide.resultat, null);
   assert.equal(vide.sousTitre, 'Décider ensemble en 30 secondes · aucun en cours');
+});
+
+await dit('MX04 · composerCanaux : rail, flux (événement, messages, réactions, fil), tiroir, « en train d’écrire », statuts ; un invité ne voit que ses canaux ; sans lecture connue, pas de pastille', () => {
+  const at = (hhmm: string) => paris(AUJ, hhmm);
+  const msg = (id: string, qui: string, h: string, extra: any = {}) => ({ id, canalId: 'cu', auteurEmail: `${qui}@x`, at: at(h), texte: `T ${id}`, ...extra });
+  const messages = [msg('m1', 'a', '08:51', { reactions: [{ email: 'b@x', type: 'oeil' }] }), msg('m2', 'b', '08:54'), msg('r1', 'b', '09:02', { repondA: 'm2' }), msg('r2', 'a', '09:05', { repondA: 'm2' }), msg('r3', 'c', '09:18', { repondA: 'm2' }), msg('m3', 'a', '09:20', { reactions: [{ email: 'a@x', type: 'coche' }, { email: 'b@x', type: 'coche' }, { email: 'c@x', type: 'etoile' }] }), msg('x1', 'c', '10:00', { canalId: 'cd' })];
+  const canal = (id: string, extra: any = {}) => ({ id, nom: id, visibilite: 'public', membres: ['a@x', 'b@x', 'c@x'], ...extra });
+  const e = { langue: 'fr', maintenant: MAINT, moi: 'a@x', role: 'Propriétaire', nom: (m: string) => m.split('@')[0].toUpperCase(), canaux: [canal('cu', { lectureAt: at('08:00'), alerte: true, description: 'Urgent' }), canal('cd', { lectureAt: at('08:00') }), canal('sans', { lectureAt: undefined }), canal('prive', { visibilite: 'privé', membres: ['d@x'] })], messages, evenements: [{ id: 'ev', canalId: 'cu', titre: 'Ticket', sous: 'Depuis', at: at('08:50'), resoluAt: at('09:15') }], directs: [{ id: 'd1', nom: 'B', concentre: true, enLigne: true }, { id: 'd2', nom: 'C', concentre: false, tapeA: MAINT - 2000, enLigne: true }, { id: 'd3', nom: 'D', concentre: false, dernierAt: at('10:05'), enLigne: false }], frappes: [{ canalId: 'cu', email: 'c@x', tapeA: MAINT - 3000 }, { canalId: 'cu', email: 'a@x', tapeA: MAINT - 1000 }, { canalId: 'cu', email: 'b@x', tapeA: MAINT - 60_000 }], canalId: 'cu', filOuvertId: 'm2', brouillon: '', resumes: { m2: 'Résumé.' }, avecReactions: true, peutTache: true };
+  const v = CMX04.composerCanaux(e);
+  assert.deepEqual(v.rail.canaux.map((c: any) => [c.id, c.nonLus, c.actif]), [['cu', 3, true], ['cd', 1, false], ['sans', 0, false]], 'un canal privé dont on n’est pas membre ne se voit pas ; sans lecture connue, 0');
+  assert.equal(v.sousTitre, 'Une conversation par sujet, rien ne se perd · 4 non lus');
+  assert.deepEqual(v.rail.directs.map((d: any) => d.statut), ['concentré', 'écrit…', '10:05']);
+  assert.equal(v.canal.alerte, 'Alerte tickets urgents');
+  assert.ok(/3 membres/.test(v.canal.description));
+  assert.deepEqual(v.flux.map((x: any) => x.genre + ':' + x.id), ['evenement:ev', 'message:m1', 'message:m2', 'message:m3'], 'l’événement, puis les messages (sans les réponses de fil), du plus ancien au plus récent');
+  assert.equal(v.flux[0].etat.libelle, 'Résolu à 09:15');
+  assert.equal(v.flux[2].fil.libelle, '3 réponses');
+  assert.equal(v.flux[2].fil.derniere, 'dernière à 09:18');
+  const r3 = Object.fromEntries(v.flux[3].reactions.map((r: any) => [r.type, [r.n, r.miennes]]));
+  assert.deepEqual(r3, { coche: [2, true], oeil: [0, false], etoile: [1, false] });
+  assert.equal(v.ecrit, 'C est en train d’écrire', 'ni moi, ni une frappe de plus de 6 s, jamais le contenu');
+  assert.equal(v.tiroir.reponses, '3 réponses');
+  assert.deepEqual(v.tiroir.lignes.map((l: any) => l.id), ['r1', 'r2', 'r3']);
+  assert.equal(v.tiroir.systeme.texte, 'Ticket marqué résolu');
+  assert.equal(v.tiroir.systeme.heure, '09:15');
+  assert.equal(v.tiroir.suivent.texte, '3 personnes suivent ce fil');
+  assert.equal(v.tiroir.resume, 'Résumé.');
+  assert.equal(v.compositeur.placeholder, 'Écrire dans #cu');
+  const invite = CMX04.composerCanaux({ ...e, role: 'Invité', moi: 'd@x' });
+  assert.deepEqual(invite.rail.canaux.map((c: any) => c.id), ['prive'], 'un invité ne voit que les canaux dont il est membre');
+  assert.equal(invite.rail.peutCreer, false);
+  const sans = CMX04.composerCanaux({ ...e, avecReactions: false, filOuvertId: null, frappes: [] });
+  assert.equal(sans.flux[1].reactions, null, 'sans réactions connues, aucune rangée');
+  assert.equal(sans.tiroir, null);
+  assert.equal(sans.ecrit, null);
+  const ailleurs = CMX04.composerCanaux({ ...e, canaux: [{ ...canal('general'), ouvreAilleurs: true }], canalId: 'general' });
+  assert.equal(ailleurs.canal, null, 'un canal qui s’ouvre ailleurs n’est jamais le canal choisi d’office');
 });
 
 await dit('aucune brique visuelle : ni React, ni src/socle/ui, ni code partagé ; seulement les voisins, le dictionnaire du socle et le modèle des connecteurs (S9)', () => {
