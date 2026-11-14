@@ -55,9 +55,9 @@ async function charger<T>(code: string): Promise<T> {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const M = await charger<any>(
-  "export * as L from '../src/refonte/contacts';\nexport * as monde from '../src/refonte/donnees';\nexport { DICTIONNAIRES_CONTACTS } from '../src/refonte/contacts/i18n';\nexport * as V from '../src/refonte/connecteurs/reglages';\nexport * as H from '../src/refonte/contacts/hub/modele';\nexport * as N from '../src/refonte/contacts/hub/nuage';\nexport { DICTIONNAIRES_HUB } from '../src/refonte/contacts/hub/i18n';\nexport { depuisMonde } from '../src/refonte/contacts/sources/depuisMonde';\nexport * as C from '../src/refonte/contacts/clients/modele';\nexport { DICTIONNAIRES_CLIENTS } from '../src/refonte/contacts/clients/i18n';\nexport * as G from '../src/refonte/contacts/fiche/modele';\nexport { DICTIONNAIRES_FICHE } from '../src/refonte/contacts/fiche/i18n';\nexport * as P from '../src/refonte/contacts/prospects/modele';\nexport * as PN from '../src/refonte/contacts/prospects/nuage';\nexport { DICTIONNAIRES_PROSPECTS } from '../src/refonte/contacts/prospects/i18n';\nexport * as RT from '../src/refonte/contacts/retours/modele';\nexport { DICTIONNAIRES_RETOURS } from '../src/refonte/contacts/retours/i18n';",
+  "export * as L from '../src/refonte/contacts';\nexport * as monde from '../src/refonte/donnees';\nexport { DICTIONNAIRES_CONTACTS } from '../src/refonte/contacts/i18n';\nexport * as V from '../src/refonte/connecteurs/reglages';\nexport * as H from '../src/refonte/contacts/hub/modele';\nexport * as N from '../src/refonte/contacts/hub/nuage';\nexport { DICTIONNAIRES_HUB } from '../src/refonte/contacts/hub/i18n';\nexport { depuisMonde } from '../src/refonte/contacts/sources/depuisMonde';\nexport * as C from '../src/refonte/contacts/clients/modele';\nexport { DICTIONNAIRES_CLIENTS } from '../src/refonte/contacts/clients/i18n';\nexport * as G from '../src/refonte/contacts/fiche/modele';\nexport { DICTIONNAIRES_FICHE } from '../src/refonte/contacts/fiche/i18n';\nexport * as P from '../src/refonte/contacts/prospects/modele';\nexport * as PN from '../src/refonte/contacts/prospects/nuage';\nexport { DICTIONNAIRES_PROSPECTS } from '../src/refonte/contacts/prospects/i18n';\nexport * as RT from '../src/refonte/contacts/retours/modele';\nexport { DICTIONNAIRES_RETOURS } from '../src/refonte/contacts/retours/i18n';\nexport * as FO from '../src/refonte/contacts/fournisseurs/modele';\nexport { DICTIONNAIRES_FOURNISSEURS } from '../src/refonte/contacts/fournisseurs/i18n';",
 );
-const { L, monde, V, H, N, C, G, DICTIONNAIRES_HUB: DICO_HUB, DICTIONNAIRES_CLIENTS: DICO_CLIENTS, DICTIONNAIRES_FICHE: DICO_FICHE, P, PN, DICTIONNAIRES_PROSPECTS: DICO_PROSPECTS, RT, DICTIONNAIRES_RETOURS: DICO_RETOURS, depuisMonde, DICTIONNAIRES_CONTACTS: DICO } = M;
+const { L, monde, V, H, N, C, G, DICTIONNAIRES_HUB: DICO_HUB, DICTIONNAIRES_CLIENTS: DICO_CLIENTS, DICTIONNAIRES_FICHE: DICO_FICHE, P, PN, DICTIONNAIRES_PROSPECTS: DICO_PROSPECTS, RT, DICTIONNAIRES_RETOURS: DICO_RETOURS, FO, DICTIONNAIRES_FOURNISSEURS: DICO_FOURNISSEURS, depuisMonde, DICTIONNAIRES_CONTACTS: DICO } = M;
 const paris = (jour: string, hhmm: string): number => L.instantParis(jour, hhmm);
 const VOLUMES = ['vide', 'peu', 'normal', 'beaucoup'] as const;
 const mondes = Object.fromEntries(VOLUMES.map((v) => [v, monde.construireMonde({ volume: v })])) as Record<(typeof VOLUMES)[number], any>;
@@ -880,7 +880,7 @@ console.log('\nContacts — F10, vue d’ensemble (chaleur, attentes, rendez-vou
 
 const base = (o: Record<string, unknown> = {}): any => ({
   maintenant: paris('2026-10-30', '10:42'), aujourdhui: '2026-10-30', moi: { prenom: 'Camille', email: 'camille@exemple.test' },
-  clients: [], devis: [], factures: [], avis: [], evenements: [], prospects: [], relances: [], fidelite: [], fournisseurs: [], partenaires: [],
+  clients: [], devis: [], factures: [], avis: [], evenements: [], prospects: [], relances: [], fidelite: [], fournisseurs: [], achats: [], partenaires: [],
   equipe: [], presence: true, interlocuteurs: [], attentes: [], echanges: [], ...o,
 });
 const fiche = (id: number, jours: number, o: Record<string, unknown> = {}): any => ({
@@ -1550,6 +1550,131 @@ await dit('H44 · textes : mêmes clés en fr et en, mêmes paramètres, comptes
   }
   for (const b of new Set(en.filter((k) => /\.(1|n)$/.test(k)).map((k) => k.replace(/\.(1|n)$/, '')))) for (const l of ['fr', 'en']) assert.ok(DICO_RETOURS[l][`${b}.1`] && DICO_RETOURS[l][`${b}.n`], `${b} (${l})`);
   assert.equal(DICO_RETOURS.fr['sousTitre'], 'Ce que tes clients pensent vraiment · {pos} avis positifs sur {n}', 'la phrase de tutoiement.json');
+});
+
+/* ── H45 : Fournisseurs ─────────────────────────────────────────────────── */
+console.log('\nContacts — H45, Fournisseurs (matrice de comparaison, commandes en cours)\n');
+
+const fourn = (id: string, delai: number, o: Record<string, unknown> = {}): any => ({ id, nom: `Fournisseur ${id}`, categorie: 'Réseau', contactNom: '', email: '', telephone: '', adresse: '', delaiAnnonceJours: delai, note: '', negociationLe: null, francoCents: null, fraisDePortCents: 0, ...o });
+let compteurAchats = 0;
+const achat = (fournisseurId: string, article: string, prixCents: number, o: Record<string, unknown> = {}): any => ({
+  id: `a-${++compteurAchats}`, fournisseurId, commandeLe: '2026-09-01', recuLe: '2026-09-02', article, quantite: 10, prixUnitaireCents: prixCents, totalCents: prixCents * 10, conforme: true, ...o,
+});
+
+await dit('H45 · jours ouvrés : vendredi 30 oct. + 1 = lundi 2 nov. ; + 2 = mardi 3 ; + 9 = jeudi 12 nov.', () => {
+  assert.deepEqual([0, 1, 2, 5, 9].map((n) => FO.ajouterJoursOuvres('2026-10-30', n)), ['2026-10-30', '2026-11-02', '2026-11-03', '2026-11-06', '2026-11-12']);
+  assert.equal(FO.noteDePrix(129, 109), 84.5);
+  assert.deepEqual([1, 2, 5, 11, 20].map((j) => FO.noteDeDelai(j)), [100, 90, 60, 0, 0]);
+});
+
+await dit('H45 · score = Σ note × poids sur les critères qui ont une donnée (la garantie, sans donnée, sort du score et les poids sont ramenés à 100)', () => {
+  const src = base({ fournisseurs: [fourn('F1', 1), fourn('F2', 5)], achats: [achat('F1', 'Borne', 10_000), achat('F2', 'Borne', 20_000)] });
+  const m = FO.modeleFournisseurs(src, { besoin: { article: 'Borne', quantite: 4, urgence: 'depannage' } });
+  assert.deepEqual(m.poids, { prix: 39, delai: 33, qualite: 28, garantie: 0 });
+  const [a, b] = ['F1', 'F2'].map((id) => m.colonnes.find((c: any) => c.id === id));
+  assert.equal(a.score, 100);
+  assert.equal(b.score, 67, '(35 × 50 + 30 × 60 + 25 × 100) ÷ 90');
+  assert.equal(a.recommande, true);
+  assert.equal(b.recommande, false);
+  assert.equal(a.totalCents, 40_000);
+  assert.equal(a.livraison, '2026-11-02');
+  assert.deepEqual(a.meilleurs, { prix: true, total: true, delai: true, qualite: false }, 'qualité à égalité : pas de coche');
+});
+
+await dit('H45 · changer les poids change la recommandation : dépannage = le délai compte, équipement planifié = le prix compte', () => {
+  const src = base({ fournisseurs: [fourn('F1', 1), fourn('F2', 9)], achats: [achat('F1', 'Borne', 15_000, { recuLe: '2026-09-02' }), achat('F2', 'Borne', 10_000, { recuLe: '2026-09-10' })] });
+  const besoin = { article: 'Borne', quantite: 4 };
+  const dep = FO.modeleFournisseurs(src, { besoin: { ...besoin, urgence: 'depannage' } });
+  const pla = FO.modeleFournisseurs(src, { besoin: { ...besoin, urgence: 'planifie' } });
+  assert.equal(dep.recommande.id, 'F1');
+  assert.equal(pla.recommande.id, 'F2');
+  assert.deepEqual(FO.POIDS_PAR_URGENCE.depannage, { prix: 35, delai: 30, qualite: 25, garantie: 10 });
+  assert.deepEqual(FO.POIDS_PAR_URGENCE.planifie, { prix: 45, delai: 10, qualite: 30, garantie: 15 });
+});
+
+await dit('H45 · qualité = 70 % livrées dans le délai annoncé + 30 % conformes, sur 12 mois ; sans commande livrée, pas de note et le critère sort du score', () => {
+  const a = (recu: string | null, conforme: boolean) => achat('F1', 'Borne', 10_000, { commandeLe: '2026-09-01', recuLe: recu, conforme });
+  const src = base({ fournisseurs: [fourn('F1', 3), fourn('F2', 3)], achats: [a('2026-09-03', true), a('2026-09-04', false), a('2026-09-08', true), a('2026-09-02', false), achat('F2', 'Borne', 12_000, { recuLe: null })] });
+  const m = FO.modeleFournisseurs(src, { besoin: { article: 'Borne', quantite: 1, urgence: 'depannage' } });
+  assert.equal(m.colonnes.find((c: any) => c.id === 'F1').qualite, 68, '70 × 3/4 + 30 × 2/4 = 67,5');
+  assert.equal(m.colonnes.find((c: any) => c.id === 'F2').qualite, null);
+  assert.equal(m.colonnes.find((c: any) => c.id === 'F2').notes.qualite, undefined);
+  const hors = FO.modeleFournisseurs(base({ fournisseurs: [fourn('F1', 3), fourn('F2', 3)], achats: [achat('F1', 'Borne', 1, { commandeLe: '2024-01-01', recuLe: '2024-01-02' }), achat('F1', 'Borne', 10_000), achat('F2', 'Borne', 11_000)] }), { besoin: { article: 'Borne', quantite: 1, urgence: 'depannage' } });
+  assert.equal(hors.colonnes.find((c: any) => c.id === 'F1').prixCents, 10_000, 'les achats de plus d’un an ne comptent pas');
+  const sansQualite = FO.modeleFournisseurs(base({ fournisseurs: [fourn('F1', 1), fourn('F2', 2)], achats: [achat('F1', 'Borne', 10_000, { recuLe: null }), achat('F2', 'Borne', 11_000, { recuLe: null })] }), { besoin: { article: 'Borne', quantite: 1, urgence: 'depannage' } });
+  assert.equal(sansQualite.poids.qualite, 0);
+  assert.equal(sansQualite.poids.prix + sansQualite.poids.delai, 100);
+});
+
+await dit('H45 · à moins de 3 points : « à égalité » sur les deux colonnes ; au-delà, une seule recommandée', () => {
+  const src = base({ fournisseurs: [fourn('F1', 2), fourn('F2', 2), fourn('F3', 9)], achats: [achat('F1', 'Borne', 10_000), achat('F2', 'Borne', 10_100), achat('F3', 'Borne', 30_000, { recuLe: '2026-09-12' })] });
+  const m = FO.modeleFournisseurs(src, { besoin: { article: 'Borne', quantite: 1, urgence: 'depannage' } });
+  assert.deepEqual(m.colonnes.filter((c: any) => c.recommande).map((c: any) => c.id).sort(), ['F1', 'F2']);
+  assert.ok(m.colonnes.filter((c: any) => c.recommande).every((c: any) => c.egalite));
+  assert.equal(m.colonnes.find((c: any) => c.id === 'F3').recommande, false);
+});
+
+await dit('H45 · besoins proposés : les articles achetés chez au moins deux fournisseurs ; au plus quatre colonnes', () => {
+  const src = base({ fournisseurs: ['F1', 'F2', 'F3', 'F4', 'F5', 'F6'].map((id) => fourn(id, 3)), achats: [...['F1', 'F2', 'F3', 'F4', 'F5', 'F6'].map((id) => achat(id, 'Câble', 1000)), achat('F1', 'Disque', 5000), achat('F2', 'Disque', 5200), achat('F1', 'Unique', 100)] });
+  const m = FO.modeleFournisseurs(src);
+  assert.deepEqual(m.besoins.map((b: any) => b.article), ['Câble', 'Disque']);
+  assert.equal(m.besoin.article, 'Câble');
+  assert.equal(m.colonnes.length, 4);
+  assert.equal(m.besoin.quantite, 10);
+  assert.equal(FO.modeleFournisseurs(src, { besoin: { article: 'disque', quantite: 2, urgence: 'planifie' } }).colonnes.length, 2, 'article trouvé sans tenir compte de la casse');
+});
+
+await dit('H45 · commandes en cours : les trois les plus proches de leur livraison, « N sur M dans les délais », retard en jours', () => {
+  const o = (id: string, commandeLe: string) => achat('F1', `Article ${id}`, 1000, { id, commandeLe, recuLe: null });
+  const m = FO.modeleFournisseurs(base({ fournisseurs: [fourn('F1', 3)], achats: [o('a', '2026-10-20'), o('b', '2026-10-29'), o('c', '2026-10-27'), o('d', '2026-10-30'), achat('F1', 'Livré', 1000)] }));
+  assert.deepEqual(m.commandes.liste.map((c: any) => c.id), ['a', 'c', 'b']);
+  assert.ok(m.commandes.liste[0].retardJours > 0);
+  assert.equal(m.commandes.liste[2].retardJours, 0);
+  assert.equal(m.commandes.dansLesDelais, m.commandes.liste.filter((c: any) => c.retardJours === 0).length);
+  assert.deepEqual(FO.commandesEnCours(base({ achats: null })), { liste: [], dansLesDelais: 0 });
+});
+
+await dit('H45 · renégocier : le fournisseur de la plus forte dépense 12 mois, sans négociation enregistrée depuis un an ; sinon la carte « astuce »', () => {
+  const src = base({ fournisseurs: [fourn('F1', 3, { negociationLe: '2026-06-01' }), fourn('F2', 3), fourn('F3', 3, { negociationLe: '2024-01-01' })], achats: [achat('F1', 'A', 90_000), achat('F2', 'B', 20_000), achat('F3', 'C', 50_000)] });
+  const m = FO.modeleFournisseurs(src);
+  assert.equal(m.renegocier.fournisseur, 'Fournisseur F3', 'F1 a été négocié il y a 5 mois : il passe son tour');
+  assert.equal(m.renegocier.depenseCents, 500_000);
+  assert.equal(FO.modeleFournisseurs(base({ fournisseurs: [fourn('F1', 3, { negociationLe: '2026-06-01' })], achats: [achat('F1', 'A', 1000)] })).renegocier, null);
+});
+
+await dit('H45 · sans historique d’achats : « non disponible » (null), jamais un zéro ; achats vides : disponible mais rien à comparer', () => {
+  const m = FO.modeleFournisseurs(base({ achats: null, fournisseurs: [fourn('F1', 3)] }));
+  assert.deepEqual([m.disponible, m.besoin, m.colonnes.length, m.recommande, m.renegocier], [false, null, 0, null, null]);
+  assert.equal(m.total, 1);
+  const vide = FO.modeleFournisseurs(base({ achats: [], fournisseurs: [fourn('F1', 3)] }));
+  assert.deepEqual([vide.disponible, vide.besoin], [true, null]);
+});
+
+await dit('H45 · sur les jeux de SIM (quatre volumes) : le modèle se construit, les scores sont entre 0 et 100, une seule recommandée sauf égalité', () => {
+  for (const v of VOLUMES) {
+    const src = depuisMonde(mondes[v]);
+    const m = FO.modeleFournisseurs(src);
+    assert.equal(m.total, src.fournisseurs.length, v);
+    assert.ok(m.colonnes.length <= 4, v);
+    assert.ok(m.colonnes.every((c: any) => c.score == null || (c.score >= 0 && c.score <= 100)), v);
+    const rec = m.colonnes.filter((c: any) => c.recommande);
+    assert.ok(rec.length <= 1 || rec.every((c: any) => c.egalite), v);
+    assert.equal(m.commandes.liste.length <= 3, true, v);
+    for (const u of ['depannage', 'planifie']) assert.ok(FO.modeleFournisseurs(src, { urgence: u }), v);
+  }
+});
+
+await dit('H45 · textes : mêmes clés en fr et en, mêmes paramètres, comptes à deux formes, l’interface tutoie', () => {
+  const en = Object.keys(DICO_FOURNISSEURS.en).sort();
+  assert.deepEqual(Object.keys(DICO_FOURNISSEURS.fr).sort(), en);
+  const params = (t: string) => [...t.matchAll(/\{(\w+)\}/g)].map((x) => x[1]).sort().join(',');
+  for (const k of en) {
+    assert.ok(DICO_FOURNISSEURS.en[k].trim() && DICO_FOURNISSEURS.fr[k].trim(), k);
+    assert.equal(params(DICO_FOURNISSEURS.fr[k]), params(DICO_FOURNISSEURS.en[k]), `paramètres de ${k}`);
+    assert.ok(!VOUVOIEMENT_UI.test(DICO_FOURNISSEURS.fr[k]), `${k} vouvoie : ${DICO_FOURNISSEURS.fr[k]}`);
+  }
+  for (const b of new Set(en.filter((k) => /\.(1|n)$/.test(k)).map((k) => k.replace(/\.(1|n)$/, '')))) for (const l of ['fr', 'en']) assert.ok(DICO_FOURNISSEURS[l][`${b}.1`] && DICO_FOURNISSEURS[l][`${b}.n`], `${b} (${l})`);
+  assert.equal(DICO_FOURNISSEURS.fr['actions.urgence.depannage'], 'Poids réglés pour un dépannage : le délai compte davantage.', 'la phrase de la fiche');
 });
 
 /* ── Structure ──────────────────────────────────────────────────────────── */

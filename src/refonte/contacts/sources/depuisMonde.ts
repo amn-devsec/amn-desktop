@@ -46,6 +46,7 @@ export function depuisMonde(m: Monde): SourcesContacts {
     relances: m.relances,
     fidelite: m.fidelite,
     fournisseurs: m.fournisseurs,
+    achats: m.achats,
     partenaires: m.partenaires,
     equipe: m.equipe,
     presence: true,

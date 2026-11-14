@@ -1,5 +1,5 @@
 import type {
-  Avis, CompteFidelite, Devis, Evenement, Facture, FicheClient, Fournisseur, Interlocuteur, Membre, Prospect, Relance,
+  Achat, Avis, CompteFidelite, Devis, Evenement, Facture, FicheClient, Fournisseur, Interlocuteur, Membre, Prospect, Relance,
 } from '../../donnees/types';
 import type { Partenaire } from '../../donnees/types-suite';
 import type { Jour } from '../commun';
@@ -51,6 +51,8 @@ export interface SourcesContacts {
   relances: Relance[];
   fidelite: CompteFidelite[];
   fournisseurs: Fournisseur[];
+  /** `null` : l'application n'a pas d'historique d'achats auprès des fournisseurs (prix, délais, conformité : H45 dit « non disponible »). */
+  achats: Achat[] | null;
   partenaires: Partenaire[] | null;
   equipe: MembreSource[];
   /** Vrai quand `equipe[].statut` est la VRAIE présence ; faux : l'application ne la connaît pas ici (la tuile dit « membres », pas « en ligne »). */

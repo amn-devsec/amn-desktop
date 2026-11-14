@@ -24,4 +24,7 @@ export default declarerSubstitutions('contacts', [
 
   // H44 — Retours clients : la jauge, les thèmes et le mur. « Demander un avis » passe par l'écran d'origine (`useOutlet`).
   { route: '/avis', composant: lazy(() => import('../../contacts/retours/PageRetours')) },
+
+  // H45 — Fournisseurs : la matrice « Comparer pour un besoin ». La liste des fournisseurs reste servie par l'écran d'origine (`useOutlet`).
+  { route: '/fournisseurs', composant: lazy(() => import('../../contacts/fournisseurs/PageFournisseurs')) },
 ]);
