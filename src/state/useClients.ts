@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { emettreMoment } from '@edition/socle';
+import { emettreMoment } from '@edition/moments';
 import { bridge } from '../lib/bridge';
 import { useSync, useCollection } from './SyncContext';
 import { useClientView } from './ClientViewContext';

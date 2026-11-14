@@ -527,12 +527,16 @@ await dit('le jumeau cliente de la couture n’importe ni Ajmani, ni le socle, n
   }
 });
 
-await dit('les émissions partagées passent par la couture, jamais par le bus directement', () => {
+await dit('les émissions partagées passent par la couture @edition/moments, jamais par le bus directement ni par l’interface du socle', () => {
   for (const f of ['src/state/useInvoices.ts', 'src/state/useClients.ts']) {
     const imp = importsDe(fs.readFileSync(path.join(racine, f), 'utf8'));
-    assert.ok(imp.includes('@edition/socle'), `${f} n'importe pas @edition/socle`);
+    assert.ok(imp.includes('@edition/moments'), `${f} n'importe pas @edition/moments`);
     assert.ok(!imp.some((i) => /socle\/moments/.test(i)), `${f} importe le bus directement`);
+    assert.ok(!imp.includes('@edition/socle'), `${f} importe @edition/socle (l’interface du socle) pour émettre un moment`);
   }
+  // La couture : le bus côté interne, un jumeau inerte côté cliente.
+  assert.match(fs.readFileSync(path.join(racine, 'src/edition/moments.internal.ts'), 'utf8'), /export \{ emit as emettreMoment \} from '\.\.\/socle\/moments';/);
+  assert.match(fs.readFileSync(path.join(racine, 'src/edition/moments.business.ts'), 'utf8'), /export const emettreMoment: \(type: string, charge: unknown\) => void = \(\) => undefined;/);
 });
 
 console.log(`\n${echecs ? `✗ ${echecs} échec(s)` : '✓'} check:ajmani — ${vus} contrôles passés.\n`);

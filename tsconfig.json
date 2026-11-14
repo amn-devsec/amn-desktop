@@ -32,6 +32,7 @@
       "@edition/accueils": ["src/edition/accueils.internal.tsx"],
       "@edition/guide": ["src/edition/guide.internal.ts"],
       "@edition/socle": ["src/edition/socle.internal.tsx"],
+      "@edition/moments": ["src/edition/moments.internal.ts"],
       "@edition/vivant": ["src/edition/vivant.internal.tsx"],
       "@edition/navigation": ["src/edition/navigation.internal.tsx"],
       "@edition/coquille": ["src/edition/coquille.internal.tsx"],
