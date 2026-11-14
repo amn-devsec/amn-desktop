@@ -143,6 +143,66 @@
      "pause": 700
     }
    ]
+  },
+  {
+   "id": "L01",
+   "route": "#/series",
+   "etapes": [
+    {
+     "attendre": "main, [role=main], h1"
+    },
+    {
+     "clicSiPresent": "button:has-text('Compris')"
+    },
+    {
+     "pause": 700
+    }
+   ]
+  },
+  {
+   "id": "L02",
+   "route": "#/focus",
+   "etapes": [
+    {
+     "attendre": "main, [role=main], h1"
+    },
+    {
+     "clicSiPresent": "button:has-text('Compris')"
+    },
+    {
+     "pause": 700
+    }
+   ]
+  },
+  {
+   "id": "L03",
+   "route": "#/rituel",
+   "etapes": [
+    {
+     "attendre": "main, [role=main], h1"
+    },
+    {
+     "clicSiPresent": "button:has-text('Compris')"
+    },
+    {
+     "pause": 700
+    }
+   ]
+  },
+  {
+   "id": "L07",
+   "route": "#/defis",
+   "etapes": [
+    {
+     "attendre": "main, [role=main], h1"
+    },
+    {
+     "clicSiPresent": "button:has-text('Compris')"
+    },
+    {
+     "pause": 700
+    }
+   ]
   }
  ]
 }
