@@ -141,12 +141,18 @@ jobs:
         run: npm run check:navigation
       - name: Données fictives de la refonte — jeux reproductibles, recoupements, aucune donnée réelle
         run: npm run check:donnees
+      - name: Créer et produire (LOT-06) — logique des 15 écrans, sur cas écrits et sur les jeux fictifs
+        run: npm run check:creer
       - name: Espace Développement (LOT-11) — journal des exécutions, tâches planifiées locales, état des déploiements
         run: npm run check:developpement
       - name: Contacts et clients — pipeline, relances (espacement), fidélité, rendez-vous, deux voix
         run: npm run check:contacts
       - name: Connecteurs et autonomie (LOT-12) — local d'abord, coût avant, trois clics, aucune clé, moteurs locaux
         run: npm run check:connecteurs
+      - name: Écrire et retenir (LOT-03) — série d'écriture, relecture, documents, signatures, journal, archives, connaissances
+        run: npm run check:ecrire
+      - name: L’argent (LOT-04) — facturation, TVA, impayés, trésorerie, cas écrits à l’avance, banque en lecture seule
+        run: npm run check:argent
 
       - name: Contrôle de la file d'envoi
         run: npm run check:envoi
