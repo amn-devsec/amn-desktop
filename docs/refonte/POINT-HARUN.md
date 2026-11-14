@@ -1,6 +1,6 @@
 # Point pour Harun
 
-> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 03h40 UTC.
+> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 03h50 UTC.
 
 **Compteurs** (14 nov.) : **écrans construits 9 / 153**, ceux de LOT-00, qui attendent la vérification de T1 · **lots préparés 7 / 13**, lots finis 0 / 13 · **écrans livrés depuis la veille : 0**. Courbe jour par jour : `STATUT.md`, « Vitesse ».
 
@@ -16,7 +16,8 @@
 - T1 vérifie le socle v4, puis fera la comparaison automatique aux images.
 - S0 répare deux contrôles cassés par le socle.
 - SIM complète ses jeux.
-- S6 prépare LOT-07.
+- S6 a livré la préparation de LOT-07 ; elle attend que T1 compare le paquet client (elle touche un fichier partagé).
+- DS adapte son calcul aux avoirs, et je refusionne ensuite les jeux de SIM (retirés : ils cassaient un contrôle).
 
 **Bloqué** : rien.
 
