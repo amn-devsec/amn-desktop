@@ -1,0 +1,196 @@
+{
+  "coquille": true,
+  "ecrans": 20,
+  "lignes": [
+    {
+      "texte": "À votre avis",
+      "mot": "votre",
+      "ecrans": 3,
+      "exemples": [
+        "#/tous-les-modules",
+        "#/tous-les-modules?famille=jour",
+        "#/garde"
+      ]
+    },
+    {
+      "texte": "Vous êtes seul·e ici pour l’instant.",
+      "mot": "vous",
+      "ecrans": 2,
+      "exemples": [
+        "#/",
+        "#/messages"
+      ]
+    },
+    {
+      "texte": "Écrire à votre prestataire",
+      "mot": "votre",
+      "ecrans": 2,
+      "exemples": [
+        "#/",
+        "#/messages"
+      ]
+    },
+    {
+      "texte": "Quel est votre poste ?",
+      "mot": "votre",
+      "ecrans": 2,
+      "exemples": [
+        "#/",
+        "#/messages"
+      ]
+    },
+    {
+      "texte": "Votre barre ne gardera que ce qui sert à votre mission. Ça se change ensuite dans la Bibliothèque, « Alléger ma barre ».",
+      "mot": "votre",
+      "ecrans": 2,
+      "exemples": [
+        "#/",
+        "#/messages"
+      ]
+    },
+    {
+      "texte": "Les places de votre formule, la vide comprise — et ce que chacune ouvre.",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/membres"
+      ]
+    },
+    {
+      "texte": "LES COMPTES DE VOTRE ORGANISATION",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/membres"
+      ]
+    },
+    {
+      "texte": "essai.interne@exemple.test(vous)",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/membres"
+      ]
+    },
+    {
+      "texte": "Un espace d’échange entre entreprises clientes, si vous le souhaitez",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/hall"
+      ]
+    },
+    {
+      "texte": "L’espace commun des organisations qui le veulent. Rien n’y entre sans un geste de votre part, et vous en sortez d’un geste.",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/hall"
+      ]
+    },
+    {
+      "texte": "Personne n’y parle encore — vous seriez la première organisation.",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/hall"
+      ]
+    },
+    {
+      "texte": "Le nom sous lequel vous apparaissez (à choisir ci-dessous), la signature que chaque personne choisit pour son message, le texte du message et son heure.",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/hall"
+      ]
+    },
+    {
+      "texte": "Les adresses, les comptes, vos clients, vos tâches, vos factures, vos fichiers : le Hall n’a pas de porte vers vos données. Votre prestataire peut masquer un message signalé, jamais lire chez vous.",
+      "mot": "vos",
+      "ecrans": 1,
+      "exemples": [
+        "#/hall"
+      ]
+    },
+    {
+      "texte": "VOTRE NOM DANS LE HALL",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/hall"
+      ]
+    },
+    {
+      "texte": "Tel qu’il apparaîtra aux autres organisations. Votre nom légal par défaut ; changez-le si vous préférez.",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/hall"
+      ]
+    },
+    {
+      "texte": "Le poste s’examine — vous envoyez le résultat, sans rien décrire.",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/assistance"
+      ]
+    },
+    {
+      "texte": "Le poste s’examine, vous envoyez le résultat — vous n’avez rien à décrire.",
+      "mot": "vous",
+      "ecrans": 1,
+      "exemples": [
+        "#/assistance"
+      ]
+    },
+    {
+      "texte": "Aucun export depuis ce poste. Vos données ne sont sorties nulle part.",
+      "mot": "vos",
+      "ecrans": 1,
+      "exemples": [
+        "#/assistance"
+      ]
+    },
+    {
+      "texte": "Si votre question porte sur « dernière sortie de données », il est inutile d’écrire : c’est déjà vu, et la ligne ci-dessus dit ce qui a été mesuré.",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/assistance"
+      ]
+    },
+    {
+      "texte": "Aucun échange pour l’instant. Le formulaire ci-dessous part chez votre prestataire.",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/assistance"
+      ]
+    },
+    {
+      "texte": "CE QUI PART AVEC VOTRE MESSAGE",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/assistance"
+      ]
+    },
+    {
+      "texte": "Votre objet et votre texte.",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/assistance"
+      ]
+    },
+    {
+      "texte": "Votre demande arrive chez votre prestataire, qui la lit et vous répond ici. Rien ne part par courriel.",
+      "mot": "votre",
+      "ecrans": 1,
+      "exemples": [
+        "#/assistance"
+      ]
+    }
+  ]
+}

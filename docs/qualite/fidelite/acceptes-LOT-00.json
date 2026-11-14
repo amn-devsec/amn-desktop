@@ -1,0 +1,37 @@
+{
+  "_": "Valeurs acceptées de LOT-00 : les mesures de T1 (STATUT §1.30), écart brut = part des pixels hors tolérance (±2 px, couleur ±2), 1440×900, vendredi 30 oct. 2026 à 10:42. Elles remplacent les valeurs de S0 (colonne s0 : autre mesure, gardée pour mémoire). `disposition` : même comparaison avec couleur ±10, donnée à titre indicatif (elle isole la mise en page des nuances de néon). Un écran échoue si son écart monte de plus de 2 points au-dessus de sa valeur ; la garde ne lit que `valeurs`.",
+  "mesure": "strict",
+  "valeurs": {
+    "G09": 13.3,
+    "H42": 18.1,
+    "D02": 30.6,
+    "G06": 11.4,
+    "H40": 20.0,
+    "H47": 21.3,
+    "H41": 22.7,
+    "H43": 27.6,
+    "G05": 43.4
+  },
+  "disposition": {
+    "G09": 0.2,
+    "H42": 6.8,
+    "D02": 8.3,
+    "G06": 4.1,
+    "H40": 8.1,
+    "H47": 4.7,
+    "H41": 9.9,
+    "H43": 6.2,
+    "G05": 14.8
+  },
+  "s0": {
+    "G09": 3.4,
+    "H42": 9.9,
+    "D02": 12.2,
+    "G06": 12.3,
+    "H40": 14.5,
+    "H47": 15.3,
+    "H41": 19.9,
+    "H43": 24.0,
+    "G05": 39.1
+  }
+}
