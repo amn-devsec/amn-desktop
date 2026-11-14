@@ -17,7 +17,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 | S6 Sécurité | `session_01RHV8Xq2txWkfjAusKvq9DG` | LOT-07 préparation **fusionnée** (`3030072`) ; **sans zips v4** ; une étape de sécurité attend amn-api | construire LOT-07 dès qu'il a les zips |
 | SIM | `session_011UF2ufZg9moGv2rRZFRuf7` | tout fusionné (`b0173f3`, 115 jeux) ; **sans dossier v4** | listes « Manque aux données » des lots à venir |
 | DS | `session_01TZGDvVWristJnnPK59rruY` | **construit LOT-04** | lots de 3 à 5 écrans → T1 → fusion |
-| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | **construit LOT-03, puis LOT-05** | lots de 3 à 5 écrans → T1 → fusion |
+| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | **LOT-03 complet, 9 sur 9** (`a565a07`) ; `check:navigation` durable redemandé (2ᵉ fois) | garde durable, puis justifications, puis LOT-05 |
 | S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **construit LOT-02** (feu vert le 14 nov., 08h) | lots de 3 à 5 écrans → `check:fidelite` de T1 → fusion |
 | S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **construit LOT-06** | lots de 3 à 5 écrans → T1 → fusion |
 | S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | LOT-11, 7 sur 7, non accepté (6 écrans non montés) ; déclarations prêtes en local | attend la correction de `check:navigation` par S5, puis pousse → T1 remesure → fusion |
@@ -40,10 +40,11 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 | Jour | Construits | Livrés (cumul) | Livrés depuis la veille | Lots préparés | Lots finis | Note |
 |---|---|---|---|---|---|---|
-| 14 nov. | 31 / 153 (22 sur les branches des lots, à vérifier ; LOT-11 complet) | 9 (LOT-00, socle v4) | 9 | 8 / 13 | 0 / 13 (LOT-00 attend l'allumage) | les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. La note de LOT-08 n'est pas fusionnée. |
+| 14 nov. | 39 / 153 (30 sur les branches des lots, à vérifier ; LOT-11 et LOT-03 complets) | 9 (LOT-00, socle v4) | 9 | 8 / 13 | 0 / 13 (LOT-00 attend l'allumage) | les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. La note de LOT-08 n'est pas fusionnée. |
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov., 09h35 : **LOT-03 complet** (S5, `a565a07`, 9 sur 9, ME04 sur `/archives`), en attente de T1. « Signatures » garde son identifiant (sur place), parce que H42 et H47 le citent : ma décision précédente est annulée. S5 a mis la garde à 102, un nombre encore figé : la version durable lui est redemandée en priorité, pour la deuxième fois.
 - 14 nov., 09h25 : la session de S8 a refusé de modifier `check-navigation.ts`, qu'elle juge être un assouplissement de garde. **La correction revient à S5**, propriétaire du registre, qui a déjà pu modifier ce fichier. Leçon : une garde ne se modifie que par sa session propriétaire.
 - 14 nov., 09h25 : défauts C-011 répartis (§1.37). On ne touche pas `src/screens` : chaque défaut devient une exigence de l'écran de la refonte qui le remplace. Deux corrections vont à S0. Les 39 routes ont toutes une entrée au registre : T1 vérifie qu'un geste mène à chacune, et c'est une condition de l'allumage.
 - 14 nov., 09h20 : **LOT-07 préparation fusionnée** (`89ef910a`), paquet client vérifié par T1 ; 5 conflits, tous des ajouts, gardés. Premier `check:fidelite` sur les lots : LOT-11 non accepté (6 écrans non montés, faute de déclaration au registre) ; F20 à justifier, avec deux tuiles à ajouter ; F50 et H15 à justifier ; H16 à reprendre (bouton, jauge, suggestion). Réorganisation : la correction durable de `check:navigation` passe de S5 à S8, qui est bloqué et disponible.
