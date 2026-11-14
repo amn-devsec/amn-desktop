@@ -1,11 +1,13 @@
 import { declarerFamille, vue } from '../declarer';
 
 /**
- * OUTILS — petits outils, automatisation, terrain, stock, conformité, réglages.
+ * OUTILS — petits outils, automatisation, conformité, réglages.
  *
- * Le terrain et le stock restent ici, comme proposé par S1. Regroupés : Calculs
- * (Calculateurs, Calculatrice, Convertisseurs) ; Chantiers (Montage,
- * Interventions) ; Tournées et itinéraires ; Matériel et flotte ; Stock et prévision.
+ * Le terrain et le stock ont rejoint « Créer et produire » le 14 nov. (STATUT §1.27 n° 1) :
+ * Chantiers, Qualité et contrôles, Tournées, Matériel et flotte, Stock et prévision.
+ * Reste « Stock et achats » pour la composition et le coût de revient (Fabrication, qui n'existe pas encore,
+ * s'y rattachera ou rejoindra Créer, à décider). Regroupés ici : Calculs (Calculateurs, Calculatrice,
+ * Convertisseurs).
  */
 
 export default declarerFamille({
@@ -16,7 +18,6 @@ export default declarerFamille({
   actions: {
     pratique: { fr: 'Petits outils', en: 'Handy tools' },
     automatiser: { fr: 'Automatiser et importer', en: 'Automate and import' },
-    terrain: { fr: 'Sur le terrain', en: 'In the field' },
     stock: { fr: 'Stock et achats', en: 'Stock and purchasing' },
     conformite: { fr: 'Conformité', en: 'Compliance' },
     reglages: { fr: 'Réglages et compte', en: 'Settings and account' },
@@ -62,67 +63,6 @@ export default declarerFamille({
       vues: [
         vue('dataPort', '/outils/donnees', ['importer des données', 'exporter mes données', 'sauvegarder mes données'], ['import', 'export', 'csv', 'excel', 'données', 'sauvegarde', 'backup'], {
           en: { verbes: ['import data', 'export my data', 'back up my data'], motsCles: ['import', 'export', 'csv', 'excel', 'data', 'backup'] },
-        }),
-      ],
-    },
-    {
-      nom: { fr: 'Chantiers', en: 'Job sites' },
-      action: 'terrain',
-      niveau: 'courant',
-      vues: [
-        vue('assembly', '/montage', ['suivre un chantier', 'cocher une étape de montage'], ['montage', 'chantier', 'étape', 'pose'], {
-          en: { verbes: ['follow a job site', 'tick off an assembly step'], motsCles: ['assembly', 'job site', 'step', 'installation'] },
-        }),
-        vue('interventions', '/interventions', ['faire un compte rendu d’intervention', 'photographier avant et après'], ['intervention', 'déplacement', 'compte rendu', 'photo'], {
-          en: { verbes: ['write an intervention report', 'photograph before and after'], motsCles: ['intervention', 'call-out', 'report', 'photo', 'field service'] },
-        }),
-      ],
-    },
-    {
-      action: 'terrain',
-      niveau: 'courant',
-      vues: [
-        vue('checklists', '/controles', ['faire un contrôle qualité', 'cocher une check-list'], ['contrôle', 'qualité', 'check-list', 'liste'], {
-          en: { verbes: ['do a quality check', 'tick off a checklist'], motsCles: ['inspection', 'quality', 'checklist', 'control'] },
-        }),
-      ],
-    },
-    {
-      nom: { fr: 'Tournées et itinéraires', en: 'Rounds and routes' },
-      action: 'terrain',
-      niveau: 'courant',
-      vues: [
-        vue('rounds', '/tournees', ['préparer une tournée', 'livrer'], ['tournée', 'livraison', 'arrêt'], {
-          en: { verbes: ['prepare a delivery round', 'deliver'], motsCles: ['round', 'delivery', 'stop', 'route'] },
-        }),
-        vue('itineraries', '/itineraires', ['optimiser un itinéraire', 'préparer les arrêts de demain'], ['itinéraire', 'trajet', 'route', 'carte'], {
-          en: { verbes: ['optimize a route', 'prepare tomorrow’s stops'], motsCles: ['route', 'itinerary', 'trip', 'map', 'directions'] },
-        }),
-      ],
-    },
-    {
-      nom: { fr: 'Matériel et flotte', en: 'Equipment and fleet' },
-      action: 'terrain',
-      niveau: 'courant',
-      vues: [
-        vue('equipment', '/materiel', ['réserver du matériel', 'voir qui a le matériel'], ['matériel', 'outil', 'réservation', 'prêt'], {
-          en: { verbes: ['book equipment', 'see who has the equipment'], motsCles: ['equipment', 'tools', 'booking', 'loan'] },
-        }),
-        vue('fleet', '/flotte', ['suivre un véhicule', 'noter le kilométrage'], ['flotte', 'véhicule', 'voiture', 'camion', 'kilométrage'], {
-          en: { verbes: ['track a vehicle', 'log the mileage'], motsCles: ['fleet', 'vehicle', 'car', 'van', 'mileage'] },
-        }),
-      ],
-    },
-    {
-      nom: { fr: 'Stock et prévision', en: 'Stock and forecast' },
-      action: 'stock',
-      niveau: 'courant',
-      vues: [
-        vue('stock', '/stock', ['vérifier le stock', 'ajouter du stock'], ['stock', 'inventaire', 'rupture', 'article', 'entrepôt'], {
-          en: { verbes: ['check stock', 'add stock'], motsCles: ['stock', 'inventory', 'out of stock', 'item', 'warehouse'] },
-        }),
-        vue('stockForecast', '/prevision-stock', ['savoir quand commander', 'prévoir une rupture'], ['prévision', 'stock', 'réassort', 'commande'], {
-          en: { verbes: ['know when to reorder', 'predict a stock-out'], motsCles: ['forecast', 'stock', 'restock', 'reorder'] },
         }),
       ],
     },
