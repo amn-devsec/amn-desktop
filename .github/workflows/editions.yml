@@ -145,6 +145,8 @@ jobs:
         run: npm run check:developpement
       - name: Connecteurs et autonomie (LOT-12) — local d'abord, coût avant, trois clics, aucune clé, moteurs locaux
         run: npm run check:connecteurs
+      - name: L’argent (LOT-04) — facturation, TVA, impayés, trésorerie, cas écrits à l’avance, banque en lecture seule
+        run: npm run check:argent
 
       - name: Contrôle de la file d'envoi
         run: npm run check:envoi
