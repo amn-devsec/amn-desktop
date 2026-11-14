@@ -78,7 +78,11 @@ export function VueCatalogue(p: VueCatalogueProps) {
         {choisi && (
           <aside className="cr-carte cr-fiche-produit" aria-label={choisi.nom} data-mvt="entree">
             <header><small>{tm('fiche.titre')}</small>
-              <span><button type="button" aria-label={tm('fiche.modifier')}><Pencil size={13} aria-hidden /></button><button type="button" aria-label={tm('fiche.voir')}><Eye size={13} aria-hidden /></button><button type="button" aria-label={tm('fiche.fermer')} onClick={() => p.onChoisir(null)}><X size={13} aria-hidden /></button></span>
+              <span>
+                <button type="button" aria-label={tm('fiche.modifier')}><Pencil size={13} aria-hidden /></button>
+                <button type="button" aria-label={tm('fiche.voir')}><Eye size={13} aria-hidden /></button>
+                <button type="button" aria-label={tm('fiche.fermer')} onClick={() => p.onChoisir(null)}><X size={13} aria-hidden /></button>
+              </span>
             </header>
             <div className="cr-fiche-produit__photo" aria-hidden><Package size={64} strokeWidth={1.1} /></div>
             <h2>{choisi.nom}</h2>
