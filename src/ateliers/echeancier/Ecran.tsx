@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { Copy } from 'lucide-react';
-import { Carte, CaseACocher, PageHead, PastilleEtat, RangeeKpi, Saisie, TuileKpi, type EtatPastille } from '../../socle/ui';
+import { Carte } from '../../socle/ui/Carte';
+import { CaseACocher } from '../../socle/ui/Taches';
+import { PageHead, RangeeKpi } from '../../socle/ui/archetypes';
+import { PastilleEtat, type EtatPastille } from '../../socle/ui/Pastilles';
+import { Saisie } from '../../socle/ui/Saisie';
+import { TuileKpi } from '../../socle/ui/Indicateurs';
 import { Disposition, PageAtelier } from '../_commun/PageAtelier';
 import { AUJOURDHUI_BAC_A_SABLE, dateLisible, euros, eurosRond, versCentimes } from '../_commun/nombres';
 import { ECHEANCIERS } from './donnees';

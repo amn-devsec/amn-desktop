@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Famille } from '../../socle/familles';
-import { Page } from '../../socle/ui';
+import { Page } from '../../socle/ui/archetypes';
 import { useTextesCommuns } from './i18n';
 
 /**

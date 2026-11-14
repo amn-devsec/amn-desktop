@@ -1,0 +1,35 @@
+import { Scale } from 'lucide-react';
+import { declarerModule, vue } from '../declarer';
+
+/**
+ * COMPARATEUR DE DEVIS FOURNISSEURS — module de l'Atelier (F1), choisi par Harun le 12 nov. (STATUT §1.21).
+ *
+ * L'écran vit dans `src/ateliers/comparateurDevis/` (supprimable seul) ; ce fichier le range dans la famille Argent et monte sa
+ * route par le registre (`nouveau`). Pour le retirer : ce fichier et ce dossier. Place provisoire dans les écrans
+ * de DS : MA03 Paiements en ligne, par un lien (STATUT §1.33 n° 4).
+ */
+export default declarerModule({
+  famille: 'argent',
+  action: 'depenser',
+  niveau: 'courant',
+  nom: { fr: 'Comparateur de devis fournisseurs', en: 'Supplier quote comparison' },
+  vues: [
+    vue(
+      'comparateurDevis',
+      '/comparer-des-devis',
+      ['comparer des devis', 'choisir un fournisseur', 'comparer des offres fournisseurs', 'repérer une offre trop basse'],
+      ['devis fournisseur', 'comparatif', 'appel d’offres', 'consultation', 'achat', 'offre', 'critères'],
+      {
+        en: {
+          verbes: ['compare quotes', 'choose a supplier', 'compare supplier offers', 'spot an unusually low quote'],
+          motsCles: ['supplier quote', 'comparison', 'tender', 'purchase', 'offer', 'criteria'],
+        },
+        nouveau: {
+          icone: Scale,
+          ecran: () => import('../../../ateliers/comparateurDevis/Ecran'),
+          indice: { fr: 'Compare des devis de fournisseurs', en: 'Compare quotes from suppliers' },
+        },
+      },
+    ),
+  ],
+});

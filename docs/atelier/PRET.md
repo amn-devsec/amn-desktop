@@ -31,7 +31,7 @@ a choisi trois modules, intégrés en premier, un commit de fusion `--no-ff` cha
 
 | Module | Famille · action · niveau | U | Q | D | T | S | I | Statut | Remarques |
 |---|---|---|---|---|---|---|---|---|---|
-| `tauxHoraire` Taux horaire de revient | argent · prévoir · essentiel | 5 | 4 | 5 | 4 | 5 | 5 | **prêt à intégrer** | Aucun taux de cotisation en dur. Réel et micro. |
+| `tauxHoraire` Taux horaire de revient | argent · prévoir · courant (essentiel avant l'intégration : le rail est plafonné à 16 essentiels) | 5 | 4 | 5 | 4 | 5 | 5 | **prêt à intégrer** | Aucun taux de cotisation en dur. Réel et micro. |
 | `retroplanning` Rétroplanning | jour · organiser · essentiel | 5 | 4 | 4 | 5 | 5 | 5 | **prêt à intégrer** | Fériés de métropole calculés (Pâques testé 2025-2027). Pas de Gantt parallèle. |
 | `penalites` Pénalités de retard | argent · facturer · courant | 5 | 4 | 5 | 5 | 5 | 5 | **prêt à intégrer** | Condition : taux BCE et taux légal d'exemple (2,15 % et 3,15 %) à remplacer par ceux du semestre ; ce sont des paramètres. Lettre de mise en demeure générée. |
 | `situations` Situations de travaux | argent · facturer · avancé | 5 | 4 | 4 | 5 | 5 | 5 | **prêt à intégrer** | Retenue de garantie plafonnée à 5 % (loi 71-584), calculée sur le TTC ; réglage HT à ajouter si un client le demande. Le tableau défile en largeur sur téléphone. |

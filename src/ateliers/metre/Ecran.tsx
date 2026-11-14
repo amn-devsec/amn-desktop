@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Copy, Plus, X } from 'lucide-react';
-import { Bouton, Saisie } from '../../socle/ui';
+import { Bouton } from '../../socle/ui/Bouton';
+import { Saisie } from '../../socle/ui/Saisie';
 import { CadreAtelier, Chiffre, Etat, Tableau } from '../_commun/Cadre';
 import { euros, nombre, versCentimes } from '../_commun/nombres';
 import { MATERIAUX, PIECES } from './donnees';
@@ -211,7 +212,7 @@ export default function EcranMetre() {
               return (
                 <div key={o} className="flex flex-col gap-4 rounded-xl border border-socle-bord bg-socle-surface p-4">
                   <label className="flex items-center gap-2 text-[14px] font-semibold text-socle-texte">
-                    <input type="checkbox" checked={f.actif} onChange={(e) => majMateriau(o, 'actif', e.target.checked)} className="h-4 w-4 accent-[var(--color-socle-texte)] [color-scheme:dark]" />
+                    <input type="checkbox" checked={f.actif} onChange={(e) => majMateriau(o, 'actif', e.target.checked)} className="h-4 w-4 accent-socle-texte [color-scheme:dark]" />
                     {tx('ouvrage.compter', { o: nomOuvrage(o).toLowerCase() })}
                   </label>
                   {f.actif && (

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Copy, Plus, X } from 'lucide-react';
-import { Bouton, Saisie } from '../../socle/ui';
+import { Bouton } from '../../socle/ui/Bouton';
+import { Saisie } from '../../socle/ui/Saisie';
 import { CadreAtelier, Choix, Etat, Tableau, type Ton } from '../_commun/Cadre';
 import { AUJOURDHUI_BAC_A_SABLE, joursEntre } from '../_commun/nombres';
 import { CALENDRIER, ETAPES, LIVRAISON, PROJET, TAMPON } from './donnees';

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Gift, Ticket } from 'lucide-react';
-import { Bouton, Saisie } from '../../socle/ui';
+import { Bouton } from '../../socle/ui/Bouton';
+import { Saisie } from '../../socle/ui/Saisie';
 import { CadreAtelier, Chiffre, Etat, Tableau, type Ton } from '../_commun/Cadre';
 import { AUJOURDHUI_BAC_A_SABLE, dateLisible, euros, versCentimes } from '../_commun/nombres';
 import { BONS_EXEMPLE, NUMERO_DE_DEPART } from './donnees';

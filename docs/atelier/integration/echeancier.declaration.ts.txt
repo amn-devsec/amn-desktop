@@ -1,0 +1,35 @@
+import { CalendarClock } from 'lucide-react';
+import { declarerModule, vue } from '../declarer';
+
+/**
+ * PAIEMENT EN PLUSIEURS FOIS — module de l'Atelier (F1), choisi par Harun le 12 nov. (STATUT §1.21).
+ *
+ * L'écran vit dans `src/ateliers/echeancier/` (supprimable seul) ; ce fichier le range dans la famille Argent et monte sa
+ * route par le registre (`nouveau`). Pour le retirer : ce fichier et ce dossier. Place provisoire dans les écrans
+ * de DS : H07 Devis, par un lien (STATUT §1.33 n° 4).
+ */
+export default declarerModule({
+  famille: 'argent',
+  action: 'facturer',
+  niveau: 'courant',
+  nom: { fr: 'Paiement en plusieurs fois', en: 'Payment in instalments' },
+  vues: [
+    vue(
+      'echeancier',
+      '/echeancier',
+      ['proposer un paiement en plusieurs fois', 'faire un échéancier', 'étaler un paiement', 'suivre les échéances d’un client'],
+      ['échéancier', 'paiement en plusieurs fois', 'mensualités', 'échéance', 'étalement', 'reste dû', 'facilités de paiement'],
+      {
+        en: {
+          verbes: ['offer payment in instalments', 'make a payment plan', 'spread a payment', 'follow a client’s instalments'],
+          motsCles: ['instalments', 'payment plan', 'monthly payments', 'due date', 'balance due', 'payment terms'],
+        },
+        nouveau: {
+          icone: CalendarClock,
+          ecran: () => import('../../../ateliers/echeancier/Ecran'),
+          indice: { fr: 'Étale un paiement sur plusieurs mois', en: 'Spread a payment over several months' },
+        },
+      },
+    ),
+  ],
+});

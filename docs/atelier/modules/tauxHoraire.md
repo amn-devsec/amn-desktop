@@ -1,6 +1,6 @@
 # Taux horaire de revient (`tauxHoraire`)
 
-**Famille** argent · **Action** prévoir · **Niveau** essentiel · **Route proposée** `/taux-horaire`
+**Famille** argent · **Action** prévoir · **Niveau** courant (essentiel dans l'Atelier ; le rail est plafonné à 16 essentiels, `check:navigation`) · **Route proposée** `/taux-horaire`
 
 ## Le besoin
 

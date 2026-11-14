@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Plus } from 'lucide-react';
-import { Bouton, Saisie } from '../../socle/ui';
+import { Bouton } from '../../socle/ui/Bouton';
+import { Saisie } from '../../socle/ui/Saisie';
 import { CadreAtelier, Chiffre, Choix, Etat, Tableau } from '../_commun/Cadre';
 import { dateLisible, euros, versCentimes } from '../_commun/nombres';
 import { EXERCICE_EXEMPLE, IMMOS_EXEMPLE } from './donnees';

@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { CheckCheck, Plus } from 'lucide-react';
-import { Bouton, Saisie } from '../../socle/ui';
+import { Bouton } from '../../socle/ui/Bouton';
+import { Saisie } from '../../socle/ui/Saisie';
 import { CadreAtelier, Chiffre, Choix, Etat, Tableau, type Ton } from '../_commun/Cadre';
 import { AUJOURDHUI_BAC_A_SABLE, dateLisible } from '../_commun/nombres';
 import { PARC } from './donnees';
@@ -23,7 +24,7 @@ import { MODULE } from './module';
 
 const TON: Record<EtatVisite, Ton> = { retard: 'danger', ceMois: 'attention', bientot: 'neutre', aJour: 'succes' };
 const AUJ = AUJOURDHUI_BAC_A_SABLE;
-const CASE = 'h-4 w-4 accent-[var(--color-socle-texte)] [color-scheme:dark]';
+const CASE = 'h-4 w-4 accent-socle-texte [color-scheme:dark]';
 
 export default function EcranEntretiens() {
   const { tx, langue } = useTextes();
