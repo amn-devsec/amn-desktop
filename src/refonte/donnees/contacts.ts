@@ -14,7 +14,7 @@ import {
   TEXTES_AVIS_NEGATIFS, TEXTES_AVIS_POSITIFS, THEMES_AVIS, TYPES_ENTREPRISE, VILLES,
 } from './fond';
 import {
-  ajouterJours, arrondir, centimes, compter, courriel, DOMAINE_COURRIEL, ecartJours, graineDe, hasard, instantParis, iso, jourDe, slug,
+  ajouterJours, arrondir, centimes, compter, courriel, DOMAINE_COURRIEL, ecartJours, graineDe, hasard, instantParis, iso, jourDe, lundiDe, slug,
   telephone, type Hasard, type Jour,
 } from './outils';
 import type {
@@ -28,7 +28,7 @@ export function personne(h: Hasard): { prenom: string; nom: string } {
 }
 
 /** Un nom d'entreprise inventé et unique : `Boulangerie des Tilleuls`. */
-function nomEntreprise(h: Hasard, deja: Set<string>): { nom: string; secteur: string } {
+export function nomEntreprise(h: Hasard, deja: Set<string>): { nom: string; secteur: string } {
   for (let essai = 0; essai < 60; essai += 1) {
     const [type, secteur] = h.choix(TYPES_ENTREPRISE);
     const nom = `${type} ${h.choix(MOTS_ENTREPRISE)}`;
@@ -59,9 +59,28 @@ const suiveurs = (equipe: readonly Membre[]): Membre[] => {
 
 /* ------------------------------ Clients ------------------------------ */
 
+/**
+ * Les jours de début des clients les plus récents. H04 (« Nouveaux clients : 3, 1 de plus ») et G08
+ * (« Nouveaux : +6 ») comptent les clients arrivés cette semaine, la semaine d'avant et ce mois-ci :
+ * sans eux, ces compteurs resteraient à zéro. Trois cette semaine, deux la précédente, puis les
+ * suivants plus tôt dans le mois (« peu » : un et un).
+ */
+export function joursDeNouveauxClients(aujourdhui: Jour, n: number): Jour[] {
+  const lundi = lundiDe(aujourdhui);
+  // Jamais plus tard qu'hier (sauf un lundi : il n'y a pas d'hier dans la semaine).
+  const borne = (j: Jour): Jour => (j > ajouterJours(aujourdhui, -1) && aujourdhui > lundi ? ajouterJours(aujourdhui, -1) : j);
+  const cetteSemaine = [0, 1, 3].map((k) => borne(ajouterJours(lundi, k)));
+  const precedente = [1, 3].map((k) => ajouterJours(lundi, k - 7));
+  const plusTot = [ajouterJours(lundi, -9), ajouterJours(lundi, -12)];
+  const voulus = n >= 40 ? [...cetteSemaine, ...precedente, ...plusTot.slice(0, 1)] : n >= 6 ? [cetteSemaine[0], precedente[0]] : [];
+  return voulus.filter((j) => j <= aujourdhui);
+}
+
 export function genererClients(ctx: Contexte, equipe: readonly Membre[]): FicheClient[] {
   const h = hasard(graineDe(ctx.graine, 'clients'));
   const n = compter(ctx.volumes.clients, [0, 6, 48, 300]);
+  // Les derniers clients de la liste sont les plus récents.
+  const recents = joursDeNouveauxClients(ctx.aujourdhui, n);
   const resp = suiveurs(equipe);
   const deja = new Set<string>();
   const clients: FicheClient[] = [];
@@ -70,11 +89,15 @@ export function genererClients(ctx: Contexte, equipe: readonly Membre[]): FicheC
     const contact = personne(h);
     const ville = h.choix(VILLES);
     const org = nature === 'organisation' ? nomEntreprise(h, deja) : { nom: '', secteur: h.choix(['Particulier', 'Profession libérale', 'Association']) };
-    const debutLe = ajouterJours(ctx.aujourdhui, -h.entier(25, 1100));
-    const dernier = ctx.maintenant - ecartEchange(h) * 86_400_000 - h.entier(0, 8) * 3_600_000;
+    const ancien = ajouterJours(ctx.aujourdhui, -h.entier(25, 1100));
+    const cible = i > n - recents.length ? recents[n - i] : null;
+    const debutLe = cible ?? ancien;
+    const dernierBrut = ctx.maintenant - ecartEchange(h) * 86_400_000 - h.entier(0, 8) * 3_600_000;
+    // Un client arrivé cette semaine n'a pas eu son dernier échange avant d'arriver.
+    const dernier = cible ? Math.min(ctx.maintenant - 3_600_000, Math.max(dernierBrut, instantParis(cible, '09:00') + 3_600_000)) : dernierBrut;
     const domaine = nature === 'organisation' ? `${slug(org.nom)}.${DOMAINE_COURRIEL}` : DOMAINE_COURRIEL;
     const echanges = h.echantillon(ECHANGES, h.entier(2, 5));
-    const debutMs = instantParis(debutLe, '09:00');
+    const debutMs = Math.min(instantParis(debutLe, '09:00'), dernier - 1_800_000);
     const events = echanges
       .map((e, k) => ({ e, quand: debutMs + Math.round(((dernier - debutMs) * (k + 1)) / echanges.length) }))
       .map(({ e, quand }, k) => ({ id: i * 100 + k, clientId: i, title: e[0], detail: e[1], date: iso(quand) }));
@@ -113,6 +136,8 @@ export function genererInterlocuteurs(
   clients: readonly FicheClient[],
   fournisseurs: readonly Fournisseur[],
   prospects: readonly Prospect[],
+  /** MC05 : les référents des organisations partenaires sont des interlocuteurs de type « partenaire ». */
+  partenaires: readonly { id: string; nom: string }[] = [],
 ): Interlocuteur[] {
   const h = hasard(graineDe(ctx.graine, 'interlocuteurs'));
   const volume = compter(ctx.volumes.interlocuteurs, [0, 1, 2, 3]); // plafond par organisation
@@ -152,6 +177,8 @@ export function genererInterlocuteurs(
     const [prenom, ...reste] = p.contactNom.split(' ');
     ajouter('prospect', p.id, p.nom, `${slug(p.nom)}.${DOMAINE_COURRIEL}`, { prenom, nom: reste.join(' ') });
   }
+  // Le nom de domaine reste court : un courriel de plus de 32 caractères sans tiret ressemblerait à un secret aux contrôles.
+  for (const p of partenaires) ajouter('partenaire', p.id, p.nom, `${slug(p.nom).slice(0, 24).replace(/-+$/, '')}.${DOMAINE_COURRIEL}`);
   return liste.sort((a, b) => b.dernierEchangeAt.localeCompare(a.dernierEchangeAt));
 }
 
@@ -203,9 +230,22 @@ export function genererProspects(ctx: Contexte, equipe: readonly Membre[]): Pros
       signeLe: signe,
       perduLe: perdu,
       clientId: null,
+      raisonPerte: perdu ? RAISONS_DE_PERTE[(i * 7) % RAISONS_DE_PERTE.length] : null,
     });
   }
   return liste;
+}
+
+/** H06 : les raisons qu'on note quand un prospect est perdu. */
+export const RAISONS_DE_PERTE = ['Budget insuffisant', 'Choix d’un concurrent', 'Projet reporté', 'Sans réponse', 'Besoin disparu'] as const;
+
+/** H44 : le NPS (−100 à 100) = part des promoteurs (9 et 10) − part des détracteurs (0 à 6), sur les avis qui ont une recommandation. */
+export function calculerNps(avis: readonly { recommandation: number | null }[]): number | null {
+  const notes = avis.map((a) => a.recommandation).filter((r): r is number => r !== null);
+  if (notes.length === 0) return null;
+  const promoteurs = notes.filter((r) => r >= 9).length;
+  const detracteurs = notes.filter((r) => r <= 6).length;
+  return Math.round(((promoteurs - detracteurs) / notes.length) * 100);
 }
 
 /** MC01 regroupe H06 en quatre colonnes : « contacté » rejoint « nouveau », « gagné » devient « signé ». */
@@ -288,6 +328,7 @@ export function genererAvis(ctx: Contexte, clients: readonly FicheClient[]): Avi
       date: ajouterJours(ctx.aujourdhui, -Math.floor(h.reel() ** 1.4 * 360)),
       themes: h.echantillon(THEMES_AVIS, h.entier(1, 2)),
       canal: h.pondere([['courriel', 5], ['lien public', 3], ['message', 2]] as const),
+      sentiment: note >= 4 ? 'positif' : note === 3 ? 'neutre' : 'négatif',
     });
   }
   return liste.sort((a, b) => b.date.localeCompare(a.date));

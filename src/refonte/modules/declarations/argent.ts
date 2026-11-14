@@ -6,6 +6,7 @@ import { declarerFamille, vue } from '../declarer';
  * Regroupés : Facturation (Relances, Acompte) ; Contrats et abonnements ;
  * Dépenses et achats (Notes de frais, Factures entrantes) ; Prévisions
  * (Trésorerie, Scénarios, Simulateur de prêt, Prévision fiscale).
+ * Commandes et Boutique en ligne ont rejoint « Créer et produire » le 14 nov. (STATUT §1.27 n° 1).
  */
 
 export default declarerFamille({
@@ -54,26 +55,8 @@ export default declarerFamille({
       action: 'vendre',
       niveau: 'courant',
       vues: [
-        vue('orders', '/commandes', ['voir les commandes', 'traiter une commande', 'expédier une commande'], ['commande', 'vente', 'site', 'expédition'], {
-          en: { verbes: ['see orders', 'process an order'], motsCles: ['order', 'sale', 'website', 'shipping'] },
-        }),
-      ],
-    },
-    {
-      action: 'vendre',
-      niveau: 'courant',
-      vues: [
         vue('cashCount', '/caisse', ['faire la caisse', 'compter les espèces'], ['caisse', 'espèces', 'fond de caisse', 'écart'], {
           en: { verbes: ['do the till count', 'count the cash'], motsCles: ['till', 'cash', 'float', 'difference', 'cash register'] },
-        }),
-      ],
-    },
-    {
-      action: 'vendre',
-      niveau: 'courant',
-      vues: [
-        vue('shop', '/boutique', ['vendre en ligne', 'voir les paniers abandonnés'], ['boutique', 'e-commerce', 'panier', 'produit'], {
-          en: { verbes: ['sell online', 'see abandoned carts'], motsCles: ['shop', 'store', 'e-commerce', 'cart', 'product'] },
         }),
       ],
     },

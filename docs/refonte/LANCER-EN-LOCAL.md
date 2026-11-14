@@ -70,7 +70,13 @@ node scripts/seed-essai.mjs
 
 Ce compte et ce mot de passe sont **fictifs** : ils n'existent que dans l'API d'essai et disparaissent à l'arrêt.
 
-Ce script remplit les écrans actuels. Les 100 jeux de données préparés pour la refonte (`src/refonte/donnees/`) se chargeront de la même façon quand leur chargeur sera livré ; `STATUT.md` le dira.
+Ce script remplit les écrans actuels. Pour y ajouter les jeux de données de la refonte (`src/refonte/donnees/`), dans la même fenêtre et avec le même compte :
+
+```powershell
+node scripts/charger-donnees-essai.mjs --volume normal
+```
+
+Le volume est `vide`, `peu`, `normal` ou `beaucoup` (`beaucoup` prend environ 8 minutes). Le script n'écrit que sur `127.0.0.1` et que pour un compte `@exemple.test`. Il remplace ce qu'il a déjà posé : relancer avec un autre volume suffit. Il dit à la fin quels jeux n'ont pas encore de collection où se ranger.
 
 ## 5. Construire l'application (fenêtre n° 2)
 
