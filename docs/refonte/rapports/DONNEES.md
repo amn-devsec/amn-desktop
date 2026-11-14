@@ -30,7 +30,7 @@ Fichiers **sensibles** ou **hors zone** : aucun (ni `package.json`, ni `editions
 | `lint` | vert |
 | `check:accueils`, `check:socle`, `check:moments` | vert |
 | `check:langue`, `check:accent`, `check:naming`, `check:modules` | vert |
-| `check:donnees` (118 contrôles) | vert |
+| `check:donnees` (122 contrôles) | vert |
 
 Le scénario de charge « cible » est rejoué par `check:donnees` quand amn-api est à côté (sinon le contrôle le dit et passe).
 
@@ -69,13 +69,20 @@ Pas fait : le résumé du serveur de DEV-serveur (en ligne depuis N jours, copie
 - **Remises** (MA12) : chaque ligne de devis ou de facture porte `prixGrilleCents` ; l'écart avec le prix facturé est la remise accordée (jusqu'à 15 %). Pas de remise globale sur un document (`remisePct` de DS) : à demander si besoin.
 - **MR08** : jeux `entonnoirBoutique` (visites → paiements, 30 jours, lu dans `commandes`), `paniers` (ouvert, abandonné, converti), `sessionsBoutique` (actives depuis moins de 5 minutes) ; objectif du trimestre dans les réglages.
 
-115 jeux, `check:donnees` : 118 contrôles. **Contrôles des autres lots sur ces jeux** : creer 137, echanger 89, developpement 51, connecteurs 103 verts ; trois rouges, chacun à cause d'un changement commandé : `check:contacts` rejoue encore la fidélité à 500 / 1 500 sur les seules factures (S1 : passer à `pointsProgramme`, `PALIERS`, avis et recommandations du jeu) ; `check:argent` appelle `resteDu(…, { paiements: [] })` (DS : lui passer `m.paiements`, les règlements partiels y sont) ; `check:ecrire` affirme « les jeux n'ont pas de liens entre pages » (S5 : ils en ont, c'est ce qu'elle demandait).
+119 jeux, `check:donnees` : 122 contrôles. **Contrôles des autres lots sur ces jeux** : creer 137, echanger 89, developpement 51, connecteurs 103 verts ; trois rouges, chacun à cause d'un changement commandé : `check:contacts` rejoue encore la fidélité à 500 / 1 500 sur les seules factures (S1 : passer à `pointsProgramme`, `PALIERS`, avis et recommandations du jeu) ; `check:argent` appelle `resteDu(…, { paiements: [] })` (DS : lui passer `m.paiements`, les règlements partiels y sont) ; `check:ecrire` affirme « les jeux n'ont pas de liens entre pages » (S5 : ils en ont, c'est ce qu'elle demandait).
 
 ## Avoirs par défaut, rôles du serveur, résumé du serveur (messages du CO, 14 nov.)
 
 - **Avoirs** : DS les lit (`check:argent`, §1.34) ; ils sont dans le monde **par défaut** (`construireMonde({ avoirs: false })` redonne un monde sans avoir).
 - **Rôles fictifs** alignés sur le serveur (§1.34 n° 2) : `owner` (le dirigeant, « moi »), `admin`, `member`, `guest`. « Partenaire » n'est plus un rôle : Inès (graphiste) devient une invitée (`guest`), les partenaires sont des contacts (MC05). `compat.ts` vérifie la correspondance avec `UserRole`.
 - **DEV-serveur** : jeu `serveur` (un enregistrement) — jours en ligne, mémoire, disque cohérent avec les mesures, croissance sur 4 semaines, capacité du lien, sauvegardes lues dans le jeu `sauvegardes`, coût du mois (9 € : hébergement, stockage, copies). Les états des services suivent la fiche : en marche dès 99,9 %, attention de 99,0 à 99,9 %, arrêté dessous. Ni hôte, ni adresse, ni port.
+
+## LOT-01 (commande du CO, STATUT §1.36)
+
+- **`dailyPriorities`** : la forme de la collection de l'application (un enregistrement par personne et par jour ouvré, `id` = `prio-<courriel en tirets>-<jour>`, trois priorités au plus, `doneAt` = clôture). « Moi » a six journées bouclées d'affilée, une manquée avant, et deux priorités sur trois cochées aujourd'hui (jalon « Série de 5 » obtenu, palier de 10 à quatre jours) ; les autres ont un historique varié ; la journée d'aujourd'hui n'est jamais finie.
+- **Attendus H04 et H25** alignés sur la règle retenue : `serieDesPriorites` (clôture des priorités du jour) remplace la série tirée des tâches. Relue à la lettre dans `attendus.ts`, elle égale `serieDeLaJournee` de S2 sur tous les mondes, toutes les personnes et plusieurs jours, et sur six cas écrits à la main (repos, jour sans priorité, aujourd'hui, jour manqué). `boiteAZero` de H04 est rempli (3 jours, série en cours).
+- **Manque aux données de LOT-01** : `engagementsDefis` (forme seulement ; une personne sur quatre n'a pas encore écrit le sien), `utilisateursConnectes` (30 jours, un compteur par jour), `boiteAZero` (historique quotidien, zéro atteint), `objectifMrrCents` dans les réglages. `attendusCockpit` rend l'objectif du mois (`{ objectifCents, mrrCents, resteCents, partPourcent, ecartDeRythmeJours, atteint }`) et les utilisateurs connectés (`{ aujourdhui, parJour[7] }`, `null` sans série), à la demande de S2 ; `manque` est vide. **`check:journee` : G08 rouge tant que S2 ne calcule pas ces deux chiffres.**
+- **Gardes avant push** : argent 70, contacts 93, creer 137, echanger 94, ecrire 99, developpement 51, connecteurs 103 verts. **`check:journee` : 2 rouges (H04 et H25), dus à l'alignement commandé** : son harnais calcule encore la série des jeux avec `serieEnCours(journeesDeTravail(taches…))` (ligne 211 de `scripts/check-journee.ts`) ; il doit prendre `serieDeLaJournee(dailyPriorities de la personne, mappées par prioritesDeLaCollection)`.
 
 ## Ce qui reste à faire (par ordre d'utilité)
 

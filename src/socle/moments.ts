@@ -58,6 +58,8 @@ export interface ChargesDeMoments {
   'sauvegarde.terminee': { reussie: boolean };
   'synchro.retablie': { horsLigneDepuisMs: number };
   'premiere.fois': { quoi: 'tache' | 'client' | 'facture' | 'projet' };
+  // Ma journée (LOT-01, S2) : un défi d'équipe devient « Tenu » (STATUT §1.36 n° 5).
+  'defi.tenu': { defiId: string };
   // La Garde (S3) — voir docs/refonte/rapports/S3.md, « Bus de moments ».
   'garde.escalade': { incidentId: string; niveau: 1 | 2 };
   'site.muet': { siteId: string };
@@ -88,6 +90,7 @@ export const CATALOGUE_DES_MOMENTS = {
   'sauvegarde.terminee': { famille: 'outils', ton: 'info' },
   'synchro.retablie': { famille: 'outils', ton: 'info' },
   'premiere.fois': { famille: 'jour', ton: 'fete' },
+  'defi.tenu': { famille: 'jour', ton: 'fete' },
   'garde.escalade': { famille: 'outils', ton: 'critique' },
   // Un site muet demande qu'on regarde, pas encore une alarme : l'escalade, s'il y en a une, sera critique.
   'site.muet': { famille: 'outils', ton: 'decision' },

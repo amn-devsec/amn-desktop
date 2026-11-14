@@ -19,7 +19,7 @@
  *
  *   AMN_DOSSIER_V4=<dossier> AMN_E2E_EMAIL=essai.interne@exemple.test AMN_E2E_PASSWORD=… \
  *     node scripts/qualite/fidelite/garde.mjs --lot LOT-00 --dist <build> [--dist-dev <build NODE_ENV=development>] \
- *       [--api http://127.0.0.1:4171] [--sortie <dossier>] [--seulement H40,H41] [--rapport f.md]
+ *       [--api http://127.0.0.1:4171] [--sortie <dossier>] [--seulement H40,H41] [--rapport f.md] [--depuis <worktree-du-lot>]
  *
  * Sûreté : celle de `capturer.mjs` (build servi depuis le disque, réseau limité à cette machine, compte @exemple.test).
  * Sortie 0 = rien ne dépasse (ou images absentes), 1 = au moins un écran dépasse, 2 = erreur d'usage ou de capture.
@@ -59,7 +59,11 @@ if (!DIST) { console.error('--dist <build de l’édition interne> manquant'); p
 const slug = LOT.toLowerCase().replace('-', '');
 const scenarios = path.join(ICI, `ecrans-${slug}.json`);
 const fAcceptes = path.join(RACINE, 'docs', 'qualite', 'fidelite', `acceptes-${LOT}.json`);
-const fJustifies = path.join(RACINE, 'docs', 'qualite', 'fidelite', `justifies-${LOT}.json`);
+// `--depuis <worktree>` : les écarts justifiés du lot sont écrits par la session du lot, sur SA branche (docs/qualite/fidelite/justifies-LOT-xx.json) :
+// on les lit là où la branche est extraite, avant la fusion. Sans lui, ceux du dépôt courant.
+const DEPUIS = opt('depuis');
+const fJustifiesLot = DEPUIS ? path.join(path.resolve(DEPUIS), 'docs', 'qualite', 'fidelite', `justifies-${LOT}.json`) : null;
+const fJustifies = fJustifiesLot && fs.existsSync(fJustifiesLot) ? fJustifiesLot : path.join(RACINE, 'docs', 'qualite', 'fidelite', `justifies-${LOT}.json`);
 if (!fs.existsSync(scenarios)) { console.error(`pas de scénarios pour ${LOT} : ${path.relative(RACINE, scenarios)} (un fichier par lot, modèle ecrans-lot00.json)`); process.exit(2); }
 const lire = (f, defaut) => (fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : defaut);
 const acceptes = lire(fAcceptes, { mesure: 'strict', valeurs: {} });
@@ -71,7 +75,14 @@ const sortie = path.resolve(opt('sortie', fs.mkdtempSync(path.join(os.tmpdir(), 
 const a = [path.join(ICI, 'lot.mjs'), '--scenarios', scenarios, '--dist', DIST, '--images', images, '--api', API, '--sortie', sortie];
 if (fs.existsSync(path.join(DOSSIER, '_data'))) a.push('--data', path.join(DOSSIER, '_data'));
 if (DIST_DEV) a.push('--dist-dev', DIST_DEV);
-if (SEUL) a.push('--seulement', SEUL);
+// Les écrans dont l'image v4 n'est pas (encore) dans le dossier ne comptent ni pour ni contre : on les dit, on ne les mesure pas.
+const presentes = fs.readdirSync(images).filter((f) => f.endsWith('.png'));
+const scenario = JSON.parse(fs.readFileSync(scenarios, 'utf8'));
+const ids = scenario.ecrans.map((e) => e.id).filter((id) => !SEUL || SEUL.split(',').includes(id));
+const sansImage = ids.filter((id) => !presentes.includes(`${id}.png`) && !presentes.some((f) => f.startsWith(`${id}-`)));
+const aMesurer = ids.filter((id) => !sansImage.includes(id));
+if (!aMesurer.length) { console.log(`check:fidelite ${LOT} : aucune image v4 pour ${sansImage.join(', ')} — la garde ne compte ni pour ni contre.`); process.exit(0); }
+a.push('--seulement', aMesurer.join(','));
 const run = spawnSync('node', a, { encoding: 'utf8', env: process.env, maxBuffer: 1 << 28 });
 process.stdout.write(run.stdout ?? '');
 if (run.status === 2 && !fs.existsSync(path.join(sortie, 'resultats.json'))) { process.stderr.write(run.stderr ?? ''); process.exit(2); }
@@ -93,7 +104,8 @@ for (const r of resultats) {
   lignes.push({ id, ecart, accepte, ...d });
 }
 
-const marque = { accepte: '✓', 'nouveau-ok': '✓', 'nouveau-justifie': '≈', echec: '✗', 'nouveau-echec': '✗', erreur: '!' };
+for (const id of sansImage) lignes.push({ id, ecart: null, accepte: null, statut: 'sans-image', raison: 'image v4 absente du dossier : ni pour ni contre' });
+const marque = { 'sans-image': '–', accepte: '✓', 'nouveau-ok': '✓', 'nouveau-justifie': '≈', echec: '✗', 'nouveau-echec': '✗', erreur: '!' };
 console.log(`\ncheck:fidelite ${LOT} — écart brut (${mesure === 'strict' ? '±2 px, couleur ±2' : 'disposition, couleur ±10'}) · seuils : +${SEUIL_HAUSSE} points sur l’accepté, ${SEUIL_NOUVEAU} % pour un écran nouveau`);
 for (const l of lignes) console.log(`${marque[l.statut]} ${l.id.padEnd(4)} ${l.ecart === null ? '—'.padStart(6) : `${pct(l.ecart)} %`.padStart(8)}  ${l.accepte === null ? 'nouveau' : `accepté ${pct(l.accepte)} %`}  ${l.raison}`);
 

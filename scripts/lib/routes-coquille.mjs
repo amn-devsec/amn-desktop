@@ -43,6 +43,9 @@
  * module que la colonne n'atteint PAS ne l'est pas, ce qui est la vérité utile.
  */
 
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+
 /** La clé où la colonne retient le choix de pli (voir src/lib/barreLaterale.ts). */
 const CLE_CHOIX = 'amn.sidebar.expanded';
 
@@ -84,6 +87,50 @@ export async function routesDeLaCoquille(page, attendre, base) {
       () => document.querySelectorAll('[data-rail-tuile]').length,
     );
     for (const r of await lire(soeur)) routes.add(r);
+    /*
+      LA COQUILLE V4 (socle, `amn.coquille=noir`). Pas de tuiles de rail : la colonne `data-socle="lateral"` montre des
+      familles dont le bouton porte `aria-expanded` (nom « Afficher les modules de … ») ; une famille ouverte n'en montre que
+      quelques-uns et finit par un bouton « + N autres ». Mesuré sur le build du socle : 15 liens à l'accueil au lieu de
+      142 écrans, donc des gardes « non concluantes ». On déplie tout, famille par famille, puis on lit la page
+      « Tous les modules », qui liste le registre entier et ne dépend d'aucun pli.
+    */
+    const bascules = await soeur.evaluate(
+      () => document.querySelectorAll('[data-socle="lateral"] button[aria-expanded]').length,
+    );
+    for (let i = 0; i < bascules; i += 1) {
+      await soeur.evaluate((n) => {
+        const b = document.querySelectorAll('[data-socle="lateral"] button[aria-expanded]')[n];
+        if (b && b.getAttribute('aria-expanded') === 'false') b.click();
+      }, i);
+      await attendre(150);
+      await soeur.evaluate(() => {
+        for (const b of document.querySelectorAll('[data-socle="lateral"] button')) {
+          if (/^\+\s*\d+\s+autres?/i.test((b.textContent ?? '').trim())) b.click();
+        }
+      });
+      await attendre(150);
+      for (const r of await lire(soeur)) routes.add(r);
+    }
+    if (bascules > 0) {
+      await soeur.goto(`${adresse.replace(/#.*$/, '')}#/tous-les-modules`);
+      await attendre(1800);
+      for (const r of await lire(soeur)) routes.add(r);
+      await soeur.goto(adresse);
+      await attendre(800);
+      /*
+        La coquille v4 fusionne des modules : plusieurs écrans existent encore mais ne sont plus liés nulle part (39 sur 142
+        mesurés : `#/relances`, `#/tracker`, `#/ssl`…). Aucun garde ne les verrait. On ajoute donc la liste versionnée
+        `docs/qualite/routes-interne.json` (régénérée par `scripts/qualite/lister-routes.mjs`) : ce qui est lié gagne, ce qui
+        ne l'est plus reste mesuré.
+      */
+      const fichier = process.env.AMN_ROUTES_SUPPLEMENT ?? fileURLToPath(new URL('../../docs/qualite/routes-interne.json', import.meta.url));
+      try {
+        for (const r of JSON.parse(readFileSync(fichier, 'utf8')).routes ?? []) routes.add(r);
+      } catch {
+        console.warn('  note  pas de liste de routes versionnée : amorce limitée à ce que la coquille v4 déplie.');
+      }
+    }
+
     for (let i = 0; i < combien; i += 1) {
       /*
         `el.click()` depuis la page, et non un clic à la souris : on veut
