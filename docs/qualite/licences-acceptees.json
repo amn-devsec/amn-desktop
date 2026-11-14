@@ -1,0 +1,4 @@
+{
+  "_": "Signalements de check:licences acceptés (GPL, LGPL, licence restrictive ou inconnue). Une entrée : le nom du paquet, la licence vue, la raison écrite, qui a accepté et quand. UNE AGPL NE S'ACCEPTE PAS : elle n'a pas d'entrée possible ici. Aucune acceptation à ce jour.",
+  "paquets": {}
+}
