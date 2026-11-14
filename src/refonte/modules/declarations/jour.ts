@@ -1,4 +1,4 @@
-import { Target, Trophy } from 'lucide-react';
+import { Sunrise, Target, Trophy } from 'lucide-react';
 import { declarerFamille, vue } from '../declarer';
 
 /**
@@ -161,6 +161,17 @@ export default declarerFamille({
         vue('series', '/series', ['voir ma série', 'voir mes badges', 'voir mes paliers'], ['série', 'jalons', 'badge', 'palier', 'régularité', 'record'], {
           en: { verbes: ['see my streak', 'see my badges', 'see my milestones'], motsCles: ['streak', 'milestones', 'badge', 'record', 'habit'] },
           nouveau: { icone: Trophy, ecran: () => import('../../journee/ecrans/L01/SeriesRefonte'), indice: { fr: 'Ta régularité, sans pression', en: 'Your steady habit, no pressure' } },
+        }),
+      ],
+    },
+    {
+      nom: { fr: 'Rituel du matin', en: 'Morning ritual' },
+      action: 'organiser',
+      niveau: 'courant',
+      vues: [
+        vue('rituel', '/rituel', ['faire mon rituel du matin', 'choisir mes trois priorités', 'préparer ma journée'], ['rituel', 'matin', 'priorités', 'journée', 'trois choses'], {
+          en: { verbes: ['do my morning ritual', 'choose my three priorities', 'plan my day'], motsCles: ['ritual', 'morning', 'priorities', 'day', 'three things'] },
+          nouveau: { icone: Sunrise, ecran: () => import('../../journee/ecrans/L03/RituelRefonte'), indice: { fr: 'Trois minutes pour bien partir', en: 'Three minutes to start well' } },
         }),
       ],
     },
