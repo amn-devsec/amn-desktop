@@ -14,13 +14,13 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 |---|---|---|---|
 | S0 Socle | `session_01SJe828c2W5EnkMY4fhFY6z` | passe finale v4 finie (`888f7a0`) ; correctifs `ancres` et `avoirs` prêts mais **attend l'accord direct de Harun** pour pousser | ligne à coller par Harun (POINT-HARUN) ; puis ce que T1 signale |
 | T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | passage 2 fini : socle fusionné (§1.35) | C-008 (gardes sous la coquille v4), puis `check:fidelite` sur chaque lot, priorité 2 |
-| S6 Sécurité | `session_01RHV8Xq2txWkfjAusKvq9DG` | LOT-07 préparation (`afdbccf`) ; **sans zips v4** ; une étape de sécurité attend amn-api | fusion après le contrôle du paquet client par T1 |
+| S6 Sécurité | `session_01RHV8Xq2txWkfjAusKvq9DG` | LOT-07 préparation **fusionnée** (`3030072`) ; **sans zips v4** ; une étape de sécurité attend amn-api | construire LOT-07 dès qu'il a les zips |
 | SIM | `session_011UF2ufZg9moGv2rRZFRuf7` | tout fusionné (`b0173f3`, 115 jeux) ; **sans dossier v4** | listes « Manque aux données » des lots à venir |
 | DS | `session_01TZGDvVWristJnnPK59rruY` | **construit LOT-04** | lots de 3 à 5 écrans → T1 → fusion |
 | S5 | `session_012jWErBSSkcoVaU3iN895bQ` | **construit LOT-03, puis LOT-05** | lots de 3 à 5 écrans → T1 → fusion |
 | S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **construit LOT-02** (feu vert le 14 nov., 08h) | lots de 3 à 5 écrans → `check:fidelite` de T1 → fusion |
 | S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **construit LOT-06** | lots de 3 à 5 écrans → T1 → fusion |
-| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | **LOT-11 construit, 7 sur 7** (`62fe141`) | `check:fidelite` de T1 → fusion ; déclarer les 6 modules après la correction de `check:navigation` (S5) |
+| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | LOT-11, 7 sur 7, non accepté (6 écrans non montés) | correction durable de `check:navigation`, puis déclarer ses 6 modules → T1 remesure → fusion |
 | S9 | `session_01C5DAVygXYax6Q7g436TPQx` | LOT-12 fini, valeurs de MC07 fusionnées (`bcdc65f`) | rien |
 | S2, S3 (première tâche : `check:encres`), F1 — **relancés le 14 nov., 08h** | `session_014ZkF6SeGRNi6NR3uEsjM5q`, `session_01FBSpK6n1yYtYXYyxbLAuBV`, `session_01VZHqP3gvzrtnpgsTrrKguV` | arrêtées | relancer au socle v4 (prompts : `PROMPTS-11NOV.md`, §1.21) |
 
@@ -44,6 +44,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov., 09h20 : **LOT-07 préparation fusionnée** (`89ef910a`), paquet client vérifié par T1 ; 5 conflits, tous des ajouts, gardés. Premier `check:fidelite` sur les lots : LOT-11 non accepté (6 écrans non montés, faute de déclaration au registre) ; F20 à justifier, avec deux tuiles à ajouter ; F50 et H15 à justifier ; H16 à reprendre (bouton, jauge, suggestion). Réorganisation : la correction durable de `check:navigation` passe de S5 à S8, qui est bloqué et disponible.
 - 14 nov., 09h10 : **C-008 réglé** (patch de T1, appliqué par le CO dans `check-contraste.mjs` et `routes-coquille.mjs`). Sous la coquille v4, les gardes trouvent 160 écrans au lieu de 15 ; contraste : 34 622 textes, aucun sous AA ; plus de faux rouge sur le néon. C-009 corrigé aussi. Restent des défauts réels, à répartir : 11 familles de cibles trop petites, 4 écrans qui débordent à 390 px, 39 écrans de l'ancienne barre que la coquille v4 ne relie plus.
 - 14 nov., 09h00 : LOT-02, 4 écrans sur 13 (S1, `479995a`). La création préremplie demanderait de toucher `src/screens` : refusé, puisque l'édition cliente ne change pas. Les boutons ouvrent la création existante, avec l'écart noté. L'intérêt de H06 est estimé et dit comme tel.
 - 14 nov., 08h55 : attendus du cockpit G08 (SIM `651ba70`) et calcul de S2 (`bf2f29e`) fusionnés ensemble. `check:journee` est à 64, toutes les gardes sont vertes. SIM et S2 n'ont plus rien en attente avant les zips v4.
