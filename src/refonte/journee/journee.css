@@ -710,3 +710,15 @@ i[data-t='attente'] { background: transparent; border: 1px dashed var(--socle-te
 /* §1.41 : en édition, la zone de 36 px des poignées (coin de redimensionnement) ne doit pas être rognée par le bord arrondi du widget. */
 .jr-toile[data-edition='true'] .jr-widget { overflow: visible; }
 .jr-widget[data-choisi='true'] .jr-equerre { z-index: 3; }
+
+/* §1.41 (H25) : poignées d'édition à 36 × 36 réels (zone propre au bouton, rien à rogner) ; le repère visible reste petit, dessiné par ::before.
+   À retirer avec le reste quand S0 aura passé le socle à 36 px (§1.38 n° 6). */
+.jr-poignee { width: 36px; height: 36px; margin: -7px -10px; }
+.jr-fermer { width: 36px; height: 36px; margin: -8px -8px -8px auto; }
+.jr-outil { width: 36px; height: 36px; margin: -7px; }
+.jr-equerre { right: 0; bottom: 0; width: 36px; height: 36px; border: 0; border-radius: 0; background: transparent; }
+.jr-equerre::before { content: ''; position: absolute; right: 4px; bottom: 4px; width: 10px; height: 10px; border-right: 2px solid var(--socle-texte-3); border-bottom: 2px solid var(--socle-texte-3); border-radius: 0 0 3px 0; }
+.jr-widget[data-choisi='true'] .jr-equerre { right: -14px; bottom: -14px; width: 36px; height: 36px; background: transparent; border-radius: 0; }
+.jr-widget[data-choisi='true'] .jr-equerre::before { right: 9px; bottom: 9px; width: 9px; height: 9px; border: 0; background: var(--fam-a); border-radius: 2px; }
+.jr-catalogue .cr-recherche { height: 36px; }
+.jr-poignee, .jr-fermer, .jr-outil, .jr-equerre { z-index: 4; }

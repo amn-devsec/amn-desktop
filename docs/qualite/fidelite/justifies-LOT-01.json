@@ -12,6 +12,15 @@
     },
     "L07": {
       "raison": "défi de la semaine, relais, engagements, défis passés et célébrations de l'aperçu sont fictifs ; le dépôt ne stocke pas encore de défi (§1.27, pas de collection nouvelle sans l'accord de Harun) : l'écran réel montre l'état vide de la fiche et le seul défi calculable, « Zéro impayé » (factures) ; les cinq barres du relais sont plus étroites que sur l'image d'environ 20 px (largeur proportionnelle aux messages du jour) ; mêmes écarts de coquille que LOT-00 (sélecteur d'organisation dans l'en-tête, section « Développement » de la barre latérale, états de la barre « Aujourd'hui », décalage du titre de page du socle), absents de l'image"
+    },
+    "H25": {
+      "raison": "valeurs des widgets (chiffre d'affaires, objectif, tâches, agenda, tickets, utilisateurs actifs, factures, activité) et 30 barres du graphique issues des données d'exemple de l'aperçu, pas de celles de l'image ; en réel, tout vient des collections du dépôt et ce qui manque est « non disponible » (§1.27) ; disposition à ±10 : 8,1 % ; mêmes écarts de coquille que LOT-00 (sélecteur d'organisation dans l'en-tête, section « Développement » de la barre latérale, états de la barre « Aujourd'hui », décalage du titre de page du socle), absents de l'image"
+    },
+    "L01": {
+      "raison": "série, record, rails (tâches, boîte à zéro, rituels), médailles et badges d'équipe viennent de données d'exemple, pas de ceux de l'image ; l'escalier des paliers est dessiné par le code, pas en image ; en réel, ce qui n'existe pas dans le dépôt est « non disponible » ; disposition à ±10 : 7,2 % ; mêmes écarts de coquille que LOT-00 (sélecteur d'organisation dans l'en-tête, section « Développement » de la barre latérale, états de la barre « Aujourd'hui », décalage du titre de page du socle), absents de l'image"
+    },
+    "L02": {
+      "raison": "le cadran, le minuteur (15:12), la tâche courante, la file, le bruit coupé (4 / 2 / 3) et la matinée viennent de données d'exemple posées dans l'aperçu ; le cadran est un tracé SVG dessiné par le code (arc, graduations, halo) et non l'image de la maquette ; en réel, le bruit coupé et la durée estimée sont « non disponibles » ; disposition à ±10 : 5,9 % ; mêmes écarts de coquille que LOT-00 (sélecteur d'organisation dans l'en-tête, section « Développement » de la barre latérale, états de la barre « Aujourd'hui », décalage du titre de page du socle), absents de l'image"
     }
   }
 }
