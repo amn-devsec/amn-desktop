@@ -25,5 +25,7 @@ export default declarerSubstitutions('creer', [
   { route: '/materiel', module: 'equipment', composant: lazy(() => import('../../creer/ecrans/MR04/MaterielRefonte')) },
   // MR07 — Commandes.
   { route: '/commandes', module: 'orders', composant: lazy(() => import('../../creer/ecrans/MR07/CommandesRefonte')) },
+  // MR08 — Boutique en ligne.
+  { route: '/boutique', module: 'shop', composant: lazy(() => import('../../creer/ecrans/MR08/BoutiqueRefonte')) },
   // MR05 et MR06, MR10 : routes nouvelles, montées dans `appRoot.internal.tsx` (§1.27 c) ; MR05 est une vue du registre.
 ]);
