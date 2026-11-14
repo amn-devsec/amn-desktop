@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Monitor, Play, Plus } from 'lucide-react';
-import { PageHead, Segmente } from '../../../../socle/ui';
+import { AudioWaveform, FileText, Mic, Monitor, Play, Plus, Video } from 'lucide-react';
+import { PageHead, Segmente, SuggestionAjmani } from '../../../../socle/ui';
 import { compte } from '../../i18n';
 import { codeTemporel, compteRelecture, fenetreVisible, marqueursDeRegle, positionPx, type CaseSemaine, type Commentaire, type Plan, type PisteAudio, type SousTitreLigne, type ZoomFrise } from '../../video';
 import { useMots, type CleMR01 } from './textes';
@@ -90,6 +90,7 @@ export function VueVideo(p: VueVideoProps) {
               <div className="cr-apercu__cadre" data-format={format}>
                 <span className="cr-mono cr-apercu__code">{codeTemporel(o.tete)}</span>
                 <span className="cr-apercu__scene" aria-hidden />
+                <span className="cr-apercu__reperes" aria-hidden><i /><i /><i /><i /></span>
               </div>
               <div className="cr-lecteur">
                 <button type="button" className="cr-lecteur__lire" aria-label="Lecture"><Play size={14} aria-hidden /></button>
@@ -114,14 +115,12 @@ export function VueVideo(p: VueVideoProps) {
             ))}
           </section>
           {p.suggestion && (
-            <section className="cr-ajmani-carte">
-              <b>{tm('suggestion.titre')}</b>
-              <p>{tm('suggestion.texte')}</p>
-              <div className="cr-ajmani-carte__actions">
-                <button type="button" className="cr-bouton-plein" onClick={p.onPreparer}>{tm('suggestion.preparer')}</button>
-                <button type="button" className="cr-bouton-verre" onClick={p.onNon}>{tm('suggestion.non')}</button>
-              </div>
-            </section>
+            <SuggestionAjmani
+              titre={tm('suggestion.titre')}
+              texte={tm('suggestion.texte')}
+              primaire={{ libelle: tm('suggestion.preparer'), onClick: p.onPreparer ?? (() => undefined) }}
+              secondaire={{ libelle: tm('suggestion.non'), onClick: p.onNon ?? (() => undefined) }}
+            />
           )}
         </aside>
       </div>
@@ -135,10 +134,10 @@ export function VueVideo(p: VueVideoProps) {
         {o && (
           <div className="cr-frise__corps">
             <div className="cr-pistes-noms">
-              <div><b>{tm('piste.video')}</b><small>{nb('piste.plans', o.plans.length)}</small></div>
-              <div><b>{tm('piste.soustitres')}</b><small>{nb('piste.phrases', o.sousTitres.length)}</small></div>
-              <div><b>{tm('piste.voix')}</b><small>{nb('piste.prises', o.voix.length)}</small></div>
-              <div><b>{tm('piste.musique')}</b><small>{o.musique ? `ambiance, ${o.musique.niveauDb} dB` : ''}</small></div>
+              <div><Video size={14} aria-hidden /><span><b>{tm('piste.video')}</b><small>{nb('piste.plans', o.plans.length)}</small></span></div>
+              <div><FileText size={14} aria-hidden /><span><b>{tm('piste.soustitres')}</b><small>{nb('piste.phrases', o.sousTitres.length)}</small></span></div>
+              <div><Mic size={14} aria-hidden /><span><b>{tm('piste.voix')}</b><small>{nb('piste.prises', o.voix.length)}</small></span></div>
+              <div><AudioWaveform size={14} aria-hidden /><span><b>{tm('piste.musique')}</b><small>{o.musique ? `ambiance, ${o.musique.niveauDb} dB` : ''}</small></span></div>
             </div>
             <div className="cr-pistes" style={{ width: L }}>
               <div className="cr-regle cr-mono">{graduations.map((s) => <span key={s} style={{ left: x(s) }}>{fmt(s)}</span>)}</div>
