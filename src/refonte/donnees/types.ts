@@ -152,6 +152,10 @@ export interface Entreprise {
     delaiRelanceRendezVousJours: number;
     delaiRelanceProspectJours: number;
     budgetMensuelDepensesCents: number;
+    /** DEV-couts : le plafond mensuel des connecteurs payants (centimes), le seuil d'alerte et ce qui se passe au plafond. */
+    plafondConnecteursCents: number;
+    prevenirConnecteursAPourcent: number;
+    auPlafondConnecteurs: 'tout s’arrête' | 'on continue et on prévient';
   };
 }
 
@@ -388,6 +392,9 @@ export interface Fournisseur {
   note: string;
   /** Négociation enregistrée (sert à la suggestion « renégocier » de H45). */
   negociationLe: Jour | null;
+  /** H15 : le montant de commande à partir duquel le port est offert (null : pas de franco), et le port en dessous. */
+  francoCents: number | null;
+  fraisDePortCents: number;
 }
 
 /** H45 : historique d'achats (commandes aux fournisseurs). */

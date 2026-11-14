@@ -31,31 +31,33 @@ const mixte = construireMonde({ volume: 'normal', volumes: { factures: 'vide', c
 | `normal` | le cas des maquettes | 48 / 70 / ≈ 270 |
 | `beaucoup` | défilement, pagination, performance | 300 / 700 / ≈ 1 750 |
 
-`construireMonde` assemble les 100 jeux en quelques centaines de millisecondes, même au volume `beaucoup`.
+`construireMonde` assemble les 109 jeux en quelques centaines de millisecondes, même au volume `beaucoup`.
 
 ## Conventions
 
 - **Montants en centimes entiers** (`...Cents`), TTC sauf mention contraire. Aides : `totauxDeFacture`, `totauxDeLignes`.
 - **Un champ qui existe déjà dans le dépôt garde son nom** (`title`, `status`, `assigneeEmail`, `amountCents`…). Un champ que seule une fiche réclame est en français et cite sa fiche (`types.ts`). `compat.ts` vérifie à la compilation que `FicheClient`, `Devis`, `Facture`, `Evenement`, `Depense`, `NoteRapide` et `Projet` restent des sur-ensembles des types du dépôt.
+- **Numérotation** : le format du module existant — `AAAA-NNNN` pour une facture, `AV-AAAA-NNNN` pour un avoir, chacune continue par année. Les avoirs (`avoirs`) sont des factures de nature `creditNote` qui réduisent `creditNoteFor` ; le reste dû (`soldeCents`) en tient compte, et le chargeur les range avec les factures.
 - **Jours** : `AAAA-MM-JJ` du calendrier de Paris (heure d'hiver et d'été gérées). **Instants** : ISO.
 - **Ce qui est dérivé se recalcule** : « En retard » (`statutAffiche`), santé d'un client (`calculerSante`, formule proposée par H05), avancement et statut d'un projet (`avancementProjet`, `statutProjet`), série (`journeesDeTravail`, `serieEnCours`), quantité en stock (`quantiteEnStock`), état d'une organisation (`etatOrganisation`), score et niveau de maturité (`scoreMaturite`, `niveauMaturite`), état d'un accord (`etatAccord`), disponibilité d'un outil (`outilDisponible`), niveau de conformité (`niveauConformite`), jours sans impayé (`joursSansImpaye`). Un écran doit refaire ces calculs ; les valeurs stockées servent à comparer.
 - Les règles que les fiches disent « à confirmer dans le code » sont implémentées comme **propositions**, nommées dans le code. Ne les prenez pas pour la règle du produit.
 
 ## Catalogue des jeux
 
-Les 100 jeux sont dans `types.ts` (`NOMS_DES_JEUX`, 25) et `types-suite.ts` (`NOMS_DES_JEUX_SUITE`, 75). Fiches = celles de `AMN-refonte-CO/lots/`.
+Les 109 jeux sont dans `types.ts` (`NOMS_DES_JEUX`, 25) et `types-suite.ts` (`NOMS_DES_JEUX_SUITE`, 84). Fiches = celles de `AMN-refonte-CO/lots/`.
 
 | Lot | Jeux | Fichier |
 |---|---|---|
 | Base | `equipe`, `entreprise` | `equipe.ts`, `fond.ts` |
 | Ma journée | `taches`, `evenements`, `projets`, `tickets`, `notes`, `rappels`, `habitudes` ; planning de l'équipe : `creneaux` ; défis : `defis` | `ma-journee.ts`, `complements.ts` |
 | Contacts | `clients`, `interlocuteurs`, `prospects`, `fournisseurs`, `achats`, `avis`, `relances`, `fidelite` ; `partenaires` | `contacts.ts`, `complements.ts` |
-| L'argent | `devis`, `factures`, `paiements`, `depenses`, `abonnements`, `contrats`, `comptes`, `mouvements`, `enveloppes` ; TVA et impôts : `echeancesFiscales` ; paie : `bulletins` ; tarifs : `prestations` | `argent.ts`, `complements.ts` |
+| L'argent | `devis`, `factures`, `avoirs`, `paiements`, `depenses`, `abonnements`, `contrats`, `comptes`, `mouvements`, `enveloppes` ; TVA et impôts : `echeancesFiscales` ; paie : `bulletins` ; tarifs : `prestations` | `argent.ts`, `complements.ts` |
 | Écrire | `fichiers`, `signatures`, `pages`, `modeles`, `journal`, `textes`, `archives`, `connaissances` | `ecrire.ts` |
 | Échanger | `conversations`, `messages`, `canaux`, `annonces`, `courriels`, `salles`, `appels`, `reunions`, `partages`, `sondages`, `reponsesAuto` | `echanger.ts` |
 | Créer | `articles`, `produits`, `commandes`, `chantiers`, `dossiersPhotos`, `marque`, `videos`, `pagesPubliques`, `etapesTournee`, `equipements`, `ressources`, `reservations`, `vehicules`, `modelesControle`, `controles`, `ecarts` | `creer.ts` |
 | Outils | `corbeille`, `aide`, `secrets` (masqués), `sites`, `trackers`, `sauvegardes`, `operations`, `raccourcis`, `automatisations`, `connecteurs`, `notifications`, `modelesMetier`, `usagesCalculs` | `boite-outils.ts` |
 | La Garde | `organisations`, `actifs`, `alertes`, `incidents`, `vulnerabilites`, `rondes`, `evenementsSecurite`, `journalAcces`, `criteresMaturite`, `offresCyber` | `garde.ts` |
+| Développement (LOT-11) | `depots`, `deploiements`, `deploiementsPlanifies`, `executions`, `tachesPlanifiees`, `mesuresServeur`, `servicesServeur`, `paiementsConnecteurs` ; `connecteurs` complétés (mode, modèle de coût, consommation, payé) | `developpement.ts` |
 | Cyber (LOT-10) | `outilsCyber`, `accords`, `missions`, `constats`, `documentsCyber`, `logicielsClients`, `alertesVeille`, `fuites`, `dossiersConformite`, `campagnes`, `parcSecurite` | `cyber.ts` |
 
 Aides communes : `commun.ts` (horodatages bornés au passé, cycles, hasard par jeu).
@@ -82,6 +84,10 @@ node scripts/charger-donnees-essai.mjs --volume normal      # vide | peu | norma
 ```
 
 N'écrit que sur `127.0.0.1` et que pour un compte `@exemple.test`. Huit jeux ont une collection d'accueil dans amn-api (clients, projets, tâches, rendez-vous, notes, devis, factures, dépenses ; sept sont prouvés par `compat.ts`, les tâches ont un type lâche) ; le script nomme les autres en fin de passage. Mode d'emploi pour Harun : `docs/refonte/LANCER-EN-LOCAL.md`, étape 4. La Garde (`--garde`) passe par `scripts/seed-supervision.mjs`, qui exige une API d'essai sur un fichier.
+
+## Développement (LOT-11, `developpement.ts`)
+
+Les formes sont des sur-ensembles de celles de S8 (`src/refonte/developpement/`) : sa logique (`etatGlobal`, `executionsDuMois`, `precedentPassage`…) lit ces jeux sans adaptateur, ce que `compat.ts` et `check:donnees` vérifient. Le journal d'exécutions est la vérité des automatisations : le compte du mois et le dernier passage s'en déduisent. Aucun nom d'hôte, aucune adresse, aucun port, aucune variable d'environnement. Les modèles de sites ne sont pas des données de SIM (contenu à relire par Harun).
 
 ## La charge (LOT-14, `charge.ts`)
 

@@ -6,7 +6,7 @@
 2. **Chargeur** `scripts/charger-donnees-essai.mjs` : écrit un volume choisi dans l'API d'essai locale (127.0.0.1 seulement, comptes `@exemple.test`), huit collections ; La Garde par `seed-supervision.mjs`. Ligne ajoutée à `LANCER-EN-LOCAL.md`.
 3. **Attendus** des écrans calculés H09, H04, G08 et H25 (`attendus.ts`), avec les cas que leurs fiches montrent garantis dans les jeux.
 4. **LOT-14** : 1 000 organisations fictives reproductibles (`charge.ts`), scénarios dans `docs/simulation/charge.md`, exécution locale `simulation/charge/executer.mjs` : les trois scénarios tournent, aucune écriture perdue.
-5. **Champs réclamés** par les lots 02, 04 et 06 : une partie ajoutée avec contrôle (le reste est listé plus bas). `check:donnees` : **106 contrôles** (87 avant).
+5. **Champs réclamés** par les lots 02, 04 et 06 ajoutés avec contrôle, sauf une courte liste plus bas ; **numérotation** `AAAA-NNNN` et **avoirs** `AV-AAAA-NNNN` (CO, §1.28 n° 4). `check:donnees` : **114 contrôles** (87 avant).
 
 ## Branche et sha
 
@@ -30,7 +30,7 @@ Fichiers **sensibles** ou **hors zone** : aucun (ni `package.json`, ni `editions
 | `lint` | vert |
 | `check:accueils`, `check:socle`, `check:moments` | vert |
 | `check:langue`, `check:accent`, `check:naming`, `check:modules` | vert |
-| `check:donnees` (106 contrôles) | vert |
+| `check:donnees` (114 contrôles) | vert |
 
 Le scénario de charge « cible » est rejoué par `check:donnees` quand amn-api est à côté (sinon le contrôle le dit et passe).
 
@@ -51,22 +51,32 @@ Pour que les cas des fiches existent : prévisions de trésorerie sur quatre moi
 ### Champs ajoutés (avec un contrôle chacun)
 
 - **LOT-02** : référents de partenaires (interlocuteurs de type partenaire), sentiment des avis et NPS (`calculerNps`), raison de perte des prospects.
-- **LOT-04** : régime de TVA ; lignes à 10 % et 5,5 % (factures, devis) et dépenses à 5,5 % ; historique des soldes (90 jours) et des enveloppes (6 mois) ; indicateur « échue » sur les encaissements prévus ; attendus de H09.
-- **LOT-06** : MR07 (création, heure d'échéance, livraison, paiement en ligne) ; MR03 (durée et distance de trajet, état « Sur place ») ; MR04 (dernier contrôle, dernier entretien, réforme).
+- **LOT-04** : numérotation des factures `AAAA-NNNN` et jeu `avoirs` (`AV-AAAA-NNNN`, factures de nature `creditNote`, partiels sur les factures dues, le reste dû baisse, la TVA aussi) ; régime de TVA ; lignes à 10 % et 5,5 % (factures, devis) et dépenses à 5,5 % ; historique des soldes (90 jours) et des enveloppes (6 mois) ; indicateur « échue » sur les encaissements prévus ; attendus de H09.
+- **LOT-06** : tout ce que la liste réclame **sauf MR08** (aucun jeu) — H15 (niveau cible, emplacement par mouvement, commandes fournisseur, franco et port), H16 (poids et part réalisée, interventions, livraisons), H17 (rôle et part des couleurs, « à éviter », dernière modification), MR01 (étape « Sous-titrage », plans, sous-titres, commentaires, publication), MR02 (sections, visites par jour, avis avec accord), MR03 (trajets, « Sur place »), MR04 (affectation datée, entretien, contrôle, réforme), MR05 (photos, TVA, prix d'achat, niveau conseillé, ventes par semaine), MR06 (indisponibilités, conflits), MR07 (création, échéance, livraison, paiement en ligne), MR09 (énergie, niveau, autonomie, kilomètres et carburant par jour), MR10 (orientation, signature du client), MR11 (« sans objet », cause, relevé), F50 (contrôle ouvert rattaché à un chantier, étape « Réception »).
+
+## LOT-11 Développement (commande du CO, §8 de la note de préparation)
+
+Huit jeux de plus (109 au total) : `depots`, `deploiements`, `deploiementsPlanifies`, `executions`, `tachesPlanifiees`, `mesuresServeur`, `servicesServeur`, `paiementsConnecteurs`, et les `connecteurs` complétés (mode local / payant / à brancher, modèle de coût, consommation du mois, payé), plus le plafond mensuel dans les réglages (40 €, alerte à 80 %). `developpement.ts`. Formes en sur-ensembles de celles de S8, vérifiées à la compilation et lues par la logique même de S8 dans `check:donnees`. Cas garantis : les quatre états de déploiement, neuf déploiements dans la semaine, un « Revenir », un test en échec, une pause automatique après trois échecs, un service à surveiller, les trois modes de connecteur. Les noms de dépôts sont inventés (aucun dépôt réel).
+
+Pas fait : le résumé du serveur de DEV-serveur (en ligne depuis N jours, copie hors serveur, coût du mois, remplissage du disque) — non listé dans la commande ; les modèles de sites (contenu, pas des données).
+
+## Avoirs : sur demande seulement (retrait du 14 nov. par le CO)
+
+Le CO a retiré temporairement la fusion `c9e8713` de `refonte-vivante` : `check:argent` (DS) ne lit pas encore la nature `creditNote`, donc les avoirs faussaient le reste dû, la TVA et les impayés. Réponse de SIM : le jeu `avoirs` reste, mais **n'entre dans le monde que sur demande** — `construireMonde({ avoirs: true })`, `jeu('avoirs')`, `--avoirs` pour le chargeur. Par défaut le monde n'a pas d'avoirs, et les contrôles de tous les lots qui lisent ces jeux passent (argent 53, contacts 85, échanger 89, écrire 94, créer 137, développement 51, connecteurs 103). Quand DS lit les avoirs, passer `avoirs` à `true` par défaut (une ligne dans `monde.ts`).
 
 ## Ce qui reste à faire (par ordre d'utilité)
 
 1. **Champs réclamés, non faits** (relus sur `STATUT.md` de `refonte-vivante` pour LOT-02, et sur les branches `refonte-argent` et `refonte-creer` pour LOT-04 et LOT-06, pas encore fusionnées) :
-   - LOT-04 : règlements partiels et avoirs, remises sur devis et prestations ;
-   - LOT-06 : H15 (niveau cible, emplacement par mouvement, commandes fournisseur, franco), H16 (poids et part réalisée par étape, interventions, livraisons), H17 (rôle des couleurs, règles « à éviter »), MR01 (étape « Sous-titrage », plans, sous-titres, commentaires), MR02 (sections, visites par jour, avis avec accord), MR04 (affectation datée), MR05 (photos, TVA, prix d'achat, niveau conseillé, ventes par semaine), MR06 (indisponibilité, historique des conflits), MR08 (aucun jeu : sessions en direct, entonnoir, paniers, objectif), MR09 (énergie, niveau, autonomie, kilomètres), MR10 (orientation des photos, signature du client), MR11 (« sans objet », cause et date de relevé), F50 (contrôle ouvert rattaché à un chantier, étape « Réception »).
+   - LOT-04 : règlements partiels (plusieurs paiements par facture), remises sur devis et prestations ;
+   - LOT-06 : MR08 (aucun jeu : sessions en direct, entonnoir, paniers, objectif du trimestre) ;
    - LOT-02 : deux points ne sont pas des jeux mais des collections côté application (avantages de fidélité offerts et utilisés, collection d'interlocuteurs).
 2. **LOT-03 (Écrire)** a inscrit sa liste pendant la mission (arrivée par la dernière fusion) ; **rien n'en est fait** : pages (blocs avec échéance et liens, commentaires ancrés, propriétés, présence), documents (intercalaires, partage externe, faits relevés), signatures (champs posés, rôle « en copie », relances planifiées), journal (humeur sur 5 niveaux, énergie, mercis : les noms des niveaux sont dans la fiche ME01, que je n'ai pas relue), base de connaissances, archives, relecture de F20. Les lots 01, 05, 07, 08 et 10 n'ont inscrit aucune liste à ce jour.
-3. **Le chargeur n'écrit que huit jeux sur cent** : voir « Points à trancher ».
+3. **Le chargeur n’écrit que huit jeux (et les avoirs, avec les factures) sur 101** : voir « Points à trancher ».
 4. **Cyber** : le volume « beaucoup » n'est toujours pas éprouvé par un écran (§1.11, n° 4).
 
 ## Points à trancher (CO)
 
-- **Collections d'accueil dans amn-api.** La liste `ALLOWED` d'amn-api est fermée. Huit jeux ont une collection d'accueil (sept dont la forme est prouvée par `compat.ts`, plus les tâches) ; les **92 autres** n'ont pas de collection confirmée (équipe, tickets, paiements, abonnements, contrats, mouvements, bulletins, partenaires, Écrire, Échanger, Créer, Outils, La Garde, Cyber…). Ouvrir des collections, ou dire dans quelles collections existantes les ranger, est une décision du CO et un travail côté amn-api. Tant que ce n'est pas fait, l'application d'essai ne voit que ces huit jeux.
+- **Collections d'accueil dans amn-api.** La liste `ALLOWED` d'amn-api est fermée. Huit jeux ont une collection d'accueil (sept dont la forme est prouvée par `compat.ts`, plus les tâches) ; les **92 autres** (hors avoirs, rangés avec les factures) n’ont pas de collection confirmée (équipe, tickets, paiements, abonnements, contrats, mouvements, bulletins, partenaires, Écrire, Échanger, Créer, Outils, La Garde, Cyber…). Ouvrir des collections, ou dire dans quelles collections existantes les ranger, est une décision du CO et un travail côté amn-api. Tant que ce n'est pas fait, l'application d'essai ne voit que ces huit jeux.
 - **La Garde dans l'API d'essai.** `seed-supervision.mjs` écrit dans un **fichier** sqlite de bac à sable ; `scripts/qualite/api-essai.mjs` (T1) travaille en mémoire. Proposition : T1 ajoute à `api-essai.mjs` une base sur fichier facultative (une variable d'environnement), et `--garde` fonctionne tel quel. Vérifié avec une copie locale de `api-essai.mjs` qui prend le chemin d'un fichier : le parc de supervision s'écrit bien.
 - **L'heure de Cyber.** Les fiches donnent le jour (mardi 3 nov.), pas l'heure : j'ai pris 10 h 42, comme le bureau.
 - **Le runner de charge démarre sa propre API d'essai** (même code, `createApp`, base en mémoire ou fichier jetable, 127.0.0.1) au lieu de viser le port 4171 : il doit créer des organisations, ce que l'API n'offre pas depuis l'extérieur. Est-ce acceptable pour « contre l'API d'essai » ?

@@ -52,5 +52,6 @@ import type { Volume } from './outils';
  * existent ; on ne rend que le jeu demandé.
  */
 export function jeu<N extends NomDuJeu>(nom: N, volume: Volume = 'normal', options: Omit<OptionsMonde, 'volume' | 'volumes'> = {}): Monde[N] {
-  return construireMonde({ ...options, volume: 'normal', volumes: { [nom]: volume } })[nom];
+  // Demander le jeu des avoirs, c'est vouloir des avoirs.
+  return construireMonde({ avoirs: nom === 'avoirs', ...options, volume: 'normal', volumes: { [nom]: volume } })[nom];
 }
