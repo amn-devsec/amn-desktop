@@ -105,6 +105,8 @@ for (const { nom: route, url } of CIBLES_MESURE) {
     // avec `elementFromPoint` neuf points d'un carré de 34 × 34 centré sur l'élément : le centre, les quatre bords et les quatre coins
     // (rentrés d'un pixel). La cible tient si chaque point renvoie l'élément ou l'un de ses descendants ; un point qui tombe sur le
     // voisin ou sur le fond dit que la zone de clic ne couvre pas le carré.
+    // Un champ dans son <label> : le clic sur le label active le champ, c'est la zone de clic voulue (label ancêtre ou étiquette du champ).
+    const recoit = (e, t) => Boolean(t) && (t === e || e.contains(t) || (t.tagName === 'LABEL' && (t.contains(e) || (e.labels && [...e.labels].includes(t)))));
     const petites = [];
     const marques = []; // index dans `petites` des éléments en recouvrement, marqués data-t1-sonde pour le clic réel
     let sauvees = 0;
@@ -132,7 +134,7 @@ for (const { nom: route, url } of CIBLES_MESURE) {
         const y = cy + dy;
         if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight) continue; // hors fenêtre : non sondé
         const touche = document.elementFromPoint(x, y);
-        if (!(touche && (touche === e || e.contains(touche)))) rate.push(`${dx},${dy}`);
+        if (!recoit(e, touche)) rate.push(`${dx},${dy}`);
       }
       // Recouvrement : le CENTRE ou un point de la moitié centrale de la boîte visible renvoie un voisin → un clic au milieu de l'élément va ailleurs.
       // Un voisin qui ne mord que sur la marge de 34 px, hors de la boîte, est acceptable (le dernier dessiné reçoit le clic de la marge).
@@ -144,7 +146,7 @@ for (const { nom: route, url } of CIBLES_MESURE) {
         const y = cy + dy;
         if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight) continue;
         const t = document.elementFromPoint(x, y);
-        if (!(t && (t === e || e.contains(t)))) { recouvre = true; qui = t ? `${t.tagName.toLowerCase()}.${String(t.className).split(' ')[0].slice(0, 28)} « ${((t.getAttribute('aria-label') || t.textContent || '') + '').trim().replace(/\s+/g, ' ').slice(0, 24)} »` : 'rien'; break; }
+        if (!recoit(e, t)) { recouvre = true; qui = t ? `${t.tagName.toLowerCase()}.${String(t.className).split(' ')[0].slice(0, 28)} « ${((t.getAttribute('aria-label') || t.textContent || '') + '').trim().replace(/\s+/g, ' ').slice(0, 24)} »` : 'rien'; break; }
       }
       if (rate.length && recouvre) { e.setAttribute('data-t1-sonde', String(marques.length)); marques.push(petites.length); }
       if (rate.length) petites.push(`${Math.round(b.width)}×${Math.round(b.height)} « ${nom(e)} » (zone de clic : ${rate.length} point(s) sur 9 hors de l’élément${recouvre ? ` ; RECOUVREMENT : le clic au milieu de la boîte va à ${qui}` : ''})`);
