@@ -3,7 +3,8 @@
  * « EN RETARD » ET « À REPRENDRE » (STATUT §1.42 n° 10) — LE BON MOT AU BON ENDROIT, DANS LE TEXTE RENDU.
  *
  * Règle de Harun (14 nov.) : « à reprendre » vaut pour les TÂCHES, les rappels et les habitudes (pas de reproche) ;
- * pour les FACTURES on garde le terme précis, « en retard » ou « impayé ».
+ * pour les FACTURES on garde le terme précis, « en retard » ou « impayé » ; de même pour les PROJETS et les JALONS
+ * (« en retard », « échue » : le retard y est un fait d'équipe) — précision provisoire du CO, soumise à Harun.
  *
  * Ce script lit des textes rendus (un fichier *.txt par écran : la sortie de `check:fidelite` / `lot.mjs` sur l'aperçu
  * rempli, ou tout autre dossier de textes) et dit, écran par écran :
@@ -28,6 +29,8 @@ const CONTROLE = args.includes('--controle');
 const REPRENDRE = /(?<![a-zéèêàâîïôûù])(à reprendre|a reprendre|reprendre)(?![a-zéèêàâîïôûù])/i;
 const FACTURE = /\b(factur\w*|impay\w*|paiements?|encaiss\w*|règlements?|relances? de paiement)\b/i;
 const RETARD = /\ben retard\b/i;
+// Projets et jalons : le terme précis reste (« en retard », « échue »), le retard y est un fait d'équipe (CO, 14 nov. 15h35, provisoire, soumis à Harun).
+const PROJET = /\b(projets?|jalons?|feuille de route|échue?s?|échéance)\b/i;
 const TACHE = /\b(tâches?|rappels?|habitudes?|à faire|priorités?|relanc\w+|stand-up)\b/i;
 
 /** Les lignes qui comptent dans le voisinage d'une ligne i (elle-même ± 1). */
@@ -43,7 +46,7 @@ export function analyser(texte) {
     if (REPRENDRE.test(l) && FACTURE.test(v)) trouves.push({ niveau: TACHE.test(v) ? 'relire' : 'faute', ligne: l.slice(0, 120), contexte: v.slice(0, 200) });
     else if (RETARD.test(l)) {
       const v2 = voisinage(L, i, 2); // « 13 ouvertes · 2 en retard » : le mot « Tâches » est deux lignes plus haut
-      if (TACHE.test(v2) && !FACTURE.test(v2)) trouves.push({ niveau: 'relire', ligne: l.slice(0, 120), contexte: v2.slice(0, 200) });
+      if (TACHE.test(v2) && !FACTURE.test(v2) && !PROJET.test(v2)) trouves.push({ niveau: 'relire', ligne: l.slice(0, 120), contexte: v2.slice(0, 200) });
     }
   });
   return trouves;
