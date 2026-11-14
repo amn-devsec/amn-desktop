@@ -102,6 +102,43 @@ fiches et de `_data` (x = 0 au pixel 252, y = 0 au pixel 60).
   diffère). Ne jamais dévier en silence.
 - **OK** : notez dans `STATUT.md` « fidélité OK » avec le sha du commit.
 
+## La garde `check:fidelite` (un lot, un seuil)
+
+`scripts/qualite/fidelite/garde.mjs --lot LOT-00 --dist <build> …` enchaîne la capture (1440 × 900, horloge fictive du
+30 oct. 2026 à 10:42 ; Cyber : mardi 3 nov.), la comparaison à l'image v4 et une règle (`decision.mjs`), par écran :
+
+- un écran **déjà mesuré** échoue si son écart brut monte de plus de **2 points** au-dessus de sa valeur acceptée ;
+- un écran **nouveau** échoue au-dessus de **15 %**, sauf écart justifié et écrit.
+
+Seuils provisoires, révisables par Harun (STATUT §1.30). Fichiers du lot, versionnés (nombres et raisons, jamais d'image) :
+`docs/qualite/fidelite/acceptes-LOT-xx.json` (`{ "mesure": "strict", "valeurs": { "H40": 20.0, … } }`) et
+`docs/qualite/fidelite/justifies-LOT-xx.json` (`{ "ecrans": { "G05": { "raison": "…" } } }`). Un fichier de scénarios par lot :
+`scripts/qualite/fidelite/ecrans-lotXX.json` (modèle `ecrans-lot00.json`).
+
+**Les images v4 n'entrent jamais dans le dépôt.** Le dossier se donne par `AMN_DOSSIER_V4` (celui qui contient `images/` et
+`_data/`). Sans elle : « images absentes », la garde ne compte ni pour ni contre (sortie 0). Sur GitHub Actions, seule
+la règle tourne (`node tests/fidelite/decision.test.mjs`, 15 vérifications, sans image ni navigateur).
+
+```sh
+AMN_DOSSIER_V4=<dossier-v4> AMN_E2E_EMAIL=essai.interne@exemple.test AMN_E2E_PASSWORD=… \
+  node scripts/qualite/fidelite/garde.mjs --lot LOT-00 --dist <build-interne> --dist-dev <build-développement> \
+  --api http://127.0.0.1:4171 --rapport /tmp/fid/garde.md
+```
+
+Sortie `0` : rien ne dépasse (ou images absentes) ; `1` : au moins un écran dépasse ; `2` : erreur d'usage ou de capture.
+Le résultat de chaque lot est une ligne dans la section du lot au §7 de STATUT (écran, écart, accepté ou non) : le rapport
+`--rapport` la fournit. T1 passe la garde sur chaque lot avant sa fusion.
+
+Les écarts de LOT-00 sur le socle v4 : [`docs/qualite/fidelite/ECARTS-LOT-00-v4.md`](../qualite/fidelite/ECARTS-LOT-00-v4.md).
+
+## Autres outils de T1 pour la coquille v4
+
+- `scripts/qualite/coquille-v4.mjs` : les conditions du CO (attribut `data-famille-active` posé, retiré, absent de l'édition
+  cliente ; animations infinies coupées en mouvement réduit), mesurées dans un navigateur.
+- `scripts/qualite/contraste-pixels.mjs` : le contraste de chaque texte sur les pixels réellement derrière lui (halos, voile,
+  dégradés), avec contrôle négatif (`--css`).
+- `scripts/qualite/tutoiement-rendu.mjs` : chaque « vous / votre / vos » visible dans l'interface interne.
+
 ## Ce que « ± 2 px » veut dire
 
 Un pixel de la capture est accepté s'il existe, à 2 px ou moins, un pixel de la référence de la
