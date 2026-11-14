@@ -41,8 +41,13 @@ export const ACCENTS_EQUIPE: Record<CleEquipe, { sombre: AccentEquipe; clair: Ac
   memoire: { sombre: { base: '#99cda3', texte: '#b5e1bd' }, clair: { base: '#4a8457', texte: '#2f663d' } },
 };
 
-/** Une équipe inconnue du poste (serveur plus récent) prend l'ardoise neutre. */
-const NEUTRE = { sombre: { base: '#a2acbc', texte: '#bcc4d1' }, clair: { base: '#6e7a8d', texte: '#4c5667' } };
+/**
+ * Une équipe inconnue du poste (serveur plus récent) prend l'ardoise de la
+ * famille « Outils » du socle. Les jetons suivent le thème (sombre, clair) :
+ * une seule entrée suffit, et aucune copie de couleur ne peut dériver.
+ */
+const ARDOISE: AccentEquipe = { base: 'var(--color-fam-outils)', texte: 'var(--color-fam-outils-texte)' };
+const NEUTRE = { sombre: ARDOISE, clair: ARDOISE };
 
 export function estCleEquipe(cle: string): cle is CleEquipe {
   return Object.prototype.hasOwnProperty.call(ACCENTS_EQUIPE, cle);
