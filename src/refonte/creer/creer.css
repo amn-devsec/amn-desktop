@@ -993,11 +993,18 @@ button.cr-ph-case { cursor: pointer; }
 
 /* ───────────── Cibles de 34 px (STATUT §1.39) : le dessin suit la fiche, la zone de clic est invisible ─────────────
    Même procédé que le socle (`.sc-case::after`) : un carré transparent d'au moins 34 px autour de la cible, jamais plus petit qu'elle. */
-:is(.cr-bouton-verre, .cr-bouton-plein, .cr-controle, .cr-sommaire__entree, .cr-plus, .cr-cellule-btn, .cr-jeton-commande, .cr-ph-case, .cr-q-ib, .cr-q-verdict button, .cr-fiche-produit > header button, .cr-modules__lien, .cr-fl-ajout, .cr-ajouter, .cr-pastille-couleur) { position: relative; }
-:is(.cr-bouton-verre, .cr-bouton-plein, .cr-controle, .cr-sommaire__entree, .cr-plus, .cr-cellule-btn, .cr-jeton-commande, .cr-ph-case, .cr-q-ib, .cr-q-verdict button, .cr-fiche-produit > header button, .cr-modules__lien, .cr-fl-ajout, .cr-ajouter, .cr-pastille-couleur)::after {
+:is(.cr-bouton-verre, .cr-bouton-plein, .cr-controle, .cr-sommaire__entree, .cr-plus, .cr-cellule-btn, .cr-jeton-commande, .cr-ph-case, .cr-q-ib, .cr-q-verdict button, .cr-fiche-produit > header button, button.cr-rail__noeud, .cr-modules__lien, .cr-fl-ajout, .cr-ajouter, .cr-pastille-couleur) { position: relative; }
+:is(.cr-bouton-verre, .cr-bouton-plein, .cr-controle, .cr-sommaire__entree, .cr-plus, .cr-cellule-btn, .cr-jeton-commande, .cr-ph-case, .cr-q-ib, .cr-q-verdict button, .cr-fiche-produit > header button, button.cr-rail__noeud, .cr-modules__lien, .cr-fl-ajout, .cr-ajouter, .cr-pastille-couleur)::after {
   content: ''; position: absolute; left: 50%; top: 50%; width: max(100%, 34px); height: max(100%, 34px); transform: translate(-50%, -50%);
 }
 .cr-recherche input { align-self: stretch; height: 34px; margin: -1px 0; }
+/* La zone passe au-dessus de ce qui suit dans la page ; deux cibles voisines gardent un pas de 34 px, pour que leurs zones ne se recouvrent pas. */
+:is(.cr-bouton-verre, .cr-bouton-plein, .cr-controle, .cr-sommaire__entree, .cr-plus, .cr-cellule-btn, .cr-jeton-commande, .cr-ph-case, .cr-q-ib, .cr-q-verdict button, .cr-fiche-produit > header button, button.cr-rail__noeud, .cr-modules__lien, .cr-fl-ajout, .cr-ajouter, .cr-pastille-couleur) { z-index: 1; }
+.cr-controle { height: 34px; }
+.cr-jetons { gap: 8px 6px; }
+.cr-q-nav { gap: 10px; }
+.cr-q-ib { flex: none; width: 24px; }
+@media (max-width: 760px) { .cr-ouvert__corps { grid-template-columns: minmax(0, 1fr); } }
 
 .cr-apercu__reperes i { position: absolute; width: 14px; height: 14px; border: 0 solid var(--socle-trait-discret); }
 .cr-apercu__reperes i:nth-child(1) { top: 14px; left: 14px; border-width: 1.5px 0 0 1.5px; }
