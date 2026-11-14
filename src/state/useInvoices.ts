@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { emettreMoment } from '@edition/socle';
+import { emettreMoment } from '@edition/moments';
 import { useSync, useCollection, uid, stripMeta } from './SyncContext';
 import { documentTotals, eurosToCents } from '../lib/money';
 import { oneOf } from '../lib/records';

@@ -19,6 +19,7 @@
       "@edition/accueils": ["src/edition/accueils.business.tsx"],
       "@edition/guide": ["src/edition/guide.business.ts"],
       "@edition/socle": ["src/edition/socle.business.tsx"],
+      "@edition/moments": ["src/edition/moments.business.ts"],
       "@edition/vivant": ["src/edition/vivant.business.tsx"],
       "@edition/navigation": ["src/edition/navigation.business.tsx"],
       "@edition/coquille": ["src/edition/coquille.business.tsx"],
