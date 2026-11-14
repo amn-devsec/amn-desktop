@@ -52,6 +52,7 @@ Aucun fichier `*.business.*`, aucun écran ; `REGLES.md` non touché ; dans `STA
 
 - Les 5 questions sont tranchées par le CO (§1.22) et appliquées.
 - Reste, hors S9 : la couture du moteur de H20 (S6, LOT-07) et le relevé des tarifs au moment de construire H21.
+- **14 nov., S6, accord du CO (§1.34 n° 7)** : le modèle porte en plus `devise` (euros par défaut), `plafondParTransactionCents` (affiché, jamais calculé) et `parUtilisateur`, tous facultatifs ; `siToutEnApi` et `economise` rendent `null` dès qu'une référence n'est pas en euros ou est publiée par personne ; rien ne change pour un tarif en euros ; `check:connecteurs` passe à 102 contrôles (détail : `rapports/S6-outils.md`).
 
 ## Ce qui n'a pas été vérifié
 

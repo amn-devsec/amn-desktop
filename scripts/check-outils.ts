@@ -274,6 +274,13 @@ const DOMAINE_OFFICIEL: Record<string, string> = {
   'paiement/mollie': 'mollie.com',
   'paiement/gocardless': 'gocardless.com',
   'sms/ovh-sms': 'ovhcloud.com',
+  'messagerie/postmark': 'postmarkapp.com',
+  'messagerie/resend': 'resend.com',
+  'hebergement/vercel': 'vercel.com',
+  'hebergement/netlify': 'netlify.com',
+  'code/github': 'github.com',
+  'notifications/slack': 'slack.com',
+  'sms/twilio': 'twilio.com',
 };
 const AUJOURDHUI = new Intl.DateTimeFormat('fr-CA', { timeZone: 'Europe/Paris' }).format(new Date());
 

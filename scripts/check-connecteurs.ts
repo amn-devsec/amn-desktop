@@ -214,6 +214,21 @@ dit('un relevé fictif bien formé passe ; chaque défaut est nommé', () => {
   assert.equal(defauts({}, { optionId: 'inconnue' }).length, 1);
 });
 
+dit('devise, plafond et prix par personne, tels que publiés : facultatifs, contrôlés, euros par défaut (§1.34 n° 7)', () => {
+  const defauts = (sur: any) => K.defautsDuReleve({ ...releveValide, tarif: tarifFictif(sur) }, AUJ);
+  assert.equal(K.deviseDe(tarifFictif()), 'EUR');
+  assert.equal(K.deviseDe(tarifFictif({ devise: 'USD' })), 'USD');
+  assert.deepEqual(defauts({ devise: 'USD' }), []);
+  assert.deepEqual(defauts({ devise: 'EUR' }), []);
+  assert.equal(defauts({ devise: 'GBP' }).length, 1);
+  assert.deepEqual(defauts({ formule: 'commission', commissionDixMillieme: 100, plafondParTransactionCents: 200 }), []);
+  assert.equal(defauts({ plafondParTransactionCents: 200 }).length, 1);
+  assert.equal(defauts({ formule: 'commission', commissionDixMillieme: 100, plafondParTransactionCents: -1 }).length, 1);
+  assert.deepEqual(defauts({ formule: 'abonnement', parUtilisateur: true }), []);
+  assert.equal(defauts({ parUtilisateur: true }).length, 1);
+  for (const r of K.RELEVES) if (r.tarif.devise === undefined) assert.equal(K.deviseDe(r.tarif), 'EUR', `${r.categorie}/${r.optionId}`);
+});
+
 dit('fraîcheur : frais jusqu’à 90 jours, ancien jusqu’à 365, périmé au-delà', () => {
   assert.equal(K.fraicheur({ etat: 'a-relever' }, AUJ), 'a-relever');
   assert.equal(K.fraicheur({ etat: 'chez-nous' }, AUJ), 'chez-nous');
@@ -504,6 +519,21 @@ dit('« si tout passait par des API » : jamais estimé sans tarif relevé pour 
   assert.equal(tout, 500 + 412 * 5 + 500 + 96 * 5 + 500 + 500 + 80 * 5);
   assert.equal(K.economise(CONSO, refs), tout - 1400);
   assert.equal(K.economise([{ categorie: 'sms', operationsLocales: 0, operationsExternes: 1, payeCents: 99_999 }], { sms: tarifFictif() }), 0);
+});
+
+dit('aucune somme ne mêle euros et dollars : une référence en dollars, ou par personne, rend null ; les euros ne changent pas', () => {
+  const refs = { messagerie: tarifFictif({ inclusParMois: 0 }), agenda: tarifFictif({ inclusParMois: 0 }), paiement: tarifFictif(), sms: tarifFictif() };
+  const euros = K.siToutEnApi(CONSO, refs);
+  assert.equal(euros, 500 + 412 * 5 + 500 + 96 * 5 + 500 + 500 + 80 * 5);
+  assert.equal(K.siToutEnApi(CONSO, { ...refs, agenda: tarifFictif({ inclusParMois: 0, devise: 'EUR' }) }), euros);
+  assert.equal(K.siToutEnApi(CONSO, { ...refs, sms: tarifFictif({ devise: 'USD' }) }), null);
+  assert.equal(K.economise(CONSO, { ...refs, sms: tarifFictif({ devise: 'USD' }) }), null);
+  assert.equal(K.siToutEnApi(CONSO, { ...refs, messagerie: tarifFictif({ formule: 'abonnement', inclusParMois: 0, parUtilisateur: true }) }), null);
+  // Une catégorie sans opération ce mois ne compte pas : sa référence en dollars ne bloque rien.
+  assert.equal(K.siToutEnApi(CONSO.filter((c: any) => c.categorie !== 'sms'), { ...refs, sms: tarifFictif({ devise: 'USD' }) }), euros - (500 + 80 * 5));
+  // Le plafond par transaction est affiché, jamais calculé : le coût est le même, un maximum.
+  const commission = tarifFictif({ formule: 'commission', fixeMensuelCents: undefined, parUniteCents: undefined, inclusParMois: undefined, commissionDixMillieme: 100, commissionFixeCents: 20 });
+  assert.equal(K.coutPour({ ...commission, plafondParTransactionCents: 200 }, 10, 1_000_000), K.coutPour(commission, 10, 1_000_000));
 });
 
 dit('projection et forfait : 180 SMS au 12 sur 30 jours → 450 ; 180 sur 250 inclus = 72 %', () => {

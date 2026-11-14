@@ -4,14 +4,14 @@
 
 1. Couture `@edition/automatisations` posée (STATUT §1.22 n° 4) : le moteur actuel de H20 (`src/state/useAutomations.ts`) ne change pas et tourne dans les deux éditions ; l'édition interne monte en plus un moteur étendu, l'édition cliente un jumeau vide.
 2. Le moteur étendu (`src/refonte/outils/`) n'exécute que les règles `'flux'` du format de S9, et seulement s'il peut faire tout le flux sur le poste : sinon la règle reste inerte, avec sa raison. Aucune règle n'est exécutée deux fois.
-3. Tarifs de H21 : 7 relevés le 14 nov. sur les pages officielles, en euros, cités mot pour mot. Les autres services restent « à relever », chacun avec sa raison (ci-dessous).
-4. Nouvelle garde `check:outils` (18 contrôles, en CI), vérifiée par mutation : un moteur qui ignore le SI, ou un jumeau client qui importe la refonte, la font échouer.
+3. Tarifs de H21 : 14 relevés le 14 nov. sur les pages officielles, cités mot pour mot et tels que publiés (7 en euros, 7 en dollars, sans conversion, §1.34 n° 7). Les autres services restent « à relever », chacun avec sa raison (ci-dessous).
+4. Nouvelle garde `check:outils` (22 contrôles, en CI, droits provisoires de H19 compris), vérifiée par mutation : un moteur qui ignore le SI, ou un jumeau client qui importe la refonte, la font échouer. `check:connecteurs` passe à 102 contrôles : aucune somme ne mêle euros et dollars.
 5. Aucun écran : H20 et H21 attendent le socle v4.
 
 ## Branche et sha
 
 - Branche : `claude/refonte-outils`
-- Dernier commit : `355a7f8` (code et STATUT), puis ce rapport
+- Commits : `355a7f8` (couture et tarifs), `afdbccf` (note), `88f47a1` (droits de H19), puis l'extension du modèle et ce rapport
 - Partie de : `claude/refonte-vivante` @ `8333822`
 
 ## Fichiers touchés
@@ -21,19 +21,26 @@ Sortie de `git diff --name-status origin/claude/refonte-vivante...HEAD` :
 ```
 M	.github/workflows/editions.yml
 M	docs/refonte/STATUT.md
+A	docs/refonte/preparation/LOT-07-outils.md
+A	docs/refonte/rapports/S6-outils.md
+M	docs/refonte/rapports/S9-connecteurs.md
 M	package.json
 M	scripts/check-connecteurs.ts
 A	scripts/check-outils.ts
 M	src/components/AutomationsRunner.tsx
 A	src/edition/automatisations.business.tsx
 A	src/edition/automatisations.internal.tsx
+M	src/refonte/connecteurs/couts.ts
+M	src/refonte/connecteurs/i18n.ts
 M	src/refonte/connecteurs/tarifs.ts
+M	src/refonte/connecteurs/types.ts
 A	src/refonte/outils/MoteurEtendu.tsx
+A	src/refonte/outils/droits.ts
+A	src/refonte/outils/i18n.ts
 A	src/refonte/outils/planDuMoteur.ts
 M	tsconfig.business.json
 M	tsconfig.json
 M	vite.edition.ts
-A	docs/refonte/rapports/S6-outils.md
 ```
 
 Fichiers **sensibles** ou **hors zone** touchés, avec la raison :
@@ -48,6 +55,9 @@ Fichiers **sensibles** ou **hors zone** touchés, avec la raison :
 | `src/components/AutomationsRunner.tsx` (partagé) | 1 import, 1 commentaire, `return null` → `return <MoteurEtendu libelles={libelles} />` | le point de montage de la couture ; côté client le jumeau rend `null`, donc rien ne change |
 | `src/refonte/connecteurs/tarifs.ts` (zone de S9, en pause) | la liste `RELEVES` et son commentaire | le relevé des tarifs est confié à S6 (STATUT §1.26, note LOT-12 §8) |
 | `scripts/check-connecteurs.ts` (S9) | un contrôle : les relevés sont jugés à la date réelle de Paris, plus au jour figé des essais (12 nov.) | sinon un vrai relevé daté du 14 passe pour « daté du futur » |
+| `src/refonte/connecteurs/types.ts`, `couts.ts`, `i18n.ts` (S9, en pause) | champs facultatifs `devise`, `plafondParTransactionCents`, `parUtilisateur` ; `siToutEnApi` refuse une somme mixte ; trois textes (« publié en dollars », « par personne », « plafonné à … par transaction ») | accord du CO (message du 14 nov.), §1.34 n° 7 |
+| `scripts/check-connecteurs.ts` (S9) | deux contrôles de plus (devise, plafond et prix par personne ; somme mixte refusée), aucun assoupli | même accord |
+| `docs/refonte/rapports/S9-connecteurs.md` | une ligne | demandée par le CO |
 
 Non touchés : `src/state/useAutomations.ts`, `src/business/**`, `src/components/AppLayout.tsx`, `src/socle/**`, `src/screens/**`.
 
@@ -69,14 +79,21 @@ Non touchés : `src/state/useAutomations.ts`, `src/business/**`, `src/components
 | agenda / Google Agenda | gratuit | même phrase pour l'API Google Calendar | — | developers.google.com (quotas de l'API Calendar) |
 | paiement / Stripe | commission | 1,5 % + 0,25 € (cartes standard de l'EEE), sans frais mensuels | non précisé | stripe.com/fr/pricing |
 | paiement / Mollie | commission | 1,80 % + 0,25 € (cartes de consommateur de l'EEE) | non précisé | mollie.com/fr/pricing |
-| paiement / GoCardless | commission | 1 % + 0,20 €, « Plafonnés à 2 € » (le modèle n'a pas de plafond : le coût affiché est un maximum) | oui | gocardless.com/fr-fr/tarifs |
+| paiement / GoCardless | commission | 1 % + 0,20 €, « Plafonnés à 2 € » (plafond noté tel que publié, affiché et jamais calculé : le coût calculé est un maximum) | oui | gocardless.com/fr-fr/tarifs |
 | SMS / OVHcloud SMS | à l'usage | 0,06 € HT par SMS (pack de 100) | oui | ovhcloud.com/fr/sms |
+| messagerie / Postmark | abonnement, **publié en dollars** | Basic, $15.00/mois, 10 000 courriels, $1.80 les 1 000 de plus | non précisé | postmarkapp.com/pricing |
+| messagerie / Resend | abonnement, **publié en dollars** | Pro, $20/mois, 50 000 courriels, $0.90 les 1 000 de plus | non précisé | resend.com/pricing |
+| hébergement / Vercel | abonnement par personne, **publié en dollars** | Pro, « Developer seat » $20/mois (crédit de $20 inclus, non repris) | oui (« exclude value-added tax ») | vercel.com/pricing |
+| hébergement / Netlify | abonnement, **publié en dollars** | Personal, $9/mois (1 000 crédits : unité absente du modèle, non reprise) | non précisé | netlify.com/pricing |
+| code / GitHub | abonnement par personne, **publié en dollars** | Team, $4 par personne et par mois | non précisé | github.com/pricing |
+| notifications / Slack | abonnement par personne, **publié en dollars** | Pro, 8,75 $ US par personne et par mois en payant mensuellement (hors offre de lancement à 50 %) | non précisé | slack.com/intl/fr-fr/pricing |
+| SMS / Twilio | à l'usage, **publié en dollars** | France : 0,0798 $ par SMS sortant, « facturés par segment » (colonne lue d'après l'ordre du tableau, confirmée par la ligne des expéditeurs alphanumériques) | non précisé | twilio.com/fr-fr/sms/pricing/fr |
 
 « Non précisé » : la page ne dit pas HT ; le montant est pris tel qu'affiché (`horsTaxes: false`).
 
 **Restent « à relever », et pourquoi :**
 
-- **Publiés en dollars** : Postmark, Resend, Dropbox, Vercel, Netlify, GitHub, GitLab, Slack, Twilio. Le modèle n'a pas de devise : convertir serait inventer (question au CO ci-dessous).
+- **Cycle de facturation non affiché** : Dropbox (« 9,99 $US/mois » sans dire mensuel ou annuel) et GitLab (seulement « billed annually »).
 - **Prix illisibles** sur la page (chargés par script, ou absents du texte) : Brevo, Brevo SMS, Google Drive (Google One), Render, SumUp (le taux du paiement en ligne n'est pas lisible sans ambiguïté).
 - **Page en erreur ou introuvable** : Microsoft 365 (erreur du serveur), Yousign (la redirection mène à une page introuvable).
 - **Prix mensuel non affiché** : Docusign ne montre que l'équivalent mensuel d'un abonnement annuel (9 €/mois, « 108 € – facturé annuellement »).
@@ -106,8 +123,7 @@ Total : 57 gardes vertes, aucune rouge.
 
 ## Points à trancher
 
-- **CO** : ajouter une devise au modèle des tarifs (LOT-12) pour les 9 services publiés en dollars, ou les laisser « à relever » ?
-- **CO** : un plafond par transaction dans le modèle (GoCardless « plafonnés à 2 € ») ; sans lui, le coût affiché est un maximum.
+- Devise et plafond : **tranchés** (§1.34 n° 7), puis faits par S6 avec l'accord du CO : champs facultatifs `devise`, `plafondParTransactionCents` et `parUtilisateur` dans le modèle de S9 ; rien ne change pour un tarif en euros ; `siToutEnApi` et `economise` rendent `null` dès qu'une référence n'est pas en euros ou est publiée par personne. Signalé dans le rapport de S9.
 - **CO / SIM** : un champ d'échéance pour les tâches, et le montant et l'expéditeur dans les sources de H20, pour que ces flux puissent s'exécuter.
 - **Harun** : pour les 7 options génériques, quel fournisseur relever (un nom suffit).
 

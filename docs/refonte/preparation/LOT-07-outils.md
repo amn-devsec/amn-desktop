@@ -59,20 +59,20 @@
 
 **Existant.** Le modèle complet est celui de S9, dans `src/refonte/connecteurs/` : catalogue de 15 catégories, état des prises, baie, cycle en trois clics, coûts, refus nommés et textes. La correspondance avec les besoins de la fiche est le tableau du §4 de `LOT-12-connecteurs.md`. Les pièces locales déjà présentes, à relier sans les refaire : `OllamaSection` (modèles locaux), `WhisperSection`, `PushSection` (notifications), `ExtensionsSection`, l'agenda (`docs/google-agenda.md`).
 
-**Tarifs.** 7 relevés le 14 nov. (`tarifs.ts`). Les autres restent « à relever », avec leur raison (`rapports/S6-outils.md`). L'activation d'un service non relevé reste fermée, comme le veut le modèle.
+**Tarifs.** 14 relevés le 14 nov. (`tarifs.ts`), tels que publiés : 7 en euros, 7 en dollars (sans conversion). Les autres restent « à relever », avec leur raison (`rapports/S6-outils.md`). L'activation d'un service non relevé reste fermée, comme le veut le modèle.
 
 **Pour l'écran.** H21 passe au cycle le catalogue tarifé (`catalogueTarife()`). Sans cela, le cycle lit le catalogue nu et refuse toute activation, avec le motif « tarif à relever ».
 
 **Attend la fiche.** La baie d'exemple (déjà rejouée par `check:connecteurs`), la disposition, les puces, le badge de la barre latérale.
 
-**Décisions** (§1.34 n° 6 et 7) : l'état des prises reste sur le poste pour l'instant (local d'abord ; il passera au serveur avec LOT-13), et les clés ne sont jamais sur le poste. Les tarifs sont montrés tels que publiés : un prix en dollars reste en dollars, avec la mention « publié en dollars », et le plafond par transaction est indiqué comme publié. L'extension du modèle qui le permet est proposée au CO (§6 n° 2).
+**Décisions** (§1.34 n° 6 et 7) : l'état des prises reste sur le poste pour l'instant (local d'abord ; il passera au serveur avec LOT-13), et les clés ne sont jamais sur le poste. Les tarifs sont montrés tels que publiés : un prix en dollars reste en dollars, avec la mention « publié en dollars », et le plafond par transaction est indiqué comme publié. Le modèle le permet depuis le 14 nov. (accord du CO) : `devise`, `plafondParTransactionCents` (affiché, jamais calculé) et `parUtilisateur`, tous facultatifs. H21 affiche « publié en dollars », « par personne » et « plafonné à … par transaction » (textes `cout.*` de LOT-12).
 
 ## 6. Constats et questions pour le CO
 
 Les sept questions du premier envoi sont tranchées au §1.34. Restent ouvertes :
 
 1. **Fiches v4 de LOT-07** : pas encore reçues (§1.34 n° 1). Harun les donne, ou le dépôt privé du dossier les rend lisibles.
-2. **Tarifs tels que publiés** (§1.34 n° 7) : il faut toucher au modèle de S9 hors `tarifs.ts`. Proposition envoyée au CO : des champs facultatifs `devise` (euros par défaut), `plafondParTransactionCents` (affiché, non calculé) et `parUtilisateur` (GitHub, Slack et Vercel sont publiés par personne) ; `siToutEnApi` et `economise` rendent `null` dès qu'un tarif de référence n'est pas en euros, pour qu'aucune somme ne mêle euros et dollars. En attente de réponse : qui le fait, S6 ou S9.
+2. **Tarifs tels que publiés** (§1.34 n° 7) : fait par S6 avec l'accord du CO (champs facultatifs, aucune somme mêlant euros et dollars, `check:connecteurs` à 102). Signalé dans le rapport de S9.
 
 ## 7. Dépendances
 

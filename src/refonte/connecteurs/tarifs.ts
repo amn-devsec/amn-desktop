@@ -1,5 +1,5 @@
 import { CATALOGUE } from './catalogue';
-import type { Categorie, CategorieId, Jour, Tarif } from './types';
+import type { Categorie, CategorieId, Devise, Jour, Tarif } from './types';
 
 /**
  * LES TARIFS RELEVÉS — le seul endroit où un montant entre dans le modèle.
@@ -11,18 +11,28 @@ import type { Categorie, CategorieId, Jour, Tarif } from './types';
  *   · la formule et les montants, en centimes, hors taxes ou non (dit).
  *
  * Vide au 12 nov. (mode préparation). Premier relevé le 14 nov. (S6, LOT-07),
- * pour H21 : seuls les tarifs publiés EN EUROS et lus mot pour mot sur la page
- * officielle sont entrés. Un tarif publié en dollars attend : le modèle n'a pas
- * de devise, et convertir serait inventer. Un tarif illisible (page chargée par
- * script, redirection, page introuvable) attend aussi. Le détail de ce qui
- * reste « à relever » est dans le rapport de S6. `check:connecteurs` vérifie
- * chaque entrée ajoutée ici (source, date passée, montants positifs, option connue).
+ * pour H21 : seuls les tarifs lus mot pour mot sur la page officielle sont
+ * entrés, TELS QUE PUBLIÉS (STATUT §1.34 n° 7) : un prix en dollars reste en
+ * dollars (`devise: 'USD'`), sans conversion ; un plafond par transaction est
+ * noté tel quel ; un prix par personne le dit (`parUtilisateur`). Un tarif
+ * illisible (page chargée par script, redirection, page introuvable, cycle de
+ * facturation non affiché) attend. Le détail de ce qui reste « à relever » est
+ * dans le rapport de S6. `check:connecteurs` vérifie chaque entrée ajoutée ici
+ * (source, date passée, montants positifs, option connue, devise connue).
  *
  * `horsTaxes: false` veut dire « la page ne dit pas hors taxes » : le montant
  * est pris tel qu'affiché.
  */
 
 export type TarifReleve = Extract<Tarif, { etat: 'releve' }>;
+
+/** Les devises qu'un relevé peut porter. */
+export const DEVISES: readonly Devise[] = ['EUR', 'USD'];
+
+/** La devise d'un relevé : celle de la page, euros si elle n'est pas dite. */
+export function deviseDe(t: TarifReleve): Devise {
+  return t.devise ?? 'EUR';
+}
 
 export interface Releve {
   categorie: CategorieId;
@@ -63,18 +73,63 @@ export const RELEVES: readonly Releve[] = [
     optionId: 'mollie',
     tarif: { etat: 'releve', formule: 'commission', commissionDixMillieme: 180, commissionFixeCents: 25, unite: 'transaction', source: 'https://www.mollie.com/fr/pricing', releveLe: LE_14_NOV, horsTaxes: false },
   },
-  // Offre Standard, prélèvement en zone euro : « 1 % + 0,20 € », « Plafonnés à 2 € » (le modèle n'a pas de plafond par
-  // transaction : le coût affiché est donc un maximum) ; « Les prix sont hors TVA ».
+  // Offre Standard, prélèvement en zone euro : « 1 % + 0,20 € », « Plafonnés à 2 € » (transactions nationales ; affiché,
+  // jamais calculé : le coût calculé est un maximum) ; « Les prix sont hors TVA ».
   {
     categorie: 'paiement',
     optionId: 'gocardless',
-    tarif: { etat: 'releve', formule: 'commission', commissionDixMillieme: 100, commissionFixeCents: 20, unite: 'transaction', source: 'https://gocardless.com/fr-fr/tarifs/', releveLe: LE_14_NOV, horsTaxes: true },
+    tarif: { etat: 'releve', formule: 'commission', commissionDixMillieme: 100, commissionFixeCents: 20, plafondParTransactionCents: 200, unite: 'transaction', source: 'https://gocardless.com/fr-fr/tarifs/', releveLe: LE_14_NOV, horsTaxes: true },
   },
   // Premier pack affiché : « 100 SMS », « 0,06 € HT/SMS ». La page ne précise pas la destination : à revérifier.
   {
     categorie: 'sms',
     optionId: 'ovh-sms',
     tarif: { etat: 'releve', formule: 'a-l-usage', parUniteCents: 6, unite: 'sms', source: 'https://www.ovhcloud.com/fr/sms/', releveLe: LE_14_NOV, horsTaxes: true },
+  },
+
+  /* Publiés en dollars : montrés tels quels, « publié en dollars », jamais convertis. */
+
+  // Offre Basic : « $15.00/mo », « Starting at 10,000 emails/month », « Extra emails @ $1.80 / 1,000 » ; mensuel seulement.
+  {
+    categorie: 'messagerie',
+    optionId: 'postmark',
+    tarif: { etat: 'releve', formule: 'abonnement', fixeMensuelCents: 1500, inclusParMois: 10_000, parUniteCents: 0.18, unite: 'envoi', devise: 'USD', source: 'https://postmarkapp.com/pricing', releveLe: LE_14_NOV, horsTaxes: false },
+  },
+  // Offre Pro : « $20/mo », 50 000 courriels par mois, « $0.90 » les 1 000 de plus ; « billed monthly only ».
+  {
+    categorie: 'messagerie',
+    optionId: 'resend',
+    tarif: { etat: 'releve', formule: 'abonnement', fixeMensuelCents: 2000, inclusParMois: 50_000, parUniteCents: 0.09, unite: 'envoi', devise: 'USD', source: 'https://resend.com/pricing', releveLe: LE_14_NOV, horsTaxes: false },
+  },
+  // Offre Pro : « Developer seat » à « $20 / month » par personne, avec « $20 included credit » ; « exclude value-added tax ».
+  {
+    categorie: 'hebergement',
+    optionId: 'vercel',
+    tarif: { etat: 'releve', formule: 'abonnement', fixeMensuelCents: 2000, parUtilisateur: true, devise: 'USD', source: 'https://vercel.com/pricing', releveLe: LE_14_NOV, horsTaxes: true },
+  },
+  // Offre Personal : « $9//month », 1 000 crédits (l'unité « crédit » n'est pas dans le modèle : non reprise).
+  {
+    categorie: 'hebergement',
+    optionId: 'netlify',
+    tarif: { etat: 'releve', formule: 'abonnement', fixeMensuelCents: 900, devise: 'USD', source: 'https://www.netlify.com/pricing/', releveLe: LE_14_NOV, horsTaxes: false },
+  },
+  // Offre Team : « $4USD per user / month » (facturation mensuelle).
+  {
+    categorie: 'code',
+    optionId: 'github',
+    tarif: { etat: 'releve', formule: 'abonnement', fixeMensuelCents: 400, parUtilisateur: true, devise: 'USD', source: 'https://github.com/pricing', releveLe: LE_14_NOV, horsTaxes: false },
+  },
+  // Offre Pro : « 8,75 $ US » « par utilisateur et par mois, en payant mensuellement » (hors offre de lancement à 50 %).
+  {
+    categorie: 'notifications',
+    optionId: 'slack',
+    tarif: { etat: 'releve', formule: 'abonnement', fixeMensuelCents: 875, parUtilisateur: true, devise: 'USD', source: 'https://slack.com/intl/fr-fr/pricing', releveLe: LE_14_NOV, horsTaxes: false },
+  },
+  // France, SMS sortant : « 0,0798 $ » ; « Les messages texte sont facturés par segment » ; frais d'opérateur possibles.
+  {
+    categorie: 'sms',
+    optionId: 'twilio',
+    tarif: { etat: 'releve', formule: 'a-l-usage', parUniteCents: 7.98, unite: 'sms', devise: 'USD', source: 'https://www.twilio.com/fr-fr/sms/pricing/fr', releveLe: LE_14_NOV, horsTaxes: false },
   },
 ];
 
@@ -137,7 +192,10 @@ export function defautsDuReleve(r: Releve, aujourdhui: Jour): string[] {
   if (!/^https:\/\/[^\s/]+\.[^\s]+$/.test(t.source)) d.push('source : une adresse https est attendue');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(t.releveLe)) d.push('date du relevé : AAAA-MM-JJ attendu');
   else if (joursEntre(t.releveLe, aujourdhui) < 0) d.push('date du relevé dans le futur');
-  const montants = [t.fixeMensuelCents, t.parUniteCents, t.commissionDixMillieme, t.commissionFixeCents, t.inclusParMois];
+  if (t.devise !== undefined && !DEVISES.includes(t.devise)) d.push(`devise inconnue : ${String(t.devise)}`);
+  if (t.plafondParTransactionCents !== undefined && t.formule !== 'commission') d.push('plafond par transaction sans commission');
+  if (t.parUtilisateur && t.formule !== 'abonnement') d.push('prix par personne hors abonnement');
+  const montants = [t.fixeMensuelCents, t.parUniteCents, t.commissionDixMillieme, t.commissionFixeCents, t.inclusParMois, t.plafondParTransactionCents];
   if (montants.some((m) => m !== undefined && (!Number.isFinite(m) || m < 0))) d.push('montant négatif ou non fini');
   if (t.formule === 'abonnement' && t.fixeMensuelCents === undefined) d.push('abonnement sans montant mensuel');
   if (t.formule === 'a-l-usage' && (t.parUniteCents === undefined || !t.unite)) d.push('tarif à l’usage sans prix unitaire ni unité');
