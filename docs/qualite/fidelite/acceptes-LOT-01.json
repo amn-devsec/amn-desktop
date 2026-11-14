@@ -1,26 +1,42 @@
 {
-  "_": "Valeurs acceptées de LOT-01 (STATUT §1.30, §1.40), moitié S1 : mesures de T1 sur l'APERÇU STATIQUE (claude/refonte-journee-2 @ 43b362f0, fusion à blanc sur claude/refonte-vivante @ 3fbb888f), 1440×900, vendredi 30 oct. 2026 à 10:42. `valeurs` = écart brut (±2 px, couleur ±2) ; `disposition` = même comparaison, couleur ±10, surveillée aussi (`surveillerDisposition`) : un écran échoue si l'une ou l'autre monte de plus de 2 points au-dessus de sa valeur. Les écarts au-dessus de 15 % sont justifiés dans justifies-LOT-01.json. La moitié S7 (N01, H25, H02, H04, L01, L02, L03, L07) s'ajoutera à son acceptation.",
+  "_": "Valeurs acceptées de LOT-01 (STATUT §1.30, §1.40) : mesures de T1 sur l'APERÇU STATIQUE, 1440×900, vendredi 30 oct. 2026 à 10:42. Moitié S1 (H01, H03, G08, MJ01 à MJ05) : claude/refonte-journee-2 @ 43b362f0 (fusionnée, vivante 0bf6c04f). Moitié S7 (N01, H25, H02, H04, L01, L02, L03, L07) : claude/refonte-journee @ 1fe34d3f, fusion à blanc sur la vivante 0bf6c04f. `valeurs` = écart brut (±2 px, couleur ±2) ; `disposition` = même comparaison, couleur ±10, surveillée aussi (`surveillerDisposition`) : un écran échoue si l'une ou l'autre monte de plus de 2 points au-dessus de sa valeur. Les écarts au-dessus de 15 % sont justifiés dans justifies-LOT-01.json.",
   "source": "apercu",
   "mesure": "strict",
   "surveillerDisposition": true,
   "valeurs": {
-    "H01": 16.3,
-    "H03": 7.8,
     "G08": 14.4,
+    "H01": 16.3,
+    "H02": 35.2,
+    "H03": 7.8,
+    "H04": 23.3,
+    "H25": 31.0,
+    "L01": 29.9,
+    "L02": 43.1,
+    "L03": 14.3,
+    "L07": 21.9,
     "MJ01": 16.6,
     "MJ02": 16.8,
     "MJ03": 22.5,
     "MJ04": 26.9,
-    "MJ05": 18.5
+    "MJ05": 18.5,
+    "N01": 27.7
   },
   "disposition": {
-    "H01": 6.2,
-    "H03": 4.5,
     "G08": 7.3,
+    "H01": 6.2,
+    "H02": 14.5,
+    "H03": 4.5,
+    "H04": 11.1,
+    "H25": 8.0,
+    "L01": 7.2,
+    "L02": 5.9,
+    "L03": 7.0,
+    "L07": 13.8,
     "MJ01": 9.4,
     "MJ02": 8.6,
     "MJ03": 11.6,
     "MJ04": 8.3,
-    "MJ05": 7.9
+    "MJ05": 7.9,
+    "N01": 12.6
   }
 }
