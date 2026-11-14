@@ -40,10 +40,11 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 | Jour | Construits | Livrés (cumul) | Livrés depuis la veille | Lots préparés | Lots finis | Note |
 |---|---|---|---|---|---|---|
-| 14 nov. | 27 / 153 (18 sur les branches des lots, à vérifier ; LOT-11 complet) | 9 (LOT-00, socle v4) | 9 | 8 / 13 | 0 / 13 (LOT-00 attend l'allumage) | les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. La note de LOT-08 n'est pas fusionnée. |
+| 14 nov. | 31 / 153 (22 sur les branches des lots, à vérifier ; LOT-11 complet) | 9 (LOT-00, socle v4) | 9 | 8 / 13 | 0 / 13 (LOT-00 attend l'allumage) | les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. La note de LOT-08 n'est pas fusionnée. |
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov., 09h00 : LOT-02, 4 écrans sur 13 (S1, `479995a`). La création préremplie demanderait de toucher `src/screens` : refusé, puisque l'édition cliente ne change pas. Les boutons ouvrent la création existante, avec l'écart noté. L'intérêt de H06 est estimé et dit comme tel.
 - 14 nov., 08h55 : attendus du cockpit G08 (SIM `651ba70`) et calcul de S2 (`bf2f29e`) fusionnés ensemble. `check:journee` est à 64, toutes les gardes sont vertes. SIM et S2 n'ont plus rien en attente avant les zips v4.
 - 14 nov., 08h50 : LOT-03, 5 écrans sur 9 (S5, `60de991`). Acceptés : `src/refonte/ecrire` au périmètre de `check:tutoiement`, avec 4 zones client ; « Signatures » qui s'ouvre sur H12 ; la série de ME01, sans devoir (repos le week-end, aucun reproche). S5 doit d'abord passer l'intégration de F1 et la correction durable de `check:navigation`.
 - 14 nov., 08h45 : jeux de LOT-01 (SIM `d8ba0fc7`) et harnais de `check:journee` (S2 `c4f31a7`) fusionnés ensemble. Gardes lues avant le push, toutes vertes (`check:donnees` 122, `check:journee`).

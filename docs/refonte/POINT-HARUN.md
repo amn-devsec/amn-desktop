@@ -2,7 +2,7 @@
 
 > Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 09h00 UTC., 08h40 UTC., 08h20 UTC., 08h00 UTC.
 
-**Compteurs** (14 nov., 09h00) : **écrans construits 27 / 153** (9 de LOT-00, plus 18 sur les branches : LOT-11 7 sur 7, LOT-06 6, LOT-03 5), **livrés 9** (LOT-00, avec le socle v4) · **lots préparés 8 / 13**, lots finis 0 / 13 (LOT-00 attend l'allumage de la nouvelle coquille) · **écrans livrés depuis la veille : 9**. La courbe : `STATUT.md`, « Vitesse ».
+**Compteurs** (14 nov., 09h00) : **écrans construits 31 / 153** (9 de LOT-00, plus 22 sur les branches : LOT-11 7 sur 7, LOT-06 6, LOT-03 5, LOT-02 4), **livrés 9** (LOT-00, avec le socle v4) · **lots préparés 8 / 13**, lots finis 0 / 13 (LOT-00 attend l'allumage de la nouvelle coquille) · **écrans livrés depuis la veille : 9**. La courbe : `STATUT.md`, « Vitesse ».
 
 **À ton réveil, une ligne à coller dans la session S0** (rien d'urgent, le reste avance sans elle) :
 
