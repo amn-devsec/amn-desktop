@@ -8,7 +8,7 @@ Branche `claude/refonte-journee`, partie de `claude/refonte-vivante` @ `fc94d38`
 2. **La logique pure du lot** est dans `src/refonte/journee/` (19 fichiers, sans React ni horloge) : la série (clôture des priorités), les paliers et jalons, H04, G08 et H25 calculés, les projets, les défis d'équipe, les habitudes, les rappels, le planning, le kanban, et les phrases qui en découlent (tutoiement, fr et en).
 3. **H04, G08 et H25 égalent les valeurs attendues de SIM**, aux quatre volumes et sur quatre graines de plus. Vérifié par mutation : la garde rougit quand une règle est cassée.
 4. **Les éléments ludiques protégés sont des propriétés du code** testées : aucun chiffre individuel, aucun classement, aucun point perdu, aucun reproche (L07, L01, trophées, défis).
-5. **`check:journee`** (62 contrôles, ajouté à `editions.yml`) et toutes les gardes demandées sont vertes.
+5. **`check:journee`** (64 contrôles, ajouté à `editions.yml`) et toutes les gardes demandées sont vertes.
 
 ## Fichiers touchés
 
@@ -60,7 +60,7 @@ La modification de `STATUT.md` a été **refusée par le contrôle d'autorisatio
 | L02 | en cours (préparation) | `focus.ts` : règles du Pomodoro existant (15/25/50, pauses 5 et 15 min) ; **à confirmer** |
 | L03 | en cours (préparation) | `rituel.ts` : étapes, reprise, une proposition le matin ; **à confirmer** |
 
-**Manque aux données** : liste des personnes d'une note « personnes choisies » (MJ04, visible de son auteur seulement en attendant) ; `objectifDuMois` et `utilisateursConnectes` de `attendusCockpit` (encore à `null` chez SIM) — le reste (priorités, engagements, connexions, Boîte à zéro, objectif MRR) est livré.
+**Manque aux données** : liste des personnes d'une note « personnes choisies » (MJ04, visible de son auteur seulement en attendant) ; aucune : tout est livré par SIM (priorités, engagements, connexions, Boîte à zéro, objectif MRR) et G08 calcule l'objectif du mois et les utilisateurs connectés.
 
 ## Ce qui n'a pas été vérifié
 

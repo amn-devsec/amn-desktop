@@ -9,9 +9,9 @@ import { ajouterJours, ecartPourcent, somme, type Jour, jourDeParis } from './co
  * (« connecté », « à reconnecter »). `check:journee` refuse tout champ qui ressemble à un secret dans l'entrée et la
  * sortie.
  *
- * Deux chiffres que les jeux ne portent pas sont rendus `null`, et dits dans `manque` : l'objectif du mois (un
- * réglage) et les utilisateurs connectés (une API du client). Un écran qui reçoit `null` n'affiche pas la tuile :
- * pas de faux chiffre (STATUT §1.10, règle A1).
+ * Deux chiffres dépendent d'une donnée que l'entrée peut ne pas porter : l'objectif du mois (le réglage
+ * `objectifMrrCents`) et les utilisateurs connectés (une série par jour, API du client). Sans la donnée, ils sont rendus
+ * `null` et dits dans `manque` : l'écran n'affiche pas la tuile, pas de faux chiffre (STATUT §1.10, règle A1).
  */
 
 export type ColonneDeTicket = 'a-faire' | 'en-cours' | 'en-revue' | 'termine';
@@ -44,7 +44,31 @@ export interface EntreeCockpit {
   tickets: readonly TicketDuCockpit[];
   /** L'état des connecteurs, sans rien de plus que leur nom et leur état affiché. */
   connecteurs: readonly { nom: string; etat: string }[];
+  /** Le réglage d'objectif de revenu récurrent mensuel, en centimes ; absent ou nul : pas d'objectif. */
+  objectifMrrCents?: number | null;
+  /** Les utilisateurs connectés par jour (API du client) ; absents ou vides : pas de série. */
+  connexions?: readonly { jour: Jour; connectes: number }[];
 }
+
+export interface ObjectifDuMois {
+  objectifCents: number;
+  mrrCents: number;
+  /** « Plus que… » : jamais négatif. */
+  resteCents: number;
+  /** Revenu ÷ objectif, arrondi à l'entier (l'anneau) ; peut dépasser 100. */
+  partPourcent: number;
+  /** (revenu ÷ objectif × jours du mois) − jour du mois, arrondi : positif « en avance de n jours », négatif « en retard de n jours ». */
+  ecartDeRythmeJours: number;
+  atteint: boolean;
+}
+
+export interface ConnexionsDeLaSemaine {
+  aujourdhui: number;
+  /** Les sept derniers jours connus, aujourd'hui en dernier. */
+  parJour: { jour: Jour; connectes: number }[];
+}
+
+export const JOURS_DE_CONNEXIONS = 7;
 
 export interface Cockpit {
   /** Revenu récurrent mensuel : somme des abonnements actifs ; l'écart compare à il y a 30 jours. */
@@ -57,14 +81,36 @@ export interface Cockpit {
   impayes: number;
   tickets: Record<ColonneDeTicket, { compteur: number; visibles: string[] }>;
   sources: { nom: string; etat: string }[];
-  objectifDuMois: null;
-  utilisateursConnectes: null;
+  objectifDuMois: ObjectifDuMois | null;
+  utilisateursConnectes: ConnexionsDeLaSemaine | null;
   manque: string[];
 }
 
 /** Un abonnement est actif un jour donné : commencé, et soit actif, soit résilié plus tard. */
 export const abonnementActifAu = (a: Pick<AbonnementDuCockpit, 'depuis' | 'etat' | 'resilieLe'>, jour: Jour): boolean =>
   a.depuis <= jour && (a.etat === 'Actif' || (a.resilieLe !== null && a.resilieLe > jour));
+
+/** L'objectif du mois et l'avancement du revenu récurrent ; `null` sans objectif (réglage absent ou nul). */
+export function objectifDuMois(aujourdhui: Jour, mrrCents: number, objectifCents: number | null | undefined): ObjectifDuMois | null {
+  if (objectifCents === null || objectifCents === undefined || !(objectifCents > 0)) return null;
+  const [annee, mois, jourDuMois] = aujourdhui.split('-').map(Number);
+  const joursDuMois = new Date(Date.UTC(annee, mois, 0)).getUTCDate();
+  return {
+    objectifCents,
+    mrrCents,
+    resteCents: Math.max(0, objectifCents - mrrCents),
+    partPourcent: Math.round((mrrCents / objectifCents) * 100),
+    ecartDeRythmeJours: Math.round((mrrCents / objectifCents) * joursDuMois - jourDuMois),
+    atteint: mrrCents >= objectifCents,
+  };
+}
+
+/** Les sept derniers jours de connexions jusqu'à aujourd'hui (les jours à venir ne comptent pas) ; `null` sans aucun jour. */
+export function connexionsDeLaSemaine(aujourdhui: Jour, connexions: readonly { jour: Jour; connectes: number }[] | undefined): ConnexionsDeLaSemaine | null {
+  const jours = (connexions ?? []).filter((c) => c.jour <= aujourdhui).sort((a, b) => a.jour.localeCompare(b.jour)).slice(-JOURS_DE_CONNEXIONS);
+  if (jours.length === 0) return null;
+  return { aujourdhui: jours[jours.length - 1].connectes, parJour: jours.map((c) => ({ jour: c.jour, connectes: c.connectes })) };
+}
 
 export function cockpitDuClient(e: EntreeCockpit): Cockpit {
   const mrrAu = (j: Jour): number => somme(e.abonnements.filter((a) => abonnementActifAu(a, j)).map((a) => a.montantMensuelCents));
@@ -79,6 +125,8 @@ export function cockpitDuClient(e: EntreeCockpit): Cockpit {
       return [colonne, { compteur: liste.length, visibles: liste.slice(0, CARTES_VISIBLES).map((t) => t.id) }];
     }),
   ) as Cockpit['tickets'];
+  const objectif = objectifDuMois(e.aujourdhui, mrrAu(e.aujourdhui), e.objectifMrrCents);
+  const connectes = connexionsDeLaSemaine(e.aujourdhui, e.connexions);
   return {
     mrr: { cents: mrrAu(e.aujourdhui), ecartPourcent: ecartPourcent(mrrAu(e.aujourdhui), mrrAu(ajouterJours(e.aujourdhui, -30))) },
     encaisseDuMoisCents: somme(e.paiements.filter((p) => p.etat === 'réussi' && jourDeParis(p.date).startsWith(mois)).map((p) => p.montantCents)),
@@ -87,11 +135,11 @@ export function cockpitDuClient(e: EntreeCockpit): Cockpit {
     impayes: e.factures.filter((f) => f.status === 'issued' && f.dueAt < e.aujourdhui).length,
     tickets,
     sources: e.connecteurs.map((c) => ({ nom: c.nom, etat: c.etat })),
-    objectifDuMois: null,
-    utilisateursConnectes: null,
+    objectifDuMois: objectif,
+    utilisateursConnectes: connectes,
     manque: [
-      'Objectif du mois (G08) : réglage d’objectif de revenu récurrent absent des réglages',
-      'Utilisateurs connectés (G08) : aucune série par jour (API du client, à brancher côté serveur)',
+      ...(objectif === null ? ['Objectif du mois (G08) : réglage d’objectif de revenu récurrent absent des réglages'] : []),
+      ...(connectes === null ? ['Utilisateurs connectés (G08) : aucune série par jour (API du client, à brancher côté serveur)'] : []),
     ],
   };
 }

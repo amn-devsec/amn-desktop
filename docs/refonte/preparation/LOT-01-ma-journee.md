@@ -63,7 +63,7 @@ Conséquence : **aucune disposition, aucune cote, aucun texte statique** n'est �
 | **Paliers** 5, 10, 20, 30, 50, 100 ; **record** et palier atteint gardés pour toujours ; série interrompue = « reprise », jamais un 0 | H04 *Proposition* (reprise par SIM) ; §1.10 (aucun point perdu) | `serie.ts` | **à confirmer sur H04 et L01** (LOT-03 utilise 7/14/21/30/60/100 : deux échelles) |
 | **Jalon « 10 factures »** (envoyées ou payées) | H04 *Proposition* | `jalons.ts` | à confirmer (les autres jalons de L01 sont à lire sur la fiche) |
 | **H04** : tâches faites/total/écart, encaissé et écart, nouveaux clients, par jour, meilleur jour (le plus récent à égalité), « à reporter », semaine chargée (écart ≥ 2 sur la moyenne des 4 semaines) | fiche H04 rubrique 6, via `attendusBilanSemaine` | `bilan.ts` | **égale les attendus de SIM** (4 volumes, 8 graines, 4 semaines, 4 personnes) |
-| **G08** : revenu récurrent et écart à 30 jours, encaissé du mois, clients actifs, tickets par colonne (3 visibles, urgents d'abord) | fiche G08 rubrique 6, via `attendusCockpit` | `cockpit.ts` | **égale les attendus de SIM** ; objectif du mois et utilisateurs connectés rendus `null` (pas de faux chiffre) |
+| **G08** : revenu récurrent et écart à 30 jours, encaissé du mois, clients actifs, tickets par colonne (3 visibles, urgents d'abord) | fiche G08 rubrique 6, via `attendusCockpit` | `cockpit.ts` | **égale les attendus de SIM**, objectif du mois et utilisateurs connectés compris ; chacun est `null` (et dit dans `manque`) si sa donnée est absente : pas de faux chiffre |
 | **H25** : CA du mois à date et écart au même quantième, tickets, impayés par client, mes tâches du jour, prochain rendez-vous, activité | fiche H25 rubrique 6, via `attendusTableauDeBord` | `tableauDeBord.ts` | **égale les attendus de SIM** |
 | **MJ01** : avancement = tâches faites / tâches, sinon saisie manuelle ; statut dans l'ordre Terminé, En retard, Presque fini, À démarrer, En cours | fiche MJ01 « règle d'affichage », via SIM | `projets.ts` | **égale SIM** sur chaque projet |
 | **L07** : état d'un défi (Compteur de jours et Seuil tenus dès la cible ; Taux de tenue jugé à la fin de sa période), jauge d'équipe, « zéro impayé » (30 jours, tolérance 3 jours) | fiche L07 *Propositions*, via SIM | `defis.ts` | **égale SIM** ; à confirmer sur L07 |
@@ -104,13 +104,13 @@ T1 vérifiera en plus **leur présence à l'écran** à ± 2 px (§1.10) : c'est
 |---|---|---|
 | ~~Priorités du jour~~ — livrées (`dailyPriorities`), ainsi que `engagementsDefis`, `utilisateursConnectes`, `boiteAZero`, `objectifMrrCents` | la série (L01, N01, H04, H25) | SIM (fait) |
 | Engagements écrits des défis (personne, texte, défi) | L07 « Ce que chacun apporte » | Harun / amn-api (§5 n° 4) |
-| Objectif du mois (réglage) | G08, anneau d'objectif | SIM |
-| Utilisateurs connectés par jour (API du client) | G08, H25 | amn-api |
+| ~~Objectif du mois~~ — livré (`objectifMrrCents`) | G08, anneau d'objectif | SIM (fait) |
+| Utilisateurs connectés par jour : jeu livré par SIM ; la vraie source reste l'API du client | G08, H25 | amn-api |
 | Historique quotidien des messages à traiter | « Boîte à zéro » (N01, H04) | SIM |
 | Disposition des widgets (format de la grille) | H25 | à lire sur la fiche |
 | Liste des personnes d'une note « personnes choisies » | MJ04 (en attendant, visible de son auteur seulement) | SIM / amn-api |
 
-## 7. Ce que `check:journee` vérifie (62 contrôles, sans réseau ni navigateur)
+## 7. Ce que `check:journee` vérifie (64 contrôles, sans réseau ni navigateur)
 
 - la série : clôture, aujourd'hui neutre, repos, jour sans priorité, paliers, record, jour du palier, fuseau de Paris ;
 - **H04, G08 et H25 égaux aux valeurs attendues de SIM**, aux quatre volumes et sur quatre graines de plus (la garde rougit si une règle est cassée : vérifié par mutation) ;

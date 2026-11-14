@@ -191,6 +191,8 @@ async function principal() {
     await new Promise((r) => setTimeout(r, 600)); // l'écran est monté avant le premier geste
     for (const e of etapes) {
       if (e.clic) await page.locator(e.clic).first().click({ timeout: 10000 });
+      // Un bandeau « première ouverture » que l'image ne montre pas : on le ferme s'il est là, sans échouer s'il n'y est pas.
+      else if (e.clicSiPresent) { if ((await page.locator(e.clicSiPresent).count()) > 0) await page.locator(e.clicSiPresent).first().click({ timeout: 5000 }); }
       else if (e.touches) await page.keyboard.press(e.touches);
       else if (e.saisie !== undefined) await page.keyboard.type(e.saisie, { delay: e.delai ?? 20 });
       else if (e.remplir) await page.locator(e.remplir.sel).first().fill(e.remplir.texte);

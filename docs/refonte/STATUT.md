@@ -14,17 +14,17 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 |---|---|---|---|
 | S0 Socle | `session_01SJe828c2W5EnkMY4fhFY6z` | passe finale v4 finie (`888f7a0`) ; correctifs `ancres` et `avoirs` prêts mais **attend l'accord direct de Harun** pour pousser | ligne à coller par Harun (POINT-HARUN) ; puis ce que T1 signale |
 | T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | passage 2 fini : socle fusionné (§1.35) | C-008 (gardes sous la coquille v4), puis `check:fidelite` sur chaque lot, priorité 2 |
-| S6 Sécurité | `session_01RHV8Xq2txWkfjAusKvq9DG` | LOT-07 préparation (`afdbccf`) ; **sans zips v4** ; une étape de sécurité attend amn-api | fusion après le contrôle du paquet client par T1 |
+| S6 Sécurité | `session_01RHV8Xq2txWkfjAusKvq9DG` | LOT-07 préparation **fusionnée** (`3030072`) ; **sans zips v4** ; une étape de sécurité attend amn-api | construire LOT-07 dès qu'il a les zips |
 | SIM | `session_011UF2ufZg9moGv2rRZFRuf7` | tout fusionné (`b0173f3`, 115 jeux) ; **sans dossier v4** | listes « Manque aux données » des lots à venir |
 | DS | `session_01TZGDvVWristJnnPK59rruY` | **construit LOT-04** | lots de 3 à 5 écrans → T1 → fusion |
-| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | **construit LOT-03, puis LOT-05** | lots de 3 à 5 écrans → T1 → fusion |
+| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | **LOT-03 complet, 9 sur 9** (`a565a07`) ; `check:navigation` durable redemandé (2ᵉ fois) | garde durable, puis justifications, puis LOT-05 |
 | S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **construit LOT-02** (feu vert le 14 nov., 08h) | lots de 3 à 5 écrans → `check:fidelite` de T1 → fusion |
 | S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **construit LOT-06** | lots de 3 à 5 écrans → T1 → fusion |
-| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | **construit LOT-11** (étape 3) | lots de 3 à 5 écrans → T1 → fusion |
+| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | LOT-11, 7 sur 7, non accepté (6 écrans non montés) ; déclarations prêtes en local | attend la correction de `check:navigation` par S5, puis pousse → T1 remesure → fusion |
 | S9 | `session_01C5DAVygXYax6Q7g436TPQx` | LOT-12 fini, valeurs de MC07 fusionnées (`bcdc65f`) | rien |
 | S2, S3 (première tâche : `check:encres`), F1 — **relancés le 14 nov., 08h** | `session_014ZkF6SeGRNi6NR3uEsjM5q`, `session_01FBSpK6n1yYtYXYyxbLAuBV`, `session_01VZHqP3gvzrtnpgsTrrKguV` | arrêtées | relancer au socle v4 (prompts : `PROMPTS-11NOV.md`, §1.21) |
 
-**À dire au prochain message** : à DS, la place des modules de F1 est corrigée (MA03 ↔ H07, §1.33 n° 4) ; à T1, (a) La Garde dans l'API d'essai demande une base sur fichier (SIM), (b) comparer le paquet client de `claude/refonte-outils` @ `f52ef5d` (`AutomationsRunner.tsx` partagé) avant sa fusion.
+**À dire au prochain message** : à chaque lot, ses exigences de cibles et de largeur (§1.37) ; à DS, la place des modules de F1 est corrigée (MA03 ↔ H07, §1.33 n° 4) ; à T1, (a) La Garde dans l'API d'essai demande une base sur fichier (SIM), (b) comparer le paquet client de `claude/refonte-outils` @ `f52ef5d` (`AutomationsRunner.tsx` partagé) avant sa fusion.
 
 **Décisions provisoires en cours** (révisables par Harun) : arrondi et régime de TVA, seuils de l'argent (§1.29) ; valeurs de départ des connecteurs (§1.22 n° 3) ; plafonds de relance 3 et 1 par jour (§1.28 n° 4) ; seuils de charge (validés, §1.20). Liste « À décider par Harun » : `POINT-HARUN.md`.
 
@@ -40,10 +40,20 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 | Jour | Construits | Livrés (cumul) | Livrés depuis la veille | Lots préparés | Lots finis | Note |
 |---|---|---|---|---|---|---|
-| 14 nov. | 23 / 153 (14 sur les branches des lots, à vérifier) | 9 (LOT-00, socle v4) | 9 | 8 / 13 | 0 / 13 (LOT-00 attend l'allumage) | les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. La note de LOT-08 n'est pas fusionnée. |
+| 14 nov. | 39 / 153 (30 sur les branches des lots, à vérifier ; LOT-11 et LOT-03 complets) | 9 (LOT-00, socle v4) | 9 | 8 / 13 | 0 / 13 (LOT-00 attend l'allumage) | les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. La note de LOT-08 n'est pas fusionnée. |
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov., 09h50 : 39 routes, toutes atteignables par un geste : **condition d'allumage remplie**. Fragilité notée : 36 routes ne passent que par la Bibliothèque. D02 et ⌘K vont à la liste de S0. Outils de T1 fusionnés.
+- 14 nov., 09h45 : verdict de T1 sur LOT-03, **non accepté en l'état**. ME05 s'ouvre dans l'ancien bureau (bloquant) ; H11, H12, ME01 et ME05 à reprendre ; les autres écrans à justifier ; rien de coupé à 390 px. Les cibles gardent le dessin des fiches, avec une zone de clic invisible de 34 px (§1.39).
+- 14 nov., 09h40 : relevé de T1 sur les 20 tâches courantes, première mesure : 12 sur 20 en 3 actions au plus. Deux défauts de la palette ⌘K (pas d'action de création ; Entrée lance Ajmani avant le module) vont à la liste de S0 (§1.38). Éléments ludiques absents, mais non construits : à surveiller, pas une régression.
+- 14 nov., 09h35 : **LOT-03 complet** (S5, `a565a07`, 9 sur 9, ME04 sur `/archives`), en attente de T1. « Signatures » garde son identifiant (sur place), parce que H42 et H47 le citent : ma décision précédente est annulée. S5 a mis la garde à 102, un nombre encore figé : la version durable lui est redemandée en priorité, pour la deuxième fois.
+- 14 nov., 09h25 : la session de S8 a refusé de modifier `check-navigation.ts`, qu'elle juge être un assouplissement de garde. **La correction revient à S5**, propriétaire du registre, qui a déjà pu modifier ce fichier. Leçon : une garde ne se modifie que par sa session propriétaire.
+- 14 nov., 09h25 : défauts C-011 répartis (§1.37). On ne touche pas `src/screens` : chaque défaut devient une exigence de l'écran de la refonte qui le remplace. Deux corrections vont à S0. Les 39 routes ont toutes une entrée au registre : T1 vérifie qu'un geste mène à chacune, et c'est une condition de l'allumage.
+- 14 nov., 09h20 : **LOT-07 préparation fusionnée** (`89ef910a`), paquet client vérifié par T1 ; 5 conflits, tous des ajouts, gardés. Premier `check:fidelite` sur les lots : LOT-11 non accepté (6 écrans non montés, faute de déclaration au registre) ; F20 à justifier, avec deux tuiles à ajouter ; F50 et H15 à justifier ; H16 à reprendre (bouton, jauge, suggestion). Réorganisation : la correction durable de `check:navigation` passe de S5 à S8, qui est bloqué et disponible.
+- 14 nov., 09h10 : **C-008 réglé** (patch de T1, appliqué par le CO dans `check-contraste.mjs` et `routes-coquille.mjs`). Sous la coquille v4, les gardes trouvent 160 écrans au lieu de 15 ; contraste : 34 622 textes, aucun sous AA ; plus de faux rouge sur le néon. C-009 corrigé aussi. Restent des défauts réels, à répartir : 11 familles de cibles trop petites, 4 écrans qui débordent à 390 px, 39 écrans de l'ancienne barre que la coquille v4 ne relie plus.
+- 14 nov., 09h00 : LOT-02, 4 écrans sur 13 (S1, `479995a`). La création préremplie demanderait de toucher `src/screens` : refusé, puisque l'édition cliente ne change pas. Les boutons ouvrent la création existante, avec l'écart noté. L'intérêt de H06 est estimé et dit comme tel.
+- 14 nov., 08h55 : attendus du cockpit G08 (SIM `651ba70`) et calcul de S2 (`bf2f29e`) fusionnés ensemble. `check:journee` est à 64, toutes les gardes sont vertes. SIM et S2 n'ont plus rien en attente avant les zips v4.
 - 14 nov., 08h50 : LOT-03, 5 écrans sur 9 (S5, `60de991`). Acceptés : `src/refonte/ecrire` au périmètre de `check:tutoiement`, avec 4 zones client ; « Signatures » qui s'ouvre sur H12 ; la série de ME01, sans devoir (repos le week-end, aucun reproche). S5 doit d'abord passer l'intégration de F1 et la correction durable de `check:navigation`.
 - 14 nov., 08h45 : jeux de LOT-01 (SIM `d8ba0fc7`) et harnais de `check:journee` (S2 `c4f31a7`) fusionnés ensemble. Gardes lues avant le push, toutes vertes (`check:donnees` 122, `check:journee`).
 - 14 nov., 08h40 : LOT-01 (`c978d05`) fusionné. `calculerAujourdhui` lit `serieDeLaJournee`, `defi.tenu` est au catalogue, et deux assertions de `check:socle-coquille` sont mises à jour par S2 pour la nouvelle règle de série. Gardes lues avant le push, toutes vertes.
@@ -756,7 +766,7 @@ LOT-04 fusionné : `check:argent` passe ses 70 propriétés, avec et sans les av
 **Allumage de la coquille par défaut (§1.9) : pas encore.** T1 ne le valide pas tant que ces points restent ouverts :
 - **C-006** (S0) : tutoiement. 6 chaînes visibles sur LOT-00 et la coquille, plus 79 lignes sur 19 autres écrans. `check:tutoiement` est vert parce qu'il ne lit que les 353 textes du dictionnaire : il faut l'étendre au rendu.
 - **C-007** (S3) : `check:encres`, des copies de jetons dans `src/refonte/garde/equipes.ts`.
-- **C-008** (T1) : sous la coquille v4, les gardes navigateur ne trouvent que 15 écrans sur 142. Elles sont à adapter avant toute certification, et le faux rouge de `check:contraste` (texte sombre sur dégradé néon) aussi.
+- ~~**C-008** (T1)~~ : **réglé le 14 nov.**, les gardes trouvent 160 écrans. Ont été révélés : 11 familles de cibles, 4 écrans à 390 px, 39 écrans de l'ancienne barre que la coquille ne relie plus.
 - Les correctifs `ancres` et `avoirs` (S0) ; l'ancienne garde `check:coquille` interne, à adapter (S0) ; C-005, CSS inerte dans le paquet client, 64 sélecteurs (S0) ; C-009, un compte neuf qui voit H42 fait planter `check:contraste` (S0 ou T1) ; C-010, encre T4 à `#8b8b8f` (S0).
 
 **Fidélité de LOT-00** (mesures de T1, écart brut à ± 2 px, valeurs acceptées dans `docs/qualite/fidelite/acceptes-LOT-00.json`) : G09 13,3 · G06 11,4 · H42 18,1 · H40 20,0 · H47 21,3 · H41 22,7 · H43 27,6 · D02 30,6 · G05 43,4 %. En disposition (couleur à ± 10), tous les écrans sont sous 15 %. Les écarts justifiés sont dans `justifies-LOT-00.json`.
@@ -780,6 +790,43 @@ Fusionnée. Les gardes, lues avant le push, sont vertes : `check:journee` (45), 
 | 6 | Agrégats Stripe de G08 | Une demande à amn-api (Harun et Mohamed). Aucune clé ne passe par le poste. |
 | 7 | Routes de G08, H03 et MJ05 | À lire sur les fiches, quand S2 aura les zips. |
 | 8 | Périmètre de `check:tutoiement` | Ajout de `src/refonte/journee` : **accepté**. |
+
+### 1.37 Défauts révélés sous la coquille v4 (C-011, T1) : répartition du CO
+
+Le détail est dans `docs/qualite/constats/C-011-defauts-reveles-sous-coquille-v4.md` (claude/refonte-qualite @ `ba54ec4a`). Ce sont presque tous des **écrans d'origine** (`src/screens/*`), que les gardes ne voyaient pas. **On ne touche pas `src/screens/**`**, qui sert à l'édition cliente. Chaque défaut devient donc une **exigence de l'écran de la refonte qui le remplace** : cibles de 34 px au moins, rien de coupé à 390 px. T1 le vérifie au `check:fidelite` du lot.
+
+| Propriétaire | Écrans d'origine concernés (cibles ; largeur à 390 px) |
+|---|---|
+| S2 (LOT-01) | Agenda : jours de 42 px, créneaux de 7 et 41 px. Partagé avec l'édition cliente, donc corrigé dans l'écran de la refonte seulement. |
+| S5 (LOT-03) | Templates (11 px), Pages (34 px) ; Journal de bord et Décisions (texte écrasé) |
+| DS (LOT-04) | Dépenses (barres de 17 px), Relances (32 px) |
+| S7 (LOT-06) | Tournées (24 px, 529 px), Réservation de matériel (620 px) |
+| S6 (LOT-07) | Automatisations (413 px), Calculatrice pro (445 px) |
+| S3 (LOT-08) | ChoixModules (32 px), Organisations (texte écrasé), Rapport client (402 px) |
+| S6 (LOT-10) | Hameçonnage (texte écrasé) |
+| **S0 (socle)** | Lignes de H40 (18 px) ; `.dm-recherche` de `VueTousLesModules.tsx` (660 px : **une seule correction règle 10 écrans**). Ajouté à la liste de S0, qui attend l'accord de Harun. |
+| aucun lot | `src/assistant/AssistantPanel.tsx`, « Nouvelle conversation » à 32 px (80 occurrences). Partagé avec l'édition cliente : **laissé tel quel**, et noté. |
+
+**39 routes que la coquille ne relie plus directement** : **condition d'allumage remplie** (T1, 14 nov.). Chacune a un geste qui y mène. **Fragilité** : pour 36 d'entre elles, le seul chemin est la page Bibliothèque (`#/bibliotheque`). « Tous les modules » ne montre que la première vue de chaque module, et aucun onglet n'y mène. Correctif pour S0 (§1.38 n° 7) : « Tous les modules » montre aussi les vues secondaires de chaque module, et ⌘K les trouve. Script : `scripts/qualite/routes-atteignables.mjs`.
+
+### 1.38 Liste de S0 (socle), à reprendre dès que Harun le débloque
+
+Dans l'ordre :
+1. `check:ancres` (lien d'évitement transformé en bouton, phrase de la démo) et `check:avoirs` (pont `@edition/moments`, avec son jumeau `*.business` vide). Ajouter les deux à `editions.yml`.
+2. **C-006**, tutoiement : 6 chaînes sur LOT-00 et la coquille, 79 lignes sur 19 écrans. Étendre `check:tutoiement` au rendu, pas seulement aux 353 textes du dictionnaire.
+3. **C-010** (encre T4 à `#8b8b8f`), **C-005** (CSS inerte dans le paquet client, 64 sélecteurs), ancienne garde `check:coquille` interne à adapter.
+4. **C-011, part du socle**, plus la pastille « La Garde veille » de l'en-tête (zone de clic de 34 px, §1.39) : lignes de H40 à 18 px ; `.dm-recherche` de `VueTousLesModules.tsx` à 660 px, une correction qui règle 10 écrans à 390 px.
+5. **Palette ⌘K (H41)**, relevé de T1 sur les 20 tâches courantes :
+   - (a) ajouter des actions de création (« Nouvelle tâche », « Nouveau client », « Nouvelle facture », « Nouveau devis », « Nouveau rendez-vous »), pour tenir l'objectif de 3 actions au plus ;
+   - (b) quand la saisie correspond à un module, **Entrée ouvre le module**, et « Demander à Ajmani » passe en second. Aujourd'hui, « client » puis Entrée lance Ajmani.
+6. (Aucune route sans geste, relevé de T1.)
+7. **« Tous les modules » (D02)** : montrer les vues secondaires de chaque module (36 écrans n'ont aujourd'hui que la Bibliothèque comme chemin) ; ⌘K les trouve par leur nom.
+
+Éléments ludiques protégés (relevé de T1) : absents partout, parce que leurs écrans (LOT-01, LOT-10) ne sont pas encore construits. Ce n'est **pas une régression**. L'absence devient bloquante dès qu'un lot annonce L07, H02, H04 ou L01 livrés : T1 relance son contrôle à chaque lot concerné.
+
+### 1.39 Cibles de 34 px et dessin des fiches v4 (14 nov.)
+
+Les fiches v4 dessinent beaucoup de boutons d'action à 31 px de haut (Personnaliser, Nouvelle page, Partager…), plus des cases et des pastilles de 26 à 28 px. **Décision du CO** : le dessin suit la fiche, et **chaque cible reçoit une zone de clic invisible d'au moins 34 px**, comme le socle le fait déjà pour PageHead, l'interrupteur et les cases (§1.13). T1 mesure la zone de clic, pas le dessin. C'est valable pour tous les lots. La pastille « La Garde veille » de l'en-tête (28 × 29) est au socle : elle va dans la liste de S0 (§1.38).
 
 ## 2. Les lots
 
@@ -1284,10 +1331,10 @@ La colonne « État » reste `à faire` : un écran n'est « fait » qu'une fois
 | ID | Écran | Type | État | Écart / note |
 |---|---|---|---|---|
 | F60 | Outils · Vue d'ensemble | nouveau | à faire | |
-| H18 | Outils · Paramètres | mixte | à faire | |
-| H19 | Outils · Membres et accès | mixte | à faire | |
-| H20 | Outils · Automatisations | mixte | à faire | |
-| H21 | Outils · Connecteurs | mixte | à faire | |
+| H18 | Outils · Paramètres | mixte | en cours (préparation) | Existant inventorié (`preparation/LOT-07-outils.md` §3) ; attend la fiche v4, puis le socle v4. |
+| H19 | Outils · Membres et accès | mixte | en cours (préparation) | Existant inventorié (§4 de la note). Droits provisoires livrés (`src/refonte/outils/droits.ts`, §1.34 n° 2 à 5) : rôles du serveur, seul `owner` publie, `owner` et `admin` gèrent les connecteurs. Attend la fiche v4. |
+| H20 | Outils · Automatisations | mixte | en cours (préparation) | Couture `@edition/automatisations` posée (§1.22 n° 4) : le moteur actuel reste tel quel dans les deux éditions ; l'interne exécute en plus les règles `'flux'` (`src/refonte/outils/`), en entier ou pas du tout ; la cliente reçoit un jumeau vide. Écran : après le socle v4. |
+| H21 | Outils · Connecteurs | mixte | en cours (préparation) | 14 tarifs relevés le 14 nov. sur les pages officielles, tels que publiés (§1.34 n° 7) : 7 en euros (Mailjet, Gmail et Google Agenda par leurs API, Stripe, Mollie, GoCardless, OVHcloud SMS) et 7 en dollars (Postmark, Resend, Vercel, Netlify, GitHub, Slack, Twilio). Les autres restent « à relever » (détail dans `rapports/S6-outils.md`). Écran : après le socle v4. |
 | H22 | Outils · Corbeille et historique | mixte | à faire | |
 | H23 | Outils · Assistance | mixte | à faire | |
 | H24 | Outils · Coffre-fort | mixte | à faire | |
@@ -1299,6 +1346,12 @@ La colonne « État » reste `à faire` : un écran n'est « fait » qu'une fois
 | MO03 | Outils · Sauvegardes | mixte | à faire | |
 | MO04 | Outils · Import et export | mixte | à faire | |
 | MO05 | Outils · Raccourcis et favoris | mixte | à faire | |
+
+**Garde** : `check:outils` (22 contrôles, en CI).
+
+**Manque aux données** : un champ d'échéance des tâches (une tâche « à échéance » d'un flux attend) ; le montant et l'expéditeur dans les sources du moteur de H20 (un SI « montant » ou « expéditeur connu » attend).
+
+**Modèle des connecteurs** (LOT-12, S9 en pause) : devise, plafond par transaction et prix par personne ajoutés par S6 le 14 nov., avec l'accord du CO (§1.34 n° 7).
 
 ### LOT-08 · La Garde et la supervision — `claude/refonte-garde` — 12 écrans
 
