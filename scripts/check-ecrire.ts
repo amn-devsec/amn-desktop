@@ -1096,10 +1096,10 @@ console.log('\nÉcrire — structure du lot\n');
 const sources = FICHIERS.map((f) => ({ f, src: fs.readFileSync(path.join(racine, ZONE, `${f}.ts`), 'utf8') }));
 const sansCommentaires = (s: string) => s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
 
-await dit('aucun écran visuel avant le socle v4 : que des .ts, aucun fichier .tsx dans la zone', () => {
+await dit('la logique reste en .ts à la racine de la zone ; les écrans vivent dans ecrans/ (un dossier par écran), et nulle part ailleurs', () => {
   const tous = fs.readdirSync(path.join(racine, ZONE));
-  assert.deepEqual(tous.filter((f) => !f.endsWith('.ts')), []);
-  assert.deepEqual(tous.map((f) => f.replace(/\.ts$/, '')).sort(), [...FICHIERS].sort(), 'un fichier de la zone n’est pas dans la liste du contrôle');
+  assert.deepEqual(tous.filter((f) => !f.endsWith('.ts') && f !== 'ecrans'), []);
+  assert.deepEqual(tous.filter((f) => f.endsWith('.ts')).map((f) => f.replace(/\.ts$/, '')).sort(), [...FICHIERS].sort(), 'un fichier de la zone n’est pas dans la liste du contrôle');
 });
 await dit('images v4 · H10 : « palier de 14 jours dimanche » (écrit aujourd’hui) ; si rien n’est écrit, un jour plus tôt ; aucun palier au-delà du dernier', () => {
   assert.equal(S.jourDuPalier({ joursAvantPalier: 2, ecritAujourdhui: true }, AUJ), '2026-11-01');
@@ -1152,6 +1152,27 @@ await dit('aucune brique visuelle : ni React, ni src/socle/ui, ni code partagé 
       if (i.startsWith('./') || i === '../../socle/mots') continue;
       fautes.push(`${f}.ts importe ${i}`);
     }
+  }
+  assert.deepEqual(fautes, [], fautes.join('\n'));
+});
+function fichiersDesEcrans(dossier = path.join(racine, ZONE, 'ecrans')): string[] {
+  if (!fs.existsSync(dossier)) return [];
+  return fs.readdirSync(dossier, { withFileTypes: true }).flatMap((d) => (d.isDirectory() ? fichiersDesEcrans(path.join(dossier, d.name)) : [path.join(dossier, d.name)]));
+}
+await dit('écrans : composants du socle seulement, rien de src/screens ni de src/assistant, aucune couleur ni nom d’image écrits à la main, aucun secret', () => {
+  const fautes: string[] = [];
+  const interdits = /Menna|Medina|Cabinet Roux|Studio Nova|Roux Santé|Boulangerie|Parc Sud|Atelier Sarah|Mohamed|Riyad|Aaron|Karim|Léa Martin|Stripe|@[a-z-]+\.(?:fr|com)\b/;
+  for (const f of fichiersDesEcrans()) {
+    const rel = path.relative(racine, f);
+    const src = fs.readFileSync(f, 'utf8');
+    const code = f.endsWith('.css') ? src.replace(/\/\*[\s\S]*?\*\//g, '') : sansCommentaires(src);
+    for (const m of src.matchAll(/(?:import|export)[^'"]*?from\s+['"]([^'"]+)['"]/g)) {
+      if (/\/(screens|assistant|business)\//.test(m[1]) || /\.business(\.|$)/.test(m[1])) fautes.push(`${rel} importe ${m[1]}`);
+    }
+    if (/#[0-9a-fA-F]{3,8}\b|rgba?\(|hsla?\(/.test(code)) fautes.push(`${rel} : couleur écrite à la main`);
+    if (interdits.test(code)) fautes.push(`${rel} : nom d’une image (${interdits.exec(code)?.[0]})`);
+    if (/(?:sk|pk|rk)_(?:live|test)_[A-Za-z0-9]{8,}|ghp_[A-Za-z0-9]{20,}/.test(src)) fautes.push(`${rel} : un secret`);
+    if (/\.(tsx|ts)$/.test(f) && /Math\.random\(/.test(code)) fautes.push(`${rel} : du hasard`);
   }
   assert.deepEqual(fautes, [], fautes.join('\n'));
 });
