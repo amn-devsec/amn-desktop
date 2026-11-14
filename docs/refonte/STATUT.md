@@ -44,6 +44,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov., 09h50 : 39 routes, toutes atteignables par un geste : **condition d'allumage remplie**. Fragilité notée : 36 routes ne passent que par la Bibliothèque. D02 et ⌘K vont à la liste de S0. Outils de T1 fusionnés.
 - 14 nov., 09h45 : verdict de T1 sur LOT-03, **non accepté en l'état**. ME05 s'ouvre dans l'ancien bureau (bloquant) ; H11, H12, ME01 et ME05 à reprendre ; les autres écrans à justifier ; rien de coupé à 390 px. Les cibles gardent le dessin des fiches, avec une zone de clic invisible de 34 px (§1.39).
 - 14 nov., 09h40 : relevé de T1 sur les 20 tâches courantes, première mesure : 12 sur 20 en 3 actions au plus. Deux défauts de la palette ⌘K (pas d'action de création ; Entrée lance Ajmani avant le module) vont à la liste de S0 (§1.38). Éléments ludiques absents, mais non construits : à surveiller, pas une régression.
 - 14 nov., 09h35 : **LOT-03 complet** (S5, `a565a07`, 9 sur 9, ME04 sur `/archives`), en attente de T1. « Signatures » garde son identifiant (sur place), parce que H42 et H47 le citent : ma décision précédente est annulée. S5 a mis la garde à 102, un nombre encore figé : la version durable lui est redemandée en priorité, pour la deuxième fois.
@@ -806,7 +807,7 @@ Le détail est dans `docs/qualite/constats/C-011-defauts-reveles-sous-coquille-v
 | **S0 (socle)** | Lignes de H40 (18 px) ; `.dm-recherche` de `VueTousLesModules.tsx` (660 px : **une seule correction règle 10 écrans**). Ajouté à la liste de S0, qui attend l'accord de Harun. |
 | aucun lot | `src/assistant/AssistantPanel.tsx`, « Nouvelle conversation » à 32 px (80 occurrences). Partagé avec l'édition cliente : **laissé tel quel**, et noté. |
 
-**39 routes que la coquille ne relie plus directement** : toutes ont une entrée au registre, donc aucune n'est orpheline. **T1 vérifie** qu'un geste (onglet, lien dans la page du module, « Tous les modules ») mène à chacune. Celles qui restent sans geste iront à S0 (coquille) ou au lot propriétaire. C'est une **condition de l'allumage** de la coquille par défaut.
+**39 routes que la coquille ne relie plus directement** : **condition d'allumage remplie** (T1, 14 nov.). Chacune a un geste qui y mène. **Fragilité** : pour 36 d'entre elles, le seul chemin est la page Bibliothèque (`#/bibliotheque`). « Tous les modules » ne montre que la première vue de chaque module, et aucun onglet n'y mène. Correctif pour S0 (§1.38 n° 7) : « Tous les modules » montre aussi les vues secondaires de chaque module, et ⌘K les trouve. Script : `scripts/qualite/routes-atteignables.mjs`.
 
 ### 1.38 Liste de S0 (socle), à reprendre dès que Harun le débloque
 
@@ -818,7 +819,8 @@ Dans l'ordre :
 5. **Palette ⌘K (H41)**, relevé de T1 sur les 20 tâches courantes :
    - (a) ajouter des actions de création (« Nouvelle tâche », « Nouveau client », « Nouvelle facture », « Nouveau devis », « Nouveau rendez-vous »), pour tenir l'objectif de 3 actions au plus ;
    - (b) quand la saisie correspond à un module, **Entrée ouvre le module**, et « Demander à Ajmani » passe en second. Aujourd'hui, « client » puis Entrée lance Ajmani.
-6. Les 39 routes que T1 trouvera sans geste, si elles relèvent de la coquille.
+6. (Aucune route sans geste, relevé de T1.)
+7. **« Tous les modules » (D02)** : montrer les vues secondaires de chaque module (36 écrans n'ont aujourd'hui que la Bibliothèque comme chemin) ; ⌘K les trouve par leur nom.
 
 Éléments ludiques protégés (relevé de T1) : absents partout, parce que leurs écrans (LOT-01, LOT-10) ne sont pas encore construits. Ce n'est **pas une régression**. L'absence devient bloquante dès qu'un lot annonce L07, H02, H04 ou L01 livrés : T1 relance son contrôle à chaque lot concerné.
 
