@@ -1,0 +1,79 @@
+/*
+  « ÉQUIPE » (MC04, v4) — mise en page aux cotes de la fiche (zone principale de 1108 px, x = 40, y = 94 → 758).
+
+    cartes de personne   3 cartes de 360 × 472 à y = 94, x = 40 / 414 / 788 (écart 14), défilement horizontal au-delà de trois ;
+    bande basse          à y = 580, hauteur 178, écart 14 : « Défi d'équipe », « Accès externes », suggestion, alignés sur les colonnes.
+
+  Aucune couleur écrite ici : `--socle-*` (src/socle/noir.css) et `--fam-a`/`--fam-b` (posés par la coquille). Le dépassement de
+  capacité est orange et factuel, jamais rouge accusateur ; l'ordre des cartes n'est jamais celui de la charge. Chargée par `VueEquipe.tsx`.
+*/
+.sc-eq__entete.sc-page__entete { flex-wrap: nowrap; gap: 16px; }
+.sc-eq__hors-ligne { margin: 0; font-size: 12px; color: var(--socle-etat-attention); }
+.sc-eq { display: flex; flex-direction: column; gap: 14px; flex: 1 1 0; min-height: 0; }
+.sc-eq-carte { display: flex; flex-direction: column; min-width: 0; padding: 14px 18px; border-radius: var(--socle-rayon-carte); border: 1px solid var(--socle-bord-carte); background: linear-gradient(180deg, var(--socle-carte-haut), var(--socle-carte-bas)); box-shadow: var(--socle-ombre-carte); color: var(--socle-texte-1); }
+.sc-eq-carte__titre { margin: 0; font-size: 14px; font-weight: 600; }
+.sc-eq-vide { margin: 8px 0 0; font-size: 12.5px; line-height: 1.45; color: var(--socle-texte-3); }
+
+.sc-eq-cartes { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(300px, 360px); gap: 14px; flex: 1 1 472px; min-height: 0; overflow-x: auto; padding-bottom: 2px; }
+.sc-eq-cartes__seul { display: grid; place-items: center; }
+.sc-eq-personne { display: flex; flex-direction: column; min-width: 0; padding: 18px 18px 14px; border-radius: var(--socle-rayon-carte); border: 1px solid var(--socle-bord-carte); background: linear-gradient(180deg, var(--socle-carte-haut), var(--socle-carte-bas)); box-shadow: var(--socle-ombre-carte); color: var(--socle-texte-1); }
+.sc-eq-personne[data-absent] { opacity: 0.7; }
+.sc-eq-personne__tete { display: flex; align-items: center; gap: 14px; }
+.sc-eq-personne__texte { flex: 1 1 auto; min-width: 0; }
+.sc-eq-personne__nom { margin: 0; font-size: 18px; font-weight: 600; }
+.sc-eq-personne__toi { font-size: 12px; font-weight: 400; color: var(--socle-texte-3); }
+.sc-eq-personne__role { margin: 2px 0 0; font-size: 13px; color: var(--socle-texte-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sc-eq-icone { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 9px; border: 1px solid var(--socle-bord-controle); background: var(--socle-sous-carte); color: var(--socle-texte-2); cursor: pointer; flex: 0 0 auto; }
+.sc-eq-icone:focus-visible { outline: 2px solid var(--fam-a); outline-offset: 1px; }
+.sc-eq-maintenant { display: flex; align-items: center; gap: 12px; margin-top: 16px; padding: 10px 14px; border-radius: 11px; border: 1px solid var(--socle-bord-sous-carte); background: var(--socle-sous-carte); color: var(--socle-texte-3); }
+.sc-eq-maintenant__texte { display: flex; flex-direction: column; min-width: 0; }
+.sc-eq-maintenant__titre { font-size: 13px; color: var(--socle-texte-1); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sc-eq-maintenant__detail { font-size: 12px; color: var(--socle-texte-3); }
+.sc-eq-voyant { flex: 0 0 8px; width: 8px; height: 8px; border-radius: 50%; background: var(--socle-texte-3); animation: sc-eq-ping 2.2s ease-in-out infinite; }
+.sc-eq-voyant[data-ton='info'] { background: var(--socle-etat-info); }
+.sc-eq-voyant[data-ton='succes'] { background: var(--socle-etat-succes); }
+@keyframes sc-eq-ping { 50% { opacity: 0.35; } }
+@media (prefers-reduced-motion: reduce) { .sc-eq-voyant { animation: none; } }
+.sc-eq-sur-titre { margin: 16px 0 8px; font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--socle-texte-3); }
+.sc-eq-competences { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.sc-eq-competences li { display: inline-flex; align-items: center; height: 28px; padding: 0 12px; border-radius: 9px; border: 1px solid var(--socle-bord-sous-carte); background: var(--socle-sous-carte); font-size: 12.5px; color: var(--socle-texte-2); }
+.sc-eq-charge-tete { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.sc-eq-charge__total { font-size: 12.5px; color: var(--socle-etat-succes); }
+.sc-eq-charge__total[data-ton='orange'] { color: var(--socle-etat-attention); }
+.sc-eq-charge__total[data-ton='rouge'] { color: var(--socle-etat-critique); }
+.sc-eq-charge-inconnue { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 4px; font-size: 12.5px; color: var(--socle-texte-3); }
+.sc-eq-charge-inconnue p { margin: 0; }
+
+.sc-eq-histo { position: relative; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; height: 132px; }
+.sc-eq-histo__ligne { position: absolute; left: 0; right: 0; height: 0; border-top: 1px dashed var(--socle-pointille); margin-bottom: 20px; }
+.sc-eq-histo__ligne > span { position: absolute; right: 0; top: -15px; font-size: 11px; color: var(--socle-texte-3); }
+.sc-eq-histo__col { display: flex; flex-direction: column; justify-content: flex-end; gap: 6px; min-width: 0; }
+.sc-eq-histo__zone { display: flex; align-items: flex-end; height: 104px; }
+.sc-eq-histo__barre { display: block; width: 100%; border-radius: 6px 6px 3px 3px; background: var(--socle-piste); position: relative; }
+.sc-eq-histo__barre[data-depasse]::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px; border-radius: 6px 6px 0 0; background: var(--socle-etat-attention); }
+.sc-eq-histo__col[data-etat='aujourdhui'] .sc-eq-histo__barre { background: linear-gradient(180deg, var(--fam-a), var(--fam-b)); }
+.sc-eq-histo__col[data-etat='futur'] .sc-eq-histo__barre, .sc-eq-histo__col[data-etat='absent'] .sc-eq-histo__barre { background: repeating-linear-gradient(135deg, var(--socle-piste) 0 4px, var(--socle-sous-carte) 4px 8px); }
+.sc-eq-histo__jour { text-align: center; font-size: 12px; color: var(--socle-texte-3); }
+.sc-eq-histo__col[data-etat='aujourdhui'] .sc-eq-histo__jour { font-weight: 700; color: var(--socle-texte-1); }
+.sc-eq-pied { display: flex; align-items: center; gap: 8px; margin-top: auto; padding-top: 12px; border-top: 1px solid var(--socle-bord-ligne); font-size: 12.5px; color: var(--socle-texte-2); }
+.sc-eq-pied__libre { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+.sc-eq-pied__encours { color: var(--socle-texte-3); flex: 1 1 auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sc-eq-pied > :last-child { margin-left: auto; }
+
+.sc-eq-bas { display: grid; grid-template-columns: minmax(0, 361fr) minmax(0, 361fr) minmax(0, 357fr); gap: 14px; flex: 0 0 178px; height: 178px; }
+.sc-eq-acces__tete { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.sc-eq-lien { display: inline-flex; align-items: center; gap: 6px; border: 0; background: none; color: var(--socle-texte-3); font: inherit; font-size: 12.5px; cursor: pointer; }
+.sc-eq-lien:focus-visible { outline: 2px solid var(--fam-a); }
+.sc-eq-acces__liste { display: flex; flex-direction: column; gap: 8px; margin: 10px 0 0; padding: 0; list-style: none; }
+.sc-eq-acces__liste li { display: flex; align-items: center; gap: 12px; }
+.sc-eq-acces__sq { display: grid; place-items: center; flex: 0 0 28px; width: 28px; height: 28px; border-radius: 8px; background: var(--socle-sous-carte); border: 1px solid var(--socle-bord-sous-carte); font-size: 12px; font-weight: 600; }
+.sc-eq-acces__texte { display: flex; flex-direction: column; min-width: 0; }
+.sc-eq-acces__nom { font-size: 13px; color: var(--socle-texte-1); }
+.sc-eq-acces__role { font-size: 12px; color: var(--socle-texte-3); }
+.sc-eq-suggestion { min-width: 0; height: 100%; }
+.sc-eq-suggestion > * { height: 100%; }
+.sc-eq-astuce { display: flex; flex-direction: column; gap: 6px; height: 100%; padding: 14px 18px; border-radius: var(--socle-rayon-carte); border: 1px solid var(--socle-bord-carte); background: var(--socle-sous-carte); }
+.sc-eq-astuce__titre { font-size: 13px; font-weight: 600; }
+.sc-eq-astuce p { margin: 0; font-size: 12.5px; line-height: 1.5; color: var(--socle-texte-2); }
+
+@media (max-width: 1279px) { .sc-eq-cartes { grid-auto-columns: minmax(300px, 46%); } .sc-eq-bas { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); height: auto; flex-basis: auto; } .sc-eq-suggestion { grid-column: 1 / -1; } }

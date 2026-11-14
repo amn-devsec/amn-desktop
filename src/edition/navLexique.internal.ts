@@ -30,6 +30,8 @@ const NAV_EN_INTERNE: Record<string, TraductionNav> = {
   access: { label: 'Access log', hint: 'Who entered where' },
   // Trois modules du catalogue sans anglais : l'interface les montrait en français (refonte S5).
   // Ici, côté interne seulement : `nav.en.ts` est commun aux deux éditions, et celle des clientes ne bouge pas.
+  // Écran neuf de LOT-03 (ME04), ajouté au catalogue par le registre : son nom anglais, côté interne seulement.
+  archives: { label: 'Archives', hint: 'Find what is filed, by date or by word' },
   health: { label: 'Health log', hint: 'Dates and deadlines, nothing medical' },
   calcPro: { label: 'Pro calculator', hint: 'A till-roll tape you reread before pricing' },
   interventions: { label: 'Field visits', hint: 'Before, during, after — the report of a call-out' },
@@ -40,6 +42,12 @@ const NAV_EN_INTERNE: Record<string, TraductionNav> = {
   scanner: { label: 'Scanner', hint: 'Vulnerability scanning' },
   comply: { label: 'Comply', hint: 'GDPR compliance' },
   ssl: { label: 'SSL Monitor', hint: 'TLS certificates' },
+  // LOT-02 (refonte) : les écrans neufs de « Mes contacts et clients », déclarés au registre des modules.
+  pipelineCommercial: { label: 'Sales pipeline', hint: 'The opportunity funnel, from first contact to signature' },
+  rdvClients: { label: 'Client meetings', hint: 'The day of your client meetings, hour by hour' },
+  partenaires: { label: 'Partners', hint: 'Those who move the business forward without being clients' },
+  contactsFiches: { label: 'Contact sheets', hint: 'The people behind your clients: role, details, relationship' },
+  fideliteNiveaux: { label: 'Loyalty tiers', hint: 'The tier ladder: who is Bronze, Silver or Gold' },
   // Les trois écrans neufs de « Créer et produire » (LOT-06, STATUT §1.27 c) : internes pour l'instant.
   catalogue: { label: 'Product catalogue', hint: 'Price, margin and stock of each product' },
   reservations: { label: 'Bookings', hint: 'Rooms and equipment, slot by slot' },

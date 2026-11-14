@@ -1,0 +1,596 @@
+/*
+ * F20 — Écrire et retenir, vue d'ensemble. Les cotes propres de l'écran (index 272 × 664, pile 478 × 664,
+ * relecture 330 × 310, série 330 × 340, tuiles 242 × 50) ; les couleurs sont celles de la famille (--fam-a, --fam-b)
+ * et des jetons du socle. Aucune couleur écrite à la main.
+ */
+/* Dans la coquille : la page prend toute la hauteur et la languette de fin cède la place (comme `.sc-page`). */
+@media (min-width: 1280px) {
+  .sc-principal:has(.ec-f20) { display: flex; flex-direction: column; }
+  .sc-principal:has(.ec-f20) > .sc-principal-fin { display: none; }
+  .sc-principal:has(.ec-f20) :has(> .ec-f20),
+  .sc-principal:has(.ec-f20) :has(> * > .ec-f20) { display: flex; min-height: 0; flex: 1 1 0; flex-direction: column; }
+}
+.ec-f20 {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 0;
+  flex-direction: column;
+  padding-bottom: 4px;
+}
+.ec-f20__entete.sc-page__entete {
+  flex-wrap: nowrap;
+  align-items: flex-end;
+  gap: 20px;
+}
+.ec-f20__grille {
+  display: flex;
+  gap: 14px;
+  margin-top: 15px;
+  flex: 1;
+  min-height: 0;
+}
+.ec-f20__carte {
+  position: relative;
+  box-sizing: border-box;
+  border-radius: var(--socle-rayon-carte);
+  background: radial-gradient(440px 160px at 0% 0%, color-mix(in srgb, var(--fam-b) 8.5%, transparent), transparent 70%), linear-gradient(180deg, var(--socle-carte-haut), var(--socle-carte-bas));
+  border: 1px solid var(--socle-bord-carte);
+  box-shadow: var(--socle-reflet-carte), var(--socle-ombre-carte);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  color: var(--socle-texte-1);
+}
+.ec-f20__carte-tete {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 24px;
+  flex: none;
+}
+.ec-f20__carte-tete h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  white-space: nowrap;
+}
+.ec-f20__carte-tete > :last-child {
+  margin-left: auto;
+}
+.ec-f20__total {
+  font-size: 12px;
+  color: var(--socle-texte-3);
+  white-space: nowrap;
+}
+.ec-f20__lien {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--socle-texte-3);
+  padding: 3px 8px;
+  line-height: 16px;
+  border-radius: 7px;
+  border: 1px solid transparent;
+  text-decoration: none;
+}
+.ec-f20__lien:hover {
+  border-color: var(--socle-bord-bouton);
+  color: var(--socle-texte-1);
+}
+
+/* — L'index des modules — */
+.ec-f20__index {
+  width: 272px;
+  flex: none;
+  padding: 14px;
+}
+.ec-f20__tuiles {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ec-f20__tuiles .ec-f20__tuile.sc-module-tile {
+  height: 50px;
+  box-sizing: border-box;
+  border-radius: 11px;
+  padding: 0 11px 0 10px;
+  gap: 10px;
+  background: var(--socle-fond-lateral);
+  border: 1px solid var(--socle-bord-sous-carte);
+}
+.ec-f20__tuiles .ec-f20__tuile .sc-module-tile__nom {
+  font-weight: 600;
+  color: var(--socle-texte-1);
+}
+.ec-f20__tuiles .ec-f20__tuile .sc-module-tile__sous {
+  font-size: 11.5px;
+  color: var(--socle-texte-3);
+}
+.ec-f20__tuiles li:nth-child(3) .sc-module-tile__sous {
+  color: var(--socle-etat-succes);
+}
+.ec-f20__tuiles li[data-ton='orange'] .sc-module-tile__sous {
+  color: var(--socle-etat-attention);
+}
+.ec-f20__nouveau {
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 99px;
+  color: var(--socle-encre-accent);
+  background: linear-gradient(135deg, var(--fam-a), var(--fam-b));
+}
+.ec-f20__raccourcis {
+  list-style: none;
+  margin: auto 0 0;
+  padding: 10px 2px 0;
+  border-top: 1px solid var(--socle-trait-tres-discret);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ec-f20__raccourcis li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 26px;
+  font-size: 12px;
+  color: var(--socle-texte-2);
+}
+.ec-f20__touches {
+  margin-left: auto;
+  display: inline-flex;
+  gap: 4px;
+}
+
+/* — La pile des pages récentes — */
+.ec-f20__pile {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+}
+.ec-f20__pile > .ec-f20__bureau {
+  margin-bottom: 0;
+}
+.ec-f20__pile-tete {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 24px;
+  padding: 14px 18px 6px;
+}
+.ec-f20__pile-tete h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+.ec-f20__pile-tete > :last-child {
+  margin-left: auto;
+}
+.ec-f20__bureau {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  margin: 4px 18px 0;
+}
+.ec-f20__feuille {
+  position: absolute;
+  left: calc(36px - 9px * var(--rang, 0));
+  right: calc(36px - 9px * var(--rang, 0));
+  top: calc(10px + 30px * var(--rang, 0));
+  height: 120px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  background: linear-gradient(180deg, var(--socle-ticket), var(--socle-fond-lateral));
+  border: 1px solid var(--socle-bord-ticket);
+  box-shadow: 0 -2px 14px color-mix(in srgb, black 35%, transparent);
+  transform: rotate(var(--tourne, 0deg));
+  padding: 9px 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+}
+.ec-f20__feuille-titre {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--socle-texte-courant);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 1;
+}
+.ec-f20__feuille-meta {
+  font-size: 11.5px;
+  color: var(--socle-texte-3);
+  white-space: nowrap;
+}
+.ec-f20__dessus {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 130px;
+  bottom: 0;
+  box-sizing: border-box;
+  border-radius: 14px;
+  background: linear-gradient(180deg, var(--socle-carte-active-haut), var(--socle-ticket));
+  border: 1px solid var(--socle-bord-carte-active);
+  box-shadow: 0 -6px 24px color-mix(in srgb, black 45%, transparent);
+  padding: 18px 24px;
+  display: flex;
+  flex-direction: column;
+}
+.ec-f20__chemin {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--socle-texte-3);
+}
+.ec-f20__barre {
+  color: var(--socle-trait-discret);
+}
+.ec-f20__ensemble {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--socle-texte-2);
+}
+.ec-f20__dessus-titre {
+  margin: 12px 0 0;
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.ec-f20__dessus-meta {
+  margin: 5px 0 0;
+  font-size: 12px;
+  color: var(--socle-texte-3);
+}
+.ec-f20__filet {
+  height: 1px;
+  border: 0;
+  background: var(--socle-bord-ligne);
+  margin: 12px 0 11px;
+}
+.ec-f20__blocs {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-height: 0;
+  overflow: hidden;
+}
+.ec-f20__bloc-titre {
+  margin: 9px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--socle-texte-courant);
+}
+.ec-f20__bloc-texte {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--socle-texte-courant);
+}
+.ec-f20__tache {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--socle-texte-courant);
+}
+.ec-f20__tache[data-fait='oui'] {
+  color: var(--socle-texte-3);
+  text-decoration: line-through;
+}
+.ec-f20__case {
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 1.5px solid var(--socle-case-vide);
+  flex: none;
+}
+.ec-f20__tache[data-fait='oui'] .ec-f20__case {
+  border: 0;
+  background: linear-gradient(135deg, var(--fam-a), var(--fam-b));
+  box-shadow: 0 0 12px -2px var(--fam-a);
+}
+.ec-f20__curseur {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+.ec-f20__curseur i {
+  display: inline-block;
+  width: 2px;
+  height: 16px;
+  background: var(--fam-a);
+  border-radius: 1px;
+}
+.ec-f20__curseur b {
+  position: absolute;
+  left: 3px;
+  top: -17px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--socle-encre-accent);
+  background: var(--fam-a);
+  border-radius: 4px 4px 4px 0;
+  padding: 0 5px;
+  white-space: nowrap;
+}
+.ec-f20__dessus-pied {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--socle-bord-ligne);
+  font-size: 12px;
+  color: var(--socle-texte-3);
+}
+.ec-f20__dessus-pied > :last-child {
+  margin-left: auto;
+}
+.ec-f20__dessus--vide {
+  align-items: flex-start;
+  gap: 10px;
+}
+.ec-f20__suggestion {
+  flex: none;
+  margin: 10px 18px 14px;
+}
+
+/* — Colonne de droite — */
+.ec-f20__droite {
+  width: 330px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+}
+.ec-f20__relecture {
+  height: 310px;
+  flex: none;
+  padding: 14px 14px;
+}
+.ec-f20__sous {
+  margin: 3px 0 6px;
+  font-size: 12px;
+  color: var(--socle-texte-3);
+}
+.ec-f20__lignes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.ec-f20__ligne {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--socle-bord-lateral);
+  border-radius: 10px;
+}
+.ec-f20__ligne[data-pour-moi='oui'] {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--socle-etat-attention) 8%, transparent), transparent 85%);
+}
+.ec-f20__ligne-haut,
+.ec-f20__ligne-bas {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+.ec-f20__ligne-haut {
+  height: 22px;
+}
+.ec-f20__ligne-bas {
+  height: 16px;
+  padding-left: 23px;
+  gap: 10px;
+}
+.ec-f20__ligne-titre {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--socle-texte-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ec-f20__ligne-action {
+  flex: none;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 11px;
+  border-radius: 8px;
+  color: var(--socle-primaire-encre);
+  background: linear-gradient(135deg, var(--fam-a), var(--fam-b));
+  box-shadow: 0 10px 24px -12px var(--fam-a);
+  text-decoration: none;
+}
+.ec-f20__ligne-detail {
+  flex: 1;
+  min-width: 0;
+  font-size: 11.5px;
+  color: var(--socle-texte-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ec-f20__ligne-detail[data-orange='oui'] {
+  color: var(--socle-etat-attention);
+}
+.ec-f20__etapes {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex: none;
+}
+.ec-f20__segment {
+  width: 16px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--socle-anneau-fond);
+}
+.ec-f20__segment[data-etat='fait'] {
+  background: linear-gradient(135deg, var(--fam-a), var(--fam-b));
+  box-shadow: 0 0 10px -2px var(--fam-a);
+}
+.ec-f20__segment[data-etat='en-cours'] {
+  background: var(--socle-etat-attention);
+}
+.ec-f20__etape-libelle {
+  width: 52px;
+  margin-left: 5px;
+  font-size: 11px;
+  color: var(--socle-etat-attention);
+}
+.ec-f20__etapes[data-etape='signature'] .ec-f20__segment[data-etat='en-cours'] {
+  background: var(--socle-etat-info);
+}
+.ec-f20__etapes[data-etape='signature'] .ec-f20__etape-libelle {
+  color: var(--socle-etat-info);
+}
+.ec-f20__delai {
+  flex: none;
+  margin: auto 0 0;
+  padding-top: 8px;
+  font-size: 12px;
+  color: var(--socle-texte-2);
+}
+.ec-f20__vide {
+  margin: 10px 0;
+  font-size: 12.5px;
+  color: var(--socle-texte-3);
+}
+
+/* — La série d'écriture — */
+.ec-f20__serie {
+  flex: 1;
+  padding: 14px 14px;
+}
+.ec-f20__serie-haut {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 10px;
+}
+.ec-f20__grand {
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  background: linear-gradient(180deg, var(--socle-blanc) 30%, var(--fam-a));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.ec-f20__serie-jours {
+  font-size: 12.5px;
+  color: var(--socle-texte-2);
+}
+.ec-f20__serie-ecrits {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--socle-texte-3);
+}
+.ec-f20__serie-phrase {
+  margin: 6px 0 8px;
+  font-size: 12px;
+  color: var(--socle-etat-succes);
+}
+.ec-f20__mois {
+  display: grid;
+  grid-template-columns: repeat(7, 15px);
+  gap: 5px;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+.ec-f20__jour-nom {
+  font-size: 10px;
+  text-align: center;
+  color: var(--socle-texte-3);
+}
+.ec-f20__case-jour {
+  width: 15px;
+  height: 15px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  background: var(--socle-piste);
+}
+.ec-f20__case-jour:not([data-palier='0']) {
+  /* écrit : le violet de 32 à 82 % selon la quantité écrite (Proposition de la fiche) ; aujourd'hui écrit garde sa teinte */
+  background: color-mix(in srgb, var(--fam-a) calc(32% + 12.5% * (var(--p, 1) - 1)), var(--socle-encart));
+}
+.ec-f20__case-jour[data-palier='1'] { --p: 1; }
+.ec-f20__case-jour[data-palier='2'] { --p: 2; }
+.ec-f20__case-jour[data-palier='3'] { --p: 3; }
+.ec-f20__case-jour[data-palier='4'] { --p: 4; }
+.ec-f20__case-jour[data-palier='5'] { --p: 5; }
+.ec-f20__case-jour[data-etat='aujourdhui'] {
+  outline: 1.5px solid var(--fam-a);
+  outline-offset: 1px;
+}
+.ec-f20__case-jour[data-etat='avenir'] {
+  background: transparent;
+  border: 1px dashed var(--socle-pointille);
+}
+.ec-f20__souvenir {
+  margin: 12px 0 0;
+  padding: 0 0 0 10px;
+  border-left: 2px solid color-mix(in srgb, var(--fam-a) 55%, transparent);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--socle-texte-2);
+}
+.ec-f20__souvenir p {
+  margin: 0;
+  font-style: italic;
+}
+.ec-f20__souvenir cite {
+  display: block;
+  margin-top: 3px;
+  font-style: normal;
+  font-size: 11px;
+  color: var(--socle-texte-3);
+}
+.ec-f20__badges {
+  list-style: none;
+  margin: auto 0 0;
+  padding: 10px 0 0;
+  display: flex;
+  gap: 6px;
+}
+.ec-f20__badges li {
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 99px;
+  color: var(--socle-texte-3);
+  border: 1px dashed var(--socle-pointille);
+}
+.ec-f20__badges li[data-obtenu='oui'] {
+  color: var(--socle-etat-succes);
+  border: 1px solid color-mix(in srgb, var(--socle-etat-succes) 38%, transparent);
+  background: color-mix(in srgb, var(--socle-etat-succes) 14%, transparent);
+}
+
+.ec-f20__raccourci-icone {
+  display: inline-flex;
+  color: var(--socle-texte-3);
+}

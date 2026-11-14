@@ -22,7 +22,7 @@ const V = await charger<{
 }>({ code: "export * from '../src/socle/mots/voix';" });
 
 /** Ce qui est passé au tutoiement. Un lot y ajoute son dossier quand il passe ses textes au tutoiement. */
-export const PERIMETRE = ['src/socle', 'src/refonte/coquille', 'src/refonte/compteurs', 'src/refonte/systeme', 'src/refonte/journee', 'scripts/apercu'];
+export const PERIMETRE = ['src/socle', 'src/refonte/coquille', 'src/refonte/compteurs', 'src/refonte/systeme', 'src/refonte/journee', 'src/refonte/ecrire', 'scripts/apercu'];
 
 /**
  * LES ZONES CLIENT : des textes destinés à un client, qui gardent le vouvoiement (courriels, devis, factures,
@@ -31,6 +31,17 @@ export const PERIMETRE = ['src/socle', 'src/refonte/coquille', 'src/refonte/comp
 export const ZONES_CLIENT: readonly { fichier: string; debut: string; raison: string }[] = [
   { fichier: 'scripts/apercu/ecrans/MR02.tsx', debut: 'Votre informatique, sereine.', raison: 'le contenu du site public montré dans l’aperçu de MR02 : il s’adresse aux visiteurs du client, donc au vouvoiement' },
   { fichier: 'scripts/apercu/ecrans/G05-ajmani.tsx', debut: 'Bonjour, sauf erreur de notre part', raison: 'le brouillon de relance montré par l’aperçu de G05 : il part chez le client' },
+  { fichier: 'src/refonte/ecrire/redaction.ts', debut: 'dans l’attente de votre retour', raison: 'ME02 reconnaît la formule de politesse d’un texte écrit pour un client, pour proposer « Plus direct » : un motif à reconnaître, jamais affiché' },
+  { fichier: 'src/refonte/ecrire/redaction.ts', debut: "dans l'attente de votre retour", raison: 'même motif, écrit avec l’apostrophe droite que la personne peut taper' },
+  { fichier: 'src/refonte/ecrire/redaction.ts', debut: 'à votre entière disposition', raison: 'ME02 reconnaît la formule de politesse d’un texte écrit pour un client : un motif à reconnaître, jamais affiché' },
+  { fichier: 'scripts/apercu/ecrans/ME02.tsx', debut: 'Votre devis pour le parc informatique', raison: 'le brouillon de courriel montré par l’aperçu de ME02 : il part chez le client' },
+  { fichier: 'scripts/apercu/ecrans/ME02.tsx', debut: 'Bonjour Karim,', raison: 'le brouillon de courriel montré par l’aperçu de ME02 : il part chez le client' },
+  { fichier: 'scripts/apercu/ecrans/ME02.tsx', debut: 'Je me permets de revenir vers vous', raison: 'le brouillon de courriel montré par l’aperçu de ME02 : il part chez le client' },
+  { fichier: 'scripts/apercu/ecrans/ME02.tsx', debut: 'Je reviens vers vous', raison: 'le brouillon de courriel montré par l’aperçu de ME02 : il part chez le client' },
+  { fichier: 'scripts/apercu/ecrans/ME02.tsx', debut: ' au sujet du devis D-2026-117', raison: 'le brouillon de courriel montré par l’aperçu de ME02 : il part chez le client' },
+  { fichier: 'scripts/apercu/ecrans/ME02.tsx', debut: ' si le devis vous convient.', raison: 'le brouillon de courriel montré par l’aperçu de ME02 : il part chez le client' },
+  { fichier: 'scripts/apercu/ecrans/ME04.tsx', debut: '18 messages, le dernier en avril', raison: 'l’extrait d’un message REÇU d’un client, montré par l’aperçu de ME04 : il garde le vouvoiement de son auteur' },
+  { fichier: 'scripts/apercu/ecrans/H12.tsx', debut: 'Bonjour Menna, le devis', raison: 'la relance préparée montrée par l’aperçu de H12 : elle part chez le client' },
 ];
 
 /**

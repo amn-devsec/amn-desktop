@@ -51,8 +51,8 @@ async function charger<T>(code: string): Promise<T> {
 const FICHIERS = ['commun', 'serie', 'pages', 'relecture', 'documents', 'signatures', 'modeles', 'journal', 'redaction', 'archives', 'connaissances', 'hub', 'i18n', 'phrases'];
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + "\nexport * as monde from '../src/refonte/donnees';");
-const { commun: C, serie: S, pages: P, relecture: R, documents: D, signatures: G, modeles: MO, journal: J, redaction: RE, archives: A, connaissances: K, hub: H, i18n: I, phrases: PH, monde } = M;
+const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerH10 from '../${ZONE}/ecrans/h10/composer';\nexport * as composerF20 from '../${ZONE}/ecrans/f20/composer';\nexport * as composerH11 from '../${ZONE}/ecrans/h11/composer';\nexport * as composerH12 from '../${ZONE}/ecrans/h12/composer';\nexport * as composerME01 from '../${ZONE}/ecrans/me01/composer';\nexport * as composerME02 from '../${ZONE}/ecrans/me02/composer';\nexport * as composerME03 from '../${ZONE}/ecrans/me03/composer';\nexport * as composerME04 from '../${ZONE}/ecrans/me04/composer';\nexport * as composerME05 from '../${ZONE}/ecrans/me05/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
+const { commun: C, serie: S, pages: P, relecture: R, documents: D, signatures: G, modeles: MO, journal: J, redaction: RE, archives: A, connaissances: K, hub: H, i18n: I, phrases: PH, composerH10: CH10, composerF20: CF20, composerH11: CH11, composerH12: CH12, composerME01: CME01, composerME02: CME02, composerME03: CME03, composerME04: CME04, composerME05: CME05, monde } = M;
 
 const NB = ' ';
 const paris = (j: string, hhmm: string) => C.instantParis(j, Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3)));
@@ -1096,10 +1096,10 @@ console.log('\nÉcrire — structure du lot\n');
 const sources = FICHIERS.map((f) => ({ f, src: fs.readFileSync(path.join(racine, ZONE, `${f}.ts`), 'utf8') }));
 const sansCommentaires = (s: string) => s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
 
-await dit('aucun écran visuel avant le socle v4 : que des .ts, aucun fichier .tsx dans la zone', () => {
+await dit('la logique reste en .ts à la racine de la zone ; les écrans vivent dans ecrans/ (un dossier par écran), et nulle part ailleurs', () => {
   const tous = fs.readdirSync(path.join(racine, ZONE));
-  assert.deepEqual(tous.filter((f) => !f.endsWith('.ts')), []);
-  assert.deepEqual(tous.map((f) => f.replace(/\.ts$/, '')).sort(), [...FICHIERS].sort(), 'un fichier de la zone n’est pas dans la liste du contrôle');
+  assert.deepEqual(tous.filter((f) => !f.endsWith('.ts') && f !== 'ecrans'), []);
+  assert.deepEqual(tous.filter((f) => f.endsWith('.ts')).map((f) => f.replace(/\.ts$/, '')).sort(), [...FICHIERS].sort(), 'un fichier de la zone n’est pas dans la liste du contrôle');
 });
 await dit('images v4 · H10 : « palier de 14 jours dimanche » (écrit aujourd’hui) ; si rien n’est écrit, un jour plus tôt ; aucun palier au-delà du dernier', () => {
   assert.equal(S.jourDuPalier({ joursAvantPalier: 2, ecritAujourdhui: true }, AUJ), '2026-11-01');
@@ -1155,6 +1155,268 @@ await dit('aucune brique visuelle : ni React, ni src/socle/ui, ni code partagé 
   }
   assert.deepEqual(fautes, [], fautes.join('\n'));
 });
+function fichiersDesEcrans(dossier = path.join(racine, ZONE, 'ecrans')): string[] {
+  if (!fs.existsSync(dossier)) return [];
+  return fs.readdirSync(dossier, { withFileTypes: true }).flatMap((d) => (d.isDirectory() ? fichiersDesEcrans(path.join(dossier, d.name)) : [path.join(dossier, d.name)]));
+}
+await dit('écrans : composants du socle seulement, rien de src/screens ni de src/assistant, aucune couleur ni nom d’image écrits à la main, aucun secret', () => {
+  const fautes: string[] = [];
+  const interdits = /Menna|Medina|Cabinet Roux|Studio Nova|Roux Santé|Boulangerie|Parc Sud|Atelier Sarah|Mohamed|Riyad|Aaron|Karim|Léa Martin|Stripe|@[a-z-]+\.(?:fr|com)\b/;
+  for (const f of fichiersDesEcrans()) {
+    const rel = path.relative(racine, f);
+    const src = fs.readFileSync(f, 'utf8');
+    const code = f.endsWith('.css') ? src.replace(/\/\*[\s\S]*?\*\//g, '') : sansCommentaires(src);
+    for (const m of src.matchAll(/(?:import|export)[^'"]*?from\s+['"]([^'"]+)['"]/g)) {
+      // Rien de src/screens ni d'une édition ; de src/assistant, seul le crochet public d'ouverture (`AssistantContext`, comme les routes du registre) : la dictée ouvre ⌘J, sans toucher à src/assistant/**.
+      if (/\/(screens|business)\//.test(m[1]) || /\.business(\.|$)/.test(m[1]) || (/\/assistant\//.test(m[1]) && !/\/assistant\/AssistantContext$/.test(m[1]))) fautes.push(`${rel} importe ${m[1]}`);
+    }
+    if (/#[0-9a-fA-F]{3,8}\b|rgba?\(|hsla?\(/.test(code)) fautes.push(`${rel} : couleur écrite à la main`);
+    if (interdits.test(code)) fautes.push(`${rel} : nom d’une image (${interdits.exec(code)?.[0]})`);
+    if (/(?:sk|pk|rk)_(?:live|test)_[A-Za-z0-9]{8,}|ghp_[A-Za-z0-9]{20,}/.test(src)) fautes.push(`${rel} : un secret`);
+    if (/\.(tsx|ts)$/.test(f) && /Math\.random\(/.test(code)) fautes.push(`${rel} : du hasard`);
+  }
+  assert.deepEqual(fautes, [], fautes.join('\n'));
+});
+await dit('H10 · composerNotes : l’arbre (favoris, clients, équipe), la recherche, les comptes, le plan et « palier de 14 jours dimanche »', () => {
+  const base = { clientId: null, blocs: [], auteurEmail: 'a@x.test', contributeurs: ['a@x.test'], modifieAt: '2026-10-30T08:00:00Z', modifieParEmail: 'a@x.test', favorisDe: [] as string[] };
+  const pg = (id: string, title: string, espace: string, plus: object = {}) => ({ ...base, id, title, parentId: null as string | null, espace, ...plus });
+  const pages = [
+    pg('f', 'Plan', 'Équipe', { favorisDe: ['a@x.test'] }),
+    pg('c', 'Dossier client', 'Clients'),
+    pg('p', 'Page ouverte', 'Clients', { parentId: 'c', blocs: [{ type: 'titre', texte: 'Objectifs' }, { type: 'texte', texte: 'x' }, { type: 'titre', texte: 'À préparer' }] }),
+    pg('q', 'Autre page', 'Clients', { parentId: 'c' }),
+    pg('s', 'Supprimée', 'Clients', { parentId: 'c', supprimeeLe: '2026-10-01' }),
+    pg('e', 'Réunions', 'Équipe'),
+  ];
+  const jours = Array.from({ length: 12 }, (_, i) => `2026-10-${19 + i}`);
+  const mots = S.motsParJour(jours.map((jour) => ({ jour, mots: 100 })));
+  const entrees = { langue: 'fr', maintenant: '2026-10-30T09:42:00Z', moi: { email: 'a@x.test', prenom: 'X' }, pages, pageId: 'p', recherche: '', mots, clientDe: () => null, vers: () => undefined, onOuvrir: () => undefined, ecritDans: null };
+  const tm = (c: string) => c;
+  const v = CH10.composerNotes(entrees, tm);
+  assert.deepEqual(v.arbre.sections.map((x: any) => x.titre), ['Favoris', 'Clients', 'Équipe']);
+  const clients = v.arbre.sections[1].elements;
+  assert.deepEqual(clients.map((x: any) => [x.titre, x.niveau, x.compte ?? null]), [['Dossier client', 0, 2], ['Page ouverte', 1, null], ['Autre page', 1, null]], 'compte hors corbeille ; enfants du dossier ouvert seulement');
+  assert.equal(clients[1].actif, true);
+  assert.deepEqual(v.droite.plan.items.map((x: any) => x.texte), ['Objectifs', 'À préparer']);
+  assert.equal(v.droite.plan.total, '2 blocs titrés');
+  assert.equal(v.arbre.serie.valeur, '12 jours');
+  assert.equal(v.arbre.serie.phrase, 'Page du jour écrite, palier de 14 jours dimanche.');
+  const filtre = CH10.composerNotes({ ...entrees, recherche: 'réunion' }, tm);
+  assert.deepEqual(filtre.arbre.sections.map((x: any) => x.titre), ['Équipe']);
+  assert.equal(CH10.composerNotes({ ...entrees, pageId: null, pages: [] }, tm).pageMeta, null);
+  assert.equal(C.nomDuJour('2026-11-01'), 'dimanche');
+  assert.equal(C.nomDuJour('2026-11-01', 'en'), 'Sunday');
+});
+
+await dit('F20 · composerHub : le curseur n’existe que s’il y a un coauteur ; la file de relecture met ma ligne d’abord ; rien n’est inventé sans donnée', () => {
+  const base = { clientId: null, blocs: [{ type: 'texte', texte: 'Un texte.' }], auteurEmail: 'a@x.test', contributeurs: ['a@x.test'], modifieAt: '2026-10-30T09:41:57Z', modifieParEmail: 'a@x.test', favorisDe: [], parentId: null, espace: 'Équipe' };
+  const mesures = { pages: 1, documents: 0, serieJournal: 0, brouillons: 0, modeles: 0, enAttenteDeSignature: 0, archives: 0, articles: 0, lecturesDuMois: 0, dictees: 0 };
+  const e = (extra: object = {}) => ({ langue: 'fr', maintenant: '2026-10-30T09:42:00Z', moi: { email: 'a@x.test', prenom: 'X' }, prenomDe: (m: string) => m.split('@')[0], pages: [{ ...base, id: 'p', title: 'T' }], presences: [], filtre: 'toutes', mesures, modulesOuverts: null, documents: [], signaturesActives: true, demandes: [], mots: new Map(), journal: [], notesRapides: [], apercuDe: (p: any) => ({ blocs: p.blocs.map((b: any) => ({ type: b.type, texte: b.texte })), liee: null, cheminDe: ['Équipe'] }), routes: {}, jourSemaineInitiales: ['L', 'M', 'M', 'J', 'V', 'S', 'D'], ...extra });
+  const etat = { onFiltre: () => undefined, onOuvrir: () => undefined, onNouvellePage: () => undefined, onPersonnaliser: () => undefined, onRanger: () => undefined, onNonRanger: () => undefined, icones: {}, noms: {}, libelles: {} };
+  const tm = (c: string) => c;
+  const seul = CF20.composerHub(e(), tm, etat);
+  assert.ok(seul.pages.dessus.blocs.every((b: any) => !b.curseur), 'personne ne co-écrit : pas de curseur');
+  assert.equal(seul.relecture.lignes.length, 0);
+  assert.equal(seul.suggestion, null, 'moins de 5 notes rapides : pas de rangement');
+  assert.equal(seul.serie.souvenir, null);
+  const avec = CF20.composerHub(e({ presences: [{ email: 'm@x.test', pageId: 'p', tapeA: '2026-10-30T09:41:55Z' }] }), tm, etat);
+  assert.equal(avec.pages.dessus.blocs.at(-1).curseur, 'm', 'un coauteur présent : le curseur est à la fin du dernier paragraphe');
+  const docs = [
+    { id: 'a', titre: 'Pour un autre', etat: 'Relecture demandée', relecteurEmail: 'm@x.test', demandeurEmail: 'a@x.test', demandeAt: '2026-10-28T10:00:00Z' },
+    { id: 'b', titre: 'Pour moi', etat: 'Relecture demandée', relecteurEmail: 'a@x.test', demandeurEmail: 'm@x.test', demandeAt: '2026-10-29T10:00:00Z' },
+  ];
+  const f = CF20.composerHub(e({ documents: docs }), tm, etat);
+  assert.deepEqual(f.relecture.lignes.map((l: any) => l.id), ['b', 'a']);
+  assert.ok(f.relecture.lignes[0].action !== null && f.relecture.lignes[1].action === null, 'le bouton n’est que sur ma ligne');
+  const sans = CF20.composerHub(e({ documents: docs, signaturesActives: false, modulesOuverts: new Set(['notes']) }), tm, etat);
+  assert.deepEqual(sans.modules.map((m: any) => m.cle), ['notes'], 'seuls les modules ouverts ont une tuile');
+});
+
+await dit('H11 · composerDocuments : intercalaires, liste par année, états de ligne, « à renouveler bientôt », espace utilisé', () => {
+  const f = (id: string, nom: string, at: string, plus: object = {}) => ({ id, nom, sous: 's', extension: 'PDF', typeMetier: 'Contrats', tailleOctets: 1, modifieAt: at, archive: false, ...plus });
+  const fichiers = [
+    f('a', 'Signé', '2026-10-28T10:00:00Z', { demande: { etat: 'Signée' } }),
+    f('b', 'En cours', '2026-10-27T10:00:00Z', { demande: { etat: 'Ouverte' } }),
+    f('c', 'À renouveler', '2025-12-01T10:00:00Z', { echeance: '2026-12-01' }),
+    f('d', 'Facture', '2026-10-01T10:00:00Z', { typeMetier: 'Factures' }),
+    f('e', 'Archivé', '2026-10-01T10:00:00Z', { archive: true }),
+  ];
+  const e = { langue: 'fr', maintenant: '2026-10-30T09:42:00Z', fichiers, types: ['Contrats', 'Factures', 'Clients'], type: 'Contrats', selection: 'a', recherche: '', utiliseOctets: 42e9, quotaOctets: 200e9, octetsLisibles: (n: number) => `${Math.round(n / 1e9)} Go` };
+  const v = CH11.composerDocuments(e);
+  assert.deepEqual(v.onglets.map((o: any) => [o.cle, o.compteur]), [['Contrats', 3], ['Factures', 1], ['Clients', 0]]);
+  assert.deepEqual(v.liste.groupes.map((g: any) => [g.annee, g.compteur]), [[2026, 2], [2025, 1]]);
+  assert.deepEqual(v.liste.groupes[0].lignes.map((l: any) => [l.nom, l.etat?.libelle ?? null]), [['Signé', 'Signé'], ['En cours', 'À signer']]);
+  assert.equal(v.liste.groupes[1].lignes[0].etat.libelle, 'À renouveler');
+  assert.equal(v.liste.sous, '3 documents · 1 à renouveler bientôt');
+  assert.equal(v.liste.groupes[0].lignes[0].actif, true);
+  assert.equal(v.liste.espace.pourcent, 21);
+  assert.equal(v.liste.espace.ton, 'neutre');
+  assert.equal(CH11.composerDocuments({ ...e, recherche: 'cours' }).liste.groupes.length, 1);
+  assert.equal(CH11.composerDocuments({ ...e, quotaOctets: 0 }).liste.espace, null, 'pas de quota connu : pas de jauge');
+  assert.deepEqual(CH11.composerDocuments({ ...e, fichiers: [] }).liste.groupes, []);
+});
+
+await dit('H12 · composerSignatures : tickets, circuit, relance « 1 sur 3 », preuve conservée dans l’ordre du temps', () => {
+  const sg = (id: string, ordre: number, nom: string, role: string, statut: string, envoyeAt: string | null, ouvertAt: string | null, signeAt: string | null) => ({ id, ordre, role, statut, envoyeAt, ouvertAt, signeAt, nom, fonction: 'f' });
+  const d = (id: string, signataires: any[], extra: object = {}) => ({ id, titre: `Doc ${id}`, client: 'C', envoyeAt: '2026-10-27T09:00:00Z', devis: true, signataires, relancesEnvoyees: [], ...extra });
+  const demandes = [
+    d('a', [sg('1', 1, 'Un', 'signataire', 'Signé', '2026-10-27T09:00:00Z', '2026-10-27T09:10:00Z', '2026-10-28T09:20:00Z')]),
+    d('b', [sg('1', 1, 'Un Deux', 'signataire', 'Signé', '2026-10-30T09:40:00Z', '2026-10-30T09:41:00Z', '2026-10-30T09:44:00Z'), sg('2', 2, 'Trois', 'signataire', 'Ouvert', '2026-10-30T09:45:00Z', '2026-10-29T17:40:00Z', null), sg('3', 3, 'Copie', 'copie', 'En attente', '2026-10-30T09:46:00Z', null, null)], { envoyeAt: '2026-10-30T09:40:00Z', texteDeRelance: 'Bonjour, votre signature est attendue.' }),
+    d('c', [sg('1', 1, 'Seul', 'signataire', 'En attente', '2026-10-27T09:00:00Z', null, null)], { envoyeAt: '2026-10-27T09:00:00Z' }),
+  ];
+  const e = { langue: 'fr', maintenant: '2026-10-30T09:42:00Z', demandes, choisie: 'b', relanceActive: true };
+  const v = CH12.composerSignatures(e);
+  assert.deepEqual(v.tickets.map((t: any) => t.etat.libelle), ['Signé le 28 oct.', 'Ouvert hier', 'Envoyé il y a 3 j']);
+  assert.deepEqual(v.tickets[0].segments, ['fait', 'fait', 'fait']);
+  assert.equal(v.tickets[1].actif, true);
+  assert.equal(v.circuit.progression, '1 sur 2 signé');
+  assert.deepEqual(v.circuit.signataires.map((s: any) => s.badge.libelle), ['Signé', 'À signer']);
+  assert.equal(v.circuit.copie.nom, 'Copie');
+  assert.ok(/1 sur 3/.test(v.relance.quand), 'la prochaine relance est la 1 sur 3');
+  assert.equal(v.relance.relancer, 'Relancer Trois');
+  assert.equal(v.preuve.traces[0].genre, 'ouverture', 'la piste commence par le fait le plus ancien');
+  assert.ok(v.preuve.traces.every((t: any, i: number, a: any[]) => i === 0 || a[i - 1].quand.length > 0));
+  const sans = CH12.composerSignatures({ ...e, choisie: 'a' });
+  assert.equal(sans.relance, null, 'circuit signé : plus de relance');
+  assert.equal(CH12.composerSignatures({ ...e, demandes: [], choisie: null }).circuit, null);
+  assert.equal(C.dateCourte('2026-10-28'), '28 oct.');
+  assert.equal(C.quandRelatif('2026-10-29T12:00:00Z', '2026-10-30T09:42:00Z'), 'hier');
+});
+
+await dit('ME01 · composerJournal : calendrier, série, humeur du mois, souvenir, page du jour ; le journal reste à son auteur', () => {
+  const moi = 'a@x.test';
+  const jours = Array.from({ length: 12 }, (_, i) => `2026-10-${19 + i}`);
+  const pages: any[] = jours.map((jour, i) => ({ jour, auteurEmail: moi, humeur: (i % 5) + 1, texte: 'un deux trois' }));
+  pages.push({ jour: '2026-09-30', auteurEmail: moi, humeur: 4, texte: 'Un souvenir. Une suite.' });
+  pages.push({ jour: '2026-10-29', auteurEmail: 'autre@x.test', humeur: 1, texte: 'Pas à moi.' });
+  pages.find((p) => p.jour === '2026-10-30').energie = 4;
+  pages.find((p) => p.jour === '2026-10-30').mercis = ['Un merci'];
+  const e = { langue: 'fr', maintenant: '2026-10-30T09:42:00Z', moi, pages, jour: '2026-10-30', bilanAuCalendrier: true, heureDuBilan: '16:00', initiales: ['L', 'M', 'M', 'J', 'V', 'S', 'D'], enregistreA: '2026-10-30T09:41:00Z', commenceeA: null };
+  const a = { onChoisirHumeur: () => undefined, onChangerTexte: () => undefined, onOuvrirJour: () => undefined, onResumer: () => undefined, onNonResumer: () => undefined };
+  const v = CME01.composerJournal(e, a);
+  assert.equal(v.calendrier.mois, 'Octobre 2026');
+  assert.equal(v.calendrier.decalage, 3, 'le 1er octobre 2026 est un jeudi');
+  assert.equal(v.calendrier.jours.length, 31);
+  assert.equal(v.calendrier.jours[29].etat, 'aujourdhui', 'le 30 est entouré, écrit ou non');
+  assert.equal(v.calendrier.jours[30].etat, 'avenir');
+  assert.equal(v.calendrier.serie.valeur, 12);
+  assert.equal(v.humeur.barres.length, 12, 'une barre par jour avec une humeur, et seulement les miennes');
+  assert.equal(v.humeur.barres.at(-1).derniere, true);
+  assert.equal(v.souvenir.texte, 'Un souvenir.');
+  assert.deepEqual(v.page.humeur.niveaux.map((n: any) => n.libelle), ['Difficile', 'Moyen', 'Bien', 'Très bien', 'Excellent']);
+  assert.equal(v.page.energie.segments, 4);
+  assert.equal(v.page.energie.libelle, 'Bonne');
+  assert.deepEqual(v.page.mercis.valeurs, ['Un merci', '', '']);
+  assert.ok(v.page.suggestion !== null, 'vendredi, 3 pages dans la semaine, bilan au calendrier');
+  assert.equal(CME01.composerJournal({ ...e, bilanAuCalendrier: false }, a).page.suggestion, null);
+  assert.equal(CME01.composerJournal({ ...e, jour: '2026-10-20' }, a).page.mercis, null, 'rien d’inventé quand le champ est vide');
+  assert.equal(CME01.composerJournal({ ...e, pages: [] }, a).souvenir, null);
+});
+
+await dit('ME02 · composerRedaction : les corrections se lisent barrées et soulignées, l’anneau compte le texte final, un engagement attend la décision', () => {
+  const morceaux = [
+    { type: 'texte', texte: 'Bonjour.\n\nJe me permets ' },
+    { type: 'correction', retire: 'de revenir vers vous', ajoute: 'je reviens', raison: 'plus court', explication: 'Plus direct' },
+    { type: 'texte', texte: ' sur le devis. ' },
+    { type: 'correction', ajoute: 'Un passage offert. ', raison: 'plus clair', explication: 'Ajoute une promesse', valeur: 'vaut 96 €', engagement: true },
+    { type: 'correction', retire: 'Rien.', ajoute: 'Fin.', raison: 'plus clair', explication: 'ok', decision: 'refusee' },
+  ];
+  const b = (id: string, publie = false) => ({ id, titre: `T${id}`, source: { surtitre: 'Message de Léo', texte: 'x' }, publie, morceaux });
+  const e = { langue: 'fr', brouillons: [b('1'), b('2', true)], choisi: '1', longueur: 'court', enregistreA: '10:38' };
+  const decisions: any[] = [];
+  const v = CME02.composerRedaction(e, { onChoisir: () => undefined, onDecider: (i: number, d: string) => decisions.push([i, d]) });
+  assert.deepEqual(v.onglets.map((o: any) => [o.id, o.actif, o.nonEnvoye]), [['1', true, true], ['2', false, false]]);
+  assert.deepEqual(v.lettre.paragraphes.map((p: any) => p.map((s: any) => s.genre)), [['plain'], ['plain', 'retire', 'ajoute', 'plain', 'ajoute', 'plain']]);
+  assert.equal(CME02.texteFinal(morceaux), 'Bonjour.\n\nJe me permets je reviens sur le devis. Un passage offert. Rien.');
+  assert.equal(v.marge.anneau.mots, 13);
+  assert.equal(v.marge.anneau.depasse, false);
+  assert.deepEqual(v.marge.notes.map((n: any) => [n.titre, n.attention, n.actions.length]), [['Plus court', false, 2], ['Engagement à confirmer', true, 2], ['Plus clair', false, 0]]);
+  assert.equal(v.marge.notes[1].mention, 'vaut 96 €');
+  assert.equal(v.marge.notes[2].mention, 'ignorée');
+  v.marge.notes[1].actions[0].onClick();
+  v.marge.notes[1].actions[1].onClick();
+  assert.deepEqual(decisions, [[3, 'acceptee'], [3, 'refusee']]);
+  assert.equal(v.lettre.entetes[0].valeur, 'Message de Léo');
+  assert.equal(CME02.composerRedaction({ ...e, brouillons: [] }, { onChoisir: () => undefined, onDecider: () => undefined }).lettre, null);
+});
+
+await dit('ME03 · composerModeles : galerie triée par usage, barre relative au plus utilisé, variables {nom}, rien de copié à trous', () => {
+  const m = (id: string, nom: string, contenu: string, usages: number, sources?: object) => ({ id, nom, contenu, usages, sources });
+  const modeles = [m('a', 'B modèle', 'Bonjour {prénom}, voici {objet}. Cordialement.', 10), m('b', 'A modèle', 'Sans variable.', 20), m('c', 'C modèle', 'Rien', 0, {})];
+  const e = { langue: 'fr', modeles, choisi: 'a', valeurs: {}, recommandes: null };
+  const v = CME03.composerModeles(e);
+  assert.deepEqual(v.cartes.map((c: any) => [c.id, c.taux]), [['b', 100], ['a', 50], ['c', 0]]);
+  assert.deepEqual(v.cartes.map((c: any) => c.usage), ['Utilisé 20 fois ce mois', 'Utilisé 10 fois ce mois', 'Pas encore utilisé']);
+  assert.equal(v.cartes[1].actif, true);
+  assert.deepEqual(v.variables.map((x: any) => [x.nom, x.source]), [['prénom', 'à saisir'], ['objet', 'à saisir']]);
+  assert.equal(v.restantes, 2, 'deux trous : on ne copie pas');
+  const rempli = CME03.composerModeles({ ...e, valeurs: { 'prénom': 'Karim', objet: 'le devis' } });
+  assert.equal(rempli.resultat, 'Bonjour Karim, voici le devis. Cordialement.');
+  assert.equal(rempli.restantes, 0);
+  assert.deepEqual(CME03.enTeteDesVariables('fr', [{ nom: 'a', source: 'catalogue' }, { nom: 'b', source: 'à saisir' }]), { entete: '2 variables', sous: '1 remplies toutes seules, 1 à saisir' });
+  assert.deepEqual(CME03.enTeteDesVariables('fr', []), { entete: 'Aucune variable', sous: '' });
+  assert.equal(CME03.composerModeles({ ...e, modeles: [] }).courant, null);
+  assert.ok(CME03.lignesDeMiniature('un deux').length >= 3 && CME03.lignesDeMiniature('mot '.repeat(500)).length <= 8);
+  assert.deepEqual(CME03.composerModeles({ ...e, recommandes: ['A modèle', 'Z'] }).bibliotheque, { libelle: 'Ta bibliothèque 1 sur 2', pourcent: 50 });
+});
+
+await dit('ME04 · composerArchives : années, mois, recherche rangée par mois, quota, règles, restaurations ; rien sans éléments', () => {
+  const el = (id: string, titre: string, type: string, archiveLe: string, extra: object = {}) => ({ id, titre, type, tailleOctets: 1000, archiveLe, ...extra });
+  const elements = [el('a', 'Facture Menna', 'Facture', '2026-10-15'), el('b', 'Contrat Menna', 'Document', '2026-09-12', { contenu: 'Menna ici' }), el('c', 'Autre', 'Message', '2026-09-03', { contenu: 'sans le mot' }), el('d', 'Vieux', 'Document', '2025-03-01'), el('f', 'Photo', 'Photo', '2026-01-10', { tailleOctets: 1_500_000_000 })];
+  const base = { langue: 'fr', maintenant: '2026-10-30T09:42:00Z', elements, saisie: 'menna', dansLeContenu: true, type: 'Tout', annee: 2026, visibles: 5, regles: [{ type: 'facture-payee', apresMois: 12 }], restaurations: [{ id: 'x', at: '2026-10-14T10:00:00Z', nom: 'Doc', detail: 'rouvert' }], quotaOctets: 20e9, octetsLisibles: (n: number) => `${n} o` };
+  const a = { onType: () => undefined, onSuite: () => undefined, onAnnee: () => undefined };
+  const v = CME04.composerArchives(base, a);
+  assert.equal(v.recherche.resume, '2 résultats pour « menna », du plus récent au plus ancien');
+  assert.deepEqual(v.recherche.groupes.map((g: any) => g.mois), ['OCTOBRE 2026', 'SEPTEMBRE 2026']);
+  assert.deepEqual(v.recherche.types.map((t: any) => t.libelle), ['Tout · 2', 'Document · 1', 'Facture · 1']);
+  assert.deepEqual(v.temps.annees.map((x: any) => [x.annee, x.ouverte, x.total]), [[2026, true, '4'], [2025, false, '1']]);
+  assert.equal(v.temps.annees[0].trouves, '2 trouvés');
+  assert.equal(v.temps.annees[0].mois[0].libelle, 'Octobre');
+  assert.equal(v.temps.annees[0].mois[0].actif, true);
+  assert.ok(v.quota.libelle.length > 0 && v.regles.items.at(-1).valeur === 'Jamais', 'la suppression définitive reste « Jamais »');
+  assert.equal(v.restaures.sous, '1 ce trimestre');
+  assert.ok(v.suggestion !== null, 'plus de 1 Go de photos : on propose de compresser');
+  assert.equal(CME04.composerArchives({ ...base, saisie: '' }, a).recherche.resume, 'Tape un mot pour chercher dans les archives');
+  assert.equal(CME04.composerArchives({ ...base, saisie: 'zzz' }, a).recherche.resume, 'Aucun résultat pour « zzz »');
+  const vide = CME04.composerArchives({ ...base, elements: [] }, a);
+  assert.equal(vide.temps, null);
+  assert.equal(vide.quota, null);
+  assert.equal(vide.suggestion, null);
+  assert.equal(vide.sousTitre, 'Tout est gardé, rien n’encombre · rien n’est encore archivé');
+});
+
+await dit('ME05 · composerConnaissances : « annuler une facture » trouve l’étape de l’avoir ; l’arbre, « à relire », le plan ; rien d’inventé', () => {
+  const art = (id: string, titre: string, rubrique: string, etapes: any[] = [], extra: object = {}) => ({ id, titre, rubrique, etapes, majLe: '2026-10-29', statut: 'publié', ...extra });
+  const facture = art('f', 'Faire une facture en 3 minutes', 'Facturation', [
+    { titre: 'Ouvre Facturation', texte: 'Appuie sur « Nouvelle facture » et choisis le client.' },
+    { titre: 'Ajoute les lignes', texte: 'Tape le début du nom d’une prestation.' },
+    { titre: 'Corrige après l’envoi', texte: 'Une facture envoyée ne se supprime pas : ouvre-la, puis « Émettre un avoir ».' },
+  ], { lieA: ['s'] });
+  const articles = [facture, art('s', 'Brancher Stripe', 'Facturation', [{ titre: 'x', texte: 'x '.repeat(400) }]), art('v', 'Ancienne', 'Sécurité', [], { majLe: '2025-01-01' })];
+  const e = { langue: 'fr', maintenant: '2026-10-30T09:42:00Z', articles, choisi: 'f', question: 'Comment annuler une facture ?', filtre: '', rubriquesOuvertes: null, lecturesDuMois: 214, lecturesDeLArticle: 14, auteur: null, etapeCourante: 2, modulesChanges: {} };
+  const a = { onOuvrir: () => undefined, onRubrique: () => undefined, onUtile: () => undefined };
+  const v = CME05.composerConnaissances(e, a);
+  assert.deepEqual(v.article.etapes.map((s: any) => s.citee), [false, false, true], 'la réponse cite l’étape de l’avoir, pas la première');
+  assert.ok(v.question.reponse.source.includes('étape 3'));
+  assert.deepEqual(v.arbre.rubriques.map((r: any) => [r.titre, r.total, r.ouverte]), [['Facturation', 2, true], ['Sécurité', 1, false]]);
+  assert.equal(v.arbre.rubriques[1].articles[0].aRelire, true, 'plus de 6 mois sans mise à jour : à relire');
+  assert.equal(v.arbre.pied.aRelire, '1 à relire');
+  assert.equal(v.droite.plan.pied, 'Étape 2 sur 3 · 1 min de lecture');
+  assert.deepEqual(v.droite.voirAussi.items.map((i: any) => i.titre), ['Brancher Stripe']);
+  assert.equal(v.sousTitre, 'Ce que l’équipe sait, écrit une fois pour tous · 3 articles, 214 lectures ce mois');
+  const rien = CME05.composerConnaissances({ ...e, question: 'la météo de demain ?' }, a);
+  assert.equal(rien.question.reponse, null);
+  assert.equal(rien.question.rien, 'Je n’ai rien trouvé dans ta base. Je crée l’article ?');
+  assert.equal(CME05.composerConnaissances({ ...e, question: '' }, a).question.rien, null);
+  const filtre = CME05.composerConnaissances({ ...e, filtre: 'stripe' }, a);
+  assert.deepEqual(filtre.arbre.rubriques.map((r: any) => r.total), [1]);
+  const vide = CME05.composerConnaissances({ ...e, articles: [], choisi: null, question: '' }, a);
+  assert.equal(vide.article, null);
+  assert.equal(vide.droite, null);
+  assert.equal(vide.sousTitre, 'Ce que l’équipe sait, écrit une fois pour tous · aucun article pour l’instant');
+  assert.equal(CME05.composerConnaissances({ ...e, lecturesDuMois: null }, a).sousTitre, 'Ce que l’équipe sait, écrit une fois pour tous · 3 articles');
+});
+
 await dit('rien ne lit l’horloge ni le hasard : « maintenant » est toujours un paramètre', () => {
   const fautes = sources.filter(({ src }) => /Date\.now\(|new Date\(\)|Math\.random|performance\.now/.test(sansCommentaires(src))).map(({ f }) => f);
   assert.deepEqual(fautes, []);

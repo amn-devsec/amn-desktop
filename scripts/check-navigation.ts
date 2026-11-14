@@ -88,7 +88,11 @@ async function charger<T>(code: string): Promise<T> {
     platform: 'browser',
     target: 'es2022',
     charset: 'utf8',
+    // Les écrans neufs importent leur feuille de style : la garde ne lit que la logique, la feuille se charge vide.
+    loader: { '.css': 'empty' },
     jsx: 'automatic',
+    // Un écran neuf du registre (`nouveau`) est importé à la demande : ses feuilles de style ne comptent pas ici.
+    loader: { '.css': 'empty' },
     tsconfig: path.join(racine, 'tsconfig.json'),
     define: { 'process.env.NODE_ENV': '"production"', 'import.meta.env.DEV': 'false', __AMN_EDITION__: '"internal"', __AMN_VERSION__: '"0.0.0"' },
     logLevel: 'silent',

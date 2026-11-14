@@ -30,12 +30,12 @@ const API = opt('api', 'http://127.0.0.1:4171');
 const ROUTES = (opt('routes') ?? '').split(',').map((r) => r.trim()).filter(Boolean);
 const SORTIE = opt('sortie');
 const CSS = opt('css'); // contrôle : un style ajouté après le chargement (ex. un ::after qui élargit les boutons) doit faire passer les cibles
-const MIN = Number(opt('min', '34'));
+const MIN = Number(opt('min', '36')); // §1.41 : la zone de clic fait 36 px (le bord d'un carré de 34 px est exclusif : la sonde à ±17 px tomberait dehors)
 // `--apercu <worktree du lot> --ids F10,H06` : mesure sur l'APERÇU STATIQUE (état rempli, aucune donnée d'essai à attendre) au lieu de l'application.
 const APERCU = opt('apercu');
 const IDS = (opt('ids') ?? '').split(',').map((x) => x.trim()).filter(Boolean);
 const LARGEUR = Number(opt('largeur', '390'));
-if ((!DIST || !ROUTES.length) && !(APERCU && IDS.length)) { console.error("Usage : exigences-ecran.mjs (--dist <build-interne> --routes '#/a,#/b' | --apercu <worktree> --ids F10,H06) [--api …] [--min 34] [--largeur 390] [--css '<style de contrôle>'] [--sortie f.json]"); process.exit(2); }
+if ((!DIST || !ROUTES.length) && !(APERCU && IDS.length)) { console.error("Usage : exigences-ecran.mjs (--dist <build-interne> --routes '#/a,#/b' | --apercu <worktree> --ids F10,H06) [--api …] [--min 36] [--largeur 390] [--css '<style de contrôle>'] [--sortie f.json]"); process.exit(2); }
 if (!/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/.test(API)) { console.error('--api : cette machine seulement'); process.exit(2); }
 const MAIL = process.env.AMN_E2E_EMAIL ?? 'essai.interne@exemple.test';
 const MDP = process.env.AMN_E2E_PASSWORD ?? 'Interne-2026-Essai';
