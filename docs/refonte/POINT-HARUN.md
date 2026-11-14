@@ -1,8 +1,8 @@
 # Point pour Harun
 
-> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 13h40 UTC., 10h15 UTC., 10h00 UTC., 10h00 UTC., 09h35 UTC., 09h00 UTC., 08h40 UTC., 08h20 UTC., 08h00 UTC.
+> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 13h55 UTC., 10h15 UTC., 10h00 UTC., 10h00 UTC., 09h35 UTC., 09h00 UTC., 08h40 UTC., 08h20 UTC., 08h00 UTC.
 
-**Compteurs** (14 nov., 13h40) : **écrans construits 79 / 153, livrés 71** (LOT-00 9, LOT-06 Créer et produire 15, LOT-11 Développement 7, LOT-02 Contacts 13, LOT-03 Écrire et retenir 9, LOT-05 Échanger 10, **LOT-01 Ma journée 8 sur 16**) · **lots préparés 9 / 13, lots finis 5 / 13** · **écrans livrés depuis la veille : 71**. L'autre moitié de LOT-01 (S7) passe chez T1. La courbe : `STATUT.md`, « Vitesse ».
+**Compteurs** (14 nov., 13h55) : **écrans construits 79 / 153, livrés 79** (LOT-00 9, LOT-06 Créer et produire 15, LOT-11 Développement 7, LOT-02 Contacts 13, LOT-03 Écrire et retenir 9, LOT-05 Échanger 10, **LOT-01 Ma journée 16**) · **lots préparés 9 / 13, lots finis 6 / 13** · **écrans livrés depuis la veille : 79**. Tout ce qui est construit est livré. **La suite attend tes accords** : DS (LOT-04), S3 (LOT-08), S0 (socle et allumage de la coquille), S8 (LOT-10), et les zips de S6 (LOT-07). S1, S5 et S7 sont libres. La courbe : `STATUT.md`, « Vitesse ».
 
 **À ton réveil, une ligne à coller dans la session S0** (rien d'urgent, le reste avance sans elle) :
 
