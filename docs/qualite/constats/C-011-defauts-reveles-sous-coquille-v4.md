@@ -71,3 +71,14 @@ Ce que T1 n'a **pas** vérifié : qu'un geste (onglet, lien dans la page du modu
 | garde (LOT-08) | `/alertes-personnalisees`, `/comparatif`, `/comply`, `/ssl`, `/tracker` |
 
 Liste versionnée : [`docs/qualite/routes-interne.json`](../routes-interne.json) (les gardes les parcourent désormais par elle).
+
+## 4. Un geste mène-t-il à chacune des 39 routes ? (condition d'allumage, STATUT §1.37)
+
+`scripts/qualite/routes-atteignables.mjs` (160 écrans visités, onglets cliqués, les 101 lignes de « Tous les modules » ouvertes) :
+**les 39 routes ont un geste entrant ; aucune n'est sans chemin.** Le chemin est **un seul** pour 36 d'entre elles : un lien dans la
+page `#/bibliotheque` (Bibliothèque). Trois ont un second chemin : `#/comply`, `#/ssl`, `#/tracker` par `#/tour` (La Garde).
+Aucune n'est une ligne de « Tous les modules » (les lignes mènent à la première vue de chaque module fusionné) ni un onglet d'une
+autre page. Résultat : [`docs/qualite/resultats/routes-atteignables.json`](../resultats/routes-atteignables.json).
+
+Fragilité à connaître : si `#/bibliotheque` n'est plus atteignable ou n'affiche plus ces liens, 36 écrans deviennent des culs-de-sac sans
+changer une ligne de leur code. Les lignes de « Tous les modules » ne les atteignent pas : un module fusionné n'ouvre que sa première vue.
