@@ -45,7 +45,7 @@ Conséquence : **aucune disposition, aucune cote, aucun texte statique** n'est �
 | MJ05 | Rappels | mixte | **pas d'écran d'origine** : `/relances` (`RemindersScreen`) est celui des relances de paiement, pas MJ05 | `rappels` | `etatDuRappel`, `ordreDesRappels` | l'écran ; entrée `nouveau` |
 | L03 | Rituel du matin | nouveau | aucun | — (composé des sources de N01) | `rituel.ts` : étapes, reprise, une seule proposition le matin (préparée, à confirmer) | tout |
 | L02 | Mode Focus | nouveau | aucun (existe : `/personnel/pomodoro`, `PomodoroScreen`) | — | `focus.ts` : machine à états tirée du Pomodoro existant — 15/25/50 min, pause 5 min, pause longue 15 min à la 4ᵉ séance (préparée, à confirmer) | tout |
-| L01 | Séries et jalons | nouveau | aucun | `taches` (SIM) ; **priorités du jour absentes des jeux** | `serieDeLaJournee`, `PALIERS_DE_SERIE`, `jalonDeFactures` | tout ; trophées et paliers (**protégés**) |
+| L01 | Séries et jalons | nouveau | aucun | `dailyPriorities` (SIM, livré) | `serieDeLaJournee`, `PALIERS_DE_SERIE`, `jalonDeFactures` | tout ; trophées et paliers (**protégés**) |
 | L07 | Défis d'équipe | nouveau | aucun | `defis` | `etatDuDefi`, `jaugeDuDefi`, `defiDeLaSemaine`, `aussiEnCours`, `friseDesDefis`, `defisACelebrer`, `apportsDeLEquipe`, `verifierProposition`, `joursSansImpaye` | tout (**protégé : rien n'est simplifié**) |
 
 **Comment les écrans seront branchés** (à la construction, rien n'est écrit aujourd'hui) :
@@ -90,7 +90,7 @@ T1 vérifiera en plus **leur présence à l'écran** à ± 2 px (§1.10) : c'est
    - (c) la règle du CO et de la fiche L01 : la clôture des **priorités** du jour.
 
    Le lot implémente (c) (`serieDeLaJournee`). **Demande** : que `calculerAujourdhui` lise (c) (c'est une ligne), et que SIM aligne ses attendus H04 et H25 sur la même règle. D'ici là, `check:journee` compare H04 et H25 **en leur donnant la série de SIM**, pour tout vérifier sauf la série elle-même, qui a ses propres tests.
-2. **Les jeux de SIM n'ont pas de priorités du jour** (collection `dailyPriorities`). Sans elles, (c) ne peut pas être éprouvée sur le monde de SIM : seulement sur des cas écrits à la main.
+2. **Priorités du jour : livrées par SIM** (`dailyPriorities`, forme de la collection de l'app). La règle (c) est éprouvée sur le monde de SIM : `serieDeLaJournee` égale `serieDesPriorites` de SIM sur tous les mondes.
 3. **H25 « Mes tâches : même règle que N01 »** : N01 lit le fil du jour (priorités, rendez-vous, tâches), SIM compte les tâches d'échéance du jour. Le lot suit SIM pour H25. À trancher quand la fiche sera lue.
 4. **Les engagements écrits de L07 n'ont aucune donnée** : `Defi` n'a pas de champ « engagements » et aucune collection n'existe côté amn-api. Les stocker demande une **collection nouvelle** ou un autre support : décision à présenter à Harun (« demande à amn-api », §1.13 n° 6). En attendant, l'écran peut s'appuyer sur `apportsDeLEquipe(participants, [])` : chaque personne est invitée à écrire la sienne.
 5. **Un moment `defi.tenu`** (ton `fete`) au catalogue du bus de moments pour les célébrations : un nouveau type passe par le CO (`REGLES.md`). `defisACelebrer` dit déjà quels défis fêter, une seule fois.
@@ -102,7 +102,7 @@ T1 vérifiera en plus **leur présence à l'écran** à ± 2 px (§1.10) : c'est
 
 | Manque | Pour quoi | Demandé à |
 |---|---|---|
-| Priorités du jour (`dailyPriorities` : jour, priorités, instant de clôture) | la série (L01, N01, H04, H25) | SIM |
+| ~~Priorités du jour~~ — livrées (`dailyPriorities`), ainsi que `engagementsDefis`, `utilisateursConnectes`, `boiteAZero`, `objectifMrrCents` | la série (L01, N01, H04, H25) | SIM (fait) |
 | Engagements écrits des défis (personne, texte, défi) | L07 « Ce que chacun apporte » | Harun / amn-api (§5 n° 4) |
 | Objectif du mois (réglage) | G08, anneau d'objectif | SIM |
 | Utilisateurs connectés par jour (API du client) | G08, H25 | amn-api |

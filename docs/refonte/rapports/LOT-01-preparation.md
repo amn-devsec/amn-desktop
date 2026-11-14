@@ -31,7 +31,7 @@ Fichiers sensibles : `package.json`, `editions.yml` et `check-tutoiement.ts` : *
 ## Décisions demandées au CO (détail : note §5)
 
 1. **Trois définitions de « série »** coexistent (routines dans `calculerAujourdhui`, tâches chez SIM, priorités selon L01). Le lot implémente la règle du CO (priorités). `calculerAujourdhui` (fichier de S0) devrait la lire ; SIM devrait aligner ses attendus H04 et H25.
-2. **Jeux sans priorités du jour** : la série ne peut pas être éprouvée sur le monde de SIM.
+2. ~~Jeux sans priorités du jour~~ : livrés par SIM (d8ba0fc) ; branche fusionnée ici, `check:journee` éprouve la série sur `dailyPriorities`.
 3. **Engagements écrits de L07** : aucune donnée ni collection. À présenter à Harun (demande à amn-api).
 4. **Un moment `defi.tenu`** pour les célébrations (nouveau type : passe par le CO).
 5. **G08** : agrégats serveur, aucune clé sur le poste (demande à amn-api).
@@ -60,7 +60,7 @@ La modification de `STATUT.md` a été **refusée par le contrôle d'autorisatio
 | L02 | en cours (préparation) | `focus.ts` : règles du Pomodoro existant (15/25/50, pauses 5 et 15 min) ; **à confirmer** |
 | L03 | en cours (préparation) | `rituel.ts` : étapes, reprise, une proposition le matin ; **à confirmer** |
 
-**Manque aux données** : liste des personnes d'une note « personnes choisies » (MJ04, visible de son auteur seulement en attendant) ; priorités du jour (`dailyPriorities`) ; engagements écrits des défis ; objectif du mois (G08) ; utilisateurs connectés par jour (G08, H25) ; historique quotidien de la « Boîte à zéro ».
+**Manque aux données** : liste des personnes d'une note « personnes choisies » (MJ04, visible de son auteur seulement en attendant) ; `objectifDuMois` et `utilisateursConnectes` de `attendusCockpit` (encore à `null` chez SIM) — le reste (priorités, engagements, connexions, Boîte à zéro, objectif MRR) est livré.
 
 ## Ce qui n'a pas été vérifié
 
