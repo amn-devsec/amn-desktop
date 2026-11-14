@@ -14,12 +14,12 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 |---|---|---|---|
 | S0 Socle | `session_01SJe828c2W5EnkMY4fhFY6z` | attend l'accord direct de Harun | sa liste, §1.38 |
 | T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | `check:fidelite` et `tester-branche` par lot | LOT-03 `2da78ad5` (fidélité 9/9, structure en cours) ; LOT-05 après « Gérer » |
-| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **LOT-01, moitié S1 complète** (8/8, `43b362f0`) | T1 mesure ; corriger ce qu'il renvoie |
+| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **LOT-02 livré ; LOT-01 moitié S1 livrée** (`544545be` fusionné) | en pause : aucun lot libre |
 | S2 | `session_014ZkF6SeGRNi6NR3uEsjM5q` | préparation de LOT-01 finie ; **sans zips v4** ; la construction de LOT-01 passe à S7 | en pause jusqu'aux zips, puis un autre lot |
 | S3 | `session_01FBSpK6n1yYtYXYyxbLAuBV` | attend l'accord de Harun (`check:encres`) ; **sans zips v4** | correctif d'`equipes.ts`, puis LOT-08 |
 | S5 | `session_012jWErBSSkcoVaU3iN895bQ` | **LOT-03 et LOT-05 livrés**, préparation de LOT-09 fusionnée | en pause ; proposé pour la liste du socle (POINT-HARUN n° 9) |
 | S6 | `session_01RHV8Xq2txWkfjAusKvq9DG` | préparation de LOT-07 fusionnée ; **sans zips v4** ; LOT-10 passe à S8 | construire LOT-07 dès les zips ; relire la sécurité de LOT-10 avant sa fusion |
-| S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **LOT-01, ses 8 écrans faits** (`8f719768`) ; restes de LOT-06 à situer | T1 mesure ; accorder `check-journee.ts` avec S1 |
+| S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | LOT-01 moitié S7 corrigée et restes de LOT-06 (`1fe34d3f`, même branche) chez T1 | attendre le verdict ; ne pas fusionner vivante avant |
 | S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | **LOT-11 livré** (`6a87e35` fusionné) | attend l'accord de Harun pour LOT-10 Cyber (POINT-HARUN) |
 | DS | `session_01TZGDvVWristJnnPK59rruY` | attend l'accord direct de Harun pour construire LOT-04 | commencer par MA03, H07, MA12 |
 | SIM, S9, F1 | `session_011UF2ufZg9moGv2rRZFRuf7`, `session_01C5DAVygXYax6Q7g436TPQx`, `session_01VZHqP3gvzrtnpgsTrrKguV` | en pause | F1 : intégration reportée (S0) |
@@ -905,7 +905,7 @@ Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en para
 |---|---|---|---|
 | S0 Socle | LOT-00 puis socle v3 | ✓ | LOT-00 (v2) fusionné. Socle v3 en cours : §1.10 et §5. |
 | S2 | LOT-01 | ✓ | N01 remplace son Accueil ; M1, M2 et M4 sont absorbés par G05, H40 et H42. Ses 5 commits postérieurs (`b228f5d`) ne sont pas fusionnés. |
-| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **LOT-01, moitié S1 complète** (8/8, `43b362f0`) | T1 mesure ; corriger ce qu'il renvoie |
+| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **LOT-02 livré ; LOT-01 moitié S1 livrée** (`544545be` fusionné) | en pause : aucun lot libre |
 | S5 | `session_012jWErBSSkcoVaU3iN895bQ` | **LOT-03 et LOT-05 livrés**, préparation de LOT-09 fusionnée | en pause ; proposé pour la liste du socle (POINT-HARUN n° 9) |
 | DS | LOT-04 | ✓ à condition | Ne pousse plus dans `src/socle/**`. Banque en lecture seule ; LOT-04 n'affiche que l'état « connecté / à connecter », la configuration est dans H21 (LOT-07). |
 | **S7** (nouvelle) | LOT-06 | ✓ | **Décision de Harun : LOT-06 confié à S7, F1 écartée.** Sonnet 5.5, effort élevé. À créer. |
@@ -921,13 +921,13 @@ Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en para
 |---|---|---|---|---|---|
 | S0 / LOT-00 | `claude/refonte-socle` | **v2 fusionné** (`488cdcc`) ; socle v3 à suivre sur la même branche | `fdd6366` | `rapports/LOT-00.md` (sur sa branche) | Questions de LOT-00 : §7, section LOT-00 |
 | DS | `claude/refonte-design-socle` | gelée, reprise par LOT-00 | `e97f479` | `rapports/DS.md` (branche LOT-00) | — |
-| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **LOT-01, moitié S1 complète** (8/8, `43b362f0`) | T1 mesure ; corriger ce qu'il renvoie |
+| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **LOT-02 livré ; LOT-01 moitié S1 livrée** (`544545be` fusionné) | en pause : aucun lot libre |
 | S2 | `claude/refonte-s2-accueil` | fusionnée à `a537dbe` ; 5 commits non fusionnés | `b228f5d` | [`rapports/S2.md`](rapports/S2.md) | Remplacée par LOT-01 |
 | S3 | `claude/refonte-s3-supervisor` (ancienne), `claude/refonte-garde` (LOT-08) | ancienne fusionnée ; LOT-08 en préparation (note seulement, aucun code) | `e7f4f25`, `2eedc9b` | `docs/refonte/preparation-garde.md` (branche LOT-08) | 15 questions tranchées au §1.8 |
 | S4 | — | annulée | — | — | — |
 | S5 | `session_012jWErBSSkcoVaU3iN895bQ` | **LOT-03 et LOT-05 livrés**, préparation de LOT-09 fusionnée | en pause ; proposé pour la liste du socle (POINT-HARUN n° 9) |
 | S6 | `claude/refonte-sec-*` | phase 1 en cours, privée. **Ne pas fusionner sans décision de Harun.** | — | `docs/securite/**`, hors dépôt | Prend LOT-07 puis LOT-10 |
-| S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **LOT-01, ses 8 écrans faits** (`8f719768`) ; restes de LOT-06 à situer | T1 mesure ; accorder `check-journee.ts` avec S1 |
+| S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | LOT-01 moitié S7 corrigée et restes de LOT-06 (`1fe34d3f`, même branche) chez T1 | attendre le verdict ; ne pas fusionner vivante avant |
 | F1 | `claude/refonte-atelier-f1` | prête, non fusionnée, rien de branché | `59056ad` | `docs/atelier/PRET.md` | C-003 à appliquer ; 3 modules choisis (§1.21), à intégrer après le socle v4 |
 | T1 | `claude/refonte-qualite-t1`, `claude/refonte-qualite` | **les deux fusionnées** (`97929c1`, `3cc8dff`) | `51a962d`, `f2e243a` | [`../qualite/SANTE.md`](../qualite/SANTE.md) | Passage 2 à faire sur `refonte-vivante` |
 | SIM | `claude/refonte-donnees-fictives`, `claude/refonte-sim-bac-a-sable` | **données fusionnées** (`4fe559b`) + `check:donnees` en CI ; bac à sable non fusionné | `4fe559b`, `95d9765` | [`rapports/DONNEES.md`](rapports/DONNEES.md) | Suite : §1.11 |
