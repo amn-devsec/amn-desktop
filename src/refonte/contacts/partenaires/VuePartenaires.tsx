@@ -82,7 +82,8 @@ export function VuePartenaires({ statut, horsLigne = false, modele, actions, lec
               <span className="sc-pa-surface__compte sc-nombre">{tm(m.total === 1 ? 'reseau.compte.1' : 'reseau.compte.n', { n: m.total, k: m.actifs })}</span>
             </div>
             <div className="sc-pa-zone">
-              {m.total === 0 && <div className="sc-pa-zone__vide"><BlocEtat icone={<Users size={20} strokeWidth={1.7} />} ton="neutre" titre={tm('etat.vide.titre')} texte={tm('etat.vide.texte')} actions={lecture ? <span /> : <Bouton variante="primaire" onClick={actions.ajouter}>{tm('action.ajouter')}</Bouton>} /></div>}
+              {m.total === 0 && <div className="sc-pa-zone__vide">
+                <BlocEtat icone={<Users size={20} strokeWidth={1.7} />} ton="neutre" titre={tm('etat.vide.titre')} texte={tm('etat.vide.texte')} actions={lecture ? <span /> : <Bouton variante="primaire" onClick={actions.ajouter}>{tm('action.ajouter')}</Bouton>} /></div>}
               <Reseau m={m} filtre={filtre} choixId={choisi?.id ?? null} onChoisir={(id) => setChoix((cur) => (cur === id ? null : id))} />
             </div>
             <div className="sc-pa-pied">

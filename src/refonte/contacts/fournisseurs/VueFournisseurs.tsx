@@ -87,9 +87,11 @@ export function VueFournisseurs({ statut, horsLigne = false, modele, actions, le
               )}
             </div>
             {!m.disponible ? (
-              <div className="sc-fo-matrice__etat"><BlocEtat icone={<Truck size={20} strokeWidth={1.7} />} ton="neutre" titre={tm('etat.indisponible.titre')} texte={tm('etat.indisponible.texte')} actions={<Bouton variante="secondaire" onClick={actions.tous}>{tm('action.tous')}</Bouton>} /></div>
+              <div className="sc-fo-matrice__etat">
+                <BlocEtat icone={<Truck size={20} strokeWidth={1.7} />} ton="neutre" titre={tm('etat.indisponible.titre')} texte={tm('etat.indisponible.texte')} actions={<Bouton variante="secondaire" onClick={actions.tous}>{tm('action.tous')}</Bouton>} /></div>
             ) : !m.besoin || m.colonnes.length === 0 ? (
-              <div className="sc-fo-matrice__etat"><BlocEtat icone={<ShoppingCart size={20} strokeWidth={1.7} />} ton="neutre" titre={tm('etat.aucun.titre')} texte={tm('etat.aucun.texte')} actions={lecture ? <span /> : <Bouton variante="primaire" onClick={() => setPanneau(true)}>{tm('action.besoin')}</Bouton>} /></div>
+              <div className="sc-fo-matrice__etat">
+                <BlocEtat icone={<ShoppingCart size={20} strokeWidth={1.7} />} ton="neutre" titre={tm('etat.aucun.titre')} texte={tm('etat.aucun.texte')} actions={lecture ? <span /> : <Bouton variante="primaire" onClick={() => setPanneau(true)}>{tm('action.besoin')}</Bouton>} /></div>
             ) : (
               <Matrice m={m} actions={actions} lecture={lecture} />
             )}

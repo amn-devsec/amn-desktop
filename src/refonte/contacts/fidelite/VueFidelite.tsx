@@ -76,7 +76,8 @@ export function VueFidelite({ statut, horsLigne = false, modele, faits, actions,
               <span className="sc-fi-surface__fideles"><strong className="sc-nombre">{m.fideles}</strong> {tm('echelle.fideles', { total: m.actifs })}</span>
             </div>
             <div className="sc-fi-echelle">
-              {statut === 'pret' && m.fideles === 0 && <div className="sc-fi-echelle__vide"><BlocEtat icone={<Users size={20} strokeWidth={1.7} />} ton="neutre" titre={tm('etat.vide.titre')} texte={tm('etat.vide.texte')} actions={<Bouton variante="primaire" onClick={actions.regles}>{tm('action.regles')}</Bouton>} /></div>}
+              {statut === 'pret' && m.fideles === 0 && <div className="sc-fi-echelle__vide">
+                <BlocEtat icone={<Users size={20} strokeWidth={1.7} />} ton="neutre" titre={tm('etat.vide.titre')} texte={tm('etat.vide.texte')} actions={<Bouton variante="primaire" onClick={actions.regles}>{tm('action.regles')}</Bouton>} /></div>}
               <Echelle m={m} filtre={filtre} aujourdhui={aujourdhui} onOuvrir={actions.ouvrirClient} />
               {m.barreaux.map((b) => <BlocPalier key={b.niveau} b={b} />)}
             </div>
@@ -168,7 +169,7 @@ function Pose({ c, y, jour, nb, gardee, onOuvrir, niveauSuivantY }: { c: ClientP
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOuvrir(c.clientId); } }}
         className="sc-fi-carre"
       >
-        <rect x={x - 17} y={haut - 4} width={34} height={34} className="sc-ct-zone" />
+        <rect x={x - 19} y={haut - 6} width={38} height={38} className="sc-ct-zone" />
         <rect x={x - 13} y={haut} width={26} height={26} rx={7} />
         <text x={x} y={haut + 17} textAnchor="middle" className="sc-fi-carre__lettre">{c.initiale}</text>
         <title>{tm('client.info', { nom: c.nom, points: nb(c.points), jour: jour(c.derniereActiviteLe) })}</title>

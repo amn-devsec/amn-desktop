@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import type { ModeleProspects, PointProspect } from './modele';
 import { graduationsMontant, INTERIEUR, placerEtiquettes, positionX, positionY, rayonDuPoint, rectangleQuadrant, TRACE, zonesDesLegendes } from './nuage';
 import { useMotsProspects } from './i18n';
-import { euros } from '../commun';
+import { ecarterPoints, euros, zonesDeClic } from '../commun';
 
 /**
  * LE NUAGE (H06, `ProspectScatter`) — un SVG de 736 × 548 : grille, quadrant prioritaire, repères d'intérêt, puis un point
@@ -24,13 +24,15 @@ export function NuageProspects({ modele, points, actifId, figeId, onSurvol, onCh
   const { plafondCents, reglages } = modele;
   const montant = (c: number) => euros(c, langue);
   const geom = useMemo(
-    () => points.map((p) => ({ id: p.id, x: positionX(p.interet), y: positionY(p.montantCents, plafondCents), r: rayonDuPoint(p.chance), nom: p.nom, montant: montant(p.montantCents), prioritaire: p.prioritaire, poids: p.montantCents })),
+    () => ecarterPoints(points.map((p) => ({ id: p.id, x: positionX(p.interet), y: positionY(p.montantCents, plafondCents), r: rayonDuPoint(p.chance), nom: p.nom, montant: montant(p.montantCents), prioritaire: p.prioritaire, poids: p.montantCents }))),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [points, plafondCents, langue],
   );
   const quadrant = rectangleQuadrant(reglages.interetMin, reglages.montantMinCents, plafondCents);
   const etiquettes = useMemo(() => placerEtiquettes(geom, new Set(actifId ? [actifId] : []), zonesDesLegendes(quadrant)), [geom, actifId, quadrant.x, quadrant.y, quadrant.largeur, quadrant.hauteur]); // eslint-disable-line react-hooks/exhaustive-deps
   const parId = new Map(geom.map((g) => [g.id, g]));
+  const zones = zonesDeClic(geom.map((g) => ({ x: g.x, y: g.y, r: g.r })));
+  const zoneDe = new Map(geom.map((g, i) => [g.id, zones[i]]));
   const ordreClavier = [...points].sort((a, b) => Number(b.prioritaire) - Number(a.prioritaire) || b.interet - a.interet);
   const xMax = INTERIEUR.x + INTERIEUR.largeur;
   const yBas = INTERIEUR.y + INTERIEUR.hauteur;
@@ -101,9 +103,9 @@ export function NuageProspects({ modele, points, actifId, figeId, onSurvol, onCh
         const g = parId.get(p.id) as { x: number; y: number; r: number };
         const actif = p.id === actifId;
         return (
-          <g key={p.id} onMouseEnter={() => onSurvol(p.id)} onMouseLeave={() => onSurvol(null)} onClick={() => onChoisir(p.id)}>
+          <g key={p.id} role="presentation" onMouseEnter={() => onSurvol(p.id)} onMouseLeave={() => onSurvol(null)} onClick={() => onChoisir(p.id)}>
             {/* Zone de clic invisible de 34 px au moins (STATUT §1.39) : les événements remontent à ce groupe. */}
-            <circle cx={g.x} cy={g.y} r={Math.max(g.r + 1, 17)} className="sc-ct-zone" />
+            <circle cx={g.x} cy={g.y} r={(zoneDe.get(p.id) ?? 38) / 2} className="sc-ct-zone" />
             {actif && <circle cx={g.x} cy={g.y} r={g.r + 6} className="sc-pr-nuage__halo" />}
             <circle
               cx={g.x}
