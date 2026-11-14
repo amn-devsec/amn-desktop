@@ -24,7 +24,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 | S9 | `session_01C5DAVygXYax6Q7g436TPQx` | LOT-12 fini, valeurs de MC07 fusionnées (`bcdc65f`) | rien |
 | S2, S3 (première tâche : `check:encres`), F1 — **relancés le 14 nov., 08h** | `session_014ZkF6SeGRNi6NR3uEsjM5q`, `session_01FBSpK6n1yYtYXYyxbLAuBV`, `session_01VZHqP3gvzrtnpgsTrrKguV` | arrêtées | relancer au socle v4 (prompts : `PROMPTS-11NOV.md`, §1.21) |
 
-**À dire au prochain message** : à DS, la place des modules de F1 est corrigée (MA03 ↔ H07, §1.33 n° 4) ; à T1, (a) La Garde dans l'API d'essai demande une base sur fichier (SIM), (b) comparer le paquet client de `claude/refonte-outils` @ `f52ef5d` (`AutomationsRunner.tsx` partagé) avant sa fusion.
+**À dire au prochain message** : à chaque lot, ses exigences de cibles et de largeur (§1.37) ; à DS, la place des modules de F1 est corrigée (MA03 ↔ H07, §1.33 n° 4) ; à T1, (a) La Garde dans l'API d'essai demande une base sur fichier (SIM), (b) comparer le paquet client de `claude/refonte-outils` @ `f52ef5d` (`AutomationsRunner.tsx` partagé) avant sa fusion.
 
 **Décisions provisoires en cours** (révisables par Harun) : arrondi et régime de TVA, seuils de l'argent (§1.29) ; valeurs de départ des connecteurs (§1.22 n° 3) ; plafonds de relance 3 et 1 par jour (§1.28 n° 4) ; seuils de charge (validés, §1.20). Liste « À décider par Harun » : `POINT-HARUN.md`.
 
@@ -44,6 +44,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov., 09h25 : défauts C-011 répartis (§1.37). On ne touche pas `src/screens` : chaque défaut devient une exigence de l'écran de la refonte qui le remplace. Deux corrections vont à S0. Les 39 routes ont toutes une entrée au registre : T1 vérifie qu'un geste mène à chacune, et c'est une condition de l'allumage.
 - 14 nov., 09h20 : **LOT-07 préparation fusionnée** (`89ef910a`), paquet client vérifié par T1 ; 5 conflits, tous des ajouts, gardés. Premier `check:fidelite` sur les lots : LOT-11 non accepté (6 écrans non montés, faute de déclaration au registre) ; F20 à justifier, avec deux tuiles à ajouter ; F50 et H15 à justifier ; H16 à reprendre (bouton, jauge, suggestion). Réorganisation : la correction durable de `check:navigation` passe de S5 à S8, qui est bloqué et disponible.
 - 14 nov., 09h10 : **C-008 réglé** (patch de T1, appliqué par le CO dans `check-contraste.mjs` et `routes-coquille.mjs`). Sous la coquille v4, les gardes trouvent 160 écrans au lieu de 15 ; contraste : 34 622 textes, aucun sous AA ; plus de faux rouge sur le néon. C-009 corrigé aussi. Restent des défauts réels, à répartir : 11 familles de cibles trop petites, 4 écrans qui débordent à 390 px, 39 écrans de l'ancienne barre que la coquille v4 ne relie plus.
 - 14 nov., 09h00 : LOT-02, 4 écrans sur 13 (S1, `479995a`). La création préremplie demanderait de toucher `src/screens` : refusé, puisque l'édition cliente ne change pas. Les boutons ouvrent la création existante, avec l'écart noté. L'intérêt de H06 est estimé et dit comme tel.
@@ -784,6 +785,24 @@ Fusionnée. Les gardes, lues avant le push, sont vertes : `check:journee` (45), 
 | 6 | Agrégats Stripe de G08 | Une demande à amn-api (Harun et Mohamed). Aucune clé ne passe par le poste. |
 | 7 | Routes de G08, H03 et MJ05 | À lire sur les fiches, quand S2 aura les zips. |
 | 8 | Périmètre de `check:tutoiement` | Ajout de `src/refonte/journee` : **accepté**. |
+
+### 1.37 Défauts révélés sous la coquille v4 (C-011, T1) : répartition du CO
+
+Le détail est dans `docs/qualite/constats/C-011-defauts-reveles-sous-coquille-v4.md` (claude/refonte-qualite @ `ba54ec4a`). Ce sont presque tous des **écrans d'origine** (`src/screens/*`), que les gardes ne voyaient pas. **On ne touche pas `src/screens/**`**, qui sert à l'édition cliente. Chaque défaut devient donc une **exigence de l'écran de la refonte qui le remplace** : cibles de 34 px au moins, rien de coupé à 390 px. T1 le vérifie au `check:fidelite` du lot.
+
+| Propriétaire | Écrans d'origine concernés (cibles ; largeur à 390 px) |
+|---|---|
+| S2 (LOT-01) | Agenda : jours de 42 px, créneaux de 7 et 41 px. Partagé avec l'édition cliente, donc corrigé dans l'écran de la refonte seulement. |
+| S5 (LOT-03) | Templates (11 px), Pages (34 px) ; Journal de bord et Décisions (texte écrasé) |
+| DS (LOT-04) | Dépenses (barres de 17 px), Relances (32 px) |
+| S7 (LOT-06) | Tournées (24 px, 529 px), Réservation de matériel (620 px) |
+| S6 (LOT-07) | Automatisations (413 px), Calculatrice pro (445 px) |
+| S3 (LOT-08) | ChoixModules (32 px), Organisations (texte écrasé), Rapport client (402 px) |
+| S6 (LOT-10) | Hameçonnage (texte écrasé) |
+| **S0 (socle)** | Lignes de H40 (18 px) ; `.dm-recherche` de `VueTousLesModules.tsx` (660 px : **une seule correction règle 10 écrans**). Ajouté à la liste de S0, qui attend l'accord de Harun. |
+| aucun lot | `src/assistant/AssistantPanel.tsx`, « Nouvelle conversation » à 32 px (80 occurrences). Partagé avec l'édition cliente : **laissé tel quel**, et noté. |
+
+**39 routes que la coquille ne relie plus directement** : toutes ont une entrée au registre, donc aucune n'est orpheline. **T1 vérifie** qu'un geste (onglet, lien dans la page du module, « Tous les modules ») mène à chacune. Celles qui restent sans geste iront à S0 (coquille) ou au lot propriétaire. C'est une **condition de l'allumage** de la coquille par défaut.
 
 ## 2. Les lots
 
