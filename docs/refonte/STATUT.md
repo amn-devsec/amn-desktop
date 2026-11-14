@@ -4,7 +4,7 @@
 
 ## REPRISE (à lire en premier après une compaction ; tenu par le CO, réécrit à chaque tour)
 
-Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `9759cbd`.
+Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `ed3bdcb`.
 
 **Avoirs** : réglé, ils sont présents par défaut (`b0173f3`).
 
@@ -40,10 +40,11 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 | Jour | Construits | Livrés (cumul) | Livrés depuis la veille | Lots préparés | Lots finis | Note |
 |---|---|---|---|---|---|---|
-| 14 nov. | 9 / 153 | 9 (LOT-00, socle v4) | 9 | 7 / 13 | 0 / 13 (LOT-00 attend l'allumage) | les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. La note de LOT-08 n'est pas fusionnée. |
+| 14 nov. | 9 / 153 | 9 (LOT-00, socle v4) | 9 | 8 / 13 | 0 / 13 (LOT-00 attend l'allumage) | les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. La note de LOT-08 n'est pas fusionnée. |
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov., 08h20 : LOT-01 préparation fusionnée (S2). La série suit la clôture des priorités ; S2 peut modifier une ligne de `calculer.ts` du socle, puisque S0 est bloqué ; moment `defi.tenu` accepté (§1.36).
 - 14 nov., 08h : DS demande l'accord direct de Harun avant de construire, et n'a pas accès à amn-api : ses captures passent par l'aperçu statique, comme pour S0, et T1 garde les captures sur API. La session de S3 a refusé l'édition d'`equipes.ts` (C-007) : il faut l'accord de Harun. S3 n'a pas les zips v4. Lignes à coller dans `POINT-HARUN.md`.
 - 14 nov., 08h : **socle v4 fusionné** (`a76c201`) après le feu vert de T1. La coquille n'est pas allumée par défaut (conditions de T1, §1.35). Feu vert à la construction des écrans pour tous les lots préparés.
 - 14 nov., 05h25 : outils de T1 fusionnés (`be05376`) : contrôle de fidélité v4, garde `check:fidelite` (tests unitaires 2 sur 2), conditions de la coquille v4. Gardes vertes. Le verdict du passage 2 sur le socle est toujours attendu.
@@ -760,6 +761,21 @@ LOT-04 fusionné : `check:argent` passe ses 70 propriétés, avec et sans les av
 - avant de signaler au CO : `check:tutoiement` et la garde du lot ;
 - avant la fusion : T1 passe `check:fidelite`.
 
+### 1.36 LOT-01 préparation (S2, `09a0a28`) : fusionnée, décisions du CO
+
+Fusionnée. Les gardes, lues avant le push, sont vertes : `check:journee` (45), aucune garde nouvelle rouge, typechecks et lint. **S2 n'a pas les zips v4** : rien n'est construit, et les écrans sans fiche lue restent « à faire ». La session de S2 n'a pas pu écrire dans STATUT : le CO a reporté ses lignes au §7.
+
+| # | Question de S2 | Décision |
+|---|---|---|
+| 1 | Trois définitions de « série » | **(c), la clôture des priorités du jour**, comme le dit la règle du §1.10 (« Série = clôture des 3 priorités »). `calculerAujourdhui` (fichier de S0, qui attend Harun) passe à `serieDeLaJournee` : **S2 est autorisé à faire ce changement d'une ligne**, avec `check:socle-vivant` et les gardes du socle verts. SIM aligne ses attendus H04 et H25. |
+| 2 | Pas de priorités du jour dans les jeux | **Commandé à SIM** : un jeu `dailyPriorities`. |
+| 3 | H25 « même règle que N01 » | **Le fil du jour de N01**, comme le dit le texte cité de la fiche. **Provisoire**, à relire avec la fiche. |
+| 4 | Engagements écrits de L07 | Ils demandent une collection nouvelle : la question rejoint la liste présentée à Harun. D'ici là, l'invitation à écrire son engagement s'affiche, et l'enregistrement est « non disponible », avec la raison. |
+| 5 | Moment `defi.tenu` (ton `fete`) | **Accepté.** S2 l'ajoute au catalogue et à la liste de `check:moments`. |
+| 6 | Agrégats Stripe de G08 | Une demande à amn-api (Harun et Mohamed). Aucune clé ne passe par le poste. |
+| 7 | Routes de G08, H03 et MJ05 | À lire sur les fiches, quand S2 aura les zips. |
+| 8 | Périmètre de `check:tutoiement` | Ajout de `src/refonte/journee` : **accepté**. |
+
 ## 2. Les lots
 
 Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en parallèle, une branche chacun ; **LOT-09 en dernier**. Les chiffres viennent de `03-INDEX.md` : 9 + 16 + 13 + 9 + 17 + 10 + 15 + 16 + 12 + 11 + 14 = **142**. (Le tableau du fichier 00 compte G05 dans LOT-05 ; l'index et les prompts le rangent dans LOT-00. Le CO suit l'index.)
@@ -1031,22 +1047,22 @@ Gardes : `check:socle`, `check:tutoiement`, `check:voix`, `check:socle-controles
 
 | ID | Écran | Type | État | Écart / note |
 |---|---|---|---|---|
-| N01 | Ma journée · Accueil | mixte | à faire | |
-| H25 | Ma journée · Tableau de bord, widgets | mixte | à faire | |
-| G08 | Ma journée · Cockpit client : Stripe, utilisateurs, tickets | mixte | à faire | |
+| N01 | Ma journée · Accueil | mixte | en cours (préparation) | préparation (S2) : lit `useAujourdhui` ; série = `serieDeLaJournee` (§1.36 n° 1) |
+| H25 | Ma journée · Tableau de bord, widgets | mixte | en cours (préparation) | préparation : `tableauDeBord` = attendus de SIM ; grille à lire sur la fiche |
+| G08 | Ma journée · Cockpit client : Stripe, utilisateurs, tickets | mixte | en cours (préparation) | préparation : `cockpitDuClient` = attendus de SIM ; agrégats seulement, aucune clé ; route à lire sur la fiche |
 | H01 | Ma journée · Calendrier | mixte | à faire | |
-| H02 | Ma journée · Tâches | mixte | à faire | |
-| H03 | Ma journée · Missions et tickets, kanban | mixte | à faire | |
-| H04 | Ma journée · Bilan de la semaine | mixte | à faire | |
-| MJ01 | Ma journée · Projets | mixte | à faire | |
-| MJ03 | Ma journée · Planning de l'équipe | mixte | à faire | |
-| MJ02 | Ma journée · Habitudes | mixte | à faire | |
+| H02 | Ma journée · Tâches | mixte | en cours (préparation) | préparation : paliers et série ; **trophées protégés** |
+| H03 | Ma journée · Missions et tickets, kanban | mixte | en cours (préparation) | préparation : `trierLaColonne`, `deplacer` ; aucun écran d'origine |
+| H04 | Ma journée · Bilan de la semaine | mixte | en cours (préparation) | préparation : `bilanDeLaSemaine` = attendus de SIM ; **trophées et paliers protégés** |
+| MJ01 | Ma journée · Projets | mixte | en cours (préparation) | préparation : `projetCalcule` = SIM |
+| MJ03 | Ma journée · Planning de l'équipe | mixte | en cours (préparation) | préparation : `chevauchements`, `personnesDuCreneau` |
+| MJ02 | Ma journée · Habitudes | mixte | en cours (préparation) | préparation : `serieDHabitude`, `tauxDeTenue` (propositions) |
 | MJ04 | Ma journée · Notes rapides | mixte | à faire | |
-| MJ05 | Ma journée · Rappels | mixte | à faire | |
+| MJ05 | Ma journée · Rappels | mixte | en cours (préparation) | préparation : `etatDuRappel` ; aucun écran d'origine |
 | L03 | Ma journée · Rituel du matin | nouveau | à faire | |
 | L02 | Ma journée · Mode Focus | nouveau | à faire | |
-| L01 | Ma journée · Séries et jalons | nouveau | à faire | |
-| L07 | Ma journée · Défis d'équipe | nouveau | à faire | |
+| L01 | Ma journée · Séries et jalons | nouveau | en cours (préparation) | préparation : `serieDeLaJournee`, paliers 5/10/20/30/50/100 ; **protégé** ; priorités absentes des jeux |
+| L07 | Ma journée · Défis d'équipe | nouveau | en cours (préparation) | préparation : défis, jauge, frise, célébrations, engagements, proposition ; **protégé** ; engagements sans donnée |
 
 ### LOT-02 · Mes contacts et clients — `claude/refonte-contacts` — 13 écrans
 

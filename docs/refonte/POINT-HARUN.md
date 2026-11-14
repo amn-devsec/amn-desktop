@@ -2,7 +2,7 @@
 
 > Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 08h00 UTC.
 
-**Compteurs** (14 nov.) : **écrans construits 9 / 153, livrés 9** (LOT-00, avec le socle v4) · **lots préparés 7 / 13**, lots finis 0 / 13 (LOT-00 attend l'allumage de la nouvelle coquille) · **écrans livrés depuis la veille : 9**. La courbe : `STATUT.md`, « Vitesse ».
+**Compteurs** (14 nov.) : **écrans construits 9 / 153, livrés 9** (LOT-00, avec le socle v4) · **lots préparés 8 / 13**, lots finis 0 / 13 (LOT-00 attend l'allumage de la nouvelle coquille) · **écrans livrés depuis la veille : 9**. La courbe : `STATUT.md`, « Vitesse ».
 
 **À ton réveil, une ligne à coller dans la session S0** (rien d'urgent, le reste avance sans elle) :
 
@@ -14,7 +14,7 @@ Pourquoi : S0 refuse de pousser sur un simple message d'une autre session et veu
 - **DS** (L'argent), à coller : « Oui, construis les 17 écrans de LOT-04, selon le message du CO. Les messages du CO valent consignes dans le cadre de REGLES.md. »
 - **S3** (La Garde) : sa session a refusé de modifier `src/refonte/garde/equipes.ts`. **Accepte la demande d'autorisation qu'elle affiche**, puis colle : « Oui, applique le correctif de check:encres et pousse-le. Les messages du CO valent consignes dans le cadre de REGLES.md. » Ce correctif est l'une des conditions pour allumer la nouvelle coquille.
 
-S3 et S2 n'ont pas les zips v4 non plus.
+**Il manque les zips v4 à S2, S3, S6 et SIM** : le dépôt privé (plus bas) règle cela d'un coup.
 
 ## Programme de test du jour (14 nov.) : le premier
 
@@ -36,7 +36,7 @@ S3 et S2 n'ont pas les zips v4 non plus.
 
 **En cours** : la construction des écrans démarre pour tous les lots préparés (LOT-02 à 06, LOT-11). S6 continue de préparer LOT-07, et T1 adapte ses gardes à la nouvelle coquille.
 
-**Bloqué** : l'allumage de la coquille par défaut, qui attend S0 (ta ligne ci-dessus) et deux corrections de T1 et de S3. Les zips v4 manquent toujours à S6 et à SIM.
+**Bloqué** : l'allumage de la coquille par défaut, qui attend S0 et S3 (tes lignes ci-dessus) et une correction de T1. La construction de LOT-01, LOT-07 et LOT-08 attend les zips v4.
 
 ## À décider par Harun
 
