@@ -1,0 +1,38 @@
+<!doctype html><meta charset="utf-8"><title>essai</title>
+<script src="../node_modules/onnxruntime-web/dist/ort.wasm.min.js"></script>
+<script src="../node_modules/smartcrop/smartcrop.js"></script>
+<script>
+// Une image de synthèse : fond uni, un « sujet » contrasté décentré à droite.
+function imageDeSynthese(l, h) {
+  const c = document.createElement('canvas'); c.width = l; c.height = h;
+  const g = c.getContext('2d');
+  g.fillStyle = '#7a8a99'; g.fillRect(0, 0, l, h);
+  g.fillStyle = '#f2d2b6'; g.fillRect(l * 0.68, h * 0.25, l * 0.18, h * 0.5);
+  g.fillStyle = '#1a1a1a'; for (let i = 0; i < 12; i++) g.fillRect(l * 0.7 + i * 9, h * 0.3 + (i % 3) * 20, 4, 60);
+  return c;
+}
+window.essai = async () => {
+  const r = { userAgent: navigator.userAgent.match(/Electron\/[\d.]+/)?.[0] ?? navigator.userAgent };
+  // onnxruntime-web, moteur WebAssembly, un seul fil (pas d'isolement inter-origines requis).
+  ort.env.wasm.numThreads = 1;
+  ort.env.wasm.wasmPaths = new URL('../node_modules/onnxruntime-web/dist/', location.href).href;
+  const t0 = performance.now();
+  const s = await ort.InferenceSession.create('./sigmoid.onnx', { executionProviders: ['wasm'] });
+  const x = new ort.Tensor('float32', Float32Array.from([-2, 0, 1, 3]), [1, 4]);
+  const y = (await s.run({ x })).y.data;
+  r.onnx = { sortie: Array.from(y).map((v) => +v.toFixed(4)), attendu: [-2, 0, 1, 3].map((v) => +(1 / (1 + Math.exp(-v))).toFixed(4)), ms: Math.round(performance.now() - t0) };
+  // smartcrop dans le rendu (canvas), recadrage 4:5 d'une image 1200 × 800.
+  const img = imageDeSynthese(1200, 800);
+  const c = await smartcrop.crop(img, { width: 640, height: 800 });
+  r.smartcropRendu = c.topCrop;
+  // Sans sharp : recadrer, redimensionner et encoder avec le canvas du rendu (0 octet ajouté au paquet).
+  const t1 = performance.now();
+  const k = c.topCrop, o = new OffscreenCanvas(1080, 1350), g = o.getContext('2d');
+  g.imageSmoothingQuality = 'high';
+  g.drawImage(img, k.x, k.y, k.width, k.height, 0, 0, 1080, 1350);
+  const jpeg = await o.convertToBlob({ type: 'image/jpeg', quality: 0.9 });
+  const webp = await o.convertToBlob({ type: 'image/webp', quality: 0.9 });
+  r.canvasSeul = { sortie: [o.width, o.height], jpeg: jpeg.size, jpegType: jpeg.type, webp: webp.size, webpType: webp.type, ms: Math.round(performance.now() - t1) };
+  return r;
+};
+</script>
