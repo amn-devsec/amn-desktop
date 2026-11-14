@@ -65,7 +65,7 @@ export function netMensuelMoyen(bulletins: readonly Bulletin[]): number | null {
 
 /* ------------------------ TVA et impôts (MA08) ------------------------ */
 
-export function genererEcheances(ctx: Contexte, factures: readonly Facture[], depenses: readonly Depense[], bulletins: readonly Bulletin[], avoirs: readonly Facture[] = []): EcheanceFiscale[] {
+export function genererEcheances(ctx: Contexte, factures: readonly Facture[], depenses: readonly Depense[], bulletins: readonly Bulletin[]): EcheanceFiscale[] {
   const h = hasardDe(ctx.graine, 'echeances');
   const n = compter(ctx.volumes.echeancesFiscales, [0, 3, 9, 24]);
   if (n === 0) return [];
@@ -77,8 +77,7 @@ export function genererEcheances(ctx: Contexte, factures: readonly Facture[], de
   };
   const j = (a: number, m: number, d: number): Jour => `${a}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
   const tvaDuMois = (moisCle: string): number => {
-    const col = factures.filter((f) => f.status !== 'draft' && f.status !== 'cancelled' && f.issuedAt.startsWith(moisCle)).reduce((s, f) => s + totauxDeFacture(f).tvaCents, 0)
-      - avoirs.filter((a) => a.issuedAt.startsWith(moisCle)).reduce((s, a) => s + totauxDeFacture(a).tvaCents, 0);
+    const col = factures.filter((f) => f.status !== 'draft' && f.status !== 'cancelled' && f.issuedAt.startsWith(moisCle)).reduce((s, f) => s + totauxDeFacture(f).tvaCents, 0);
     const ded = depenses.filter((d) => d.spentAt.startsWith(moisCle)).reduce((s, d) => s + d.tvaCents, 0);
     return col - ded;
   };
