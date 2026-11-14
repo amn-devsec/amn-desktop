@@ -563,3 +563,52 @@ button.cr-rail__noeud { cursor: pointer; }
 .cr-jauge-stock b { position: absolute; top: -3px; width: 2px; height: 12px; background: var(--socle-texte-2); }
 .cr-fiche-produit__ligne, .cr-fiche-produit__ventes { display: flex; justify-content: space-between; font-size: 13px; color: var(--socle-texte-2); padding-top: 6px; }
 .cr-fiche-produit__ligne b { color: var(--socle-texte-1); font-weight: 500; }
+
+/* ── MR06 · Réservations ────────────────────────────────────────────────── */
+.cr-semaine { display: grid; grid-template-columns: minmax(0, 1fr) 330px; align-items: center; min-height: 88px; }
+.cr-semaine__jours { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; padding: 0 16px; }
+.cr-semaine__jour { padding: 10px 10px 8px; border-radius: 12px; border: 1px solid transparent; display: flex; flex-direction: column; gap: 8px; }
+.cr-semaine__jour[data-aujourdhui='true'] { background: var(--socle-survol); border-color: var(--socle-bord-controle); }
+.cr-semaine__jour > span { display: flex; align-items: baseline; gap: 6px; }
+.cr-semaine__jour > span small:first-child { font-size: 13px; color: var(--socle-texte-2); }
+.cr-semaine__jour > span b { font-size: 17px; font-weight: 600; color: var(--socle-texte-1); }
+.cr-semaine__jour > span small:last-child { margin-left: auto; font-size: 12px; color: var(--socle-texte-2); }
+.cr-semaine__jour > i { display: block; height: 4px; border-radius: 2px; background: var(--socle-piste); }
+.cr-semaine__jour > i b { display: block; height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--socle-trait-discret), var(--socle-texte-2)); }
+.cr-semaine__jour[data-aujourdhui='true'] > i b { background: var(--socle-etat-info); }
+.cr-semaine__synthese { display: flex; align-items: center; gap: 14px; padding: 0 18px; border-left: 1px solid var(--socle-bord-ligne); height: 100%; }
+.cr-semaine__synthese b { display: block; font-size: 14px; font-weight: 600; color: var(--socle-texte-1); }
+.cr-semaine__synthese small { display: block; font-size: 12.5px; color: var(--socle-texte-3); line-height: 17px; }
+.cr-semaine__synthese em { font-style: normal; font-size: 12.5px; color: var(--socle-etat-succes); display: inline-flex; gap: 6px; align-items: center; }
+.cr-anneau-grand { width: 52px; height: 52px; border-radius: 50%; background: conic-gradient(var(--socle-etat-info) calc(var(--pct) * 1%), var(--socle-anneau-fond) 0); display: grid; place-items: center; position: relative; flex: none; }
+.cr-anneau-grand::before { content: ''; position: absolute; inset: 5px; border-radius: 50%; background: var(--socle-carte-bas); }
+.cr-anneau-grand b { position: relative; font-size: 11.5px; font-weight: 600; color: var(--socle-texte-1); }
+.cr-frise-res > header { display: flex; align-items: center; gap: 14px; padding: 16px 16px 8px; }
+.cr-frise-res > header h2 { margin: 0; font-size: 15px; font-weight: 600; color: var(--socle-texte-1); }
+.cr-frise-res > header small { font-size: 12.5px; color: var(--socle-texte-3); }
+.cr-legende-res { margin-left: auto; display: inline-flex; gap: 10px; align-items: center; font-size: 12.5px; color: var(--socle-texte-2); }
+.cr-legende-res i { width: 14px; height: 10px; border-radius: 3px; display: inline-block; border: 1px solid var(--socle-bord-carte); background: var(--socle-survol); }
+.cr-legende-res i[data-t='libre'] { border: var(--socle-pointille-ok); background: transparent; }
+.cr-legende-res i[data-t='conflit'] { background: var(--socle-hachure-attention); border-color: var(--socle-etat-attention); }
+.cr-legende-res i[data-t='indisponible'] { background: var(--socle-hachure-grise); }
+.cr-frise-res__corps { position: relative; padding: 0 16px 6px; }
+.cr-frise-res__axe { position: relative; height: 26px; margin-left: 190px; font-size: 11.5px; color: var(--socle-texte-3); }
+.cr-frise-res__axe span { position: absolute; top: 4px; }
+.cr-maintenant { position: absolute; top: 20px; bottom: 6px; width: 1.5px; margin-left: calc(190px + 16px); background: var(--fam-a); z-index: 3; pointer-events: none; }
+.cr-maintenant b { position: absolute; top: -6px; left: 50%; transform: translateX(-50%); font-size: 11px; padding: 1px 7px; border-radius: 5px; background: var(--fam-a); color: var(--socle-primaire-encre); font-weight: 600; }
+.cr-res-ligne { display: grid; grid-template-columns: 190px minmax(0, 1fr); align-items: center; height: 46px; }
+.cr-res-ligne__nom { display: flex; align-items: center; gap: 10px; }
+.cr-res-ligne__nom i { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: var(--socle-encart); border: 1px solid var(--socle-bord-carte); color: var(--socle-texte-2); flex: none; }
+.cr-res-ligne__nom b { display: block; font-size: 13px; font-weight: 500; color: var(--socle-texte-1); }
+.cr-res-ligne__nom small { font-size: 11px; color: var(--socle-texte-3); }
+.cr-res-ligne__piste { position: relative; height: 34px; }
+.cr-bloc { position: absolute; top: 0; height: 34px; box-sizing: border-box; display: flex; align-items: center; gap: 8px; padding: 0 10px; border-radius: 9px; font-size: 12.5px; color: var(--socle-texte-1); white-space: nowrap; overflow: hidden; }
+.cr-bloc[data-type='reserve'] { background: linear-gradient(180deg, var(--socle-carte-haut), var(--socle-carte-bas)); border: 1px solid var(--socle-bord-carte); }
+.cr-bloc[data-type='libre'] { border: var(--socle-pointille-ok); color: var(--socle-etat-succes); background: transparent; }
+.cr-bloc[data-long='true'] { background: color-mix(in srgb, var(--socle-etat-succes) 10%, transparent); }
+.cr-bloc small { color: var(--socle-texte-2); font-size: 12px; }
+.cr-bloc[data-type='conflit'] { background: var(--socle-hachure-attention); border: 1px solid var(--socle-etat-attention); color: var(--socle-etat-attention); height: 17px; top: 17px; }
+.cr-bloc[data-type='indisponible'] { background: var(--socle-hachure-grise); border: 1px solid var(--socle-bord-carte); color: var(--socle-texte-3); }
+.cr-bloc .cr-avatar { margin: 0; width: 20px; height: 20px; font-size: 10px; flex: none; }
+.cr-bloc[data-rang='haut'] { height: 17px; top: 0; }
+.cr-bloc[data-rang='haut'] .cr-avatar { width: 15px; height: 15px; font-size: 9px; }
