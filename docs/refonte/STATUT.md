@@ -26,10 +26,19 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 **Décisions provisoires en cours** (révisables par Harun) : arrondi et régime de TVA, seuils de l'argent (§1.29) ; valeurs de départ des connecteurs (§1.22 n° 3) ; plafonds de relance 3 et 1 par jour (§1.28 n° 4) ; seuils de charge (validés, §1.20). Liste « À décider par Harun » : `POINT-HARUN.md`.
 
-**Échecs connus à faire baisser** (relevé du CO le 14 nov., `main` @ `630ef45` comparé à `refonte-vivante`) :
-- **rouges aussi sur `main`** : xss, support (code de sortie 1), et migration, visite (code 2, ils demandent un build ou un navigateur). À traiter par leur propriétaire après le socle v4.
-- **régressions de la refonte** (vertes sur `main`, absentes d'`editions.yml`, donc passées inaperçues) : `check:ancres` (`Coquille.tsx`, `PageDemoSocle.tsx`) et `check:avoirs` (`lucide-react` non résolu) sont **confiés à S0** le 14 nov., avec leur ajout à `editions.yml`. `check:encres` (`src/refonte/garde/equipes.ts:45`, deux copies de jetons de couleur) est pour **S3**, en première tâche à sa relance.
+**Échecs connus à faire baisser** (relevé de T1 le 14 nov., ses mesures font foi) :
+- **régressions de la refonte** (vertes sur `main`) : `check:ancres` et `check:avoirs` (`lucide-react` non résolu dans `src/socle/ui/Bouton.tsx`), confiés à **S0** ; `check:encres` (copies de jetons dans `src/refonte/garde/equipes.ts`, venues de S3), pour **S3** à sa relance.
+- **rouges aussi sur `main`** : `check:visite` (guide masqué). `check:migration` n'est pas jouable sans amn-api.
+- `check:xss` et `check:support` **passent des deux côtés** chez T1. Mon relevé contraire venait de mon environnement : retirés de la liste.
 - Aucune fusion n'a ajouté de nouvel échec : le déplacement du registre (`bb54c03`) a été comparé avant et après.
+
+## Vitesse, jour par jour (tenu par le CO, une ligne par jour)
+
+« Construits » : écrans marqués « fait » au §7, construits et comparés à leur image. « Livrés » : fusionnés dans `refonte-vivante`, après le passage de T1. Total : 153 écrans, soit 142, plus 4 `CYB-*` et 7 `DEV-*`. Lots : 13, de LOT-00 à LOT-12.
+
+| Jour | Construits | Livrés (cumul) | Livrés depuis la veille | Lots préparés | Lots finis | Note |
+|---|---|---|---|---|---|---|
+| 14 nov. | 9 / 153 | 0 | 0 | 6 / 13 | 0 / 13 | les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 06, 11 et 12. La note de LOT-08 n'est pas fusionnée. |
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
