@@ -1,4 +1,4 @@
-import { Award, Contact, Filter } from 'lucide-react';
+import { Award, Contact, Filter, Handshake } from 'lucide-react';
 import { declarerFamille, vue } from '../declarer';
 
 /**
@@ -122,6 +122,21 @@ export default declarerFamille({
             icone: Award,
             ecran: () => import('../../contacts/fidelite/PageFidelite'),
             indice: { fr: 'L’échelle des paliers : qui est Bronze, Argent ou Or', en: 'The tier ladder: who is Bronze, Silver or Gold' },
+          },
+        }),
+      ],
+    },
+    {
+      nom: { fr: 'Partenaires', en: 'Partners' },
+      action: 'partenaires',
+      niveau: 'courant',
+      vues: [
+        vue('partenaires', '/partenaires', ['voir mes partenaires', 'garder le lien avec un prestataire', 'renouveler un contrat de partenaire', 'voir qui m’a recommandé un client'], ['partenaire', 'prestataire', 'réseau', 'apporteur', 'contrat', 'recommandation'], {
+          en: { verbes: ['see my partners', 'keep in touch with a provider', 'renew a partner contract', 'see who referred a client'], motsCles: ['partner', 'provider', 'network', 'referrer', 'contract', 'referral'] },
+          nouveau: {
+            icone: Handshake,
+            ecran: () => import('../../contacts/partenaires/PagePartenaires'),
+            indice: { fr: 'Ceux qui font avancer l’activité sans être des clients', en: 'Those who move the business forward without being clients' },
           },
         }),
       ],

@@ -55,9 +55,9 @@ async function charger<T>(code: string): Promise<T> {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const M = await charger<any>(
-  "export * as L from '../src/refonte/contacts';\nexport * as monde from '../src/refonte/donnees';\nexport { DICTIONNAIRES_CONTACTS } from '../src/refonte/contacts/i18n';\nexport * as V from '../src/refonte/connecteurs/reglages';\nexport * as H from '../src/refonte/contacts/hub/modele';\nexport * as N from '../src/refonte/contacts/hub/nuage';\nexport { DICTIONNAIRES_HUB } from '../src/refonte/contacts/hub/i18n';\nexport { depuisMonde } from '../src/refonte/contacts/sources/depuisMonde';\nexport * as C from '../src/refonte/contacts/clients/modele';\nexport { DICTIONNAIRES_CLIENTS } from '../src/refonte/contacts/clients/i18n';\nexport * as G from '../src/refonte/contacts/fiche/modele';\nexport { DICTIONNAIRES_FICHE } from '../src/refonte/contacts/fiche/i18n';\nexport * as P from '../src/refonte/contacts/prospects/modele';\nexport * as PN from '../src/refonte/contacts/prospects/nuage';\nexport { DICTIONNAIRES_PROSPECTS } from '../src/refonte/contacts/prospects/i18n';\nexport * as RT from '../src/refonte/contacts/retours/modele';\nexport { DICTIONNAIRES_RETOURS } from '../src/refonte/contacts/retours/i18n';\nexport * as FO from '../src/refonte/contacts/fournisseurs/modele';\nexport { DICTIONNAIRES_FOURNISSEURS } from '../src/refonte/contacts/fournisseurs/i18n';\nexport * as PL from '../src/refonte/contacts/pipeline/modele';\nexport * as PG from '../src/refonte/contacts/pipeline/geometrie';\nexport { DICTIONNAIRES_PIPELINE } from '../src/refonte/contacts/pipeline/i18n';\nexport * as FI from '../src/refonte/contacts/fidelite/modele';\nexport { DICTIONNAIRES_FIDELITE } from '../src/refonte/contacts/fidelite/i18n';\nexport * as PE from '../src/refonte/contacts/personnes/modele';\nexport { DICTIONNAIRES_CONTACTS_PERSONNES } from '../src/refonte/contacts/personnes/i18n';\nexport * as EQ from '../src/refonte/contacts/equipe/modele';\nexport { DICTIONNAIRES_EQUIPE } from '../src/refonte/contacts/equipe/i18n';",
+  "export * as L from '../src/refonte/contacts';\nexport * as monde from '../src/refonte/donnees';\nexport { DICTIONNAIRES_CONTACTS } from '../src/refonte/contacts/i18n';\nexport * as V from '../src/refonte/connecteurs/reglages';\nexport * as H from '../src/refonte/contacts/hub/modele';\nexport * as N from '../src/refonte/contacts/hub/nuage';\nexport { DICTIONNAIRES_HUB } from '../src/refonte/contacts/hub/i18n';\nexport { depuisMonde } from '../src/refonte/contacts/sources/depuisMonde';\nexport * as C from '../src/refonte/contacts/clients/modele';\nexport { DICTIONNAIRES_CLIENTS } from '../src/refonte/contacts/clients/i18n';\nexport * as G from '../src/refonte/contacts/fiche/modele';\nexport { DICTIONNAIRES_FICHE } from '../src/refonte/contacts/fiche/i18n';\nexport * as P from '../src/refonte/contacts/prospects/modele';\nexport * as PN from '../src/refonte/contacts/prospects/nuage';\nexport { DICTIONNAIRES_PROSPECTS } from '../src/refonte/contacts/prospects/i18n';\nexport * as RT from '../src/refonte/contacts/retours/modele';\nexport { DICTIONNAIRES_RETOURS } from '../src/refonte/contacts/retours/i18n';\nexport * as FO from '../src/refonte/contacts/fournisseurs/modele';\nexport { DICTIONNAIRES_FOURNISSEURS } from '../src/refonte/contacts/fournisseurs/i18n';\nexport * as PL from '../src/refonte/contacts/pipeline/modele';\nexport * as PG from '../src/refonte/contacts/pipeline/geometrie';\nexport { DICTIONNAIRES_PIPELINE } from '../src/refonte/contacts/pipeline/i18n';\nexport * as FI from '../src/refonte/contacts/fidelite/modele';\nexport { DICTIONNAIRES_FIDELITE } from '../src/refonte/contacts/fidelite/i18n';\nexport * as PE from '../src/refonte/contacts/personnes/modele';\nexport { DICTIONNAIRES_CONTACTS_PERSONNES } from '../src/refonte/contacts/personnes/i18n';\nexport * as EQ from '../src/refonte/contacts/equipe/modele';\nexport { DICTIONNAIRES_EQUIPE } from '../src/refonte/contacts/equipe/i18n';\nexport * as PA from '../src/refonte/contacts/partenaires/modele';\nexport * as PAG from '../src/refonte/contacts/partenaires/geometrie';\nexport { DICTIONNAIRES_PARTENAIRES } from '../src/refonte/contacts/partenaires/i18n';",
 );
-const { L, monde, V, H, N, C, G, DICTIONNAIRES_HUB: DICO_HUB, DICTIONNAIRES_CLIENTS: DICO_CLIENTS, DICTIONNAIRES_FICHE: DICO_FICHE, P, PN, DICTIONNAIRES_PROSPECTS: DICO_PROSPECTS, RT, DICTIONNAIRES_RETOURS: DICO_RETOURS, FO, DICTIONNAIRES_FOURNISSEURS: DICO_FOURNISSEURS, PL, PG, DICTIONNAIRES_PIPELINE: DICO_PIPELINE, FI, DICTIONNAIRES_FIDELITE: DICO_FIDELITE, PE, DICTIONNAIRES_CONTACTS_PERSONNES: DICO_PERSONNES, EQ, DICTIONNAIRES_EQUIPE: DICO_EQUIPE, depuisMonde, DICTIONNAIRES_CONTACTS: DICO } = M;
+const { L, monde, V, H, N, C, G, DICTIONNAIRES_HUB: DICO_HUB, DICTIONNAIRES_CLIENTS: DICO_CLIENTS, DICTIONNAIRES_FICHE: DICO_FICHE, P, PN, DICTIONNAIRES_PROSPECTS: DICO_PROSPECTS, RT, DICTIONNAIRES_RETOURS: DICO_RETOURS, FO, DICTIONNAIRES_FOURNISSEURS: DICO_FOURNISSEURS, PL, PG, DICTIONNAIRES_PIPELINE: DICO_PIPELINE, FI, DICTIONNAIRES_FIDELITE: DICO_FIDELITE, PE, DICTIONNAIRES_CONTACTS_PERSONNES: DICO_PERSONNES, EQ, DICTIONNAIRES_EQUIPE: DICO_EQUIPE, PA, PAG, DICTIONNAIRES_PARTENAIRES: DICO_PARTENAIRES, depuisMonde, DICTIONNAIRES_CONTACTS: DICO } = M;
 const paris = (jour: string, hhmm: string): number => L.instantParis(jour, hhmm);
 const VOLUMES = ['vide', 'peu', 'normal', 'beaucoup'] as const;
 const mondes = Object.fromEntries(VOLUMES.map((v) => [v, monde.construireMonde({ volume: v })])) as Record<(typeof VOLUMES)[number], any>;
@@ -2211,6 +2211,102 @@ await dit('MC04 · textes : mêmes clés en fr et en, mêmes paramètres, compte
   }
   for (const b of new Set(en.filter((k) => /\.(1|n)$/.test(k)).map((k) => k.replace(/\.(1|n)$/, '')))) for (const l of ['fr', 'en']) assert.ok(DICO_EQUIPE[l][`${b}.1`] && DICO_EQUIPE[l][`${b}.n`], `${b} (${l})`);
   assert.equal(DICO_EQUIPE.fr['suggestion.astuce.texte'], 'Un statut « Concentré » met tes notifications en pause jusqu’à l’heure choisie.', 'la phrase de tutoiement.json');
+});
+
+/* ── MC05 : Partenaires ────────────────────────────────────────────────── */
+console.log('\nContacts — MC05, Partenaires (carte du réseau, orbites, force)\n');
+
+const partenaireMC05 = (id: string, echanges90j: number, o: Record<string, unknown> = {}): any => ({
+  id, nom: `Partenaire ${id}`, nomCourt: id, description: 'Prestation.', icone: 'users', categorie: 'Prestataire', referents: [], statut: 'Actif', finContratLe: null, rythmeEchangesParMois: 1, echanges90j, fournisseurId: null, ...o,
+});
+
+await dit('MC05 · orbite = fréquence réelle sur 90 jours : au moins une par semaine (13), au moins une par mois (3), sinon plus rarement', () => {
+  assert.deepEqual([40, 13, 12, 3, 2, 0].map((n) => PA.orbiteDe(n)), ['semaine', 'semaine', 'mois', 'mois', 'rare', 'rare']);
+});
+
+await dit('MC05 · force et épaisseur : régularité = échanges réels ÷ attendus (plafonnée) ; épaisseur 1 + force × 5 px (90 → 5,5 px ; 12 → 1,6 px, pointillé sous 20)', () => {
+  assert.deepEqual([90, 12, 0, 100].map((f) => PA.epaisseurDe(f)), [5.5, 1.6, 1, 6]);
+  assert.equal(PA.forceDe({ echanges90j: 6, rythmeEchangesParMois: 4 }), 50);
+  assert.equal(PA.forceDe({ echanges90j: 30, rythmeEchangesParMois: 4 }), 100, 'plafonnée');
+  assert.equal(PA.forceDe({ echanges90j: 2, rythmeEchangesParMois: null }), 67, 'rythme absent : un par mois attendu');
+  assert.equal(PA.forceDe({ echanges90j: 0, rythmeEchangesParMois: 2 }), 0);
+  const m = PA.modeleReseau(base({ partenaires: [partenaireMC05('a', 1, { rythmeEchangesParMois: 4 }), partenaireMC05('b', 12, { rythmeEchangesParMois: 4 })] }));
+  assert.deepEqual(m.noeuds.map((n: any) => [n.force, n.epaisseur, n.pointille]), [[8, 1.4, true], [100, 6, false]]);
+  assert.deepEqual(m.composantes, ['regularite']);
+});
+
+await dit('MC05 · état : « à renouveler » sous 30 jours de la fin du contrat (rouge, même échu), « en pause » à la main, sinon actif ; la suggestion = le plus proche à venir', () => {
+  const jour = '2026-10-30';
+  assert.equal(PA.etatDe({ statut: 'Actif', finContratLe: '2026-11-17' }, jour), 'renouveler');
+  assert.equal(PA.etatDe({ statut: 'Actif', finContratLe: '2026-11-28' }, jour), 'renouveler', '29 jours');
+  assert.equal(PA.etatDe({ statut: 'Actif', finContratLe: '2026-11-29' }, jour), 'actif', '30 jours : pas encore');
+  assert.equal(PA.etatDe({ statut: 'Actif', finContratLe: '2026-10-25' }, jour), 'renouveler', 'échu');
+  assert.equal(PA.etatDe({ statut: 'En pause', finContratLe: null }, jour), 'pause');
+  assert.equal(PA.etatDe({ statut: 'En pause', finContratLe: '2026-11-10' }, jour), 'renouveler', 'la fin de contrat l’emporte');
+  const m = PA.modeleReseau(base({ partenaires: [partenaireMC05('a', 5, { finContratLe: '2026-11-17' }), partenaireMC05('b', 5, { finContratLe: '2026-10-25' }), partenaireMC05('c', 5, { finContratLe: '2026-11-05' }), partenaireMC05('d', 5)] }));
+  assert.equal(m.suggestion.id, 'c', 'le plus proche, pas un contrat déjà échu');
+  assert.deepEqual([m.chips, m.actifs], [{ tous: 4, renouveler: 3 }, 1]);
+  assert.equal(PA.modeleReseau(base({ partenaires: [partenaireMC05('d', 5)] })).suggestion, null, 'sans cas : la carte « astuce »');
+  assert.equal(PA.gardeLeFiltre(m.noeuds[0], 'renouveler'), true);
+  assert.equal(PA.gardeLeFiltre(m.noeuds[3], 'renouveler'), false);
+});
+
+await dit('MC05 · collection absente (partenaires null) : pas de modèle — la page dit « non disponible » ; collection vide : un réseau sans partenaire', () => {
+  assert.equal(PA.modeleReseau(base({ partenaires: null })), null);
+  const m = PA.modeleReseau(base({ partenaires: [] }));
+  assert.deepEqual([m.total, m.noeuds, m.suggestion], [0, [], null]);
+});
+
+await dit('MC05 · géométrie : trois demi-ellipses (150 / 182, 270 / 306, 352 / 412) autour de (366, 470), AMN au centre bas ; angle 90° = tout en haut', () => {
+  assert.deepEqual([PAG.CENTRE.x, PAG.CENTRE.y, PAG.ZONE.largeur, PAG.ZONE.hauteur], [366, 470, 732, 520]);
+  assert.deepEqual(['semaine', 'mois', 'rare'].map((o) => Math.round(PAG.surOrbite(o, 90).y)), [288, 164, 58]);
+  assert.deepEqual(['semaine', 'mois', 'rare'].map((o) => [Math.round(PAG.surOrbite(o, 0).x), Math.round(PAG.surOrbite(o, 180).x)]), [[516, 216], [636, 96], [718, 14]]);
+  assert.equal(Math.round(PAG.distanceAuSegment({ x: 0, y: 5 }, { x: -10, y: 0 }, { x: 10, y: 0 })), 5);
+  assert.equal(PAG.distanceAuSegment({ x: 20, y: 0 }, { x: 0, y: 0 }, { x: 10, y: 0 }), 10, 'au-delà du segment : distance à l’extrémité');
+});
+
+await dit('MC05 · placement de l’exemple de la fiche (3 chaque semaine, 2 chaque mois, 2 plus rarement) : aucun lien ne frôle un autre disque, aucun libellé n’en touche un autre', () => {
+  const orbites = ['semaine', 'semaine', 'semaine', 'mois', 'mois', 'rare', 'rare'];
+  const candidats = orbites.map((orbite, i) => ({ id: `p${i}`, orbite, largeurLibelle: PAG.largeurDuLibelle(`Partenaire numéro ${i}`, 'Prestation · hier') }));
+  const poses = PAG.placer(candidats);
+  assert.equal(poses.length, 7);
+  const depart = { x: PAG.CENTRE.x, y: PAG.CENTRE.y - 28 };
+  for (const a of poses) {
+    for (const b of poses) if (a !== b) assert.ok(PAG.distanceAuSegment(b, depart, a) >= PAG.DEGAGEMENT, `le lien de ${a.id} frôle ${b.id}`);
+    assert.ok(a.x - PAG.RAYON_DISQUE >= 0 && a.x + PAG.RAYON_DISQUE <= PAG.ZONE.largeur && a.y - PAG.RAYON_DISQUE >= 0, `${a.id} dans la zone`);
+  }
+  const boite = (q: any) => { const l = candidats.find((c) => c.id === q.id).largeurLibelle; return { x: q.x - l / 2, y: q.cote === 'haut' ? q.y - 22 - 34 : q.y + 22, l, h: 34 }; };
+  for (let i = 0; i < poses.length; i += 1) for (let j = i + 1; j < poses.length; j += 1) {
+    const a = boite(poses[i]);
+    const b = boite(poses[j]);
+    assert.ok(!(a.x < b.x + b.l && b.x < a.x + a.l && a.y < b.y + b.h && b.y < a.y + a.h), `libellés ${poses[i].id} / ${poses[j].id}`);
+  }
+  assert.deepEqual(poses.map((p: any) => p.orbite), orbites);
+});
+
+await dit('MC05 · sur les jeux de SIM (quatre volumes) : le modèle se construit, une orbite et une force par partenaire, tous posés dans la zone', () => {
+  for (const v of VOLUMES) {
+    const src = depuisMonde(mondes[v]);
+    const m = PA.modeleReseau(src);
+    assert.equal(m.total, src.partenaires.length, v);
+    assert.ok(m.noeuds.every((n: any) => n.force >= 0 && n.force <= 100 && n.epaisseur >= 1 && n.epaisseur <= 6 && ['semaine', 'mois', 'rare'].includes(n.orbite)), v);
+    const poses = PAG.placer(m.noeuds.map((n: any) => ({ id: n.id, orbite: n.orbite, largeurLibelle: PAG.largeurDuLibelle(n.nom, n.categorie) })));
+    assert.equal(poses.length, m.total, v);
+    assert.ok(poses.every((p: any) => p.angle >= 22 && p.angle <= 158 && p.y <= PAG.CENTRE.y), v);
+  }
+});
+
+await dit('MC05 · textes : mêmes clés en fr et en, mêmes paramètres, comptes à deux formes, l’interface tutoie', () => {
+  const en = Object.keys(DICO_PARTENAIRES.en).sort();
+  assert.deepEqual(Object.keys(DICO_PARTENAIRES.fr).sort(), en);
+  const params = (t: string) => [...t.matchAll(/\{(\w+)\}/g)].map((x) => x[1]).sort().join(',');
+  for (const k of en) {
+    assert.ok(DICO_PARTENAIRES.en[k].trim() && DICO_PARTENAIRES.fr[k].trim(), k);
+    assert.equal(params(DICO_PARTENAIRES.fr[k]), params(DICO_PARTENAIRES.en[k]), `paramètres de ${k}`);
+    assert.ok(!VOUVOIEMENT_UI.test(DICO_PARTENAIRES.fr[k]), `${k} vouvoie : ${DICO_PARTENAIRES.fr[k]}`);
+  }
+  for (const b of new Set(en.filter((k) => /\.(1|n)$/.test(k)).map((k) => k.replace(/\.(1|n)$/, '')))) for (const l of ['fr', 'en']) assert.ok(DICO_PARTENAIRES[l][`${b}.1`] && DICO_PARTENAIRES[l][`${b}.n`], `${b} (${l})`);
+  assert.equal(DICO_PARTENAIRES.fr['suggestion.texte.n'], 'Ton contrat se termine dans {n} jours. Je compare 2 offres équivalentes moins chères, sans rien résilier.', 'la phrase de tutoiement.json');
 });
 
 /* ── Structure ──────────────────────────────────────────────────────────── */
