@@ -229,14 +229,24 @@ await dit('H06 : « À appeler cette semaine » = intérêt ≥ 60 ET montant �
 console.log('\nContacts — relances (MC07) : on ne harcèle jamais un client — les huit points de la fiche\n');
 
 const R = L.REGLES_PAR_DEFAUT;
+/* Les scénarios ci-dessous ont des dates fixes : ils jouent avec des règles EXPLICITES (7 jours, 08:00–19:00), quelles que soient les valeurs de départ lues chez S9. */
+const REGLES_ESSAI = { ...R, espacementJours: 7, clientDelaiJours: 7, fenetre: { debut: '08:00', fin: '19:00', jours: [1, 2, 3, 4, 5] } };
+const R_ = {
+  verdictRelance: (r: any, autres: any, t: number, regles = REGLES_ESSAI, ctx?: any) => L.verdictRelance(r, autres, t, regles, ctx),
+  marquerEnvoyee: (r: any, autres: any, t: number, o: any) => L.marquerEnvoyee(r, autres, t, { regles: REGLES_ESSAI, ...o }),
+  ordonnerFile: (rs: any, t: number, regles = REGLES_ESSAI, ctx?: any) => L.ordonnerFile(rs, t, regles, ctx),
+  reporterADemain: (r: any, autres: any, t: number, regles = REGLES_ESSAI, ctx?: any) => L.reporterADemain(r, autres, t, regles, ctx),
+  cadence: (d: string, regles = REGLES_ESSAI, n = 6) => L.cadence(d, regles, n),
+  phraseAttente: (v: any, langue: string, regles = REGLES_ESSAI) => L.phraseAttente(v, langue, regles),
+};
 const VENDREDI_10H = paris('2026-10-30', '10:15');
 const J = 86_400_000;
 const clic = { clic: true };
 
-await dit('valeurs de départ : 7 jours (CO, §1.22, lus chez S9), 3 relances par objet, un client par semaine, 24 h après un échange, plage 08:00–19:00', () => {
-  assert.equal(R.espacementJours, 7);
+await dit('valeurs de départ : espacement et plage LUS de connecteurs/reglages.ts (une seule source, §1.31) ; le reste vient de la fiche MC07', () => {
   assert.equal(R.espacementJours, V.VALEURS_DE_DEPART.delaiEntreRelancesJours, 'même source que les réglages de l’autonomie');
   assert.deepEqual(R.fenetre, V.VALEURS_DE_DEPART.plageClients);
+  assert.ok(R.espacementJours >= L.ESPACEMENT_MIN_JOURS && R.espacementJours <= L.ESPACEMENT_MAX_JOURS, 'dans l’intervalle réglable (3 à 14 jours)');
   assert.deepEqual([R.maxParObjet, R.clientDelaiJours, R.heuresApresEchange, R.pauseAvisJours], [3, 7, 24, 7]);
 });
 
@@ -247,45 +257,45 @@ await dit('l’espacement se règle de 3 à 14 jours, jamais au-delà', () => {
 });
 
 await dit('première relance : permise un jour ouvré, dans la plage', () => {
-  assert.deepEqual(L.verdictRelance(relance(), [], VENDREDI_10H), { possible: true });
+  assert.deepEqual(R_.verdictRelance(relance(), [], VENDREDI_10H), { possible: true });
 });
 
 await dit('point 2 — espacement d’un même objet : 3 jours après → attendre ; 7 jours pile → permis', () => {
   const r = relance({ etat: 'envoyée', nbEnvoyees: 1, derniereEnvoiLe: '2026-10-27' });
-  const v = L.verdictRelance(r, [], VENDREDI_10H);
+  const v = R_.verdictRelance(r, [], VENDREDI_10H);
   assert.equal(v.possible, false);
   assert.equal(v.raison, 'espacement');
   assert.equal(v.prochaineLe, paris('2026-11-03', '08:00'), 'mardi 3 nov. à l’ouverture');
-  assert.equal(L.verdictRelance(relance({ etat: 'envoyée', nbEnvoyees: 1, derniereEnvoiLe: '2026-10-23' }), [], VENDREDI_10H).possible, true);
-  assert.equal(L.verdictRelance(relance({ etat: 'envoyée', nbEnvoyees: 1, derniereEnvoiLe: '2026-10-24' }), [], VENDREDI_10H).possible, false, '6 jours : trop tôt');
+  assert.equal(R_.verdictRelance(relance({ etat: 'envoyée', nbEnvoyees: 1, derniereEnvoiLe: '2026-10-23' }), [], VENDREDI_10H).possible, true);
+  assert.equal(R_.verdictRelance(relance({ etat: 'envoyée', nbEnvoyees: 1, derniereEnvoiLe: '2026-10-24' }), [], VENDREDI_10H).possible, false, '6 jours : trop tôt');
 });
 
 await dit('l’espacement suit le réglage : à 5 jours (valeur de la fiche), 5 jours suffisent', () => {
   const r = relance({ etat: 'envoyée', nbEnvoyees: 1, derniereEnvoiLe: '2026-10-23' });
   const cinq = L.reglesBornees({ espacementJours: 5, clientDelaiJours: 5 });
-  assert.equal(L.verdictRelance(r, [], VENDREDI_10H, cinq).possible, true);
+  assert.equal(R_.verdictRelance(r, [], VENDREDI_10H, cinq).possible, true);
   const quatorze = L.reglesBornees({ espacementJours: 14 });
-  assert.equal(L.verdictRelance(relance({ etat: 'envoyée', nbEnvoyees: 1, derniereEnvoiLe: '2026-10-20' }), [], VENDREDI_10H, quatorze).raison, 'espacement');
+  assert.equal(R_.verdictRelance(relance({ etat: 'envoyée', nbEnvoyees: 1, derniereEnvoiLe: '2026-10-20' }), [], VENDREDI_10H, quatorze).raison, 'espacement');
 });
 
 await dit('changement d’heure : l’ouverture suivante reste 08:00 à Paris (heure d’hiver, UTC+1)', () => {
   const r = relance({ etat: 'envoyée', nbEnvoyees: 1, derniereEnvoiLe: '2026-10-22' });
-  const v = L.verdictRelance(r, [], paris('2026-10-25', '12:00'));
+  const v = R_.verdictRelance(r, [], paris('2026-10-25', '12:00'));
   assert.equal(v.possible, false);
   assert.equal(new Date(v.prochaineLe).toISOString(), '2026-10-29T07:00:00.000Z');
 });
 
 await dit('point 3 — trois relances au plus par objet ; appel proposé après la 2e, suivi à la main après la 3e', () => {
-  const v = L.verdictRelance(relance({ etat: 'envoyée', nbEnvoyees: 3, derniereEnvoiLe: '2026-09-01' }), [], VENDREDI_10H);
+  const v = R_.verdictRelance(relance({ etat: 'envoyée', nbEnvoyees: 3, derniereEnvoiLe: '2026-09-01' }), [], VENDREDI_10H);
   assert.deepEqual([v.possible, v.raison, v.prochaineLe], [false, 'plafond', null]);
-  assert.match(L.phraseAttente(v, 'fr'), /3 relances envoyées : ensuite, suivi à la main/);
+  assert.match(R_.phraseAttente(v, 'fr'), /3 relances envoyées : ensuite, suivi à la main/);
   assert.deepEqual([0, 1, 2, 3].map((n) => L.suiteApres(n)), ['message', 'message', 'appel', 'manuel']);
 });
 
 await dit('point 5 — arrêt immédiat dès que le client répond, paie, signe ou demande à ne plus être relancé', () => {
   for (const raison of ['reponse', 'paiement', 'signature']) assert.equal(L.arreterPour(relance(), raison).etat, 'répondue', raison);
   assert.equal(L.arreterPour(relance(), 'demande').etat, 'arrêtée');
-  for (const etat of ['répondue', 'arrêtée']) assert.equal(L.verdictRelance(relance({ etat }), [], VENDREDI_10H).raison, 'terminee');
+  for (const etat of ['répondue', 'arrêtée']) assert.equal(R_.verdictRelance(relance({ etat }), [], VENDREDI_10H).raison, 'terminee');
   assert.equal(L.arreter(relance()).etat, 'arrêtée');
   assert.equal(L.marquerRepondue(relance()).etat, 'répondue');
 });
@@ -299,75 +309,75 @@ await dit('point 4 — plage : samedi, dimanche, 07:59 et 19:00 attendent l’ou
   ];
   cas[0] = ['2026-10-31', '11:00', '2026-11-02', '08:00'];
   for (const [j, h, jOk, hOk] of cas) {
-    const v = L.verdictRelance(relance(), [], paris(j, h));
+    const v = R_.verdictRelance(relance(), [], paris(j, h));
     assert.deepEqual([v.possible, v.raison, v.prochaineLe], [false, 'horsPlage', paris(jOk, hOk)], `${j} ${h}`);
   }
-  assert.equal(L.verdictRelance(relance(), [], paris('2026-10-30', '08:00')).possible, true, '08:00 pile : ouvert');
-  assert.equal(L.verdictRelance(relance(), [], paris('2026-10-30', '18:59')).possible, true);
+  assert.equal(R_.verdictRelance(relance(), [], paris('2026-10-30', '08:00')).possible, true, '08:00 pile : ouvert');
+  assert.equal(R_.verdictRelance(relance(), [], paris('2026-10-30', '18:59')).possible, true);
 });
 
 await dit('point 4 — jamais un jour férié : Pâques, Ascension, 14 juillet, 11 novembre', () => {
   assert.deepEqual(L.joursFeries(2026).sort(), ['2026-01-01', '2026-04-06', '2026-05-01', '2026-05-08', '2026-05-14', '2026-05-25', '2026-07-14', '2026-08-15', '2026-11-01', '2026-11-11', '2026-12-25']);
   assert.deepEqual(L.joursFeries(2027).filter((j: string) => j.startsWith('2027-03') || j.startsWith('2027-04')), ['2027-03-29']);
-  const v = L.verdictRelance(relance(), [], paris('2026-11-11', '10:00'));
+  const v = R_.verdictRelance(relance(), [], paris('2026-11-11', '10:00'));
   assert.deepEqual([v.possible, v.raison, v.prochaineLe], [false, 'horsPlage', paris('2026-11-12', '08:00')]);
-  const pont = L.verdictRelance(relance(), [], paris('2026-07-14', '10:00'));
+  const pont = R_.verdictRelance(relance(), [], paris('2026-07-14', '10:00'));
   assert.equal(pont.prochaineLe, paris('2026-07-15', '08:00'));
 });
 
 await dit('point 4 — les préférences de la fiche contact décalent l’envoi (« avant 11:00 », « jamais le vendredi après-midi »)', () => {
   const ctx = { preferences: { avant: '11:00', joursAEviter: [{ jour: 5, apresMidi: true }] } };
-  assert.equal(L.verdictRelance(relance(), [], paris('2026-10-30', '10:00'), R, ctx).possible, true, 'vendredi matin, avant 11:00');
-  const apres = L.verdictRelance(relance(), [], paris('2026-10-30', '11:30'), R, ctx);
+  assert.equal(R_.verdictRelance(relance(), [], paris('2026-10-30', '10:00'), REGLES_ESSAI, ctx).possible, true, 'vendredi matin, avant 11:00');
+  const apres = R_.verdictRelance(relance(), [], paris('2026-10-30', '11:30'), REGLES_ESSAI, ctx);
   assert.deepEqual([apres.possible, apres.raison, apres.prochaineLe], [false, 'horsPlage', paris('2026-11-02', '08:00')], 'vendredi 11:30 : pas avant lundi');
-  const lundi = L.verdictRelance(relance(), [], paris('2026-11-02', '11:30'), R, ctx);
+  const lundi = R_.verdictRelance(relance(), [], paris('2026-11-02', '11:30'), REGLES_ESSAI, ctx);
   assert.equal(lundi.prochaineLe, paris('2026-11-03', '08:00'), 'lundi après 11:00 : le lendemain');
-  const jamais = L.verdictRelance(relance(), [], paris('2026-10-30', '09:00'), R, { preferences: { joursAEviter: [{ jour: 5 }] } });
+  const jamais = R_.verdictRelance(relance(), [], paris('2026-10-30', '09:00'), REGLES_ESSAI, { preferences: { joursAEviter: [{ jour: 5 }] } });
   assert.equal(jamais.prochaineLe, paris('2026-11-02', '08:00'), 'jour évité en entier');
-  const tard = L.verdictRelance(relance(), [], paris('2026-10-29', '08:30'), R, { preferences: { apres: '10:00' } });
+  const tard = R_.verdictRelance(relance(), [], paris('2026-10-29', '08:30'), REGLES_ESSAI, { preferences: { apres: '10:00' } });
   assert.equal(tard.prochaineLe, paris('2026-10-29', '10:00'));
 });
 
 await dit('point 1 — un client, une relance par semaine glissante, tous objets regroupés', () => {
   const dejaEcrit = relance({ id: 'rl-a', objetId: 'f-9', etat: 'envoyée', nbEnvoyees: 1, derniereEnvoiLe: '2026-10-27' });
-  const v = L.verdictRelance(relance({ id: 'rl-b' }), [dejaEcrit], VENDREDI_10H);
+  const v = R_.verdictRelance(relance({ id: 'rl-b' }), [dejaEcrit], VENDREDI_10H);
   assert.deepEqual([v.possible, v.raison, v.prochaineLe], [false, 'client', paris('2026-11-03', '08:00')]);
-  assert.match(L.phraseAttente(v, 'fr'), /Pas avant le 03\/11 : une relance par semaine au plus/);
-  assert.equal(L.verdictRelance(relance({ id: 'rl-b' }), [{ ...dejaEcrit, clientId: 2 }], VENDREDI_10H).possible, true, 'un autre client ne compte pas');
-  assert.equal(L.verdictRelance(relance({ id: 'rl-b' }), [{ ...dejaEcrit, derniereEnvoiLe: '2026-10-23' }], VENDREDI_10H).possible, true, 'il y a 7 jours : permis');
-  assert.equal(L.verdictRelance(relance({ id: 'rl-b' }), [{ ...dejaEcrit, derniereEnvoiLe: '2026-10-30' }], VENDREDI_10H).raison, 'client', 'le jour même aussi');
+  assert.match(R_.phraseAttente(v, 'fr'), /Pas avant le 03\/11 : une relance par semaine au plus/);
+  assert.equal(R_.verdictRelance(relance({ id: 'rl-b' }), [{ ...dejaEcrit, clientId: 2 }], VENDREDI_10H).possible, true, 'un autre client ne compte pas');
+  assert.equal(R_.verdictRelance(relance({ id: 'rl-b' }), [{ ...dejaEcrit, derniereEnvoiLe: '2026-10-23' }], VENDREDI_10H).possible, true, 'il y a 7 jours : permis');
+  assert.equal(R_.verdictRelance(relance({ id: 'rl-b' }), [{ ...dejaEcrit, derniereEnvoiLe: '2026-10-30' }], VENDREDI_10H).raison, 'client', 'le jour même aussi');
 });
 
 await dit('un prospect (sans fiche) se reconnaît à son nom', () => {
   const a = relance({ id: 'a', clientId: null, clientNom: 'Atelier Neuf', motif: 'prospect', derniereEnvoiLe: '2026-10-30', etat: 'envoyée', nbEnvoyees: 1 });
   const b = relance({ id: 'b', clientId: null, clientNom: 'Atelier Neuf', motif: 'prospect' });
-  assert.equal(L.verdictRelance(b, [a], VENDREDI_10H).raison, 'client');
+  assert.equal(R_.verdictRelance(b, [a], VENDREDI_10H).raison, 'client');
 });
 
 await dit('point 6 — rien dans les 24 h qui suivent un échange humain', () => {
   const echange = paris('2026-10-30', '09:00');
-  const v = L.verdictRelance(relance(), [], VENDREDI_10H, R, { dernierEchangeHumainAt: echange });
+  const v = R_.verdictRelance(relance(), [], VENDREDI_10H, REGLES_ESSAI, { dernierEchangeHumainAt: echange });
   assert.deepEqual([v.possible, v.raison], [false, 'echangeRecent']);
   assert.equal(v.prochaineLe, paris('2026-11-02', '08:00'), 'vendredi 09:00 + 24 h = samedi : lundi à l’ouverture');
-  assert.equal(L.verdictRelance(relance(), [], VENDREDI_10H, R, { dernierEchangeHumainAt: echange - 25 * 3_600_000 }).possible, true, '25 h : permis');
+  assert.equal(R_.verdictRelance(relance(), [], VENDREDI_10H, REGLES_ESSAI, { dernierEchangeHumainAt: echange - 25 * 3_600_000 }).possible, true, '25 h : permis');
 });
 
 await dit('H44 — un avis sans réponse met les relances en pause, 7 jours au plus', () => {
   const ctx = { avisEnAttenteDepuis: '2026-10-28' };
-  const v = L.verdictRelance(relance(), [], VENDREDI_10H, R, ctx);
+  const v = R_.verdictRelance(relance(), [], VENDREDI_10H, REGLES_ESSAI, ctx);
   assert.deepEqual([v.possible, v.raison, v.prochaineLe], [false, 'pauseAvis', paris('2026-11-04', '08:00')]);
-  assert.equal(L.verdictRelance(relance(), [], paris('2026-11-04', '09:00'), R, ctx).possible, true, 'au bout de 7 jours, la pause cesse');
+  assert.equal(R_.verdictRelance(relance(), [], paris('2026-11-04', '09:00'), REGLES_ESSAI, ctx).possible, true, 'au bout de 7 jours, la pause cesse');
 });
 
 await dit('point 7 — la file : une relance n’entre que le jour permis, un seul départ par client (le plus gros montant)', () => {
-  const file = L.ordonnerFile([
+  const file = R_.ordonnerFile([
     relance({ id: 'petite', objetId: 'f-1', montantCents: 10_000 }),
     relance({ id: 'grosse', objetId: 'f-2', montantCents: 900_000 }),
     relance({ id: 'autre', clientId: 2, clientNom: 'Autre', objetId: 'f-3', montantCents: 50_000 }),
     relance({ id: 'finie', clientId: 3, etat: 'répondue' }),
     relance({ id: 'plafonnee', clientId: 4, nbEnvoyees: 3, etat: 'envoyée', derniereEnvoiLe: '2026-09-01' }),
     relance({ id: 'prefere', clientId: 5, clientNom: 'Matinal' }),
-  ], VENDREDI_10H, R, new Map([['c:5', { preferences: { avant: '09:00' } }]]));
+  ], VENDREDI_10H, REGLES_ESSAI, new Map([['c:5', { preferences: { avant: '09:00' } }]]));
   assert.deepEqual(file.maintenant.map((e: any) => e.relance.id), ['grosse', 'autre']);
   assert.deepEqual(file.plusTard.map((e: any) => [e.relance.id, e.verdict.raison]), [['prefere', 'horsPlage'], ['petite', 'client']]);
   assert.deepEqual(file.plafond.map((e: any) => e.relance.id), ['plafonnee']);
@@ -375,40 +385,40 @@ await dit('point 7 — la file : une relance n’entre que le jour permis, un se
 });
 
 await dit('point 8 — rien ne part sans un clic humain ; refusé aussi si le verdict l’interdit', () => {
-  assert.throws(() => L.marquerEnvoyee(relance(), [], VENDREDI_10H, { clic: false }), /clic humain/);
-  assert.throws(() => L.marquerEnvoyee(relance(), [], VENDREDI_10H, {}), /clic humain/);
-  const r = L.marquerEnvoyee(relance(), [], VENDREDI_10H, clic);
+  assert.throws(() => R_.marquerEnvoyee(relance(), [], VENDREDI_10H, { clic: false }), /clic humain/);
+  assert.throws(() => R_.marquerEnvoyee(relance(), [], VENDREDI_10H, {}), /clic humain/);
+  const r = R_.marquerEnvoyee(relance(), [], VENDREDI_10H, clic);
   assert.deepEqual([r.etat, r.nbEnvoyees, r.derniereEnvoiLe], ['envoyée', 1, '2026-10-30']);
-  assert.throws(() => L.marquerEnvoyee(r, [], VENDREDI_10H, clic), /espacement/);
-  assert.throws(() => L.marquerEnvoyee(relance(), [], paris('2026-10-31', '10:00'), clic), /horsPlage/);
+  assert.throws(() => R_.marquerEnvoyee(r, [], VENDREDI_10H, clic), /espacement/);
+  assert.throws(() => R_.marquerEnvoyee(relance(), [], paris('2026-10-31', '10:00'), clic), /horsPlage/);
 });
 
 await dit('trois relances d’un même objet espacées de 7 jours, puis la quatrième est refusée', () => {
   let r = relance();
   let t = paris('2026-10-05', '10:00'); // lundi
   for (let i = 0; i < 3; i += 1) {
-    r = L.marquerEnvoyee(r, [], t, clic);
+    r = R_.marquerEnvoyee(r, [], t, clic);
     t += 7 * J;
   }
   assert.equal(r.nbEnvoyees, 3);
-  assert.equal(L.verdictRelance(r, [], t).raison, 'plafond');
+  assert.equal(R_.verdictRelance(r, [], t).raison, 'plafond');
 });
 
 await dit('« Reporter à demain » : demain à l’ouverture, ou plus tard si une règle l’impose', () => {
-  assert.equal(L.reporterADemain(relance(), [], paris('2026-10-29', '10:00')), paris('2026-10-30', '08:00'));
-  assert.equal(L.reporterADemain(relance(), [], VENDREDI_10H), paris('2026-11-02', '08:00'), 'vendredi → lundi');
+  assert.equal(R_.reporterADemain(relance(), [], paris('2026-10-29', '10:00')), paris('2026-10-30', '08:00'));
+  assert.equal(R_.reporterADemain(relance(), [], VENDREDI_10H), paris('2026-11-02', '08:00'), 'vendredi → lundi');
   const r = relance({ etat: 'envoyée', nbEnvoyees: 1, derniereEnvoiLe: '2026-10-29' });
-  assert.equal(L.reporterADemain(r, [], paris('2026-10-29', '10:00')), paris('2026-11-05', '08:00'), 'l’espacement prime');
+  assert.equal(R_.reporterADemain(r, [], paris('2026-10-29', '10:00')), paris('2026-11-05', '08:00'), 'l’espacement prime');
 });
 
 await dit('la cadence d’un devis : départ, 1re relance, 2e, appel proposé, puis suivi à la main — jamais un week-end ni un férié', () => {
-  const c = L.cadence('2026-10-24', R, 6);
+  const c = R_.cadence('2026-10-24');
   assert.deepEqual(c.map((e: any) => e.genre), ['depart', 'relance', 'relance', 'appel', 'manuel']);
   assert.deepEqual(c.slice(0, 4).map((e: any) => e.le), ['2026-10-24', '2026-10-30', '2026-11-06', '2026-11-13']);
   assert.deepEqual(c.slice(0, 4).map((e: any) => e.jourN), [0, 6, 13, 20]);
   assert.equal(c[4].le, undefined, 'le suivi à la main n’a pas de date');
   for (const e of c.filter((x: any) => x.le && x.genre !== 'depart')) assert.ok(!L.estFerie(e.le) && L.jourSemaine(e.le) <= 5, e.le);
-  const cinq = L.cadence('2026-10-24', L.reglesBornees({ espacementJours: 5 }), 6);
+  const cinq = R_.cadence('2026-10-24', L.reglesBornees({ espacementJours: 5 }), 6);
   assert.deepEqual(cinq.slice(1, 4).map((e: any) => e.le), ['2026-10-30', '2026-11-04', '2026-11-09']);
 });
 
@@ -426,11 +436,11 @@ await dit('la file du jour : « 1 sur 5 traitée », la boîte à zéro, la sér
 });
 
 await dit('les phrases d’attente existent en fr et en, avec la date et les heures de la règle', () => {
-  const v = L.verdictRelance(relance(), [], paris('2026-10-31', '11:00'));
-  assert.match(L.phraseAttente(v, 'fr'), /02\/11 à 08:00.*08:00 et 19:00/);
-  assert.match(L.phraseAttente(v, 'en'), /02\/11 at 08:00.*08:00 and 19:00/);
+  const v = R_.verdictRelance(relance(), [], paris('2026-10-31', '11:00'));
+  assert.match(R_.phraseAttente(v, 'fr'), /02\/11 à 08:00.*08:00 et 19:00/);
+  assert.match(R_.phraseAttente(v, 'en'), /02\/11 at 08:00.*08:00 and 19:00/);
   for (const raison of ['terminee', 'plafond', 'espacement', 'client', 'echangeRecent', 'pauseAvis', 'horsPlage']) {
-    for (const langue of ['fr', 'en']) assert.ok(L.phraseAttente({ possible: false, raison, prochaineLe: paris('2026-11-05', '09:00') }, langue).length > 10, `${raison} ${langue}`);
+    for (const langue of ['fr', 'en']) assert.ok(R_.phraseAttente({ possible: false, raison, prochaineLe: paris('2026-11-05', '09:00') }, langue).length > 10, `${raison} ${langue}`);
   }
 });
 
@@ -720,7 +730,7 @@ for (const v of VOLUMES) {
     for (const { relance: r } of file.maintenant) {
       const j = L.jourDeInstant(m.contexte.maintenant);
       assert.ok(r.nbEnvoyees < 3, 'plafond');
-      assert.ok(!r.derniereEnvoiLe || L.ecartJours(r.derniereEnvoiLe, j) >= 7, `espacement ${r.id}`);
+      assert.ok(!r.derniereEnvoiLe || L.ecartJours(r.derniereEnvoiLe, j) >= L.REGLES_PAR_DEFAUT.espacementJours, `espacement ${r.id}`);
       assert.ok(r.etat !== 'répondue' && r.etat !== 'arrêtée');
       const k = L.cleClient(r);
       parClient.set(k, (parClient.get(k) ?? 0) + 1);
@@ -728,7 +738,7 @@ for (const v of VOLUMES) {
     assert.ok([...parClient.values()].every((n) => n === 1), 'un seul départ par client');
     const j = L.jourDeInstant(m.contexte.maintenant);
     for (const { relance: r } of file.maintenant) {
-      const recentes = m.relances.filter((o: any) => o.id !== r.id && L.cleClient(o) === L.cleClient(r) && o.derniereEnvoiLe && L.ecartJours(o.derniereEnvoiLe, j) < 7);
+      const recentes = m.relances.filter((o: any) => o.id !== r.id && L.cleClient(o) === L.cleClient(r) && o.derniereEnvoiLe && L.ecartJours(o.derniereEnvoiLe, j) < L.REGLES_PAR_DEFAUT.clientDelaiJours);
       assert.deepEqual(recentes, [], `une relance par client et par semaine : ${r.id}`);
     }
     assert.equal(file.maintenant.length === 0 || (L.jourSemaine(j) <= 5 && !L.estFerie(j)), true, 'jamais un week-end ni un jour férié');
