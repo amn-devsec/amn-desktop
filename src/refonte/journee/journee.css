@@ -31,7 +31,7 @@
 .jr-widget > header { display: flex; align-items: center; gap: 8px; min-height: 20px; }
 .jr-widget > header b { font-size: 12.5px; font-weight: 600; color: var(--socle-texte-1); white-space: nowrap; }
 .jr-source { font-size: 11.5px; color: var(--socle-texte-3); }
-.jr-poignee { position: relative; margin-left: -6px; width: 16px; height: 22px; display: grid; place-items: center; border: 0; background: transparent; color: var(--socle-texte-3); cursor: grab; padding: 0; touch-action: none; }
+.jr-poignee { position: relative; margin-left: 0; width: 16px; height: 22px; display: grid; place-items: center; border: 0; background: transparent; color: var(--socle-texte-3); cursor: grab; padding: 0; touch-action: none; }
 .jr-fermer { position: relative; margin-left: auto; width: 20px; height: 20px; display: grid; place-items: center; border: 0; background: transparent; color: var(--socle-texte-3); cursor: pointer; padding: 0; }
 .jr-outils { margin-left: auto; display: inline-flex; gap: 8px; }
 .jr-outil { position: relative; width: 22px; height: 22px; display: grid; place-items: center; border: 0; border-radius: 6px; background: var(--socle-sous-carte); color: var(--socle-texte-2); cursor: pointer; padding: 0; }
@@ -112,7 +112,7 @@
 .jr-plus--carre { width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--socle-bord-controle); background: var(--socle-sous-carte); }
 .jr-matrice { padding: 14px; display: flex; flex-direction: column; gap: 14px; }
 .jr-ajout { display: flex; align-items: center; gap: 12px; height: 42px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--socle-bord-controle); background: var(--socle-champ); color: var(--socle-texte-2); }
-.jr-ajout input { flex: 1; min-width: 80px; border: 0; outline: 0; background: transparent; font: inherit; font-size: 14.5px; color: var(--socle-texte-1); caret-color: var(--fam-a); }
+.jr-ajout input { flex: 1; min-width: 80px; align-self: stretch; border: 0; outline: 0; background: transparent; font: inherit; font-size: 14.5px; color: var(--socle-texte-1); caret-color: var(--fam-a); }
 .jr-puces { display: inline-flex; align-items: center; gap: 8px; }
 .jr-puce { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 8px; font-size: 12px; white-space: nowrap; color: var(--socle-etat-info); background: color-mix(in srgb, var(--socle-etat-info) 12%, transparent); border: 1px solid color-mix(in srgb, var(--socle-etat-info) 30%, transparent); }
 .jr-puce[data-ton='turquoise'] { color: var(--fam-b); background: color-mix(in srgb, var(--fam-b) 12%, transparent); border-color: color-mix(in srgb, var(--fam-b) 30%, transparent); }
