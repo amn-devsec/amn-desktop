@@ -383,9 +383,13 @@ export function finaliserClients(
       .sort((a, b) => b - a)[0];
     if (dernierRdv && dernierRdv > Date.parse(c.dernierEchangeAt)) c.dernierEchangeAt = iso(dernierRdv);
     c.sante = calculerSante(c, donnees, aujourdhui);
-    const impaye = donnees.factures.some((f) => f.clientId === c.id && f.status === 'issued' && f.dueAt < aujourdhui);
+    // H05 (fiche, relue par S1) : « Impayé » = une facture échue depuis plus de 7 jours ; « À relancer » = échue depuis 7 jours
+    // ou moins, ou dernier échange il y a plus de 5 jours, ou santé sous 45 ; « Nouveau » = client depuis moins de 30 jours.
+    const echues = donnees.factures.filter((f) => f.clientId === c.id && f.status === 'issued' && f.dueAt < aujourdhui).map((f) => ecartJours(f.dueAt, aujourdhui));
     const depuisEchange = ecartJours(jourDe(Date.parse(c.dernierEchangeAt)), aujourdhui);
-    const statut: StatutClientAffiche = impaye ? 'Impayé' : depuisEchange > 5 || c.sante < 45 ? 'À relancer' : 'Actif';
+    const statut: StatutClientAffiche = echues.some((e) => e > 7)
+      ? 'Impayé'
+      : echues.length > 0 || depuisEchange > 5 || c.sante < 45 ? 'À relancer' : ecartJours(c.debutLe, aujourdhui) < 30 ? 'Nouveau' : 'Actif';
     c.statutAffiche = statut;
   }
 }

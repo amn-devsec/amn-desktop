@@ -60,6 +60,17 @@ Huit jeux de plus (109 au total) : `depots`, `deploiements`, `deploiementsPlanif
 
 Pas fait : le résumé du serveur de DEV-serveur (en ligne depuis N jours, copie hors serveur, coût du mois, remplissage du disque) — non listé dans la commande ; les modèles de sites (contenu, pas des données).
 
+## Suite de la commande du CO (14 nov., STATUT §1.31)
+
+- **Fidélité (MC02)** aux paliers de la fiche : 1 € payé = 1 point, un avis = 50, une recommandation = 200, sur 12 mois ; Bronze dès 0, Argent dès 800, Or dès 1 800 ; les trois paliers existent dès « normal » (12 graines). Champ ajouté : `recommandations`.
+- **Statut des clients (H05)** : « Impayé » = facture échue depuis plus de 7 jours ; « À relancer » = échue depuis 7 jours ou moins, dernier échange il y a plus de 5 jours, ou santé sous 45 ; « Nouveau » = client depuis moins de 30 jours ; sinon « Actif ». Les quatre statuts existent dès « normal ».
+- **LOT-03** : liens et échéances de blocs, commentaires ancrés, présence en direct, propriété « rendez-vous » (pages) ; intercalaire et faits relevés d'un contrat (fichiers) ; champs posés, rôle « en copie », relances automatiques (signatures) ; humeur à 5 niveaux, énergie, mercis (journal) ; rubrique, étapes, articles liés (connaissances) ; texte indexé et restaurations (archives) ; jeux `reglesArchivage` (ME04) et `demandesRelecture` (F20).
+- **Règlements partiels** (G03, MA03) : des règlements réussis plus petits que la facture, sur des factures encore envoyées ; le reste dû (`soldeCents`) = TTC − avoirs − règlements, l'encaissement attendu aussi.
+- **Remises** (MA12) : chaque ligne de devis ou de facture porte `prixGrilleCents` ; l'écart avec le prix facturé est la remise accordée (jusqu'à 15 %). Pas de remise globale sur un document (`remisePct` de DS) : à demander si besoin.
+- **MR08** : jeux `entonnoirBoutique` (visites → paiements, 30 jours, lu dans `commandes`), `paniers` (ouvert, abandonné, converti), `sessionsBoutique` (actives depuis moins de 5 minutes) ; objectif du trimestre dans les réglages.
+
+114 jeux, `check:donnees` : 116 contrôles. **Contrôles des autres lots sur ces jeux** : creer 137, echanger 89, developpement 51, connecteurs 103 verts ; trois rouges, chacun à cause d'un changement commandé : `check:contacts` rejoue encore la fidélité à 500 / 1 500 sur les seules factures (S1 : passer à `pointsProgramme`, `PALIERS`, avis et recommandations du jeu) ; `check:argent` appelle `resteDu(…, { paiements: [] })` (DS : lui passer `m.paiements`, les règlements partiels y sont) ; `check:ecrire` affirme « les jeux n'ont pas de liens entre pages » (S5 : ils en ont, c'est ce qu'elle demandait).
+
 ## Avoirs : sur demande seulement (retrait du 14 nov. par le CO)
 
 Le CO a retiré temporairement la fusion `c9e8713` de `refonte-vivante` : `check:argent` (DS) ne lit pas encore la nature `creditNote`, donc les avoirs faussaient le reste dû, la TVA et les impayés. Réponse de SIM : le jeu `avoirs` reste, mais **n'entre dans le monde que sur demande** — `construireMonde({ avoirs: true })`, `jeu('avoirs')`, `--avoirs` pour le chargeur. Par défaut le monde n'a pas d'avoirs, et les contrôles de tous les lots qui lisent ces jeux passent (argent 53, contacts 85, échanger 89, écrire 94, créer 137, développement 51, connecteurs 103). Quand DS lit les avoirs, passer `avoirs` à `true` par défaut (une ligne dans `monde.ts`).

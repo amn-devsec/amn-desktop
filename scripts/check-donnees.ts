@@ -128,6 +128,11 @@ const videAv = D.construireMonde({ volume: 'vide', avoirs: true });
 const jours = (m: MondeBrut): string => m.contexte.aujourdhui;
 const joursCyber = (m: MondeBrut): string => m.contexte.aujourdhuiCyber;
 const aujourdhuiDe = jours;
+/** Le reste dû d'une facture : TTC − avoirs émis − règlements réussis, jamais négatif ; zéro hors facture envoyée (même règle que DS). */
+const resteDuDe = (m: MondeBrut, f: Lien): number =>
+  f.status === 'issued'
+    ? Math.max(0, D.totauxDeFacture(f).ttcCents - m.avoirs.filter((x) => x.creditNoteFor === f.id).reduce((n, x) => n + D.totauxDeFacture(x).ttcCents, 0) - m.paiements.filter((p) => p.factureId === f.id && p.etat === 'réussi').reduce((n, p) => n + num(p.montantCents), 0))
+    : 0;
 const estCourrielFictifLocal = (c: string): boolean => /@[a-z0-9.-]+\.exemple\.test$/.test(c);
 const str = (x: unknown): string => String(x ?? '');
 const num = (x: unknown): number => Number(x);
@@ -332,8 +337,7 @@ dit('le solde dû vaut le TTC d’une facture envoyée, zéro sinon ; les totaux
     const t = D.totauxDeFacture(f);
     assert.ok(Number.isInteger(t.htCents) && Number.isInteger(t.tvaCents));
     assert.equal(t.ttcCents, t.htCents + t.tvaCents);
-    const repris = gros.avoirs.filter((x) => x.creditNoteFor === f.id).reduce((n, x) => n + D.totauxDeFacture(x).ttcCents, 0);
-    assert.equal(num(f.soldeCents), f.status === 'issued' ? Math.max(0, t.ttcCents - repris) : 0, 'reste dû = TTC − avoirs');
+    assert.equal(num(f.soldeCents), resteDuDe(gros, f), 'reste dû = TTC − avoirs − règlements');
   }
 });
 dit('les avoirs : AV-AAAA-NNNN continu, rattachés à une facture du même client, jamais plus grands qu’elle, le reste dû baisse', () => {
@@ -364,10 +368,7 @@ dit('les avoirs : AV-AAAA-NNNN continu, rattachés à une facture du même clien
   assert.equal(videAv.avoirs.length, 0);
   assert.equal(normal.avoirs.length + gros.avoirs.length, 0, 'sans demande, aucun avoir dans le monde');
   // Avec avoirs, le reste dû, la TVA et les encaissements attendus en tiennent compte (même calcul que les mondes sans avoirs, moins ce que les avoirs reprennent).
-  for (const f of grosAv.factures) {
-    const repris = grosAv.avoirs.filter((x) => x.creditNoteFor === f.id).reduce((n, x) => n + D.totauxDeFacture(x).ttcCents, 0);
-    assert.equal(num(f.soldeCents), f.status === 'issued' ? Math.max(0, D.totauxDeFacture(f).ttcCents - repris) : 0, 'reste dû = TTC − avoirs');
-  }
+  for (const f of grosAv.factures) assert.equal(num(f.soldeCents), resteDuDe(grosAv, f), 'reste dû = TTC − avoirs − règlements');
   for (const x of grosAv.mouvements.filter((y) => y.nature === 'Encaissement attendu')) {
     const f = grosAv.factures.find((y) => y.id === (x.lien as Lien).id);
     assert.equal(num(x.montantCents), num(f?.soldeCents), 'l’encaissement attendu est le reste dû');
@@ -398,16 +399,24 @@ dit('chaque paiement correspond à une facture réglée (ou en attente sur une f
   for (const p of gros.paiements) {
     const f = gros.factures.find((x) => x.id === p.factureId) as Lien;
     assert.ok(f, 'paiement sans facture');
-    assert.equal(num(p.montantCents), D.totauxDeFacture(f).ttcCents, 'montant du paiement ≠ TTC de la facture');
-    if (p.etat === 'réussi' || p.etat === 'remboursé') assert.equal(f.status, 'paid');
+    // Un règlement partiel est un règlement réussi, plus petit que la facture, sur une facture encore envoyée.
+    const partiel = p.etat === 'réussi' && f.status === 'issued';
+    if (partiel) assert.ok(num(p.montantCents) > 0 && num(p.montantCents) < D.totauxDeFacture(f).ttcCents, 'règlement partiel : plus petit que la facture');
+    else assert.equal(num(p.montantCents), D.totauxDeFacture(f).ttcCents, 'montant du paiement ≠ TTC de la facture');
+    if (p.etat === 'réussi' && !partiel) assert.equal(f.status, 'paid');
+    if (p.etat === 'remboursé') assert.equal(f.status, 'paid');
     if (p.etat === 'en attente') assert.equal(f.status, 'issued');
     assert.ok(str(p.date).slice(0, 10) <= aujourdhui, 'paiement dans le futur');
     assert.ok(num(p.fraisCents) >= 0 && (p.moyen === 'carte' || num(p.fraisCents) === 0), 'frais hors carte');
   }
-  const reussies = new Set(gros.paiements.filter((p) => p.etat === 'réussi' || p.etat === 'remboursé').map((p) => p.factureId));
+  const reussies = new Set(gros.paiements.filter((p) => (p.etat === 'réussi' && gros.factures.find((f) => f.id === p.factureId)?.status === 'paid') || p.etat === 'remboursé').map((p) => p.factureId));
   const payees = gros.factures.filter((f) => f.status === 'paid');
   const complet = D.construireMonde({ volume: 'normal', volumes: { paiements: 'beaucoup' } });
   const c2 = new Set(complet.paiements.filter((p) => p.etat === 'réussi' || p.etat === 'remboursé').map((p) => p.factureId));
+  // Des règlements partiels existent, sans jamais solder la facture ; deux règlements sur une même facture ne dépassent pas son TTC.
+  const partiels = gros.paiements.filter((p) => p.etat === 'réussi' && gros.factures.find((f) => f.id === p.factureId)?.status === 'issued');
+  assert.ok(partiels.length >= 5 && normal.paiements.some((p) => p.etat === 'réussi' && normal.factures.find((f) => f.id === p.factureId)?.status === 'issued'), 'des règlements partiels dès « normal »');
+  for (const f of gros.factures.filter((x) => x.status === 'issued')) assert.ok(gros.paiements.filter((p) => p.factureId === f.id && p.etat === 'réussi').reduce((n, p) => n + num(p.montantCents), 0) < D.totauxDeFacture(f).ttcCents, 'un règlement partiel ne solde pas la facture');
   assert.ok(complet.factures.filter((f) => f.status === 'paid').every((f) => c2.has(f.id)), 'une facture payée sans paiement');
   assert.ok(reussies.size > 0 && payees.length > 0);
 });
@@ -465,17 +474,18 @@ dit('la santé est entre 0 et 100 et se recalcule avec la formule de la fiche H0
   const sante = gros.clients.map((c) => num(c.sante));
   assert.ok(sante.some((s) => s >= 70) && sante.some((s) => s >= 45 && s < 70) && sante.some((s) => s < 45), 'vert, orange et rouge doivent exister (H05)');
 });
-dit('« Impayé » si et seulement si une facture envoyée est échue ; « À relancer » sinon quand l’échange est ancien', () => {
-  for (const c of gros.clients) {
-    const impaye = gros.factures.some((f) => f.clientId === c.id && f.status === 'issued' && str(f.dueAt) < jours(gros));
-    if (impaye) assert.equal(c.statutAffiche, 'Impayé');
-    else assert.notEqual(c.statutAffiche, 'Impayé');
-    const depuis = D.ecartJours(D.jourDe(Date.parse(str(c.dernierEchangeAt))), jours(gros));
-    if (!impaye && (depuis > 5 || num(c.sante) < 45)) assert.equal(c.statutAffiche, 'À relancer');
-    if (!impaye && depuis <= 5 && num(c.sante) >= 45) assert.equal(c.statutAffiche, 'Actif');
-  }
-  const statuts = new Set(gros.clients.map((c) => c.statutAffiche));
-  assert.deepEqual([...statuts].sort(), ['Actif', 'Impayé', 'À relancer']);
+dit('statut des clients (H05) : Impayé > 7 jours d’échéance, À relancer, Nouveau < 30 jours, Actif — dans cet ordre', () => {
+  const regle = (m: MondeBrut, c: Lien): string => {
+    const echues = m.factures.filter((f) => f.clientId === c.id && f.status === 'issued' && str(f.dueAt) < jours(m)).map((f) => D.ecartJours(str(f.dueAt), jours(m)));
+    const depuis = D.ecartJours(D.jourDe(Date.parse(str(c.dernierEchangeAt))), jours(m));
+    if (echues.some((e) => e > 7)) return 'Impayé';
+    if (echues.length > 0 || depuis > 5 || num(c.sante) < 45) return 'À relancer';
+    return D.ecartJours(str(c.debutLe), jours(m)) < 30 ? 'Nouveau' : 'Actif';
+  };
+  for (const m of [normal, peu, gros]) for (const c of m.clients) assert.equal(c.statutAffiche, regle(m, c), `client ${str(c.id)}`);
+  assert.deepEqual([...new Set(gros.clients.map((c) => c.statutAffiche))].sort(), ['Actif', 'Impayé', 'Nouveau', 'À relancer']);
+  assert.equal(D.ecartJours('2026-10-01', '2026-10-30') < 30, true, 'repère : 29 jours = encore nouveau');
+  assert.equal(D.ecartJours('2026-09-30', '2026-10-30') < 30, false, 'repère : 30 jours = plus nouveau');
 });
 dit('le dernier échange n’est jamais dans le futur ni avant le début de la relation', () => {
   for (const c of gros.clients) {
@@ -514,14 +524,22 @@ dit('relances : chacune pointe un objet réellement en retard ; tri par montant 
   assert.deepEqual(montants, [...montants].sort((a, b) => b - a));
   assert.ok(new Set(gros.relances.map((r) => r.motif)).size >= 3, 'plusieurs motifs');
 });
-dit('fidélité : 1 point par euro encaissé sur 12 mois ; niveaux Bronze < 500 ≤ Argent < 1 500 ≤ Or', () => {
-  const depuis = `${Number(jours(gros).slice(0, 4)) - 1}${jours(gros).slice(4)}`;
-  for (const f of gros.fidelite) {
-    const pts = gros.factures.filter((x) => x.clientId === f.clientId && x.status === 'paid' && str(x.paidAt) >= depuis).reduce((s, x) => s + Math.floor(D.totauxDeFacture(x).ttcCents / 100), 0);
-    assert.equal(f.points, pts);
-    assert.equal(f.niveau, pts >= 1500 ? 'Or' : pts >= 500 ? 'Argent' : 'Bronze');
+dit('fidélité (MC02) : 1 point par euro payé, 50 par avis, 200 par recommandation, sur 12 mois ; Bronze < 800 ≤ Argent < 1 800 ≤ Or', () => {
+  for (const [nom, m] of [['normal', normal], ['peu', peu], ['beaucoup', gros]] as const) {
+    const depuis = `${Number(jours(m).slice(0, 4)) - 1}${jours(m).slice(4)}`;
+    const dans = (j: string): boolean => j >= depuis && j <= jours(m);
+    for (const f of m.fidelite) {
+      const euros = m.factures.filter((x) => x.clientId === f.clientId && x.status === 'paid' && dans(str(x.paidAt))).reduce((s, x) => s + Math.floor(D.totauxDeFacture(x).ttcCents / 100), 0);
+      const avis = m.avis.filter((a) => a.clientId === f.clientId && dans(str(a.date))).length;
+      const reco = (f.recommandations as string[]).filter(dans).length;
+      assert.equal((f.recommandations as string[]).length, reco, `${nom} : recommandations dans l’année`);
+      assert.equal(f.points, euros + avis * 50 + reco * 200, `${nom} : points de ${str(f.clientNom)}`);
+      assert.equal(f.niveau, num(f.points) >= 1800 ? 'Or' : num(f.points) >= 800 ? 'Argent' : 'Bronze', `${nom} : niveau`);
+      assert.ok(num(f.points) > 0 && str(f.derniereActiviteLe) <= jours(m), `${nom} : activité`);
+    }
   }
-  assert.deepEqual(new Set(gros.fidelite.map((f) => f.niveau)).size >= 2, true);
+  assert.deepEqual([...new Set(normal.fidelite.map((f) => f.niveau))].sort(), ['Argent', 'Bronze', 'Or'], 'normal : les trois paliers');
+  assert.ok(gros.fidelite.some((f) => (f.recommandations as string[]).length > 0) && gros.avis.length > 0, 'des recommandations');
 });
 
 /* ------------------------------ Ma journée ------------------------------ */
@@ -651,9 +669,7 @@ function invariants(m: MondeBrut, nom: string): void {
   // Factures : numérotation, chronologie, solde
   const parAn = new Map<string, number[]>();
   for (const f of m.factures) {
-    const t = D.totauxDeFacture(f);
-    const repris = m.avoirs.filter((x) => x.creditNoteFor === f.id).reduce((n, x) => n + D.totauxDeFacture(x).ttcCents, 0);
-    assert.equal(num(f.soldeCents), f.status === 'issued' ? Math.max(0, t.ttcCents - repris) : 0, `${nom} : solde`);
+    assert.equal(num(f.soldeCents), resteDuDe(m, f), `${nom} : solde`);
     if (f.status === 'draft') { assert.equal(str(f.number), ''); continue; }
     assert.ok(str(f.dueAt) >= str(f.issuedAt) && str(f.issuedAt) <= auj, `${nom} : dates ${str(f.number)}`);
     if (f.status === 'paid') assert.ok(str(f.paidAt) >= str(f.issuedAt) && str(f.paidAt) <= auj, `${nom} : paiement ${str(f.number)}`);
@@ -662,7 +678,13 @@ function invariants(m: MondeBrut, nom: string): void {
     parAn.set(mt[1], [...(parAn.get(mt[1]) ?? []), Number(mt[2])]);
   }
   for (const [an, suite] of parAn) assert.deepEqual([...suite].sort((a, b) => a - b), suite.map((_, i) => i + 1), `${nom} : trou en ${an}`);
-  for (const p of m.paiements) assert.equal(num(p.montantCents), D.totauxDeFacture(m.factures.find((f) => f.id === p.factureId)).ttcCents, `${nom} : montant du paiement`);
+  for (const p of m.paiements) {
+    const f = m.factures.find((x) => x.id === p.factureId) as Lien;
+    const ttc = D.totauxDeFacture(f).ttcCents;
+    // Un règlement réussi sur une facture encore envoyée est partiel : strictement sous le TTC.
+    if (p.etat === 'réussi' && f.status === 'issued') assert.ok(num(p.montantCents) > 0 && num(p.montantCents) < ttc, `${nom} : règlement partiel`);
+    else assert.equal(num(p.montantCents), ttc, `${nom} : montant du paiement`);
+  }
   // Passé et futur
   for (const t of m.taches) if (t.status === 'done') assert.ok(Date.parse(str(t.faiteAt)) <= maintenant, `${nom} : tâche faite dans le futur`);
   for (const r of m.rappels) if (r.fait) assert.ok(Date.parse(str(r.faitAt)) <= maintenant, `${nom} : rappel fait dans le futur`);
@@ -676,8 +698,8 @@ function invariants(m: MondeBrut, nom: string): void {
   const donnees = { factures: m.factures, devis: m.devis, avis: m.avis };
   for (const c of m.clients) {
     assert.equal(D.calculerSante(c, donnees, auj), c.sante, `${nom} : santé`);
-    const impaye = m.factures.some((f) => f.clientId === c.id && f.status === 'issued' && str(f.dueAt) < auj);
-    assert.equal(c.statutAffiche === 'Impayé', impaye, `${nom} : statut Impayé`);
+    const impaye = m.factures.some((f) => f.clientId === c.id && f.status === 'issued' && D.ecartJours(str(f.dueAt), auj) > 7);
+    assert.equal(c.statutAffiche === 'Impayé', impaye, `${nom} : statut Impayé (échue depuis plus de 7 jours)`);
     assert.ok(Date.parse(str(c.dernierEchangeAt)) <= maintenant, `${nom} : échange futur`);
   }
   // Projets
@@ -711,7 +733,8 @@ dit('chaque volume montre les cas que les écrans attendent (au moins un impayé
     assert.ok(p.taches.some((t) => t.echeance === auj) && p.evenements.some((e) => D.jourDe(Date.parse(str(e.startAt))) === auj), `${nom}, peu : rien aujourd’hui`);
     assert.ok(n.taches.some((t) => t.status !== 'done' && str(t.echeance) < auj), `${nom}, normal : aucune tâche en retard`);
     assert.ok(n.rappels.some((r) => !r.fait && Date.parse(str(r.quandAt)) < n.contexte.maintenant), `${nom}, normal : aucun rappel en retard`);
-    assert.ok(new Set(n.clients.map((c) => c.statutAffiche)).size === 3, `${nom}, normal : les trois statuts de client`);
+    assert.ok(new Set(n.clients.map((c) => c.statutAffiche)).size === 4, `${nom}, normal : les quatre statuts de client`);
+    assert.equal(new Set(n.fidelite.map((f) => f.niveau)).size, 3, `${nom}, normal : les trois paliers de fidélité`);
     assert.ok(n.relances.length >= 3, `${nom}, normal : trop peu de relances`);
     assert.ok(n.paiements.some((p) => p.etat === 'réussi' && str(p.date).slice(0, 10) === auj), `${nom}, normal : rien d’encaissé aujourd’hui (N01)`);
   }
@@ -884,7 +907,8 @@ dit('fichiers : la signature d’un fichier dit celle de sa demande ; un lien ex
 
 dit('signatures : l’état suit les signataires, l’échéance et l’envoi ; chaque demande pointe un fichier ; l’empreinte est tronquée', () => {
   for (const s of gros.signatures) {
-    const st = (s.signataires as Lien[]).map((x) => x.statut);
+    // Une personne « en copie » reçoit le document ; elle ne signe jamais et ne compte pas dans l'état.
+    const st = (s.signataires as Lien[]).filter((x) => x.role === 'signataire').map((x) => x.statut);
     assert.match(str(s.empreinteCourte), /^[0-9a-f]{8}$/);
     assert.ok(ids(gros.fichiers).has(s.fichierId));
     if (s.etat === 'À envoyer') assert.ok(s.envoyeAt === null && st.every((x) => x === 'En attente'));
@@ -893,6 +917,7 @@ dit('signatures : l’état suit les signataires, l’échéance et l’envoi ; 
     if (s.etat === 'Refusée') assert.ok(st.includes('Refusé'));
     if (s.etat === 'Expirée') assert.ok(str(s.echeanceLe) < jours(gros) && !st.every((x) => x === 'Signé'));
     for (const x of s.signataires as Lien[]) assert.equal(x.statut === 'Signé', x.signeAt !== null);
+    for (const x of (s.signataires as Lien[]).filter((y) => y.role === 'copie')) assert.ok(x.statut === 'En attente' && x.signeAt === null, 'en copie : ne signe jamais');
   }
   assert.ok(normal.signatures.length >= 10 && new Set(normal.signatures.map((s) => s.etat)).size >= 6, 'H12 montre presque tous les états');
 });
@@ -902,7 +927,7 @@ dit('pages, modèles, journal, textes, archives, connaissances : références, d
   for (const p of gros.pages) { assert.ok(p.parentId === null || ids(gros.pages).has(p.parentId)); assert.ok((p.blocs as unknown[]).length > 0 && Date.parse(str(p.modifieAt)) <= gros.contexte.maintenant); assert.ok(emails.has(p.auteurEmail)); }
   for (const m of gros.modeles) { assert.ok(num(m.usagesMois) <= num(m.creationsDuTypeMois)); assert.equal((m.utilisateurs30j as string[]).length > 0, num(m.usagesMois) > 0); }
   const cles = new Set<string>();
-  for (const j of gros.journal) { const k = `${str(j.auteurEmail)}:${str(j.jour)}`; assert.ok(!cles.has(k), `deux entrées le même jour ${k}`); cles.add(k); assert.ok(str(j.jour) <= jours(gros)); assert.match(str(j.commenceA), /^\d{2}:\d{2}$/); assert.ok(['très bien', 'bien', 'moyen', 'difficile'].includes(str(j.humeur))); }
+  for (const j of gros.journal) { const k = `${str(j.auteurEmail)}:${str(j.jour)}`; assert.ok(!cles.has(k), `deux entrées le même jour ${k}`); cles.add(k); assert.ok(str(j.jour) <= jours(gros)); assert.match(str(j.commenceA), /^\d{2}:\d{2}$/); assert.ok(['difficile', 'moyen', 'bien', 'très bien', 'excellent'].includes(str(j.humeur))); }
   for (const t of gros.textes) { if (t.interlocuteurId !== null) assert.ok(ids(gros.interlocuteurs).has(t.interlocuteurId)); if (t.etat === 'à valider' || t.etat === 'prêt') assert.ok(t.relecteurEmail); }
   for (const a of gros.archives) { assert.ok(str(a.conserverJusquau) > str(a.archiveLe) && str(a.archiveLe) <= jours(gros)); assert.equal(a.mode === 'à la main', a.parEmail !== null); if (a.type === 'Facture') assert.equal(num(str(a.conserverJusquau).slice(0, 4)) - num(str(a.archiveLe).slice(0, 4)), 10, 'factures : dix ans'); }
   for (const e of gros.connaissances) { assert.ok(!(e.lectures as Lien[]).some((l) => l.email === e.auteurEmail), 'l’auteur ne compte pas parmi les lecteurs'); for (const q of e.questionsLieesIds as string[]) assert.equal(gros.connaissances.find((x) => x.id === q)?.type, 'question'); }
@@ -1736,6 +1761,100 @@ dit('coûts des connecteurs : mode, consommation, payé ; six mois dont le derni
     assert.ok(p.every((x) => num(x.payeCents) >= 0 && num(x.economiseCents) >= 0));
   }
   assert.ok(normal.connecteurs.some((c) => c.mode === 'payant') && normal.connecteurs.some((c) => c.mode === 'local') && normal.connecteurs.some((c) => c.mode === 'a-brancher'), 'normal : les trois modes');
+});
+
+dit('LOT-03 (suite) : liens et échéances de blocs, commentaires ancrés, présence, signatures complètes, humeur à 5 niveaux, étapes, archives, relectures', () => {
+  for (const [nom, m] of [['normal', normal], ['beaucoup', gros]] as const) {
+    const auj = aujourdhuiDe(m);
+    const pages = ids(m.pages);
+    for (const p of m.pages) {
+      for (const b of p.blocs as Lien[]) {
+        if (b.type === 'tache') assert.equal(b.echeance !== null, b.fait !== true, `${nom} : échéance d'un bloc tâche ⇔ non fait`);
+        for (const l of (b.liens as string[] | undefined) ?? []) assert.ok(pages.has(l) && l !== p.id, `${nom} : lien vers une autre page`);
+      }
+      const ca = p.commentairesAncres as Lien[];
+      assert.ok(ca.length <= num(p.commentaires), `${nom} : commentaires ancrés`);
+      for (const c of ca) assert.ok(num(c.bloc) < (p.blocs as unknown[]).length && Date.parse(str(c.le)) <= m.contexte.maintenant);
+      for (const x of p.presence as Lien[]) assert.ok(m.contexte.maintenant - Date.parse(str(x.tapeA)) < 120_000 && (p.contributeurs as string[]).includes(str(x.email)), `${nom} : présence récente d'un contributeur`);
+    }
+    assert.ok(m.pages.some((p) => (p.blocs as Lien[]).some((b) => ((b.liens as unknown[] | undefined) ?? []).length > 0)) && m.pages.some((p) => (p.presence as unknown[]).length > 0) && m.pages.some((p) => (p.commentairesAncres as unknown[]).length > 0), `${nom} : liens, présence et commentaires existent`);
+    for (const f of m.fichiers) assert.equal(f.faitsReleves !== null, f.typeMetier === 'Contrat', `${nom} : faits relevés ⇔ contrat`);
+    assert.ok(m.fichiers.every((f) => str(f.intercalaire) === str(f.dossier).split('/')[0]));
+    for (const s of m.signatures) {
+      const sg = s.signataires as Lien[];
+      const signataires = new Set(sg.map((x) => x.id));
+      assert.equal(signataires.size, sg.length, `${nom} : identifiants de signataires`);
+      for (const c of s.champs as Lien[]) { assert.ok(signataires.has(c.signataireId) && sg.find((x) => x.id === c.signataireId)?.role === 'signataire', `${nom} : champ d'un signataire`); assert.equal(c.rempli, sg.find((x) => x.id === c.signataireId)?.statut === 'Signé'); }
+      const ra = s.relanceAuto as Lien;
+      assert.equal(ra.active === true, ['Envoyée', 'Ouverte', 'Partiellement signée'].includes(str(s.etat)), `${nom} : relances automatiques tant que ça attend`);
+      assert.equal(ra.prochaineAt !== null, ra.active === true);
+    }
+    assert.ok(m.signatures.some((s) => (s.signataires as Lien[]).some((x) => x.role === 'copie')), `${nom} : un destinataire en copie`);
+    for (const j of m.journal) {
+      assert.equal(['difficile', 'moyen', 'bien', 'très bien', 'excellent'].indexOf(str(j.humeur)) + 1, j.humeurNiveau, `${nom} : niveau d'humeur`);
+      assert.ok([1, 2, 3, 4, 5].includes(num(j.energie)) && (j.mercis as string[]).length <= 3);
+    }
+    assert.equal(new Set(m.journal.map((j) => j.humeur)).size, 5, `${nom} : les cinq humeurs`);
+    assert.ok(m.journal.some((j) => (j.mercis as string[]).length > 0));
+    for (const k of m.connaissances) {
+      assert.equal((k.etapes as unknown[]).length > 0, k.type !== 'question', `${nom} : des étapes sauf pour une question`);
+      assert.ok(!(k.articlesLiesIds as string[]).includes(str(k.id)) && (k.articlesLiesIds as string[]).every((id) => ids(m.connaissances).has(id)), `${nom} : articles liés`);
+      assert.ok(str(k.rubrique).length > 0);
+    }
+    assert.ok(m.connaissances.some((k) => (k.articlesLiesIds as unknown[]).length > 0) && new Set(m.connaissances.map((k) => k.rubrique)).size >= 3, `${nom} : articles liés, rubriques`);
+    for (const a of m.archives) {
+      assert.ok(str(a.texteIndexe).includes(str(a.nom).toLowerCase()), `${nom} : texte indexé`);
+      for (const r of a.restaurations as Lien[]) assert.ok(str(r.le) >= str(a.archiveLe) && str(r.le) <= auj, `${nom} : restauration après l'archivage`);
+    }
+    assert.ok(m.archives.some((a) => (a.restaurations as unknown[]).length > 0), `${nom} : une restauration`);
+    assert.deepEqual(m.reglesArchivage.map((r) => r.type), ['facture-payee', 'conversation-silencieuse', 'devis-refuse']);
+    assert.ok(m.reglesArchivage.every((r) => r.active === (r.dernierePasseeLe !== null)) && m.reglesArchivage.some((r) => !r.active));
+    const objets = new Set([...m.pages.map((p) => p.id), ...m.fichiers.map((f) => f.id)]);
+    for (const d of m.demandesRelecture) {
+      assert.ok(objets.has(str(d.objetId)), `${nom} : relecture d'un objet qui existe`);
+      assert.equal(d.relecteurEmail === null, d.etat === 'Brouillon partagé', `${nom} : relecteur ⇔ demandée`);
+      assert.ok(Date.parse(str(d.demandeAt)) <= m.contexte.maintenant);
+    }
+    assert.deepEqual([...new Set(m.demandesRelecture.map((d) => d.etat))].sort(), ['Brouillon partagé', 'En signature', 'Relecture demandée', 'Terminé'], `${nom} : les quatre étapes de la file`);
+  }
+  assert.equal(vide.reglesArchivage.length + vide.demandesRelecture.length, 0);
+});
+
+dit('remises : le prix de grille des lignes se compare au prix facturé ; MR08 : l’entonnoir se lit dans les commandes, les paniers et les sessions tiennent', () => {
+  for (const [nom, m] of [['normal', normal], ['beaucoup', gros]] as const) {
+    const lignes = [...m.factures.flatMap((f) => f.lines as Lien[]), ...m.devis.flatMap((d) => d.lignes as Lien[])];
+    assert.ok(lignes.every((l) => Number.isInteger(num(l.prixGrilleCents)) && num(l.prixGrilleCents) > 0), `${nom} : chaque ligne porte son prix de grille`);
+    const remises = lignes.filter((l) => num(l.unitPriceCents) < num(l.prixGrilleCents));
+    assert.ok(remises.length > 0 && lignes.some((l) => num(l.unitPriceCents) === num(l.prixGrilleCents)) && lignes.some((l) => num(l.unitPriceCents) > num(l.prixGrilleCents)), `${nom} : des remises, des prix de grille, des majorations`);
+    for (const l of remises) { const taux = 1 - num(l.unitPriceCents) / num(l.prixGrilleCents); assert.ok(taux > 0 && taux <= 0.15, `${nom} : une remise de 15 % au plus`); }
+    // Entonnoir
+    const e = m.entonnoirBoutique;
+    assert.equal(e.length, nom === 'normal' ? 30 : 90);
+    assert.equal(str(e[e.length - 1].jour), aujourdhuiDe(m));
+    for (const [k, j] of e.entries()) {
+      assert.ok(num(j.visites) >= num(j.produitsVus) && num(j.produitsVus) >= num(j.paniersCrees) && num(j.paniersCrees) >= num(j.commandes) && num(j.commandes) >= num(j.paiements), `${nom} : l’entonnoir ne remonte jamais (${str(j.jour)})`);
+      assert.equal(num(j.commandes), m.commandes.filter((c) => c.creeLe === j.jour).length, `${nom} : commandes du ${str(j.jour)}`);
+      assert.equal(num(j.paiements), m.commandes.filter((c) => c.creeLe === j.jour && c.paiement === 'Payé').length);
+      if (k > 0) assert.equal(D.ecartJours(str(e[k - 1].jour), str(j.jour)), 1, 'jours consécutifs');
+    }
+    // Paniers
+    const commandes = ids(m.commandes);
+    for (const p of m.paniers) {
+      assert.ok(Date.parse(str(p.derniereActiviteAt)) <= m.contexte.maintenant && num(p.lignes) >= 1 && num(p.montantCents) > 0);
+      const age = m.contexte.maintenant - Date.parse(str(p.derniereActiviteAt));
+      if (p.etat === 'ouvert') assert.ok(age < 3_600_000, `${nom} : un panier ouvert a une activité récente`);
+      if (p.etat === 'abandonné') assert.ok(age >= 3_600_000);
+      assert.equal(p.etat === 'converti', p.commandeId !== null);
+      if (p.commandeId !== null) assert.ok(commandes.has(str(p.commandeId)));
+    }
+    assert.deepEqual([...new Set(m.paniers.map((p) => p.etat))].sort(), ['abandonné', 'converti', 'ouvert'], `${nom} : les trois états de panier`);
+    // Sessions en direct
+    assert.ok(m.sessionsBoutique.length > 0 && m.sessionsBoutique.every((x) => m.contexte.maintenant - Date.parse(str(x.derniereActiviteAt)) < 5 * 60_000 && Date.parse(str(x.debutAt)) <= Date.parse(str(x.derniereActiviteAt))), `${nom} : sessions actives dans les cinq dernières minutes`);
+    const reg = m.entreprise.reglages as Lien;
+    assert.ok(num(reg.objectifBoutiqueTrimestreCents) >= 100_000 && num(reg.objectifBoutiqueTrimestreCents) % 50_000 === 0, `${nom} : objectif du trimestre`);
+  }
+  assert.equal(vide.entonnoirBoutique.length + vide.paniers.length + vide.sessionsBoutique.length, 0);
+  assert.ok(peu.entonnoirBoutique.length === 14 && peu.paniers.length === 3 && peu.sessionsBoutique.length === 2);
 });
 
 console.log('  — LOT-14 : la charge');
