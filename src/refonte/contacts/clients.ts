@@ -81,7 +81,7 @@ const moyenne = (l: readonly number[]): number => (l.length ? l.reduce((s, x) =>
  * 20 % activité sur 90 jours (35 points par facture ou devis), 15 % satisfaction (moyenne des avis sur 5, 60 sans avis).
  * Recalculée depuis les sources : `check:contacts` la compare au jeu de SIM sur les quatre volumes.
  */
-export function santeClient(
+export function facteursSante(
   client: Pick<FicheClient, 'id' | 'dernierEchangeAt'>,
   donnees: {
     factures: readonly Pick<Facture, 'clientId' | 'status' | 'dueAt' | 'paidAt' | 'issuedAt'>[];
@@ -89,7 +89,7 @@ export function santeClient(
     avis: readonly { clientId: number; noteSur5: number }[];
   },
   aujourdhui: Jour,
-): number {
+): { delai: number; reactivite: number; activite: number; satisfaction: number } {
   const emises = donnees.factures.filter((f) => f.clientId === client.id && (f.status === 'issued' || f.status === 'paid'));
   const retards = emises.map((f) => {
     const fin = f.status === 'paid' ? f.paidAt : aujourdhui > f.dueAt ? aujourdhui : f.dueAt;
@@ -101,5 +101,14 @@ export function santeClient(
   const activite = Math.min(100, 35 * (emises.filter((f) => f.issuedAt >= depuis).length + donnees.devis.filter((d) => d.clientId === client.id && d.createdAt.slice(0, 10) >= depuis).length));
   const avis = donnees.avis.filter((a) => a.clientId === client.id);
   const satisfaction = avis.length ? (moyenne(avis.map((a) => a.noteSur5)) / 5) * 100 : 60;
+  return { delai, reactivite, activite, satisfaction };
+}
+
+export function santeClient(
+  client: Pick<FicheClient, 'id' | 'dernierEchangeAt'>,
+  donnees: Parameters<typeof facteursSante>[1],
+  aujourdhui: Jour,
+): number {
+  const { delai, reactivite, activite, satisfaction } = facteursSante(client, donnees, aujourdhui);
   return Math.round(0.4 * delai + 0.25 * reactivite + 0.2 * activite + 0.15 * satisfaction);
 }

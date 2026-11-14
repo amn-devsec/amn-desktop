@@ -1,18 +1,20 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate, useOutlet } from 'react-router-dom';
+import { useLocation, useNavigate, useOutlet, useSearchParams } from 'react-router-dom';
 import { useSourcesContacts } from '../sources/depuisApp';
 import { salutationDe } from '../hub/modele';
 import { filtrerEtTrier, modeleClients, type ModeleClients } from './modele';
+import PageFiche from '../fiche/PageFiche';
 import { VueClients, type ActionsClients, type FiltresClients } from './VueClients';
 
 /**
  * « CLIENTS » (H05) — la page branchée sur les collections réelles, substituée à `/clients`
  * (`substitutions/declarations/contacts.tsx`).
  *
- * Elle montre la mosaïque. Tout ce qui n'est pas encore refondu (la fiche, la création, les devis, les sites liés)
- * reste servi par l'écran d'origine, que la substitution laisse dans l'`Outlet` : une demande d'ouverture d'un client
- * (`state.focusClientId`, que F10 et les mentions @client envoient) ou de création (`state.nouveau`) passe la main à
- * l'écran d'origine, qui garde la main jusqu'à ce qu'on quitte `/clients`.
+ * Elle montre la mosaïque, et la fiche d'un client (G04) à `?fiche=<id>` : une demande d'ouverture (`state.focusClientId`,
+ * que F10 et les mentions @client envoient) devient cette adresse. Ce qui n'est pas encore refondu (la création, la
+ * modification, les notes, l'historique, les sites liés) reste servi par l'écran d'origine, que la substitution laisse
+ * dans l'`Outlet` : « Modifier la fiche » et « Nouveau client » lui passent la main, et il la garde jusqu'à ce qu'on
+ * quitte `/clients`.
  */
 function useMaintenant(pas = 60_000): number {
   const [maintenant, setMaintenant] = useState(() => Date.now());
@@ -29,8 +31,10 @@ export default function PageClients(): React.ReactElement {
   const location = useLocation();
   const navigate = useNavigate();
   const origine = useOutlet();
-  const etat = location.state as { focusClientId?: number; nouveau?: boolean } | null;
-  const demande = etat?.focusClientId != null || etat?.nouveau === true;
+  const [params, setParams] = useSearchParams();
+  const etat = location.state as { focusClientId?: number; nouveau?: boolean; origine?: boolean } | null;
+  const fiche = Number(params.get('fiche')) || null;
+  const demande = etat?.origine === true || etat?.nouveau === true;
   // Une fois la main passée à l'écran d'origine, elle y reste : il nettoie lui-même `location.state`.
   const [passee, setPassee] = useState(demande);
   useEffect(() => { if (demande) setPassee(true); }, [demande]);
@@ -42,12 +46,18 @@ export default function PageClients(): React.ReactElement {
   const modele: ModeleClients | null = useMemo(() => (sources ? modeleClients(sources) : null), [sources]);
   const visibles = useMemo(() => (modele ? filtrerEtTrier(modele, filtres) : []), [modele, filtres]);
 
-  const ouvrir = useCallback((id: number) => { setPassee(true); navigate('/clients', { state: { focusClientId: id } }); }, [navigate]);
+  const ouvrir = useCallback((id: number) => setParams({ fiche: String(id) }), [setParams]);
+  // F10 et les mentions @client envoient `state.focusClientId` : la fiche refondue le prend, l'état est nettoyé.
+  useEffect(() => {
+    if (etat?.focusClientId != null && etat.origine !== true) navigate(`/clients?fiche=${etat.focusClientId}`, { replace: true, state: null });
+  }, [etat, navigate]);
+  const modifier = useCallback((id: number) => { setPassee(true); navigate('/clients', { replace: true, state: { focusClientId: id, origine: true } }); }, [navigate]);
+  const versLaListe = useCallback(() => setParams({}), [setParams]);
   const nouveau = useCallback(() => { setPassee(true); navigate('/clients', { state: { nouveau: true } }); }, [navigate]);
 
   // « N » : nouveau client, hors d'un champ de saisie.
   useEffect(() => {
-    if (passee) return undefined;
+    if (passee || fiche != null) return undefined;
     const sur = (e: KeyboardEvent) => {
       const cible = e.target as HTMLElement | null;
       if (e.key.toLowerCase() !== 'n' || e.metaKey || e.ctrlKey || e.altKey) return;
@@ -57,7 +67,7 @@ export default function PageClients(): React.ReactElement {
     };
     window.addEventListener('keydown', sur);
     return () => window.removeEventListener('keydown', sur);
-  }, [passee, nouveau]);
+  }, [passee, fiche, nouveau]);
 
   const actions: ActionsClients = useMemo(
     () => ({
@@ -71,6 +81,7 @@ export default function PageClients(): React.ReactElement {
   );
 
   if (passee && origine) return <>{origine}</>;
+  if (fiche != null) return <PageFiche clientId={fiche} onRetour={versLaListe} onModifier={() => modifier(fiche)} />;
 
   const horsLigne = typeof navigator !== 'undefined' && navigator.onLine === false;
   return (

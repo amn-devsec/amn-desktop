@@ -55,9 +55,9 @@ async function charger<T>(code: string): Promise<T> {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const M = await charger<any>(
-  "export * as L from '../src/refonte/contacts';\nexport * as monde from '../src/refonte/donnees';\nexport { DICTIONNAIRES_CONTACTS } from '../src/refonte/contacts/i18n';\nexport * as V from '../src/refonte/connecteurs/reglages';\nexport * as H from '../src/refonte/contacts/hub/modele';\nexport * as N from '../src/refonte/contacts/hub/nuage';\nexport { DICTIONNAIRES_HUB } from '../src/refonte/contacts/hub/i18n';\nexport { depuisMonde } from '../src/refonte/contacts/sources/depuisMonde';\nexport * as C from '../src/refonte/contacts/clients/modele';\nexport { DICTIONNAIRES_CLIENTS } from '../src/refonte/contacts/clients/i18n';",
+  "export * as L from '../src/refonte/contacts';\nexport * as monde from '../src/refonte/donnees';\nexport { DICTIONNAIRES_CONTACTS } from '../src/refonte/contacts/i18n';\nexport * as V from '../src/refonte/connecteurs/reglages';\nexport * as H from '../src/refonte/contacts/hub/modele';\nexport * as N from '../src/refonte/contacts/hub/nuage';\nexport { DICTIONNAIRES_HUB } from '../src/refonte/contacts/hub/i18n';\nexport { depuisMonde } from '../src/refonte/contacts/sources/depuisMonde';\nexport * as C from '../src/refonte/contacts/clients/modele';\nexport { DICTIONNAIRES_CLIENTS } from '../src/refonte/contacts/clients/i18n';\nexport * as G from '../src/refonte/contacts/fiche/modele';\nexport { DICTIONNAIRES_FICHE } from '../src/refonte/contacts/fiche/i18n';",
 );
-const { L, monde, V, H, N, C, DICTIONNAIRES_HUB: DICO_HUB, DICTIONNAIRES_CLIENTS: DICO_CLIENTS, depuisMonde, DICTIONNAIRES_CONTACTS: DICO } = M;
+const { L, monde, V, H, N, C, G, DICTIONNAIRES_HUB: DICO_HUB, DICTIONNAIRES_CLIENTS: DICO_CLIENTS, DICTIONNAIRES_FICHE: DICO_FICHE, depuisMonde, DICTIONNAIRES_CONTACTS: DICO } = M;
 const paris = (jour: string, hhmm: string): number => L.instantParis(jour, hhmm);
 const VOLUMES = ['vide', 'peu', 'normal', 'beaucoup'] as const;
 const mondes = Object.fromEntries(VOLUMES.map((v) => [v, monde.construireMonde({ volume: v })])) as Record<(typeof VOLUMES)[number], any>;
@@ -1189,6 +1189,122 @@ await dit('H05 · textes : mêmes clés en fr et en, mêmes paramètres, comptes
   }
   for (const b of new Set(en.filter((k) => /\.(1|n)$/.test(k)).map((k) => k.replace(/\.(1|n)$/, '')))) for (const l of ['fr', 'en']) assert.ok(DICO_CLIENTS[l][`${b}.1`] && DICO_CLIENTS[l][`${b}.n`], `${b} (${l})`);
   assert.equal(DICO_CLIENTS.fr['sousTitre.rdv'], '{nom} t’attend à {heure}', 'la phrase de tutoiement.json');
+});
+
+/* ── G04 : Fiche client ─────────────────────────────────────────────────── */
+console.log('\nContacts — G04, Fiche client (relation, ouvert, argent, ponctualité)\n');
+
+const devisG04 = (id: number, clientId: number, o: Record<string, unknown> = {}): any => ({
+  ...devisH05(id, clientId), createdAt: '2026-10-20T09:00:00.000Z', title: `Projet ${id}`, updatedAt: '2026-10-21T09:00:00.000Z', ...o,
+});
+const payee = (clientId: number, numero: string, emise: string, echeance: string, payeLe: string): any => factureH05(clientId, { number: numero, status: 'paid', issuedAt: emise, dueAt: echeance, paidAt: payeLe });
+const srcG04 = (o: Record<string, unknown> = {}): any => base({ clients: [fiche(7, 2, { debutLe: '2025-12-01', secteur: 'Conseil', ville: 'Paris 8e', linkedSiteIds: [], phone: '', email: 'contact@exemple.test', siteWeb: '', adresse: '' })], ...o });
+
+await dit('G04 · mois : de la première trace à aujourd’hui, « une relation de N mois » = écart de mois', () => {
+  assert.deepEqual(G.moisEntre('2025-11', '2026-02'), ['2025-11', '2025-12', '2026-01', '2026-02']);
+  assert.equal(G.nombreDeMois('2024-03', '2026-10'), 31);
+  assert.equal(G.nombreDeMois('2026-10', '2026-10'), 1);
+  const m = G.modeleFiche(srcG04({ devis: [devisG04(1, 7, { createdAt: '2026-04-02T09:00:00.000Z' })] }), 7);
+  assert.equal(m.sousTitre.mois, 10, 'depuis le début de la fiche (déc. 2025) : le premier devis, plus tardif, n’avance pas la date');
+});
+
+await dit('G04 · ponctualité : écart payé − échéance, borné à ± 12, trait « en avance » si la moyenne est négative, « sans un jour de retard » sinon', () => {
+  const avance = srcG04({ factures: [payee(7, 'F-1', '2026-06-01', '2026-06-30', '2026-06-20'), payee(7, 'F-2', '2026-07-01', '2026-07-30', '2026-07-10')] });
+  const m = G.modeleFiche(avance, 7);
+  assert.deepEqual(m.argent.ponctualite.map((p: any) => p.jours), [-10, -12], 'borné à −12');
+  assert.equal(m.argent.moyenneJours, -15);
+  assert.equal(m.sousTitre.trait, 'avance');
+  const heure = G.modeleFiche(srcG04({ factures: [payee(7, 'F-1', '2026-06-01', '2026-06-30', '2026-06-30')] }), 7);
+  assert.equal(heure.sousTitre.trait, 'sansRetard');
+  const retard = G.modeleFiche(srcG04({ factures: [payee(7, 'F-1', '2026-06-01', '2026-06-30', '2026-07-05')] }), 7);
+  assert.equal(retard.sousTitre.trait, null);
+  assert.equal(retard.argent.ponctualite[0].aLHeure, false);
+  assert.equal(G.modeleFiche(srcG04({ factures: [payee(7, 'F-1', '2026-06-01', '2026-06-30', '2026-06-30'), factureH05(7, { dueAt: '2026-10-01' })] }), 7).sousTitre.trait, null, 'une facture en retard retire le trait');
+});
+
+await dit('G04 · ce qui est ouvert : retard d’abord, puis rendez-vous, devis, factures ; un devis signé, un rendez-vous manqué ou à plus de 7 jours n’y est pas', () => {
+  const rdv = (id: string, jour: string, heure: string, o: Record<string, unknown> = {}): any => ({ id, clientId: 7, type: 'rendez-vous client', systeme: false, confirmation: 'confirmé', title: 'Démonstration', mode: 'visio', startAt: new Date(paris(jour, heure)).toISOString(), durationMin: 45, ...o });
+  const m = G.modeleFiche(srcG04({
+    factures: [factureH05(7, { dueAt: '2026-10-26', number: 'F-2041' }), factureH05(7, { status: 'draft', number: 'F-2047' }), factureH05(7, { dueAt: '2026-11-20', number: 'F-2050' })],
+    devis: [devisG04(1, 7, { vuAt: '2026-10-28T09:00:00.000Z' }), devisG04(2, 7, { status: 'accepted', acceptéLe: '2026-10-22' })],
+    evenements: [rdv('a', '2026-10-30', '11:00'), rdv('b', '2026-10-30', '08:00'), rdv('c', '2026-10-31', '09:00', { confirmation: 'manqué' }), rdv('d', '2026-11-12', '09:00')],
+  }), 7);
+  assert.deepEqual(m.ouvert.map((o: any) => o.genre), ['factureRetard', 'rdv', 'devis', 'factureBrouillon', 'factureEmise']);
+  assert.equal(m.ouvert[0].detail.jours, 4);
+  assert.equal(m.ouvert[1].detail.heure, '11:00');
+  assert.equal(m.ouvert[2].etat, 'vu');
+  assert.deepEqual(m.sousTitre.rdv, { heure: '11:00' });
+});
+
+await dit('G04 · l’argent : facturé 12 mois, écart avec les 12 mois d’avant, en attente, panier moyen, prochaine facture = brouillon', () => {
+  const m = G.modeleFiche(srcG04({
+    factures: [
+      factureH05(7, { status: 'paid', issuedAt: '2026-09-01', dueAt: '2026-09-30', paidAt: '2026-09-20', lines: [{ id: 'l', label: 'x', quantity: 1, unitPriceCents: 200_000, vatRate: 0 }] }),
+      factureH05(7, { status: 'issued', issuedAt: '2026-10-01', dueAt: '2026-11-15', lines: [{ id: 'l', label: 'x', quantity: 1, unitPriceCents: 100_000, vatRate: 0 }] }),
+      factureH05(7, { status: 'paid', issuedAt: '2025-06-01', dueAt: '2025-06-30', paidAt: '2025-06-25', lines: [{ id: 'l', label: 'x', quantity: 1, unitPriceCents: 200_000, vatRate: 0 }] }),
+      factureH05(7, { status: 'draft', number: 'F-9', lines: [{ id: 'l', label: 'x', quantity: 1, unitPriceCents: 240_000, vatRate: 0 }] }),
+    ],
+  }), 7);
+  assert.equal(m.argent.factureCents, 300_000);
+  assert.equal(m.argent.deltaPourcent, 50, '300 000 contre 200 000');
+  assert.equal(m.argent.enAttenteCents, 100_000);
+  assert.equal(m.argent.panierCents, 150_000);
+  assert.deepEqual(m.argent.prochaine, { numero: 'F-9', cents: 240_000 });
+  assert.equal(G.modeleFiche(srcG04(), 7).argent.deltaPourcent, null, 'sans base de comparaison');
+  assert.equal(G.modeleFiche(srcG04(), 7).argent.panierCents, null);
+});
+
+await dit('G04 · jalons : au plus quatre, le premier devis toujours, jamais deux libellés qui se recouvrent, les plus récents gardés', () => {
+  const j = (indice: number, genre: string, jour: string) => ({ indice, genre, titre: `T${indice}`, jour });
+  const candidats = [j(0, 'premier', '2024-03-01'), j(1, 'signe', '2024-04-01'), j(7, 'signe', '2024-10-01'), j(18, 'signe', '2025-09-01'), j(30, 'signe', '2026-09-01'), j(31, 'signe', '2026-10-01')];
+  const gardes = G.choisirJalons(candidats, 21, 150);
+  assert.ok(gardes.length <= 4);
+  assert.equal(gardes[0].genre, 'premier');
+  for (let i = 1; i < gardes.length; i += 1) assert.ok((gardes[i].indice - gardes[i - 1].indice) * 21 >= 150, `${gardes[i - 1].indice} / ${gardes[i].indice}`);
+  assert.ok(gardes.some((g: any) => g.indice === 31), 'le plus récent est gardé');
+  assert.ok(!gardes.some((g: any) => g.indice === 30), 'son voisin est écarté');
+  assert.deepEqual(G.choisirJalons([], 21, 150), []);
+});
+
+await dit('G04 · client sans historique, sans interlocuteur, sans Garde, introuvable : états honnêtes', () => {
+  const m = G.modeleFiche(srcG04({ clients: [fiche(7, 0, { debutLe: '2026-10-30', linkedSiteIds: [], phone: '', email: '', siteWeb: '', adresse: '' })] }), 7);
+  assert.equal(m.sansHistorique, true);
+  assert.equal(m.garde, null);
+  assert.deepEqual(m.interlocuteurs, [], 'collection présente mais vide');
+  assert.deepEqual(m.ouvert, []);
+  assert.equal(G.modeleFiche(srcG04({ interlocuteurs: null }), 7).interlocuteurs, null, 'null = non disponible');
+  assert.equal(G.modeleFiche(srcG04(), 999), null);
+  assert.deepEqual(G.modeleFiche(srcG04({ clients: [fiche(7, 2, { linkedSiteIds: ['s1', 's2'], phone: '', email: '', siteWeb: '', adresse: '' })] }), 7).garde, { sites: 2 });
+  assert.equal(G.modeleFiche(srcG04(), 7).documents, null, 'aucune source de documents');
+});
+
+await dit('G04 · sur les jeux de SIM (quatre volumes) : chaque fiche se construit, les comptes tiennent', () => {
+  for (const v of VOLUMES) {
+    const src = depuisMonde(mondes[v]);
+    for (const c of src.clients.slice(0, 40)) {
+      const m = G.modeleFiche(src, c.id);
+      assert.ok(m, `${v} · ${c.id}`);
+      assert.equal(m.relation.totaux.echanges, m.relation.mois.reduce((s: number, x: any) => s + x.echanges, 0));
+      assert.ok(m.relation.mois.length >= 1);
+      assert.ok(m.argent.ponctualite.length <= 12);
+      assert.ok(m.argent.ponctualite.every((p: any) => p.jours >= -12 && p.jours <= 12));
+      assert.ok(m.facteurs.length <= 2);
+      assert.equal(m.sante, c.sante);
+    }
+  }
+});
+
+await dit('G04 · textes : mêmes clés en fr et en, mêmes paramètres, comptes à deux formes, l’interface tutoie', () => {
+  const en = Object.keys(DICO_FICHE.en).sort();
+  assert.deepEqual(Object.keys(DICO_FICHE.fr).sort(), en);
+  const params = (t: string) => [...t.matchAll(/\{(\w+)\}/g)].map((x) => x[1]).sort().join(',');
+  for (const k of en) {
+    assert.ok(DICO_FICHE.en[k].trim() && DICO_FICHE.fr[k].trim(), k);
+    assert.equal(params(DICO_FICHE.fr[k]), params(DICO_FICHE.en[k]), `paramètres de ${k}`);
+    assert.ok(!VOUVOIEMENT_UI.test(DICO_FICHE.fr[k]), `${k} vouvoie : ${DICO_FICHE.fr[k]}`);
+  }
+  for (const b of new Set(en.filter((k) => /\.(1|n)$/.test(k)).map((k) => k.replace(/\.(1|n)$/, '')))) for (const l of ['fr', 'en']) assert.ok(DICO_FICHE[l][`${b}.1`] && DICO_FICHE[l][`${b}.n`], `${b} (${l})`);
+  assert.equal(DICO_FICHE.fr['ouvert.titre'], 'Ce qui est ouvert');
 });
 
 /* ── Structure ──────────────────────────────────────────────────────────── */
