@@ -145,3 +145,5 @@ Les dix images de LOT-03 (F20, H10, H11, H12, ME01 à ME05) ont été ouvertes e
 - ME01 : un bandeau relie les jours d'une même série dans le calendrier (19 au 25). La règle de découpe du bandeau (par semaine ? à partir de 7 jours ?) n'est pas dans la fiche : non codée.
 - H10 : « BLOCS · 2 SUR 14 » : l'image compte 14 blocs, le CO a retenu 13 (STATUT §1.29 n° 5).
 - ME05 : « Voir aussi » avec la durée de lecture de chaque article : `lieA` et `dureeDeLecture` suffisent.
+
+**Décisions du CO sur ces écarts (14 nov.)** : tutoiement partout dans l'interface ; humeur à 5 niveaux et énergie à 5 barres, comme l'image (la logique le fait déjà) ; **écart gardé** : le bandeau de série du calendrier n'est pas codé tant que la fiche n'a pas de règle ; les comptes d'H10 (« 2 sur 14 » blocs) viennent des blocs et des données réels, jamais de l'image.

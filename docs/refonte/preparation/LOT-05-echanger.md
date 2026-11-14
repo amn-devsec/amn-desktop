@@ -140,3 +140,5 @@ Les textes de ces ajouts sont dans `i18n.ts` (fr, en).
 - F40 : la tuile « Réponses automatiques » montre « 148 envoyées ce mois », pas « 5 actives sur 7 » : la mesure à afficher est `envoisAutoDuMois`.
 - G07 : « code 0x0000009F » est un texte d'exemple dans une pièce jointe : donnée fictive, rien à coder.
 - Presence : « Mohamed lit », « Riyad écrit » (F40, G07, MX01) et « Riyad est en train d'écrire » (MX04) sont de la présence en direct. Masqués au premier jet (STATUT §1.32 n° 4).
+
+**Décisions du CO sur ces écarts (14 nov.)** : tutoiement dans l'interface (MX05 : « tu hésites ») ; les comptes de F40 (tuiles, « 148 envoyées ce mois ») viennent des données réelles, jamais de l'image.
