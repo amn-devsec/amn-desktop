@@ -46,6 +46,9 @@ export const ZONES_CLIENT: readonly { fichier: string; debut: string; raison: st
   { fichier: 'scripts/apercu/ecrans/G07.tsx', debut: 'Je vous envoie la photo', raison: 'un message REÇU d’un client, montré par l’aperçu de G07 : il garde le vouvoiement de son auteur' },
   { fichier: 'scripts/apercu/ecrans/G07.tsx', debut: 'Merci de votre retour.', raison: 'un message REÇU d’un client, montré par l’aperçu de G07 : il garde le vouvoiement de son auteur' },
   { fichier: 'scripts/apercu/ecrans/G07.tsx', debut: 'Bonjour Madame Roux, je passe jeudi', raison: 'le brouillon d’Ajmani montré par l’aperçu de G07 : il part chez le client' },
+  { fichier: 'scripts/apercu/ecrans/MX01.tsx', debut: 'Merci, c’était très clair', raison: 'un courriel REÇU d’un client, montré par l’aperçu de MX01 : il garde le vouvoiement de son auteur' },
+  { fichier: 'scripts/apercu/ecrans/MX01.tsx', debut: 'Je vous envoie les 12 photos', raison: 'un courriel REÇU d’un client, montré par l’aperçu de MX01 : il garde le vouvoiement de son auteur' },
+  { fichier: 'scripts/apercu/ecrans/MX01.tsx', debut: 'Votre versement de 2 400', raison: 'un courriel REÇU d’un service de paiement, montré par l’aperçu de MX01 : il garde le vouvoiement de son auteur' },
 ];
 
 /**

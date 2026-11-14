@@ -1,4 +1,4 @@
-import { Inbox } from 'lucide-react';
+import { Inbox, Mail } from 'lucide-react';
 import { declarerFamille, vue } from '../declarer';
 
 /**
@@ -50,6 +50,19 @@ export default declarerFamille({
         vue('team', '/team', ['écrire à l’équipe', 'voir qui est en ligne'], ['équipe', 'messagerie', 'présence', 'canal'], {
           etiquette: { fr: 'Équipe', en: 'Team' },
           en: { verbes: ['write to the team', 'see who is online'], motsCles: ['team', 'messaging', 'presence', 'channel', 'online'] },
+        }),
+      ],
+    },
+    {
+      // MX01 : la boîte partagée de l'équipe (courriel), en trois volets. La connexion se règle dans les connecteurs (H21).
+      nom: { fr: 'Courriel', en: 'Email' },
+      action: 'discuter',
+      niveau: 'courant',
+      vues: [
+        vue('sharedMail', '/courriel', ['lire le courriel de l’équipe', 'répondre à un courriel', 'archiver un message'], ['courriel', 'mail', 'email', 'boîte', 'message', 'réception', 'fil'], {
+          en: { verbes: ['read the team’s email', 'reply to an email', 'archive a message'], motsCles: ['email', 'mail', 'mailbox', 'message', 'inbox', 'thread'] },
+          etiquette: { fr: 'Courriel', en: 'Email' },
+          nouveau: { icone: Mail, ecran: () => import('../../echanger/ecrans/mx01/PageCourriel'), indice: { fr: 'La boîte partagée de l’équipe, en fils', en: 'The team’s shared mailbox, in threads' } },
         }),
       ],
     },

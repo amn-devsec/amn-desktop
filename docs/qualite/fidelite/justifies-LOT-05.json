@@ -21,6 +21,9 @@
     },
     "MX02": {
       "raison": "17,0 % brut. Tuile « EN COURS » 367 de haut (vignettes `1fr 1fr 170px`, ordre du jour minuté), notes et décisions en deux colonnes avec le bandeau de suggestion, « Prochaine réunion » et « À venir » tiennent leurs cotes. Ce qui diffère : (1) le texte, décalé de 2 à 4 px (interligne des lignes de notes et d'actions, chasse des heures) ; (2) les avatars des vignettes et des actions prennent les couleurs du jeu de teintes du socle, pas le brun et le vert sourds de la maquette ; (3) l'ordre du jour de la tuile est découpé comme les minutes du jeu fictif (6, 10, 8 et 6 min) pour tenir « Relances » à 60 % ; (4) la barre latérale de l'aperçu (voir plus haut)."
+    },
+    "MX01": {
+      "raison": "20,1 % brut. Surface 1108 de large en trois volets (dossiers 196, fils 330, conversation au reste), fils sur trois lignes, résumé d'Ajmani, messages repliés de 40 px, dernier message déplié et compositeur tiennent leurs cotes. Ce qui diffère : (1) le texte, décalé de 2 à 4 px (interligne des fils et du corps du message) ; (2) le résumé cite les phrases de demande du message (règle de `demandesDuMessage`) au lieu des reformulations de la maquette, donc deux lignes par demande ; (3) « Clients » compte 1 fil et non 2, et le fil d'Amina porte « 3 messages en 2 jours » selon les dates du jeu fictif ; (4) la barre latérale de l'aperçu (voir plus haut)."
     }
   }
 }

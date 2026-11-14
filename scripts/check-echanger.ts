@@ -51,8 +51,8 @@ async function charger<T>(code: string): Promise<T> {
 const FICHIERS = ['commun', 'boite', 'hub', 'canaux', 'connecteurs', 'appels', 'annonces', 'courriel', 'reunions', 'partages', 'sondages', 'reponsesAuto', 'i18n', 'phrases'];
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerF40 from '../${ZONE}/ecrans/f40/composer';` + `\nexport * as composerG07 from '../${ZONE}/ecrans/g07/composer';` + `\nexport * as composerH14 from '../${ZONE}/ecrans/h14/composer';` + `\nexport * as composerH13 from '../${ZONE}/ecrans/h13/composer';` + `\nexport * as composerMX05 from '../${ZONE}/ecrans/mx05/composer';` + `\nexport * as composerMX04 from '../${ZONE}/ecrans/mx04/composer';` + `\nexport * as composerMX02 from '../${ZONE}/ecrans/mx02/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
-const { commun: C, boite: B, hub: H, canaux: CA, connecteurs: CO, appels: AP, annonces: AN, courriel: CM, reunions: RE, partages: PA, sondages: SO, reponsesAuto: AU, i18n: I, phrases: PH, composerF40: CF40, composerG07: CG07, composerH14: CH14, composerH13: CH13, composerMX05: CMX05, composerMX04: CMX04, composerMX02: CMX02, monde } = M;
+const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerF40 from '../${ZONE}/ecrans/f40/composer';` + `\nexport * as composerG07 from '../${ZONE}/ecrans/g07/composer';` + `\nexport * as composerH14 from '../${ZONE}/ecrans/h14/composer';` + `\nexport * as composerH13 from '../${ZONE}/ecrans/h13/composer';` + `\nexport * as composerMX05 from '../${ZONE}/ecrans/mx05/composer';` + `\nexport * as composerMX04 from '../${ZONE}/ecrans/mx04/composer';` + `\nexport * as composerMX02 from '../${ZONE}/ecrans/mx02/composer';` + `\nexport * as composerMX01 from '../${ZONE}/ecrans/mx01/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
+const { commun: C, boite: B, hub: H, canaux: CA, connecteurs: CO, appels: AP, annonces: AN, courriel: CM, reunions: RE, partages: PA, sondages: SO, reponsesAuto: AU, i18n: I, phrases: PH, composerF40: CF40, composerG07: CG07, composerH14: CH14, composerH13: CH13, composerMX05: CMX05, composerMX04: CMX04, composerMX02: CMX02, composerMX01: CMX01, monde } = M;
 const A_SEG = AN.segmentsDeLecture;
 
 const NB = ' ';
@@ -1279,6 +1279,45 @@ await dit('MX02 · composerReunions : en cours, ordre du jour minuté, suggestio
   const apres = CMX02.composerReunions({ ...e, maintenant: MAINT + 120 * 60_000 });
   assert.equal(apres.prochaine.titre, 'Plus tard', 'la prochaine est la plus proche encore à venir');
   assert.equal(apres.prochaine.compte, null, 'pas de compte à rebours au-delà d’une heure');
+});
+
+await dit('MX01 · composerCourriel : dossiers et comptes, fils, résumé d’Ajmani (demandes numérotées), messages repliés, pièce jointe analysée ; la boîte à brancher ne montre rien', () => {
+  const at = (j: string, h: string) => paris(j, h);
+  const msg = (id: string, filId: string, j: string, h: string, extra: any = {}) => ({ id, filId, de: 'x@x', a: ['equipe@x'], at: at(j, h), lu: true, expediteur: `Exp ${filId}`, objet: `Objet ${filId}`, texte: `Texte ${id}.`, ...extra });
+  const messages = [
+    msg('a1', 'f1', '2026-10-28', '14:00', { envoye: true, organisation: 'org' }),
+    msg('a2', 'f1', '2026-10-29', '11:00', { organisation: 'org' }),
+    msg('a3', 'f1', AUJ, '10:12', { lu: false, organisation: 'org', texte: 'Bonjour. Pouvons-nous voir les utilisateurs actifs ? Merci.\nPouvez-vous ajouter une alerte ?', piecesJointes: [{ nom: 'doc.pdf', analyse: 'sans-risque' }], taille: 1_200_000, assigneA: 'a@x' }),
+    msg('b1', 'f2', AUJ, '09:00', { lu: false }),
+    msg('c1', 'f3', '2026-10-29', '16:00'),
+    msg('d1', 'f4', '2026-10-30', '07:00', { dossier: 'brouillons', envoye: true }),
+    msg('p1', 'f5', AUJ, '07:30', { programmeAt: paris('2026-11-02', '09:00'), envoye: true }),
+  ];
+  const e = { langue: 'fr', maintenant: MAINT, moi: 'a@x', messages, dossier: 'reception', filtre: 'tous', filChoisi: 'f1', presences: [{ email: 'b@x', nom: 'Bob', filId: 'f2', filNom: 'Client', mode: 'lit' }, { email: 'a@x', nom: 'Moi', filId: 'f1', filNom: 'X', mode: 'ecrit' }], organisations: { org: { type: 'client', nom: 'Org', suivi: 'Aaron' } }, etatBoite: 'reliee', brouillonPret: 'les 2 demandes', attend: 'une date' };
+  const v = CMX01.composerCourriel(e);
+  assert.equal(v.sousTitre, 'Boîte partagée de l’équipe · 2 messages non lus, aucun en retard');
+  assert.deepEqual(v.dossiers.map((d: any) => [d.id, d.n]), [['reception', 2], ['clients', 1], ['devis', null], ['partenaires', 0], ['envoyes', null], ['brouillons', 1], ['programmes', 1], ['archives', null]]);
+  assert.deepEqual(v.fils.map((f: any) => [f.id, f.nonLu, f.compteur, f.pieceJointe, f.quand]), [['f1', true, 3, true, '10:12'], ['f2', true, null, false, '09:00'], ['f3', false, null, false, 'Hier']], 'du plus récent au plus ancien ; le compteur dit le nombre de messages');
+  assert.deepEqual(v.presences.map((p: any) => p.texte), ['Bob lit Client'], 'ma propre présence n’est pas montrée');
+  const c = v.conversation;
+  assert.equal(c.objet, 'Objet f1');
+  assert.equal(c.organisation.nom, 'Org');
+  assert.equal(c.resume.compte, '2 demandes');
+  assert.equal(c.resume.demandes.length, 2);
+  assert.ok(/3 messages en 2 jours/.test(c.resume.meta), c.resume.meta);
+  assert.equal(c.resume.attend, 'Elle attend : une date');
+  assert.equal(c.plies.length, 2, 'les messages lus plus anciens sont repliés');
+  assert.equal(c.plies[0].auteur, 'Toi');
+  assert.ok(/analysé, sans risque/.test(c.dernier.piece.detail), c.dernier.piece.detail);
+  assert.equal(c.compositeur.placeholder, 'Répondre à Exp…');
+  assert.equal(CMX01.composerCourriel({ ...e, brouillonPret: null }).conversation.compositeur.brouillon, null);
+  assert.deepEqual(CMX01.composerCourriel({ ...e, filtre: 'non-lus' }).fils.map((f: any) => f.id), ['f1', 'f2']);
+  assert.deepEqual(CMX01.composerCourriel({ ...e, filtre: 'a-moi' }).fils.map((f: any) => f.id), ['f1']);
+  assert.deepEqual(CMX01.composerCourriel({ ...e, dossier: 'programmes' }).fils.map((f: any) => f.id), [], 'les envois programmés ne sont pas des fils');
+  const vide = CMX01.composerCourriel({ ...e, messages: [], filChoisi: null });
+  assert.equal(vide.conversation, null);
+  assert.equal(vide.sousTitre, 'Boîte partagée de l’équipe · rien de non lu');
+  assert.equal(vide.videDuDossier, 'Rien dans ce dossier.');
 });
 
 await dit('aucune brique visuelle : ni React, ni src/socle/ui, ni code partagé ; seulement les voisins, le dictionnaire du socle et le modèle des connecteurs (S9)', () => {
