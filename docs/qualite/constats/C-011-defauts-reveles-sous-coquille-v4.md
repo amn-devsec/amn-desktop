@@ -14,7 +14,7 @@ ne voyaient que 15 écrans, personne ne les voyait.
 
 | # | Cible (taille, écart au voisin) | Fichier | Propriétaire |
 |---|---|---|---|
-| 1 | Jours du calendrier « 26… » : 42 px, 4 px d'écart (108×) | écran Agenda (`/agenda`, composant `AgendaScreen`) | LOT-01 (jour) |
+| 1 | Jours du calendrier « 26… » : 42 px, 4 px d'écart (108×) | `src/business/AgendaScreen.tsx` (`/agenda`) | LOT-01 (jour) |
 | 2 | Créneaux « 15:00 » : 7 px et 41 px, 0 px d'écart | idem | LOT-01 (jour) |
 | 3 | Bouton « Nouvelle conversation » : 32 px, 4 px (80×, sur La Garde et Supervisor) | `src/assistant/AssistantPanel.tsx` (`flex h-8 w-8`) | panneau Ajmani, aucun lot : CO |
 | 4 | Barres des mois « jan… » : 17 px, 6 px (40×) | `src/screens/ExpensesScreen.tsx` (`/depenses`) | LOT-04 (argent) |
@@ -24,9 +24,8 @@ ne voyaient que 15 écrans, personne ne les voyait.
 | 8 | « Avancer cet arrêt » : 24 px (`h-6 w-8`) | `src/screens/DeliveryRoundsScreen.tsx` (`/tournees`) | LOT-06 (créer) |
 | 9 | « + Marketing 0/10 » : 32 px, 6 px | `src/components/generator/ChoixModules.tsx` (`/tour/generateur`) | LOT-08 (garde) |
 | 10 | Lignes de la liste de notifications « 08:51 · Facture… » : 18 px, icône SVG | `src/refonte/systeme/notifications/` (H40, `/notifications`) | socle / S0 (LOT-00) |
-| 11 | (famille « agenda » côté créneaux, voir 2) | — | — |
 
-La famille 11 listée par la garde est le groupe des créneaux de l'Agenda dont la hauteur diffère (41 px) : même écran que 1 et 2.
+La garde compte 11 familles : les lignes 1 et 2 en couvrent trois (jours, créneaux de 7 px, créneaux de 41 px), toutes sur l'Agenda ; `src/business/` est partagé avec l'édition cliente.
 
 ## 2. Les écrans qui débordent à 390 px (`check:largeur`)
 
