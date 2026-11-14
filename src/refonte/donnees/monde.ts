@@ -38,6 +38,12 @@ export interface OptionsMonde {
   maintenant?: number;
   /** « Maintenant » du lot Cyber. Défaut : `MAINTENANT_CYBER` (mardi 3 novembre 2026) ; décalé comme `maintenant` si celui-ci l'est. */
   maintenantCyber?: number;
+  /**
+   * Y met-on les avoirs (`AV-AAAA-NNNN`, factures de nature `creditNote`) ? Défaut : non. Ils baissent le reste dû, la TVA et
+   * les encaissements attendus : une logique qui ne lit pas la nature `creditNote` (check:argent de DS) les verrait comme des
+   * écarts. À passer à `true` par défaut quand elle les lit (CO, 14 nov.).
+   */
+  avoirs?: boolean;
   /** Volume de tous les jeux. Défaut : `normal`. */
   volume?: Volume;
   /** Volume particulier de certains jeux (prime sur `volume`). */
@@ -66,7 +72,7 @@ export function construireMonde(options: OptionsMonde = {}): Monde {
   const factures = genererFactures(ctx, clients, devis, entreprise.identite.paymentTermDays);
   const paiements = genererPaiements(ctx, factures);
   // Les avoirs baissent le reste dû de certaines factures (soldeCents) : ils précèdent la trésorerie et la TVA.
-  const avoirs = genererAvoirs(ctx, factures);
+  const avoirs = options.avoirs ? genererAvoirs(ctx, factures) : [];
 
   const { projets, cibles } = genererProjets(ctx, equipe, clients);
   const taches = genererTaches(ctx, equipe, clients, projets, cibles);

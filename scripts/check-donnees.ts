@@ -120,6 +120,11 @@ const normal = D.construireMonde({ volume: 'normal' });
 const gros = D.construireMonde({ volume: 'beaucoup' });
 const peu = D.construireMonde({ volume: 'peu' });
 const vide = D.construireMonde({ volume: 'vide' });
+// Les avoirs ne sont dans le monde que sur demande (`avoirs: true`) tant que la logique de DS ne lit pas la nature `creditNote`.
+const peuAv = D.construireMonde({ volume: 'peu', avoirs: true });
+const normalAv = D.construireMonde({ volume: 'normal', avoirs: true });
+const grosAv = D.construireMonde({ volume: 'beaucoup', avoirs: true });
+const videAv = D.construireMonde({ volume: 'vide', avoirs: true });
 const jours = (m: MondeBrut): string => m.contexte.aujourdhui;
 const joursCyber = (m: MondeBrut): string => m.contexte.aujourdhuiCyber;
 const aujourdhuiDe = jours;
@@ -332,7 +337,7 @@ dit('le solde dû vaut le TTC d’une facture envoyée, zéro sinon ; les totaux
   }
 });
 dit('les avoirs : AV-AAAA-NNNN continu, rattachés à une facture du même client, jamais plus grands qu’elle, le reste dû baisse', () => {
-  for (const [nom, m] of [['normal', normal], ['peu', peu], ['beaucoup', gros], ['vide', vide]] as const) {
+  for (const [nom, m] of [['normal', normalAv], ['peu', peuAv], ['beaucoup', grosAv], ['vide', videAv]] as const) {
     const parAn = new Map<string, number[]>();
     const emises = [...m.avoirs].sort((a, b) => str(a.number).localeCompare(str(b.number)));
     for (const a of emises) {
@@ -354,9 +359,19 @@ dit('les avoirs : AV-AAAA-NNNN continu, rattachés à une facture du même clien
     assert.equal(new Set([...m.factures, ...m.avoirs].map((f) => f.id)).size, m.factures.length + m.avoirs.length, `${nom} : identifiants uniques`);
     assert.ok(m.factures.every((f) => !f.kind || f.kind === 'invoice'), 'les factures restent des factures');
   }
-  assert.ok(normal.avoirs.length >= 1 && gros.avoirs.length >= 10, 'des avoirs dès « normal »');
-  assert.ok(gros.avoirs.some((a) => gros.factures.find((f) => f.id === a.creditNoteFor)?.status === 'issued') && gros.avoirs.some((a) => gros.factures.find((f) => f.id === a.creditNoteFor)?.status === 'paid'), 'avoirs sur factures dues et réglées');
-  assert.equal(vide.avoirs.length, 0);
+  assert.ok(normalAv.avoirs.length >= 1 && grosAv.avoirs.length >= 10, 'des avoirs dès « normal »');
+  assert.ok(grosAv.avoirs.some((a) => grosAv.factures.find((f) => f.id === a.creditNoteFor)?.status === 'issued') && grosAv.avoirs.some((a) => grosAv.factures.find((f) => f.id === a.creditNoteFor)?.status === 'paid'), 'avoirs sur factures dues et réglées');
+  assert.equal(videAv.avoirs.length, 0);
+  assert.equal(normal.avoirs.length + gros.avoirs.length, 0, 'sans demande, aucun avoir dans le monde');
+  // Avec avoirs, le reste dû, la TVA et les encaissements attendus en tiennent compte (même calcul que les mondes sans avoirs, moins ce que les avoirs reprennent).
+  for (const f of grosAv.factures) {
+    const repris = grosAv.avoirs.filter((x) => x.creditNoteFor === f.id).reduce((n, x) => n + D.totauxDeFacture(x).ttcCents, 0);
+    assert.equal(num(f.soldeCents), f.status === 'issued' ? Math.max(0, D.totauxDeFacture(f).ttcCents - repris) : 0, 'reste dû = TTC − avoirs');
+  }
+  for (const x of grosAv.mouvements.filter((y) => y.nature === 'Encaissement attendu')) {
+    const f = grosAv.factures.find((y) => y.id === (x.lien as Lien).id);
+    assert.equal(num(x.montantCents), num(f?.soldeCents), 'l’encaissement attendu est le reste dû');
+  }
 });
 dit('le statut « En retard » se déduit (envoyée + échéance passée) ; il y en a, mais peu', () => {
   const retard = gros.factures.filter((f) => D.statutAffiche(f, aujourdhui) === 'En retard');
@@ -713,7 +728,8 @@ const IPV4 = /\b(?:\d{1,3}\.){3}\d{1,3}\b/;
 dit('chaque nouveau jeu existe, vide au volume « vide », rempli aux autres', () => {
   const suite = D.NOMS_DES_JEUX.slice(D.NOMS_DES_JEUX.indexOf('echeancesFiscales'));
   assert.ok(suite.length >= 60, `${suite.length} jeux dans la suite`);
-  for (const nom of suite) {
+  // Les avoirs ne sont dans le monde que sur demande : leur contrôle est plus haut.
+  for (const nom of suite.filter((x) => x !== 'avoirs')) {
     assert.equal(vide[nom].length, 0, `${nom} doit être vide`);
     assert.ok(gros[nom].length > 0, `${nom} : « beaucoup » est vide`);
     assert.ok(normal[nom].length > 0, `${nom} : « normal » est vide`);
