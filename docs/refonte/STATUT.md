@@ -44,6 +44,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov., 08h : DS demande l'accord direct de Harun avant de construire, et n'a pas accès à amn-api : ses captures passent par l'aperçu statique, comme pour S0, et T1 garde les captures sur API. La session de S3 a refusé l'édition d'`equipes.ts` (C-007) : il faut l'accord de Harun. S3 n'a pas les zips v4. Lignes à coller dans `POINT-HARUN.md`.
 - 14 nov., 08h : **socle v4 fusionné** (`a76c201`) après le feu vert de T1. La coquille n'est pas allumée par défaut (conditions de T1, §1.35). Feu vert à la construction des écrans pour tous les lots préparés.
 - 14 nov., 05h25 : outils de T1 fusionnés (`be05376`) : contrôle de fidélité v4, garde `check:fidelite` (tests unitaires 2 sur 2), conditions de la coquille v4. Gardes vertes. Le verdict du passage 2 sur le socle est toujours attendu.
 - 14 nov., 05h : **S0, deuxième échec sur le même point** (anti-blocage, règle C). Diagnostic : S0 ne pousse pas sur un message d'une autre session, et attend l'accord direct de Harun. Ce n'est pas un défaut de travail : c'est une règle de prudence de la session. Tentatives : deux messages du CO, dont un avec la règle de `REGLES.md`. Correctif proposé par S0 et retenu par le CO : un pont `@edition/moments` séparé, avec son jumeau `*.business`. Mis dans `POINT-HARUN.md`, une ligne à coller par Harun. Rien d'autre n'est bloqué par là.

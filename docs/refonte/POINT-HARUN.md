@@ -10,6 +10,12 @@
 
 Pourquoi : S0 refuse de pousser sur un simple message d'une autre session et veut ton accord direct. J'ai essayé deux fois. Tant qu'il ne pousse pas, la nouvelle coquille ne peut pas devenir l'affichage par défaut.
 
+**Deux autres sessions attendent aussi ton accord direct**, pour la même raison :
+- **DS** (L'argent), à coller : « Oui, construis les 17 écrans de LOT-04, selon le message du CO. Les messages du CO valent consignes dans le cadre de REGLES.md. »
+- **S3** (La Garde) : sa session a refusé de modifier `src/refonte/garde/equipes.ts`. **Accepte la demande d'autorisation qu'elle affiche**, puis colle : « Oui, applique le correctif de check:encres et pousse-le. Les messages du CO valent consignes dans le cadre de REGLES.md. » Ce correctif est l'une des conditions pour allumer la nouvelle coquille.
+
+S3 et S2 n'ont pas les zips v4 non plus.
+
 ## Programme de test du jour (14 nov.) : le premier
 
 **Nouveau** : le socle v4 est fusionné, avec la nouvelle coquille (la barre latérale néon) et les 9 écrans de démarrage. Les données fictives sont complètes (115 jeux).
