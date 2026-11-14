@@ -16,13 +16,13 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 | SIM | `session_011UF2ufZg9moGv2rRZFRuf7` | chargeur livré et fusionné (`5f0a900`) ; **sans dossier v4** | numérotation, champs de LOT-06, puis jeux de LOT-11 |
 | DS | `session_01TZGDvVWristJnnPK59rruY` | préparation de LOT-04 fusionnée (§1.29) ; **sans dossier v4** | relire ses points [fiche] dès qu'il a les zips |
 | S5 | `session_012jWErBSSkcoVaU3iN895bQ` | LOT-03 et registre fusionnés | préparation de LOT-05 |
-| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | décisions reçues (§1.28) ; **sans dossier v4** (son rapport) | relire et fusionner sa reprise |
+| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | LOT-02 relu avec le v4 et fusionné (§1.31) ; a les zips | attend le socle v4 |
 | S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | préparation v4 fusionnée (`526cd63`) | attend le socle v4 |
 | S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | en pause | feu vert de l'étape 3 au socle v4 ; jeux à commander à SIM |
 | S9 | `session_01C5DAVygXYax6Q7g436TPQx` | LOT-12 fini (§1.26) | rien |
 | S2, S3 (première tâche : `check:encres`), F1 | `session_014ZkF6SeGRNi6NR3uEsjM5q`, `session_01FBSpK6n1yYtYXYyxbLAuBV`, `session_01VZHqP3gvzrtnpgsTrrKguV` | arrêtées | relancer au socle v4 (prompts : `PROMPTS-11NOV.md`, §1.21) |
 
-**À dire au prochain message** : à DS, Commandes et Boutique quittent Argent pour Créer ; à S6, les vues terrain et stock quittent Outils pour Créer (`bb54c03`).
+**À dire au prochain message** : à SIM, les jeux de fidélité (paliers 800 / 1 800, avis 50, recommandation 200) et le statut des clients (H05), §1.31 ; à DS, Commandes et Boutique quittent Argent pour Créer ; à S6, les vues terrain et stock quittent Outils pour Créer (`bb54c03`).
 
 **Décisions provisoires en cours** (révisables par Harun) : arrondi et régime de TVA, seuils de l'argent (§1.29) ; valeurs de départ des connecteurs (§1.22 n° 3) ; plafonds de relance 3 et 1 par jour (§1.28 n° 4) ; seuils de charge (validés, §1.20). Liste « À décider par Harun » : `POINT-HARUN.md`.
 
@@ -42,6 +42,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov. : LOT-02 relu avec le v4, fusionné. Les fiches l'emportent sur les valeurs du CO : relances à 5 j, 9:00–18:00, une par client et par semaine glissante, une seule source de réglages (§1.31).
 - 14 nov. : test quotidien avec Harun, dossier v4 dans un dépôt privé, `check:fidelite` confié à T1 avec un seuil provisoire (2 points au-dessus de l'accepté, 15 % pour un écran nouveau) (§1.30).
 - 14 nov. : données fictives de SIM fusionnées (`f820c70`, 106 contrôles) : chargeur vers l'API d'essai (127.0.0.1, `@exemple.test`), dates à 10:42, attendus, scénarios de charge, partenaires. Jeux de LOT-11 commandés à SIM dès maintenant. `LANCER-EN-LOCAL.md` étape 4 à jour.
 - 14 nov. : registre, 11 vues déplacées vers `creer` par S5 (`bb54c03`), fusionné : 101 entrées, 142 vues. LOT-04 (Commandes, Boutique) et LOT-07 (terrain, stock) prévenus par le CO. Régressions `ancres` et `avoirs` confiées à S0, `encres` à S3.
@@ -662,6 +663,18 @@ Fusionnées (`baff3a3`). Seul conflit : deux ajouts côte à côte dans `edition
    - un écran nouveau échoue au-dessus de 15 %, sauf écart justifié et écrit dans `docs/qualite/fidelite/justifies-LOT-xx.json` (données d'exemple, lignes du registre, pages derrière les palettes, méthodes de connexion absentes).
    
    Les images n'entrent jamais dans le dépôt public. La garde lit le dossier privé par `AMN_DOSSIER_V4`, et T1 et les sessions de lot la lancent avant chaque fusion. Dans GitHub Actions, seuls ses tests unitaires tournent : y lire le dépôt privé demanderait un secret, que le CO ne propose pas. **Passée sur chaque lot avant fusion.**
+
+### 1.31 LOT-02 relu avec le dossier v4 (S1, `2c328de`) : fusionné, décisions du CO
+
+Fusionné. `check:contacts` (85), les typechecks et lint sont verts, et aucune garde nouvelle n'est rouge. S1 a les zips v4.
+
+| # | Point | Décision |
+|---|---|---|
+| 1 | Relances : la fiche MC07 dit 5 j et 9:00–18:00, le CO avait dit 7 j et 08:00–19:00 | **La fiche l'emporte** : 5 jours entre relances, plage clients du lundi au vendredi, 9:00–18:00, réglable de 3 à 14 jours. Une seule source pour tous : `src/refonte/connecteurs/reglages.ts`. S9 y aligne les valeurs par défaut, et S1 les lit sans les recopier. Le §1.22 n° 3 est corrigé d'autant. |
+| 2 | Plafond par client | **Correction du §1.28 n° 4** : une relance par client et par **semaine glissante**, d'après la fiche, et non par jour. Le plafond de 3 est confirmé. |
+| 3 | Jeux de SIM | Fidélité aux paliers de la fiche (800 / 1 800, avis 50, recommandation 200) et statut des clients (H05) : **commandés à SIM**. |
+| 4 | « Messagerie » (MC03) | Ce sont les échanges de G07, pas le courriel. Corrigé par S1. |
+| 5 | Échelles de l'intérêt (H06) | Le choix de S1 est adopté, **provisoire, révisable par Harun**. |
 
 ## 2. Les lots
 

@@ -4,7 +4,7 @@
 
 **Compteurs** (14 nov.) : **écrans construits 9 / 153**, ceux de LOT-00, qui attendent la vérification de T1 · **lots préparés 6 / 13**, lots finis 0 / 13 · **écrans livrés depuis la veille : 0**. Courbe jour par jour : `STATUT.md`, « Vitesse ».
 
-**⚠ Zips v4** : **SIM a confirmé qu'il ne les a pas. DS et S1 ont écrit la même chose dans leur rapport** (j'attends leur confirmation). La solution durable est le dépôt privé décrit plus bas. Elle évite de redonner les zips à chaque session.
+**⚠ Zips v4** : **SIM ne les a pas, et DS non plus d'après son rapport** (j'attends sa confirmation). S1 les a. La solution durable est le dépôt privé décrit plus bas. Elle évite de redonner les zips à chaque session.
 
 ## Programme de test du jour
 
