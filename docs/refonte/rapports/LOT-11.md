@@ -109,6 +109,16 @@ Détail : `preparation/LOT-11-developpement.md` §5 et rubrique 13 de chaque fic
 - **Noms de fichiers** : `PageDeploiements.tsx` (la logique `deploiements.ts` ne différait que par la casse, ce que Windows ne distingue pas) ; `chemins.ts` (une garde de S3 repère tout import `./routes`).
 - Les écarts écran par écran sont dans `STATUT.md`, section LOT-11.
 
+## Modification d'une garde hors zone (autorisée par le CO, 14 nov.)
+
+`scripts/check-socle-coquille.ts` (garde de S0), trois changements, pour garder l'intention de la règle :
+
+- la liste des familles qui déclarent des compteurs devient `['cyber', 'developpement', 'jour']` ;
+- la règle « aucun fichier `compteurs/developpement.ts` » devient « chaque compteur déclaré par un lot a une source réelle (il lit une donnée, aucun nombre écrit en dur), et le socle comme la coquille n'en déclarent aucun eux-mêmes » ;
+- contrôle négatif ajouté : une déclaration aux chiffres écrits en dur, ou qui ne lit aucune donnée, est refusée ; le motif de l'export accepte `useSignaux`, que le contrat de la coquille prévoit déjà.
+
+Le fichier `src/refonte/compteurs/developpement.ts` est posé : signaux `null` tant que la source n'est pas l'exemple prêt, compteur de Projets de code = tests en échec.
+
 ## Gardes (lot B, avant le push)
 
 Voir le message au CO : `typecheck` ×2, `lint`, `check:tutoiement`, `check:developpement` et les 74 gardes d'`editions.yml`, plus `build:web` en local. `check:business` non lancé : il exige le paquet client, dont le build est réservé à T1.

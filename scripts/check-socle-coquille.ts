@@ -564,6 +564,33 @@ await dit('v4 : la coquille pose la famille active (data-famille-active) — Cyb
   assert.match(lire('scripts/apercu/coquille.tsx'), /famille=\{familleDeCouleur\(famille === 'cyber', famille\)\}/, 'l’aperçu aussi');
 });
 
+/**
+ * Une déclaration de compteurs a-t-elle une SOURCE RÉELLE ? Elle doit lire une donnée (importer au moins un module
+ * hors de la coquille, de React et du socle : un hook de données) et ne rendre aucun nombre écrit en dur comme valeur
+ * de compteur ou de signal. `null` si oui, sinon la raison.
+ */
+/** Les fichiers (chemins relatifs à la racine, séparateur /) sous un dossier, récursivement. */
+function fichiersSous(dossier: string): string[] {
+  const sortie: string[] = [];
+  const marcher = (d: string) => {
+    for (const e of fs.readdirSync(d, { withFileTypes: true })) {
+      const p = path.join(d, e.name);
+      if (e.isDirectory()) marcher(p);
+      else sortie.push(path.relative(racine, p).replace(/\\/g, '/'));
+    }
+  };
+  marcher(path.join(racine, dossier));
+  return sortie.sort();
+}
+
+function fauteDeSource(src: string): string | null {
+  const imports = [...src.matchAll(/from '([^']+)'/g)].map((m) => m[1]);
+  const donnees = imports.filter((i) => i !== 'react' && !/(^|\/)coquille\//.test(i) && !/(^|\/)socle\//.test(i));
+  if (donnees.length === 0) return 'aucune donnée lue';
+  if (/(?:'[^']+'|\b(?:deploiementsEnCours|testsEnEchec))\s*:\s*\d/.test(src)) return 'un nombre écrit en dur';
+  return null;
+}
+
 await dit('compteurs déclarables : ramassés seuls dans src/refonte/compteurs (glob de Vite, repli vide sous esbuild), dans l’ordre des chemins ; jour.ts porte les compteurs d’avant à l’horloge de la minute, cyber.ts celui de Cyber', async () => {
   const sans = await charger<ModuleCompteurs>('src/refonte/coquille/compteurs.ts');
   assert.deepEqual(sans.COMPTEURS_DECLARES, { declarations: [], ecartes: [] }, 'sans Vite : rien, et rien ne casse');
@@ -571,11 +598,12 @@ await dit('compteurs déclarables : ramassés seuls dans src/refonte/compteurs (
   const fichiers = fs.readdirSync(path.join(racine, DOSSIER_COMPTEURS)).filter((f) => f.endsWith('.ts')).sort();
   assert.deepEqual(avec.COMPTEURS_DECLARES.ecartes, [], 'aucun fichier du dossier n’est écarté');
   assert.deepEqual(avec.COMPTEURS_DECLARES.declarations.map((d) => d.chemin), fichiers.map((f) => `compteurs/${f}`), 'tous les fichiers, dans l’ordre des chemins');
-  assert.deepEqual(avec.COMPTEURS_DECLARES.declarations.map((d) => d.famille), ['cyber', 'jour']);
+  // LOT-11 déclare les signaux de Développement (autorisé par le CO le 14 nov.) : trois déclarations, dans l'ordre des chemins.
+  assert.deepEqual(avec.COMPTEURS_DECLARES.declarations.map((d) => d.famille), ['cyber', 'developpement', 'jour']);
   for (const d of avec.COMPTEURS_DECLARES.declarations) assert.equal(typeof d.useCompteurs, 'function', d.chemin);
   for (const f of fichiers) {
     const src = sansCommentaires(lire(`${DOSSIER_COMPTEURS}/${f}`));
-    assert.match(src, /export default declarerCompteurs\(\{ famille: '[a-z]+', useCompteurs(?:, useRepli: \w+)? \}\);/, `${f} exporte par défaut declarerCompteurs(...)`);
+    assert.match(src, /export default declarerCompteurs\(\{ famille: '[a-z]+', useCompteurs(?:, useRepli: \w+)?(?:, useSignaux)? \}\);/, `${f} exporte par défaut declarerCompteurs(...)`);
     assert.match(src, /from '\.\.\/coquille\/declarerCompteurs'/, `${f} importe declarerCompteurs sans passer par compteurs.ts (pas de cycle)`);
   }
   // Les chiffres d’avant, mot pour mot : la première déclaration reprend le calcul que la coquille faisait en dur.
@@ -766,7 +794,19 @@ await dit('Développement : ses signaux se déclarent par son lot (`declarerComp
   assert.match(sansCommentaires(lire('src/refonte/coquille/CoquilleRefonte.tsx')), /developpement=\{donnees\.developpement\}/);
   const i18n = lire('src/socle/i18n.ts');
   for (const cle of ['coquille.developpement', 'coquille.developpement.deploiements', 'coquille.developpement.tests']) assert.equal(i18n.split(`'${cle}':`).length - 1, 2, `${cle} en anglais et en français`);
-  assert.equal(fs.existsSync(path.join(racine, DOSSIER_COMPTEURS, 'developpement.ts')), false, 'le fichier de déclaration est celui de LOT-11 : le socle n’invente aucun signal');
+  // Le socle n'invente aucun compteur ni aucun signal (règle reformulée avec le CO le 14 nov., quand LOT-11 a déclaré
+  // les siens) : chaque déclaration vit dans un fichier de lot (src/refonte/compteurs/) et lit une source réelle ; le
+  // socle et la coquille n'en déclarent aucune eux-mêmes.
+  const fichiersCompteurs = fs.readdirSync(path.join(racine, DOSSIER_COMPTEURS)).filter((f) => f.endsWith('.ts')).sort();
+  for (const f of fichiersCompteurs) assert.equal(fauteDeSource(sansCommentaires(lire(`${DOSSIER_COMPTEURS}/${f}`))), null, `${f} : un compteur déclaré a une source réelle`);
+  const declarantsHorsLots = [...fichiersSous('src/socle'), ...fichiersSous('src/refonte/coquille')]
+    .filter((f) => /\.tsx?$/.test(f) && !f.endsWith('declarerCompteurs.ts'))
+    .filter((f) => /declarerCompteurs\(\{/.test(sansCommentaires(lire(f))));
+  assert.deepEqual(declarantsHorsLots, [], 'le socle et la coquille ne déclarent aucun compteur eux-mêmes');
+  // Contrôle négatif : une déclaration sans source (aucune donnée lue, un chiffre écrit en dur) est refusée.
+  const inventee = "import { declarerCompteurs } from '../coquille/declarerCompteurs';\nfunction useCompteurs() { return { '/developpement/projets': 3 }; }\nfunction useSignaux() { return { deploiementsEnCours: 2, testsEnEchec: 1 }; }\nexport default declarerCompteurs({ famille: 'developpement', useCompteurs, useSignaux });";
+  assert.notEqual(fauteDeSource(inventee), null, 'un compteur sans source est refusé');
+  assert.notEqual(fauteDeSource("import { useMemo } from 'react';\nimport { declarerCompteurs } from '../coquille/declarerCompteurs';\nexport default declarerCompteurs({ famille: 'developpement', useCompteurs: () => ({}) });"), null, 'un compteur qui ne lit aucune donnée est refusé');
 });
 
 await dit('sous-liste Développement (§1.17 n° 1, §1.19 n° 1) : l’ordre des treize lignes de l’image, les modules de LOT-11 à leur rang, les vues reprises d’autres familles (le registre reste sans doublon), puis cinq lignes au plus et « + N autres »', async () => {
