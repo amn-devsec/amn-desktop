@@ -33,7 +33,7 @@
 .jr-source { font-size: 11.5px; color: var(--socle-texte-3); }
 .jr-poignee { position: relative; margin-left: 0; width: 16px; height: 22px; display: grid; place-items: center; border: 0; background: transparent; color: var(--socle-texte-3); cursor: grab; padding: 0; touch-action: none; }
 .jr-fermer { position: relative; margin-left: auto; width: 20px; height: 20px; display: grid; place-items: center; border: 0; background: transparent; color: var(--socle-texte-3); cursor: pointer; padding: 0; }
-.jr-outils { margin-left: auto; display: inline-flex; gap: 8px; }
+.jr-outils { margin-left: auto; display: inline-flex; gap: 14px; }
 .jr-outil { position: relative; width: 22px; height: 22px; display: grid; place-items: center; border: 0; border-radius: 6px; background: var(--socle-sous-carte); color: var(--socle-texte-2); cursor: pointer; padding: 0; }
 .jr-equerre { position: absolute; right: 4px; bottom: 4px; width: 10px; height: 10px; border: 0; padding: 0; background: transparent; cursor: nwse-resize; touch-action: none; border-right: 2px solid var(--socle-texte-3); border-bottom: 2px solid var(--socle-texte-3); border-radius: 0 0 3px 0; }
 .jr-widget[data-choisi='true'] .jr-equerre { right: -5px; bottom: -5px; width: 9px; height: 9px; border-color: var(--fam-a); background: var(--fam-a); border-radius: 2px; }
@@ -704,5 +704,9 @@ i[data-t='attente'] { background: transparent; border: 1px dashed var(--socle-te
 @media (max-width: 1280px) { .jr-defis { grid-template-columns: minmax(0, 1fr); } .jr-defis__droite { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; } .jr-apports ul { grid-template-columns: minmax(0, 1fr); gap: 8px; } .jr-apports li { padding: 0; border-left: 0; } }
 @media (max-width: 1000px) { .jr-hero__centre { grid-template-columns: minmax(0, 1fr); } .jr-defis__droite { grid-template-columns: minmax(0, 1fr); } .jr-d-frise { grid-template-columns: repeat(2, minmax(0, 1fr)); } .jr-d-frise::before { display: none; } }
 
-/* §1.41 : les boutons du socle de ces écrans (suggestion d'Ajmani, cartes) ont aussi une zone de 36 px de haut. */
+/* §1.41 — à retirer quand S0 aura passé le socle à 36 px (§1.38 n° 6). Les boutons du socle de ces écrans (suggestion d'Ajmani, cartes) ont aussi une zone de 36 px de haut. */
 .cr-page :is(.sc-suggestion, .jr-carte, .jr-catalogue, .jr-accueil, .jr-bilan, .jr-taches) [data-socle='bouton']::after { content: ''; position: absolute; left: 50%; top: 50%; width: max(100%, 36px); height: max(100%, 36px); transform: translate(-50%, -50%); }
+
+/* §1.41 : en édition, la zone de 36 px des poignées (coin de redimensionnement) ne doit pas être rognée par le bord arrondi du widget. */
+.jr-toile[data-edition='true'] .jr-widget { overflow: visible; }
+.jr-widget[data-choisi='true'] .jr-equerre { z-index: 3; }

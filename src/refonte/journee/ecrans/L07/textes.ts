@@ -141,7 +141,7 @@ const FR: typeof EN = {
   'jour.auj': 'Auj.',
   'jour.hier': 'Hier',
   'jour.1': 'Lun.', 'jour.2': 'Mar.', 'jour.3': 'Mer.', 'jour.4': 'Jeu.', 'jour.5': 'Ven.', 'jour.6': 'Sam.', 'jour.7': 'Dim.',
-  'fete.titre': 'Fêtez ensemble',
+  'fete.titre': 'Fêtons ensemble',
   'fete.texte': 'Si le défi est tenu ce soir, je propose un déjeuner d’équipe {date}. Je le pose dans l’agenda, sous réserve ?',
   'fete.reserver': 'Réserver',
   'fete.non': 'Non',

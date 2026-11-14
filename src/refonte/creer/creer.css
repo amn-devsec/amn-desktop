@@ -1019,7 +1019,8 @@ button.cr-ph-case { cursor: pointer; }
 .cr-fiche footer::after { right: -6px; }
 
 /* §1.41 (14 nov.) : zones invisibles de 36 px, y compris sur les briques du socle que les écrans de ce lot emploient
-   (boutons de l'en-tête de page, puces de filtre, segments). Règle posée ici, pour ces écrans seulement ; le socle garde sa valeur. */
+   (boutons de l'en-tête de page, puces de filtre, segments). Règle posée ici, pour ces écrans seulement ; le socle garde sa valeur.
+   À RETIRER quand S0 aura passé le socle à 36 px (§1.38 n° 6). */
 .cr-page { --sc-v-cible: 36px; }
 .cr-page .sc-page__actions [data-socle='bouton']::after { height: 36px; }
 .cr-page .sc-segment::after { width: max(100%, 36px); height: max(100%, 36px); }
