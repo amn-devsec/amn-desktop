@@ -51,8 +51,8 @@ async function charger<T>(code: string): Promise<T> {
 const FICHIERS = ['commun', 'boite', 'hub', 'canaux', 'connecteurs', 'appels', 'annonces', 'courriel', 'reunions', 'partages', 'sondages', 'reponsesAuto', 'i18n', 'phrases'];
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + "\nexport * as monde from '../src/refonte/donnees';");
-const { commun: C, boite: B, hub: H, canaux: CA, connecteurs: CO, appels: AP, annonces: AN, courriel: CM, reunions: RE, partages: PA, sondages: SO, reponsesAuto: AU, i18n: I, phrases: PH, monde } = M;
+const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerF40 from '../${ZONE}/ecrans/f40/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
+const { commun: C, boite: B, hub: H, canaux: CA, connecteurs: CO, appels: AP, annonces: AN, courriel: CM, reunions: RE, partages: PA, sondages: SO, reponsesAuto: AU, i18n: I, phrases: PH, composerF40: CF40, monde } = M;
 
 const NB = ' ';
 const paris = (j: string, hhmm: string): number => C.instantParis(j, Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3)));
@@ -264,8 +264,8 @@ await dit('règle d’attente : échelle en racine carrée, orange au-delà de l
   assert.equal(r.nombre, 4);
   assert.equal(r.personneNAttend, false);
   const pos = Object.fromEntries(r.clients.map((c: any) => [c.filId, c]));
-  assert.ok(Math.abs(pos['client:1'].position - Math.sqrt(80 / 480)) < 1e-9);
-  assert.ok(pos['client:2'].position > pos['client:7'].position && pos['client:7'].position > pos['client:1'].position, 'plus on attend, plus on est à droite');
+  assert.ok(Math.abs(pos['client:1'].position - Math.sqrt(80 / 180)) < 1e-9);
+  assert.ok(pos['client:2'].position >= pos['client:7'].position && pos['client:7'].position > pos['client:1'].position, 'plus on attend, plus on est à droite (à égalité au bout de l’axe de 3 h)');
   assert.equal(pos['client:2'].orange, true);
   assert.equal(pos['client:1'].orange, false);
   assert.ok(r.clients.every((c: any) => c.position >= 0 && c.position <= 1));
@@ -954,10 +954,31 @@ console.log('\nÉchanger — structure du lot\n');
 const sources = FICHIERS.map((f) => ({ f, src: fs.readFileSync(path.join(racine, ZONE, `${f}.ts`), 'utf8') }));
 const sansCommentaires = (s: string) => s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
 
-await dit('aucun écran visuel avant le socle v4 : que des .ts, aucun fichier .tsx dans la zone', () => {
+await dit('la logique reste en .ts à la racine de la zone ; les écrans vivent dans ecrans/ (un dossier par écran), et nulle part ailleurs', () => {
   const tous = fs.readdirSync(path.join(racine, ZONE));
-  assert.deepEqual(tous.filter((f) => !f.endsWith('.ts')), []);
-  assert.deepEqual(tous.map((f) => f.replace(/\.ts$/, '')).sort(), [...FICHIERS].sort(), 'un fichier de la zone n’est pas dans la liste du contrôle');
+  assert.deepEqual(tous.filter((f) => !f.endsWith('.ts') && f !== 'ecrans'), []);
+  assert.deepEqual(tous.filter((f) => f.endsWith('.ts')).map((f) => f.replace(/\.ts$/, '')).sort(), [...FICHIERS].sort(), 'un fichier de la zone n’est pas dans la liste du contrôle');
+});
+function fichiersDesEcrans(dossier = path.join(racine, ZONE, 'ecrans')): string[] {
+  if (!fs.existsSync(dossier)) return [];
+  return fs.readdirSync(dossier, { withFileTypes: true }).flatMap((d) => (d.isDirectory() ? fichiersDesEcrans(path.join(dossier, d.name)) : [path.join(dossier, d.name)]));
+}
+await dit('écrans : composants du socle seulement, rien de src/screens ni d’une édition, aucune couleur ni nom d’image écrits à la main, aucun secret', () => {
+  const fautes: string[] = [];
+  const interdits = /Menna|Medina|Cabinet Roux|Studio Nova|Roux Santé|Boulangerie|Parc Sud|Atelier Sarah|Mohamed|Riyad|Aaron|Karim|Léa Martin|Stripe|@[a-z-]+\.(?:fr|com)\b/;
+  for (const f of fichiersDesEcrans()) {
+    const rel = path.relative(racine, f);
+    const src = fs.readFileSync(f, 'utf8');
+    const code = f.endsWith('.css') ? src.replace(/\/\*[\s\S]*?\*\//g, '') : sansCommentaires(src);
+    for (const m of src.matchAll(/(?:import|export)[^'"]*?from\s+['"]([^'"]+)['"]/g)) {
+      if (/\/(screens|business)\//.test(m[1]) || /\.business(\.|$)/.test(m[1]) || (/\/assistant\//.test(m[1]) && !/\/assistant\/AssistantContext$/.test(m[1]))) fautes.push(`${rel} importe ${m[1]}`);
+    }
+    if (/#[0-9a-fA-F]{3,8}\b|rgba?\(|hsla?\(/.test(code)) fautes.push(`${rel} : couleur écrite à la main`);
+    if (interdits.test(code)) fautes.push(`${rel} : nom d’une image (${interdits.exec(code)?.[0]})`);
+    if (/(?:sk|pk|rk)_(?:live|test)_[A-Za-z0-9]{8,}|ghp_[A-Za-z0-9]{20,}/.test(src)) fautes.push(`${rel} : un secret`);
+    if (/Math\.random\(/.test(code)) fautes.push(`${rel} : du hasard`);
+  }
+  assert.deepEqual(fautes, [], fautes.join('\n'));
 });
 await dit('heures ouvrées : une seule source, la plage « clients » des réglages (lun.–ven. 9:00–18:00), rien de recopié', () => {
   assert.deepEqual(B.HORAIRES_PAR_DEFAUT, { jours: [1, 2, 3, 4, 5], debut: 540, fin: 1080 });
@@ -1017,6 +1038,33 @@ await dit('images v4 · H13 : filtres de l’historique « Tout », « Manqués 
   const a = (id: string, sens: 'entrant' | 'sortant' | 'manque', resume: string | null) => ({ id, titre: id, sens, finAt: paris(AUJ, '09:00'), dureeSec: 60, resume, decisions: [], taches: [] });
   assert.deepEqual(AP.compteursDHistorique([a('1', 'entrant', 'Oui.'), a('2', 'sortant', 'Oui.'), a('3', 'manque', 'Pas de message laissé.')]), { tout: 3, manques: 1, avecResume: 3 });
   assert.deepEqual(AP.compteursDHistorique([]), { tout: 0, manques: 0, avecResume: 0 });
+});
+
+await dit('F40 · composerHub : sous-titre, règle en racine carrée sur 3 h, canaux, Boîte à zéro, tuiles ; rien d’inventé quand personne n’écrit', () => {
+  const il = (min: number) => MAINT - min * 60_000;
+  const msg = (id: string, clientId: number, min: number, canal = 'whatsapp') => ({ id, clientId, canal, sens: 'entrant', at: il(min), lu: true });
+  const messages = [msg('a', 1, 6), msg('b', 2, 131), msg('c', 3, 30, 'courriel')];
+  const fils = B.composerFils(messages, [], MAINT);
+  const infos = { 'client:1': { initiales: 'AA', nom: 'Un', canal: 'WhatsApp' }, 'client:2': { initiales: 'BB', nom: 'Deux', canal: 'WhatsApp' }, 'client:3': { initiales: 'CC', nom: 'Trois', canal: 'Courriel' } };
+  const mesures = { aRepondre: 3, courrielsNonLus: 1, canauxNonLus: 0, canauxAvecNonLus: 0, appelsEnCours: 0, reunionsAujourdhui: 0, annoncesAConfirmer: 0, partagesActifs: 0, sondagesEnCours: 0, reglesActives: 0, reglesTotal: 0, envoisProgrammes: 0 };
+  const e = { langue: 'fr', maintenant: MAINT, messages, fils, infos, soirs: [], canaux: [{ id: 'c1', nom: 'Canal' }], messagesDeCanaux: [{ canalId: 'c1', at: il(3) }], attendentParCanal: { c1: 2 }, repondusIds: [], lusNonArchives: 0, archivesAujourdhui: 0, mesures, modulesOuverts: null, routes: { appels: '/appels' }, nomsCourts: {}, prenomDeFil: (id: string) => infos[id as keyof typeof infos]?.nom ?? '', initialesJours: ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.'], icones: {} };
+  const v = CF40.composerHub(e, { onResumer: () => undefined });
+  assert.ok(/^3 clients attendent une réponse, le plus ancien depuis 2\s?h\s?11 · la boîte en est à 0 sur 3$/.test(v.sousTitre.replace(/[\u00a0\u202f]/g, ' ')), v.sousTitre);
+  assert.deepEqual(v.pouls.clients.map((c: any) => c.id), ['client:1', 'client:3', 'client:2'], 'du plus récent au plus ancien, de gauche à droite');
+  assert.ok(Math.abs(v.pouls.clients[2].position - Math.sqrt(131 / 180)) < 1e-9);
+  assert.ok(Math.abs(v.pouls.seuil.position - Math.sqrt(120 / 180)) < 1e-9, 'la promesse de 2 h est au rang √(120/180)');
+  assert.deepEqual(v.pouls.graduations.map((g: any) => g.libelle), ['maintenant', '15\u00a0min', '30\u00a0min', '1\u00a0h', '2\u00a0h', '3\u00a0h']);
+  assert.equal(v.pouls.vide, null);
+  assert.equal(v.canaux.lignes[0].statut, '2 attendent');
+  assert.equal(v.modules.tuiles.length, 10);
+  assert.equal(v.modules.tuiles.find((t: any) => t.cle === 'appels').vers, '/appels');
+  assert.equal(v.modules.tuiles.find((t: any) => t.cle === 'messagerie').sous, '3 à répondre');
+  const calme = CF40.composerHub({ ...e, messages: [], fils: [], infos: {}, messagesDeCanaux: [], attendentParCanal: {}, mesures: { ...mesures, aRepondre: 0 }, modulesOuverts: new Set(['appels']) }, { onResumer: () => undefined });
+  assert.equal(calme.sousTitre, 'Personne n’attend de réponse');
+  assert.equal(calme.pouls.vide, 'Personne n’attend. Une journée calme.');
+  assert.equal(calme.boite, null, 'rien à compter : pas de Boîte à zéro');
+  assert.deepEqual(calme.modules.tuiles.map((t: any) => t.cle), ['appels'], 'seuls les modules ouverts ont une tuile');
+  assert.equal(calme.canaux.lignes[0].statut, 'calme');
 });
 
 await dit('aucune brique visuelle : ni React, ni src/socle/ui, ni code partagé ; seulement les voisins, le dictionnaire du socle et le modèle des connecteurs (S9)', () => {

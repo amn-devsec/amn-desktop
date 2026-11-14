@@ -22,7 +22,7 @@ const V = await charger<{
 }>({ code: "export * from '../src/socle/mots/voix';" });
 
 /** Ce qui est passé au tutoiement. Un lot y ajoute son dossier quand il passe ses textes au tutoiement. */
-export const PERIMETRE = ['src/socle', 'src/refonte/coquille', 'src/refonte/compteurs', 'src/refonte/systeme', 'src/refonte/journee', 'src/refonte/ecrire', 'scripts/apercu'];
+export const PERIMETRE = ['src/socle', 'src/refonte/coquille', 'src/refonte/compteurs', 'src/refonte/systeme', 'src/refonte/journee', 'src/refonte/ecrire', 'src/refonte/echanger', 'scripts/apercu'];
 
 /**
  * LES ZONES CLIENT : des textes destinés à un client, qui gardent le vouvoiement (courriels, devis, factures,
