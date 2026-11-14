@@ -171,6 +171,8 @@ jobs:
         run: npm run check:connecteurs
       - name: Échanger (LOT-05) — boîte des clients, Boîte à zéro, canaux, appels, annonces, courriel, réunions, partages, sondages, réponses automatiques
         run: npm run check:echanger
+      - name: Mobile et tablette (LOT-09) — seuils téléphone/tablette/bureau, navigation, liste-détail, rotation, cibles tactiles, replis de la PWA
+        run: npm run check:formats
       - name: Écrire et retenir (LOT-03) — série d'écriture, relecture, documents, signatures, journal, archives, connaissances
         run: npm run check:ecrire
       - name: L’argent (LOT-04) — facturation, TVA, impayés, trésorerie, cas écrits à l’avance, banque en lecture seule

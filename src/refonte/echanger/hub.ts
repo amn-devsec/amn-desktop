@@ -11,8 +11,8 @@ import { aRepondre, attente, type Fil, type Horaires, type MessageDeFil } from '
 
 /* ------------------------------ La règle d'attente ------------------------------ */
 
-/** L'axe de la règle : 8 heures de bout en bout (Proposition ; l'échelle est en racine carrée, F40 pièges). */
-export const ECHELLE_REGLE_MS = 8 * MS_HEURE;
+/** L'axe de la règle : 3 heures de bout en bout (mesuré sur l'image v4 : 15 min, 30 min, 1 h, 2 h et 3 h tombent aux rangs √(t/3 h) ; l'échelle est en racine carrée, F40 pièges). */
+export const ECHELLE_REGLE_MS = 3 * MS_HEURE;
 
 export interface ClientSurLaRegle {
   filId: string;

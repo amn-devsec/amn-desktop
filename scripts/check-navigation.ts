@@ -91,6 +91,8 @@ async function charger<T>(code: string): Promise<T> {
     // Les écrans neufs importent leur feuille de style : la garde ne lit que la logique, la feuille se charge vide.
     loader: { '.css': 'empty' },
     jsx: 'automatic',
+    // Un écran neuf du registre (`nouveau`) est importé à la demande : ses feuilles de style ne comptent pas ici.
+    loader: { '.css': 'empty' },
     tsconfig: path.join(racine, 'tsconfig.json'),
     define: { 'process.env.NODE_ENV': '"production"', 'import.meta.env.DEV': 'false', __AMN_EDITION__: '"internal"', __AMN_VERSION__: '"0.0.0"' },
     logLevel: 'silent',
@@ -446,8 +448,9 @@ await dit('la Garde et la supervision : réservée à l’équipe AMN (jamais au
   assert.deepEqual(fautes, [], fautes.join('\n'));
 });
 
-await dit('le rail tient ses essentiels : seize au plus, l’Accueil d’abord', () => {
-  assert.ok(m.ESSENTIELS.length + m.ESSENTIELS_GARDE.length <= 16, `${m.ESSENTIELS.length + m.ESSENTIELS_GARDE.length} essentiels`);
+// Seize dans le dossier de construction ; dix-sept depuis G07 : la décision du CO (STATUT §1.32 n° 1) garde « Canaux » ET « Messagerie » (la boîte des clients) essentiels tous les deux.
+await dit('le rail tient ses essentiels : dix-sept au plus, l’Accueil d’abord', () => {
+  assert.ok(m.ESSENTIELS.length + m.ESSENTIELS_GARDE.length <= 17, `${m.ESSENTIELS.length + m.ESSENTIELS_GARDE.length} essentiels`);
   assert.equal(m.ESSENTIELS[0], 'home');
 });
 

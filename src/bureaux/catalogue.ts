@@ -93,8 +93,6 @@ const SUPERVISOR: Bureau = {
       nom: 'Équipe',
       route: '/team',
       aussi: [
-        { nom: 'Décisions', route: '/decisions' },
-        { nom: 'Connaissances', route: '/knowledge' },
         { nom: 'Prévision de charge', route: '/supervisor/charge' },
       ],
     },
