@@ -4,11 +4,11 @@
 
 ## REPRISE (à lire en premier après une compaction ; tenu par le CO, réécrit à chaque tour)
 
-Mode : **ARRÊTÉ** par Harun (« stop », 14 nov., 15h35 UTC). Ne relancer aucune session et n'armer aucun réveil tant qu'il n'a pas écrit « reprends ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante`, vérifiée en entier par T1 à 14h00 (77 contrôles sur 77, fidélité des six lots livrés dans les seuils).
+Mode : **continu et autonome**, repris par Harun (« reprends », 14 nov., après ses réponses au POINT-HARUN, §1.42). Mêmes garde-fous. Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante`.
 
 **Avoirs** : réglé, ils sont présents par défaut (`b0173f3`).
 
-**Si la limite d'utilisation coupe le CO** : à la reprise (un message de Harun, une session, ou le réveil programmé), relire ce bloc, faire `git fetch` des branches `claude/refonte-*`, puis reprendre la boucle (lister, lire, contrôler, fusionner, répondre, mettre à jour). Réveil du CO : `send_later` (20 min quand des sessions travaillent, 45 min quand toutes attendent), **suspendu** depuis le « stop » ; aucun réveil n'est programmé.
+**Si la limite d'utilisation coupe le CO** : à la reprise (un message de Harun, une session, ou le réveil programmé), relire ce bloc, faire `git fetch` des branches `claude/refonte-*`, puis reprendre la boucle (lister, lire, contrôler, fusionner, répondre, mettre à jour). Réveil du CO : `send_later`, toutes les 20 min tant que des sessions travaillent, 45 min quand toutes attendent (consigne de Harun), réarmé à chaque tour.
 
 | Session | Identifiant | État | Prochain geste |
 |---|---|---|---|
@@ -24,7 +24,7 @@ Mode : **ARRÊTÉ** par Harun (« stop », 14 nov., 15h35 UTC). Ne relancer aucu
 | DS | `session_01TZGDvVWristJnnPK59rruY` | attend l'accord direct de Harun pour construire LOT-04 | commencer par MA03, H07, MA12 |
 | SIM, S9, F1 | `session_011UF2ufZg9moGv2rRZFRuf7`, `session_01C5DAVygXYax6Q7g436TPQx`, `session_01VZHqP3gvzrtnpgsTrrKguV` | en pause | F1 : intégration reportée (S0) |
 
-**À la reprise (« reprends »)** : relancer d'abord DS (LOT-04) et S3 (LOT-08) si Harun a collé leurs lignes, puis S8 (LOT-10) et S0 ou S5 (socle). Avant chaque fusion de lot : `git ls-tree <sha> node_modules` doit être vide, et toutes les `check:*` sauf `business` et `fidelite` doivent être lues. LOT-09 se construit après la fusion de 04 et 08. F1 reprend avec S0.
+**Dès que Harun a collé ses accords** : DS construit LOT-04 (S7 peut prendre la moitié, comme pour LOT-01) ; S3 corrige `check:encres`, puis LOT-08 ; S8 fait LOT-10 ; S0 fait le socle (§1.38), puis l'allumage de la coquille et F1 ; S6 construit LOT-07 dès les zips. S5 fait un relevé mobile des lots livrés pour LOT-09. Avant chaque fusion : `git ls-tree <sha> node_modules` vide, et toutes les `check:*` sauf `business` et `fidelite`.
 
 **Décisions provisoires en cours** (révisables par Harun) : arrondi et régime de TVA, seuils de l'argent (§1.29) ; valeurs de départ des connecteurs (§1.22 n° 3) ; plafonds de relance 3 et 1 par jour (§1.28 n° 4) ; seuils de charge (validés, §1.20). Liste « À décider par Harun » : `POINT-HARUN.md`.
 
@@ -51,6 +51,7 @@ Mode : **ARRÊTÉ** par Harun (« stop », 14 nov., 15h35 UTC). Ne relancer aucu
 - 14 nov., 10h15 : **LOT-06 fusionné** (`e1615090`, 15 écrans), **premier lot livré** de la vague de construction. T1 l'a accepté : fidélité sur l'aperçu, les 15 écrans justifiés ; structure sur l'application, les 12 routes montées dans la coquille v4, rien de coupé à 390 px. Suites demandées à S7 : relire 6 écrans au-dessus de 15 % en disposition (H17, MR01, MR10, H16, MR05, MR04) ; zones de clic de 34 px (§1.39) ; l'état vide de H17 (« Le livre de marque d’ · ») ; les entrées de registre de ses 3 écrans neufs. T1 fixe les valeurs acceptées de LOT-06.
 - 14 nov., 10h00 : **LOT-06 complet** (S7, `277263a`, 15 sur 15). S7 et S8 butent tous deux sur `check:systeme-demarrage` (« le registre ne doit pas bouger », qui perd les fonctions des écrans neufs). Le correctif est sur la branche LOT-03 de S5 et arrive avec sa fusion. Ordre : LOT-03, puis S7 et S8 déclarent leurs écrans neufs, puis LOT-06 et LOT-11.
 - 14 nov., 10h00 : méthode de `check:fidelite` (§1.40). La fidélité se mesure sur l'aperçu statique, rempli avec les jeux de SIM ; l'application sert à la structure. Pas de collection nouvelle dans l'API d'essai.
+- 14 nov., 15h50 : **« reprends » de Harun**, avec ses réponses au POINT-HARUN (§1.42). Point notable : pour les factures, on garde « en retard » ou « impayé ». La boucle repart, avec les mêmes garde-fous.
 - 14 nov., 15h35 : **« stop » de Harun.** Le dernier réveil du CO est annulé, aucune session n'est relancée. Bilan de la journée : 79 écrans construits et livrés, 6 lots finis, 9 préparés ; tout le reste attend Harun (accords à S0, DS, S3, S8 ; zips de S6 ; POINT-HARUN n° 1 à 10).
 - 14 nov., 14h00 : **vivante vérifiée en entier par T1** (`afa4d6cb`) : 77 contrôles sur 77 verts, et `check:fidelite` des six lots livrés dans les seuils (71 écrans, aucun n'a bougé de plus de 2 points après les fusions). LOT-00 n'est pas remesuré : le socle n'a pas bougé.
 - 14 nov., 13h55 : **LOT-01 Ma journée fusionné en entier** : moitié S7 (`1fe34d3f`, avec les restes de LOT-06 dans `creer.css`) et moitié S1 (`43b362f0`, `544545be`), T1 `acceptes-LOT-01`. Sixième lot livré, 16 écrans. Tous les éléments ludiques protégés sont présents (H02, H04, L01, L07, MJ02, N01) ; 16 écrans dans les seuils ; paquet client identique. Le CO a résolu 5 conflits, en gardant les deux moitiés. Gardes du CO : seuls les échecs connus.
@@ -878,6 +879,21 @@ Sur l'API d'essai, beaucoup d'écrans s'affichent à l'état vide : seuls 8 jeux
 Deux précisions de §1.39, mesurées par T1 et S8.
 1. **Taille** : zone de clic **≥ 36 × 36 px centrée sur l'élément**, vérifiée par 9 points à ±17 px (le bord à ±18 est exclusif ; outil de T1 : `h = min/2 − 1`). Une zone de 34 px exacts ne passe pas. Les zones invisibles (`::after`) font donc au moins 36 px, le dessin ne change pas. Sur un nuage dense, la zone de chaque point s'arrête à mi-chemin du point voisin : elle peut faire moins de 36 px, à condition que son centre reste à lui. Dans une **grille dense**, c'est pareil : cases d'un calendrier (ME01, H01), créneaux d'un planning (MJ03), cases d'un quadrillage (MJ02), cases de jalon (MJ01), cases de liste dans des lignes de 26 px imposées par la fiche (MJ04). Il n'y a pas d'exception pour un contrôle isolé, comme « Mois précédent ». Idem pour les lignes de liste qui se touchent : leur zone est la cellule ou la ligne elle-même. Un `<label>` qui enveloppe son champ reçoit le clic à bon droit ; un `<div>` qui ne transmet pas le clic, non. Le socle a le même bord à 34 px (`.sc-segment`, `.sc-interrupteur`, actions de `PageHead`) : c'est ajouté à la liste de S0 (§1.38).
 2. **Recouvrement** (règle de T1, dans `scripts/qualite/exigences-ecran.mjs`) : c'est **refusé** si le centre, ou la moitié centrale de la boîte visible, renvoie un voisin (un clic au milieu de l'élément part ailleurs). C'est **accepté** si seuls les bords des marges de 34 px se chevauchent : le dernier élément dessiné reçoit le clic dans la marge.
+
+### 1.42 Réponses de Harun au POINT-HARUN (14 nov., à la reprise)
+
+1. **Nouvelles données partagées** (amn-api) : oui, en une fois avec Mohamed, **plus tard**. Les écrans gardent « non disponible » d'ici là.
+2. **TVA et papiers juridiques** : validation par un comptable et par un juriste **avant tout usage réel**. Les règles provisoires restent en place pour l'édition interne et les données fictives.
+3. **Redémarrage d'amn-api** : pas d'urgence.
+4. **Serveur (LOT-13)** : sans date fixe, **après les tests de Harun et la charge de SIM**.
+5. **Dépôt amn-desktop en privé** : oui ; c'est Harun qui le fait, et il dira quand. Le CO n'y touche pas.
+6. **Fournisseurs des connecteurs (H21)** : des libellés génériques, aucun fournisseur nommé.
+7. **Limite d'utilisation** : tout relancer.
+8. **Connexion à la version web** (règle de S6) : oui, avec le serveur. LOT-09 se construit sur cette règle, et rien n'est branché avant le serveur.
+9. **Liste du socle** : S0 passe d'abord. S5 ne la prend que si S0 ne reprend pas.
+10. **Décisions provisoires du 14 nov.** : confirmées (seuils T01 600 / 1200 ; sondage et canal par l'écran d'origine ; MJ02 protégé). **Nuance sur le vocabulaire** : « à reprendre » pour les tâches, rappels et habitudes ; pour les factures, on garde le terme précis, « en retard » ou « impayé ».
+
+Harun colle lui-même les accords de S0, DS, S3 et S8, et donne les zips à S6. Il teste la nouvelle coquille aujourd'hui, et ses retours en vrac deviennent des tâches.
 
 ## 2. Les lots
 

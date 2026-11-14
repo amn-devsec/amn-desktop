@@ -1,6 +1,6 @@
 # Point pour Harun
 
-> Réécrit par le CO. Dernière mise à jour : 14 nov., 15h35 UTC, à ton « stop ». Aucune session n'est relancée tant que tu n'as pas écrit « reprends ».
+> Réécrit par le CO. Dernière mise à jour : 14 nov., 15h55 UTC, à ton « reprends ». La boucle tourne.
 
 **Compteurs** (14 nov., 15h35) : **écrans construits 79 / 153, livrés 79** · **lots préparés 9 / 13, lots finis 6 / 13** · **écrans livrés depuis la veille : 79**.
 Lots livrés : LOT-01 Ma journée (16), LOT-02 Contacts (13), LOT-03 Écrire et retenir (9), LOT-05 Échanger (10), LOT-06 Créer et produire (15), LOT-11 Développement (7), et les 9 écrans de LOT-00 du socle. Tout ce qui est construit est livré. T1 a vérifié vivante en entier à 14h00 : 77 contrôles sur 77, et la fidélité des six lots dans les seuils. La courbe : `STATUT.md`, « Vitesse ».
@@ -37,7 +37,7 @@ Lots livrés : LOT-01 Ma journée (16), LOT-02 Contacts (13), LOT-03 Écrire et 
 - **Incidents réglés** :
   - LOT-02 a été fusionné alors qu'une garde, l'accès au clavier, était rouge : je ne la lançais pas. Il a été retiré, corrigé puis refusionné, et je lance maintenant toutes les gardes.
   - Un lien `node_modules` avait été commité sur une branche. Il a été repéré avant la fusion et retiré, et `.gitignore` est corrigé.
-- **En cours** : rien. Toutes les sessions sont en pause.
+- **En cours** : relance de toutes les sessions après ton « reprends ». S5 fait le relevé mobile des lots livrés ; T1 est prêt pour les prochains lots.
 - **Bloqué** :
   - LOT-04 attend ton accord à DS ; LOT-08, ton accord à S3 ; LOT-10, ton accord à S8.
   - LOT-07 attend les zips v4 de S6.
@@ -47,22 +47,8 @@ Lots livrés : LOT-01 Ma journée (16), LOT-02 Contacts (13), LOT-03 Écrire et 
 
 ## À décider par Harun
 
-1. **Nouvelles données partagées** (produits, interlocuteurs, archives, modules MX01, MX03, MX06) : elles changent amn-api. Recommandation : oui, en une fois avec Mohamed.
-2. **TVA et papiers juridiques** : la règle est provisoire (arrondi par ligne, encaissements, déclaration mensuelle), et le modèle de mise en demeure manque. Recommandation : validation par un comptable et par un juriste.
-3. **Redémarrage d'amn-api** : la dernière étape de sécurité de S6 l'attend. Recommandation : pas d'urgence.
-4. **Serveur (LOT-13)** : Recommandation : en décembre.
-5. **Dépôt amn-desktop en privé** : Recommandation : oui.
-6. **Fournisseurs des 7 options génériques des connecteurs (H21)** : nommer un fournisseur est un choix d'achat. Recommandation : garder des libellés génériques jusqu'au serveur.
-7. **Limite d'utilisation** : tout est en pause. Recommandation : à la reprise, relancer d'abord DS (LOT-04) et S3 (LOT-08). Ce sont les deux lots qui manquent pour LOT-09.
-8. **Connexion à la version web (LOT-09)**, proposée par S6 :
-   - une session au nom de la personne, avec double authentification et les droits de son rôle, sans clé partagée ;
-   - La Garde réservée au propriétaire et à l'administrateur ;
-   - une session mobile de 7 jours au plus, coupée après 24 h sans activité ;
-   - les appareils listés dans H19, chacun pouvant être coupé.
-
-   Cela change amn-api. Recommandation : oui, avec le serveur.
-9. **Mettre S5 sur la liste du socle de S0**, si S0 ne reprend pas : S5 est libre, a les zips et connaît le socle. Recommandation : oui.
-10. **Décisions provisoires prises aujourd'hui**, à confirmer ou corriger : seuils mobiles de la fiche T01 (600 / 1200 px) ; « à reprendre » au lieu de « en retard », partout ; suppression d'un sondage et dissolution d'un canal par l'écran d'origine ; MJ02 (habitudes) ajouté aux éléments ludiques protégés.
+Tes dix réponses du 14 nov. sont enregistrées dans STATUT §1.42. Rien de neuf n'est en attente pour l'instant.
+Rappel des points tranchés mais pas encore faits : données partagées avec Mohamed, plus tard ; TVA et papiers à faire valider avant tout usage réel ; serveur après tes tests et la charge de SIM ; dépôt amn-desktop en privé, c'est toi qui le fais. Pour les factures, on garde « en retard » ou « impayé ».
 
 ## À créer par Harun
 
