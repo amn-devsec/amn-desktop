@@ -1,8 +1,8 @@
 # Point pour Harun
 
-> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 08h20 UTC., 08h00 UTC.
+> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 08h40 UTC., 08h20 UTC., 08h00 UTC.
 
-**Compteurs** (14 nov.) : **écrans construits 9 / 153, livrés 9** (LOT-00, avec le socle v4) · **lots préparés 8 / 13**, lots finis 0 / 13 (LOT-00 attend l'allumage de la nouvelle coquille) · **écrans livrés depuis la veille : 9**. La courbe : `STATUT.md`, « Vitesse ».
+**Compteurs** (14 nov., 08h40) : **écrans construits 23 / 153** (9 de LOT-00, plus 14 sur les branches des lots : LOT-06 6, LOT-03 4, LOT-11 4), **livrés 9** (LOT-00, avec le socle v4) · **lots préparés 8 / 13**, lots finis 0 / 13 (LOT-00 attend l'allumage de la nouvelle coquille) · **écrans livrés depuis la veille : 9**. La courbe : `STATUT.md`, « Vitesse ».
 
 **À ton réveil, une ligne à coller dans la session S0** (rien d'urgent, le reste avance sans elle) :
 
@@ -34,7 +34,7 @@ Pourquoi : S0 refuse de pousser sur un simple message d'une autre session et veu
 
 **Tes retours** : écris-les-moi dans notre conversation, en vrac. J'en fais des tâches et je les distribue.
 
-**En cours** : S1, S5, S7 et S8 construisent leurs écrans : 4 poussés (F20, F50, H15, H16) et 2 commités chez S8. Ils seront livrés après la vérification de T1. F1 intègre ses trois modules. S2 prépare LOT-01, SIM ajoute les priorités du jour. T1 adapte ses gardes à la nouvelle coquille. DS, S3, S0 et S6 attendent ton accord ou les zips v4.
+**En cours** : S5, S7 et S8 ont 14 écrans construits sur leurs branches ; ils seront livrés après la vérification de T1. S1 construit LOT-02. F1 intègre ses trois modules. S2 prépare LOT-01, SIM ajoute les priorités du jour. T1 adapte ses gardes à la nouvelle coquille. DS, S3, S0 et S6 attendent ton accord ou les zips v4.
 
 **Bloqué** : l'allumage de la coquille par défaut, qui attend S0 et S3 (tes lignes ci-dessus) et une correction de T1. La construction de LOT-01, LOT-07 et LOT-08 attend les zips v4.
 
