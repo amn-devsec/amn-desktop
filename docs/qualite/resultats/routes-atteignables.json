@@ -1,0 +1,283 @@
+{
+  "visites": 160,
+  "lignes": 101,
+  "lignesOuvertes": 101,
+  "resultats": [
+    {
+      "route": "#/absences",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/priorites",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/rdv-en-ligne",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/routines",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/tableau-de-bord",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/tableau-projets",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/nps",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/parrainage",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/scoring-leads",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/sentiment",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/media",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/outils/traduction",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/pages",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/personnel/journal",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/signature-a-distance",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/abonnements",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/acompte",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/factures-entrantes",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/notes-de-frais",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/prevision-fiscale",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/relances",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/scenarios",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/simulateur-pret",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/groupes",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/salles",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/flotte",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/identite-visuelle",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/interventions",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/itineraires",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/portfolio",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/prevision-stock",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/productions-video",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/outils/calculatrice",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/outils/convertisseurs",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/alertes-personnalisees",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/comparatif",
+      "sources": [
+        "#/bibliotheque"
+      ],
+      "nombre": 1
+    },
+    {
+      "route": "#/comply",
+      "sources": [
+        "#/bibliotheque",
+        "#/tour"
+      ],
+      "nombre": 2
+    },
+    {
+      "route": "#/ssl",
+      "sources": [
+        "#/bibliotheque",
+        "#/tour"
+      ],
+      "nombre": 2
+    },
+    {
+      "route": "#/tracker",
+      "sources": [
+        "#/bibliotheque",
+        "#/tour"
+      ],
+      "nombre": 2
+    }
+  ]
+}
