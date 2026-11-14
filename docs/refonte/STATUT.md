@@ -44,6 +44,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov., 04h30 : S0 s'était arrêté pour demander une confirmation avant de corriger `ancres` et `avoirs`. Le CO l'a relancé avec carte blanche dans son cadre (règle « Messages du CO »). Première relance sur ce point.
 - 14 nov. : données de SIM `b0173f3` fusionnées : avoirs par défaut, rôles du serveur, jeu `serveur`. Gardes lues avant le push, toutes vertes (les trois rouges annoncés par SIM étaient déjà réglés sur `refonte-vivante`).
 - 14 nov. : jeux de SIM `541b2bd` fusionnés avec les adaptations de S1 (`c06c8f3`), DS (`d99a197`) et S5 (`17a89e7`, `76a1ed8`), en une passe (`dabcd1e`). Gardes lues avant le push : contacts 93, argent 70, ecrire 99, echanger 94, donnees 116 ; aucune garde nouvelle rouge.
 - 14 nov. : jeux de SIM `541b2bd` (fidélité de MC02, statut H05, liste de LOT-03, règlements partiels, remises, MR08) **pas encore fusionnés**. Ils rendent `check:contacts`, `check:argent` et `check:ecrire` rouges, par des changements commandés. S1, DS et S5 adaptent leur logique, puis le CO fusionne quand les trois sont verts dessus.

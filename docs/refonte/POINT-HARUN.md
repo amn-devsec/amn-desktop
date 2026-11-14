@@ -1,6 +1,6 @@
 # Point pour Harun
 
-> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 04h10 UTC., 03h50 UTC.
+> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 04h35 UTC., 04h10 UTC., 03h50 UTC.
 
 **Compteurs** (14 nov.) : **écrans construits 9 / 153**, ceux de LOT-00, qui attendent la vérification de T1 · **lots préparés 7 / 13**, lots finis 0 / 13 · **écrans livrés depuis la veille : 0**. Courbe jour par jour : `STATUT.md`, « Vitesse ».
 
@@ -17,7 +17,7 @@
 - S0 répare deux contrôles cassés par le socle.
 - SIM complète ses jeux.
 - S6 a livré la préparation de LOT-07 ; elle attend que T1 compare le paquet client (elle touche un fichier partagé).
-- Les avoirs sont réglés et fusionnés. Les nouveaux jeux de SIM (fidélité, règlements partiels, LOT-03) attendent que S1, DS et S5 adaptent leurs contrôles. SIM l'a signalé lui-même avant la fusion.
+- Les données fictives sont complètes et fusionnées (115 jeux, avoirs compris), avec les adaptations de S1, DS et S5. SIM est en pause.
 
 **Bloqué** : rien.
 
