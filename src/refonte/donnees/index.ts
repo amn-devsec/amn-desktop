@@ -35,6 +35,11 @@ export {
   attendusBilanSemaine, attendusCockpit, attendusPrevisions, attendusTableauDeBord, PALIERS_DE_SERIE,
   type AttendusBilanSemaine, type AttendusCockpit, type AttendusPrevisions, type AttendusTableauDeBord, type OptionsPrevisions,
 } from './attendus';
+export {
+  choisirConnectees, CIBLE_DE_CHARGE, EFFECTIF_MAX, EFFECTIF_MIN, emailDuMembre, EQUIPE_INTERNE_DE_CHARGE, ESSAI_LONG_HEURES, genererOrganisationsDeCharge,
+  MELANGE_D_ACTIONS, ORGANISATIONS_MAX, PALIERS_DE_CHARGE, PAUSE_ENTRE_ACTIONS_MS, SEUILS_DE_CHARGE,
+  type OrganisationDeCharge, type ProfilDActivite, type TailleDeCharge,
+} from './charge';
 export type * from './types-suite';
 
 import { construireMonde, type OptionsMonde } from './monde';

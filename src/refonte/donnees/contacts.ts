@@ -28,7 +28,7 @@ export function personne(h: Hasard): { prenom: string; nom: string } {
 }
 
 /** Un nom d'entreprise inventé et unique : `Boulangerie des Tilleuls`. */
-function nomEntreprise(h: Hasard, deja: Set<string>): { nom: string; secteur: string } {
+export function nomEntreprise(h: Hasard, deja: Set<string>): { nom: string; secteur: string } {
   for (let essai = 0; essai < 60; essai += 1) {
     const [type, secteur] = h.choix(TYPES_ENTREPRISE);
     const nom = `${type} ${h.choix(MOTS_ENTREPRISE)}`;

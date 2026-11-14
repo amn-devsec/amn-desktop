@@ -19,6 +19,7 @@
  */
 
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -42,6 +43,7 @@ async function loadFromSrc<T>(entry: string): Promise<T> {
 }
 
 type Lien = Record<string, unknown>;
+type ChargeOrg = { id: string; nom: string; effectif: number; taille: string; volume: string; profil: string; proprietaire: string; domaine: string; secteur: string };
 type Attendu = any; // eslint-disable-line @typescript-eslint/no-explicit-any -- les attendus sont inspectés champ par champ
 type MondeBrut = Record<string, Lien[]> & { contexte: { aujourdhui: string; maintenant: number; aujourdhuiCyber: string; maintenantCyber: number }; entreprise: Lien };
 const D = await loadFromSrc<{
@@ -72,6 +74,15 @@ const D = await loadFromSrc<{
   attendusCockpit: (m: MondeBrut) => Attendu;
   attendusTableauDeBord: (m: MondeBrut, o?: Record<string, unknown>) => Attendu;
   PALIERS_DE_SERIE: readonly number[];
+  genererOrganisationsDeCharge: (o?: { graine?: number; nombre?: number }) => ChargeOrg[];
+  choisirConnectees: (o: ChargeOrg[], n: number, graine?: number) => ChargeOrg[];
+  emailDuMembre: (o: { domaine: string; effectif: number }, rang: number) => string;
+  SEUILS_DE_CHARGE: { partRapide: number; actionRapideMs: number; visibiliteMs: number };
+  CIBLE_DE_CHARGE: { organisations: number; connectees: number; internes: number };
+  PALIERS_DE_CHARGE: readonly number[];
+  ESSAI_LONG_HEURES: number;
+  EQUIPE_INTERNE_DE_CHARGE: readonly string[];
+  MELANGE_D_ACTIONS: readonly { nom: string; poids: number; ecriture: boolean }[];
 }>('src/refonte/donnees/index.ts');
 
 let vus = 0;
@@ -1299,6 +1310,65 @@ dit('les cas attendus par H04, H25 et G08 existent aussi pour 12 graines', () =>
   }
 });
 
+console.log('  — LOT-14 : la charge');
+
+dit('des organisations de charge : reproductibles, emboîtées, de 10 à 600 personnes, rien de réel', () => {
+  const cent = D.genererOrganisationsDeCharge({ nombre: 100 });
+  const mille = D.genererOrganisationsDeCharge({ nombre: 1000 });
+  assert.equal(cent.length, 100);
+  assert.equal(mille.length, 1000);
+  assert.deepEqual(mille.slice(0, 100), cent, 'les 100 premières organisations d’un essai à 1 000 sont celles de l’essai à 100');
+  assert.deepEqual(D.genererOrganisationsDeCharge({ nombre: 100 }), cent, 'reproductible');
+  assert.notDeepEqual(D.genererOrganisationsDeCharge({ nombre: 100, graine: 7 }).map((o) => o.effectif), cent.map((o) => o.effectif), 'une autre graine, d’autres organisations');
+  for (const lot of [cent, mille]) {
+    const effectifs = lot.map((o) => o.effectif);
+    assert.ok(Math.min(...effectifs) === 10 && Math.max(...effectifs) === 600 && effectifs.every((e) => Number.isInteger(e) && e >= 10 && e <= 600), 'de 10 à 600, bornes comprises');
+    assert.equal(new Set(lot.map((o) => o.id)).size, lot.length);
+    assert.equal(new Set(lot.map((o) => o.nom)).size, lot.length, 'noms uniques');
+    assert.equal(new Set(lot.map((o) => o.domaine)).size, lot.length, 'domaines uniques');
+    assert.ok(lot.every((o) => /^[a-z0-9-]+\.exemple\.test$/.test(o.domaine) && D.estCourrielFictif(o.proprietaire)), 'courriels fictifs');
+    assert.deepEqual([...new Set(lot.map((o) => o.taille))].sort(), ['grande', 'moyenne', 'petite'], 'les trois tailles');
+    assert.ok(lot.every((o) => o.volume === (o.taille === 'petite' ? 'peu' : o.taille === 'moyenne' ? 'normal' : 'beaucoup')));
+    assert.deepEqual([...new Set(lot.map((o) => o.profil))].sort(), ['calme', 'courant', 'intense']);
+  }
+  assert.equal(D.emailDuMembre(cent[0], 0), cent[0].proprietaire);
+  assert.ok(D.estCourrielFictif(D.emailDuMembre(cent[1], 599)));
+  assert.throws(() => D.emailDuMembre(cent[0], cent[0].effectif), /hors effectif/);
+  assert.throws(() => D.genererOrganisationsDeCharge({ nombre: 10_000 }), /invalide/);
+  assert.equal(D.genererOrganisationsDeCharge({ nombre: 0 }).length, 0);
+  const texte = JSON.stringify(mille);
+  assert.ok(!/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/.test(texte), 'aucune adresse réseau');
+});
+
+dit('des organisations connectées en même temps : toujours les mêmes, emboîtées', () => {
+  const cent = D.genererOrganisationsDeCharge({ nombre: 100 });
+  const vingt = D.choisirConnectees(cent, 20);
+  const quarante = D.choisirConnectees(cent, 40);
+  assert.equal(vingt.length, 20);
+  assert.deepEqual(D.choisirConnectees(cent, 20), vingt);
+  assert.ok(vingt.every((o) => quarante.some((x) => x.id === o.id)), 'les 20 sont dans les 40');
+  assert.equal(new Set(vingt.map((o) => o.id)).size, 20);
+  assert.equal(D.choisirConnectees(cent, 500).length, 100);
+  assert.equal(D.choisirConnectees(cent, 0).length, 0);
+});
+
+dit('les seuils et la cible du code sont ceux de STATUT §1.20 et de docs/simulation/charge.md', () => {
+  assert.deepEqual(D.SEUILS_DE_CHARGE, { partRapide: 0.95, actionRapideMs: 1000, visibiliteMs: 5000 });
+  assert.deepEqual(D.CIBLE_DE_CHARGE, { organisations: 100, connectees: 20, internes: 3 });
+  assert.equal(D.ESSAI_LONG_HEURES, 72);
+  assert.equal(D.PALIERS_DE_CHARGE.at(-1), 1000);
+  assert.ok(D.PALIERS_DE_CHARGE.every((p, i, l) => i === 0 || p > l[i - 1]), 'paliers croissants');
+  assert.equal(D.EQUIPE_INTERNE_DE_CHARGE.length, 3);
+  assert.equal(D.MELANGE_D_ACTIONS.reduce((s, a) => s + a.poids, 0), 100, 'le mélange d’actions fait 100');
+  const doc = path.join(here, '..', 'docs', 'simulation', 'charge.md');
+  assert.ok(fs.existsSync(doc), 'docs/simulation/charge.md existe');
+  const texte = fs.readFileSync(doc, 'utf8');
+  for (const motif of ['95 %', '1 s', '5 s', '72 h', '1 000', '20 organisations', '3 personnes', '127.0.0.1']) assert.ok(texte.includes(motif), `charge.md doit citer « ${motif} »`);
+  // Le dépôt est public : le document ne décrit aucune faille et ne contient ni secret ni adresse hors 127.0.0.1.
+  assert.ok(!/(mot de passe|token|jeton|secret)\s*[:=]\s*\S{6,}/i.test(texte), 'aucun secret dans charge.md');
+  assert.ok((texte.match(/\b\d{1,3}(\.\d{1,3}){3}\b/g) ?? []).every((ip) => ip === '127.0.0.1'), 'aucune adresse autre que 127.0.0.1');
+});
+
 console.log('  — Le chargeur vers l’API d’essai');
 
 const Chargeur = (await import(path.join(here, 'charger-donnees-essai.mjs'))) as {
@@ -1346,6 +1416,18 @@ dit('chaque jeu chargé existe, a un identifiant, et sa collection existe dans a
   const permises = new Set([...texte.slice(texte.indexOf('export const ALLOWED'), texte.indexOf(']);', texte.indexOf('export const ALLOWED'))).matchAll(/^\s*'([A-Za-z]+)',/gm)].map((x) => x[1]));
   assert.ok(permises.size > 50, 'la liste ALLOWED d’amn-api a été lue');
   for (const c of Chargeur.CHARGES) assert.ok(permises.has(c.collection), `amn-api n’ouvre pas la collection « ${c.collection} »`);
+});
+
+dit('le scénario de charge « cible » tourne contre une API d’essai en mémoire, sans écriture perdue (quand amn-api est là)', () => {
+  const racines = [process.env.AMN_API_ROOT, '/workspace/amn-api', path.join(here, '..', '..', 'amn-api')].filter(Boolean) as string[];
+  const racine = racines.find((r) => fs.existsSync(path.join(r, 'src', 'db', 'tenancy.js')));
+  if (!racine) return console.log('    (amn-api absent : le scénario de charge n’a pas été joué)');
+  const r = spawnSync(process.execPath, [path.join(here, '..', 'simulation', 'charge', 'executer.mjs'), 'cible', '--organisations', '6', '--connectees', '2', '--internes', '1', '--duree-s', '4'], {
+    env: { PATH: process.env.PATH, AMN_API_ROOT: racine }, encoding: 'utf8', timeout: 120_000,
+  });
+  assert.equal(r.status, 0, `le scénario a échoué : ${r.stderr.slice(0, 300)}`);
+  assert.ok(/Écritures acquittées : \d+ · perdues ou écrasées : 0/.test(r.stdout), 'aucune écriture perdue');
+  assert.ok(!/(?:^|\D)(?!127\.0\.0\.1\b)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/.test(r.stdout), 'le compte rendu ne cite aucune autre adresse');
 });
 
 console.log(`\n${vus} contrôles, tous au vert.`);
