@@ -1,0 +1,24 @@
+{
+  "_": "Valeurs acceptées de LOT-11 (STATUT §1.30, §1.40) : mesures de T1 sur l'APERÇU STATIQUE du lot (claude/refonte-developpement @ f363811 fusionné sur vivante), 1440×900, vendredi 30 oct. 2026 à 10:42. `valeurs` = écart brut (±2 px, couleur ±2) ; `disposition` = couleur ±10, surveillée aussi. Un écran échoue si l'une ou l'autre monte de plus de 2 points. DEV-ensemble : pas d'image v4 (ni pour ni contre, accepté par le CO).",
+  "source": "apercu",
+  "mesure": "strict",
+  "surveillerDisposition": true,
+  "valeurs": {
+    "DEV-projets": 39.3,
+    "DEV-deploiements": 34.0,
+    "DEV-serveur": 45.7,
+    "DEV-editeur": 53.6,
+    "DEV-couts": 34.1,
+    "DEV-modeles-sites": 68.5,
+    "DEV-modeles-sites-code": 79.1
+  },
+  "disposition": {
+    "DEV-projets": 17.5,
+    "DEV-deploiements": 14.8,
+    "DEV-serveur": 19.8,
+    "DEV-editeur": 16.6,
+    "DEV-couts": 15.1,
+    "DEV-modeles-sites": 30.6,
+    "DEV-modeles-sites-code": 4.8
+  }
+}
