@@ -93,7 +93,8 @@ function fichiersDe(dossier: string): string[] {
   const sortie: string[] = [];
   for (const e of fs.readdirSync(path.join(racine, dossier), { withFileTypes: true })) {
     const rel = `${dossier}/${e.name}`;
-    if (e.isDirectory()) sortie.push(...fichiersDe(rel));
+    // Les sous-dossiers de la zone sont les ÉCRANS construits (`calendrier/`, `missions/`…) : leur garde est `check:journee-ecrans`.
+    if (e.isDirectory()) continue;
     else if (/\.(ts|tsx)$/.test(e.name)) sortie.push(rel);
   }
   return sortie.sort();

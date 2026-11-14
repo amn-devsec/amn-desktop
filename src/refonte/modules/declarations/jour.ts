@@ -1,3 +1,4 @@
+import { BellRing, Columns3, Gauge, StickyNote } from 'lucide-react';
 import { declarerFamille, vue } from '../declarer';
 
 /**
@@ -69,6 +70,66 @@ export default declarerFamille({
         }),
         vue('board', '/tableau-projets', ['voir les projets en colonnes', 'déplacer un projet'], ['kanban', 'tableau', 'colonnes', 'projet', 'trello', 'tableau de projets'], {
           en: { verbes: ['see projects in columns', 'move a project'], motsCles: ['kanban', 'board', 'columns', 'project'] },
+        }),
+      ],
+    },
+    {
+      nom: { fr: 'Missions et tickets', en: 'Missions and tickets' },
+      action: 'suivre',
+      niveau: 'courant',
+      vues: [
+        vue('missions', '/missions', ['suivre les tickets de l’équipe', 'voir qui traite quoi', 'prendre en charge un ticket', 'déplacer un ticket'], ['mission', 'ticket', 'kanban', 'prise en charge', 'délai', 'file'], {
+          en: { verbes: ['follow the team tickets', 'see who handles what', 'take a ticket', 'move a ticket'], motsCles: ['mission', 'ticket', 'kanban', 'first response', 'queue'] },
+          nouveau: {
+            icone: Columns3,
+            ecran: () => import('../../journee/missions/PageMissions'),
+            indice: { fr: 'Les tickets de l’équipe et des clients, en colonnes', en: 'Team and client tickets, in columns' },
+          },
+        }),
+      ],
+    },
+    {
+      nom: { fr: 'Cockpit d’un client', en: 'Client cockpit' },
+      action: 'suivre',
+      niveau: 'courant',
+      vues: [
+        vue('cockpit', '/cockpit-client', ['piloter l’activité d’un client', 'voir le revenu récurrent d’un client', 'voir qui est connecté chez un client', 'voir la santé de l’intégration'], ['cockpit', 'revenu récurrent', 'stripe', 'connectés', 'intégration', 'console'], {
+          en: { verbes: ['run a client’s activity', 'see a client’s recurring revenue', 'see who is online at a client', 'see the integration health'], motsCles: ['cockpit', 'recurring revenue', 'stripe', 'online', 'integration', 'console'] },
+          nouveau: {
+            icone: Gauge,
+            ecran: () => import('../../journee/cockpit/PageCockpit'),
+            indice: { fr: 'Leur activité en ligne, en direct : revenus, utilisateurs, tickets, santé', en: 'Their activity online, live: revenue, users, tickets, health' },
+          },
+        }),
+      ],
+    },
+    {
+      nom: { fr: 'Notes rapides', en: 'Quick notes' },
+      action: 'suivre',
+      niveau: 'courant',
+      vues: [
+        vue('notesRapides', '/notes-rapides', ['noter une idée en deux secondes', 'voir mes notes rapides', 'ranger mes notes à plus tard'], ['note rapide', 'idée', 'mur de notes', 'à trier', 'mémo'], {
+          en: { verbes: ['note an idea in two seconds', 'see my quick notes', 'sort my notes later'], motsCles: ['quick note', 'idea', 'note wall', 'to sort', 'memo'] },
+          nouveau: {
+            icone: StickyNote,
+            ecran: () => import('../../journee/notes/PageNotes'),
+            indice: { fr: 'Noter en deux secondes, classer plus tard', en: 'Note in two seconds, sort later' },
+          },
+        }),
+      ],
+    },
+    {
+      nom: { fr: 'Rappels', en: 'Reminders' },
+      action: 'suivre',
+      niveau: 'courant',
+      vues: [
+        vue('rappels', '/rappels', ['voir ce qui sonne maintenant', 'reporter un rappel', 'ne rien oublier aujourd’hui'], ['rappel', 'reporter', 'à reprendre', 'récurrent', 'heures calmes', 'prévenu'], {
+          en: { verbes: ['see what rings now', 'snooze a reminder', 'forget nothing today'], motsCles: ['reminder', 'snooze', 'recurring', 'quiet hours', 'notified'] },
+          nouveau: {
+            icone: BellRing,
+            ecran: () => import('../../journee/rappels/PageRappels'),
+            indice: { fr: 'Ce qui sonne maintenant, ce qui arrive, et comment tu es prévenu', en: 'What rings now, what is coming, and how you are told' },
+          },
         }),
       ],
     },

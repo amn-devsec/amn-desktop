@@ -165,6 +165,8 @@ jobs:
         run: npm run check:contacts
       - name: Ma journée — série, H04, G08 et H25 face à SIM, défis (aucun chiffre individuel, aucun classement), voix
         run: npm run check:journee
+      - name: Ma journée (S1) — calendrier, missions, cockpit, projets, habitudes, planning, notes, rappels : logique des écrans, voix, structure
+        run: npm run check:journee-ecrans
       - name: Connecteurs et autonomie (LOT-12) — local d'abord, coût avant, trois clics, aucune clé, moteurs locaux
         run: npm run check:connecteurs
       - name: Échanger (LOT-05) — boîte des clients, Boîte à zéro, canaux, appels, annonces, courriel, réunions, partages, sondages, réponses automatiques
