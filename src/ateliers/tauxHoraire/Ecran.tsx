@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Copy } from 'lucide-react';
-import { Bouton, Saisie } from '../../socle/ui';
-import { CadreAtelier, Chiffre, Choix, Etat } from '../_commun/Cadre';
-import { euros, nombre, versCentimes } from '../_commun/nombres';
+import { Carte, PageHead, PastilleEtat, RangeeKpi, Saisie, Selecteur, TuileKpi } from '../../socle/ui';
+import { Disposition, PageAtelier } from '../_commun/PageAtelier';
+import { euros, eurosRond, nombre, versCentimes } from '../_commun/nombres';
 import { EXEMPLE } from './donnees';
 import { useTextes } from './i18n';
 import { calculerTaux, verifier, type EntreesTaux, type ErreurTaux, type Regime } from './logique';
@@ -49,7 +49,14 @@ export default function EcranTauxHoraire() {
   const fautes = verifier(entrees);
   const r = calculerTaux(entrees);
   const faute = (f: ErreurTaux) => (fautes.includes(f) ? tx(`erreur.${f}`) : undefined);
-  const e = (c: Champ) => ({ value: v[c], onChange: (ev: React.ChangeEvent<HTMLInputElement>) => setV({ ...v, [c]: ev.target.value }), inputMode: 'decimal' as const });
+  const e = (c: Champ) => ({
+    value: v[c],
+    onChange: (ev: React.ChangeEvent<HTMLInputElement>) => {
+      setV({ ...v, [c]: ev.target.value });
+      setCopie(false);
+    },
+    inputMode: 'decimal' as const,
+  });
 
   const resume = r
     ? [
@@ -61,85 +68,115 @@ export default function EcranTauxHoraire() {
     : '';
 
   return (
-    <CadreAtelier famille={MODULE.famille} nom={tx('nom')} intro={tx('intro')}>
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <div className="flex flex-col gap-6">
-          <fieldset className="flex flex-col gap-4">
-            <legend className="mb-3 text-[13px] font-semibold text-socle-texte-discret">{tx('section.vous')}</legend>
-            <Choix
-              etiquette={tx('regime')}
-              valeur={regime}
-              onChange={setRegime}
-              options={[
-                { valeur: 'reel', libelle: tx('regime.reel') },
-                { valeur: 'micro', libelle: tx('regime.micro') },
-              ]}
-            />
-            <Saisie etiquette={tx('revenu')} aide={tx('revenu.aide')} suffixe="€" erreur={faute('revenu')} {...e('revenu')} />
-            <Saisie etiquette={tx('charges')} aide={tx('charges.aide')} suffixe="€" erreur={faute('charges')} {...e('charges')} />
-            <Saisie
-              etiquette={tx('cotisations')}
-              aide={tx(regime === 'reel' ? 'cotisations.aide.reel' : 'cotisations.aide.micro')}
-              suffixe="%"
-              erreur={faute('cotisations')}
-              {...e('cotisations')}
-            />
-            <Saisie etiquette={tx('marge')} suffixe="%" erreur={faute('marge')} {...e('marge')} />
-            <Saisie etiquette={tx('tarifActuel')} aide={tx('tarifActuel.aide')} suffixe="€" {...e('tarifActuel')} />
-          </fieldset>
-          <fieldset className="grid grid-cols-2 gap-4">
-            <legend className="col-span-2 mb-3 text-[13px] font-semibold text-socle-texte-discret">{tx('section.temps')}</legend>
-            <Saisie etiquette={tx('joursParSemaine')} erreur={faute('jours')} {...e('joursParSemaine')} />
-            <Saisie etiquette={tx('semainesConges')} {...e('semainesConges')} />
-            <Saisie etiquette={tx('feriesChomes')} {...e('feriesChomes')} />
-            <Saisie etiquette={tx('autresJoursOff')} aide={tx('autresJoursOff.aide')} {...e('autresJoursOff')} />
-            <Saisie etiquette={tx('heuresParJour')} suffixe="h" erreur={faute('heures')} {...e('heuresParJour')} />
-            <Saisie etiquette={tx('partFacturable')} aide={tx('partFacturable.aide')} suffixe="%" erreur={faute('partFacturable')} {...e('partFacturable')} />
-          </fieldset>
-        </div>
-
-        <section aria-live="polite" className="flex flex-col gap-4 lg:sticky lg:top-6 lg:self-start">
-          <h2 className="text-[13px] font-semibold text-socle-texte-discret">{tx('section.resultat')}</h2>
-          {r ? (
-            <>
-              <Chiffre fort intitule={tx('res.taux')} valeur={euros(r.tauxHoraire, langue)} detail={tx('res.taux.detail')} />
-              <div className="grid grid-cols-2 gap-3">
-                <Chiffre
-                  intitule={tx('res.journee')}
-                  valeur={euros(r.prixJournee, langue)}
-                  detail={tx('res.journee.detail', { h: nombre((entrees.heuresParJour * entrees.partFacturable) / 100, 1, langue) })}
-                />
-                <Chiffre intitule={tx('res.ca')} valeur={euros(r.caNecessaire, langue)} detail={tx('res.ca.detail', { c: euros(r.cotisations, langue) })} />
-                <Chiffre
-                  intitule={tx('res.heures')}
-                  valeur={nombre(r.heuresFacturables, 1, langue)}
-                  detail={tx('res.heures.detail', { j: r.joursTravailles, s: nombre(r.heuresFacturablesParSemaine, 1, langue) })}
-                />
-              </div>
-              {r.manqueParHeure !== undefined && (
-                <p className="rounded-xl border border-socle-bord bg-socle-surface p-4 text-[14px] leading-relaxed">
-                  {r.manqueParHeure > 0 ? (
-                    <Etat ton="attention">{tx('res.manque', { m: euros(r.manqueParHeure, langue), a: euros(r.manqueSurAnnee ?? 0, langue) })}</Etat>
-                  ) : (
-                    <Etat ton="succes">{tx('res.ok', { m: euros(-r.manqueParHeure, langue) })}</Etat>
-                  )}
-                </p>
-              )}
-              <Bouton
-                variante="primaire"
-                icone={<Copy size={16} />}
-                onClick={() => {
+    <PageAtelier famille={MODULE.famille}>
+      <PageHead
+        titre={tx('nom')}
+        sousTitre={tx('intro')}
+        primaire={
+          r
+            ? {
+                libelle: copie ? tx('copie') : tx('copier'),
+                icone: <Copy size={14} />,
+                onClick: () => {
                   void navigator.clipboard?.writeText(resume).then(() => setCopie(true));
+                },
+              }
+            : undefined
+        }
+      />
+
+      {r ? (
+        <RangeeKpi libelle={tx('section.resultat')}>
+          <TuileKpi famille={MODULE.famille} libelle={tx('res.taux')} valeur={euros(r.tauxHoraire, langue)} variation={tx('res.taux.court')} detail={tx('res.taux.detail')} />
+          <TuileKpi
+            famille={MODULE.famille}
+            libelle={tx('res.journee')}
+            valeur={euros(r.prixJournee, langue)}
+            variation={tx('res.journee.court', { h: nombre((entrees.heuresParJour * entrees.partFacturable) / 100, 1, langue) })}
+            detail={tx('res.journee.detail', { h: nombre((entrees.heuresParJour * entrees.partFacturable) / 100, 1, langue) })}
+          />
+          <TuileKpi famille={MODULE.famille} libelle={tx('res.ca')} valeur={euros(r.caNecessaire, langue)} variation={tx('res.ca.court', { c: eurosRond(r.cotisations, langue) })} detail={tx('res.ca.detail', { c: euros(r.cotisations, langue) })} />
+          <TuileKpi
+            famille={MODULE.famille}
+            libelle={tx('res.heures')}
+            valeur={nombre(r.heuresFacturables, 1, langue)}
+            variation={tx('res.heures.court', { s: nombre(r.heuresFacturablesParSemaine, 1, langue) })}
+            detail={tx('res.heures.detail', { j: r.joursTravailles, s: nombre(r.heuresFacturablesParSemaine, 1, langue) })}
+          />
+        </RangeeKpi>
+      ) : (
+        <Carte titre={tx('section.resultat')}>
+          <ul aria-live="polite" className="flex flex-col gap-2">
+            {fautes.map((f) => (
+              <li key={f}>
+                <PastilleEtat etat="critique" allegee>
+                  {tx(`erreur.${f}`)}
+                </PastilleEtat>
+              </li>
+            ))}
+          </ul>
+        </Carte>
+      )}
+
+      <Disposition
+        droite={
+          <Carte titre={tx('section.tarif')}>
+            <div className="flex flex-col gap-3">
+              <Saisie etiquette={tx('tarifActuel')} aide={tx('tarifActuel.aide')} suffixe="€" {...e('tarifActuel')} />
+              <div aria-live="polite" className="flex flex-col items-start gap-2">
+                {r?.manqueParHeure !== undefined && (
+                  <>
+                    <PastilleEtat etat={r.manqueParHeure > 0 ? 'attention' : 'succes'}>{tx(r.manqueParHeure > 0 ? 'res.sous' : 'res.couvert')}</PastilleEtat>
+                    <p className="text-[13px] leading-relaxed text-socle-texte-doux">
+                      {r.manqueParHeure > 0
+                        ? tx('res.manque', { m: euros(r.manqueParHeure, langue), a: euros(r.manqueSurAnnee ?? 0, langue) })
+                        : tx('res.ok', { m: euros(-r.manqueParHeure, langue) })}
+                    </p>
+                  </>
+                )}
+              </div>
+            </div>
+          </Carte>
+        }
+      >
+        <div className="grid gap-3.5 md:grid-cols-2">
+          <Carte titre={tx('section.vous')}>
+            <div className="flex flex-col gap-3">
+              <Selecteur
+                etiquette={tx('regime')}
+                value={regime}
+                onChange={(ev) => {
+                  setRegime(ev.target.value as Regime);
+                  setCopie(false);
                 }}
               >
-                {copie ? tx('copie') : tx('copier')}
-              </Bouton>
-            </>
-          ) : (
-            <p className="text-[14px] text-socle-texte-doux">{fautes.map((f) => tx(`erreur.${f}`)).join(' ')}</p>
-          )}
-        </section>
-      </div>
-    </CadreAtelier>
+                <option value="reel">{tx('regime.reel')}</option>
+                <option value="micro">{tx('regime.micro')}</option>
+              </Selecteur>
+              <Saisie etiquette={tx('revenu')} aide={tx('revenu.aide')} suffixe="€" erreur={faute('revenu')} {...e('revenu')} />
+              <Saisie etiquette={tx('charges')} aide={tx('charges.aide')} suffixe="€" erreur={faute('charges')} {...e('charges')} />
+              <Saisie
+                etiquette={tx('cotisations')}
+                aide={tx(regime === 'reel' ? 'cotisations.aide.reel' : 'cotisations.aide.micro')}
+                suffixe="%"
+                erreur={faute('cotisations')}
+                {...e('cotisations')}
+              />
+              <Saisie etiquette={tx('marge')} suffixe="%" erreur={faute('marge')} {...e('marge')} />
+            </div>
+          </Carte>
+          <Carte titre={tx('section.temps')}>
+            <div className="grid grid-cols-2 gap-3">
+              <Saisie etiquette={tx('joursParSemaine')} erreur={faute('jours')} {...e('joursParSemaine')} />
+              <Saisie etiquette={tx('semainesConges')} {...e('semainesConges')} />
+              <Saisie etiquette={tx('feriesChomes')} {...e('feriesChomes')} />
+              <Saisie etiquette={tx('autresJoursOff')} aide={tx('autresJoursOff.aide')} {...e('autresJoursOff')} />
+              <Saisie etiquette={tx('heuresParJour')} suffixe="h" erreur={faute('heures')} {...e('heuresParJour')} />
+              <Saisie etiquette={tx('partFacturable')} aide={tx('partFacturable.aide')} suffixe="%" erreur={faute('partFacturable')} {...e('partFacturable')} />
+            </div>
+          </Carte>
+        </div>
+      </Disposition>
+    </PageAtelier>
   );
 }

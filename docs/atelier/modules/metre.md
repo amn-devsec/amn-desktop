@@ -1,6 +1,6 @@
 # Métré et quantitatif (`metre`)
 
-**Famille** outils · **Action** terrain · **Niveau** courant · **Route proposée** `/metre`
+**Famille** créer et produire · **Action** fabriquer (rangé là par S5, STATUT §1.27 n° 1) · **Niveau** courant · **Route proposée** `/metre`
 
 ## Le besoin
 

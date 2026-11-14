@@ -40,3 +40,18 @@ sans paiement. Le catalogue a `deposits` (un acompte en ligne) et
 Frais ou intérêts (un paiement en plusieurs fois avec frais peut relever du
 crédit à la consommation : à ne pas ajouter sans avis juridique), prélèvement
 automatique, relance (voir `reminders`), périodicités autres que mensuelle.
+
+## Au socle v4 (14 nov. 2026)
+
+- Écran fait des briques du socle (`Page`, `PageHead`, `TuileKpi`, `Carte`, `Saisie`, `Selecteur`,
+  `PastilleEtat`…), néon de la famille Argent (`--fam-a` / `--fam-b`, lus sur `data-famille`), Inter,
+  un seul bouton principal par écran. Aucune couleur écrite à la main.
+- Textes français **au tutoiement** (guide de voix `src/socle/mots/voix.ts`), vérifié par `verifier.mjs`. Ce
+  qui part chez un client reste au vouvoiement (le texte « pour le client » de l'échéancier).
+- **Place dans les écrans de DS** (provisoire, STATUT §1.33 n° 4) : H07 Devis (`/facturation/devis`), par un lien vers `/echeancier`.
+  Le lien appartient à l'écran de DS, qui n'existe pas encore : ce module ne l'écrit pas.
+- Déclaration au registre de S5 : `src/refonte/modules/declarations/echeancier.ts` — **pas encore posée** (`declarerModule` + `nouveau`, qui monte
+  la route par `routesDuRegistre()`).
+- Il travaille encore sur des **données d'exemple** : rien n'est enregistré. Le brancher à une collection de
+  l'organisation est un second temps, hors de cette intégration.
+

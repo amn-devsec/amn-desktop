@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Copy } from 'lucide-react';
-import { Bouton, Saisie } from '../../socle/ui';
-import { CadreAtelier, Etat } from '../_commun/Cadre';
-import { euros, nombre, versCentimes } from '../_commun/nombres';
+import { BarreProgression, Carte, Etiquette, PageHead, PastilleEtat, RangeeKpi, Saisie, TuileKpi } from '../../socle/ui';
+import { Disposition, PageAtelier } from '../_commun/PageAtelier';
+import { euros, eurosRond, nombre, versCentimes } from '../_commun/nombres';
 import { BESOIN, OFFRES, POIDS } from './donnees';
 import { useTextes } from './i18n';
 import { comparer, CRITERES, verifier, verifierOffre, type Critere, type Offre } from './logique';
@@ -43,124 +43,146 @@ export default function EcranComparateurDevis() {
   const p = Object.fromEntries(CRITERES.map((c) => [c, num(poids[c])])) as Record<Critere, number>;
   const fautes = verifier(offres, p);
   const r = comparer(offres, p);
-  const changer = (id: string, champ: ChampOffre, valeur: string) => setLignes(lignes.map((l) => (l.id === id ? { ...l, [champ]: valeur } : l)));
+  const changer = (id: string, champ: ChampOffre, valeur: string) => {
+    setLignes(lignes.map((l) => (l.id === id ? { ...l, [champ]: valeur } : l)));
+    setCopie(false);
+  };
 
   const texte = r
     ? [`${tx('besoin')} : ${BESOIN}`, ...r.map((n) => `${n.rang}. ${n.offre.fournisseur} — ${nombre(n.total, 1, langue)}/100 — ${euros(n.offre.prixHT, langue)}`)].join('\n')
     : '';
+  const moinsCher = r ? [...r].sort((a, b) => a.offre.prixHT - b.offre.prixHT)[0] : null;
+  const aVerifier = r ? r.filter((n) => n.anormalementBasse).length : 0;
 
   return (
-    <CadreAtelier famille={MODULE.famille} nom={tx('nom')} intro={tx('intro')}>
-      <p className="text-[14px] text-socle-texte">
-        <span className="text-socle-texte-discret">{tx('besoin')} · </span>
-        {BESOIN}
-      </p>
+    <PageAtelier famille={MODULE.famille}>
+      <PageHead
+        titre={tx('nom')}
+        sousTitre={`${tx('besoin')} · ${BESOIN}`}
+        primaire={
+          r
+            ? {
+                libelle: copie ? tx('copie') : tx('copier'),
+                icone: <Copy size={14} />,
+                onClick: () => {
+                  void navigator.clipboard?.writeText(texte).then(() => setCopie(true));
+                },
+              }
+            : undefined
+        }
+      />
 
-      <fieldset className="flex flex-col gap-3">
-        <legend className="mb-3 text-[13px] font-semibold text-socle-texte-discret">{tx('section.poids')}</legend>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-          {CRITERES.map((c) => (
-            <Saisie key={c} etiquette={tx(`critere.${c}`)} inputMode="decimal" value={poids[c]} onChange={(e) => setPoids({ ...poids, [c]: e.target.value })} />
-          ))}
-        </div>
-        <p className="text-[12.5px] text-socle-texte-discret">{tx('poids.aide')}</p>
-      </fieldset>
+      {r && moinsCher && (
+        <RangeeKpi>
+          <TuileKpi famille={MODULE.famille} libelle={tx('kpi.tete')} valeur={`${nombre(r[0].total, 1, langue)}/100`} variation={r[0].offre.fournisseur} />
+          <TuileKpi famille={MODULE.famille} libelle={tx('res.moinsCher')} valeur={eurosRond(moinsCher.offre.prixHT, langue)} variation={moinsCher.offre.fournisseur} />
+          <TuileKpi
+            famille={MODULE.famille}
+            libelle={tx('kpi.alertes')}
+            valeur={String(aVerifier)}
+            ton={aVerifier > 0 ? 'attention' : 'succes'}
+            variation={aVerifier > 0 ? tx('kpi.alertes.court') : tx('kpi.alertes.aucune')}
+            detail={tx('kpi.alertes.detail')}
+          />
+        </RangeeKpi>
+      )}
 
-      <section className="flex flex-col gap-3">
-        <h2 className="text-[13px] font-semibold text-socle-texte-discret">{tx('section.offres')}</h2>
-        <div className="overflow-x-auto rounded-xl border border-socle-bord">
-          <table className="w-full min-w-[640px] border-collapse text-[13.5px]">
-            <thead>
-              <tr className="bg-socle-surface">
-                {COLONNES.map((c) => (
-                  <th key={c} scope="col" className={`px-3 py-2 text-[12px] font-semibold text-socle-texte-discret ${c === 'fournisseur' ? 'text-left' : 'text-right'}`}>
-                    {tx(`col.${c}`)}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {lignes.map((l) => {
-                const erreurs = verifierOffre(versOffre(l));
-                return (
-                  <tr key={l.id} className="border-t border-socle-bord">
-                    {COLONNES.map((c) => (
-                      <td key={c} className="px-2 py-1.5">
-                        <input
-                          aria-label={`${tx(`col.${c}`)} — ${l.fournisseur || l.id}`}
-                          aria-invalid={erreurs.includes(c) || undefined}
-                          inputMode={c === 'fournisseur' ? undefined : 'decimal'}
-                          value={l[c]}
-                          onChange={(e) => changer(l.id, c, e.target.value)}
-                          className={`w-full rounded-md border bg-socle-creux px-2 py-1.5 text-socle-texte outline-none focus-visible:border-socle-focus ${
-                            c === 'fournisseur' ? 'min-w-[200px] text-left' : 'min-w-[84px] text-right tabular-nums'
-                          } ${erreurs.includes(c) ? 'border-etat-danger' : 'border-socle-bord'}`}
-                        />
-                      </td>
-                    ))}
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      <Disposition
+        droite={
+          <Carte titre={tx('section.poids')}>
+            <div className="flex flex-col gap-3">
+              {CRITERES.map((c) => (
+                <Saisie key={c} etiquette={tx(`critere.${c}`)} inputMode="decimal" value={poids[c]} onChange={(e) => setPoids({ ...poids, [c]: e.target.value })} />
+              ))}
+              <p className="text-[12.5px] leading-relaxed text-socle-texte-doux">{tx('poids.aide')}</p>
+            </div>
+          </Carte>
+        }
+      >
+        <Carte titre={tx('section.offres')}>
+          <div className="-mx-1 overflow-x-auto px-1">
+            <table className="w-full min-w-[620px] border-collapse text-[13.5px]">
+              <thead>
+                <tr>
+                  {COLONNES.map((c) => (
+                    <th key={c} scope="col" className={`px-1.5 pb-2 text-[12px] font-semibold text-socle-texte-doux ${c === 'fournisseur' ? 'text-left' : 'text-right'}`}>
+                      {tx(`col.${c}`)}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {lignes.map((l) => {
+                  const erreurs = verifierOffre(versOffre(l));
+                  return (
+                    <tr key={l.id}>
+                      {COLONNES.map((c) => (
+                        <td key={c} className="px-1.5 py-1">
+                          <input
+                            data-socle="champ"
+                            aria-label={`${tx(`col.${c}`)} — ${l.fournisseur || l.id}`}
+                            aria-invalid={erreurs.includes(c) || undefined}
+                            inputMode={c === 'fournisseur' ? undefined : 'decimal'}
+                            value={l[c]}
+                            onChange={(e) => changer(l.id, c, e.target.value)}
+                            className={`sc-champ__controle ${c === 'fournisseur' ? 'min-w-[190px] text-left' : 'min-w-[84px] text-right tabular-nums'}`}
+                          />
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </Carte>
 
-      <section aria-live="polite" className="flex flex-col gap-3">
-        <h2 className="text-[13px] font-semibold text-socle-texte-discret">{tx('section.classement')}</h2>
-        {r ? (
-          <>
-            <p className="text-[16px] font-semibold">{tx('res.premier', { f: r[0].offre.fournisseur, n: nombre(r[0].total, 1, langue) })}</p>
-            <ol className="flex flex-col gap-2">
+        <Carte titre={tx('section.classement')}>
+          {r ? (
+            <ol aria-live="polite" className="flex flex-col gap-3">
               {r.map((n) => (
-                <li key={n.offre.id} className="flex flex-col gap-2 rounded-xl border border-socle-bord bg-socle-surface p-4">
+                <li key={n.offre.id} className="flex flex-col gap-2 border-t border-socle-bord pt-3 first:border-t-0 first:pt-0">
                   <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                    <span className="text-[14.5px] font-semibold">
-                      <span className="mr-2 tabular-nums text-socle-texte-discret">{n.rang}.</span>
+                    <span className="text-[14.5px] font-semibold text-socle-texte">
+                      <span className="mr-2 tabular-nums text-socle-texte-doux">{n.rang}.</span>
                       {n.offre.fournisseur}
                     </span>
-                    <span className="tabular-nums text-[14px]">
+                    <span className="text-[14px] tabular-nums text-socle-texte">
                       <span className="font-semibold">{nombre(n.total, 1, langue)}</span>
-                      <span className="text-socle-texte-discret">/100 · {euros(n.offre.prixHT, langue)}</span>
+                      <span className="text-socle-texte-doux">/100 · {euros(n.offre.prixHT, langue)}</span>
                     </span>
                   </div>
-                  <div aria-hidden className="h-1.5 overflow-hidden rounded-full bg-socle-creux">
-                    <div className="h-full rounded-full bg-socle-texte-doux" style={{ width: `${Math.max(0, Math.min(100, n.total))}%` }} />
-                  </div>
-                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-[12.5px] text-socle-texte-discret">
+                  <BarreProgression valeur={n.total / 100} libelle={`${n.offre.fournisseur} : ${nombre(n.total, 1, langue)}/100`} />
+                  <div className="flex flex-wrap items-center gap-1.5">
                     {CRITERES.map((c) => (
-                      <span key={c}>
+                      <Etiquette key={c} compacte>
                         {tx(`critere.${c}`)} {nombre(n.notes[c], 0, langue)}
-                      </span>
+                      </Etiquette>
                     ))}
-                    <span>{n.ecartAuMoinsCher === 0 ? tx('res.ecart0') : `+${euros(n.ecartAuMoinsCher, langue)}`}</span>
+                    <Etiquette compacte>{n.ecartAuMoinsCher === 0 ? tx('res.ecart0') : `+${euros(n.ecartAuMoinsCher, langue)}`}</Etiquette>
                   </div>
-                  {n.anormalementBasse && <Etat ton="attention">{tx('res.anormal', { p: n.sousLaMoyennePct })}</Etat>}
+                  {n.anormalementBasse && (
+                    <div className="flex flex-col items-start gap-1.5">
+                      <PastilleEtat etat="attention">{tx('res.anormal.titre')}</PastilleEtat>
+                      <p className="text-[12.5px] leading-relaxed text-socle-texte-doux">{tx('res.anormal', { p: n.sousLaMoyennePct })}</p>
+                    </div>
+                  )}
                 </li>
               ))}
             </ol>
-            <div>
-              <Bouton
-                variante="primaire"
-                icone={<Copy size={16} />}
-                onClick={() => {
-                  void navigator.clipboard?.writeText(texte).then(() => setCopie(true));
-                }}
-              >
-                {copie ? tx('copie') : tx('copier')}
-              </Bouton>
-            </div>
-          </>
-        ) : (
-          <p className="text-[14px] text-socle-texte-doux">
-            {fautes
-              .map((f) =>
-                f === 'nombre' || f === 'poids' ? tx(`erreur.${f}`) : tx('erreur.offre', { f: lignes.find((l) => l.id === f.offre)?.fournisseur || f.offre }),
-              )
-              .join(' ')}
-          </p>
-        )}
-      </section>
-    </CadreAtelier>
+          ) : (
+            <ul aria-live="polite" className="flex flex-col gap-2">
+              {fautes.map((f, i) => (
+                <li key={i}>
+                  <PastilleEtat etat="critique" allegee>
+                    {f === 'nombre' || f === 'poids' ? tx(`erreur.${f}`) : tx('erreur.offre', { f: lignes.find((l) => l.id === f.offre)?.fournisseur || f.offre })}
+                  </PastilleEtat>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Carte>
+      </Disposition>
+    </PageAtelier>
   );
 }

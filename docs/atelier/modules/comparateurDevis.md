@@ -33,3 +33,18 @@ départager des offres.
 
 Marchés publics (critères et pondérations réglementés), lecture automatique
 des devis PDF, critères personnalisés au-delà des cinq.
+
+## Au socle v4 (14 nov. 2026)
+
+- Écran fait des briques du socle (`Page`, `PageHead`, `TuileKpi`, `Carte`, `Saisie`, `Selecteur`,
+  `PastilleEtat`…), néon de la famille Argent (`--fam-a` / `--fam-b`, lus sur `data-famille`), Inter,
+  un seul bouton principal par écran. Aucune couleur écrite à la main.
+- Textes français **au tutoiement** (guide de voix `src/socle/mots/voix.ts`), vérifié par `verifier.mjs`. Ce
+  qui part chez un client reste au vouvoiement (rien ici).
+- **Place dans les écrans de DS** (provisoire, STATUT §1.33 n° 4) : MA03 Paiements en ligne (`/acompte`), par un lien vers `/comparer-des-devis`.
+  Le lien appartient à l'écran de DS, qui n'existe pas encore : ce module ne l'écrit pas.
+- Déclaration au registre de S5 : `src/refonte/modules/declarations/comparateurDevis.ts` — **pas encore posée** (`declarerModule` + `nouveau`, qui monte
+  la route par `routesDuRegistre()`).
+- Il travaille encore sur des **données d'exemple** : rien n'est enregistré. Le brancher à une collection de
+  l'organisation est un second temps, hors de cette intégration.
+

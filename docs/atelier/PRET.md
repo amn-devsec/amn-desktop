@@ -12,6 +12,20 @@
 > reste à Harun. Les conditions listées en remarque sont à remplir **au moment**
 > de l'intégration.
 
+## Choix de Harun
+
+**12 novembre 2026** (STATUT §1.21, relayé par le CO le 14 novembre 2026) : Harun
+a choisi trois modules, intégrés en premier, un commit de fusion `--no-ff` chacun.
+
+| Module | Famille · action | Place dans les écrans de DS (provisoire, §1.33 n° 4) | État |
+|---|---|---|---|
+| `tauxHoraire` Taux horaire de revient | argent · prévoir | MA12 Tarifs et remises (`/calculateurs`) | au socle v4 (14 nov.) ; déclaration au registre de S5 **pas encore posée** (en attente d’accord, voir le rapport) |
+| `echeancier` Paiement en plusieurs fois | argent · facturer | H07 Devis (`/facturation/devis`) | au socle v4 (14 nov.) ; déclaration au registre de S5 **pas encore posée** (en attente d’accord, voir le rapport) |
+| `comparateurDevis` Comparateur de devis | argent · depenser | MA03 Paiements en ligne (`/acompte`) | au socle v4 (14 nov.) ; déclaration au registre de S5 **pas encore posée** (en attente d’accord, voir le rapport) |
+
+**Les autres attendent**, y compris le Rétroplanning. `bonsCadeaux` reste bloqué
+(code devinable). Rien d'autre n'est branché.
+
 État au passage 1 (2026-10-22), branche `claude/refonte-atelier-f1` : 14 modules,
 `node src/ateliers/verifier.mjs` → 128 propriétés vertes, dont 110 tests.
 
@@ -21,8 +35,8 @@
 | `retroplanning` Rétroplanning | jour · organiser · essentiel | 5 | 4 | 4 | 5 | 5 | 5 | **prêt à intégrer** | Fériés de métropole calculés (Pâques testé 2025-2027). Pas de Gantt parallèle. |
 | `penalites` Pénalités de retard | argent · facturer · courant | 5 | 4 | 5 | 5 | 5 | 5 | **prêt à intégrer** | Condition : taux BCE et taux légal d'exemple (2,15 % et 3,15 %) à remplacer par ceux du semestre ; ce sont des paramètres. Lettre de mise en demeure générée. |
 | `situations` Situations de travaux | argent · facturer · avancé | 5 | 4 | 4 | 5 | 5 | 5 | **prêt à intégrer** | Retenue de garantie plafonnée à 5 % (loi 71-584), calculée sur le TTC ; réglage HT à ajouter si un client le demande. Le tableau défile en largeur sur téléphone. |
-| `metre` Métré et quantitatif | outils · terrain · courant | 5 | 4 | 4 | 5 | 5 | 5 | **prêt à intégrer** | Calcul en cm entiers. Pièces rectangulaires seulement. `aValider` : famille « terrain » (même question que S1). |
-| `entretiens` Visites d'entretien | outils · terrain · courant | 5 | 4 | 4 | 4 | 5 | 5 | **prêt à intégrer** | Périodicité saisie par l'artisan, aucune règle codée. `aValider` comme `metre`. Contrôles natifs en `color-scheme: dark` posé en dur : à reprendre si le thème clair s'allume. |
+| `metre` Métré et quantitatif | creer · fabriquer · courant | 5 | 4 | 4 | 5 | 5 | 5 | **prêt à intégrer** | Calcul en cm entiers. Pièces rectangulaires seulement. |
+| `entretiens` Visites d'entretien | creer · fabriquer · courant | 5 | 4 | 4 | 4 | 5 | 5 | **prêt à intégrer** | Périodicité saisie par l'artisan, aucune règle codée. Contrôles natifs en `color-scheme: dark` posé en dur : à reprendre si le thème clair s'allume. |
 | `indemnitesKm` Indemnités kilométriques | argent · dépenser · essentiel | 5 | 4 | 4 | 5 | 5 | 5 | **prêt à intégrer** | Condition : barème 2024 reconduit en 2025 ; celui publié en 2026 est **à vérifier** (impots.gouv.fr, BOI-BAREME-000001). Barème appliqué au total annuel puis réparti au centime. Voitures seulement. |
 | `duerp` Document unique des risques | outils · conformité · courant | 5 | 4 | 4 | 4 | 5 | 5 | **prêt à intégrer** | Grille de cotation = usage INRS/CARSAT, présentée comme telle. Conservation 40 ans des versions hors périmètre. Page longue sur téléphone. |
 | `vigilance` Vigilance sous-traitants | outils · conformité · avancé | 4 | 4 | 5 | 5 | 5 | 5 | **prêt à intégrer** | Seuil 5 000 € HT (D8222-1), attestation tous les 6 mois (D8222-5). « Kbis de moins de 3 mois » = usage, en réglage. Surtout BTP. |

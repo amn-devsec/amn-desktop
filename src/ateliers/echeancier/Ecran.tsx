@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Copy } from 'lucide-react';
-import { Bouton, Saisie } from '../../socle/ui';
-import { CadreAtelier, Chiffre, Etat, Tableau, type Ton } from '../_commun/Cadre';
-import { AUJOURDHUI_BAC_A_SABLE, dateLisible, euros, versCentimes } from '../_commun/nombres';
+import { Carte, CaseACocher, PageHead, PastilleEtat, RangeeKpi, Saisie, TuileKpi, type EtatPastille } from '../../socle/ui';
+import { Disposition, PageAtelier } from '../_commun/PageAtelier';
+import { AUJOURDHUI_BAC_A_SABLE, dateLisible, euros, eurosRond, versCentimes } from '../_commun/nombres';
 import { ECHEANCIERS } from './donnees';
 import { useTextes } from './i18n';
 import {
@@ -43,7 +43,7 @@ const appliquer = (e: Echeancier, b: Brouillon): Echeancier =>
     premiereDate: b.date,
   });
 
-const TON: Record<EtatEcheance, Ton> = { payee: 'succes', aVenir: 'neutre', enRetard: 'danger' };
+const ETAT: Record<EtatEcheance, EtatPastille> = { payee: 'succes', aVenir: 'neutre', enRetard: 'critique' };
 
 export default function EcranEcheancier() {
   const { tx, langue } = useTextes();
@@ -91,125 +91,113 @@ export default function EcranEcheancier() {
     : '';
 
   return (
-    <CadreAtelier famille={MODULE.famille} nom={tx('nom')} intro={tx('intro')}>
-      <div className="grid gap-3 sm:grid-cols-3">
-        <Chiffre intitule={tx('total.reste')} valeur={euros(totalReste, langue)} detail={tx('total.reste.detail', { n: enCours })} />
-        <Chiffre
-          intitule={tx('total.retard')}
-          valeur={euros(totalRetard, langue)}
+    <PageAtelier famille={MODULE.famille}>
+      <PageHead
+        titre={tx('nom')}
+        sousTitre={tx('intro')}
+        primaire={
+          lignes
+            ? {
+                libelle: copie ? tx('copie') : tx('copier'),
+                icone: <Copy size={14} />,
+                onClick: () => {
+                  void navigator.clipboard?.writeText(pourLeClient).then(() => setCopie(true));
+                },
+              }
+            : undefined
+        }
+      />
+
+      <RangeeKpi>
+        <TuileKpi famille={MODULE.famille} libelle={tx('total.reste')} valeur={eurosRond(totalReste, langue)} variation={tx('total.reste.court', { n: enCours })} detail={tx('total.reste.detail', { n: enCours })} />
+        <TuileKpi
+          famille={MODULE.famille}
+          libelle={tx('total.retard')}
+          valeur={eurosRond(totalRetard, langue)}
+          ton={nbRetard > 0 ? 'critique' : 'succes'}
+          variation={nbRetard === 0 ? tx('total.retard.aucun') : nbRetard === 1 ? tx('total.retard.court.un') : tx('total.retard.court', { n: nbRetard })}
           detail={nbRetard === 0 ? tx('total.retard.aucun') : nbRetard === 1 ? tx('total.retard.detail.un') : tx('total.retard.detail', { n: nbRetard })}
         />
-        <Chiffre intitule={tx('total.encaisse')} valeur={euros(totalEncaisse, langue)} detail={tx('total.encaisse.detail')} />
-      </div>
+        <TuileKpi famille={MODULE.famille} libelle={tx('total.encaisse')} valeur={eurosRond(totalEncaisse, langue)} variation={tx('total.encaisse.court')} detail={tx('total.encaisse.detail')} />
+      </RangeeKpi>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
-        <nav aria-label={tx('section.liste')} className="flex min-w-0 flex-col gap-2">
-          <h2 className="mb-1 text-[13px] font-semibold text-socle-texte-discret">{tx('section.liste')}</h2>
-          {courants.map((x, i) => {
-            const sx = syntheses[i];
-            const actif = x.id === e.id;
-            return (
-              <button
-                key={x.id}
-                type="button"
-                aria-current={actif || undefined}
-                onClick={() => {
-                  setChoisi(x.id);
-                  setCopie(false);
-                }}
-                className={`flex flex-col gap-1 rounded-xl border p-3 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-socle-focus ${
-                  actif ? 'border-socle-bord-fort bg-socle-eleve' : 'border-socle-bord bg-socle-surface hover:bg-socle-survol'
-                }`}
-              >
-                <span className="text-[14px] font-semibold text-socle-texte">{x.client}</span>
-                <span className="text-[12.5px] text-socle-texte-discret">
-                  {x.reference} · {x.objet}
-                </span>
-                {sx &&
-                  (sx.solde ? (
-                    <Etat ton="succes">{tx('carte.solde')}</Etat>
-                  ) : (
-                    <Etat ton={sx.nbEnRetard > 0 ? 'danger' : 'neutre'}>{tx('carte.reste', { m: euros(sx.resteDu, langue) })}</Etat>
-                  ))}
-              </button>
-            );
-          })}
-        </nav>
-
-        <div className="flex min-w-0 flex-col gap-6">
-          <header className="flex flex-col gap-1">
-            <h2 className="text-[18px] font-semibold text-socle-texte">{e.client}</h2>
-            <p className="text-[13px] text-socle-texte-discret">
-              {e.reference} · {e.objet}
-            </p>
-          </header>
-
-          {s && (
-            <Chiffre
-              fort
-              intitule={tx('res.reste')}
-              valeur={euros(s.resteDu, langue)}
-              detail={[
-                tx('res.reste.detail', { e: euros(s.encaisse, langue), t: euros(e.montantTTC, langue) }),
-                s.prochaine ? tx('res.prochaine', { m: euros(s.prochaine.montant, langue), d: dateLisible(s.prochaine.date, langue) }) : '',
-              ]
-                .filter(Boolean)
-                .join(' ')}
-            />
-          )}
-
-          <fieldset className="grid min-w-0 gap-4 sm:grid-cols-2">
-            <legend className="mb-3 text-[13px] font-semibold text-socle-texte-discret sm:col-span-2">{tx('section.reglages')}</legend>
-            <Saisie etiquette={tx('montant')} suffixe="€" inputMode="decimal" erreur={faute('montant')} {...champ('montant')} />
-            <Saisie etiquette={tx('acompte')} aide={tx('acompte.aide')} suffixe="€" inputMode="decimal" erreur={faute('acompte')} {...champ('acompte')} />
-            <Saisie etiquette={tx('nombre')} aide={tx('nombre.aide', vars)} inputMode="numeric" erreur={faute('nombre') ?? faute('tropPetit')} {...champ('nombre')} />
-            <Saisie etiquette={tx('date')} aide={tx('date.aide')} type="date" erreur={faute('date')} {...champ('date')} />
-          </fieldset>
-
-          <section aria-live="polite" className="flex flex-col gap-3">
-            <h3 className="text-[13px] font-semibold text-socle-texte-discret">{tx('section.echeances')}</h3>
-            {lignes ? (
-              <>
-                <Tableau
-                  entetes={[tx('col.rang'), tx('col.date'), tx('col.etat'), tx('col.payee')]}
-                  lignes={lignes.map((x, i) => [
-                    String(x.rang),
-                    <span key="d" className="flex flex-col whitespace-nowrap">
-                      <span>{dateLisible(x.date, langue)}</span>
-                      <span className="font-semibold tabular-nums text-socle-texte">{euros(x.montant, langue)}</span>
-                    </span>,
-                    <span key="e" className="whitespace-nowrap">
-                      <Etat ton={TON[x.etat]}>{libelleEtat(x)}</Etat>
-                    </span>,
-                    <input
-                      key="p"
-                      type="checkbox"
-                      checked={x.etat === 'payee'}
-                      onChange={() => basculer(i)}
-                      aria-label={tx('marquer', { r: x.rang })}
-                      className="h-4 w-4 cursor-pointer accent-socle-texte"
-                    />,
-                  ])}
-                />
-                <p className="text-[12.5px] leading-relaxed text-socle-texte-discret">{tx('regle')}</p>
-                <div>
-                  <Bouton
-                    variante="primaire"
-                    icone={<Copy size={16} />}
-                    onClick={() => {
-                      void navigator.clipboard?.writeText(pourLeClient).then(() => setCopie(true));
-                    }}
-                  >
-                    {copie ? tx('copie') : tx('copier')}
-                  </Bouton>
-                </div>
-              </>
-            ) : (
-              <p className="text-[14px] text-socle-texte-doux">{fautes.map((f) => tx(`erreur.${f}`, vars)).join(' ')}</p>
+      <Disposition
+        droite={
+          <Carte titre={tx('section.liste')}>
+            <ul className="-m-1 flex flex-col gap-2">
+              {courants.map((x, i) => {
+                const sx = syntheses[i];
+                return (
+                  <li key={x.id}>
+                    <Carte
+                      compacte
+                      active={x.id === e.id}
+                      aria-label={`${x.client} — ${x.reference}`}
+                      onClick={() => {
+                        setChoisi(x.id);
+                        setCopie(false);
+                      }}
+                      titre={x.client}
+                      surtitre={`${x.reference} · ${x.objet}`}
+                    >
+                      {sx && (sx.solde ? <PastilleEtat etat="succes">{tx('carte.solde')}</PastilleEtat> : <PastilleEtat etat={sx.nbEnRetard > 0 ? 'critique' : 'neutre'}>{tx('carte.reste', { m: euros(sx.resteDu, langue) })}</PastilleEtat>)}
+                    </Carte>
+                  </li>
+                );
+              })}
+            </ul>
+          </Carte>
+        }
+      >
+        <Carte titre={e.client} surtitre={`${e.reference} · ${e.objet}`}>
+          <div className="flex flex-col gap-4">
+            {s && (
+              <p className="text-[13px] leading-relaxed text-socle-texte-doux">
+                <span className="mr-2 text-[22px] font-semibold tabular-nums text-socle-texte">{euros(s.resteDu, langue)}</span>
+                {tx('res.reste')}. {tx('res.reste.detail', { e: euros(s.encaisse, langue), t: euros(e.montantTTC, langue) })}{' '}
+                {s.prochaine ? tx('res.prochaine', { m: euros(s.prochaine.montant, langue), d: dateLisible(s.prochaine.date, langue) }) : ''}
+              </p>
             )}
-          </section>
-        </div>
-      </div>
-    </CadreAtelier>
+            <div className="grid min-w-0 gap-3 sm:grid-cols-2">
+              <Saisie etiquette={tx('montant')} suffixe="€" inputMode="decimal" erreur={faute('montant')} {...champ('montant')} />
+              <Saisie etiquette={tx('acompte')} aide={tx('acompte.aide')} suffixe="€" inputMode="decimal" erreur={faute('acompte')} {...champ('acompte')} />
+              <Saisie etiquette={tx('nombre')} aide={tx('nombre.aide', vars)} inputMode="numeric" erreur={faute('nombre') ?? faute('tropPetit')} {...champ('nombre')} />
+              <Saisie etiquette={tx('date')} aide={tx('date.aide')} type="date" erreur={faute('date')} {...champ('date')} />
+            </div>
+          </div>
+        </Carte>
+
+        <Carte titre={tx('section.echeances')}>
+          {lignes ? (
+            <div aria-live="polite" className="-mx-[18px] -mb-4">
+              <ol>
+                {lignes.map((x, i) => (
+                  <li key={x.rang} className="grid grid-cols-[1.75rem_minmax(0,1fr)_auto_auto] items-center gap-3 border-t border-socle-bord px-[18px] py-3">
+                    <span className="text-[13px] tabular-nums text-socle-texte-doux">{x.rang}</span>
+                    <span className="flex min-w-0 flex-col">
+                      <span className="text-[14px] font-semibold tabular-nums text-socle-texte">{euros(x.montant, langue)}</span>
+                      <span className="text-[12.5px] text-socle-texte-doux">{dateLisible(x.date, langue)}</span>
+                    </span>
+                    <PastilleEtat etat={ETAT[x.etat]}>{libelleEtat(x)}</PastilleEtat>
+                    <CaseACocher coche={x.etat === 'payee'} onChange={() => basculer(i)} libelle={tx('marquer', { r: x.rang })} />
+                  </li>
+                ))}
+              </ol>
+              <p className="border-t border-socle-bord px-[18px] py-3 text-[12.5px] leading-relaxed text-socle-texte-doux">{tx('regle')}</p>
+            </div>
+          ) : (
+            <ul aria-live="polite" className="flex flex-col gap-2">
+              {fautes.map((f) => (
+                <li key={f}>
+                  <PastilleEtat etat="critique" allegee>
+                    {tx(`erreur.${f}`, vars)}
+                  </PastilleEtat>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Carte>
+      </Disposition>
+    </PageAtelier>
   );
 }

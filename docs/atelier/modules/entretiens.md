@@ -1,6 +1,6 @@
 # Visites d'entretien (`entretiens`)
 
-**Famille** outils · **Action** terrain · **Niveau** courant · **Route proposée** `/visites-entretien`
+**Famille** créer et produire · **Action** fabriquer (rangé là par S5, STATUT §1.27 n° 1) · **Niveau** courant · **Route proposée** `/visites-entretien`
 
 ## Le besoin
 
