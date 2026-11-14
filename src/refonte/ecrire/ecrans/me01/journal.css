@@ -24,7 +24,7 @@
 }
 .ec-me01__fleches {
   display: inline-flex;
-  gap: 6px;
+  gap: 8px;
 }
 .ec-me01__fleches button {
   width: 28px;
@@ -45,8 +45,8 @@
 .ec-me01__grille {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  row-gap: 6px;
-  margin-top: 10px;
+  row-gap: 10px;
+  margin-top: 6px;
   justify-items: center;
 }
 .ec-me01__initiale {
