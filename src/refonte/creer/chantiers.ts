@@ -75,7 +75,7 @@ export function rythme(c: ChantierEntree): Rythme {
 }
 
 /** La barre de budget passe en ambre au-delà de 90 % consommé. */
-export const budgetEnAmbre = (c: Pick<ChantierEntree, 'budgetCents' | 'depenseCents'>): boolean => (budgetConsomme(c) ?? 0) > 90;
+export const budgetEnAmbre = (c: Pick<ChantierEntree, 'budgetCents' | 'depenseCents'>): boolean => c.budgetCents > 0 && c.depenseCents / c.budgetCents > 0.9; // le rapport exact, pas l'arrondi
 
 /**
  * Statut : Terminé (toutes les étapes faites, ou statut saisi), À démarrer (le chantier

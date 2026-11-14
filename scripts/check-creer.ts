@@ -1116,6 +1116,16 @@ await dit('français et anglais ont les mêmes clés ; le français suit la typo
   }
   for (const k of Object.keys(en)) if (k.endsWith('.n')) assert.ok(`${k.slice(0, -2)}.1` in en, `pas de singulier pour ${k}`);
 });
+await dit('le français est au tutoiement (v4) : ni « vous », ni impératif en « -ez »', () => {
+  const fr = mots.dictionnaires.fr as Record<string, string>;
+  const pasVerbe = new Set(['chez', 'assez', 'nez', 'rez']);
+  for (const [k, v] of Object.entries(fr)) {
+    assert.ok(!/\b(vous|votre|vos)\b/i.test(v), `vouvoiement : ${k} → ${v}`);
+    for (const m of v.matchAll(/(?<![\p{L}’'-])(\p{L}+ez)\b(?!-vous)/gu)) assert.ok(pasVerbe.has(m[1].toLowerCase()), `impératif en -ez : ${k} → ${v}`);
+  }
+  assert.equal(fr['marque.manque.logo'], 'Ajoute ton logo');
+  assert.equal(fr['stock.negatif'], 'Il n’en reste que {n}. Corrige la quantité ou fais un inventaire.');
+});
 await dit('les comptes : 0 et 1 au singulier en français, 1 seulement en anglais', () => {
   assert.equal(mots.compte('fr', 'chantiers.enCours', 0), 'Aucun chantier en cours');
   assert.equal(mots.compte('fr', 'chantiers.enCours', 1), '1 chantier en cours');
@@ -1124,10 +1134,67 @@ await dit('les comptes : 0 et 1 au singulier en français, 1 seulement en anglai
   assert.equal(mots.compte('fr', 'photos.n', 0), '0 photo');
   assert.equal(mots.compte('en', 'photos.n', 0), '0 photos');
   assert.equal(mots.compte('fr', 'stock.surveiller', 0), 'Rien sous le seuil');
-  assert.equal(mots.traduire('fr', 'stock.negatif', { n: 4 }), 'Il n’en reste que 4. Corrigez la quantité ou faites un inventaire.');
+  assert.equal(mots.traduire('fr', 'stock.negatif', { n: 4 }), 'Il n’en reste que 4. Corrige la quantité ou fais un inventaire.');
   assert.equal(mots.traduire('fr', 'ligne.travaux.n', { n: 19, moment: 'ce matin' }), '19 travaux sur la ligne ce matin');
   assert.equal(mots.compte('fr', 'qualite.pareto', 3, { pct: 82 }), '3 causes font 82 % des écarts');
   assert.equal(mots.compte('fr', 'video.relecture', 1, { t: 1, total: 3 }), '1 sur 3 traité');
+});
+
+/* ── Cas limites des fiches ──────────────────────────────────────────────── */
+console.log('\nCas limites\n');
+
+await dit('stock : seuils aux bornes, quantité nulle, seuil nul, rien en route', () => {
+  assert.deepEqual(S.etatDuStock(10, 10), { etat: 'sous-seuil', ton: 'ambre' }); // au seuil exact : sous le seuil
+  assert.deepEqual(S.etatDuStock(11, 10), { etat: 'en-stock', ton: 'neutre' });
+  assert.deepEqual(S.etatDuStock(1, 4), { etat: 'sous-seuil', ton: 'rouge' }); // 25 % du seuil exactement
+  assert.deepEqual(S.etatDuStock(1, 3), { etat: 'sous-seuil', ton: 'ambre' });
+  assert.deepEqual(S.etatDuStock(3, 0), { etat: 'en-stock', ton: 'neutre' }); // sans seuil, jamais « sous le seuil »
+  assert.deepEqual(S.etatDuStock(0, 0), { etat: 'rupture', ton: 'rouge' });
+  const sansSeuil = art('s', 0, 0);
+  assert.equal(S.reperSeuil(sansSeuil), 0);
+  assert.equal(S.estASurveiller(sansSeuil), true); // quantité nulle : rupture
+  assert.equal(S.estASurveiller(art('s', 5, 0)), false);
+  assert.deepEqual(S.ordreDesJauges([]), []);
+  assert.equal(S.valorisationCents([art('n', -3, 5)]), 0); // jamais de valorisation négative
+  assert.deepEqual(S.commandeGroupee([], [], [], '2026-10-30'), []);
+});
+await dit('stock : une rupture au 14e jour compte, au 15e non ; livraison le jour même de la rupture', () => {
+  const mk = (q: number) => ({ ...art('a', 0, 5), mouvements: [{ le: '2026-01-01', delta: q + 30, motif: 'Réception' }, { le: '2026-10-15', delta: -30, motif: 'Vente' }] }); // 1 par jour
+  assert.equal(S.projeterRupture(mk(14), [], '2026-10-30').dansJours, 14);
+  assert.equal(S.projeterRupture(mk(15), [], '2026-10-30').statut, 'aucune');
+  assert.equal(S.projeterRupture(mk(5), [{ articleId: 'a', quantite: 20, le: '2026-11-04' }], '2026-10-30').statut, 'evitee'); // arrive le jour où le dernier exemplaire part
+  assert.equal(S.projeterRupture(mk(5), [{ articleId: 'a', quantite: 20, le: '2026-10-29' }], '2026-10-30').statut, 'rupture'); // livraison déjà passée : ignorée
+});
+await dit('chantiers : retards, semaines passées, budget à 90 % pile, sans étapes', () => {
+  assert.equal(H.budgetEnAmbre(chantier({ depenseCents: 20_340_00 })), false); // 90 % exactement
+  assert.equal(H.budgetEnAmbre(chantier({ depenseCents: 20_400_00 })), true);
+  assert.equal(H.statutDuChantier(chantier({ finPrevueLe: '2026-10-30' }), '2026-10-30'), 'En cours'); // la date de fin n'est pas encore dépassée
+  assert.equal(H.statutDuChantier(chantier({ finPrevueLe: '2026-10-29' }), '2026-10-30'), 'En retard');
+  assert.equal(H.statutDuChantier(chantier({ etapes: [], avancementSaisi: 40 }), '2026-10-30'), 'En cours');
+  assert.equal(H.avancement(chantier({ etapes: [], avancementSaisi: 140 })), 100);
+  assert.equal(H.avancement(chantier({ etapes: [{ nom: 'x', semaine: 44, faite: false, poids: 0 }] })), 0); // poids nul : traité comme 1
+  assert.equal(H.libelleEtape('x'.repeat(14)).tronque, false);
+  assert.equal(H.libelleEtape('x'.repeat(15)).tronque, true);
+});
+await dit('tournées : retard à 15 et 16 minutes, tournée vide, étape unique', () => {
+  assert.equal(T.tonDuRetard(15), 'orange');
+  assert.equal(T.tonDuRetard(16), 'rouge');
+  assert.deepEqual(T.calculerHeures('08:00', []), []);
+  assert.equal(T.resumerTournee([], {}).retardMin, 0);
+  assert.equal(T.etatDeLaTournee([]), 'vide');
+});
+await dit('commandes : retard d’échéance, livrée jamais urgente, volume vide', () => {
+  assert.equal(CM.estUrgente(cm('a', 'new', { echeanceLe: '2026-10-30' }), '2026-10-30'), false); // échéance aujourd'hui : pas encore dépassée
+  assert.equal(CM.estUrgente(cm('a', 'new', { echeanceLe: '2026-10-29' }), '2026-10-30'), true);
+  assert.deepEqual(CM.compter([], '2026-10-30', 0).recentes, { nombre: 0, ilYaMin: null });
+  assert.equal(CM.compter([], '2026-03-31', 0).evolutionLivrees, 0); // fin de mois sur un mois plus court
+  assert.deepEqual(CM.jetonsDeLEtape([], 'recues', '2026-10-30'), { visibles: [], autres: 0 });
+});
+await dit('réservations : réservation à cheval sur la plage, et sur deux jours', () => {
+  const nuit = { id: 'n', ressourceId: 's1', debutAt: '2026-10-30T15:00:00Z', finAt: '2026-10-30T20:00:00Z', statut: 'confirmée' }; // 16:00–21:00 Paris
+  const libres = R.creneauxLibres(salle, [nuit], '2026-10-30');
+  assert.deepEqual(libres.map((c: any) => [c.debut, c.fin]), [[480, 960]]); // coupée à 18:00 : la fin de plage est occupée
+  assert.equal(R.occupationDuJour([salle], [nuit], '2026-10-30'), 20); // 2 h sur 10 h
 });
 
 /* ── Sur les jeux fictifs de SIM ─────────────────────────────────────────── */

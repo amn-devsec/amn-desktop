@@ -1,12 +1,57 @@
 # LOT-06 · Créer et produire — note de préparation
 
-> Branche `claude/refonte-creer`, partie de `claude/refonte-vivante` @ `fc1623e`. Rédigée le 6 nov. 2026, en mode PRÉPARATION (le socle v3 n'est pas fusionné : aucun écran visuel n'est construit).
+> Branche `claude/refonte-creer`. Rédigée le 6 nov. 2026, **mise à jour pour la v4 le 14 nov. (voir §0)**, en mode PRÉPARATION (socle v4 pas encore fusionné : aucun écran visuel n’est construit).
 > Sources : le zip v3 du lot (15 fiches, `04-ECARTS-MAQUETTES.md`), les modules du dépôt (relevé du 6 nov.), les jeux fictifs de SIM (`src/refonte/donnees/`).
 > Rien dans ce document ne décrit une faiblesse de sécurité ; aucune donnée réelle.
 
+## 0. Mise à jour v4 (14 nov. 2026) — néon, tutoiement, socle v4
+
+> Source de cette mise à jour : `PROMPTS-12NOV.md` §5, `STATUT.md` §1.14, §1.17, §1.19, §1.24, §1.25 et le rapport `LOT-00.md` de `claude/refonte-socle` @ `888f7a0`. **Les 5 zips du dossier v4 (`AMN-v4-1-docs.zip` à `-5-images.zip`) n'ont pas été remis à cette session** : `06-V4-NEON-ET-TUTOIEMENT.md`, `_data/tutoiement.json`, `couleurs-familles.json` et les images v4 de mes 15 écrans n'ont donc pas été lus. Le STATUT dit que fiches, index et écarts sont identiques au v3 (vérifié par le CO) : les fiches v3 de ce lot restent la base. Tout ce qui dépend d'une lecture du dossier v4 est marqué « à vérifier ».
+
+**Néon de la famille Créer.** Les écrans ne nomment jamais une couleur : ils lisent `--fam-a` / `--fam-b`, que la coquille pose selon la famille active (`Coquille`, prop de famille). Le lot n'écrit aucune teinte de famille à la main. Les couleurs d'état v4 (succès `#5EE6A8`, info `#6EA8FF`, attention `#FFBE5C`, danger `#FF6B7A`) viennent du socle. Dans la logique, les « tons » restent des mots (`vert`, `orange`, `rouge`, `bleu`, `ambre`) à traduire en jeton par l'écran ; rien à changer. À vérifier au dossier v4 : la paire exacte de la famille Créer, et les 15 règles de rendu du §3 de `06` appliquées aux écrans MIXTES.
+
+**Tutoiement.** Fait pour tous les textes calculés (`i18n.ts`) : 14 libellés passés au « tu » (« Ajoute ton logo », « Corrige la quantité ou fais un inventaire »). `check:creer` refuse désormais tout « vous / votre / vos » et tout impératif en « -ez » dans le français. **Vouvoiement gardé** pour les textes destinés aux clients : page publique du visiteur et avis affichés (MR02), message « Prévenir les clients » (MR03, `momentDePrevenir`), documents de commande. Ces textes n'existent pas encore dans `i18n.ts` ; ils seront écrits au vouvoiement, à part, à la construction. Les textes statiques des écrans suivront `_data/tutoiement.json` (à lire) et le guide de voix du socle (`src/socle/mots/voix.ts` de `claude/refonte-socle` : phrases courtes, aucun reproche, aucun point d'exclamation).
+
+**Briques du socle v4 (jamais construites par le lot).** `ModuleTile` (41 px, ligne 34 px), `ModuleGroupGrid`, `AddModuleTile`, `PageHead`, `IconTile`, `CountBadge`, `StatusPill`, `AvatarStack`, `Progress`, `Ring`, `Segmented`, `Chips`, `SuggestionCompact`, `Suggestion`, `FlagUrgent`, `Kbd`, `Check`, `SearchBox`, `IconButton`, `Empty` (= `EtatVide`), `Sparkline`, `AjmaniBar`, plus la coquille. Restent **au lot** les composants « propres à cet écran » de la rubrique 5 de chaque fiche (`LevelTube`, `SitePlan`, `ProductionLine`, `WorkToken`, `RouteMap`…). Le lot n'importe rien de `src/socle/ui` tant que STATUT ne dit pas « socle v4 fusionné ».
+
+**Mécanisme de substitution (S0).** Un écran refondu est un composant de `src/refonte/creer/`, déclaré par `declarerSubstitutions('creer', [{ route, module, composant }])` dans `src/refonte/substitutions/declarations/creer.tsx` (ramassé seul ; `.tsx` seulement ; la clé `module` doit être celle de la garde `ModuleRoute` de la route d'origine, sinon `check:substitutions` échoue ; jouée coquille allumée par défaut). `appRoot.internal.tsx` et `src/screens/**` ne bougent pas. Ce mécanisme n'est pas encore dans `refonte-vivante` : je ne l'ai donc pas utilisé.
+
+**DEV-modeles-sites (LOT-11).** Peut avoir une **seconde entrée dans Créer et produire**, par la sous-liste « Développement » de la barre latérale et **sans doublon dans le registre** (STATUT §1.17 n° 3, §1.19 n° 1). Le lot Créer ne déclare rien pour elle : aucune vue, aucun champ « aussi dans ». Le seul lien utile est F50 : si le CO le souhaite, une tuile « Modèles de sites » du groupe MONTRER pourrait pointer vers la vue de LOT-11 (non construit, non décidé).
+
+### Déclarations préparées (à poser quand le socle v4 est fusionné ; rien n'est écrit dans `declarations/creer.ts` ni ailleurs)
+
+**A. Substitutions** (`src/refonte/substitutions/declarations/creer.tsx`) — l'écran refondu remplace l'écran d'origine à la même route :
+
+| Écran | Route | Clé `module` (vue du registre) | Composant à créer |
+|---|---|---|---|
+| H15 Stock | `/stock` | `stock` | `StockRefonte` |
+| H16 Chantiers | `/montage` | `assembly` | `ChantiersRefonte` (les bons d'intervention `/interventions`, vue `interventions`, gardent leur écran) |
+| H17 Visuels et marque | `/identite-visuelle` | `brand` | `VisuelsMarqueRefonte` (`/visuels-pub` : `adVisuals`, inchangé) |
+| MR01 Vidéo | `/montage-video` | `video` | `VideoRefonte` (`/productions-video` : `videoProductions`, à fusionner : question 6) |
+| MR02 Ma page publique | `/mini-page` | `minisite` | `PagePubliqueRefonte` (`/portfolio` : `portfolio`, inchangé) |
+| MR03 Tournées | `/tournees` | `rounds` | `TourneesRefonte` |
+| MR04 Matériel | `/materiel` | `equipment` | `MaterielRefonte` |
+| MR06 Réservations | `/salles` (et prêts de `/materiel`) | `rooms` | `ReservationsRefonte` (route de l'écran à confirmer : voir Q1) |
+| MR07 Commandes | `/commandes` | `orders` | `CommandesRefonte` |
+| MR08 Boutique en ligne | `/boutique` | `shop` | `BoutiqueRefonte` |
+| MR09 Flotte de véhicules | `/flotte` | `fleet` | `FlotteRefonte` |
+| MR10 Photos de chantier | `/media` (écran dérivé de la messagerie) ou nouvelle route | `media` | `PhotosChantierRefonte` (route à trancher : Q1/Q10) |
+| MR11 Qualité et contrôles | `/controles` | `checklists` | `QualiteRefonte` |
+
+Les clés `module` viennent de `declarations/*.ts` (vérifiées le 14 nov.) ; `check:substitutions` les comparera aux gardes `ModuleRoute` : à revalider à la pose.
+
+**B. Écrans nouveaux** (registre, `declarations/creer.ts`, avec `nouveau: { icone, ecran, indice }`) :
+
+| Écran | Vue (`id`) proposée | Route proposée | Action de la famille | Niveau |
+|---|---|---|---|---|
+| F50 Vue d'ensemble | `creerEnsemble` | `/ensemble/creer` (route générique déjà là : F50 la remplace par substitution ou par `nouveau`, au choix du CO) | — (hub) | essentiel |
+| MR05 Catalogue produits | `catalogue` | `/catalogue` | `publier` (ou nouvelle action « Vendre » : Q1) | courant |
+
+Verbes et mots-clés proposés (fr/en) : Catalogue → « ajouter un produit », « mettre à jour un prix » ; mots-clés `catalogue`, `produit`, `prix`, `référence`, `fiche produit`. Les actions de `creer.ts` (`video`, `visuels`, `publier`, `evenements`) ne couvrent pas Stock, Chantiers, Commandes… : si ces modules sont rapatriés dans la famille (Q1), prévoir les actions `fabriquer`, `livrer`, `stocker`.
+
 ## 1. En bref
 
-- **Logique pure livrée** : `src/refonte/creer/` (17 fichiers, sans React ni brique visuelle) et `scripts/check-creer.ts` (`npm run check:creer`, **130 contrôles**, ajouté à `editions.yml`). Les cas sont écrits à la main d'après les règles des fiches (rubrique 6), puis rejoués sur les jeux fictifs aux volumes `vide`, `peu`, `normal`, `beaucoup`.
+- **Logique pure livrée** : `src/refonte/creer/` (17 fichiers, sans React ni brique visuelle) et `scripts/check-creer.ts` (`npm run check:creer`, **137 contrôles**, ajouté à `editions.yml`). Les cas sont écrits à la main d'après les règles des fiches (rubrique 6), puis rejoués sur les jeux fictifs aux volumes `vide`, `peu`, `normal`, `beaucoup`.
 - **Aucun des 15 écrans n'est « re-habillage pur »** : le dépôt n'a, pour la plupart, que des modules plus simples que ce que demandent les fiches v3. Les fiches parlent de « modules existants » (stock, chantiers, tournées…) dont les données réelles sont minces (voir §3). La logique est donc écrite contre des **formes d'entrée minimales** ; les jeux fictifs de SIM, plus riches, servent de référence de test. L'écran branché sur les données réelles fera la traduction (adaptateur) le moment venu.
 - **Deux constats pour le CO** (détaillés en §4) : (1) les modules du lot sont **rangés dans cinq familles différentes** du registre ; (2) **MR05 Catalogue produits** et **Fabrication** n'existent pas dans le dépôt.
 

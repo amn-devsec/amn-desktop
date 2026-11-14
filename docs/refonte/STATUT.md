@@ -792,7 +792,7 @@ Mots fr/en par `definirMots`. Gardes : `check:socle-controles|graphiques|situati
 
 ### LOT-06 · Créer et produire — `claude/refonte-creer` — 15 écrans
 
-**Mode PRÉPARATION (consigne du CO, 6 nov.)** : le socle v3 n'étant pas fusionné, aucun écran visuel n'est construit. Livré : la note [`preparation/LOT-06-creer.md`](preparation/LOT-06-creer.md) (module existant, données, écarts, écran par écran), la **logique pure des 15 écrans** dans `src/refonte/creer/` (17 fichiers, sans React ni brique du socle) et `npm run check:creer` (130 contrôles : cas des fiches écrits à la main, puis jeux fictifs de SIM aux volumes vide, peu, normal, beaucoup ; ajouté à `editions.yml`). Gardes sans navigateur de la CI : toutes vertes sur la branche (`typecheck`, `typecheck:business`, `lint`, les contrôles de `editions.yml`) ; `check:business` attend un build.
+**Mode PRÉPARATION (consigne du CO, 6 nov.)** : le socle v3 n'étant pas fusionné, aucun écran visuel n'est construit. Livré : la note [`preparation/LOT-06-creer.md`](preparation/LOT-06-creer.md) (module existant, données, écarts, écran par écran), la **logique pure des 15 écrans** dans `src/refonte/creer/` (17 fichiers, sans React ni brique du socle) et `npm run check:creer` (137 contrôles, cas limites inclus : cas des fiches écrits à la main, puis jeux fictifs de SIM aux volumes vide, peu, normal, beaucoup ; ajouté à `editions.yml`). Gardes sans navigateur de la CI : toutes vertes sur la branche (`typecheck`, `typecheck:business`, `lint`, les contrôles de `editions.yml`) ; `check:business` attend un build.
 
 La colonne « État » reste `à faire` : un écran n'est « fait » qu'une fois construit, capturé et comparé à son image.
 
@@ -823,6 +823,28 @@ La colonne « État » reste `à faire` : un écran n'est « fait » qu'une fois
 5. *Compteurs de la barre latérale* : un point d'entrée pour que les modules déclarent un compteur (Stock : articles sous le seuil ; Chantiers : à surveiller ; Commandes : à expédier). Les calculs existent : `articlesASurveiller`, `chantiersASurveiller`, `compter().aExpedier`.
 6. *Mise en forme chiffrée* : le module de formats des graphiques du socle ne peut pas être importé hors de la liste de `check:socle-graphiques` ; `commun.ts` en garde une copie minimale (question 7).
 7. *Composants propres à chaque écran* (rubrique 5 des fiches : `LevelTube`, `SitePlan`, `BookSpread`, `EditTimeline`, `RouteMap`, `AssetTag`, `ProductMosaic`, `ResourceTimeline`, `OrderPipeline`, `PurchaseFunnel`, `VehicleCard`, `BeforeAfterSlider`, `InspectionSheet`, `ParetoChart`, `ProductionLine`, `WorkToken`…) : construits par le lot dans `src/refonte/creer/`, pas par le socle.
+
+**Mise à jour v4 (14 nov., S7)** : note mise à jour ([`preparation/LOT-06-creer.md`](preparation/LOT-06-creer.md) §0 : néon par `--fam-a` / `--fam-b`, tutoiement, briques du socle, substitution, DEV-modeles-sites sans doublon, déclarations préparées) ; textes calculés passés au tutoiement ; `check:creer` étendu aux cas limites. **Les 5 zips v4 n'ont pas été remis à S7** : `06-V4`, `tutoiement.json` et les images v4 de LOT-06 restent à lire. Rapport : [`rapports/LOT-06-preparation.md`](rapports/LOT-06-preparation.md).
+
+**Manque aux données** (jeux de `src/refonte/donnees/`, à transmettre à SIM ; la logique les lit comme facultatifs) :
+
+| Écran | Jeu | Champ manquant |
+|---|---|---|
+| H15 | `articles` | niveau cible ; emplacement par mouvement ; commandes fournisseur (article, quantité, arrivée) ; franco et frais de port du fournisseur |
+| H16 | `chantiers` | poids et part réalisée par étape ; interventions planifiées ; livraisons rattachées |
+| H17 | `marque` | rôle et part d'usage des couleurs ; règles « à éviter » ; dernière modification |
+| MR01 | `videos` | étape « Sous-titrage » ; plans ; sous-titres ; commentaires de relecture ; date de publication |
+| MR02 | `pagesPubliques` | sections ; visites par jour ; avis avec accord du client |
+| MR03 | `etapesTournee` | durée et distance de trajet ; état « Sur place » |
+| MR04 | `equipements` | dernier contrôle ; dernier entretien ; réforme ; affectation datée |
+| MR05 | `produits` | photos ; TVA ; prix d'achat ; niveau conseillé ; lignes de vente par semaine |
+| MR06 | `ressources`, `reservations` | indisponibilité (garage, hors service) ; historique des conflits |
+| MR07 | `commandes` | instant de création ; heure d'échéance ; date de livraison ; paiement en ligne |
+| MR08 | (aucun) | sessions en direct ; événements de l'entonnoir ; paniers avec dernière activité ; objectif du trimestre |
+| MR09 | `vehicules` | énergie ; niveau de carburant ou de charge ; autonomie ; kilomètres et carburant par jour |
+| MR10 | `dossiersPhotos` | orientation des photos ; signature du client |
+| MR11 | `controles`, `ecarts` | résultat « sans objet » ; cause et date de relevé de l'écart |
+| F50 | (tous) | contrôle qualité ouvert rattaché à un chantier ; étape « Réception » des chantiers |
 
 **Questions pour le CO**
 
