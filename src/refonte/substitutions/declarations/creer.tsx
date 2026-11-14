@@ -21,6 +21,8 @@ export default declarerSubstitutions('creer', [
   { route: '/mini-page', module: 'minisite', composant: lazy(() => import('../../creer/ecrans/MR02/PagePubliqueRefonte')) },
   // MR03 — Tournées (`/itineraires` garde son écran).
   { route: '/tournees', module: 'rounds', composant: lazy(() => import('../../creer/ecrans/MR03/TourneesRefonte')) },
+  // MR09 — Flotte de véhicules.
+  { route: '/flotte', module: 'fleet', composant: lazy(() => import('../../creer/ecrans/MR09/FlotteRefonte')) },
   // MR04 — Matériel.
   { route: '/materiel', module: 'equipment', composant: lazy(() => import('../../creer/ecrans/MR04/MaterielRefonte')) },
   // MR07 — Commandes.

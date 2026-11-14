@@ -883,8 +883,15 @@ await dit('le sous-titre (km du mois, carburant) et « avant le prochain trajet 
   const jours = [{ jour: '2026-10-05', km: 1000, carburantCents: 15000 }, { jour: '2026-10-20', km: 1140, carburantCents: 16000 }, { jour: '2026-09-10', km: 900, carburantCents: 20000 }, { jour: '2026-08-28', km: 900, carburantCents: 99999 }];
   assert.deepEqual(FL.bilanDuMois(jours, '2026-10-30'), { kmDuMois: 2140, variationCarburantPct: 55 }); // 31 000 contre 20 000, sur les 30 premiers jours de septembre
   assert.equal(FL.bilanDuMois([], '2026-10-30').variationCarburantPct, null);
-  assert.deepEqual(FL.controlesAvantTrajet('thermique').map((c: any) => c.motif), ['carburant', 'pneus', 'papiers']);
-  assert.deepEqual(FL.controlesAvantTrajet('electrique').map((c: any) => c.motif), ['charge', 'pneus', 'papiers']);
+  assert.deepEqual(FL.controlesAvantTrajet('thermique').map((c: any) => c.motif), ['pneus', 'carnet', 'carburant']);
+  assert.deepEqual(FL.controlesAvantTrajet('electrique').map((c: any) => c.motif), ['pneus', 'carnet', 'charge']);
+});
+await dit('la suggestion : échéance au jour près à moins de 30 jours, sans rendez-vous, la plus proche', () => {
+  const v = (id: string, nom: string, le: string, rendezVous = false) => ({ id, nom, kmActuel: 1000, kmSur30Jours: 0, echeances: [{ nom: 'Contrôle technique', nature: 'jours' as const, intervalle: 730, le, rendezVous }, { nom: 'Vidange', nature: 'km' as const, intervalle: 5000, dernierKm: 0 }] });
+  assert.deepEqual(FL.suggestionEcheance([v('a', 'Berlingo', '2026-11-20'), v('b', 'Kangoo', '2026-11-12')], '2026-10-30'), { vehiculeId: 'b', nom: 'Kangoo', echeance: 'Contrôle technique', feminin: false, le: '2026-11-12' });
+  assert.equal(FL.suggestionEcheance([v('a', 'Berlingo', '2026-11-20', true)], '2026-10-30'), null); // rendez-vous pris
+  assert.equal(FL.suggestionEcheance([v('a', 'Berlingo', '2027-03-01')], '2026-10-30'), null); // trop loin ; la vidange (au km) ne déclenche pas
+  assert.equal(FL.suggestionEcheance([], '2026-10-30'), null);
 });
 
 /* ── MR10 Photos de chantier ─────────────────────────────────────────────── */
