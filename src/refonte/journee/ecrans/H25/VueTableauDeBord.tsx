@@ -253,7 +253,7 @@ function Contenu({ w, d, euros, onNote, editable }: { w: Widget; d: DonneesTable
     case 'taches': {
       if (!d.taches) return nonConnecte;
       return (
-        <div className="jr-taches">
+        <div className="jr-wtaches">
           <AnneauProgression valeur={d.taches.total ? d.taches.faites / d.taches.total : 0} libelle={tm('widget.taches')} taille={50} epaisseur={5} ton="succes"><b className="cr-mono">{d.taches.faites}/{d.taches.total}</b></AnneauProgression>
           <span><small>{tm('widget.taches.serie')}</small><b>{tm('widget.taches.jours', { n: d.taches.serie })}</b></span>
         </div>

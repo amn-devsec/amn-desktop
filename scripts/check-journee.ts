@@ -63,6 +63,7 @@ const M = await charger<any>(
   [
     `export * as L from '../${ZONE}';`,
     `export * as G from '../${ZONE}/grille';`,
+    `export * as MX from '../${ZONE}/matrice';`,
     "export * as monde from '../src/refonte/donnees';",
     "export * as attendus from '../src/refonte/donnees/attendus';",
     "export { avancementProjet, statutProjet } from '../src/refonte/donnees/ma-journee';",
@@ -73,7 +74,7 @@ const M = await charger<any>(
     "export { ecartsDeVoix } from '../src/socle/mots/voix';",
   ].join('\n'),
 );
-const { L, G, monde, attendus, moi, jourDeSim, avancementProjet, statutProjet, joursSansImpayeSim, DICTIONNAIRES_JOURNEE: DICO, ecartsDeVoix } = M;
+const { L, G, MX, monde, attendus, moi, jourDeSim, avancementProjet, statutProjet, joursSansImpayeSim, DICTIONNAIRES_JOURNEE: DICO, ecartsDeVoix } = M;
 
 const VOLUMES = ['vide', 'peu', 'normal', 'beaucoup'] as const;
 const mondes = Object.fromEntries(VOLUMES.map((v) => [v, monde.construireMonde({ volume: v })])) as Record<(typeof VOLUMES)[number], any>;
@@ -823,6 +824,57 @@ await dit('H25 : l’ajout prend la première case libre, la copie une autre, le
 await dit('H25 : neuf types de widgets, la disposition ne porte ni clé ni valeur', () => {
   assert.equal(G.TYPES_DE_WIDGET.length, 9);
   assert.ok(!/(secret|token|cle|apikey|password)/i.test(JSON.stringify(G.ajouter([], { contenu: 'ca', type: 'chiffre', largeur: 3, hauteur: 2, source: 'Stripe' }))));
+});
+
+/* ── 3d. H02 : la matrice des tâches ─────────────────────────────────────── */
+console.log('\nLOT-01 — matrice des tâches (H02)\n');
+
+const VEN = '2026-10-30';
+const tc = (id: string, o: Record<string, unknown> = {}) => ({ id, titre: id, echeance: null, creeLe: `2026-10-0${id.length}`, ...o });
+
+await dit('H02 : quatre cases — urgent + important, important, urgent, ni l’un ni l’autre ; une case choisie à la main est gardée', () => {
+  assert.equal(MX.caseDe(tc('a', { urgente: true, importante: true }), VEN), 'maintenant');
+  assert.equal(MX.caseDe(tc('b', { importante: true }), VEN), 'planifier');
+  assert.equal(MX.caseDe(tc('c', { urgente: true }), VEN), 'deleguer');
+  assert.equal(MX.caseDe(tc('d'), VEN), 'alleger');
+  assert.equal(MX.caseDe(tc('e', { echeance: '2026-10-28', importante: true }), VEN), 'maintenant', 'en retard : urgent');
+  assert.equal(MX.caseDe(tc('f', { echeance: VEN }), VEN), 'deleguer', 'pour aujourd’hui : urgent');
+  assert.equal(MX.caseDe(tc('g', { echeance: '2026-11-02', importante: true }), VEN), 'planifier', 'un vendredi, le lundi n’est pas urgent');
+  assert.equal(MX.caseDe(tc('h', { echeance: '2026-11-02', importante: true }), '2026-10-31'), 'maintenant', 'un samedi, le lundi est le prochain jour ouvré');
+  assert.equal(MX.caseDe(tc('i', { echeance: '2026-10-20', choix: { urgent: false, important: false } }), VEN), 'alleger', 'le choix de la personne gagne');
+});
+
+await dit('H02 : tri d’une case (en retard, échéance, création), compteurs d’en-tête, « dont n en retard »', () => {
+  const taches = [tc('z', { echeance: '2026-11-03' }), tc('y', { echeance: '2026-10-29' }), tc('x', { echeance: '2026-10-28' }), tc('w')];
+  assert.deepEqual(MX.trierLaCase(taches, VEN).map((t: any) => t.id), ['x', 'y', 'z', 'w']);
+  const m = MX.matrice([...taches, tc('fait', { faite: true, urgente: true })], VEN);
+  assert.equal(m.ouvertes, 4);
+  assert.equal(m.enRetard, 2);
+  assert.equal(m.cases.deleguer.ouvertes, 2);
+  assert.equal(m.cases.deleguer.enRetard, 2);
+  assert.equal(m.cases.alleger.ouvertes, 2);
+});
+
+await dit('H02 : l’ajout rapide comprend la date, l’heure, la personne, l’étiquette, urgent, important ; le reste est le titre', () => {
+  const a = MX.analyserLaSaisie('Appeler Menna lundi 10 h, important', VEN);
+  assert.deepEqual({ ...a }, { titre: 'Appeler Menna', echeance: '2026-11-02', heure: '10:00', personne: null, etiquette: null, urgent: false, important: true, case: 'planifier' });
+  const b = MX.analyserLaSaisie('Envoyer le devis demain à 9h30 @Mohamed #facturation !', VEN);
+  assert.deepEqual({ ...b }, { titre: 'Envoyer le devis', echeance: '2026-10-31', heure: '09:30', personne: 'Mohamed', etiquette: 'facturation', urgent: true, important: false, case: 'deleguer' });
+  assert.equal(MX.analyserLaSaisie('Relire le contrat le 12', VEN).echeance, '2026-11-12');
+  assert.equal(MX.analyserLaSaisie('Relire le contrat le 12', '2026-10-05').echeance, '2026-10-12');
+  assert.equal(MX.analyserLaSaisie('Rien de reconnu ici', VEN).titre, 'Rien de reconnu ici');
+  assert.equal(MX.analyserLaSaisie('vendredi', VEN).echeance, '2026-11-06', 'le jour de la semaine est le prochain, jamais aujourd’hui');
+  assert.equal(MX.analyserLaSaisie('', VEN).titre, '');
+});
+
+await dit('H02 : « 5 sur 8 fait » — plus que n, journée finie, bouclée ; le plus grand temps libre du matin', () => {
+  assert.deepEqual(MX.phraseDeLaJourneeDeTaches(5, 8, 6, false), { type: 'plus-que', restantes: 3, serieSiBouclee: 7 });
+  assert.deepEqual(MX.phraseDeLaJourneeDeTaches(5, 8, 6, true), { type: 'finie' });
+  assert.deepEqual(MX.phraseDeLaJourneeDeTaches(8, 8, 6, false), { type: 'bouclee' });
+  assert.deepEqual(MX.phraseDeLaJourneeDeTaches(0, 0, 0, false), { type: 'rien' });
+  assert.equal(MX.plusGrandTempsLibre([{ debut: 9, fin: 9.5 }]), 2.5);
+  assert.equal(MX.plusGrandTempsLibre([]), 4);
+  assert.equal(MX.plusGrandTempsLibre([{ debut: 8, fin: 12 }]), 0);
 });
 
 /* ── 4. Les éléments ludiques protégés (L07, trophées, défis) ─────────────── */

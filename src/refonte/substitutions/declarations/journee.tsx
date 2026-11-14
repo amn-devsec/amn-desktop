@@ -10,4 +10,6 @@ import { declarerSubstitutions } from '../declarer';
 export default declarerSubstitutions('journee', [
   // H25 — Tableau de bord, widgets.
   { route: '/tableau-de-bord', module: 'dashboard', composant: lazy(() => import('../../journee/ecrans/H25/TableauDeBordRefonte')) },
+  // H02 — Tâches.
+  { route: '/tasks', module: 'tasks', composant: lazy(() => import('../../journee/ecrans/H02/TachesRefonte')) },
 ]);
