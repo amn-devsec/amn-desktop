@@ -51,8 +51,8 @@ async function charger<T>(code: string): Promise<T> {
 const FICHIERS = ['commun', 'serie', 'pages', 'relecture', 'documents', 'signatures', 'modeles', 'journal', 'redaction', 'archives', 'connaissances', 'hub', 'i18n', 'phrases'];
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerH10 from '../${ZONE}/ecrans/h10/composer';\nexport * as composerF20 from '../${ZONE}/ecrans/f20/composer';\nexport * as composerH11 from '../${ZONE}/ecrans/h11/composer';\nexport * as composerH12 from '../${ZONE}/ecrans/h12/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
-const { commun: C, serie: S, pages: P, relecture: R, documents: D, signatures: G, modeles: MO, journal: J, redaction: RE, archives: A, connaissances: K, hub: H, i18n: I, phrases: PH, composerH10: CH10, composerF20: CF20, composerH11: CH11, composerH12: CH12, monde } = M;
+const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerH10 from '../${ZONE}/ecrans/h10/composer';\nexport * as composerF20 from '../${ZONE}/ecrans/f20/composer';\nexport * as composerH11 from '../${ZONE}/ecrans/h11/composer';\nexport * as composerH12 from '../${ZONE}/ecrans/h12/composer';\nexport * as composerME01 from '../${ZONE}/ecrans/me01/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
+const { commun: C, serie: S, pages: P, relecture: R, documents: D, signatures: G, modeles: MO, journal: J, redaction: RE, archives: A, connaissances: K, hub: H, i18n: I, phrases: PH, composerH10: CH10, composerF20: CF20, composerH11: CH11, composerH12: CH12, composerME01: CME01, monde } = M;
 
 const NB = ' ';
 const paris = (j: string, hhmm: string) => C.instantParis(j, Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3)));
@@ -1280,6 +1280,36 @@ await dit('H12 · composerSignatures : tickets, circuit, relance « 1 sur 3 », 
   assert.equal(CH12.composerSignatures({ ...e, demandes: [], choisie: null }).circuit, null);
   assert.equal(C.dateCourte('2026-10-28'), '28 oct.');
   assert.equal(C.quandRelatif('2026-10-29T12:00:00Z', '2026-10-30T09:42:00Z'), 'hier');
+});
+
+await dit('ME01 · composerJournal : calendrier, série, humeur du mois, souvenir, page du jour ; le journal reste à son auteur', () => {
+  const moi = 'a@x.test';
+  const jours = Array.from({ length: 12 }, (_, i) => `2026-10-${19 + i}`);
+  const pages: any[] = jours.map((jour, i) => ({ jour, auteurEmail: moi, humeur: (i % 5) + 1, texte: 'un deux trois' }));
+  pages.push({ jour: '2026-09-30', auteurEmail: moi, humeur: 4, texte: 'Un souvenir. Une suite.' });
+  pages.push({ jour: '2026-10-29', auteurEmail: 'autre@x.test', humeur: 1, texte: 'Pas à moi.' });
+  pages.find((p) => p.jour === '2026-10-30').energie = 4;
+  pages.find((p) => p.jour === '2026-10-30').mercis = ['Un merci'];
+  const e = { langue: 'fr', maintenant: '2026-10-30T09:42:00Z', moi, pages, jour: '2026-10-30', bilanAuCalendrier: true, heureDuBilan: '16:00', initiales: ['L', 'M', 'M', 'J', 'V', 'S', 'D'], enregistreA: '2026-10-30T09:41:00Z', commenceeA: null };
+  const a = { onChoisirHumeur: () => undefined, onChangerTexte: () => undefined, onOuvrirJour: () => undefined, onResumer: () => undefined, onNonResumer: () => undefined };
+  const v = CME01.composerJournal(e, a);
+  assert.equal(v.calendrier.mois, 'Octobre 2026');
+  assert.equal(v.calendrier.decalage, 3, 'le 1er octobre 2026 est un jeudi');
+  assert.equal(v.calendrier.jours.length, 31);
+  assert.equal(v.calendrier.jours[29].etat, 'aujourdhui', 'le 30 est entouré, écrit ou non');
+  assert.equal(v.calendrier.jours[30].etat, 'avenir');
+  assert.equal(v.calendrier.serie.valeur, 12);
+  assert.equal(v.humeur.barres.length, 12, 'une barre par jour avec une humeur, et seulement les miennes');
+  assert.equal(v.humeur.barres.at(-1).derniere, true);
+  assert.equal(v.souvenir.texte, 'Un souvenir.');
+  assert.deepEqual(v.page.humeur.niveaux.map((n: any) => n.libelle), ['Difficile', 'Moyen', 'Bien', 'Très bien', 'Excellent']);
+  assert.equal(v.page.energie.segments, 4);
+  assert.equal(v.page.energie.libelle, 'Bonne');
+  assert.deepEqual(v.page.mercis.valeurs, ['Un merci', '', '']);
+  assert.ok(v.page.suggestion !== null, 'vendredi, 3 pages dans la semaine, bilan au calendrier');
+  assert.equal(CME01.composerJournal({ ...e, bilanAuCalendrier: false }, a).page.suggestion, null);
+  assert.equal(CME01.composerJournal({ ...e, jour: '2026-10-20' }, a).page.mercis, null, 'rien d’inventé quand le champ est vide');
+  assert.equal(CME01.composerJournal({ ...e, pages: [] }, a).souvenir, null);
 });
 
 await dit('rien ne lit l’horloge ni le hasard : « maintenant » est toujours un paramètre', () => {

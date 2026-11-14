@@ -14,4 +14,6 @@ export default declarerSubstitutions('ecrire', [
   { route: '/classeur', composant: lazy(() => import('../../ecrire/ecrans/h11/PageDocuments')) },
   // H12 — Signatures : les circuits de signature à distance, à la place de leur écran (même route).
   { route: '/signature-a-distance', composant: lazy(() => import('../../ecrire/ecrans/h12/PageSignatures')) },
+  // ME01 — Journal, à la place du journal personnel (même route).
+  { route: '/personnel/journal', composant: lazy(() => import('../../ecrire/ecrans/me01/PageJournal')) },
 ]);
