@@ -419,7 +419,7 @@ export function genererPaiements(ctx: Contexte, factures: readonly Facture[]): P
 export function genererDepenses(ctx: Contexte, equipe: readonly Membre[]): Depense[] {
   const h = hasard(graineDe(ctx.graine, 'depenses'));
   const n = compter(ctx.volumes.depenses, [0, 10, 60, 700]);
-  const auteurs = equipe.filter((m) => m.role !== 'Partenaire');
+  const auteurs = equipe.filter((m) => m.role !== 'guest');
   const liste: Depense[] = [];
   for (let i = 1; i <= n; i += 1) {
     const [libelle, fournisseur, categorie, moyen] = h.choix(DEPENSES_TYPES);
@@ -665,7 +665,7 @@ const ENVELOPPES: readonly (readonly [string, string, string, string])[] = [
 export function genererEnveloppes(ctx: Contexte, equipe: readonly Membre[], depenses: readonly Depense[]): Enveloppe[] {
   const h = hasard(graineDe(ctx.graine, 'enveloppes'));
   const n = compter(ctx.volumes.enveloppes, [0, 2, 5, 5]);
-  const responsables = equipe.filter((m) => m.role === 'Administrateur' || m.role === 'Membre');
+  const responsables = equipe.filter((m) => m.role !== 'guest');
   const mois = ctx.aujourdhui.slice(0, 7);
   const depuis = ajouterJours(ctx.aujourdhui, -180);
   // Les six derniers mois, le mois courant en dernier.

@@ -120,11 +120,12 @@ const normal = D.construireMonde({ volume: 'normal' });
 const gros = D.construireMonde({ volume: 'beaucoup' });
 const peu = D.construireMonde({ volume: 'peu' });
 const vide = D.construireMonde({ volume: 'vide' });
-// Les avoirs ne sont dans le monde que sur demande (`avoirs: true`) tant que la logique de DS ne lit pas la nature `creditNote`.
-const peuAv = D.construireMonde({ volume: 'peu', avoirs: true });
-const normalAv = D.construireMonde({ volume: 'normal', avoirs: true });
-const grosAv = D.construireMonde({ volume: 'beaucoup', avoirs: true });
-const videAv = D.construireMonde({ volume: 'vide', avoirs: true });
+// Les avoirs sont dans le monde par défaut (DS les lit) ; `avoirs: false` redonne un monde sans avoir.
+const peuAv = peu;
+const normalAv = normal;
+const grosAv = gros;
+const videAv = vide;
+const normalSansAv = D.construireMonde({ volume: 'normal', avoirs: false });
 const jours = (m: MondeBrut): string => m.contexte.aujourdhui;
 const joursCyber = (m: MondeBrut): string => m.contexte.aujourdhuiCyber;
 const aujourdhuiDe = jours;
@@ -366,7 +367,8 @@ dit('les avoirs : AV-AAAA-NNNN continu, rattachés à une facture du même clien
   assert.ok(normalAv.avoirs.length >= 1 && grosAv.avoirs.length >= 10, 'des avoirs dès « normal »');
   assert.ok(grosAv.avoirs.some((a) => grosAv.factures.find((f) => f.id === a.creditNoteFor)?.status === 'issued') && grosAv.avoirs.some((a) => grosAv.factures.find((f) => f.id === a.creditNoteFor)?.status === 'paid'), 'avoirs sur factures dues et réglées');
   assert.equal(videAv.avoirs.length, 0);
-  assert.equal(normal.avoirs.length + gros.avoirs.length, 0, 'sans demande, aucun avoir dans le monde');
+  assert.equal(normalSansAv.avoirs.length, 0, '`avoirs: false` : aucun avoir');
+  assert.ok(normalSansAv.factures.every((f) => num(f.soldeCents) === resteDuDe(normalSansAv, f)), '`avoirs: false` : le reste dû ne les compte pas');
   // Avec avoirs, le reste dû, la TVA et les encaissements attendus en tiennent compte (même calcul que les mondes sans avoirs, moins ce que les avoirs reprennent).
   for (const f of grosAv.factures) assert.equal(num(f.soldeCents), resteDuDe(grosAv, f), 'reste dû = TTC − avoirs − règlements');
   for (const x of grosAv.mouvements.filter((y) => y.nature === 'Encaissement attendu')) {
@@ -751,8 +753,7 @@ const IPV4 = /\b(?:\d{1,3}\.){3}\d{1,3}\b/;
 dit('chaque nouveau jeu existe, vide au volume « vide », rempli aux autres', () => {
   const suite = D.NOMS_DES_JEUX.slice(D.NOMS_DES_JEUX.indexOf('echeancesFiscales'));
   assert.ok(suite.length >= 60, `${suite.length} jeux dans la suite`);
-  // Les avoirs ne sont dans le monde que sur demande : leur contrôle est plus haut.
-  for (const nom of suite.filter((x) => x !== 'avoirs')) {
+  for (const nom of suite) {
     assert.equal(vide[nom].length, 0, `${nom} doit être vide`);
     assert.ok(gros[nom].length > 0, `${nom} : « beaucoup » est vide`);
     assert.ok(normal[nom].length > 0, `${nom} : « normal » est vide`);
@@ -826,7 +827,7 @@ dit('TVA : la TVA à reverser est celle des factures émises moins celle des dé
 });
 
 dit('paie : un bulletin par salarié et par mois, net positif, les mois passés sont payés, et la banque prélève la masse salariale', () => {
-  const salaries = normal.equipe.filter((m) => m.role !== 'Partenaire' && m.role !== 'Invité');
+  const salaries = normal.equipe.filter((m) => m.role !== 'guest');
   assert.equal(normal.bulletins.length, salaries.length * 3);
   const vus = new Set<string>();
   for (const b of gros.bulletins) {
@@ -1855,6 +1856,44 @@ dit('remises : le prix de grille des lignes se compare au prix facturé ; MR08 :
   }
   assert.equal(vide.entonnoirBoutique.length + vide.paniers.length + vide.sessionsBoutique.length, 0);
   assert.ok(peu.entonnoirBoutique.length === 14 && peu.paniers.length === 3 && peu.sessionsBoutique.length === 2);
+});
+
+dit('rôles : les quatre du serveur (owner, admin, member, guest), un seul « owner » qui est « moi » ; « Partenaire » n’est pas un rôle', () => {
+  for (const [nom, m] of [['normal', normal], ['peu', peu], ['beaucoup', gros], ['vide', vide]] as const) {
+    assert.ok(m.equipe.every((x) => ['owner', 'admin', 'member', 'guest'].includes(str(x.role))), `${nom} : rôles du serveur`);
+    assert.equal(m.equipe.filter((x) => x.role === 'owner').length, 1, `${nom} : un seul propriétaire`);
+    assert.equal(m.equipe.find((x) => x.moi === true)?.role, 'owner', `${nom} : « moi » est le propriétaire (le dirigeant)`);
+    assert.ok(!JSON.stringify(m.equipe).includes('Partenaire'), `${nom} : aucun « Partenaire » dans l’équipe`);
+  }
+  assert.deepEqual([...new Set(gros.equipe.map((x) => x.role))].sort(), ['admin', 'guest', 'member', 'owner']);
+  assert.ok(normal.equipe.some((x) => x.role === 'admin') && normal.equipe.some((x) => x.role === 'guest') && normal.equipe.filter((x) => x.role !== 'guest').length >= 5);
+});
+
+dit('serveur (DEV-serveur) : résumé sans hôte ni adresse, disque cohérent avec les mesures, sauvegardes lues dans le jeu, coût du mois', () => {
+  for (const [nom, m] of [['normal', normal], ['peu', peu], ['beaucoup', gros]] as const) {
+    assert.equal(m.serveur.length, 1, `${nom} : un serveur`);
+    const sv = m.serveur[0];
+    assert.ok(num(sv.enLigneDepuisJours) > 0 && Math.abs(D.ecartJours(D.jourDe(Date.parse(str(sv.redemarreLe))), aujourdhuiDe(m)) - num(sv.enLigneDepuisJours)) <= 1, `${nom} : en ligne depuis N jours`);
+    assert.ok(num(sv.disqueUtiliseGo) < num(sv.disqueTotalGo) && num(sv.memoireTotaleGo) > 0 && num(sv.capaciteReseauMoParS) > 0);
+    const mesures = m.mesuresServeur;
+    if (mesures.length) assert.equal(Math.round((num(sv.disqueUtiliseGo) / num(sv.disqueTotalGo)) * 100), num(mesures[mesures.length - 1].disquePct), `${nom} : le disque du résumé = celui de la dernière mesure`);
+    const croissance = sv.croissanceDisqueGoParSemaine as number[];
+    assert.ok(croissance.length === 4 && croissance.every((x) => x > 0 && x < 5), `${nom} : croissance du disque`);
+    const sa = sv.sauvegardes as Lien;
+    const derniere = [...m.sauvegardes].sort((a, b) => str(b.at).localeCompare(str(a.at)))[0];
+    assert.equal(sa.derniereCopieAt, derniere ? derniere.at : null, `${nom} : dernière copie = dernière sauvegarde du jeu`);
+    assert.equal(sa.derniereCopieReussie, derniere ? derniere.etat === 'Réussie' : false);
+    assert.ok(sa.restaurationTesteeLe === null || str(sa.restaurationTesteeLe) <= aujourdhuiDe(m));
+    const couts = sv.couts as Lien[];
+    assert.ok(couts.length === 3 && couts.every((c) => Number.isInteger(num(c.cents)) && num(c.cents) > 0), `${nom} : coûts du mois`);
+    assert.ok(!/https?:|localhost|\b\d{1,3}(\.\d{1,3}){3}\b|\b[a-z0-9-]+\.(com|fr|net|io|org|dev)\b|\bport\s*\d+/i.test(JSON.stringify(sv)), `${nom} : ni hôte, ni adresse, ni port`);
+    for (const x of m.servicesServeur) {
+      const d = num(x.disponibilite30jPct);
+      assert.equal(x.etat, d < 99 ? 'arrêté' : d < 99.9 ? 'attention' : 'en marche', `${nom} : état d'un service (99,9 % / 99,0 %)`);
+    }
+  }
+  assert.equal(num((normal.serveur[0].couts as Lien[]).reduce((t, c) => t + num(c.cents), 0)), 900, 'normal : 9 € tout compris');
+  assert.equal(vide.serveur.length, 0);
 });
 
 console.log('  — LOT-14 : la charge');

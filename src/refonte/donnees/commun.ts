@@ -19,7 +19,7 @@ export const quandPasse = (maintenant: number, jour: Jour, hhmm = '09:00'): stri
 export const heure = (h: number, m = 0): string => `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
 
 /** Les personnes qui travaillent dans l'entreprise (pas les partenaires extérieurs). */
-export const salaries = (equipe: readonly Membre[]): Membre[] => equipe.filter((m) => m.role !== 'Partenaire' && m.role !== 'Invité');
+export const salaries = (equipe: readonly Membre[]): Membre[] => equipe.filter((m) => m.role !== 'guest');
 
 /** `fa-0007` : un identifiant lisible et stable. */
 export const cle = (prefixe: string, n: number, largeur = 4): string => `${prefixe}-${String(n).padStart(largeur, '0')}`;

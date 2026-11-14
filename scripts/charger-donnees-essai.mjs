@@ -17,7 +17,7 @@
  *   --a-blanc                           compte ce qui serait écrit, sans rien envoyer
  *   --sans-vider                        n'efface pas les enregistrements en trop
  *   --garde                             lance aussi scripts/seed-supervision.mjs (voir plus bas)
- *   --avoirs                            ajoute les avoirs (AV-AAAA-NNNN), rangés avec les factures
+ *   --sans-avoirs                       n'ajoute pas les avoirs (AV-AAAA-NNNN), qui sont rangés avec les factures par défaut
  *
  * ## Ce qu'il refuse
  *
@@ -155,7 +155,7 @@ function lancerLaGarde() {
 
 async function principal() {
   const D = await chargerLesJeux();
-  const monde = D.construireMonde({ volume, avoirs: drapeau('--avoirs'), ...(graine ? { graine: Number(graine) } : {}) });
+  const monde = D.construireMonde({ volume, avoirs: !drapeau('--sans-avoirs'), ...(graine ? { graine: Number(graine) } : {}) });
   const moi = D.moi(monde.equipe).email;
   // Les avoirs sont rangés avec les factures : ils ne sont pas « non chargés ».
   const jeuxNonCharges = D.NOMS_DES_JEUX.filter((nom) => nom !== 'avoirs' && !CHARGES.some((c) => c.jeu === nom));
