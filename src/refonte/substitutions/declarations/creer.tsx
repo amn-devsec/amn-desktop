@@ -11,4 +11,6 @@ export default declarerSubstitutions('creer', [
   { route: '/ensemble/creer', composant: lazy(() => import('../../creer/ecrans/F50/HubCreer')) },
   // H15 — Stock.
   { route: '/stock', module: 'stock', composant: lazy(() => import('../../creer/ecrans/H15/StockRefonte')) },
+  // H16 — Chantiers (les bons d'intervention gardent `/interventions`).
+  { route: '/montage', module: 'assembly', composant: lazy(() => import('../../creer/ecrans/H16/ChantiersRefonte')) },
 ]);
