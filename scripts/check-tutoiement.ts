@@ -22,7 +22,7 @@ const V = await charger<{
 }>({ code: "export * from '../src/socle/mots/voix';" });
 
 /** Ce qui est passé au tutoiement. Un lot y ajoute son dossier quand il passe ses textes au tutoiement. */
-export const PERIMETRE = ['src/socle', 'src/refonte/coquille', 'src/refonte/compteurs', 'src/refonte/systeme', 'src/refonte/journee', 'src/refonte/ecrire', 'scripts/apercu'];
+export const PERIMETRE = ['src/socle', 'src/refonte/coquille', 'src/refonte/compteurs', 'src/refonte/systeme', 'src/refonte/journee', 'src/refonte/ecrire', 'src/refonte/echanger', 'scripts/apercu'];
 
 /**
  * LES ZONES CLIENT : des textes destinés à un client, qui gardent le vouvoiement (courriels, devis, factures,
@@ -42,6 +42,15 @@ export const ZONES_CLIENT: readonly { fichier: string; debut: string; raison: st
   { fichier: 'scripts/apercu/ecrans/ME02.tsx', debut: ' si le devis vous convient.', raison: 'le brouillon de courriel montré par l’aperçu de ME02 : il part chez le client' },
   { fichier: 'scripts/apercu/ecrans/ME04.tsx', debut: '18 messages, le dernier en avril', raison: 'l’extrait d’un message REÇU d’un client, montré par l’aperçu de ME04 : il garde le vouvoiement de son auteur' },
   { fichier: 'scripts/apercu/ecrans/H12.tsx', debut: 'Bonjour Menna, le devis', raison: 'la relance préparée montrée par l’aperçu de H12 : elle part chez le client' },
+  { fichier: 'scripts/apercu/ecrans/G07.tsx', debut: 'Il a encore redémarré ce matin', raison: 'un message REÇU d’un client, montré par l’aperçu de G07 : il garde le vouvoiement de son auteur' },
+  { fichier: 'scripts/apercu/ecrans/G07.tsx', debut: 'Pouvez-vous nous renvoyer', raison: 'un message REÇU d’un client, montré par l’aperçu de G07 : il garde le vouvoiement de son auteur' },
+  { fichier: 'scripts/apercu/ecrans/G07.tsx', debut: 'Je vous envoie la photo', raison: 'un message REÇU d’un client, montré par l’aperçu de G07 : il garde le vouvoiement de son auteur' },
+  { fichier: 'scripts/apercu/ecrans/G07.tsx', debut: 'Merci de votre retour.', raison: 'un message REÇU d’un client, montré par l’aperçu de G07 : il garde le vouvoiement de son auteur' },
+  { fichier: 'scripts/apercu/ecrans/G07.tsx', debut: 'Bonjour Madame Roux, je passe jeudi', raison: 'le brouillon d’Ajmani montré par l’aperçu de G07 : il part chez le client' },
+  { fichier: 'scripts/apercu/ecrans/MX01.tsx', debut: 'Merci, c’était très clair', raison: 'un courriel REÇU d’un client, montré par l’aperçu de MX01 : il garde le vouvoiement de son auteur' },
+  { fichier: 'scripts/apercu/ecrans/MX01.tsx', debut: 'Je vous envoie les 12 photos', raison: 'un courriel REÇU d’un client, montré par l’aperçu de MX01 : il garde le vouvoiement de son auteur' },
+  { fichier: 'scripts/apercu/ecrans/MX01.tsx', debut: 'Votre versement de 2 400', raison: 'un courriel REÇU d’un service de paiement, montré par l’aperçu de MX01 : il garde le vouvoiement de son auteur' },
+  { fichier: 'scripts/apercu/ecrans/MX06.tsx', debut: 'Bonjour {prénom},', raison: 'le modèle de réponse automatique d’une règle, montré par l’aperçu de MX06 : il part chez le client' },
 ];
 
 /**

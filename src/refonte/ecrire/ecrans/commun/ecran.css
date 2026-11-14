@@ -109,7 +109,7 @@
 
 /*
  * LES CIBLES (décision du CO, STATUT §1.39) : le dessin des fiches v4 est gardé (boutons de 31 px, disques de 26 px…), mais
- * toute cible a une zone de clic INVISIBLE de 34 px au moins, comme le socle le fait pour `PageHead` et l'interrupteur
+ * toute cible a une zone de clic INVISIBLE de 36 px au moins, comme le socle le fait pour `PageHead` et l'interrupteur
  * (`::after` centré sur la cible, sans changer sa taille ni la mise en page).
  */
 :is(.ec-page, .ec-f20, .ec-h10) :is(
@@ -126,7 +126,14 @@
     .ec-f20__ligne-action,
     .ec-h11__onglet,
     .ec-me04__annee,
-    .ec-me05__source button
+    .ec-me05__source button,
+    .ec-f20__lien,
+    .ec-h12__modes [role='tab'],
+    .ec-h10__recherche,
+    .ec-h11__recherche,
+    .ec-me04__champ,
+    .ec-me05__champ,
+    .ec-me05__filtre
   ) {
   position: relative;
 }
@@ -144,13 +151,30 @@
     .ec-f20__ligne-action,
     .ec-h11__onglet,
     .ec-me04__annee,
-    .ec-me05__source button
+    .ec-me05__source button,
+    .ec-f20__lien,
+    .ec-h12__modes [role='tab'],
+    .ec-h10__recherche,
+    .ec-h11__recherche,
+    .ec-me04__champ,
+    .ec-me05__champ,
+    .ec-me05__filtre
   )::after {
   content: '';
   position: absolute;
   top: 50%;
   left: 50%;
-  width: max(100%, 34px);
-  height: max(100%, 34px);
+  width: max(100%, 36px);
+  height: max(100%, 36px);
   transform: translate(-50%, -50%);
+}
+
+/*
+ * LE CALENDRIER DE ME01 (§1.41) : les jours se touchent presque (26 px de disque, 6 px d'écart : 32 px de pas), donc la zone
+ * de chaque jour s'arrête à mi-chemin de ses voisins (32 × 32) : le centre d'un jour n'est jamais renvoyé au voisin.
+ * Les recherches et champs (label) prennent la zone de 36 px sur le label entier, qui donne le focus à son champ.
+ */
+.ec-me01__jour::after {
+  width: calc(100% + 6px);
+  height: calc(100% + 6px);
 }

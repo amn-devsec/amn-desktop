@@ -17,7 +17,8 @@ export interface AnnonceMin {
   epinglee: boolean;
   /** Les destinataires actifs ; absent = toute l'équipe active (`equipe`). */
   destinataires?: readonly string[];
-  confirmations: readonly { email: string; at: Instant }[];
+  /** `at` absent : le poste sait que la personne a confirmé, pas à quelle heure. */
+  confirmations: readonly { email: string; at?: Instant }[];
   reactions?: readonly { email: string; type: TypeDeReaction }[];
   /** « Nouveauté d'AMN Business » n'est pas une annonce de l'équipe : ni catégorie, ni « 5/6 ». */
   nouveauteDuProduit?: boolean;
@@ -77,7 +78,7 @@ export function accuses(a: AnnonceMin, equipeActive: readonly string[]): Accuse[
   const destinataires = a.destinataires ?? equipeActive;
   return destinataires.map((email) => {
     const c = a.confirmations.find((x) => x.email === email);
-    return { email, lu: !!c || email === a.auteurEmail, at: c ? ms(c.at) : null };
+    return { email, lu: !!c || email === a.auteurEmail, at: c?.at !== undefined ? ms(c.at) : null };
   });
 }
 
@@ -163,13 +164,26 @@ export const RAPPEL_AVANT_MS = 2 * MS_HEURE;
  * Rappel avant un événement annoncé : annonce épinglée portant une heure du jour, non confirmée par au moins un
  * membre, 2 h avant l'heure (Proposition). Rien n'est envoyé sans « Programmer ».
  */
-export function rappelAProposer(a: AnnonceMin, equipeActive: readonly string[], maintenant: Instant): { heureMin: number; nonConfirmes: number } | null {
+export function rappelAProposer(a: AnnonceMin, equipeActive: readonly string[], maintenant: Instant, avantMs: number = RAPPEL_AVANT_MS): { heureMin: number; nonConfirmes: number } | null {
   if (!a.epinglee) return null;
   const heure = heureDansLeTexte(`${a.titre} ${a.texte}`);
   if (heure === null) return null;
   const p = partiesParis(maintenant);
   const reste = (heure - p.minutes) * 60_000;
-  if (reste <= 0 || reste > RAPPEL_AVANT_MS) return null;
+  if (reste <= 0 || reste > avantMs) return null;
   const nonConfirmes = luPar(a, equipeActive).sur - luPar(a, equipeActive).lus;
   return nonConfirmes > 0 ? { heureMin: heure, nonConfirmes } : null;
+}
+
+/* ------------------------------ La barre de lecture ------------------------------ */
+
+export const SEGMENTS_DE_LECTURE = 3;
+/**
+ * La barre de lecture d'une note : trois segments, verts quand tous ont lu (H14 §5). Un segment par tiers de l'équipe,
+ * arrondi ; personne n'a lu : aucun ; quelqu'un a lu mais pas tous : au moins un et jamais les trois.
+ */
+export function segmentsDeLecture(lus: number, sur: number): { pleins: number; vert: boolean } {
+  if (sur <= 0 || lus <= 0) return { pleins: 0, vert: false };
+  if (lus >= sur) return { pleins: SEGMENTS_DE_LECTURE, vert: true };
+  return { pleins: Math.min(SEGMENTS_DE_LECTURE - 1, Math.max(1, Math.round((SEGMENTS_DE_LECTURE * lus) / sur))), vert: false };
 }

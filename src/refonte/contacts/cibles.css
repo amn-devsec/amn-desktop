@@ -27,3 +27,5 @@
 .sc-fi-tige, .sc-fi-montee { pointer-events: none; }
 /* Étroit : le bas de la page laisse la place de la barre d'Ajmani, pour que les derniers points d'un nuage ne passent pas dessous. */
 @media (max-width: 900px) { .sc-ct-cibles { padding-bottom: calc(var(--socle-hauteur-ajmani, 64px) + 12px); } }
+/* Les segments compacts (ton d'un message, filtres de H45) : 20 px dessinés, zone de 38 px (le socle pose 34 px). */
+.sc-ct-cibles .sc-segment::after { width: max(100%, 38px); height: max(100%, 38px); }

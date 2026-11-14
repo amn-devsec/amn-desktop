@@ -448,8 +448,9 @@ await dit('la Garde et la supervision : réservée à l’équipe AMN (jamais au
   assert.deepEqual(fautes, [], fautes.join('\n'));
 });
 
-await dit('le rail tient ses essentiels : seize au plus, l’Accueil d’abord', () => {
-  assert.ok(m.ESSENTIELS.length + m.ESSENTIELS_GARDE.length <= 16, `${m.ESSENTIELS.length + m.ESSENTIELS_GARDE.length} essentiels`);
+// Seize dans le dossier de construction ; dix-sept depuis G07 : la décision du CO (STATUT §1.32 n° 1) garde « Canaux » ET « Messagerie » (la boîte des clients) essentiels tous les deux.
+await dit('le rail tient ses essentiels : dix-sept au plus, l’Accueil d’abord', () => {
+  assert.ok(m.ESSENTIELS.length + m.ESSENTIELS_GARDE.length <= 17, `${m.ESSENTIELS.length + m.ESSENTIELS_GARDE.length} essentiels`);
   assert.equal(m.ESSENTIELS[0], 'home');
 });
 
