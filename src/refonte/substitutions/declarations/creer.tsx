@@ -15,4 +15,6 @@ export default declarerSubstitutions('creer', [
   { route: '/montage', module: 'assembly', composant: lazy(() => import('../../creer/ecrans/H16/ChantiersRefonte')) },
   // H17 — Visuels et marque (`/visuels-pub` garde son écran).
   { route: '/identite-visuelle', module: 'brand', composant: lazy(() => import('../../creer/ecrans/H17/MarqueRefonte')) },
+  // MR01 — Vidéo (`/productions-video` garde son écran : la production, reliée par le titre).
+  { route: '/montage-video', module: 'video', composant: lazy(() => import('../../creer/ecrans/MR01/VideoRefonte')) },
 ]);
