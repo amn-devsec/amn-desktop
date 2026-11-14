@@ -4,7 +4,7 @@ import { Bouton } from '../../socle/ui';
 import { formaterEuro } from '../../socle/formats';
 import { ABrancher, CarteDev, PageDev, Point, SuggestionDev } from './briques';
 import { hhmm, jourEtMois, ms, partiesParis } from './commun';
-import { useDonneesDeveloppement } from './donnees';
+import { useDonneesDeveloppement, type DonneesDeveloppement } from './donnees';
 import { dire, direCompte } from './i18n';
 import { moyenneDerniereHeure, semainesAvantPlein, texteDebit, texteDisponibilite, texteDuree, texteGo, tonDisponibilite } from './vues';
 
@@ -55,7 +55,11 @@ function chemin(valeurs: readonly number[], l: number, h: number, max: number): 
 }
 
 export default function ServeurSante() {
-  const d = useDonneesDeveloppement();
+  return <ServeurDev d={useDonneesDeveloppement()} />;
+}
+
+/** La vue seule, sur des données passées (l'enveloppe ci-dessus, un aperçu, un essai). */
+export function ServeurDev({ d }: { d: DonneesDeveloppement }) {
   const m = d.maintenant;
   const srv = d.serveur;
   const [annonce, setAnnonce] = useState('');

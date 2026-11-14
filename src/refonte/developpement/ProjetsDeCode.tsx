@@ -5,7 +5,7 @@ import { MiniCourbe, PastilleEtat } from '../../socle/ui';
 import { ABrancher, CarteDev, GrandChiffre, ListeARegarder, PageDev } from './briques';
 import { dateCourte } from './commun';
 import { planifies as planifiesAVenir, resumeSemaine, type Deploiement as DeploiementLogique } from './deploiements';
-import { useDonneesDeveloppement } from './donnees';
+import { useDonneesDeveloppement, type DonneesDeveloppement } from './donnees';
 import { dire, direCompte } from './i18n';
 import { ROUTES_DEV } from './chemins';
 import { aRegarder, carteDActivite, commitsDeLaSemaine, lignesDuDepot, pastilleDepot, partTestsVerts, ticketsDuDepot, trierDepots } from './vues';
@@ -22,7 +22,11 @@ const L = 'fr' as const;
 const CARTES_MONTREES = 6;
 
 export default function ProjetsDeCode() {
-  const d = useDonneesDeveloppement();
+  return <ProjetsDev d={useDonneesDeveloppement()} />;
+}
+
+/** La vue seule, sur des données passées (l'enveloppe ci-dessus, un aperçu, un essai). */
+export function ProjetsDev({ d }: { d: DonneesDeveloppement }) {
   const aller = useNavigate();
   const m = d.maintenant;
   const branche = d.source === 'exemple';

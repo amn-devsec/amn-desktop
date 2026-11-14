@@ -33,7 +33,9 @@ export const FEUILLE_DEVELOPPEMENT = `
   position: relative;
   box-sizing: border-box;
   min-width: 0;
-  overflow: hidden;
+  /* Le contenu reste rogné au bord de la carte, mais une zone de clic de 34 px (§1.39) peut en déborder de 4 px. */
+  overflow: clip;
+  overflow-clip-margin: 4px;
   border: 1px solid var(--socle-bord-carte);
   border-radius: var(--socle-rayon-carte);
   background:
@@ -51,6 +53,17 @@ export const FEUILLE_DEVELOPPEMENT = `
 .dv-carte__tete { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
 .dv-carte__titre { margin: 0; font-size: 15px; font-weight: 600; color: var(--socle-texte-1); }
 .dv-carte__droite { font-size: 12.5px; color: var(--socle-texte-3); white-space: nowrap; }
+
+/* ── Cibles de 34 px (STATUT §1.39) : le dessin suit la fiche, la zone de clic invisible fait au moins 34 px de haut
+   et de large, centrée sur la cible (même procédé que les actions de PageHead au socle). ── */
+:is(.dv-page, .dv-ms-fiche) [data-socle='bouton'],
+.dv-ens-poste__nom,
+.dv-ens-jeton,
+.dv-ms-puce { position: relative; }
+:is(.dv-page, .dv-ms-fiche) [data-socle='bouton']::after,
+.dv-ens-poste__nom::after,
+.dv-ens-jeton::after,
+.dv-ms-puce::after { content: ''; position: absolute; top: 50%; left: 50%; width: max(100%, 34px); height: max(100%, 34px); transform: translate(-50%, -50%); }
 
 /* ── Points, grands chiffres ── */
 .dv-point {
@@ -181,9 +194,10 @@ export const FEUILLE_DEVELOPPEMENT = `
 .dv-ens-jeton__texte { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dv-ens-jeton[data-vide] { border-style: dashed; color: var(--socle-texte-3); cursor: default; }
 .dv-ens-milieu { display: grid; grid-template-columns: 547px 547px; gap: 14px; }
-.dv-ens-milieu > .dv-carte { height: 150px; padding: 14px 18px; }
+.dv-ens-milieu > .dv-carte { min-height: 150px; padding: 14px 18px; }
 .dv-ens-milieu .dv-carte__tete { margin-bottom: 8px; }
-.dv-ens-milieu .dv-a-regarder__ligne { min-height: 31px; font-size: 13px; }
+/* 35 px par ligne (plus le filet) : deux zones de clic de 34 px voisines ne se recouvrent pas (§1.39). */
+.dv-ens-milieu .dv-a-regarder__ligne { min-height: 35px; font-size: 13px; }
 .dv-ens-seul { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: center; }
 .dv-ens-seul__bloc { display: flex; align-items: center; gap: 12px; background: none; border: 0; padding: 0; color: inherit; text-align: left; cursor: pointer; }
 .dv-ens-seul__grand { display: block; font-size: 20px; font-weight: 700; color: var(--socle-texte-1); }
@@ -560,7 +574,7 @@ export const FEUILLE_DEVELOPPEMENT = `
   border: 1px solid var(--socle-bord-bouton); border-radius: var(--socle-rayon-champ); background: var(--socle-champ); color: var(--socle-texte-3);
 }
 .dv-ms-recherche:focus-within { border-color: var(--fam-a); }
-.dv-ms-recherche input { flex: 1; min-width: 0; background: none; border: 0; outline: 0; color: var(--socle-texte-1); font: inherit; font-size: 14px; }
+.dv-ms-recherche input { flex: 1; align-self: stretch; min-width: 0; background: none; border: 0; outline: 0; color: var(--socle-texte-1); font: inherit; font-size: 14px; }
 .dv-ms-puces { display: flex; flex-wrap: wrap; gap: 8px; }
 .dv-ms-puce { border: 1px solid var(--socle-bord-bouton); background: none; border-radius: 99px; padding: 5px 12px; font: inherit; font-size: 12.5px; color: var(--socle-texte-courant); cursor: pointer; }
 .dv-ms-puce em { font-style: normal; font-family: var(--socle-police-mono); margin-left: 6px; opacity: 0.65; font-size: 11.5px; }

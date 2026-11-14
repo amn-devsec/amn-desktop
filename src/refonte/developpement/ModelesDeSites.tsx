@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, Search } from 'lucide-react';
 import { Bouton, Modale, Segmente } from '../../socle/ui';
-import { PageDev } from './briques';
-import { useDonneesDeveloppement } from './donnees';
+import { PageDev, useFeuilleDev } from './briques';
+import { useDonneesDeveloppement, type DonneesDeveloppement } from './donnees';
 import { dire, direCompte } from './i18n';
 import { CLE_STOCKAGE, ecrireAjoutes, fauteDAjout, filtrer, jetonsHtml, lignes, lireAjoutes, MODELES_LIVRES, NOM_MAX, poids, puces, SECTEUR_MAX, type ModeleSite } from './modeles';
 
@@ -44,12 +44,31 @@ function Apercu({ html, titre }: { html: string; titre: string }) {
 }
 
 export default function ModelesDeSites() {
-  const d = useDonneesDeveloppement();
-  const [ajoutes, setAjoutes] = useState<ModeleSite[]>(lireStockage);
+  return <ModelesDev d={useDonneesDeveloppement()} />;
+}
+
+/**
+ * La vue seule. Un aperçu passe ses modèles d'exemple (`ajoutesInitiaux`, à la place de ceux de ce poste) et peut
+ * ouvrir un modèle d'emblée (`ouvertInitial`, `vueInitiale`) ; l'enveloppe ci-dessus ne passe que les données.
+ */
+export function ModelesDev({
+  d,
+  ajoutesInitiaux,
+  ouvertInitial,
+  vueInitiale = 'apercu',
+}: {
+  d: DonneesDeveloppement;
+  ajoutesInitiaux?: ModeleSite[];
+  ouvertInitial?: string;
+  vueInitiale?: 'apercu' | 'code';
+}) {
+  // La fiche d'un modèle ouvert se rend sans `PageDev` : la feuille du lot doit être posée ici aussi.
+  useFeuilleDev();
+  const [ajoutes, setAjoutes] = useState<ModeleSite[]>(() => ajoutesInitiaux ?? lireStockage());
   const [secteur, setSecteur] = useState('');
   const [recherche, setRecherche] = useState('');
-  const [ouvert, setOuvert] = useState<ModeleSite | null>(null);
-  const [vue, setVue] = useState<'apercu' | 'code'>('apercu');
+  const [ouvert, setOuvert] = useState<ModeleSite | null>(() => (ouvertInitial ? ([...MODELES_LIVRES, ...(ajoutesInitiaux ?? [])].find((m) => m.id === ouvertInitial) ?? null) : null));
+  const [vue, setVue] = useState<'apercu' | 'code'>(vueInitiale);
   const [appareil, setAppareil] = useState<'ordinateur' | 'telephone'>('ordinateur');
   const [annonce, setAnnonce] = useState('');
   const [dialogue, setDialogue] = useState(false);

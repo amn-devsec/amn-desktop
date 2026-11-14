@@ -41,7 +41,7 @@ import {
   type Deploiement,
   type EtatEtape,
 } from "./deploiements";
-import { useDonneesDeveloppement } from "./donnees";
+import { useDonneesDeveloppement, type DonneesDeveloppement } from "./donnees";
 import { dire, direCompte } from "./i18n";
 
 /**
@@ -86,7 +86,11 @@ const CLE_ETAT: Record<string, Parameters<typeof dire>[1]> = {
 };
 
 export default function Deploiements() {
-  const d = useDonneesDeveloppement();
+  return <DeploiementsDev d={useDonneesDeveloppement()} />;
+}
+
+/** La vue seule, sur des données passées (l'enveloppe ci-dessus, un aperçu, un essai). */
+export function DeploiementsDev({ d }: { d: DonneesDeveloppement }) {
   const m = d.maintenant;
   const branche = d.source === "exemple";
   const [aRevenir, setARevenir] = useState<Deploiement | null>(null);

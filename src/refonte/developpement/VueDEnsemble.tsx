@@ -7,7 +7,7 @@ import { ROUTE_TOUS_LES_MODULES } from '../navigation/moment';
 import { CarteDev, ListeARegarder, PageDev, Point, type TonPoint } from './briques';
 import { dateEtHeure, debutDeSemaineParis, hhmm, partiesParis } from './commun';
 import { enLigne, etatGlobal, nomCible, planifies as planifiesAVenir, resumeSemaine, type Cible, type Deploiement as DeploiementLogique } from './deploiements';
-import { useDonneesDeveloppement } from './donnees';
+import { useDonneesDeveloppement, type DonneesDeveloppement } from './donnees';
 import { dire, direCompte } from './i18n';
 import { compteursDuJour, executionsDuMois, resumeFlux } from './journal';
 import { aRegarder, commitsDeLaSemaine, partFaiteSeul, payeDuMois, reussisDeLaSemaine, semainesAvantPlein, texteDuree } from './vues';
@@ -44,7 +44,11 @@ interface Poste {
 }
 
 export default function VueDEnsemble() {
-  const d = useDonneesDeveloppement();
+  return <EnsembleDev d={useDonneesDeveloppement()} />;
+}
+
+/** La vue seule, sur des données passées (l'enveloppe ci-dessus, un aperçu, un essai). */
+export function EnsembleDev({ d }: { d: DonneesDeveloppement }) {
   const aller = useNavigate();
   const branche = d.source === 'exemple';
   const m = d.maintenant;

@@ -20,7 +20,7 @@ import {
   type TypeQuand,
 } from '../connecteurs';
 import { ABrancher, CarteDev, PageDev, SuggestionDev, useLectureSeule } from './briques';
-import { useDonneesDeveloppement } from './donnees';
+import { useDonneesDeveloppement, type DonneesDeveloppement } from './donnees';
 import { dire } from './i18n';
 import { executionsDuMois, resumeFlux, texteDerniereExecution } from './journal';
 
@@ -109,11 +109,23 @@ const MILIEU_BLOC = 48;
 const HAUT_MIN_BLOC = 97;
 
 export default function EditeurDeFlux() {
-  const d = useDonneesDeveloppement();
   const { upsert } = useSync();
+  const regles = useCollection<AutomationEtendue>('automations');
+  return <EditeurDev d={useDonneesDeveloppement()} regles={regles} sauver={(id, regle) => upsert('automations', id, regle)} />;
+}
+
+/** La vue seule : les règles d'automatisation et l'enregistrement sont passés (l'enveloppe ci-dessus, un aperçu, un essai). */
+export function EditeurDev({
+  d,
+  regles,
+  sauver,
+}: {
+  d: DonneesDeveloppement;
+  regles: readonly (AutomationEtendue & { id: string })[];
+  sauver: (id: string, regle: Record<string, unknown>) => Promise<void>;
+}) {
   const aller = useNavigate();
   const lectureSeule = useLectureSeule();
-  const regles = useCollection<AutomationEtendue>('automations');
   const m = d.maintenant;
 
   const flux = useMemo(() => {
@@ -158,7 +170,7 @@ export default function EditeurDeFlux() {
       setAnnonce(dire(L, 'edit.defauts'));
       return;
     }
-    void upsert('automations', courant.id, regle as unknown as Record<string, unknown>).then(() => {
+    void sauver(courant.id, regle as unknown as Record<string, unknown>).then(() => {
       setBrouillon(null);
       setChoisi(courant.id);
       setAnnonce(dire(L, 'edit.enregistre'));

@@ -5,7 +5,7 @@ import { formaterEuro } from '../../socle/formats';
 import { SEUIL_SUGGESTION_FORFAIT } from '../connecteurs';
 import { ABrancher, CarteDev, PageDev, SuggestionDev } from './briques';
 import { moisCourt } from './commun';
-import { useDonneesDeveloppement } from './donnees';
+import { useDonneesDeveloppement, type DonneesDeveloppement } from './donnees';
 import { dire, direCompte } from './i18n';
 import { partFaiteSeul, payeDuMois } from './vues';
 
@@ -27,7 +27,11 @@ const MODE: Record<string, { etat: EtatPastille; cle: Parameters<typeof dire>[1]
 };
 
 export default function CoutsEtApi() {
-  const d = useDonneesDeveloppement();
+  return <CoutsDev d={useDonneesDeveloppement()} />;
+}
+
+/** La vue seule, sur des données passées (l'enveloppe ci-dessus, un aperçu, un essai). */
+export function CoutsDev({ d }: { d: DonneesDeveloppement }) {
   const [annonce, setAnnonce] = useState('');
   const branche = d.source === 'exemple';
 
