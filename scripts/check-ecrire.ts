@@ -125,7 +125,7 @@ const motsMaquette = () => {
 };
 
 await dit('ME01 : 12 jours de suite, record 21, 25 jours écrits, prochain palier 14 dans 2 jours (86 %)', () => {
-  const s = S.serieDEcriture(motsMaquette(), AUJ);
+  const s = S.serieDEcriture(motsMaquette(), AUJ, { joursDeRepos: [] });
   assert.equal(s.serie, 12);
   assert.equal(s.record, 21);
   assert.equal(s.etat, 'en-cours');
@@ -144,17 +144,17 @@ await dit('ME01 : 12 jours de suite, record 21, 25 jours écrits, prochain palie
 await dit('aujourd’hui vide : la série va jusqu’à hier, rien n’est perdu ; un jour de plus se compte', () => {
   const m = motsMaquette();
   m.delete(AUJ);
-  const s = S.serieDEcriture(m, AUJ);
+  const s = S.serieDEcriture(m, AUJ, { joursDeRepos: [] });
   assert.equal(s.serie, 11);
   assert.equal(s.ecritAujourdhui, false);
   assert.equal(s.etat, 'en-cours');
-  assert.equal(S.serieDEcriture(m, '2026-10-30').joursAvantPalier, 3);
+  assert.equal(S.serieDEcriture(m, '2026-10-30', { joursDeRepos: [] }).joursAvantPalier, 3);
   const mois = S.moisEnCases(m, AUJ, AUJ);
   assert.equal(mois.cases[29].etat, 'aujourdhui', 'le jour en cours reste en pointillé tant que rien n’est écrit');
 });
 await dit('série interrompue : elle reprend, sans « 0 » ni reproche ; le record reste ; jamais écrit : première page', () => {
   const m = new Map<string, number>([...jours('2026-10-01', '2026-10-10')].map((j) => [j, 50]));
-  const s = S.serieDEcriture(m, AUJ);
+  const s = S.serieDEcriture(m, AUJ, { joursDeRepos: [] });
   assert.equal(s.serie, 0);
   assert.equal(s.etat, 'reprise');
   assert.equal(s.record, 10);
@@ -165,21 +165,22 @@ await dit('série interrompue : elle reprend, sans « 0 » ni reproche ; le reco
 });
 await dit('les jours de repos ne cassent pas la série ; sans repos, le week-end la casse', () => {
   const m = new Map<string, number>([['2026-10-23', 40], ['2026-10-26', 40], ['2026-10-27', 40]]);
-  assert.equal(S.serieDEcriture(m, '2026-10-27').serie, 2, 'samedi et dimanche non écrits la cassent');
+  assert.equal(S.serieDEcriture(m, '2026-10-27', { joursDeRepos: [] }).serie, 2, 'samedi et dimanche non écrits la cassent');
   assert.equal(S.serieDEcriture(m, '2026-10-27', { joursDeRepos: [6, 7] }).serie, 3);
   assert.equal(S.serieDEcriture(m, '2026-10-27', { joursDeRepos: [6, 7] }).record, 3);
+  assert.equal(S.serieDEcriture(m, '2026-10-27').serie, 3, 'repos par défaut : samedi et dimanche (décision du CO, §1.29 n° 1)');
 });
 await dit('les paliers : 7, 14, 21, 30, 60, 100 ; au-delà du dernier, plus de palier', () => {
   assert.deepEqual([...S.PALIERS_SERIE], [7, 14, 21, 30, 60, 100]);
   const longue = new Map<string, number>(jours('2026-06-01', AUJ).map((j) => [j, 10]));
-  const s = S.serieDEcriture(longue, AUJ);
+  const s = S.serieDEcriture(longue, AUJ, { joursDeRepos: [] });
   assert.equal(s.serie, 152);
   assert.equal(s.prochainPalier, null);
   assert.equal(s.joursAvantPalier, null);
   assert.equal(s.progression, 1);
 });
 await dit('badges de F20 : sur la série en cours (7 jours obtenu, 14 et Record 21 en pointillé)', () => {
-  const s = S.serieDEcriture(motsMaquette(), AUJ);
+  const s = S.serieDEcriture(motsMaquette(), AUJ, { joursDeRepos: [] });
   assert.deepEqual(S.badgesDeSerie(s), [
     { genre: 'palier', valeur: 7, obtenu: true },
     { genre: 'palier', valeur: 14, obtenu: false },
@@ -207,7 +208,7 @@ await dit('H10 : les 7 disques de la semaine (L M M J V S D) : 5 cochés, samedi
   assert.equal(S.semaineEnDisques(m, AUJ)[4].etat, 'en-cours');
 });
 await dit('phrases : « Belle série · prochain palier : 14 jours, dans 2 jours », reprise, première page, conseil du jour', () => {
-  const s = S.serieDEcriture(motsMaquette(), AUJ);
+  const s = S.serieDEcriture(motsMaquette(), AUJ, { joursDeRepos: [] });
   assert.equal(PH.phraseDeSerie(s, 'fr'), 'Belle série · prochain palier : 14 jours, dans 2 jours');
   assert.equal(PH.phraseDeSerie(s, 'en'), 'Nice streak · next milestone: 14 days, in 2 days');
   assert.equal(PH.phraseDeSerie({ ...s, etat: 'reprise' }, 'fr'), 'La série reprend aujourd’hui');
@@ -1078,6 +1079,49 @@ await dit('aucun écran visuel avant le socle v4 : que des .ts, aucun fichier .t
   assert.deepEqual(tous.filter((f) => !f.endsWith('.ts')), []);
   assert.deepEqual(tous.map((f) => f.replace(/\.ts$/, '')).sort(), [...FICHIERS].sort(), 'un fichier de la zone n’est pas dans la liste du contrôle');
 });
+await dit('images v4 · H10 : « palier de 14 jours dimanche » (écrit aujourd’hui) ; si rien n’est écrit, un jour plus tôt ; aucun palier au-delà du dernier', () => {
+  assert.equal(S.jourDuPalier({ joursAvantPalier: 2, ecritAujourdhui: true }, AUJ), '2026-11-01');
+  assert.equal(C.jourSemaineIso('2026-11-01'), 7, 'dimanche');
+  assert.equal(S.jourDuPalier({ joursAvantPalier: 2, ecritAujourdhui: false }, AUJ), '2026-10-31');
+  assert.equal(S.jourDuPalier({ joursAvantPalier: null, ecritAujourdhui: true }, AUJ), null);
+});
+
+await dit('images v4 · H12 : la preuve conservée est une piste datée, dans l’ordre du temps, sans la copie', () => {
+  const sg = (id: string, ordre: number, role: 'signataire' | 'copie', envoyeAt: string | null, ouvertAt: string | null, signeAt: string | null) => ({ id, ordre, role, statut: 'En attente' as const, envoyeAt, ouvertAt, signeAt });
+  const p = G.pisteDePreuve({ signataires: [
+    sg('menna', 2, 'signataire', '2026-10-30T09:45:00Z', '2026-10-31T17:40:00Z', null),
+    sg('aaron', 1, 'signataire', '2026-10-30T09:40:00Z', '2026-10-30T09:41:00Z', '2026-10-30T09:44:00Z'),
+    sg('lea', 3, 'copie', '2026-10-30T09:46:00Z', '2026-10-30T09:50:00Z', '2026-10-30T09:51:00Z'),
+  ] });
+  assert.deepEqual(p.map((t: any) => `${t.signataireId}:${t.genre}`), ['aaron:envoi', 'aaron:ouverture', 'aaron:signature', 'menna:envoi', 'lea:envoi', 'menna:ouverture']);
+  assert.deepEqual(G.pisteDePreuve({ signataires: [] }), []);
+});
+
+await dit('images v4 · ME02 : trois tons ; l’arabe s’écrit de droite à gauche', () => {
+  assert.deepEqual([...RE.TONS_DE_REDACTION], ['chaleureux', 'courtois', 'direct']);
+  assert.equal(RE.sensDEcriture('ar'), 'rtl');
+  assert.equal(RE.sensDEcriture('ar-MA'), 'rtl');
+  assert.equal(RE.sensDEcriture('en'), 'ltr');
+  assert.equal(RE.sensDEcriture('fr'), 'ltr');
+});
+
+await dit('images v4 · ME03 : « utilisé par Aaron et Mohamed », la plus assidue d’abord, depuis le 1er du mois', () => {
+  const u = (email: string, at: string) => ({ email, at });
+  const qui = MO.utilisateursDuMois([u('m@x.fr', '2026-10-05T08:00:00Z'), u('a@x.fr', '2026-10-06T08:00:00Z'), u('a@x.fr', '2026-10-07T08:00:00Z'), u('r@x.fr', '2026-09-30T08:00:00Z')], '2026-10-01T00:00:00Z');
+  assert.deepEqual(qui, ['a@x.fr', 'm@x.fr']);
+  assert.deepEqual(MO.utilisateursDuMois([], '2026-10-01T00:00:00Z'), []);
+});
+
+await dit('images v4 · ME04 : les années repliées montrent leur total, leurs trouvés et leur courbe de 12 mois', () => {
+  const e = (id: string, archiveLe: string) => ({ id, titre: id, type: 'Facture' as const, tailleOctets: 1, archiveLe });
+  const tous = [e('1', '2026-10-15'), e('2', '2026-09-03'), e('3', '2025-03-01'), e('4', '2025-03-20'), e('5', '2024-12-31')];
+  const r = A.resumeParAnnee(tous, [tous[0], tous[2]]);
+  assert.deepEqual(r.map((x: any) => [x.annee, x.elements, x.trouves]), [[2026, 2, 1], [2025, 2, 1], [2024, 1, 0]]);
+  assert.deepEqual(r[1].courbe, [0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+  assert.equal(r[0].courbe.length, 12);
+  assert.deepEqual(A.resumeParAnnee([]), []);
+});
+
 await dit('aucune brique visuelle : ni React, ni src/socle/ui, ni code partagé ; seuls les voisins et le dictionnaire du socle', () => {
   const fautes: string[] = [];
   for (const { f, src } of sources) {

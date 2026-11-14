@@ -11,6 +11,7 @@
  */
 
 import { ageRecent, cle, cycle, empreinteCourte, fabriquer, hasardDe, nomClient, quand, salaries } from './commun';
+import { completerConnecteurs } from './developpement';
 import { moi } from './equipe';
 import { ajouterJours, compter, debutDeMois, estOuvre } from './outils';
 import type { Contexte, Devis, Evenement, Facture, FicheClient, Membre } from './types';
@@ -263,7 +264,7 @@ export function genererConnecteurs(ctx: Contexte): Connecteur[] {
   const h = hasardDe(ctx.graine, 'connecteurs');
   const n = compter(ctx.volumes.connecteurs, [0, 3, 8, 12]);
   const etats = cycle(h, ['Connecté', 'Connecté', 'Non connecté', 'À renouveler', 'Erreur', 'Connecté'] as const, n);
-  return fabriquer(n, (i) => {
+  const liste = fabriquer(n, (i): Connecteur => {
     const [nom, description, icone, droits, widgets] = CONNECTEURS[(i - 1) % CONNECTEURS.length];
     const etat = etats[i - 1];
     const connecte = etat !== 'Non connecté';
@@ -277,8 +278,14 @@ export function genererConnecteurs(ctx: Contexte): Connecteur[] {
       droits: connecte ? droits : [],
       cleCreeeLe: connecte ? ajouterJours(ctx.aujourdhui, -(etat === 'À renouveler' ? h.entier(330, 360) : h.entier(10, 250))) : null,
       widgets: connecte ? widgets : 0,
+      // Complétés ci-dessous (DEV-couts) d'après l'état et le nom.
+      mode: 'local',
+      modeleDeCout: 'gratuit',
+      consommationMois: { unite: 'opérations', utilise: 0, inclus: null },
+      payeCeMoisCents: 0,
     };
   });
+  return completerConnecteurs(ctx, liste);
 }
 
 /* ---------------------------------- Notifications ---------------------------------- */

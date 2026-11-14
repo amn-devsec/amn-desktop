@@ -40,6 +40,9 @@ export function motsParJour(...sources: readonly (readonly ActiviteEcrite[])[]):
   return out;
 }
 
+/** Repos par défaut (décision du CO, STATUT §1.29 n° 1) : samedi et dimanche, réglable. */
+export const JOURS_DE_REPOS_PAR_DEFAUT: readonly number[] = [6, 7];
+
 export interface OptionsSerie {
   /** Jours de repos, en jours ISO (1 = lundi … 7 = dimanche) : sauter un jour de repos ne casse pas la série. */
   joursDeRepos?: readonly number[];
@@ -64,7 +67,7 @@ export interface Serie {
 }
 
 export function serieDEcriture(mots: MotsParJour, aujourdhui: Jour, options: OptionsSerie = {}): Serie {
-  const repos = new Set(options.joursDeRepos ?? []);
+  const repos = new Set(options.joursDeRepos ?? JOURS_DE_REPOS_PAR_DEFAUT);
   const ecrit = (j: Jour) => (mots.get(j) ?? 0) > 0;
   const ecritAujourdhui = ecrit(aujourdhui);
 
@@ -195,3 +198,13 @@ export function semaineEnDisques(mots: MotsParJour, aujourdhui: Jour): DisqueDeS
 
 /** Jours qui séparent deux jours : exposé pour les écrans qui disent « il y a 12 jours ». */
 export const joursEntre = ecartJours;
+
+/**
+ * « Page du jour écrite, palier de 14 jours dimanche » (H10, image v4) : le premier jour où le prochain palier serait
+ * atteint si on écrit chaque jour à partir d'aujourd'hui (un jour de repos écrit compte aussi : le repos ne casse
+ * rien, il n'oblige pas). `null` au-delà du dernier palier.
+ */
+export function jourDuPalier(s: Pick<Serie, 'joursAvantPalier' | 'ecritAujourdhui'>, aujourdhui: Jour): Jour | null {
+  if (s.joursAvantPalier === null) return null;
+  return ajouterJours(aujourdhui, s.ecritAujourdhui ? s.joursAvantPalier : s.joursAvantPalier - 1);
+}

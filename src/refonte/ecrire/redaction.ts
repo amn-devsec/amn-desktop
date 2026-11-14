@@ -131,3 +131,12 @@ export const registreDuTexte = (destinataireEstClient: boolean): 'vouvoiement' |
 export function canalDEnvoi(connecteurs: { courriel: boolean; connecteur: boolean }): 'courriel' | 'connecteur' | 'aucun' {
   return connecteurs.courriel ? 'courriel' : connecteurs.connecteur ? 'connecteur' : 'aucun';
 }
+
+/** ME02 (image v4) : le ton choisi, Chaleureux, Courtois ou Direct. Le ton courtois est celui d'un texte pour un client. */
+export const TONS_DE_REDACTION = ['chaleureux', 'courtois', 'direct'] as const;
+export type TonDeRedaction = (typeof TONS_DE_REDACTION)[number];
+
+/** Le sens d'écriture d'une version : l'arabe, l'hébreu, le persan et l'ourdou s'écrivent de droite à gauche. */
+export function sensDEcriture(langue: string): 'rtl' | 'ltr' {
+  return ['ar', 'he', 'fa', 'ur'].includes(langue.toLowerCase().slice(0, 2)) ? 'rtl' : 'ltr';
+}

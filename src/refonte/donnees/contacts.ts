@@ -277,6 +277,9 @@ export function genererFournisseurs(ctx: Contexte): Fournisseur[] {
       delaiAnnonceJours: h.pondere([[1, 3], [2, 3], [3, 2], [5, 2], [7, 1]] as const),
       note: h.chance(0.3) ? 'Livraison gratuite au-delà de 150 €.' : '',
       negociationLe: h.chance(0.3) ? ajouterJours(ctx.aujourdhui, -h.entier(40, 300)) : null,
+      // H15 : un fournisseur sur trois offre le port à partir d'un montant ; les autres le facturent toujours.
+      francoCents: i % 3 === 0 ? 15_000 : i % 3 === 1 ? 30_000 : null,
+      fraisDePortCents: i % 3 === 0 ? 690 : i % 3 === 1 ? 1_190 : 1_890,
     };
   });
 }
@@ -380,9 +383,13 @@ export function finaliserClients(
       .sort((a, b) => b - a)[0];
     if (dernierRdv && dernierRdv > Date.parse(c.dernierEchangeAt)) c.dernierEchangeAt = iso(dernierRdv);
     c.sante = calculerSante(c, donnees, aujourdhui);
-    const impaye = donnees.factures.some((f) => f.clientId === c.id && f.status === 'issued' && f.dueAt < aujourdhui);
+    // H05 (fiche, relue par S1) : « Impayé » = une facture échue depuis plus de 7 jours ; « À relancer » = échue depuis 7 jours
+    // ou moins, ou dernier échange il y a plus de 5 jours, ou santé sous 45 ; « Nouveau » = client depuis moins de 30 jours.
+    const echues = donnees.factures.filter((f) => f.clientId === c.id && f.status === 'issued' && f.dueAt < aujourdhui).map((f) => ecartJours(f.dueAt, aujourdhui));
     const depuisEchange = ecartJours(jourDe(Date.parse(c.dernierEchangeAt)), aujourdhui);
-    const statut: StatutClientAffiche = impaye ? 'Impayé' : depuisEchange > 5 || c.sante < 45 ? 'À relancer' : 'Actif';
+    const statut: StatutClientAffiche = echues.some((e) => e > 7)
+      ? 'Impayé'
+      : echues.length > 0 || depuisEchange > 5 || c.sante < 45 ? 'À relancer' : ecartJours(c.debutLe, aujourdhui) < 30 ? 'Nouveau' : 'Actif';
     c.statutAffiche = statut;
   }
 }

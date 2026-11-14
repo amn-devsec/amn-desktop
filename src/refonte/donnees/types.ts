@@ -152,6 +152,12 @@ export interface Entreprise {
     delaiRelanceRendezVousJours: number;
     delaiRelanceProspectJours: number;
     budgetMensuelDepensesCents: number;
+    /** DEV-couts : le plafond mensuel des connecteurs payants (centimes), le seuil d'alerte et ce qui se passe au plafond. */
+    plafondConnecteursCents: number;
+    /** MR08 : l'objectif de chiffre d'affaires de la boutique pour le trimestre (centimes). */
+    objectifBoutiqueTrimestreCents: number;
+    prevenirConnecteursAPourcent: number;
+    auPlafondConnecteurs: 'tout s’arrête' | 'on continue et on prévient';
   };
 }
 
@@ -305,7 +311,7 @@ export interface Habitude {
 
 /* ------------------------------ Contacts ------------------------------ */
 
-export type StatutClientAffiche = 'Actif' | 'À relancer' | 'Impayé';
+export type StatutClientAffiche = 'Actif' | 'À relancer' | 'Impayé' | 'Nouveau';
 
 /**
  * H05, G04, T02, F10. Sur-ensemble de `Client`. Les champs `sante` et
@@ -388,6 +394,9 @@ export interface Fournisseur {
   note: string;
   /** Négociation enregistrée (sert à la suggestion « renégocier » de H45). */
   negociationLe: Jour | null;
+  /** H15 : le montant de commande à partir duquel le port est offert (null : pas de franco), et le port en dessous. */
+  francoCents: number | null;
+  fraisDePortCents: number;
 }
 
 /** H45 : historique d'achats (commandes aux fournisseurs). */
@@ -445,16 +454,26 @@ export interface CompteFidelite {
   points: number;
   niveau: 'Bronze' | 'Argent' | 'Or';
   derniereActiviteLe: Jour;
+  /** Les jours où ce client en a recommandé un autre (MC02 : 200 points chacune, sur 12 mois glissants). */
+  recommandations: Jour[];
   avantages: { id: string; libelle: string; valeurCents: number; statut: 'Offert' | 'Utilisé' | 'Expiré'; le: Jour }[];
 }
 
 /* ------------------------------- L'argent ------------------------------- */
 
 /** H07. Sur-ensemble de `Quote` : `priceEuro` = total HT en euros ; les lignes sont en centimes HT. */
+/**
+ * Une ligne de devis ou de facture avec, quand la prestation vient du catalogue de MA12, son prix de grille (centimes HT). L'écart
+ * avec `unitPriceCents` est la remise accordée (un prix de facture au-dessus de la grille n'est pas une remise).
+ */
+export interface LigneFacturee extends InvoiceLine {
+  prixGrilleCents?: number;
+}
+
 export interface Devis extends Quote {
   numero: string;
   clientNom: string;
-  lignes: InvoiceLine[];
+  lignes: LigneFacturee[];
   validiteJusquau: Jour;
   vuAt: string | null;
   acceptéLe: Jour | null;
@@ -468,6 +487,7 @@ export interface Devis extends Quote {
  * stocké : c'est `issued` avec une échéance passée (voir `statutAffiche`).
  */
 export interface Facture extends Invoice {
+  lines: LigneFacturee[];
   clientNom: string;
   responsableEmail: string;
   /** Solde restant dû en centimes (0 si payée ou annulée), pour contrôler le calcul des écrans. */

@@ -22,14 +22,19 @@
 
 import type { Message } from '../../shared/api';
 import type { Jour } from './outils';
+import type { Facture } from './types';
 
 /* ============================ Noms des jeux ============================ */
 
 export const NOMS_DES_JEUX_SUITE = [
   // Compléments des lots déjà faits
-  'echeancesFiscales', 'bulletins', 'prestations', 'partenaires', 'creneaux', 'defis',
+  'echeancesFiscales', 'bulletins', 'prestations', 'partenaires', 'creneaux', 'defis', 'avoirs',
+  // MR08 (boutique en ligne)
+  'entonnoirBoutique', 'paniers', 'sessionsBoutique',
+  // Développement (LOT-11)
+  'depots', 'deploiements', 'deploiementsPlanifies', 'executions', 'tachesPlanifiees', 'mesuresServeur', 'servicesServeur', 'paiementsConnecteurs',
   // Écrire
-  'pages', 'fichiers', 'signatures', 'modeles', 'journal', 'textes', 'archives', 'connaissances',
+  'pages', 'fichiers', 'signatures', 'modeles', 'journal', 'textes', 'archives', 'connaissances', 'reglesArchivage', 'demandesRelecture',
   // Échanger
   'conversations', 'messages', 'canaux', 'annonces', 'courriels', 'salles', 'appels', 'reunions', 'partages', 'sondages', 'reponsesAuto',
   // Créer
@@ -139,9 +144,13 @@ export interface Defi {
 /* ================================ Écrire ================================ */
 
 export interface Bloc {
-  type: 'titre' | 'texte' | 'tache' | 'liste' | 'citation';
+  type: 'titre' | 'texte' | 'tache' | 'liste' | 'citation' | 'decision';
   texte: string;
   fait?: boolean;
+  /** H10 : l'échéance d'un bloc tâche. */
+  echeance?: Jour | null;
+  /** H10 : les pages (identifiants) vers lesquelles ce bloc pointe — d'où les liens retour. */
+  liens?: string[];
 }
 
 /** H10. */
@@ -162,6 +171,12 @@ export interface Page {
   commentaires: number;
   versions: number;
   supprimeeLe: Jour | null;
+  /** H10 : commentaires accrochés à un bloc (`bloc` = rang du bloc). */
+  commentairesAncres: { id: string; bloc: number; auteurEmail: string; texte: string; le: string; resolu: boolean }[];
+  /** H10 : qui écrit en ce moment (présence en direct) ; vide la plupart du temps. */
+  presence: { email: string; tapeA: string }[];
+  /** H10 : le rendez-vous lié à la page (propriété), ou null. */
+  rendezVousId: string | null;
 }
 
 /** H11. Aucun contenu de fichier : seulement ses métadonnées. */
@@ -181,6 +196,10 @@ export interface Fichier {
   lienExterne: null | { jours: 7 | 30 | 90; creeLe: Jour; expireLe: Jour };
   versions: number;
   archive: boolean;
+  /** H11 : l'intercalaire (le classeur) du document ; `dossier` en est le chemin. */
+  intercalaire: string;
+  /** H11 : les faits relevés d'un contrat (null pour tout autre document). */
+  faitsReleves: null | { parties: string[]; echeanceLe: Jour; montantCents: number | null; reconductionTacite: boolean };
 }
 
 export type EtatSignature = 'À envoyer' | 'Envoyée' | 'Ouverte' | 'Partiellement signée' | 'Signée' | 'Refusée' | 'Expirée';
@@ -192,7 +211,11 @@ export interface DemandeSignature {
   titre: string;
   clientId: number | null;
   montantCents: number | null;
-  signataires: { nom: string; email: string; ordre: number; statut: 'En attente' | 'Ouvert' | 'Signé' | 'Refusé'; signeAt: string | null }[];
+  signataires: { id: string; nom: string; email: string; ordre: number; role: 'signataire' | 'copie'; statut: 'En attente' | 'Ouvert' | 'Signé' | 'Refusé'; signeAt: string | null }[];
+  /** H12 : les champs posés sur le document ; `signataireId` = `signataires[].id`. */
+  champs: { id: string; type: 'signature' | 'paraphe' | 'date' | 'nom' | 'case' | 'texte'; page: number; signataireId: string; obligatoire: boolean; rempli: boolean }[];
+  /** H12 : les relances automatiques (planifiées), distinctes des relances déjà faites (`relances`). */
+  relanceAuto: { active: boolean; prochaineAt: string | null; intervalleJours: number };
   envoyeAt: string | null;
   echeanceLe: Jour | null;
   relances: number;
@@ -224,7 +247,14 @@ export interface EntreeJournal {
   texte: string;
   apercu: string;
   etiquettes: string[];
-  humeur: 'très bien' | 'bien' | 'moyen' | 'difficile';
+  /** ME01 : cinq niveaux (difficile, moyen, bien, très bien, excellent). */
+  humeur: 'difficile' | 'moyen' | 'bien' | 'très bien' | 'excellent';
+  /** Le niveau de 1 à 5 de `humeur` (difficile = 1). */
+  humeurNiveau: 1 | 2 | 3 | 4 | 5;
+  /** ME01 : l'énergie du jour, de 1 à 5. */
+  energie: 1 | 2 | 3 | 4 | 5;
+  /** ME01 : jusqu'à trois mercis du jour. */
+  mercis: string[];
   auteurEmail: string;
 }
 
@@ -257,6 +287,31 @@ export interface ElementArchive {
   mode: 'règle' | 'à la main';
   parEmail: string | null;
   conserverJusquau: Jour;
+  /** ME04 : le texte indexé (de quoi retrouver l'élément en cherchant dans son contenu). */
+  texteIndexe: string;
+  /** ME04 : les restaurations de l'élément (restauré puis re-archivé). */
+  restaurations: { le: Jour; parEmail: string }[];
+}
+
+/** ME04 : une règle de conservation (« archiver les factures réglées depuis N mois »). */
+export interface ReglePourArchiver {
+  id: string;
+  type: 'facture-payee' | 'conversation-silencieuse' | 'devis-refuse';
+  apresMois: number;
+  active: boolean;
+  dernierePasseeLe: Jour | null;
+}
+
+/** F20 : une demande de relecture est un objet (un document attend un relecteur). */
+export interface DemandeRelecture {
+  id: string;
+  titre: string;
+  etat: 'Brouillon partagé' | 'Relecture demandée' | 'En signature' | 'Terminé';
+  relecteurEmail: string | null;
+  demandeurEmail: string;
+  demandeAt: string;
+  /** La page ou le fichier relu. */
+  objetId: string;
 }
 
 /** ME05. */
@@ -274,6 +329,10 @@ export interface EntreeConnaissance {
   etat: 'brouillon' | 'publié';
   versions: number;
   questionsLieesIds: string[];
+  /** ME05 : la rubrique, les étapes (articles et procédures) et les articles liés. */
+  rubrique: string;
+  etapes: { titre: string; texte: string; astuce?: string }[];
+  articlesLiesIds: string[];
 }
 
 /* ================================ Échanger ================================ */
@@ -431,6 +490,8 @@ export interface MouvementStock {
   le: Jour;
   delta: number;
   motif: 'Réception' | 'Vente' | 'Inventaire' | 'Perte' | 'Retour';
+  /** H15 : où le mouvement a eu lieu (les ventes sortent du lieu de l'article, les réceptions y entrent). */
+  emplacement: string;
 }
 
 /** H15. La quantité est la somme des mouvements : elle ne s'édite pas directement. */
@@ -443,6 +504,10 @@ export interface ArticleStock {
   prixAchatCents: number;
   emplacement: string;
   mouvements: MouvementStock[];
+  /** H15 : le niveau qu'on vise (trois fois le seuil d'alerte). */
+  niveauCible: number;
+  /** H15 : les commandes passées au fournisseur, reçues ou en route. */
+  commandesFournisseur: { id: string; quantite: number; commandeeLe: Jour; arriveeLe: Jour; recue: boolean }[];
 }
 
 /** MR05. */
@@ -459,6 +524,14 @@ export interface Produit {
   fournisseurId: string | null;
   articleId: string | null;
   etat: 'actif' | 'archivé';
+  /** MR05. */
+  photos: number;
+  tvaPourcent: 20 | 10 | 5.5;
+  prixAchatCents: number | null;
+  /** Le niveau conseillé : quatre semaines de ventes moyennes (null pour un service). */
+  niveauConseille: number | null;
+  /** Les ventes des huit dernières semaines, de la plus ancienne à la plus récente (se lisent dans les mouvements de l'article). */
+  ventesParSemaine: number[];
 }
 
 /** MR07 et MR08 : le même numéro (« #1042 ») dans les deux écrans. */
@@ -495,7 +568,12 @@ export interface Chantier {
   clientId: number | null;
   debutLe: Jour;
   finPrevueLe: Jour;
-  etapes: { nom: string; semaine: number; faite: boolean }[];
+  /** `poids` : part de l'étape dans le chantier (la somme fait 100) ; `partRealisee` : de 0 à 1. */
+  etapes: { nom: string; semaine: number; faite: boolean; poids: number; partRealisee: number }[];
+  /** H16 : interventions planifiées sur le chantier. */
+  interventions: { id: string; le: Jour; libelle: string; fait: boolean }[];
+  /** H16 : livraisons rattachées au chantier. */
+  livraisons: { id: string; libelle: string; le: Jour; recue: boolean }[];
   equipe: string[];
   budgetCents: number;
   depenseCents: number;
@@ -511,9 +589,11 @@ export interface DossierPhoto {
   chantierId: string | null;
   clientId: number | null;
   responsables: string[];
-  photos: { id: string; phase: 'Avant' | 'Pendant' | 'Après'; le: Jour; lieu: string; auteurEmail: string }[];
+  photos: { id: string; phase: 'Avant' | 'Pendant' | 'Après'; le: Jour; lieu: string; auteurEmail: string; orientation: 'portrait' | 'paysage' }[];
   demarre: boolean;
   debutPrevuLe: Jour;
+  /** MR10 : la signature du client à la remise du dossier (null tant qu'il n'a pas signé). */
+  signatureClient: { le: Jour; signataire: string } | null;
 }
 
 /** H17. Palette et polices sont celles de l'entreprise d'exemple, pas des jetons de l'application. */
@@ -521,7 +601,11 @@ export interface Marque {
   id: string;
   nom: string;
   logos: { variante: 'fond noir' | 'fond clair'; format: 'SVG' | 'PNG' }[];
-  palette: { nom: string; hex: string }[];
+  /** `role` et `partUsage` (la somme fait 100) : à quoi sert chaque couleur et combien on s'en sert. */
+  palette: { nom: string; hex: string; role: 'Principale' | 'Secondaire' | 'Accent' | 'Fond' | 'Texte'; partUsage: number }[];
+  /** H17 : les règles « à éviter ». */
+  aEviter: string[];
+  modifieLe: Jour;
   typographie: { famille: string; graisses: number[] };
   modelesVisuels: { nom: string; format: string; largeur: number; hauteur: number }[];
 }
@@ -531,7 +615,7 @@ export interface Video {
   id: string;
   titre: string;
   description: string;
-  etape: 'Idée' | 'Tournage' | 'Montage' | 'Relecture' | 'Publiée';
+  etape: 'Idée' | 'Tournage' | 'Montage' | 'Sous-titrage' | 'Relecture' | 'Publiée';
   avancement: number;
   responsables: string[];
   prevueLe: Jour;
@@ -540,6 +624,11 @@ export interface Video {
   fichiers: string[];
   lienPublication: string | null;
   vues: number;
+  /** MR01 : les plans du montage. */
+  plans: { id: string; titre: string; debutSec: number; dureeSec: number }[];
+  sousTitres: { langue: string; etat: 'brouillon' | 'relu' }[];
+  commentaires: { id: string; auteurEmail: string; texte: string; le: Jour; resolu: boolean }[];
+  publieeLe: Jour | null;
 }
 
 /** MR02. */
@@ -552,6 +641,10 @@ export interface PagePublique {
   responsableEmail: string;
   statut: 'Publiée' | 'Brouillon' | 'Modifications non publiées';
   visites7j: number;
+  /** MR02 : les sections de la page, les visites des sept derniers jours (la somme fait `visites7j`), les avis affichés. */
+  sections: { id: string; type: 'Bandeau' | 'Texte' | 'Galerie' | 'Avis' | 'Contact'; titre: string; visible: boolean }[];
+  visitesParJour: number[];
+  avis: { auteur: string; texte: string; accordClient: boolean }[];
 }
 
 /** MR03. */
@@ -587,6 +680,8 @@ export interface Equipement {
   valeurCents: number;
   achatLe: Jour;
   statut: 'En service' | 'Au rebut';
+  /** MR04 : depuis quand l'affectation actuelle dure. */
+  affectationDepuis: Jour;
   /** MR04 : le dernier entretien fait (le prochain en découle). */
   dernierEntretienLe: Jour;
   /** MR04 : le dernier contrôle, après le dernier entretien. */
@@ -603,6 +698,10 @@ export interface Ressource {
   groupe: string;
   regles: { dureeMaxMin: number; annulationGratuiteH: number; rappelMin: number };
   ouverture: { jours: number[]; debut: string; fin: string };
+  /** MR06 : indisponible (garage, hors service) pour une période. */
+  indisponibilites: { debut: Jour; fin: Jour; motif: string }[];
+  /** MR06 : les demandes qui se sont heurtées à une autre réservation. */
+  conflits: { le: Jour; demandeur: string; issue: 'refusée' | 'déplacée' }[];
 }
 
 export interface Reservation {
@@ -628,6 +727,12 @@ export interface Vehicule {
   prochainEntretien: { km: number | null; le: Jour | null };
   assuranceLe: Jour;
   controleTechniqueLe: Jour;
+  /** MR09. */
+  energie: 'Diesel' | 'Essence' | 'Électrique' | 'Hybride';
+  niveauPourcent: number;
+  autonomieKm: number;
+  /** Les sept derniers jours : kilomètres, et carburant (litres) quand le véhicule n'est pas électrique. */
+  parJour: { jour: Jour; km: number; carburantL: number | null }[];
 }
 
 /** MR11. */
@@ -644,7 +749,8 @@ export interface Controle {
   clientId: number | null;
   responsableEmail: string;
   le: Jour;
-  resultats: { pointId: string; conforme: boolean | null }[];
+  /** `sansObjet` : le point ne s'applique pas (alors `conforme` reste null). */
+  resultats: { pointId: string; conforme: boolean | null; sansObjet: boolean }[];
   statut: 'À faire' | 'En cours' | 'Terminé';
 }
 
@@ -658,6 +764,9 @@ export interface EcartQualite {
   echeanceLe: Jour;
   responsableEmail: string;
   etat: 'ouvert' | 'corrigé' | 'accepté';
+  /** MR11 : la cause trouvée, et le jour où l'écart a été relevé. */
+  cause: string;
+  releveLe: Jour;
 }
 
 /* ================================== Outils ================================== */
@@ -785,6 +894,14 @@ export interface Connecteur {
   droits: string[];
   cleCreeeLe: Jour | null;
   widgets: number;
+  /** DEV-couts (modèle de S9, `src/refonte/connecteurs/`) : ce que le connecteur fait seul (« local »), ce qui est payant, ce qui n'est pas branché. */
+  mode: 'local' | 'payant' | 'a-brancher';
+  /** Les noms de `Formule` de S9. */
+  modeleDeCout: 'gratuit' | 'abonnement' | 'a-l-usage' | 'commission';
+  /** Ce qui a été consommé ce mois-ci, et le forfait inclus (null : pas de limite). */
+  consommationMois: { unite: string; utilise: number; inclus: number | null };
+  /** Ce qui a été payé ce mois-ci pour ce connecteur, en centimes (0 pour un connecteur local). */
+  payeCeMoisCents: number;
 }
 
 /** H40. */
@@ -1109,7 +1226,172 @@ export interface ParcSecurite {
 
 /* ============================= Le monde, suite ============================= */
 
+/* ============================ Développement (LOT-11) ============================ */
+
+/**
+ * Ces formes sont des sur-ensembles de celles de `src/refonte/developpement/` (S8) : la logique de S8 lit ces jeux
+ * sans adaptateur (`compat.ts` le vérifie). Aucun nom d'hôte, aucune adresse, aucun port, aucune variable d'environnement.
+ */
+
+/** DEV-projets. Un dépôt suivi : état des tests, langages, commits des 31 dernières semaines. */
+export interface Depot {
+  id: string;
+  nom: string;
+  description: string;
+  branche: string;
+  /** Les parts (somme 100) des langages du dépôt, le premier est le principal. */
+  langages: { nom: string; part: number }[];
+  tests: { etat: 'verts' | 'echec'; echecs: number; depuisLe: string | null };
+  /** Le nombre de commits de chaque semaine, de la plus ancienne (il y a 30 semaines) à la semaine en cours. */
+  commitsParSemaine: number[];
+  dernierCommitAt: string | null;
+  /** Où le dépôt est mis en ligne (libellé, pas une adresse). */
+  cible: string;
+  version: string | null;
+  /** Une pièce du Studio liée, si le dépôt est un projet de client. */
+  pieceStudioId: string | null;
+  /** Les tickets (jeu `tickets`) rattachés au dépôt. */
+  ticketIds: string[];
+  teinte: number;
+}
+
+export type EtatEtapeDeploiement = 'a-venir' | 'en-cours' | 'reussie' | 'echouee' | 'sautee';
+
+/** DEV-deploiements. Cinq étapes dans le même ordre : code, construction, tests, miseEnLigne, verification. */
+export interface Deploiement {
+  id: string;
+  depot: string;
+  branche: string;
+  quoi: string | null;
+  version: string | null;
+  cible: 'apercu' | 'preproduction' | 'production' | 'interne' | 'serveur';
+  /** Un prénom, jamais une adresse. */
+  par: string;
+  lanceA: string;
+  etapes: { etape: 'code' | 'construction' | 'tests' | 'miseEnLigne' | 'verification'; etat: EtatEtapeDeploiement; debut: string | null; fin: string | null }[];
+  annuleA: string | null;
+  /** Ce déploiement remet en ligne celui-ci (« Revenir »). */
+  retourDe: string | null;
+}
+
+export interface DeploiementPlanifie {
+  id: string;
+  depot: string;
+  branche: string;
+  quoi: string;
+  cible: Deploiement['cible'];
+  prevuA: string;
+  par: string;
+}
+
+/** DEV-editeur : une exécution du journal d'une automatisation (`fluxId` = `Automatisation.id`). */
+export interface Execution {
+  id: string;
+  fluxId: string;
+  debut: string;
+  fin: string | null;
+  resultat: 'en-cours' | 'reussie' | 'echec' | 'ignoree';
+  mode: 'local' | 'api';
+  essai: boolean;
+  actionHumaine: boolean;
+  /** Une phrase courte, jamais une valeur secrète. */
+  message: string | null;
+}
+
+export type PlanificationDeTache =
+  | { type: 'quotidien'; heure: string; jours?: number[] }
+  | { type: 'intervalle'; minutes: number; depuis: string }
+  | { type: 'une-fois'; a: string };
+
+export interface TachePlanifiee {
+  id: string;
+  nom: string;
+  /** L'automatisation que cette planification fait tourner (null : une tâche seule). */
+  automatisationId: string | null;
+  planification: PlanificationDeTache;
+  active: boolean;
+  creeeA: string;
+  /** L'heure PRÉVUE du dernier passage fait (pas l'heure réelle de l'exécution). */
+  dernierPassagePrevu: string | null;
+}
+
+/** DEV-serveur : un point de la charge sur 24 heures, toutes les 10 minutes. Aucun hôte, aucune adresse. */
+export interface MesureServeur {
+  id: string;
+  at: string;
+  processeurPct: number;
+  memoirePct: number;
+  disquePct: number;
+  reseauMoParS: number;
+}
+
+export interface ServiceServeur {
+  id: string;
+  nom: string;
+  detail: string;
+  /** Sur 30 jours, en pourcent à deux décimales. */
+  disponibilite30jPct: number;
+  etat: 'en marche' | 'attention' | 'arrêté';
+}
+
+/** DEV-couts : ce qui a été payé aux connecteurs sur les six derniers mois (le dernier est le mois courant). */
+export interface PaiementConnecteurs {
+  id: string;
+  mois: string;
+  payeCents: number;
+  /** Ce que le même usage aurait coûté en API payantes, moins ce qui a été payé. */
+  economiseCents: number;
+}
+
+/* ============================ Boutique en ligne (MR08) ============================ */
+
+/** MR08 : l'entonnoir d'un jour — visites, produits vus, paniers créés, commandes, paiements réussis. Aucune donnée personnelle. */
+export interface JourEntonnoir {
+  id: string;
+  jour: Jour;
+  visites: number;
+  produitsVus: number;
+  paniersCrees: number;
+  /** Se lit dans le jeu `commandes` (commandes créées ce jour-là). */
+  commandes: number;
+  /** Les commandes de ce jour qui sont payées. */
+  paiements: number;
+}
+
+/** MR08 : un panier, avec sa dernière activité ; « converti » pointe la commande qu'il a donnée. */
+export interface PanierBoutique {
+  id: string;
+  clientNom: string | null;
+  lignes: number;
+  montantCents: number;
+  derniereActiviteAt: string;
+  etat: 'ouvert' | 'abandonné' | 'converti';
+  commandeId: string | null;
+}
+
+/** MR08 : une session en direct (visiteur anonyme sur le site) ; elle disparaît 5 minutes après sa dernière activité. */
+export interface SessionBoutique {
+  id: string;
+  debutAt: string;
+  derniereActiviteAt: string;
+  page: string;
+  appareil: 'mobile' | 'ordinateur' | 'tablette';
+}
+
 export interface MondeSuite {
+  entonnoirBoutique: JourEntonnoir[];
+  paniers: PanierBoutique[];
+  sessionsBoutique: SessionBoutique[];
+  depots: Depot[];
+  deploiements: Deploiement[];
+  deploiementsPlanifies: DeploiementPlanifie[];
+  executions: Execution[];
+  tachesPlanifiees: TachePlanifiee[];
+  mesuresServeur: MesureServeur[];
+  servicesServeur: ServiceServeur[];
+  paiementsConnecteurs: PaiementConnecteurs[];
+  /** G03, H07, MA04 : les avoirs sont des factures de nature `creditNote`, numérotées `AV-AAAA-NNNN`, qui réduisent `creditNoteFor`. Le chargeur les range avec les factures. */
+  avoirs: Facture[];
   echeancesFiscales: EcheanceFiscale[];
   bulletins: Bulletin[];
   prestations: Prestation[];
@@ -1124,6 +1406,8 @@ export interface MondeSuite {
   textes: TexteRedige[];
   archives: ElementArchive[];
   connaissances: EntreeConnaissance[];
+  reglesArchivage: ReglePourArchiver[];
+  demandesRelecture: DemandeRelecture[];
   conversations: Conversation[];
   messages: MessageEquipe[];
   canaux: Canal[];

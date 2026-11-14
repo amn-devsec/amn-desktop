@@ -1,306 +1,196 @@
 # LOT-04 · L'argent — note de préparation
 
-> Branche `claude/refonte-argent`, partie de `claude/refonte-vivante` @ `8333822`. Rédigée le 14 nov. 2026 par DS, en mode PRÉPARATION (socle v4 non fusionné : aucun écran, aucune brique visuelle).
-> Prompt : `PROMPTS-12NOV.md` §2 (commit `e79cd7b`).
+> Branche `claude/refonte-argent`. Rédigée le 14 nov. 2026 par DS, en mode PRÉPARATION (socle v4 non fusionné : aucun écran, aucune brique visuelle).
+> Prompt : `PROMPTS-12NOV.md` §2 (commit `e79cd7b`). Décisions du CO appliquées : STATUT §1.28 n° 2 (un seul moteur de relances) et §1.29 n° 1 à 8.
+> Révisée le même jour avec le **dossier v4** (17 fiches de `lots/LOT-04-argent/`, images, `_data/tutoiement.json`, `06-V4-NEON-ET-TUTOIEMENT.md`), lu hors du dépôt. Le dossier n'est pas committé (dépôt public).
 > Rien dans ce document ne décrit une faiblesse de sécurité ; aucune donnée réelle.
 
-## 0. ⚠ Source manquante : le dossier v4
+## 0. Les points « à vérifier » sont levés
 
-Les 5 zips `AMN-Business-dossier-v4` n'étaient **pas disponibles** dans la session. On n'y avait ni les 17 fiches, ni les images, ni `_data/tutoiement.json`, ni `06` et `01`.
+La première version, écrite sans le dossier, marquait **[fiche]** ce qui dépendait des fiches. Chaque point a été relu contre la rubrique 6 (règles de calcul) de sa fiche :
 
-- **Ce qui ne dépend pas des fiches est livré** : la logique d'argent, testée sur des cas écrits à la main et rejouée sur les jeux de SIM.
-- **Ce qui en dépend reste à faire avec le dossier** :
-  - la ligne « ce que la fiche demande » de chaque écran (§4) ;
-  - les textes exacts des écrans ;
-  - les seuils propres à une fiche.
+- quand la fiche fixe une règle, **le code la suit**, avec ses propres exemples chiffrés comme cas de `check:argent` ;
+- quand la fiche contredit une décision du CO, **la décision du CO s'applique** et l'écart est porté au §5 ;
+- quand la fiche ne dit rien (modules de F1), le point reste ouvert au §5.
 
-  Ces points sont marqués **[fiche]** ci-dessous.
-
-Les règles ont été tirées de quatre sources :
-
-- les commentaires des jeux de SIM (qui citent les fiches : « comme H07 ») ;
-- les décisions de `STATUT.md` (§1.5, §1.11, §1.21, §1.22) ;
-- le prompt du 12 nov. ;
-- le code existant.
-
-**À faire dès que le dossier est là** : relire §4 et §7 contre les 17 fiches. Une règle de fiche qui contredit le code se corrige dans le code, avec son cas dans `check:argent`.
+Ce que la lecture a changé dans le code est au §4, écran par écran (« Changé avec la fiche »).
 
 ## 1. En bref
 
-- **Logique pure livrée** : `src/refonte/argent/`, 14 fichiers. Ni React, ni réseau, ni horloge (« aujourd'hui » est toujours passé en paramètre). Tous les montants sont en centimes entiers, avec un seul arrondi, celui de `src/lib/money.ts` (0,5 s'éloigne de zéro).
-- **Garde** : `scripts/check-argent.ts` (`npm run check:argent`), **53 propriétés**, ajoutée à `package.json` et `editions.yml` (ajouts seulement). Elle contrôle trois choses :
-  - des **cas écrits à l'avance**, détail du calcul en commentaire, montants vérifiés à part avant le code ;
-  - le **rejeu sur les jeux de SIM** (volumes `vide`, `peu`, `normal`, `beaucoup`, plus 3 graines). La logique retrouve les totaux et les soldes stockés, la TVA de chaque échéance « TVA de … », les cotisations, les prélèvements et les impayés ;
-  - la **structure** : aucun écran, aucun import depuis le code partagé, aucune fonction qui émette un virement, fr et en aux mêmes clés, tutoiement de l'interface et vouvoiement des textes clients.
-- **Banque en lecture seule** : rien n'émet de virement. `banque.preparerOrdre` prépare un ordre (`emis: false`, `aExecuterDansTaBanque: true`) sans IBAN complet (4 derniers caractères seulement).
-- **Deux écarts à trancher** (§5) :
-  - l'**arrondi de la TVA** diffère entre la fiche H07 (par taux) et le module existant `src/lib/money.ts` (par ligne). C'est un centime de différence possible par facture ;
-  - le **régime de TVA** : les jeux comptent la TVA à l'émission (« débits »), alors que la règle par défaut des prestations de services est « encaissements ». Les deux régimes sont codés, le choix revient au CO et au comptable.
+- **Logique pure** : `src/refonte/argent/`, **18 fichiers** (4 de plus : `contrats`, `paiements`, `comptabilite`, `ensemble`). Ni React, ni réseau, ni horloge (« aujourd'hui » est un paramètre). Montants en centimes entiers, un seul arrondi (celui de `src/lib/money.ts`, 0,5 s'éloigne de zéro).
+- **Garde** `check:argent` : **69 propriétés**, en CI. Trois parties :
+  - des **cas écrits à l'avance**, dont les exemples chiffrés des fiches (H07 : 6 796 € HT, 1 359,20 € de TVA ; MA12 : 62,5 % → 63 % ; MA06 : 5 331 € sur 6 600 € → 81 %, etc.) ;
+  - le **rejeu sur les jeux de SIM** (4 volumes et 3 graines) : totaux, soldes, TVA des échéances, cotisations, prélèvements, impayés ;
+  - la **structure** : aucun écran, aucun import depuis le code partagé, aucune fonction qui émette un virement, fr et en aux mêmes clés, tutoiement de l'interface, vouvoiement des textes clients.
+- **Un défaut trouvé par les cas écrits à l'avance** et corrigé dans le calcul : dans H09, l'hypothèse « retard des encaissements » faisait revenir dans l'horizon un encaissement du jour, déjà compté dans le solde. Les hypothèses ne s'appliquent plus qu'aux mouvements à venir.
+- **Banque en lecture seule** : rien n'émet de virement. `banque.preparerOrdre` prépare un ordre (`emis: false`, `aExecuterDansTaBanque: true`), sans IBAN complet.
+- **Textes** : 109 clés fr/en. L'interface tutoie, d'après `tutoiement.json` et les libellés des fiches ; ce qui part chez un client (relances, devis) vouvoie.
 
 ## 2. Tableau récapitulatif
 
-| ID | Écran | Existant le plus proche (route) | Données (`src/refonte/donnees/`) | Logique livrée (`src/refonte/argent/`) |
+| ID | Écran | Existant le plus proche (route) | Données (`src/refonte/donnees/`) | Logique (`src/refonte/argent/`) |
 |---|---|---|---|---|
-| F30 | Vue d'ensemble | aucun ; repli `/ensemble/:famille` (socle) | tout le lot | lit les autres (impayés, TVA, trésorerie, revenu récurrent) |
-| G03 | Facturation | `InvoicesScreen` (`/facturation`, 1 879 l.) | `factures`, `paiements`, `entreprise` | `facturation.ts` |
-| H07 | Devis | `QuotesScreen` (`/facturation/devis`, 483 l.), `lib/devisBrief.ts` | `devis`, `prestations` | `devis.ts` (dont le devis prérempli de H41 et H42) |
-| H08 | Dépenses | `ExpensesScreen` (`/depenses`, 758 l.), `state/expenseEngine.ts` | `depenses` | `depenses.ts` |
-| H09 | Prévisions | `TresorerieScreen` (`/tresorerie`), `ScenariosScreen`, `SimulateurPretScreen` ; `lib/cinquante/finance.ts` | `comptes`, `mouvements` (prévus), `factures`, `abonnements`, `echeancesFiscales`, `bulletins` | `tresorerie.ts` |
-| MA07 | Trésorerie | `TresorerieScreen` (cône sur 12 semaines) | `comptes`, `mouvements` | `tresorerie.ts`, `banque.soldeTotal` |
-| MA04 | Impayés | `RemindersScreen` (`/relances`, 611 l.), `lib/relances.ts` | `factures`, `relances` | `impayes.ts` |
-| MA01 | Contrats | `ContractsScreen` (`/contrats`, 791 l.) | `contrats` | — (échéancier dans l'écran existant ; voir §4) |
-| MA02 | Comptabilité | `RapprochementScreen` (`/rapprochement`), `lib/fec.ts` (export FEC) | `mouvements`, `factures` | `banque.suggestionsDeRapprochement` ; FEC repris tel quel |
-| MA03 | Paiements en ligne | `AcompteScreen` (`/acompte`), `lib/cinquante/guichet.ts` | `paiements` | `devis.acompte`, `connecteurs.etatPaiementsEnLigne` |
-| MA05 | Notes de frais | `NotesDeFraisScreen` (`/notes-de-frais`), `FacturesEntrantesScreen` | `depenses` (`noteDeFrais`), `achats` | `depenses.notesARembourser`, `banque.preparerOrdre` |
-| MA06 | Budget | `BudgetPanel` (enveloppes de dépenses) ; `PersonalBudgetScreen` (budget personnel, autre sujet) | `enveloppes`, `depenses` | `budget.ts` |
+| F30 | Vue d'ensemble | aucun ; hub `/ensemble/argent` (socle v4) | tout le lot | `ensemble.ts` (rivière du mois, objectif), plus les autres modules |
+| G03 | Facturation | `InvoicesScreen` (`/facturation`) | `factures`, `paiements`, `entreprise` | `facturation.ts` |
+| H07 | Devis | `QuotesScreen` (`/facturation/devis`), `lib/devisBrief.ts` | `devis`, `prestations` | `devis.ts` (dont le devis prérempli de H41 et H42) |
+| H08 | Dépenses | `ExpensesScreen` (`/depenses`), `state/expenseEngine.ts` | `depenses`, `enveloppes` | `depenses.ts`, `budget.ts`, `tva.tvaRecuperable` |
+| H09 | Prévisions | `TresorerieScreen`, `ScenariosScreen` ; `lib/cinquante/finance.ts` | `comptes`, `mouvements`, `factures`, `abonnements`, `echeancesFiscales` | `tresorerie.ts` (trois scénarios) |
+| MA07 | Trésorerie | `TresorerieScreen` | `comptes`, `mouvements` | `tresorerie.ts`, `banque.soldeDeDepart` |
+| MA04 | Impayés | `RemindersScreen` (`/relances`), `lib/relances.ts` | `factures`, `relances` | `impayes.ts` |
+| MA01 | Contrats | `ContractsScreen` (`/contrats`) | `contrats` | `contrats.ts` |
+| MA02 | Comptabilité | `RapprochementScreen`, `lib/fec.ts` | `mouvements`, `factures` | `comptabilite.ts` ; FEC repris tel quel |
+| MA03 | Paiements en ligne | `AcompteScreen` (`/acompte`), `lib/cinquante/guichet.ts` | `paiements` | `paiements.ts`, `connecteurs.etatPaiementsEnLigne` |
+| MA05 | Notes de frais | `NotesDeFraisScreen`, `FacturesEntrantesScreen` | `depenses` (`noteDeFrais`) | `depenses.notesARembourser`, `banque.preparerOrdre` |
+| MA06 | Budget | `BudgetPanel` | `enveloppes`, `depenses` | `budget.ts` |
 | MA08 | TVA et impôts | `PrevisionFiscaleScreen` (`/prevision-fiscale`) | `echeancesFiscales`, `factures`, `depenses` | `tva.ts` |
-| MA09 | Abonnements récurrents | `SubscriptionsScreen` (`/abonnements`, 634 l.) | `abonnements` | `abonnements.ts` |
-| MA10 | Banque | aucun écran de comptes ; `RapprochementScreen` | `comptes`, `mouvements` | `banque.ts`, `connecteurs.etatBanque` |
-| MA11 | Paie | `BulletinsScreen` (`/bulletins`) | `bulletins` | `paie.ts` |
-| MA12 | Tarifs et remises | aucun catalogue ; `CalculatorsScreen` (`/calculateurs`) | `prestations` | `tarifs.ts` |
+| MA09 | Abonnements récurrents | `SubscriptionsScreen` (`/abonnements`) | `abonnements` | `abonnements.ts` |
+| MA10 | Banque | `RapprochementScreen` | `comptes`, `mouvements` | `banque.ts`, `connecteurs.etatBanque` |
+| MA11 | Paie | `BulletinsScreen` (`/bulletins`) | `bulletins` | `paie.ts` (masquage ; aucun calcul de paie à l'écran) |
+| MA12 | Tarifs et remises | `CalculatorsScreen` (`/calculateurs`) | `prestations` | `tarifs.ts` |
 
-Textes calculés : `i18n.ts` (60 clés fr/en, `definirMots`). Aides communes : `commun.ts` (jours et mois sans horloge, lundi de la semaine, montants et dates au format français).
+Aides communes : `commun.ts` (jours et mois sans horloge, jours ouvrés, montants au format de G03 : espace fine insécable, vrai signe moins, mode compact ou exact).
 
 ## 3. Inventaire de l'existant
 
-Les calculs qui existent déjà, et ce qu'en fait le lot :
-
 | Où | Ce qu'il calcule | Décision |
 |---|---|---|
-| `src/lib/money.ts` | centimes, arrondi commercial, `documentTotals` (TVA par taux, **arrondie ligne par ligne**) | arrondi repris ; règle de TVA **non** reprise (§5 n° 1) |
-| `src/state/useInvoices.ts` | `netDueCents`, `creditedCents`, `isOverdue`, `nextNumber` (`AAAA-NNNN`, `AV-AAAA-NNNN`) | même sens repris dans `facturation.resteDu`, qui ajoute les **règlements partiels** ; les jeux numérotent `F-AAAA-NNNN` (§5 n° 4) |
-| `src/lib/relances.ts` | paliers 0 / 7 / 21 / 45 jours, `rangPalier`, `toneAMonte` | **importé tel quel** : un seul barème |
-| `src/lib/fec.ts` | export FEC (18 colonnes, débit et crédit équilibrés) | repris tel quel par MA02, rien à refaire |
-| `src/lib/cinquante/finance.ts` | `cone` (12 semaines, bande σ√k), `mensualite`, `durees`, `fermeture` (rapprochement), `filigrane` (part fiscale du solde), `bulles` (devises) | MA07 peut garder le cône en complément ; H09 s'appuie sur `tresorerie.projeter` (flux datés et explicables) ; `mensualite` et `durees` restent au simulateur de prêt |
-| `src/lib/cinquante/guichet.ts` | `acompteDe`, `sas` (signés sans acompte) | MA03 les garde ; `devis.acompte` refait le même calcul sur un TTC |
-| `src/state/expenseEngine.ts` | `budgetVerdict`, `categoryBreakdown` | MA06 passe à `budget.etatEnveloppe` (projection et seuil de 80 %) |
-| `src/lib/cinquante/rh.ts` | `tuyau` (cohérence d'un bulletin) | MA11 le garde pour les vrais bulletins ; `paie.ts` ne sert qu'à la paie fictive |
-| `SubscriptionsScreen` | revenu récurrent (dans l'écran, non exporté) | refait, exporté et testé dans `abonnements.ts` |
-| Écrans existants | âge des devis, tranches de relance, frise des contrats (tous **dans** les écrans) | à sortir dans la logique quand les fiches le demandent [fiche] |
-
-**Rien n'existait** pour :
-
-- les pénalités de retard et l'indemnité de 40 € ;
-- les remises ;
-- la TVA calculée depuis les factures (`filigrane` reçoit des montants saisis) ;
-- la projection de trésorerie à partir des factures, abonnements et échéances ;
-- le devis prérempli depuis le catalogue ;
-- l'ordre préparé (banque en lecture seule).
+| `src/lib/money.ts` | centimes, arrondi commercial, `documentTotals` (TVA arrondie ligne par ligne) | **suivi** (§1.29 n° 1) : `totauxDocument` donne le même résultat, contrôlé facture par facture sur les jeux |
+| `src/state/useInvoices.ts` | `netDueCents`, `nextNumber` (`AAAA-NNNN`, `AV-AAAA-NNNN`) | même sens dans `facturation.resteDu` (plus les règlements partiels) ; même numérotation (§1.29 n° 4) |
+| `src/lib/relances.ts` | seuils 7 / 21 / 45 jours, paliers de ton | **un seul moteur** (§1.28 n° 2) : `impayes.ts` lit ses seuils (`ECHELLE`), avec la même comparaison stricte que `paliereDe` |
+| `src/lib/fec.ts` | export FEC | repris tel quel par MA02 |
+| `src/lib/cinquante/finance.ts` | cône sur 12 semaines, simulateur de prêt | le cône reste un complément ; H09 et MA07 s'appuient sur `tresorerie.projeter` (même moteur, exigé par H09) |
+| `src/lib/cinquante/guichet.ts` | `acompteDe` | MA03 le garde ; `devis.acompte` fait le même calcul sur un TTC |
+| `src/state/expenseEngine.ts` | `budgetVerdict` | MA06 passe à `budget.etatEnveloppe` |
+| `src/lib/cinquante/rh.ts` | cohérence d'un bulletin | MA11 le garde |
+| Écrans existants | revenu récurrent, frise des contrats, âge des devis (dans les écrans) | sortis dans la logique quand la fiche le demande (`abonnements`, `contrats`, `impayes.colonnesDeRetard`) |
 
 ## 4. Écran par écran
 
-Légende :
-
-- **Prêt** : ce que la logique couvre ;
-- **Manque** : ce qui n'existe ni dans le code ni dans les jeux ;
-- **[fiche]** : à relire avec le dossier v4.
+Légende : **Prêt** (couvert par la logique et ses cas) ; **Changé avec la fiche** ; **Manque** (ni dans le code, ni dans les jeux).
 
 ### F30 · Vue d'ensemble (nouveau)
-- **Prêt** : tous les chiffres d'une vue d'ensemble se calculent :
-  - impayés : `totalImpaye`, `tranchesDeRetard` ;
-  - TVA du mois en cours : `tvaDuMois` ;
-  - trésorerie à 12 semaines : `projeter` ;
-  - revenu récurrent : `revenuMensuelRecurrent` ;
-  - devis en jeu : `etatDevis`.
-- **Manque** : le hub `/ensemble/argent` est l'une des 8 routes du socle v4 (S0). La composition de la vue reste à reprendre [fiche].
+- **Prêt** (`ensemble.ts`) : rivière du mois (entrées rapprochées par client, sorties par catégorie, 5 groupes nommés et le reste groupé) ; solde au bout = solde au 1er + entrées − sorties, remplacé par le solde réel s'il s'en écarte de plus de 1 € (l'écart est montré) ; objectif d'encaissement plafonné à 100 %, avec le jour du dépassement.
+- **Changé avec la fiche** : la composition n'est plus à deviner (rubrique 6 de F30).
+- **Manque** : la « série d'encaissement » (voir §5 n° 5).
 
 ### G03 · Facturation (mixte)
-- **Existant** : `InvoicesScreen` couvre l'émission, les avoirs, le PDF, le FEC et le graphique sur 12 mois (`douzeMois`).
-- **Prêt** (`facturation.ts`) :
-  - totaux par taux, avec remise globale ;
-  - reste dû (avoirs émis et règlements partiels réussis ; échoués, en attente et remboursés exclus) ;
-  - statut calculé : brouillon, envoyée, en retard (au lendemain de l'échéance), payée en partie, payée, annulée ;
-  - jours de retard ;
-  - échéance par défaut à 30 jours, délai conforme jusqu'à 60 jours ;
-  - numéro suivant et trous de numérotation ;
-  - liste des **mentions manquantes**, toujours avec `aFaireValider: true`.
-- **Manque** : régime de TVA et franchise en base dans l'identité (§7) ; règlements partiels dans les jeux.
+- **Prêt** (`facturation.ts`) : totaux ligne par ligne ; reste dû ; **six stations** (brouillon, envoyée, vue, en retard, payée, annulée) ; gravité du retard (rouge au-delà de 30 jours) ; compteurs par station ; délai moyen de paiement ; numérotation et trous ; mentions manquantes, toujours `aFaireValider: true` ; mouvement bancaire qui ressemble au paiement avant toute relance (± 0,50 €, 30 jours).
+- **Changé avec la fiche** : « payée en partie » n'est pas une station de G03, il disparaît (une facture réglée en partie reste envoyée ou vue, avec son reste dû) ; « Vue » arrive (nombre d'ouvertures).
+- **Manque** : nombre de vues et journal des événements dans les jeux.
 
 ### H07 · Devis (mixte)
-- **Existant** : `QuotesScreen` (âge des devis, panier moyen) ; `lib/devisBrief.ts` (lignes depuis un brief).
-- **Prêt** (`devis.ts`) :
-  - état d'un devis (vu, expiré au lendemain de la validité) ;
-  - taux de transformation sur les devis tranchés ;
-  - **devis prérempli** : recherche d'une prestation active sans accent ni casse, numéro `D-AAAA-NNNN` suivant, validité 30 jours, totaux. C'est la source que H41 (⌘K) et H42 (démarrage) attendent de ce lot (STATUT §1.12 n° 4) ;
-  - passage d'un devis accepté en facture brouillon (lignes copiées) ;
-  - acompte en %.
-- **« Valable juridiquement »** : jamais affirmé par le code. `verifierMentions` dit ce qui manque, et le texte affiché renvoie au comptable (`mentions.complet`).
-- **Comparateur de devis** (module de F1, §1.21) : F1 l'intègre. Il faudra prévoir sa place dans H07 [fiche].
+- **Prêt** (`devis.ts`) : états de la fiche (brouillon, envoyé, vu, signé, facturé, refusé, annulé, expiré) ; taux de transformation ; **devis prérempli** pour H41 et H42 ; devis signé → facture brouillon ; acompte plafonné au total ; écart entre deux versions (− 172,80 € sur l'exemple).
+- **Changé avec la fiche** : « accepté » devient « signé » ; numéro de devis sans zéros (`D-2026-114`).
+- **« Valable juridiquement »** : jamais affirmé ; `verifierMentions` dit ce qui manque.
 
 ### H08 · Dépenses (mixte)
-- **Prêt** (`depenses.ts`) : HT et TVA depuis un TTC, totaux du mois par catégorie, justificatifs manquants.
-- **Manque** : taux de TVA par dépense dans les jeux (seul `tvaCents` existe ; le taux se déduit).
+- **Prêt** : HT et TVA depuis un TTC ; catégories ; justificatifs à fournir avant le 5 du mois suivant (compte à rebours, jamais en rouge plein) ; part du mois justifiée ; reçu rapproché d'une dépense (± 0,50 €, ± 3 jours, proposé, jamais validé seul) ; TVA récupérable des seules dépenses justifiées ; abonnement inutilisé depuis 30 jours ; barre du budget global neutre sous 85 %, orange jusqu'à 100 %, rouge au-delà.
 
 ### H09 · Prévisions (mixte)
-- **Prêt** (`tresorerie.ts`) :
-  - projection jour par jour sur 12 semaines (réglable) ;
-  - deux scénarios : « attendu », et « prudent » sans les encaissements incertains ;
-  - point bas, premier jour sous zéro, besoin, clôtures par semaine du lundi au dimanche ;
-  - flux venant des factures (une facture échue est attendue à J+14, comme incertaine), des abonnements, des échéances fiscales et des mouvements prévus des jeux.
-- **Attend** : les **attendus calculés de SIM pour H09** (STATUT §1.11 n° 3), pas encore livrés. La garde compare aujourd'hui à des cas écrits à la main et à des invariants sur les jeux (solde final = départ + flux de l'horizon ; point bas ≤ chaque jour ; semaine = dernier jour). La comparaison aux attendus s'ajoute dès leur livraison.
-- **Paiement en plusieurs fois** (module de F1) : place à prévoir dans H09 ou MA03 [fiche].
+- **Prêt** (`tresorerie.ts`) : projection jour par jour sur **90 jours** (30, 90 ou 180) ; **trois scénarios** (prudent, central, ambitieux) tirés d'hypothèses réglables (retard des encaissements, volume des ventes ; chaque hypothèse a une valeur par scénario) ; « ce qui pèse le plus » (écart à l'horizon quand une seule hypothèse bouge) ; passage sous le seuil de confort (creux court, ou reste sous le seuil depuis telle date) ; point bas, besoin.
+- **Changé avec la fiche** : 12 semaines → 90 jours ; « attendu / prudent » → trois scénarios ; le central est exactement la prévision de MA07.
+- **Attend** : les attendus calculés de SIM pour H09 (§1.11 n° 3). Les cas à la main et les invariants sur les jeux tiennent lieu de contrôle.
 
 ### MA07 · Trésorerie (mixte)
-- **Existant** : le cône de `finance.ts` (incertitude statistique).
-- **Prêt** :
-  - `banque.soldeTotal` ;
-  - `projeter` ;
-  - `fluxDesMouvementsPrevus`, qui lit le prévisionnel des jeux.
-- **À trancher** [fiche] : quels comptes forment la trésorerie disponible (courant seul, ou épargne comprise) ? Le code prend ceux que l'écran lui passe.
+- **Prêt** : solde de départ sur les comptes courants, l'épargne ajoutée par un interrupteur et montrée à part (§1.29 n° 7) ; variation de la semaine ; prévision à J+30 arrondie à la centaine ; bande d'incertitude ± 170 € × √n ; couleur du point bas ; autonomie en mois (santé bonne, correcte ou fragile ; réserve de 3 mois) ; achat décalable (ni récurrent, ni fiscal).
 
 ### MA04 · Impayés (mixte)
-- **Prêt** (`impayes.ts`) :
-  - tranches 0–30, 31–60, 61–90, plus de 90 jours (bornes dans la tranche basse) ;
-  - total ;
-  - priorités (palier, puis montant, puis ancienneté) ;
-  - délai moyen de paiement ;
-  - **pénalités de retard** (taux annuel en paramètre, jamais écrit en dur) et **indemnité forfaitaire de 40 €** ;
-  - **relance préparée au vouvoiement**, jamais envoyée (`envoyee: false`), avec le montant et la date au format français.
-- **Lien G05** : la barre ⌘J prépare déjà un brouillon de relance (LOT-00). `preparerRelance` peut lui fournir le texte par palier.
+- **Prêt** (`impayes.ts`) : quatre colonnes d'âge (0–30, 31–60, 61–90, plus de 90), toujours affichées, même vides, triées par retard ; échelle de relance (à relancer, relance 1, relance 2, mise en demeure), le client posé sur sa dernière étape faite ; « Appeler » à partir de la relance 2 ou au-delà de 30 jours ; objectif zéro impayé ; plan en deux échéances (le 5 et le 20 du mois suivant) ; délais comparés d'une période à l'autre ; relance préparée au vouvoiement, jamais envoyée.
+- **Changé avec la fiche** :
+  - MA04 est **informatif** : le calcul des pénalités et l'indemnité de 40 € sont retirés. Le taux reste un réglage de l'identité de facturation, pour la mention des factures (§1.29 n° 6) ;
+  - la **mise en demeure** n'a plus de texte par défaut (« aucun modèle par défaut sans validation d'un juriste ») : le modèle validé vient du réglage ; sans lui, rien n'est préparé. Elle exige toujours l'accord d'un administrateur.
 
 ### MA01 · Contrats (mixte)
-- **Existant** : `ContractsScreen` (échéances, frise, valeur).
-- **Prêt** : rien de propre au lot ; les jeux `contrats` ont l'état et l'échéance.
-- **Manque** [fiche] : les règles de renouvellement (préavis de résiliation, reconduction tacite) et le lien contrat ↔ factures.
+- **Prêt** (`contrats.ts`) : valeur annualisée ; « à renouveler » quand l'échéance tombe dans le préavis (60 jours par défaut), **jamais pour une reconduction tacite** ; compte à rebours (44 jours de préavis écoulés sur 60 → 73 %) ; valeur révisée d'un avenant ; fenêtre de la frise.
 
 ### MA02 · Comptabilité (mixte)
-- **Existant** : export FEC (`lib/fec.ts`, `check:fec`) ; rapprochement (`fermeture`).
-- **Prêt** : `suggestionsDeRapprochement` (encaissement « à vérifier » et facture payée du même TTC, à 5 jours près). Le module propose, il ne pointe jamais seul.
-- **Mention** : « à valider par un comptable » sur toute déclaration.
+- **Prêt** (`comptabilite.ts`) : soldes courants du compte 512 ; résultat indicatif et marge ; variation mensuelle ; les 8 points « Prêt pour le comptable », calculés, jamais cochés à la main. Tout est « indicatif, à valider par un comptable ».
 
 ### MA03 · Paiements en ligne (mixte)
-- **Prêt** :
-  - `connecteurs.etatPaiementsEnLigne` lit le modèle de S9 : local et « à brancher », ou externe dès qu'un service de paiement est connecté avec le droit de lecture. Aucune clé ne passe par l'écran ; la configuration se fait dans H21 ;
-  - `devis.acompte`.
-- **Manque** : les frais réels d'un service (les jeux les simulent : 1,4 % + 0,25 € par carte).
+- **Prêt** (`paiements.ts`) : taux de réussite du mois ((41 − 1) ÷ 41 → 98 %) ; encaissé et part des frais (1,9 %) ; réussite par moyen ; hauteur des barres en racine ; état « à brancher » d'après le modèle de S9, configuré dans H21.
 
 ### MA05 · Notes de frais (mixte)
-- **Prêt** :
-  - `notesARembourser` (par personne, hors notes déjà remboursées) ;
-  - remboursement **préparé** (`preparerOrdre`), exécuté par la personne dans sa banque.
-- **Existant gardé** : lecture des tickets et champs à confirmer (`finance.ts`, `champsLisibles`).
+- **Prêt** : sommes dues par personne ; remboursement **préparé** (`preparerOrdre`), exécuté dans la banque.
 
 ### MA06 · Budget (mixte)
-- **Prêt** (`budget.ts`) :
-  - consommé, reste, pourcentage ;
-  - projection au rythme du mois ;
-  - état : « dans les clous », « à surveiller » dès 80 % ou si la projection dépasse le prévu, « dépassé ».
-- **Manque** : l'historique des enveloppes (les jeux n'ont que le mois en cours).
+- **Prêt** (`budget.ts`) : dépensé, reste, pourcentage (jamais « 100 % » sous le prévu, au moins 101 % au-dessus) ; états de la fiche (dans le budget, presque plein dès 90 %, payé, dépassé) ; bandeau (budget, dépensé, reste, « il te restera environ ») ; avancée du mois ; mois sous le budget ; enveloppe qui peut donner pour un rééquilibrage.
+- **Changé avec la fiche** : seuil 80 % → 90 % (réglable) ; projection retirée (la fiche n'en a pas) ; état « payé » pour une enveloppe à paiement unique.
 
 ### MA08 · TVA et impôts (mixte)
-- **Prêt** (`tva.ts`) :
-  - TVA d'un mois **en débits ou en encaissements** ; un avoir se déduit en débits ; les encaissements comptent au prorata ;
-  - crédit de TVA ;
-  - échéance proposée le 20 du mois suivant (réglable) ;
-  - échéances à payer d'ici 30 jours, en retard comprises, montants inconnus comptés à part ;
-  - **`aValiderParUnComptable: true`** sur chaque résultat.
-- **Rejeu** : chaque échéance « TVA de … » des jeux est retrouvée au centime (régime des débits, celui de SIM).
-- **Hors du lot** : l'impôt sur les sociétés et la CFE sont des montants saisis ou importés, jamais calculés ici.
+- **Prêt** (`tva.ts`) : TVA d'un mois en débits ou en encaissements, avec bases HT et part reversée ; crédit de TVA ; prochaine échéance, jours restants et jour de paiement proposé (2 jours ouvrés avant) ; préparation (arrondie vers le bas) ; part mise de côté ; dû de l'année par famille. `aValiderParUnComptable: true` partout.
 
 ### MA09 · Abonnements récurrents (mixte)
-- **Prêt** (`abonnements.ts`) :
-  - revenu mensuel et annuel récurrent (Actif et Paiement échoué) ;
-  - attrition du mois ;
-  - prochain prélèvement, strictement après aujourd'hui, ramené au dernier jour d'un mois court ;
-  - prélèvements à venir (pour H09).
-- **Rejeu** : le prochain prélèvement de chaque abonnement actif des jeux est retrouvé.
+- **Prêt** : revenu mensuel et annuel (actifs et paiements échoués, §1.29 n° 5) ; abonnés ; résiliations du mois ; taux de prélèvement ; objectif ; prélèvements des 15 prochains jours, groupés par date, « à réessayer » compris.
+- **Changé avec la fiche** : l'attrition est retirée (la fiche montre les résiliations du mois).
 
 ### MA10 · Banque (mixte)
-- **Prêt** :
-  - `soldeTotal` ;
-  - `preparerOrdre` (lecture seule, IBAN masqué, montant positif, référence exigée) ;
-  - `dateLimiteDeLOrdre` (2 jours avant l'échéance, proposition) ;
-  - `etatBanque` : toujours `lectureSeule: true`, « à brancher » dans H21 tant que l'agrégateur n'est pas connecté.
-- **Manque** : l'historique des soldes par jour (graphique), aujourd'hui seulement reconstructible depuis `mouvements`.
+- **Prêt** : part rapprochée (arrondie vers le bas) ; **pièce proposée** pour un mouvement (exacte avec le numéro, probable avec le nom du client, à vérifier après une relance récente ; au centime ; jamais appliquée seule) ; ordre préparé ; date limite de l'ordre (2 jours ouvrés) ; `etatBanque` toujours `lectureSeule: true`.
 
 ### MA11 · Paie (mixte)
-- **Prêt** (`paie.ts`) :
-  - cotisations fictives à **46 % du net** (STATUT §1.11 n° 3) ;
-  - coût total ;
-  - masse salariale du mois ;
-  - **montants masqués par défaut** (`MONTANTS_MASQUES_PAR_DEFAUT`, `montantAffiche`).
-- Les salaires sont versés par un ordre préparé, jamais par un virement.
+- **Prêt** : montants masqués par défaut ; visibles 2 minutes, masqués après 1 minute hors de la fenêtre ; bulletins prêts.
+- **Fiche** : « l'application ne calcule aucune cotisation ». Les 46 % fictifs (§1.11 n° 3) ne servent plus qu'au contrôle des jeux de SIM ; aucun écran ne les affichera.
 
 ### MA12 · Tarifs et remises (mixte)
-- **Prêt** (`tarifs.ts`) :
-  - marge (une décimale) ;
-  - marge moyenne pondérée par les ventes du mois ;
-  - remise en % ou en montant, plancher à zéro, signalée « sous le coût » sans être refusée ;
-  - variation d'un prix.
-- **Taux horaire de revient** (module de F1) : place à prévoir dans MA12 [fiche].
-- **Manque** : les remises dans les jeux (aucune remise sur les devis ni les prestations).
+- **Prêt** (`tarifs.ts`) : marge en % entier (62,5 → 63) ; couleur au regard de l'objectif de 55 % ; remise au-delà de 5 % → accord requis ; effet d'un prix sur un mois ; suggestion + 10 % à l'euro supérieur ; marge moyenne pondérée ; remises accordées du mois.
 
 ## 5. Écarts et décisions à porter au CO
 
-1. **Arrondi de la TVA.**
-   - La fiche H07, d'après les jeux de SIM, calcule la TVA **par taux sur la somme des bases**. C'est ce que fait le lot, et c'est l'usage le plus courant.
-   - `src/lib/money.ts` (`documentTotals`, utilisé par `InvoicesScreen` aujourd'hui) arrondit **ligne par ligne**.
-   - Sur 3 × 0,33 € à 20 %, la règle par taux donne 0,20 € et la règle par ligne 0,21 €. Le cas T2 de `check:argent` fige l'écart.
-   - **Décision** : aligner `money.ts` sur la règle par taux, ou l'inverse. Les factures déjà émises ne changent jamais : la règle ne vaut que pour les nouvelles. Avis d'un comptable recommandé.
-2. **Régime de TVA.**
-   - Les jeux comptent la TVA à l'émission (régime des débits).
-   - Pour des prestations de services, la règle par défaut est la TVA sur les encaissements, sauf option pour les débits.
-   - Les deux régimes sont codés. **Décision** : un réglage de l'entreprise, avec quelle valeur par défaut ? À valider par un comptable.
-3. **Seuils proposés** (constantes nommées, faciles à changer) :
+1. **Arrondi de la TVA.** La fiche H07 calcule la TVA **par taux** (« Σ HT à ce taux × taux ») ; la décision provisoire du CO (§1.29 n° 1) est **ligne par ligne**, comme `money.ts`. Le code suit le CO. Sur l'exemple de H07, les deux règles donnent le même résultat (1 359,20 €) ; sur les jeux, aucun écart. L'écart reste à porter à Harun, comme prévu.
+2. **Relances : la fiche MA04 et le moteur unique.** Seuils identiques (7, 21, 45). Deux différences :
+   - **le jour** : la fiche écrit « J+7 » ; `paliereDe` ouvre le palier au 8e jour. Le code suit le moteur unique (§1.28 n° 2) ;
+   - **l'étape** : MA04 avance d'une étape à la fois (une relance 2 suppose la relance 1 envoyée) ; `relances.ts` ne regarde que les jours. Les deux coexistent (l'étape s'ajoute au moteur). Les noms diffèrent aussi (« mise en demeure » est le 3e palier de ton dans `relances.ts`, la 4e étape dans MA04).
+   **Décision** : garder « après le seuil » (moteur) ou « le jour du seuil » (fiche) ?
+3. **Mise en demeure** : sans modèle par défaut (fiche). **Décision** : où se règle le modèle validé par un juriste (H18 avec l'identité de facturation ?) ; jusque-là, l'étape reste vide.
+4. **Modules de F1** (Taux horaire, Paiement en plusieurs fois, Comparateur de devis, §1.21) : **aucune des 17 fiches ne les mentionne**. **Décision** : leur place (MA12, H09 ou MA03, H07 étaient pressentis).
+5. **Deux « séries » de même nom.** G03 : un jour compte si aucune facture en retard n'est « non traitée » à 23 h 59. F30 : jours consécutifs avec au moins un encaissement, « même série que G03 ». Les définitions se contredisent. **Décision** : laquelle ; rien n'est codé tant que ce n'est pas tranché.
+6. **TVA récupérable** : H08 ne compte que les dépenses justifiées ; MA08 et les jeux comptent toute la TVA déductible. Les deux sont codés (`tvaRecuperable`, `tvaDuMois`). **Décision** : confirmer qu'il s'agit de deux chiffres différents (indicatif dans H08, déclaratif dans MA08).
+7. **Période de TVA** : MA08 montre un trimestre (« 1er juil. au 30 sept. »), le code calcule par mois. Un réglage (mensuel ou trimestriel) suffira, en sommant les mois. À confirmer.
+8. **Ordre des cartes de MA04** : la règle de la fiche dit « retard décroissant » ; l'image montre la colonne 0–30 en ordre croissant (4, 12, 15 jours). Le code suit la règle. À confirmer.
+9. **Seuils à jour** (valeurs de départ, §1.29 n° 3, réglables) :
 
-   | Constante | Valeur proposée |
-   |---|---|
-   | échéance par défaut | 30 jours |
-   | délai jugé conforme | 60 jours |
-   | jour limite de la TVA | le 20 |
-   | retard supposé d'une facture échue | 14 jours |
-   | horizon | 12 semaines |
-   | seuil « à surveiller » du budget | 80 % |
-   | fenêtre de rapprochement | 5 jours |
-   | validité d'un devis | 30 jours |
-   | ordre à passer avant l'échéance | 2 jours |
-
-4. **Numérotation.** Formats en concurrence :
-   - les jeux : `F-AAAA-NNNN` ;
-   - le module existant : `AAAA-NNNN` et `AV-AAAA-NNNN` ;
-   - le lot : préfixe en paramètre (`F`, `AV`, `D`).
-
-   **Décision** : un seul format pour la refonte.
-5. **Revenu récurrent** : « Paiement échoué » compté, « En pause » non. À confirmer [fiche].
-6. **Pénalités** : le taux des conditions générales est un réglage de l'entreprise (aujourd'hui inexistant). Quel réglage, et où (H18 ou l'identité de facturation) ?
-7. **Comptes de la trésorerie** : compte courant seul, ou épargne comprise ?
-8. **Doublon de format.** `commun.formaterMontant` existe parce que le lot ne peut pas importer `formaterEuro` du socle (`src/socle/ui/graphiques`) en préparation. À remplacer par la brique du socle à la construction ; il ne reste alors que pour les textes envoyés aux clients.
+   | Constante | Avant | Avec la fiche |
+   |---|---|---|
+   | horizon de trésorerie | 12 semaines | **90 jours** (H09) |
+   | « presque plein » du budget | 80 % | **90 %** (MA06) ; barre globale orange dès **85 %** (H08) |
+   | fenêtre de rapprochement | 5 jours | remplacée par la règle de MA10 (au centime) et celle de G03 (± 0,50 €, 30 jours) |
+   | ordre avant l'échéance | 2 jours | **2 jours ouvrés** (MA08) |
+   | préavis d'un contrat | — | **60 jours** (MA01) |
+   | objectif de marge, remise sans accord | — | **55 %**, **5 %** (MA12) |
+   | échéance, délai conforme, le 20, J+14, validité d'un devis | inchangés | inchangés |
 
 ## 6. Dépendances
 
 | Dépendance | Ce qui l'attend | Ce qui est fait en attendant |
 |---|---|---|
-| **Dossier v4** (fiches, images, `tutoiement.json`) | §4 [fiche], textes exacts, place des modules de F1 | logique sans texte d'écran ; textes calculés au tutoiement, textes clients au vouvoiement |
-| **Socle v4 (S0)** | tous les écrans ; hub `/ensemble/argent` | aucun composant visuel |
-| **SIM** : attendus de H09 | comparaison de `projeter` | cas à la main et invariants sur les jeux |
-| **LOT-12 (S9)** : modèle des connecteurs | MA03, MA10 | `connecteurs.ts` lit le modèle fusionné ; rien n'est configuré ici |
-| **LOT-07 (S6)** : H21 (configuration), H18 (réglages) | brancher paiements et banque ; réglages TVA et pénalités | états « à brancher » |
-| **F1** : Taux horaire, Paiement en plusieurs fois, Comparateur de devis | MA12, H09 ou MA03, H07 | places notées [fiche], rien de refait |
+| **Socle v4 (S0)** | tous les écrans ; hub `/ensemble/argent` ; `src/socle/formats.ts` (§1.29 n° 8) | aucun composant visuel ; `commun.formaterMontant` en attendant |
+| **SIM** | attendus de H09 ; alignement des jeux (§7) | cas à la main et invariants |
+| **LOT-12 (S9)** | MA03, MA10 | `connecteurs.ts` lit le modèle fusionné |
+| **LOT-07 (S6)** : H21, H18 | brancher paiements et banque ; réglages (TVA, pénalités, politique de relance, modèle de mise en demeure, seuils) | états « à brancher » et valeurs de départ |
+| **F1** | §5 n° 4 | rien de refait |
 
 ## 7. Ce qui manque aux données (à demander par le CO à SIM)
 
-- **Règlements partiels** : plusieurs paiements pour une facture (aujourd'hui un seul, du montant total).
-- **Avoirs** : aucun dans les jeux (`kind: 'creditNote'`, `creditNoteFor`).
-- **Identité fiscale de l'entreprise** : régime de TVA (débits ou encaissements), franchise en base, taux de pénalités des conditions générales. `entreprise.identite` a déjà le SIRET et le numéro de TVA.
-- **Taux de TVA par ligne et par dépense** autres que 20 % (5,5 % et 10 %), pour que MA08 détaille plusieurs taux.
-- **Remises** : sur quelques devis et prestations (MA12).
-- **Historique** : enveloppes de budget des mois passés (MA06), soldes de compte par jour (MA10).
-- **Attendus calculés de H09** (déjà commandés, §1.11 n° 3).
-- **Lien encaissement prévu ↔ facture échue**, pour classer « incertain » dans le prévisionnel des jeux. `mouvement.lien` porte déjà l'identifiant ; il manque l'indicateur d'échéance dépassée.
+- **Numérotation** : passer de `F-AAAA-NNNN` au format existant `AAAA-NNNN` (§1.29 n° 4). La logique lit encore les deux.
+- **Devis** : statuts de H07 (signé, facturé, annulé) et numéros `D-AAAA-N`.
+- **Contrats** : des contrats tacites sont « À renouveler » dans les jeux ; d'après MA01, un tacite ne l'est jamais.
+- **Factures** : nombre de vues, journal des événements, règlements partiels, avoirs.
+- **Relances** : nombre et dates des relances par facture (MA04).
+- **TVA** : taux par ligne et par dépense autres que 20 % ; bases HT de la période.
+- **Abonnements** : montants en HT (MA09).
+- **Historique** : enveloppes des mois passés (MA06), soldes par jour (MA10).
+- **Identité de facturation** : régime de TVA, franchise en base, taux de pénalités.
+- **Attendus calculés de H09** (déjà commandés).
 
-## 8. Ce qui manque au socle (à porter au CO)
+## 8. Ce qui manque au socle (à vérifier sur la liste v4)
 
-À vérifier sur la liste des composants v4 à la fusion (la liste du §7 LOT-00 de STATUT est celle de la v3) :
+Les fiches nomment leurs surfaces : `AgingBoard` et `DunningLadder` (MA04), `HypothesisRuler` (H09), `DeadlineCountdown`, `VatWaterfall` et `FiscalMatrix` (MA08), `GoalCard` (F30). À confronter à la liste des composants du socle v4 à la fusion, avec :
 
-- une brique **montant masqué / révélé**, pour MA11 et partout où un montant sensible s'affiche (G09 le demande aussi) ;
-- un **graphique de solde projeté** avec la ligne zéro, le point bas marqué et les jours sous zéro ombrés (H09, MA07). `Courbe` existe ; la marque du point bas et la zone sous zéro sont à confirmer ;
-- un **tableau en tranches** pour l'âge des impayés (MA04). `Barres` pourrait suffire [fiche].
+- une brique **montant masqué / révélé** (MA11, aussi G09) ;
+- un **graphique à trois scénarios** avec seuil, zone « sous le seuil » et étiquettes de fin (H09, MA07).
 
 ## 9. Construction (au feu vert du CO, après la fusion du socle v4)
 
-- **Écrans** : dans `src/refonte/argent/` (`.tsx`), branchés par le mécanisme de substitution. La garde relâchera alors sa règle « aucun `.tsx` » pour les écrans déclarés.
-- **Couleurs** : `--fam-a` et `--fam-b` de la famille Argent, posés par la coquille.
-- **Textes** :
-  - l'interface tutoie, d'après `_data/tutoiement.json` ;
-  - ce qui part chez un client (devis, factures, relances) vouvoie, avec des clés `client.`.
-- **Méthode** : un commit par écran ; captures à 1440 × 900 sur `build:web` local (127.0.0.1, API d'essai, données fictives), comparées aux images v4 et vérifiées par T1. Images et captures restent hors du dépôt.
+- **Écrans** : dans `src/refonte/argent/` (`.tsx`), branchés par la substitution. La garde relâchera alors sa règle « aucun `.tsx` » pour les écrans déclarés.
+- **Couleurs** : `--fam-a` et `--fam-b` de la famille Argent, posées par la coquille.
+- **Textes** : l'interface tutoie (`tutoiement.json`, libellés des fiches) ; devis, factures et relances vouvoient (clés `client.`).
+- **Méthode** : un commit par écran ; captures à 1440 × 900 sur `build:web` local (données fictives), comparées aux images v4 et vérifiées par T1. Images et captures restent hors du dépôt.
