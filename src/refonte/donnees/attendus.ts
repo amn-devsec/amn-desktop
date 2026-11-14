@@ -19,7 +19,7 @@
  * fiche dit « à confirmer dans le code » ou « Proposition » est nommée comme
  * telle ici, pour qu'on sache ce qu'on compare.
  *
- * Ce que les jeux ne portent pas encore est rendu `null` et nommé dans `manque` :
+ * Ce que les jeux ne portent pas (encore) est rendu `null` et nommé dans `manque` :
  * c'est la liste « Manque aux données » du lot, à relire avec lui.
  */
 
@@ -277,15 +277,40 @@ export interface AttendusCockpit {
   /** Tickets partagés avec le dev, par colonne (compteur réel, urgents d'abord ; 3 visibles au plus). */
   tickets: Record<'a-faire' | 'en-cours' | 'en-revue' | 'termine', { compteur: number; visibles: string[] }>;
   sources: { nom: string; etat: string }[];
-  /** Objectif du mois : l'objectif est un réglage ; absent des jeux. */
-  objectifDuMois: null;
-  /** Les « utilisateurs connectés » viennent d'une API du client (Vercel) : aucune source dans les jeux. */
-  utilisateursConnectes: null;
+  /**
+   * L'objectif du mois (réglage `objectifMrrCents`) et l'avancement du revenu récurrent : `partPourcent` = revenu ÷ objectif (entier,
+   * l'anneau) ; `resteCents` = « plus que… » (jamais négatif) ; `ecartDeRythmeJours` = (revenu ÷ objectif × jours du mois) − jour du mois,
+   * arrondi : positif « en avance de n jours », négatif « en retard de n jours » ; `atteint` : « Objectif atteint ».
+   */
+  objectifDuMois: { objectifCents: number; mrrCents: number; resteCents: number; partPourcent: number; ecartDeRythmeJours: number; atteint: boolean } | null;
+  /** Les utilisateurs connectés (API du client) : aujourd'hui, et les sept derniers jours, aujourd'hui en dernier ; null sans série. */
+  utilisateursConnectes: { aujourdhui: number; parJour: { jour: Jour; connectes: number }[] } | null;
   manque: string[];
 }
 
 const actifAu = (a: { depuis: Jour; etat: string; resilieLe: Jour | null }, jour: Jour): boolean =>
   a.depuis <= jour && (a.etat === 'Actif' || (a.resilieLe !== null && a.resilieLe > jour));
+
+function objectifDuMois(m: Monde, mrrCents: number): AttendusCockpit['objectifDuMois'] {
+  const objectifCents = m.entreprise.reglages.objectifMrrCents;
+  if (!(objectifCents > 0)) return null;
+  const [a, mois, jourDuMois] = m.contexte.aujourdhui.split('-').map(Number);
+  const joursDuMois = new Date(Date.UTC(a, mois, 0)).getUTCDate();
+  return {
+    objectifCents,
+    mrrCents,
+    resteCents: Math.max(0, objectifCents - mrrCents),
+    partPourcent: Math.round((mrrCents / objectifCents) * 100),
+    ecartDeRythmeJours: Math.round((mrrCents / objectifCents) * joursDuMois - jourDuMois),
+    atteint: mrrCents >= objectifCents,
+  };
+}
+
+function connectesDeLaSemaine(m: Monde): AttendusCockpit['utilisateursConnectes'] {
+  const jours = m.utilisateursConnectes.filter((c) => c.jour <= m.contexte.aujourdhui).sort((x, y) => x.jour.localeCompare(y.jour)).slice(-7);
+  if (jours.length === 0) return null;
+  return { aujourdhui: jours[jours.length - 1].connectes, parJour: jours.map((c) => ({ jour: c.jour, connectes: c.connectes })) };
+}
 
 export function attendusCockpit(m: Monde): AttendusCockpit {
   const auj = m.contexte.aujourdhui;
@@ -307,12 +332,9 @@ export function attendusCockpit(m: Monde): AttendusCockpit {
     impayes: m.factures.filter((f) => f.status === 'issued' && f.dueAt < auj).length,
     tickets,
     sources: m.connecteurs.map((c) => ({ nom: c.nom, etat: c.etat })),
-    objectifDuMois: null,
-    utilisateursConnectes: null,
-    manque: [
-      'Objectif du mois (G08) : réglage d’objectif de MRR absent de entreprise.reglages',
-      'Utilisateurs connectés (G08) : aucune série par jour (API du client)',
-    ],
+    objectifDuMois: objectifDuMois(m, mrrAu(auj)),
+    utilisateursConnectes: connectesDeLaSemaine(m),
+    manque: [],
   };
 }
 

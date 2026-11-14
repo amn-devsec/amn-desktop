@@ -76,7 +76,7 @@ Quatre écrans calculent au lieu de lire un jeu. Leurs **attendus de test** sont
 | G08 Cockpit | `attendusCockpit(monde)` | revenu récurrent, encaissé du mois, clients actifs, tickets par colonne, sources |
 | H25 Tableau de bord | `attendusTableauDeBord(monde)` | chiffre d'affaires, tickets, factures impayées, mes tâches, prochain rendez-vous, activité |
 
-**La série** (L01, N01, H04, H25) est celle de la clôture des priorités du jour (`dailyPriorities`, `serieDesPriorites`), relue à la lettre dans `attendus.ts` et comparée à `serieDeLaJournee` de S2. L'objectif du mois et les utilisateurs connectés de G08 restent rendus `null` par `attendusCockpit` (S2 les attend `null`) ; leurs jeux (`utilisateursConnectes`, `objectifMrrCents`) existent. Les règles que les fiches disent « Proposition » ou « à confirmer » le restent dans les commentaires.
+**La série** (L01, N01, H04, H25) est celle de la clôture des priorités du jour (`dailyPriorities`, `serieDesPriorites`), relue à la lettre dans `attendus.ts` et comparée à `serieDeLaJournee` de S2. `attendusCockpit` rend maintenant l'objectif du mois (`objectifMrrCents` : anneau, « plus que… », avance ou retard en jours, objectif atteint) et les utilisateurs connectés (aujourd'hui et sept jours ; `null` sans série). Les règles que les fiches disent « Proposition » ou « à confirmer » le restent dans les commentaires.
 
 ## Charger les jeux dans l'API d'essai (`scripts/charger-donnees-essai.mjs`)
 
