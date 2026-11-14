@@ -62,6 +62,7 @@ async function charger<T>(code: string): Promise<T> {
 const M = await charger<any>(
   [
     `export * as L from '../${ZONE}';`,
+    `export * as G from '../${ZONE}/grille';`,
     "export * as monde from '../src/refonte/donnees';",
     "export * as attendus from '../src/refonte/donnees/attendus';",
     "export { avancementProjet, statutProjet } from '../src/refonte/donnees/ma-journee';",
@@ -72,7 +73,7 @@ const M = await charger<any>(
     "export { ecartsDeVoix } from '../src/socle/mots/voix';",
   ].join('\n'),
 );
-const { L, monde, attendus, moi, jourDeSim, avancementProjet, statutProjet, joursSansImpayeSim, DICTIONNAIRES_JOURNEE: DICO, ecartsDeVoix } = M;
+const { L, G, monde, attendus, moi, jourDeSim, avancementProjet, statutProjet, joursSansImpayeSim, DICTIONNAIRES_JOURNEE: DICO, ecartsDeVoix } = M;
 
 const VOLUMES = ['vide', 'peu', 'normal', 'beaucoup'] as const;
 const mondes = Object.fromEntries(VOLUMES.map((v) => [v, monde.construireMonde({ volume: v })])) as Record<(typeof VOLUMES)[number], any>;
@@ -93,6 +94,8 @@ function fichiersDe(dossier: string): string[] {
   const sortie: string[] = [];
   for (const e of fs.readdirSync(path.join(racine, dossier), { withFileTypes: true })) {
     const rel = `${dossier}/${e.name}`;
+    // Les écrans (`ecrans/`) sont construits depuis le feu vert du CO : la zone de la logique pure est le reste.
+    if (e.isDirectory() && e.name === 'ecrans') continue;
     if (e.isDirectory()) sortie.push(...fichiersDe(rel));
     else if (/\.(ts|tsx)$/.test(e.name)) sortie.push(rel);
   }
@@ -776,6 +779,50 @@ await dit('H01, MJ04, L02, L03 : leurs phrases tutoient et ne reprochent rien', 
     'Bonjour Aaron', 'Bonsoir Aaron',
     'On reprend là où tu t’étais arrêté : Regarde ta journée', 'Ta journée est prête.',
   ]);
+});
+
+/* ── 3c. H25 : la grille du tableau de bord ─────────────────────────────── */
+console.log('\nLOT-01 — grille du tableau de bord (H25)\n');
+
+const wd = (id: string, colonne: number, rangee: number, largeur: number, hauteur: number) => ({ id, contenu: id, type: 'note', colonne, rangee, largeur, hauteur });
+
+await dit('H25 : un widget ne chevauche jamais un autre, quoi qu’on pose ; les voisins descendent', () => {
+  const base = [wd('a', 1, 1, 3, 2), wd('b', 4, 1, 3, 2), wd('c', 1, 3, 6, 1)];
+  const apres = G.deplacer(base, 'c', 2, 1);
+  for (const x of apres) for (const y of apres) assert.ok(!G.chevauche(x, y), `${x.id} / ${y.id}`);
+  assert.equal(apres.find((w: any) => w.id === 'c').rangee, 1);
+  assert.ok(apres.find((w: any) => w.id === 'a').rangee > 1, 'le voisin descend');
+  const agrandi = G.redimensionner(base, 'a', 6, 3);
+  for (const x of agrandi) for (const y of agrandi) assert.ok(!G.chevauche(x, y));
+  assert.deepEqual(agrandi.find((w: any) => w.id === 'a'), { ...base[0], largeur: 6, hauteur: 3, colonne: 1, rangee: 1 });
+});
+
+await dit('H25 : tailles de 1 × 1 à 6 × 3, colonnes de 1 à 6, jamais hors de la grille', () => {
+  const w = G.borne(wd('x', 9, 0, 12, 7));
+  assert.equal(w.largeur, 6); assert.equal(w.hauteur, 3); assert.equal(w.colonne, 1); assert.equal(w.rangee, 1);
+  const p = G.borne(wd('y', 6, 2, 3, 1));
+  assert.equal(p.colonne, 4, 'un widget de 3 colonnes ne déborde pas à droite');
+  assert.equal(G.borne(wd('z', 1, 1, 0, 0)).largeur, 1);
+});
+
+await dit('H25 : l’ajout prend la première case libre, la copie une autre, le retrait ne laisse aucun recouvrement ; le même résultat à chaque fois', () => {
+  const base = [wd('a', 1, 1, 3, 2), wd('b', 4, 1, 3, 1)];
+  assert.deepEqual(G.premierEmplacement(base, 3, 1), { colonne: 4, rangee: 2 });
+  assert.deepEqual(G.premierEmplacement(base, 4, 1), { colonne: 1, rangee: 3 });
+  const plus = G.ajouter(base, { contenu: 'note', type: 'note', largeur: 3, hauteur: 1 });
+  assert.equal(plus.length, 3);
+  assert.deepEqual(G.ajouter(base, { contenu: 'note', type: 'note', largeur: 3, hauteur: 1 }), plus, 'déterministe');
+  assert.equal(new Set(plus.map((w: any) => w.id)).size, 3, 'identifiants distincts');
+  const copie = G.dupliquer(plus, 'a');
+  assert.equal(copie.length, 4);
+  assert.equal(G.retirer(copie, 'a').length, 3);
+  assert.equal(G.rangeesUtilisees([]), 0);
+  assert.equal(G.reperDeTaille({ largeur: 2, hauteur: 1 }), '2 × 1');
+});
+
+await dit('H25 : neuf types de widgets, la disposition ne porte ni clé ni valeur', () => {
+  assert.equal(G.TYPES_DE_WIDGET.length, 9);
+  assert.ok(!/(secret|token|cle|apikey|password)/i.test(JSON.stringify(G.ajouter([], { contenu: 'ca', type: 'chiffre', largeur: 3, hauteur: 2, source: 'Stripe' }))));
 });
 
 /* ── 4. Les éléments ludiques protégés (L07, trophées, défis) ─────────────── */
