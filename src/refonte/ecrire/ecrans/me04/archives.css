@@ -251,6 +251,7 @@
   color: var(--socle-texte-3);
 }
 .ec-me04__suite button {
+  min-height: 36px;
   border: 0;
   background: transparent;
   color: var(--socle-texte-2);
