@@ -20,7 +20,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 | S5 | `session_012jWErBSSkcoVaU3iN895bQ` | **LOT-03 complet, 9 sur 9** (`a565a07`) ; `check:navigation` durable redemandé (2ᵉ fois) | garde durable, puis justifications, puis LOT-05 |
 | S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **construit LOT-02** (feu vert le 14 nov., 08h) | lots de 3 à 5 écrans → `check:fidelite` de T1 → fusion |
 | S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **construit LOT-06** | lots de 3 à 5 écrans → T1 → fusion |
-| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | LOT-11, 7 sur 7, non accepté (6 écrans non montés) ; déclarations prêtes en local | attend la correction de `check:navigation` par S5, puis pousse → T1 remesure → fusion |
+| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | LOT-11, 7 sur 7 ; correction de `check:navigation` fusionnée | pousser ses 6 déclarations → T1 remesure → fusion |
 | S9 | `session_01C5DAVygXYax6Q7g436TPQx` | LOT-12 fini, valeurs de MC07 fusionnées (`bcdc65f`) | rien |
 | S2, S3 (première tâche : `check:encres`), F1 — **relancés le 14 nov., 08h** | `session_014ZkF6SeGRNi6NR3uEsjM5q`, `session_01FBSpK6n1yYtYXYyxbLAuBV`, `session_01VZHqP3gvzrtnpgsTrrKguV` | arrêtées | relancer au socle v4 (prompts : `PROMPTS-11NOV.md`, §1.21) |
 
@@ -44,6 +44,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov., 09h55 : **`check:navigation` et `check:systeme-demarrage` sont durables** (S5, `e9b6c404` + `91ec0f92`, reportés par le CO en `ce524697` et `b9511a5b`). Le compte est 101 + les écrans neufs déclarés, avec des contrôles négatifs. S8 et S7 peuvent déclarer leurs écrans neufs. ME05 : `/knowledge` et `/decisions` sortent de l'« aussi » du Supervisor (`src/bureaux/catalogue.ts`), une modification que **S5 est autorisé à faire** puisque S3 est bloqué. Ces deux écrans passent à la coquille, et la famille Écrire garde leurs entrées.
 - 14 nov., 09h50 : 39 routes, toutes atteignables par un geste : **condition d'allumage remplie**. Fragilité notée : 36 routes ne passent que par la Bibliothèque. D02 et ⌘K vont à la liste de S0. Outils de T1 fusionnés.
 - 14 nov., 09h45 : verdict de T1 sur LOT-03, **non accepté en l'état**. ME05 s'ouvre dans l'ancien bureau (bloquant) ; H11, H12, ME01 et ME05 à reprendre ; les autres écrans à justifier ; rien de coupé à 390 px. Les cibles gardent le dessin des fiches, avec une zone de clic invisible de 34 px (§1.39).
 - 14 nov., 09h40 : relevé de T1 sur les 20 tâches courantes, première mesure : 12 sur 20 en 3 actions au plus. Deux défauts de la palette ⌘K (pas d'action de création ; Entrée lance Ajmani avant le module) vont à la liste de S0 (§1.38). Éléments ludiques absents, mais non construits : à surveiller, pas une régression.
