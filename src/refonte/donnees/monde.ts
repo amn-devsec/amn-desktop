@@ -11,7 +11,7 @@
  * d'un jeu ne déplace pas les tirages des autres.
  */
 
-import { genererAbonnements, genererComptes, genererContrats, genererDepenses, genererDevis, genererEnveloppes, genererFactures, genererMouvements, genererPaiements } from './argent';
+import { genererAbonnements, genererAvoirs, genererComptes, genererContrats, genererDepenses, genererDevis, genererEnveloppes, genererFactures, genererMouvements, genererPaiements } from './argent';
 import { genererAide, genererAutomatisations, genererConnecteurs, genererCorbeille, genererModelesMetier, genererNotifications, genererOperations, genererRaccourcis, genererSauvegardes, genererSecrets, genererSites, genererTrackers, genererUsagesCalculs } from './boite-outils';
 import { genererBulletins, genererCreneaux, genererDefis, genererEcheances, genererPartenaires, genererPrestations, netMensuelMoyen } from './complements';
 import { genererAccords, genererAlertesVeille, genererCampagnes, genererConstats, genererDocumentsCyber, genererDossiersConformite, genererFuites, genererLogiciels, genererMissions, genererOutilsCyber, genererParcSecurite } from './cyber';
@@ -64,6 +64,8 @@ export function construireMonde(options: OptionsMonde = {}): Monde {
   const devis = genererDevis(ctx, clients);
   const factures = genererFactures(ctx, clients, devis, entreprise.identite.paymentTermDays);
   const paiements = genererPaiements(ctx, factures);
+  // Les avoirs baissent le reste dû de certaines factures (soldeCents) : ils précèdent la trésorerie et la TVA.
+  const avoirs = genererAvoirs(ctx, factures);
 
   const { projets, cibles } = genererProjets(ctx, equipe, clients);
   const taches = genererTaches(ctx, equipe, clients, projets, cibles);
@@ -80,7 +82,7 @@ export function construireMonde(options: OptionsMonde = {}): Monde {
   const bulletins = genererBulletins(ctx, equipe);
   const comptes = genererComptes(ctx);
   // Les échéances fiscales se déduisent des factures, des dépenses et de la paie ; les sorties prévues en dépendent.
-  const echeancesFiscales = genererEcheances(ctx, factures, depenses, bulletins);
+  const echeancesFiscales = genererEcheances(ctx, factures, depenses, bulletins, avoirs);
   const mouvements = genererMouvements(ctx, comptes, paiements, depenses, abonnements, factures, netMensuelMoyen(bulletins), echeancesFiscales);
   const enveloppes = genererEnveloppes(ctx, equipe, depenses);
   // Le budget mensuel global est la somme des enveloppes (MA06), pas un nombre posé à côté.
@@ -186,7 +188,7 @@ export function construireMonde(options: OptionsMonde = {}): Monde {
   return {
     contexte: ctx, entreprise, equipe, taches, evenements, projets, tickets, notes, rappels, habitudes, clients, interlocuteurs, prospects,
     fournisseurs, achats, avis, relances, fidelite, devis, factures, paiements, depenses, abonnements, contrats, comptes, mouvements, enveloppes,
-    echeancesFiscales, bulletins, prestations, partenaires, creneaux, defis,
+    avoirs, echeancesFiscales, bulletins, prestations, partenaires, creneaux, defis,
     pages, fichiers, signatures, modeles, journal, textes, archives, connaissances,
     conversations, messages, canaux, annonces, courriels, salles, appels, reunions, partages, sondages, reponsesAuto,
     articles, produits, commandes, chantiers, dossiersPhotos, marque, videos, pagesPubliques, etapesTournee, equipements, ressources, reservations,

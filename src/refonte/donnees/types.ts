@@ -388,6 +388,9 @@ export interface Fournisseur {
   note: string;
   /** Négociation enregistrée (sert à la suggestion « renégocier » de H45). */
   negociationLe: Jour | null;
+  /** H15 : le montant de commande à partir duquel le port est offert (null : pas de franco), et le port en dessous. */
+  francoCents: number | null;
+  fraisDePortCents: number;
 }
 
 /** H45 : historique d'achats (commandes aux fournisseurs). */

@@ -277,6 +277,9 @@ export function genererFournisseurs(ctx: Contexte): Fournisseur[] {
       delaiAnnonceJours: h.pondere([[1, 3], [2, 3], [3, 2], [5, 2], [7, 1]] as const),
       note: h.chance(0.3) ? 'Livraison gratuite au-delà de 150 €.' : '',
       negociationLe: h.chance(0.3) ? ajouterJours(ctx.aujourdhui, -h.entier(40, 300)) : null,
+      // H15 : un fournisseur sur trois offre le port à partir d'un montant ; les autres le facturent toujours.
+      francoCents: i % 3 === 0 ? 15_000 : i % 3 === 1 ? 30_000 : null,
+      fraisDePortCents: i % 3 === 0 ? 690 : i % 3 === 1 ? 1_190 : 1_890,
     };
   });
 }
