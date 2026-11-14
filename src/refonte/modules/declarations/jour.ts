@@ -1,4 +1,4 @@
-import { Columns3 } from 'lucide-react';
+import { Columns3, Gauge } from 'lucide-react';
 import { declarerFamille, vue } from '../declarer';
 
 /**
@@ -84,6 +84,21 @@ export default declarerFamille({
             icone: Columns3,
             ecran: () => import('../../journee/missions/PageMissions'),
             indice: { fr: 'Les tickets de l’équipe et des clients, en colonnes', en: 'Team and client tickets, in columns' },
+          },
+        }),
+      ],
+    },
+    {
+      nom: { fr: 'Cockpit d’un client', en: 'Client cockpit' },
+      action: 'suivre',
+      niveau: 'courant',
+      vues: [
+        vue('cockpit', '/cockpit-client', ['piloter l’activité d’un client', 'voir le revenu récurrent d’un client', 'voir qui est connecté chez un client', 'voir la santé de l’intégration'], ['cockpit', 'revenu récurrent', 'stripe', 'connectés', 'intégration', 'console'], {
+          en: { verbes: ['run a client’s activity', 'see a client’s recurring revenue', 'see who is online at a client', 'see the integration health'], motsCles: ['cockpit', 'recurring revenue', 'stripe', 'online', 'integration', 'console'] },
+          nouveau: {
+            icone: Gauge,
+            ecran: () => import('../../journee/cockpit/PageCockpit'),
+            indice: { fr: 'Leur activité en ligne, en direct : revenus, utilisateurs, tickets, santé', en: 'Their activity online, live: revenue, users, tickets, health' },
           },
         }),
       ],

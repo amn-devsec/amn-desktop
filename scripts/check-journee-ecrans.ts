@@ -297,6 +297,88 @@ if (M.MIS_modele) {
   });
 }
 
+/* ── G08 · Cockpit d'un client ──────────────────────────────────────────── */
+if (M.COC_modele) {
+  console.log('\nMa journée — G08, Cockpit d’un client (cinq instruments, agrégats seulement)\n');
+  const COC = M.COC_modele;
+  const NOW = paris('2026-10-30', '10:42');
+  const base = (o: Record<string, unknown> = {}): any => ({ client: 'Menna Conseil', aujourdhui: '2026-10-30', maintenant: NOW, revenu: null, connectes: null, paiements: null, tickets: null, delaisTenusPourcent: null, sante: null, ...o });
+  const ticket = (id: string, o: Record<string, unknown> = {}): any => ({ id, titre: `Ticket ${id}`, urgent: false, initiale: 'M', creeAt: paris('2026-10-30', '10:12'), echeanceAt: paris('2026-10-30', '17:00'), creeLabel: '10:12', echeanceLabel: '17:00', ...o });
+
+  await dit('un instrument sans donnée est « non disponible » : null, nommé dans `manque`, jamais un zéro', () => {
+    const m = COC.modeleCockpit(base());
+    assert.deepEqual([m.revenu, m.connectes, m.paiements, m.couloirs, m.sante], [null, null, null, null, null]);
+    assert.deepEqual(m.manque, ['revenu', 'connectes', 'paiements', 'tickets', 'sante']);
+    assert.equal(COC.modeleCockpit(base({ tickets: [] })).couloirs.length, 0, 'une liste vide n’est pas une absence');
+  });
+
+  await dit('le revenu : objectif en %, rythme du mois (avance ou retard), courbe en 0–1, graduations rondes, objectif sur l’échelle', () => {
+    const serie = Array.from({ length: 30 }, (_, i) => 390_000 + i * 3_000);
+    const m = COC.modeleCockpit(base({ revenu: { cents: 482_000, ecartPourcent: 18, objectifCents: 600_000, serie, encaisseDuMoisCents: 1_294_000, clientsActifs: 38, nouveaux: 6, impayes: 1 } }));
+    assert.equal(m.revenu.objectif.partPourcent, 80);
+    assert.equal(m.revenu.objectif.ecartDeRythmeJours, -5, '(4 820 ÷ 6 000 × 31) − 30');
+    assert.deepEqual(m.revenu.graduations.map((g: any) => g.v), [3000, 4000, 5000]);
+    assert.ok(m.revenu.courbe.every((p: any) => p.x >= 0 && p.x <= 1 && p.y >= 0 && p.y <= 1));
+    assert.ok(m.revenu.objectifY > m.revenu.courbe[29].y, 'l’objectif est au-dessus de la courbe');
+    assert.equal(COC.modeleCockpit(base({ revenu: { cents: 100, ecartPourcent: null, objectifCents: null, serie: [100], encaisseDuMoisCents: 0, clientsActifs: 0, nouveaux: 0, impayes: 0 } })).revenu.objectif, null, 'sans objectif : pas de pourcentage');
+  });
+
+  await dit('le cadran : échelle = pic des 30 jours arrondi au-dessus à 20 près, fractions bornées, barres sur la plus haute', () => {
+    assert.deepEqual([COC.echelleDuCadran(52), COC.echelleDuCadran(60), COC.echelleDuCadran(61), COC.echelleDuCadran(3)], [60, 60, 80, 20]);
+    const m = COC.modeleCockpit(base({ connectes: { courant: 37, picDuJour: 52, picHeure: '9:40', aujourdhui: 214, picDes30Jours: 52, minutes: [10, 20, 40] } }));
+    assert.deepEqual([m.connectes.echelle, Math.round(m.connectes.fraction * 100), Math.round(m.connectes.picFraction * 100)], [60, 62, 87]);
+    assert.deepEqual(m.connectes.barres, [0.25, 0.5, 1]);
+    assert.deepEqual(m.connectes.reperes, [0, 20, 40, 60]);
+    assert.equal(COC.modeleCockpit(base({ connectes: { courant: 99, picDuJour: 99, picHeure: '1:00', aujourdhui: 1, picDes30Jours: 40, minutes: [] } })).connectes.fraction, 1, 'plafonnée à l’échelle');
+  });
+
+  await dit('les paiements : la part réussie, quatre derniers au plus, la carte est MASQUÉE (quatre chiffres, jamais plus)', () => {
+    const derniers = ['1', '2', '3', '4', '5'].map((i) => ({ heure: `10:0${i}`, offre: 'Pro', carte4: '4242424242424242', cents: 4900, echec: false }));
+    const m = COC.modeleCockpit(base({ paiements: { totalCents: 124_000, nombre: 7, reussis: 6, refuse: { n: 1, raison: 'carte expirée' }, derniers } }));
+    assert.equal(Math.round(m.paiements.partReussie * 100), 86);
+    assert.equal(m.paiements.derniers.length, 4);
+    assert.ok(m.paiements.derniers.every((d: any) => d.carte4.length === 4), 'jamais plus de quatre chiffres');
+    assert.equal(COC.modeleCockpit(base({ paiements: { totalCents: 0, nombre: 0, reussis: 0, refuse: null, derniers: [] } })).paiements.partReussie, 1);
+  });
+
+  await dit('les couloirs : urgents d’abord, puis dépassés, puis par temps restant ; la part écoulée = (maintenant − création) ÷ (échéance − création) ; « dépassé » barre pleine', () => {
+    const m = COC.modeleCockpit(base({ tickets: [
+      ticket('H-119', { creeAt: paris('2026-10-27', '14:00'), echeanceAt: paris('2026-11-03', '18:00') }),
+      ticket('H-115', { creeAt: paris('2026-10-29', '09:00'), echeanceAt: paris('2026-10-30', '09:00') }),
+      ticket('H-118', { urgent: true }),
+      ticket('H-116', { creeAt: paris('2026-10-29', '09:00'), echeanceAt: paris('2026-11-04', '18:00') }),
+    ] }));
+    assert.deepEqual(m.couloirs.map((c: any) => c.id), ['H-118', 'H-115', 'H-119', 'H-116']);
+    const [urgent, depasse, h119] = m.couloirs;
+    assert.equal(Math.round(urgent.ecoule * 100), 7, '30 min sur 6 h 48');
+    assert.deepEqual([depasse.depasse, depasse.ecoule, depasse.minutes], [true, 1, -102]);
+    assert.ok(h119.ecoule > 0.35 && h119.ecoule < 0.6 && !h119.depasse);
+    assert.deepEqual(COC.tempsDuCouloir(-102, true), { genre: 'depasse', jours: 0, heures: 1, minutes: 42 });
+    assert.deepEqual(COC.tempsDuCouloir(378, false), { genre: 'reste', jours: 0, heures: 6, minutes: 18 });
+    assert.deepEqual(COC.tempsDuCouloir(3 * 24 * 60 + 30, false).jours, 3);
+  });
+
+  await dit('la santé : « Tout circule » seulement si aucun nœud n’est ralenti ou coupé ; le pire état gagne', () => {
+    const noeud = (ton: string) => ({ cle: 'stripe', libelle: 'Stripe', detail: '', ton });
+    const sante = (tons: string[]) => COC.modeleCockpit(base({ sante: { noeuds: tons.map(noeud), segments: [], disponibilitePourcent: 99.8, legende: null, debutBande: 'hier' } })).sante.global;
+    assert.deepEqual([sante(['ok', 'neutre']), sante(['ok', 'ralenti']), sante(['ralenti', 'coupe'])], ['ok', 'ralenti', 'coupe']);
+  });
+
+  await dit('SÉCURITÉ : ni clé, ni jeton, ni numéro de carte complet dans la logique, la vue ou la page ; aucun bouton « révéler »', () => {
+    const lire = (f: string) => fs.readFileSync(path.join(racine, `src/refonte/journee/cockpit/${f}`), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+    for (const f of ['modele.ts', 'VueCockpit.tsx', 'PageCockpit.tsx']) {
+      const s = lire(f);
+      assert.ok(!/sk_(live|test)|pk_(live|test)|whsec_|Bearer\s|apiKey|api_key|secret\s*[:=]|token\s*[:=]|\b\d{4}[ -]?\d{4}[ -]?\d{4}[ -]?\d{4}\b/i.test(s), `${f} : une clé, un jeton ou un numéro de carte`);
+      assert.ok(!/r[ée]v[ée]ler|reveal|showKey|afficher la cl[ée]/i.test(s), `${f} : un bouton « révéler »`);
+    }
+  });
+
+  await dit('G08 · textes : mêmes clés en fr et en, tutoiement', () => {
+    motsJustes(M.DICTIONNAIRES_COCKPIT, 'G08');
+    assert.equal(M.DICTIONNAIRES_COCKPIT.fr['sousTitre'], 'Leur activité en ligne, en direct : revenus, utilisateurs, tickets et santé de l’intégration');
+  });
+}
+
 /* ── Structure ──────────────────────────────────────────────────────────── */
 console.log('\nMa journée — structure des écrans de S1\n');
 const lister = (d: string): string[] => (fs.existsSync(path.join(racine, d)) ? fs.readdirSync(path.join(racine, d), { recursive: true, withFileTypes: true }).filter((f: any) => f.isFile()).map((f: any) => path.relative(racine, path.join(f.parentPath ?? f.path, f.name)).replace(/\\/g, '/')) : []);
