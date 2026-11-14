@@ -1,9 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { Bouton } from '../../../socle/ui/Bouton';
 import { IconeEtincelle } from '../../../socle/ui/controles';
 import { formaterEuro } from '../../../socle/formats';
 import type { ChaleurDesRelations, PointChaleur, SuggestionAppel } from './modele';
+import { ecarterPoints, zonesDeClic } from '../commun';
 import { nomsAffiches, PARTS_BANDES, positionX, positionY, rayonDuPoint } from './nuage';
 import { useMotsHub } from './i18n';
 
@@ -40,6 +41,26 @@ export function CarteChaleur({ chaleur, suggestion, onOuvrirClient, onPreparerAp
   const selection = chaleur.points.find((p) => p.clientId === choisi) ?? null;
   const noms = useMemo(() => nomsAffiches(chaleur.points, choisi), [chaleur.points, choisi]);
   const rechauffees = chaleur.rechauffees;
+  // La taille du tracé en pixels : elle sert à borner la zone de clic de chaque point pour qu'elle ne couvre jamais le centre d'un voisin.
+  const traceRef = useRef<HTMLDivElement>(null);
+  const [trace, setTrace] = useState<{ l: number; h: number } | null>(null);
+  useLayoutEffect(() => {
+    const el = traceRef.current;
+    if (!el) return undefined;
+    const lire = () => setTrace({ l: el.clientWidth, h: el.clientHeight });
+    lire();
+    if (typeof ResizeObserver === 'undefined') return undefined;
+    const obs = new ResizeObserver(lire);
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [chaleur.total]);
+  // Les points au même endroit sont poussés de quelques pixels l'un de l'autre, puis chaque zone de clic est bornée par ses voisins.
+  const placement = useMemo(() => {
+    if (!trace) return null;
+    const brut = chaleur.points.map((p) => ({ x: positionX(p.jours) * trace.l, y: positionY(p.satisfaction) * trace.h, r: rayonDuPoint(p, plafond) }));
+    const ecartes = ecarterPoints(brut, { l: trace.l, h: trace.h });
+    return { decale: ecartes.map((e, i) => ({ dx: e.x - brut[i].x, dy: e.y - brut[i].y })), zones: zonesDeClic(ecartes) };
+  }, [chaleur.points, trace, plafond]);
 
   const bulle = (p: PointChaleur): string => {
     const morceaux = [tm('chaleur.bulle.jours', { n: p.jours })];
@@ -80,6 +101,7 @@ export function CarteChaleur({ chaleur, suggestion, onOuvrirClient, onPreparerAp
             ))}
           </div>
           <div
+            ref={traceRef}
             className="sc-ct-nuage__trace"
             role="img"
             aria-label={tm('chaleur.graphique', { chaleureuse: chaleur.parBande.chaleureuse, aEntretenir: chaleur.parBande.aEntretenir, refroidie: chaleur.parBande.refroidie })}
@@ -92,7 +114,7 @@ export function CarteChaleur({ chaleur, suggestion, onOuvrirClient, onPreparerAp
                 </span>
               </div>
             ))}
-            {chaleur.points.map((p) => {
+            {chaleur.points.map((p, i) => {
               const r = rayonDuPoint(p, plafond);
               return (
                 <button
@@ -103,7 +125,13 @@ export function CarteChaleur({ chaleur, suggestion, onOuvrirClient, onPreparerAp
                   data-nomme={p.nomme || undefined}
                   data-choisi={p.clientId === choisi || undefined}
                   data-contour={p.satisfactionMoyenne || undefined}
-                  style={{ left: `${positionX(p.jours) * 100}%`, top: `${positionY(p.satisfaction) * 100}%`, width: r * 2, height: r * 2 }}
+                  style={{
+                    left: placement ? `calc(${positionX(p.jours) * 100}% + ${placement.decale[i].dx.toFixed(1)}px)` : `${positionX(p.jours) * 100}%`,
+                    top: placement ? `calc(${positionY(p.satisfaction) * 100}% + ${placement.decale[i].dy.toFixed(1)}px)` : `${positionY(p.satisfaction) * 100}%`,
+                    width: r * 2,
+                    height: r * 2,
+                    ...(placement ? ({ '--sc-zone': `${placement.zones[i]}px` } as React.CSSProperties) : null),
+                  }}
                   aria-label={`${p.nom}, ${tm('chaleur.bulle.jours', { n: p.jours })}${p.valeurCents > 0 ? `, ${formaterEuro(p.valeurCents / 100)}` : ''}`}
                   aria-pressed={p.clientId === choisi}
                   onClick={() => (p.clientId === choisi ? onOuvrirClient?.(p.clientId) : setChoisi(p.clientId))}

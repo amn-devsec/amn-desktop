@@ -116,7 +116,7 @@ export function Entonnoir({ modele, aujourdhui, selectionId, onSelection, onDepl
             onPointerCancel={() => setGlisse(null)}
           >
             {/* Zone de clic invisible de 34 px au moins (STATUT §1.39) : les événements remontent à ce groupe. */}
-            <circle cx={cx} cy={cy} r={Math.max(rayon, 19)} className="sc-ct-zone" />
+            <circle cx={cx} cy={cy} r={Math.max(rayon, 20)} className="sc-ct-zone" />
             {select && <circle cx={cx} cy={cy} r={rayon + 6} className="sc-mc-halo" />}
             <circle
               cx={cx}
