@@ -44,6 +44,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov., 09h45 : verdict de T1 sur LOT-03, **non accepté en l'état**. ME05 s'ouvre dans l'ancien bureau (bloquant) ; H11, H12, ME01 et ME05 à reprendre ; les autres écrans à justifier ; rien de coupé à 390 px. Les cibles gardent le dessin des fiches, avec une zone de clic invisible de 34 px (§1.39).
 - 14 nov., 09h40 : relevé de T1 sur les 20 tâches courantes, première mesure : 12 sur 20 en 3 actions au plus. Deux défauts de la palette ⌘K (pas d'action de création ; Entrée lance Ajmani avant le module) vont à la liste de S0 (§1.38). Éléments ludiques absents, mais non construits : à surveiller, pas une régression.
 - 14 nov., 09h35 : **LOT-03 complet** (S5, `a565a07`, 9 sur 9, ME04 sur `/archives`), en attente de T1. « Signatures » garde son identifiant (sur place), parce que H42 et H47 le citent : ma décision précédente est annulée. S5 a mis la garde à 102, un nombre encore figé : la version durable lui est redemandée en priorité, pour la deuxième fois.
 - 14 nov., 09h25 : la session de S8 a refusé de modifier `check-navigation.ts`, qu'elle juge être un assouplissement de garde. **La correction revient à S5**, propriétaire du registre, qui a déjà pu modifier ce fichier. Leçon : une garde ne se modifie que par sa session propriétaire.
@@ -813,13 +814,17 @@ Dans l'ordre :
 1. `check:ancres` (lien d'évitement transformé en bouton, phrase de la démo) et `check:avoirs` (pont `@edition/moments`, avec son jumeau `*.business` vide). Ajouter les deux à `editions.yml`.
 2. **C-006**, tutoiement : 6 chaînes sur LOT-00 et la coquille, 79 lignes sur 19 écrans. Étendre `check:tutoiement` au rendu, pas seulement aux 353 textes du dictionnaire.
 3. **C-010** (encre T4 à `#8b8b8f`), **C-005** (CSS inerte dans le paquet client, 64 sélecteurs), ancienne garde `check:coquille` interne à adapter.
-4. **C-011, part du socle** : lignes de H40 à 18 px ; `.dm-recherche` de `VueTousLesModules.tsx` à 660 px, une correction qui règle 10 écrans à 390 px.
+4. **C-011, part du socle**, plus la pastille « La Garde veille » de l'en-tête (zone de clic de 34 px, §1.39) : lignes de H40 à 18 px ; `.dm-recherche` de `VueTousLesModules.tsx` à 660 px, une correction qui règle 10 écrans à 390 px.
 5. **Palette ⌘K (H41)**, relevé de T1 sur les 20 tâches courantes :
    - (a) ajouter des actions de création (« Nouvelle tâche », « Nouveau client », « Nouvelle facture », « Nouveau devis », « Nouveau rendez-vous »), pour tenir l'objectif de 3 actions au plus ;
    - (b) quand la saisie correspond à un module, **Entrée ouvre le module**, et « Demander à Ajmani » passe en second. Aujourd'hui, « client » puis Entrée lance Ajmani.
 6. Les 39 routes que T1 trouvera sans geste, si elles relèvent de la coquille.
 
 Éléments ludiques protégés (relevé de T1) : absents partout, parce que leurs écrans (LOT-01, LOT-10) ne sont pas encore construits. Ce n'est **pas une régression**. L'absence devient bloquante dès qu'un lot annonce L07, H02, H04 ou L01 livrés : T1 relance son contrôle à chaque lot concerné.
+
+### 1.39 Cibles de 34 px et dessin des fiches v4 (14 nov.)
+
+Les fiches v4 dessinent beaucoup de boutons d'action à 31 px de haut (Personnaliser, Nouvelle page, Partager…), plus des cases et des pastilles de 26 à 28 px. **Décision du CO** : le dessin suit la fiche, et **chaque cible reçoit une zone de clic invisible d'au moins 34 px**, comme le socle le fait déjà pour PageHead, l'interrupteur et les cases (§1.13). T1 mesure la zone de clic, pas le dessin. C'est valable pour tous les lots. La pastille « La Garde veille » de l'en-tête (28 × 29) est au socle : elle va dans la liste de S0 (§1.38).
 
 ## 2. Les lots
 
