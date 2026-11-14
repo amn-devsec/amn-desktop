@@ -34,7 +34,7 @@ Pourquoi : S0 refuse de pousser sur un simple message d'une autre session et veu
 
 **Tes retours** : écris-les-moi dans notre conversation, en vrac. J'en fais des tâches et je les distribue.
 
-**En cours** : S1, S5, S7 et S8 construisent leurs écrans (1 écran poussé : F20). F1 intègre ses trois modules. S2 prépare LOT-01, SIM ajoute les priorités du jour. T1 adapte ses gardes à la nouvelle coquille. DS, S3, S0 et S6 attendent ton accord ou les zips v4.
+**En cours** : S1, S5, S7 et S8 construisent leurs écrans : 4 poussés (F20, F50, H15, H16) et 2 commités chez S8. Ils seront livrés après la vérification de T1. F1 intègre ses trois modules. S2 prépare LOT-01, SIM ajoute les priorités du jour. T1 adapte ses gardes à la nouvelle coquille. DS, S3, S0 et S6 attendent ton accord ou les zips v4.
 
 **Bloqué** : l'allumage de la coquille par défaut, qui attend S0 et S3 (tes lignes ci-dessus) et une correction de T1. La construction de LOT-01, LOT-07 et LOT-08 attend les zips v4.
 
