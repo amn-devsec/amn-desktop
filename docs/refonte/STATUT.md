@@ -3,7 +3,7 @@
 > Tenu par le CO. Une session ne modifie que **la section de son lot** dans « 7. Écrans » (une ligne par écran) ; tout le reste est au CO. Règles : [`REGLES.md`](REGLES.md).
 
 - Branche d'intégration : **`claude/refonte-vivante`** (décision du 31 oct., §1.1). Base `main` @ `630ef45`.
-- Dernière mise à jour : 2026-11-01, soir. **Le design passe en v3** (141 écrans redessinés, validés par le dirigeant dans leur ensemble) : voir §1.10.
+- Dernière mise à jour : 2026-11-13. LOT-12 terminé côté S9, fusionné : §1.26. Passe finale v4 de S0 terminée, passage 2 de T1 : §1.25.
 - LOT-00 (socle v2) est fusionné (`488cdcc`), avec les 4 commits de S5. **Le socle v3 s'y ajoute avant la construction visuelle des lots** (S0 a ses consignes). D'ici là, chaque lot prépare et construit sa logique : §5.
 - Fusionnés aussi le 1er nov. : T1 (API d'essai, bac à sable, contrôle de fidélité) et les données fictives de SIM (100 jeux, `4fe559b`), avec `check:donnees` en CI (87 contrôles).
 - Gardes locales sur `refonte-vivante` : `typecheck`, `typecheck:business`, `lint` et les 55 contrôles sans navigateur de `editions.yml` verts.
@@ -83,7 +83,7 @@ Le dépôt a déjà ce qu'il faut : le même renderer tourne en PWA installable 
 
 Les points 9 à 15 sont **validés** (§1.10). Les règles A1 à A9 de la section A du fichier 04 valent aussi pour tous les lots : chiffres calculés depuis les données réelles, un seul bouton primaire par page plus celui de la suggestion d'Ajmani, colonne droite de 340 px, format français, pastille de La Garde selon N02 §6.2, aucun avatar pour Ajmani.
 
-### 1.6 Direction design (verrouillée par Harun)
+### 1.6 Direction design (verrouillée par Harun) — **couleurs et vouvoiement remplacés par la v4 (§1.14)**
 
 Sobre, noir et gris, ultra professionnel, ludique premium (cases à cocher, « x sur y fait », anneaux, séries, jalons, « Boîte à zéro »). **Aucun robot, aucune mascotte, aucun personnage** : Ajmani est une barre de texte en bas de page (⌘J) et une palette ⌘J. Vouvoiement, français. En v3 (§1.10), la barre latérale n'a plus de pastilles : la couleur d'une famille n'apparaît que sur l'icône de la famille active ; les teintes des familles et les accents d'équipe restent des accents rares sur fond noir et gris.
 
@@ -217,23 +217,344 @@ Les points 1 à 8 (§1.5) restent des décisions par défaut, sauf le n° 1 (ban
 3. **Les jeux calculés** (trésorerie prévisionnelle H09, bilan de la semaine H04, cockpit client G08, configuration du tableau de bord H25) : sous forme de **valeurs attendues pour les tests**, pas de seconde implémentation. Le calcul reste à la session du lot (DS pour H09, S2 pour H04, G08 et H25), qui le compare aux attendus de SIM.
 4. **Volumes « beaucoup » de Cyber** en situation, dès que LOT-10 a un écran.
 
+### 1.12 Mises à jour du 6 nov.
+
+**Dossier.** Le zip v3 léger du 6 nov. remplace la copie du CO (hors dépôt). Il ajoute **G09 Écran de veille** à LOT-00 : **142 écrans, LOT-00 en compte 9**. Les images partent avec le zip de chaque lot, que Harun donne aux sessions.
+
+**S0** est en mode ULTRA (Fable 5.1, effort max) pour finir le socle v3. C'est la priorité absolue. Sa branche `claude/refonte-socle` (`de625f8`, 4 nov.) contient déjà :
+
+- les 9 écrans en v3, dont G09 (0 % de pixels hors ± 2 px) ;
+- la couche de mouvement, la police monospace, `LiveDot`, `Caret`, `Severity`, `Gauge`, `HeatCell`, `FlowLine`, `FilterChips` et `InlineSuggestion` ;
+- la barre latérale v3 avec la carte « Aujourd'hui » et Cyber, l'en-tête, la barre Ajmani v3 ;
+- `usePageCoquille` ;
+- les 4 commits de S5, repris.
+
+**Ce que le CO attend encore du socle v3 avant de le fusionner :**
+
+1. **`ModuleTile`, `ModuleGroupGrid` et `AddModuleTile`**, ainsi que les briques citées par dix lots ou plus : `PageHead`, `IconTile`, `SuggestionCompact`, `FlagUrgent`, et `IconButton`, `StatusPill`, `SearchBox`, `AvatarStack`, `AjmaniBar` si les briques existantes ne les couvrent pas sous ces noms. Aucun lot ne les construit (§1.10).
+2. **Le mécanisme de substitution d'écran** (§1.3) : remplacer l'écran d'une route interne existante, et monter une page qui n'est pas un module (hubs `/ensemble/<famille>`, pages L*) sans la compter dans les 101.
+3. **Un seul calcul pour « Aujourd'hui »** (tâches faites sur prévues, série, prochain rendez-vous, présence), exporté pour N01, et **un seul calcul pour la pastille de La Garde** (`usePoulsGarde`), exporté pour LOT-08.
+4. **`check:coquille`** adapté à la barre latérale v3.
+5. **La liste exacte des composants disponibles** avec leurs chemins, envoyée au CO : c'est le signal de fusion.
+
+**Réponses du CO aux questions de S0** (par délégation de Harun) :
+
+| Question de S0 | Décision |
+|---|---|
+| Basculer la coquille, donc G09, par défaut ? | **Oui**, dans le socle v3, dès que le passage de T1 sur `claude/refonte-socle` est propre (paquet client identique, gardes navigateur coquille éteinte puis allumée) (§1.9) |
+| Créer un vrai verrouillage menant à G06 ? | **Non dans LOT-00** : cela touche l'authentification. Le délai reste enregistré sans effet, « Espace verrouillé » ne s'affiche pas (écart actuel gardé). S6 étudiera le verrouillage dans sa phase sécurité, en privé. |
+| Masquer les notifications natives pendant la veille ? | **Oui** : pendant la veille, une notification native n'affiche que « AMN Business · nouvelle notification », sans contenu. C'est le but de G09 : aucun nom ni montant visible depuis la salle. |
+| 1. G05 : envoi réel des relances (N3, 10 s pour annuler) ? | **Non au premier jet** : Ajmani prépare, la personne envoie (écart « Préparer les n relances » gardé). |
+| 2. G06 : compte mémorisé sur le poste ? | **Non au premier jet** (aucune adresse gardée en local). |
+| 3. D02 : lignes de 21 px ou cibles de 34 px ; « 101 » | **Cibles de 34 px** (règle d'accessibilité §7.6, qui l'emporte), la colonne défile dans sa carte ; pas d'équilibrage, l'ordre du registre fait foi ; **un seul total** : celui de D02, repris tel quel par la barre, H47 et G06. |
+| 4. Sources manquantes | Aucune nouvelle source dans LOT-00. Chacune revient au lot qui la possède : devis prérempli à LOT-04, contacts par client à LOT-02, note épinglée à LOT-03, automatisations et modèles des métiers (L04) à LOT-07. Créneaux du référent et historique des ouvertures : écarts gardés. |
+| 5. H40 : émetteurs du bruit, du silence et du résumé ; rendez-vous dans « L'essentiel » | Pas d'émetteur nouveau dans LOT-00 (écarts gardés). Rendez-vous dans « L'essentiel » **comme la fiche** (pour le contenu d'un écran, la fiche l'emporte). |
+| 6. H43 : exporter les pièces d'`EnSituation.tsx` | **Oui**, et les montrer sur `/dev/socle` : les lots en ont besoin pour leurs états. |
+| 7. Hauteur des pages sous `AppLayout` | **Dans la coquille, une seule fois**, pas page par page. |
+
+**S7** est créée (LOT-06, en mode préparation). Elle a déjà poussé `claude/refonte-creer` (`e402d0e`) : la logique pure des 15 écrans, `check:creer` et sa note `docs/refonte/preparation/LOT-06-creer.md`. **Ce dossier, `docs/refonte/preparation/LOT-xx-<nom>.md`, devient la règle pour toutes les notes de préparation**, et S3 y déplace la sienne.
+
+**T1** a comparé les 8 écrans v2 de LOT-00 (`0a1751c`, `docs/qualite/fidelite/ECARTS-LOT-00.md`) ; S0 en a corrigé une partie dans le socle v3.
+
+**Réglages par session** (recommandés par Harun, relus par le CO) :
+
+| Session | Réglage | Avis du CO |
+|---|---|---|
+| CO, S2 (LOT-01), S3 (LOT-08), DS (LOT-04) | Opus 5.5, effort élevé | ✓ (au-dessus du dossier pour S2 et DS, sans inconvénient) |
+| S0 (socle v3) | Fable 5.1, effort max (ULTRA) | ✓ |
+| S6, sécurité (phases 0 à 3) | Opus 5.5, effort max, pas de Fable | ✓ |
+| S6, LOT-10 Cyber | Opus 5.5, effort élevé | ✓ |
+| **S6, LOT-07 Outils** | Opus 5.5, effort élevé (**confirmé par Harun le 12 nov.**) | Ce réglage est celui que conseille le dossier, pour les surfaces sensibles (accès H19, connecteurs H21 dont WhatsApp et SMS, coffre-fort H24). |
+| S1 (LOT-02, LOT-09), S5 (LOT-03, LOT-05), S7 (LOT-06), T1, SIM | Sonnet 5.5, effort élevé | ✓ |
+| F1 (non cité) | — | Sonnet 5.5, effort élevé |
+
+**Règles qui ne changent pas** : des branches seulement, jamais de push sur `main`, **jamais de tag `v*`, aucune release, aucun déploiement client**, aucun secret dans le code.
+
+**Ordre de lancement après la fusion du socle v3**, inchangé : S2 et S3 d'abord ; puis S1, S5, DS et S7 en parallèle ; S6 dès la fin de sa phase 1 ; S1 pour LOT-09 en dernier.
+
+**SIM** doit encore : aligner ses dates sur 10 h 42 (mardi 3 nov. pour Cyber) ; livrer le chargeur vers l'API d'essai avec S3 ; fournir les valeurs attendues des écrans calculés (§1.11).
+
+Les prompts de préparation du 6 nov. sont dans [`PROMPTS-6NOV.md`](PROMPTS-6NOV.md).
+
+### 1.13 Directive du 10 nov. (Harun) — plan complet : [`PLAN-10NOV.md`](PLAN-10NOV.md)
+
+AMN Business devient le seul outil de travail de l'équipe. Nouveaux lots :
+
+- **LOT-11** Espace Développement (S8, à créer ; maquettes à fournir par Harun) ;
+- **LOT-12** Connecteurs et autonomie (S9, à créer ; le modèle et les moteurs locaux, H21 en est l'écran) ;
+- **LOT-13** Serveur (SRV, à créer ; comparatif en lecture seule, à rendre le 16 nov. au plus tard) ;
+- **LOT-14** Charge et essais longs (SIM et T1) ;
+- **SEC-0** (phase 0 de S6), puis **DIST** (distribution interne privée).
+
+L'espace Cyber est couvert par LOT-10 et LOT-08 (correspondance au §3.1 du plan). Mohamed a validé le design : S0 et T1 avancent vers la bascule.
+
+**Socle v3 : passe finale de S0.** Les 6 constats de sa seconde passe adverse sont **à corriger** avant la fusion : le segment survolé (régression visible), `Kpi` avec `title`, les gardes `check:socle-briques`, `check:socle` et `check:coquille` plus strictes, la démo, et « -0,00 € ». Puis T1 relit la différence et le CO fusionne. **T1 commence son passage 2 tout de suite**, sur `8e7e771`.
+
+**Réponses du CO aux 14 questions du socle complet** (par délégation) :
+
+| # | Décision |
+|---|---|
+| 1 | Compteurs : la déclaration du module **l'emporte**, pas d'addition. |
+| 2 | `FournisseurAujourdhui` **au-dessus des deux coquilles** (une seule instance). |
+| 3 | Deux briques pour l'instant (`EtatVide` du §4, `BlocEtat` aux cotes de H43), pas d'unification. **S2** (LOT-01) est prévenue pour N01. |
+| 4 | `IconTile` : les variantes `part` et `bordure` deviennent **officielles** (les images font foi). |
+| 5 | Hubs : **sept routes exactes**, une par lot. |
+| 6 | Le substitut de la session de support suit le drapeau de la coquille (choix de S0 confirmé). La clé `module` garde aussi l'édition interne : **oui** (un module fermé renvoie à l'Accueil partout). |
+| 7 | `check:coquille`, second passage : **mesurer aussi les bureaux** ; le voyant orange de La Garde est la **seule** exception à « aucun ambre dans la colonne » ; étendre la détection à l'ambre **translucide**. |
+| 8 | Notifications : garder `{ section }` jusqu'à H18 (LOT-07), puis `/settings/notifications`. Le cadre commun des trois réglages convient. |
+| 9 | C-001 : **sortir** les 48 références du socle de `src/index.css` avant la fusion. T1 vérifie ensuite que le paquet client revient au niveau de `main`. |
+| 10 | Le §7.6 (accessibilité) l'emporte pour les **zones de clic** : 34 px au moins, **sans changer le dessin** (zone élargie invisible), pour l'interrupteur, les cases, les segments et les boutons de `PageHead`. Segment choisi : repère non chromatique par la graisse. |
+| 11 | Interdire `vers` et `onClick` ensemble : **oui**. `Kpi` : ≤ 92 px, variation sur une ligne avec `title` (constat 2). Gris de décor en `fill` et `stroke` dans les `.tsx` : **non** (illustrations permises, 04-B n° 15). |
+| 12 | D02 : drapeau `critique` au registre : **oui**, posé par S5 (propriétaire du registre), lu par D02. S0 rééquilibre son registre d'exemple. |
+| 13 | `v-discussion.png` et `v-scan-inline.png` à la racine : **retirés** de l'arbre par S0 (ils restent dans l'historique). |
+| 14 | Images des fiches F10, F30, F50, F70, MR06, MR09, H16, N01 et H18 : demandées à Harun pour S0. |
+
+**Règles ajoutées** (dans `REGLES.md`) :
+
+- seule l'édition Business (`internal`) est commitée : aucun commit nouveau sur l'édition cliente ;
+- autonomie d'abord, une API payante est un connecteur facultatif ;
+- trois actions au plus pour une tâche courante ;
+- chaleur (les mots, le rythme, les petites attentions) ;
+- aucun secret ni dans un chat, ni dans un ticket, ni dans un dépôt ;
+- SEC-0 avant toute distribution, et distribution interne privée.
+
+**Fait à connaître.** `.github/workflows/release.yml` publie l'installeur interne dans les Releases GitHub de ce dépôt public quand on pousse un tag `v*`, et la mise à jour automatique les lit. **Fait le 12 nov. (Harun)** : les tags `v*` sont protégés par une règle du dépôt, et le workflow de publication est désactivé. La distribution privée sera choisie après SEC-0.
+
+**Ce que le CO demande à Harun** (détail au §9 du plan) :
+
+1. les maquettes DV01 à DV10 et la place de Développement dans la barre latérale ;
+2. créer S8, S9 et SRV, et attacher amn-api à SRV ;
+3. les chiffres de Render et le budget du serveur ; la décision après le comparatif ;
+4. où garder le travail sur Desktop client (A, B ou C ; A recommandée) ;
+5. ~~protéger les tags `v*`~~ (fait le 12 nov., workflow de publication désactivé aussi) ; le canal de distribution privé après SEC-0 ;
+6. ~~qui corrige amn-api~~ : **Harun est responsable, Mohamed suppléant** (12 nov.). Les « demandes à amn-api » des lots leur reviennent, et le détail des points de SIM reste hors du dépôt public ;
+7. ~~les chiffres cibles des tests de charge~~ : fixés le 12 nov. (§1.20) ;
+8. les images manquantes pour S0 ;
+9. ~~S6 en Opus pour LOT-07~~ : confirmé le 12 nov. LOT-07 démarre après la priorité de sécurité de S6.
+
+### 1.14 Dossier v4 : néon et tutoiement (11 nov., décisions de Harun)
+
+**Dossier.** `AMN-Business-dossier-v4` (5 zips `AMN-v4-1-docs.zip` à `AMN-v4-5-images.zip`, à décompresser dans un même dossier, hors du dépôt) remplace le v3 pour tous les lots. Il contient 153 images : les 142 écrans, 4 écrans Cyber `CYB-*` et 7 images Développement `DEV-*`. S'y ajoutent `sources-neon/` (143 sources HTML aux styles exacts), `_data/couleurs-familles.json` et `_data/tutoiement.json` (353 textes). Les fiches, l'index, les écarts et les prompts sont identiques au v3 (vérifié).
+
+**Décisions :**
+
+1. **Néon dosé, couleur par famille.** `06-V4-NEON-ET-TUTOIEMENT.md` l'emporte sur `01-SOCLE-DESIGN.md`.
+   - Deux couleurs par famille (`--fam-a`, `--fam-b`), posées par la coquille selon la famille active.
+   - Nouvelles couleurs d'état : succès `#5EE6A8`, info `#6EA8FF`, attention `#FFBE5C`, danger `#FF6B7A`.
+   - Les 15 règles de rendu du §3 de `06`. Le mouvement est inchangé ; `prefers-reduced-motion` coupe aussi les lueurs animées.
+   - Les dispositions, les fiches et la logique ne changent pas. **Cela remplace « noir et gris » (§1.6 et §1.10).**
+   - Cyber prend ses propres couleurs (`#FF6B7A`, `#A58BFF`) : il ne partage plus celles de La Garde.
+   - `couleurs-familles.json` n'a pas d'entrée Développement : on prend le tableau de `06` (`#6EA8FF`, `#5EE6A8`).
+2. **Tutoiement** dans toute l'interface ; **vouvoiement** gardé dans les textes destinés aux clients (courriels, devis, factures, relances, réponses automatiques, page publique, messages reçus). Table : `_data/tutoiement.json`. Les règles « vouvoiement » des prompts et des fiches sont remplacées. Les gardes qui exigent le vouvoiement (`check:systeme-ajmani`, `check:systeme-demarrage`, `check:systeme-demo`, `check:ajmani`) sont **mises à jour, pas désactivées** ; nouvelle garde `check:tutoiement`.
+3. **Espace Développement (LOT-11)** :
+   - 7 maquettes `DEV-*` : Projets de code, Déploiements, Serveur et santé, Éditeur de flux, Coûts et API, Modèles de sites (et sa vue code) ; brief dans `07-ESPACE-DEV.md`.
+   - **Place dans la barre latérale : juste au-dessus de « Surveillance »**, validée.
+   - Aucune fiche n'existe : **S8 les écrit d'abord** (gabarit `02-FICHE-MODELE.md`).
+   - **Pas d'image « Vue d'ensemble »** : S8 propose sa fiche, sur le modèle des hubs F10 à F70.
+   - Sous-modules réutilisés avec leurs fiches : H20, H21, H24, H03, ME05, MO03.
+4. **Cyber** : 4 écrans ajoutés à LOT-10 (`CYB-vulnerabilites`, `CYB-rapport-audit`, `CYB-playbook`, `CYB-chiffrage`). **LOT-10 passe à 18 écrans.** Les fiches sont à écrire avant de construire (S6). Les prix et la mention de TVA de `CYB-chiffrage` sont des données d'un catalogue, jamais du code en dur.
+5. **Images attendues par S0** (F10, F30, F50, F70, MR06, MR09, H16, N01, H18) : elles sont dans le dossier v4 (vérifié, 9 sur 9).
+6. **`build:web` en local permis à toutes les sessions** sur données fictives (`REGLES.md`). `npm start` reste interdit, et `build:web:business` reste à T1.
+
+**Passe finale de S0 (v4), avant la fusion du socle** :
+
+- tout le §1.13 (6 constats, 14 réponses, C-001, zones de clic de 34 px, guide de voix) ;
+- plus, pour la v4 :
+  - jetons de famille `--fam-a` / `--fam-b` pour les 11 familles du tableau de `06`, posés par la coquille ;
+  - couleurs d'état v4 ;
+  - règles de rendu du §3 dans le socle (fond à deux halos, cartes, titre et grands chiffres en dégradé, boutons, pastilles, lueurs, barre latérale active, onglets, bord dégradé d'Ajmani, tuiles d'icône) ;
+  - tutoiement de la coquille et des 9 écrans de LOT-00 ;
+  - entrée « Développement » dans la barre latérale, au-dessus de « Surveillance », avec ses signaux ;
+  - mise à jour des gardes qui figent les couleurs v3 ou le vouvoiement (`check:encres`, `check:socle`, `check:coquille`, `check:socle-*`, `check:systeme-*`), et `check:tutoiement` ;
+  - correctif du `Segmented` au survol.
+- Puis : passage de T1 sur les images v4 (paquet client, gardes navigateur coquille éteinte puis allumée, fidélité des 9 écrans), fusion par le CO, bascule de la coquille.
+
+**À noter.** Depuis le 6 nov., aucune session de lot n'a poussé de branche de préparation, sauf S7 (`claude/refonte-creer`). S0 n'a rien poussé depuis `8e7e771` (passe finale à faire), ni T1 depuis `0a1751c`, ni SIM depuis `4fe559b`. Les prompts du 11 nov. relancent tout le monde : [`PROMPTS-11NOV.md`](PROMPTS-11NOV.md).
+
+### 1.15 Serveur : 0 € ce mois-ci, serveur maison (décision de Harun, 11 nov.)
+
+1. **Aucune dépense en novembre.** On construit en local, sur données fictives (`build:web` local, API d'essai, `src/refonte/donnees/`).
+2. **Ensuite, un serveur maison** :
+   - amn-api et Postgres dans Docker, sur un poste de l'équipe ;
+   - Mohamed y accède par **Tailscale** (gratuit) ;
+   - **rien n'est exposé sur Internet** : aucun port ouvert sur la box, services liés à `127.0.0.1` ou à l'interface Tailscale seulement ;
+   - une sauvegarde nocturne chiffrée, et un essai de restauration.
+3. **SRV garde son comparatif** (rendu le 16 nov., aucun achat), en **trois paliers** : gratuit (le serveur maison), environ 10 €/mois, environ 25 €/mois. **Décision d'achat en décembre.**
+4. **SRV écrit en plus le guide pas à pas « serveur maison »** : `docs/serveur/SERVEUR-MAISON.md`, au plus tard le 18 nov. Il couvre Docker, Postgres, amn-api, Tailscale et la sauvegarde nocturne, sans aucun nom d'hôte, adresse, nom de machine ni secret. Les secrets sont générés sur le poste, dans un fichier `.env` jamais commité ni collé dans un chat. S6 relit le guide avant toute mise en service.
+5. **Aucune donnée réelle de client tant que la phase 0 de sécurité (SEC-0) n'est pas terminée**, ni sur le serveur maison, ni ailleurs dans la refonte.
+
+**Ce que le CO en déduit :**
+
+- **L'accès de Mohamed au serveur maison, sur données fictives, n'est pas une distribution.** L'installeur Electron ne lui est remis qu'après SEC-0. Avant, s'il veut essayer l'application, c'est la version web (`build:web`) servie sur le réseau Tailscale, avec données fictives.
+- **⚠ Avant le 23 nov.** : la base gratuite actuelle sur Render peut contenir des données réelles. **Harun l'exporte d'ici là** (sauvegarde chiffrée, hors ligne, hors dépôt, jamais dans un chat), pour ne rien perdre au moment de la restriction. Elle ne sera importée nulle part avant SEC-0.
+- La migration de la production reste suspendue jusqu'à la décision de décembre.
+
+### 1.16 Aucune distribution ; serveur reporté (décision de Harun, 12 nov.)
+
+1. **Aucune distribution pour l'instant**, ni à l'équipe ni à des clients. L'application tourne **seulement en local, sur le poste de Harun, sur données fictives**, pour ses essais. **Le verrou de distribution reste fermé.** Cela remplace l'accès de Mohamed par Tailscale du §1.15.
+2. **Serveur reporté. SRV est en pause** : pas de comparatif le 16 nov., pas de guide « serveur maison » pour l'instant. Le §1.15 reste écrit pour plus tard.
+3. **S6 garde la phase 0, avec une seule priorité**, fixée par Harun et transmise en privé. Elle passe avant tout le reste de la phase 0 et avant la phase 1. Rien de cette priorité n'est décrit dans le dépôt.
+4. **Le guide « lancer AMN Business sur mon PC »** est prêt : [`LANCER-EN-LOCAL.md`](LANCER-EN-LOCAL.md). Il est à suivre quand le socle v4 est fusionné, avec la version web construite en local, l'API d'essai en mémoire et les données fictives. Il demande un dossier neuf, sans `.env`, et jamais `npm start`.
+5. Ce qui ne change pas : socle v4 (S0, puis T1, puis fusion), vague 1 (S2, S3), préparation des lots, S8, S9, SIM (son chargeur sert aux essais de Harun) et F1.
+
+### 1.17 Fiches de LOT-11 (S8, 12 nov.) : décisions du CO
+
+Les 7 fiches de l'espace Développement (`DEV-projets`, `DEV-deploiements`, `DEV-serveur`, `DEV-editeur`, `DEV-couts`, `DEV-modeles-sites`, et la proposition `DEV-ensemble`) sont fusionnées dans `refonte-vivante`, pour relecture par Harun : [`fiches/LOT-11/`](fiches/LOT-11/00-COMMUN.md). Rien ne se construit avant cette relecture et la fusion du socle v4.
+
+| # | Point soulevé par S8 | Décision |
+|---|---|---|
+| 1 | Barre latérale des images DEV (13 lignes dépliées, section « ESPACES DE TRAVAIL ») | **Socle §0.1 pour la sous-liste** : 5 lignes au plus, puis « + N autres ». **L'image pour la section** : « ESPACES DE TRAVAIL », juste au-dessus de « SURVEILLANCE », qui contient Développement. S0 la pose. |
+| 2 | 8e hub `/ensemble/developpement` | **Oui** : S0 l'ajoute aux hubs du socle (huit routes exactes au lieu de sept, §1.13 n° 5). |
+| 3 | Famille de `DEV-modeles-sites` | **Développement**, avec une seconde entrée possible dans Créer et produire. |
+| 4 | « Éditeur d'automatisation » (h1) ou « Éditeur de flux » (menu) | **« Éditeur de flux » partout**, comme le brief `07` et la liste de Harun. L'écart avec l'image est noté. |
+| 5 | `DEV-couts` : « 5 connecteurs sur 7 » pour 4 lignes « Local » | **Calculé** depuis les connecteurs réels, jamais repris de l'image (04-A n° 1). |
+| 6 | `DEV-deploiements` : total des étapes ≠ « 1 min 48 » ; cible « Interne » | Total **mesuré de bout en bout**. La cible « Interne » reste **inerte** : aucune distribution, aucun tag `v*`, aucune Release. |
+| 7 | `DEV-editeur` : branches Sinon / Puis | Une extension du format des blocs et du moteur local, **qui revient à S9** (LOT-12 tient le format Quand / Si / Alors). S6 relit, et H20 (LOT-07) s'appuie dessus. S8 construit l'écran sur ce format. |
+
+**Ajouté à la passe finale de S0** : la section « ESPACES DE TRAVAIL » de la barre latérale, et le hub `/ensemble/developpement`.
+
+### 1.18 Point du 12 nov., 17h : registre de D02, ordre de reprise après 18h
+
+**Registre d'exemple de D02 (question de S0, réponse 12 du §1.13)** : la réponse 12 est **retirée**. L'aperçu de D02 garde le vrai registre de S5 tel quel, parce que l'ordre du registre fait foi (§1.12 n° 3) et que les comptes viennent des données, jamais de l'image (04-A n° 1). La 4ᵉ colonne défile dans sa carte, comme livré. L'écart avec l'image (lignes du registre) est un **écart gardé**, hors pourcentage. Rien ne change dans `src/refonte/modules/`. Les points 5 à 9 de S0 continuent sans attendre.
+
+**Ordre de reprise après la remise à zéro de 18h** (limite partagée, une session à la fois si besoin) :
+
+1. **S0** : points 5 à 9 de la passe finale. C'est le chemin critique : rien ne se fusionne ni ne s'allume sans lui.
+2. **S6** : phase 0, sa priorité en cours (étapes 3 à 6).
+3. **S9** : LOT-12, le format des blocs Quand / Si / Alors avec Sinon / Puis (§1.17 n° 7). Branche `claude/refonte-connecteurs` @ `f7f3d1a` relue : 26 fichiers dans sa zone, aucun conflit, aucun secret.
+4. **T1** : passage 2, **seulement quand S0 a poussé le point 9**, pas avant (une seule passe, pas deux).
+5. **S8** : en pause après ses fiches, jusqu'à la relecture de Harun. Aucun coût d'ici là.
+
+S2 et S3 : après la fusion du socle v4 et l'allumage de la coquille (§1.9).
+
+### 1.19 LOT-11 étape 2 (S8, `c555718`) : fusionnée, constats tranchés
+
+Fusionnée (`f984ad1`) : la note de préparation, la logique pure de `src/refonte/developpement/`, et la garde `check:developpement` (51 contrôles verts). Typecheck des deux éditions, lint et `check:navigation` sont verts après la fusion. Aucun écran, aucun build. L'étape 3 (les écrans) attend la relecture des fiches par Harun, la fusion du socle v4, et le modèle des connecteurs de S9.
+
+| # | Constat de S8 (note §5) | Décision |
+|---|---|---|
+| 1 | Seconde entrée : le registre refuse une vue en double | **Le registre reste sans doublon.** H20, H21, H24, H03, ME05 et MO03 gardent leur famille. La seconde entrée passe par la **sous-liste « Développement » de la barre latérale** (S0, §1.17 n° 1), qui pointe vers les vues existantes. Aucun champ « aussi dans » pour l'instant. |
+| 2 | Teinte de la famille dans le registre (7 teintes) | Dans le registre, **`outils` pour l'instant**, comme La Garde. Le néon vient de la coquille, par `--socle-fam-developpement-a/-b` (déjà posés par S0). Élargir `declarerFamille` aux onze `FamilleCouleur` est une petite tâche du socle, **après** la passe finale, pas sur son chemin critique. |
+| 3 | 8e hub | Déjà tranché (§1.17 n° 2) : S0. |
+| 4 | Sinon / Puis et le moteur de H20 | **Pas de troisième moteur.** On étend `AutomationData` du moteur de LOT-07 (plusieurs actions, une branche « non »). S9 fixe le format (§1.17 n° 7), S6 relit et l'intègre à H20, S8 construit l'écran dessus. |
+| 5 | Cible « Interne » | `DISTRIBUTION_INTERNE_OUVERTE = false` : approuvé. Ne change que sur décision de Harun (DIST). |
+| 6 | Entrée de la barre latérale | Déjà tranché (§1.17 n° 1) : S0, dans les points 5 à 9. |
+| 7 | « Redémarrer » en bouton primaire (DEV-serveur) | **Bouton secondaire, avec confirmation.** Le bouton primaire reste l'action courante de la page. Le bouton est inerte tant que LOT-13 (serveur) est en pause. Les autres écarts : §1.17 n° 3 à 5. |
+
+Jeux fictifs pour LOT-11 (note §8) : à commander à SIM quand l'étape 3 démarre, pas avant.
+
+### 1.20 Seuils de LOT-14 (Harun, 12 nov.)
+
+| Essai | Ce qu'on simule | Ce qui est attendu |
+|---|---|---|
+| **Charge (cible à tenir)** | 100 organisations clientes fictives, dont **20 connectées en même temps**, plus **3 personnes de l'équipe interne** au travail sur l'ensemble | Ça tient : aucune perte ni aucun écrasement de données, aucune erreur serveur. **Validé par Harun le 12 nov.** : **95 % des actions courantes en moins d'1 s**, et une écriture visible sur les autres postes en **moins de 5 s**. |
+| **Résistance** | Montée jusqu'à **1 000 organisations**, en augmentant les connexions simultanées par paliers | On ne demande pas que ça tienne : on veut **le premier point de rupture** (à quel palier, sur quelle ressource : processeur, mémoire, base, connexions) et la façon dont ça casse (lenteur, erreurs, perte). |
+| **Essais longs** | 72 h à la cible de charge, avec redémarrages, coupures réseau et reprise après plantage (PLAN-10NOV §8) | Aucune donnée perdue, et une reprise sans intervention. |
+
+Où l'on mesure :
+- **Maintenant**, sur l'API d'essai locale : SIM écrit les scénarios et génère les organisations fictives (jusqu'à 1 000), T1 vérifie que les scénarios tournent. Ces chiffres ne valent pas pour le serveur réel.
+- **Les vrais chiffres**, sur le serveur maison, quand LOT-13 reprend.
+- Toujours sur des données fictives, comme partout (REGLES).
+
+Les points faibles d'amn-api que ces essais révèlent vont à Harun et Mohamed, et leur détail reste hors du dépôt public.
+
+### 1.21 Modules de F1 choisis par Harun (12 nov.)
+
+**Intégrés en premier** : `tauxHoraire` (Taux horaire de revient), `echeancier` (Paiement en plusieurs fois), `comparateurDevis` (Comparateur de devis). Les trois sont « prêts à intégrer », sans condition (`docs/atelier/PRET.md` @ `59056ad`). **Le Rétroplanning et les dix autres attendent.** `bonsCadeaux` reste bloqué.
+
+Comment ça se passe (procédure [`INTEGRATION-F1.md`](INTEGRATION-F1.md), adoptée) :
+1. F1 écrit le choix et sa date dans `PRET.md`, et applique le correctif C-003 de T1 (`docs/qualite/constats/C-003-verifier-f1.patch`).
+2. **Après la fusion du socle v4**, F1 repart de la dernière `refonte-vivante` et met les trois modules au socle v4 : néon de leur famille (`--fam-a` / `--fam-b`), tutoiement, briques du socle. Pour chacun, une ligne dans le registre de S5 et une route dans `appRoot.internal.tsx`, rien d'autre hors de `src/ateliers/**`.
+3. T1 teste les trois modules sur le même sha, en une seule passe.
+4. Le CO relit et fusionne **un commit `--no-ff` par module**, pour pouvoir retirer chacun seul.
+
+Édition interne seulement : rien côté édition cliente. Réglage de F1 : Sonnet 5.5, effort élevé. Ordre de lancement : avec S2 et S3, après la fusion du socle v4.
+
+### 1.22 LOT-12 préparation (S9, `890522d`) : fusionnée, questions tranchées
+
+Fusionnée (`4254e7a`) : le modèle des connecteurs, les moteurs locaux, le format Sinon / Puis rangé dans le moteur de H20 (convertible dans les deux sens, les règles existantes relues à l'identique), et `check:connecteurs` (93 contrôles). Un seul conflit, dans `editions.yml` et `package.json` : deux ajouts côte à côte, les deux gardés. Après la fusion, tout est vert : typecheck des deux éditions, lint, `check:connecteurs`, `check:developpement`, `check:navigation`, `check:moments`, `check:donnees`.
+
+| # | Question de S9 | Décision |
+|---|---|---|
+| 1 | Notion et Webhooks, sans catégorie | Comme proposé : Webhooks est la brique « événements reçus » d'amn-api, affichée comme prise « chez nous ». Notion passe par « Demander un connecteur » tant que la liste des catégories ne l'ajoute pas. |
+| 2 | Prise arrêtée | Comme proposé : même dessin que « libre », avec « arrêtée le … » à la place de « libre, à brancher ». |
+| 3 | Valeurs par défaut | **Adoptées comme valeurs de départ**, toutes modifiables dans les réglages : plage clients lun.–ven. 08:00–19:00, plage équipe 07:30–21:00, 7 jours entre relances, 30 courriels par heure, rotation 7 / 4 / 6, suggestion à 70 % du forfait. Harun peut les corriger à tout moment. |
+| 4 | Moteur de H20, aussi chargé par l'édition cliente | **Une couture `@edition/*`**, pas un déplacement. Un jumeau `.business` reprend le comportement actuel, à l'identique, et le `.internal` branche le format étendu. L'édition cliente ne change donc pas, ce que `check:client-statique` prouve. C'est S6 qui la pose, dans LOT-07. |
+| 5 | Section LOT-12 dans §7 | **Oui, courte** : état, sha, gardes et dépendances, sans table d'écrans. S9 la crée et y touche seul. |
+
+**Espace Développement** : Harun a répondu directement à S8 sur ses 8 questions (S8 transmet au CO). Les modèles de sites ajoutés restent **sur le poste** pour l'instant. Leur partage attend le serveur (LOT-13).
+
+### 1.23 Fiches de LOT-11 relues par Harun (12 nov., soir)
+
+Les 8 décisions de Harun sont en tête de `fiches/LOT-11/00-COMMUN.md`, et les fiches y sont alignées (`ae801d6`, fusionnée). Il n'y a plus de relecture en attente. Le seul point laissé au CO :
+
+- **Confirmation avant « Revenir »** : Préproduction, Interne et Serveur AMN suivent la règle de la production, avec une ligne de confirmation. Seules les versions d'essai (Aperçu) n'en demandent pas. **Décidé par le CO**, comme S8 le propose.
+
+**Étape 3 de S8 (les écrans)** : feu vert **dès la fusion du socle v4**. Elle n'attend plus que cela : les fiches sont relues et le modèle des connecteurs est fusionné (§1.22).
+
+### 1.24 Qui travaille sans attendre le socle v4 (12 nov., soir), par ordre de priorité
+
+Prompts : [`PROMPTS-12NOV.md`](PROMPTS-12NOV.md), qui remplacent ceux du 6 nov. pour S1, S5, DS, S7 et SIM.
+
+| Ordre | Session | Ce qu'elle fait | Réglage |
+|---|---|---|---|
+| déjà lancées | **S0**, **S6**, **S9** | passe finale v4 (points 5 à 9), priorité de sécurité, puis la section LOT-12 du §7 (S9 se met ensuite en pause) | inchangé |
+| 1 | **SIM** | dates à 10:42, chargeur vers l'API d'essai (essais de Harun), attendus des écrans calculés, générateur et scénarios de charge (§1.20) | Sonnet 5.5, élevé |
+| 2 | **DS** | préparation de LOT-04 L'argent, le plus gros lot (17 écrans), logique d'argent | Opus 5.5, élevé |
+| 3 | **S1** | préparation de LOT-02 Contacts et clients | Sonnet 5.5, élevé |
+| 4 | **S5** | préparation de LOT-03 puis LOT-05 | Sonnet 5.5, élevé |
+| 5 | **S7** | mise à jour de sa préparation de LOT-06 pour la v4 | Sonnet 5.5, moyen |
+
+**Attendent, sans rien consommer** : T1 (passage 2, quand S0 a poussé le point 9), S2, S3, F1 et S8 étape 3 (après la fusion du socle v4), SRV (en pause).
+
+### 1.25 Passe finale v4 de S0 terminée (`888f7a0`) : réponses du CO, passage 2 de T1
+
+Points 5 à 9 poussés sur `claude/refonte-socle` @ `888f7a0` : section « ESPACES DE TRAVAIL » et 8e hub, tutoiement (guide de voix `src/socle/mots/voix.ts`), `check:tutoiement`, captures comparées aux images v4. Relu par le CO :
+- aucun conflit avec `refonte-vivante` ;
+- aucun fichier `*.business.*` changé depuis `db7e33b` ;
+- `src/screens/**` est intact ;
+- aucun secret.
+
+| # | Question de S0 | Décision |
+|---|---|---|
+| 1 | Troisième halo et voile des pages pleines (absents de 06 §3, mais dessinés par `sources-neon/`) | **Acceptés.** Les sources font partie du dossier v4 et 06 ne les contredit pas. Deux conditions, vérifiées par T1 : le texte reste lisible (AA, plancher T4), et les lueurs animées s'arrêtent quand le mouvement est réduit. |
+| 2 | La famille active posée sur la racine du document pendant que la coquille est affichée | **Accepté**, à deux conditions : l'attribut disparaît quand la coquille est éteinte ou démontée, et il n'existe jamais dans l'édition cliente. T1 le vérifie. |
+| 3 | Point de l'horloge de G09 : couleur principale, sans le dégradé de la source | **Accepté.** Sur un disque de 10 px, le dégradé ne se voit pas. |
+
+Les écarts restants viennent des données d'exemple, des pages derrière les palettes, des méthodes de connexion absentes (G06) et des lignes du registre de D02. Ce sont des **écarts gardés**.
+
+**Passage 2 de T1 : feu vert** sur `888f7a0`, prompt de T1 du 11 nov. (`PROMPTS-11NOV.md`), avec les vérifications ci-dessus. T1 confirme aussi que les 5 échecs connus de S0 (migration, encres, xss, visite, support) échouent **à l'identique sur `main`**. Ensuite seulement : la fusion du socle v4 et l'allumage de la coquille (§1.9).
+
+### 1.26 LOT-12 terminé côté S9 (`b90df75`)
+
+Fusionnée (`refonte-vivante`, après `6d51dcb`), et tout reste vert après la fusion : `check:connecteurs` (100 contrôles), les typechecks des deux éditions, lint, `check:navigation` et `check:developpement`. Les décisions du §1.22 sont appliquées, et il ne reste aucune question ouverte. **S9 est en pause.**
+
+Ce qui reste, hors S9 :
+- **La couture du moteur de H20** : S6, dans LOT-07 (§1.22 n° 4).
+- **Le relevé des tarifs pour H21** : S6, dans LOT-07, au moment de construire H21. Chaque prix est relevé sur la page officielle de l'outil, avec la date du relevé, et il est montré comme « indicatif au <date> ». Aucun prix n'est inventé.
+
 ## 2. Les lots
 
-Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en parallèle, une branche chacun ; **LOT-09 en dernier**. Les chiffres viennent de `03-INDEX.md` : 8 + 16 + 13 + 9 + 17 + 10 + 15 + 16 + 12 + 11 + 14 = **141**. (Le tableau du fichier 00 compte G05 dans LOT-05 ; l'index et les prompts le rangent dans LOT-00. Le CO suit l'index.)
+Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en parallèle, une branche chacun ; **LOT-09 en dernier**. Les chiffres viennent de `03-INDEX.md` : 9 + 16 + 13 + 9 + 17 + 10 + 15 + 16 + 12 + 11 + 14 = **142**. (Le tableau du fichier 00 compte G05 dans LOT-05 ; l'index et les prompts le rangent dans LOT-00. Le CO suit l'index.)
 
 | Vague | Lot | Écrans (re-habillage / mixte / nouveau) | Branche | Session | Modèle · effort | Dépend de | État |
 |---|---|---|---|---|---|---|---|
-| 1 | **LOT-00** Système et démarrage | 8 (0 / 7 / 1) | `claude/refonte-socle` | S0 | Opus 5.5, élevé | aucune | **v2 fusionné** (`488cdcc`) ; socle v3 en cours |
+| 1 | **LOT-00** Système et démarrage | 9 (0 / 7 / 2) | `claude/refonte-socle` | S0 | Opus 5.5, élevé | aucune | **v2 fusionné** (`488cdcc`) ; socle v3 en cours |
 | 2 | **LOT-01** Ma journée | 16 (0 / 12 / 4) | `claude/refonte-journee` | S2 | Sonnet 5.5, élevé | socle v3 fusionné | à faire |
 | 2 | **LOT-02** Mes contacts et clients | 13 (0 / 12 / 1) | `claude/refonte-contacts` | S1 | Sonnet 5.5, élevé | socle v3 fusionné | à faire |
 | 2 | **LOT-03** Écrire et retenir | 9 (0 / 8 / 1) | `claude/refonte-ecrire` | S5 | Sonnet 5.5, élevé | socle v3 fusionné | à faire |
 | 2 | **LOT-04** L'argent | 17 (0 / 16 / 1) | `claude/refonte-argent` | DS | Sonnet 5.5, élevé | socle v3 fusionné | à faire |
 | 2 | **LOT-05** Échanger | 10 (0 / 9 / 1) | `claude/refonte-echanger` | S5 | Sonnet 5.5, élevé | socle v3 fusionné ; après LOT-03 | à faire |
 | 2 | **LOT-06** Créer et produire | 15 (0 / 14 / 1) | `claude/refonte-creer` | S7 (à créer) | Sonnet 5.5, élevé | socle v3 fusionné | à faire |
-| 2 | **LOT-07** Outils et réglages | 16 (0 / 12 / 4) | `claude/refonte-outils` | S6 | Opus 5.5, élevé | socle v3 fusionné ; phase 1 de S6 | à faire |
+| 2 | **LOT-07** Outils et réglages | 16 (0 / 12 / 4) | `claude/refonte-outils` | S6 | Opus 5.5, élevé | socle v4 fusionné ; priorité de sécurité de S6 terminée | à faire |
 | 2 | **LOT-08** La Garde et la supervision | 12 (0 / 11 / 1) | `claude/refonte-garde` | S3 | Opus 5.5, élevé | socle v3 fusionné | préparation (note, §1.8) |
 | 3 | **LOT-09** Mobile et tablette | 11 (0 / 0 / 11) | `claude/refonte-mobile` | S1, après LOT-02 | Sonnet 5.5, élevé | lots 01 à 08 et 10 fusionnés | à faire |
-| 2 | **LOT-10** Cyber | 14 (0 / 4 / 10) | `claude/refonte-cyber` | S6, après LOT-07 | Opus 5.5, élevé | socle v3 fusionné ; phase 1 de S6 ; LOT-07 | à faire |
+| 2 | **LOT-10** Cyber | 18 (0 / 4 / 14, dont 4 `CYB-*` sans fiche) | `claude/refonte-cyber` | S6, après LOT-07 | Opus 5.5, élevé | socle v3 fusionné ; phase 1 de S6 ; LOT-07 | à faire |
+| 2 | **LOT-11** Espace Développement | 7 images `DEV-*` (fiches à écrire par S8 ; vue d'ensemble à proposer) | `claude/refonte-developpement` | S8 (à créer) | Opus 5.5, élevé | socle v4 fusionné ; LOT-12 pour les connecteurs | **fiches à écrire maintenant** |
+| 2 | **LOT-12** Connecteurs et autonomie | modèle et moteurs (écran : H21, LOT-07) | `claude/refonte-connecteurs` | S9 (à créer) | Opus 5.5, élevé | socle v3 fusionné pour les écrans ; relu par S6 et T1 | préparation possible |
+| — | **LOT-13** Serveur | **en pause** (12 nov.) : ni comparatif ni guide pour l'instant | `claude/refonte-serveur` | SRV (à créer) | Sonnet 5.5, élevé | décision de Harun | en pause |
+| — | **LOT-14** Charge et essais longs | scénarios, 72 h, seuils | (branches de SIM et T1) | SIM et T1 | Sonnet 5.5, élevé | chargeur de SIM ; serveur cible | à lancer |
+| — | **SEC-0**, puis **DIST** | rapport SEC (privé), puis distribution interne privée | (privé) | S6, Harun | Opus 5.5, max | avant toute distribution à l'équipe | en cours (S6) |
 
 ## 3. Répartition (décisions de Harun du 1er nov. incluses)
 
@@ -264,7 +585,7 @@ Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en para
 | S5 | `claude/refonte-s5-modules` | fusionnée, y compris les 4 commits postérieurs (`5410081`) | `b82e50f` | [`rapports/S5.md`](rapports/S5.md) | Prend LOT-03 puis LOT-05 |
 | S6 | `claude/refonte-sec-*` | phase 1 en cours, privée. **Ne pas fusionner sans décision de Harun.** | — | `docs/securite/**`, hors dépôt | Prend LOT-07 puis LOT-10 |
 | S7 | `claude/refonte-creer` | **à créer** | — | — | LOT-06 |
-| F1 | `claude/refonte-atelier-f1` | prête, non fusionnée, rien de branché | `59056ad` | `docs/atelier/PRET.md` | C-003 à appliquer ; [`INTEGRATION-F1.md`](INTEGRATION-F1.md) à valider |
+| F1 | `claude/refonte-atelier-f1` | prête, non fusionnée, rien de branché | `59056ad` | `docs/atelier/PRET.md` | C-003 à appliquer ; 3 modules choisis (§1.21), à intégrer après le socle v4 |
 | T1 | `claude/refonte-qualite-t1`, `claude/refonte-qualite` | **les deux fusionnées** (`97929c1`, `3cc8dff`) | `51a962d`, `f2e243a` | [`../qualite/SANTE.md`](../qualite/SANTE.md) | Passage 2 à faire sur `refonte-vivante` |
 | SIM | `claude/refonte-donnees-fictives`, `claude/refonte-sim-bac-a-sable` | **données fusionnées** (`4fe559b`) + `check:donnees` en CI ; bac à sable non fusionné | `4fe559b`, `95d9765` | [`rapports/DONNEES.md`](rapports/DONNEES.md) | Suite : §1.11 |
 | G0 | — | retirée | — | — | — |
@@ -291,17 +612,17 @@ Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en para
 
 | Session | Peut travailler maintenant ? | Sur quoi | Ce qui lui manque |
 |---|---|---|---|
-| **S0** | **oui, priorité 1** | Socle v3 (§1.10) sur `claude/refonte-socle`, repartie de `refonte-vivante` : mouvement, composants §0.4, barre latérale v3 et carte « Aujourd'hui » (`useAujourdhui`), Cyber dans SURVEILLANCE, `ModuleTile` et briques partagées, mécanisme de substitution, `check:coquille`, puis allumage de la coquille | rien (consignes données) |
+| **S0** | **oui, priorité absolue** (ULTRA) | Finir le socle v3 sur `claude/refonte-socle` : ce qui reste est listé au §1.12 (`ModuleTile` et briques partagées, substitution, calculs « Aujourd'hui » et pastille exportés, `check:coquille`, pièces de H43, veille sans contenu de notification, bascule après T1). Puis envoyer la liste des composants au CO | rien (réponses au §1.12) |
 | **S2** | préparation et logique | LOT-01 `claude/refonte-journee` : note de préparation ; règles de calcul des séries, paliers, défis et jalons (L01, L07, H02, H04), à protéger telles quelles (§1.10) | zip v3 de LOT-01 ; socle v3 pour construire |
 | **S1** | préparation et logique | LOT-02 `claude/refonte-contacts` : note de préparation ; modèles du pipeline et des relances | zip v3 de LOT-02 ; socle v3 |
 | **S5** | préparation et logique | LOT-03 `claude/refonte-ecrire` puis LOT-05 `claude/refonte-echanger` : notes de préparation ; G07 en boîte des clients (§1.10 point 10) | zips v3 de LOT-03 et LOT-05 ; jeux Écrire et Échanger : fusionnés ; socle v3 |
 | **DS** | préparation et logique | LOT-04 `claude/refonte-argent` : note de préparation ; calculs d'argent ; banque en lecture seule | zip v3 de LOT-04 ; socle v3 |
-| **S7** | dès sa création | LOT-06 `claude/refonte-creer` : note de préparation, logique du stock et des chantiers | **la session elle-même** (Sonnet 5.5, effort élevé) ; zip v3 de LOT-06 ; jeux Créer : fusionnés ; socle v3 |
+| **S7** | **oui** (créée le 6 nov.) | LOT-06 `claude/refonte-creer` : préparation déjà poussée (`e402d0e`) ; la compléter (prompt du 6 nov.) | socle v3 pour construire |
 | **S3** | préparation et logique | LOT-08 `claude/refonte-garde` : mettre sa note `preparation-garde.md` à jour sur les fiches v3 ; règle de la pastille (N02 §6.2) et calculs d'état par organisation (§1.8) | zip v3 de LOT-08 ; jeux La Garde : fusionnés ; socle v3 |
 | **S6** | **oui** | Phase 1 sécurité (privée). Puis LOT-07 `claude/refonte-outils` et LOT-10 `claude/refonte-cyber`, dont les connecteurs de H21 (WhatsApp, SMS) qu'attendent G07 et H13 | fin de la phase 1 ; zips v3 de LOT-07 et LOT-10 ; socle v3 |
 | **T1** | **oui** | Passage 2 sur `refonte-vivante` (paquet client identique, gardes navigateur coquille éteinte puis allumée) ; adapter l'outil de fidélité aux images v3 (dates fictives du 30 oct. 10:42, mardi 3 nov. pour Cyber) | rien (images lot par lot) |
 | **SIM** | **oui, elle enchaîne** | (1) dates des jeux sur les images v3 (10 h 42 le 30 oct., mardi 3 nov. pour Cyber) ; (2) chargeur vers l'API d'essai, La Garde avec S3 ; (3) valeurs attendues des écrans calculés (H09, H04, G08, H25) ; (4) champs manquants signalés par les lots | rien |
-| **F1** | **oui** | Appliquer le correctif C-003 de T1 à son vérificateur ; poursuivre l'Atelier | ton choix des modules à intégrer |
+| **F1** | **après le socle v4** | Correctif C-003 ; intégrer `tauxHoraire`, `echeancier`, `comparateurDevis` (§1.21) | la fusion du socle v4 |
 | **S1 (LOT-09)** | après les lots 01 à 08 et 10 | LOT-09 `claude/refonte-mobile` (inchangé en v3) | — |
 
 **À lancer en premier après la fusion du socle v3**, par vagues (toutes les sessions ont leur zip v3 et leur note de préparation) :
@@ -313,7 +634,7 @@ Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en para
 
 **Prérequis des lots 01 à 10 : les 100 jeux de données, fusionnés (`4fe559b`).** Les lots y lisent `src/refonte/donnees/` ; il leur manque encore, côté données, le chargeur vers l'API et les attendus calculés (SIM, §1.11).
 
-Décisions prises par le CO, par délégation de Harun : les règles du §1.8, l'allumage de la coquille (§1.9), la procédure F1, l'entrée de `ModuleTile` dans le socle (§1.10). Restent à Harun : le choix des modules de F1, la constante « 12 organisations » de G06 (texte de la fiche par défaut), la création de S7.
+Décisions prises par le CO, par délégation de Harun : les règles du §1.8, l'allumage de la coquille (§1.9), la procédure F1, l'entrée de `ModuleTile` dans le socle (§1.10). Restent à Harun (le choix des modules de F1 est fait, §1.21) : la constante « 12 organisations » de G06 (texte de la fiche par défaut), la création de S7.
 
 **Fusion d'un lot** : relu par T1, paquet client identique, gardes vertes, éléments ludiques protégés présents (§1.10). Le CO fusionne dans `refonte-vivante`, jamais dans `main` ; Harun valide le passage dans `main`.
 
@@ -326,17 +647,17 @@ Dépendances croisées à surveiller :
 
 ## 6. Ce qui manque au CO
 
-- Les zips v3 par lot, avec les images, pour les sessions et pour T1.
-- La création de S7.
+- **La liste des composants de S0** : c'est le signal de fusion du socle v3.
+- **Le passage de T1 sur `claude/refonte-socle`** : il conditionne la bascule de la coquille.
 - La fin de la phase 1 de S6.
 
-## 7. Écrans (141)
+## 7. Écrans (142, plus 4 `CYB-*` et 7 `DEV-*`)
 
 Une ligne par écran, par lot. **Chaque session ne modifie que la section de son lot** (état : `à faire`, `en cours`, `fait`, `écart`, avec la raison en note). Les sections sont séparées pour que les branches ne se gênent pas à la fusion. Le CO tient les autres sections.
 
-Total : 141 écrans = 0 re-habillage + 105 mixtes + 36 nouveaux (types de l'index v3). Captures et comparaisons à ± 2 px : faites par T1 (colonne « Écart / note »).
+Total : 142 écrans = 0 re-habillage + 105 mixtes + 37 nouveaux (types de l'index v3 du 6 nov.). Captures et comparaisons à ± 2 px : faites par T1 (colonne « Écart / note »).
 
-### LOT-00 · Système et démarrage — `claude/refonte-socle` — 8 écrans
+### LOT-00 · Système et démarrage — `claude/refonte-socle` — 9 écrans
 
 8 sur 8 faits par S0, **fusionné** (`488cdcc`, rapport [`rapports/LOT-00.md`](rapports/LOT-00.md)). Aucune capture, l'app n'ayant pas été lancée : T1 les fera au passage 2.
 
@@ -350,6 +671,7 @@ Total : 141 écrans = 0 re-habillage + 105 mixtes + 36 nouveaux (types de l'inde
 | D02 | Système · Tous les modules | mixte | fait | Comptes par famille tirés du registre (14 / 7 / 12 / 12 / 15 / 7 / 19 / 15), pas de la maquette (12 / 14 / 9 / 18 / 10 / 16 / 14 / 8). Total 101 et niveaux 16 / 62 / 23 conformes |
 | G06 | Système · Connexion | mixte | fait | `/login`. « Demandez un accès » affiche un texte, sans flux de demande ; « 12 organisations » est une constante de présentation à valider |
 | G05 | Échanger · Ajmani, barre ⌘J ouverte | mixte | fait | Prépare un brouillon de relance, n'envoie rien ; « Décrire » passe à l'assistant existant |
+| G09 | Système · Écran de veille | nouveau | fait dans le socle v3 (non fusionné) | Ajouté le 6 nov. Capture comparée : 0 % hors ± 2 px. Verrouillage : écart gardé (§1.12). Bascule avec la nouvelle coquille |
 
 Questions de S0 et réponses du CO :
 
@@ -571,7 +893,7 @@ La colonne « État » reste `à faire` : un écran n'est « fait » qu'une fois
 | T01 | Tablette · Accueil | nouveau | à faire | |
 | T02 | Tablette · Clients en vue scindée | nouveau | à faire | |
 
-### LOT-10 · Cyber — `claude/refonte-cyber` — 14 écrans
+### LOT-10 · Cyber — `claude/refonte-cyber` — 18 écrans
 
 Lire `05-CYBER-MODELE-COMMUN.md` : consentement d'abord (accord signé, périmètre, dates), OSINT limité à l'organisation du client, interface seulement. Famille contextuelle dans la barre latérale (§1.7).
 
@@ -591,12 +913,42 @@ Lire `05-CYBER-MODELE-COMMUN.md` : consentement d'abord (accord signé, périmè
 | CY12 | Cyber · Missions | mixte | à faire | |
 | CY13 | Cyber · Documents | mixte | à faire | |
 | CY14 | Cyber · Dossier de mission | nouveau | à faire | |
+| CYB-vulnerabilites | Cyber · Vulnérabilités | nouveau | fiche à écrire | v4, image seule |
+| CYB-rapport-audit | Cyber · Rapport d'audit | nouveau | fiche à écrire | v4, image seule |
+| CYB-playbook | Cyber · Playbook d'incident | nouveau | fiche à écrire | v4, image seule ; délai CNIL 72 h |
+| CYB-chiffrage | Cyber · Chiffrage | nouveau | fiche à écrire | v4, image seule ; prix = données d'un catalogue |
+
+### LOT-11 · Développement — `claude/refonte-developpement` — 7 images (6 écrans), plus une vue d'ensemble à proposer
+
+Brief : `07-ESPACE-DEV.md`. Entrée de barre latérale au-dessus de « Surveillance ». Fiches écrites par S8 le 12 nov. : [`fiches/LOT-11/`](fiches/LOT-11/00-COMMUN.md), **relues par Harun le 12 nov.** (8 décisions, tableau en tête de `00-COMMUN.md`), alignées sur les décisions du CO (§1.17, §1.19) ; barre latérale : section « ESPACES DE TRAVAIL » de l'image, sous-liste du socle §0.1 (5 lignes, puis « + N autres »). Construction au feu vert du CO (socle v4 fusionné, fiches relues). Préparation : [`preparation/LOT-11-developpement.md`](preparation/LOT-11-developpement.md) (inventaire, dépendances, 7 constats pour le CO au §5) ; logique pure dans `src/refonte/developpement/` (journal des exécutions, tâches planifiées locales, état des déploiements), garde `check:developpement` (51 contrôles, en CI).
+
+| ID | Écran | Type | État | Écart / note |
+|---|---|---|---|---|
+| DEV-ensemble | Développement · Vue d'ensemble | nouveau | fiche validée par Harun | aucune image : sur le modèle des hubs ; 8e hub `/ensemble/developpement` accepté (§1.17 n° 2), posé par S0 |
+| DEV-projets | Développement · Projets de code | nouveau | fiche écrite | attend le connecteur Code (LOT-12) |
+| DEV-deploiements | Développement · Déploiements | mixte | fiche écrite | attend le connecteur Hébergement (LOT-12) ; logique pure livrée (`deploiements.ts`) ; total mesuré de bout en bout (étapes de l'image : 113 s ≠ 1 min 48) ; cible « Interne » inerte (§1.17 n° 6) |
+| DEV-serveur | Développement · Serveur et santé | nouveau | fiche écrite | lié à LOT-13 (reporté) : état « serveur non branché » |
+| DEV-editeur | Développement · Éditeur de flux | mixte | fiche écrite | logique livrée (`journal.ts`, `planification.ts`) ; format des blocs avec Sinon / Puis : S9, relu par S6 (§1.17 n° 7) ; mode API : LOT-12 ; écart : « Éditeur de flux » partout, l'image dit « Éditeur d'automatisation » en h1 (§1.17 n° 4) |
+| DEV-couts | Développement · Coûts et API | nouveau | fiche écrite | modèle de LOT-12 (S9) ; comptes calculés depuis les connecteurs réels (§1.17 n° 5) ; écart : l'image dit « 5 sur 7 » pour 4 lignes « Local » |
+| DEV-modeles-sites | Développement · Modèles de sites (et vue code) | nouveau | fiche écrite | famille Développement, seconde entrée possible dans Créer et produire (§1.17 n° 3) ; prototype v3 gris : néon et tutoiement à appliquer |
+
+### LOT-12 · Connecteurs et autonomie — `claude/refonte-connecteurs` — aucun écran
+
+Tenue par S9. Pas d'écran à soi : H21 est à LOT-07 (S6), DEV-couts et DEV-editeur à LOT-11 (S8).
+
+- **État** : préparation fusionnée (`890522d`, dans `4254e7a`, §1.22). Décisions du §1.22 appliquées dans le modèle : prise Webhooks « chez nous » (catégorie « Événements reçus »), « Demander un connecteur » pour Notion, prise arrêtée dessinée comme libre avec « arrêtée le … », valeurs de départ réunies et modifiables (`reglages.ts`). Branche : voir le dernier message de S9.
+- **Contenu** : `src/refonte/connecteurs/` (catalogue, tarifs à relever, cycle en 3 clics, règles de H21 et de DEV-couts, flux Quand / Si / Alors rangés dans le moteur de H20, moteurs locaux, liste « Demandé à amn-api »). Note : [`preparation/LOT-12-connecteurs.md`](preparation/LOT-12-connecteurs.md).
+- **Gardes** : `check:connecteurs` (100 contrôles, en CI), plus typecheck des deux éditions, lint, `check:donnees`.
+- **Dépendances** :
+  - S6 (LOT-07) : la couture `@edition/*` du moteur de H20 (jumeau `.business` à l'identique) ; l'écran H21 ; le relevé des tarifs au moment de construire H21.
+  - S8 (LOT-11) : DEV-couts et DEV-editeur, construits sur ce modèle.
+  - amn-api (hors dépôt) : clés côté serveur, retour d'autorisation, envoi SMTP, tâches planifiées, compteurs et plafond, lecture IMAP, événements reçus, sauvegarde nocturne. Chaque point a son repli local.
 
 ## 8. Références
 
 ### Le dépôt est public
 
-`aaronsyaa-dev/amn-desktop` est **public**. Rien qui décrive une faille de sécurité n'y est poussé (documents, commentaires, commits, noms de branche) ; `docs/securite/` est ignoré par `.gitignore`. La règle 4 du dossier de construction dit la même chose. Les images des maquettes et le dossier `AMN-refonte-CO` restent hors dépôt. Des documents déjà publiés sur `main` décrivent des mécanismes de détection (`docs/nuit-2026-08-28.md`, `docs/audit-soc.md`, `docs/casser-2026-09-04.md`) : à faire relire par S6, et/ou passer le dépôt en privé. **À trancher par Harun.**
+`amn-devsec/amn-desktop` (ancienne adresse `aaronsyaa-dev/amn-desktop`, redirigée) est **public**. Rien qui décrive une faille de sécurité n'y est poussé (documents, commentaires, commits, noms de branche) ; `docs/securite/` est ignoré par `.gitignore`. La règle 4 du dossier de construction dit la même chose. Les images des maquettes et le dossier `AMN-refonte-CO` restent hors dépôt. Des documents déjà publiés sur `main` décrivent des mécanismes de détection (`docs/nuit-2026-08-28.md`, `docs/audit-soc.md`, `docs/casser-2026-09-04.md`) : à faire relire par S6, et/ou passer le dépôt en privé. **À trancher par Harun.** **12 nov. (Harun)** : le dépôt a changé d'organisation (`amn-devsec`, `amn-api` aussi). Il **reste public**, vérifié en navigation privée. Ce n'est pas l'option A, et le passage en privé reste ouvert. Jusque-là, la règle tient : rien d'exploitable dans les documents du dépôt.
 
 ### Niveau d'un module
 

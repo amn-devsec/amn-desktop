@@ -1,7 +1,7 @@
 # Refonte vivante — règles communes
 
 > À coller dans le prompt de chaque session. Tenu par le CO (chef d'orchestre).
-> Version du 1er novembre (dossier de construction, LOT-10, exception T1). Mode d'emploi du socle :
+> Version du 11 novembre (dossier v4 : néon et tutoiement ; `build:web` local pour tous). Mode d'emploi du socle :
 > [`docs/refonte-socle.md`](../refonte-socle.md).
 
 Piège de nommage : dans le code, `internal` = **AMN Business** (édition interne,
@@ -14,19 +14,25 @@ cliente ne doit **jamais** changer pendant ce chantier.
   (ex. `claude/refonte-s1-navigation`).
 - Push autorisé sur **ta** branche seulement. Jamais `main`, pas de PR, pas de
   fusion toi-même : le CO fusionne.
-- Ne lance pas l'app (ni `npm start`, ni `start:business`, ni `build:web`), ni
-  aucun serveur. Aucune donnée réelle (Syraagensy, NWSY), aucun secret.
-- **Exception, T1 seulement** (qualité et contrôle image / écran) : `build:web`
-  et `build:web:business` sont permis, servis sur `127.0.0.1`, uniquement
-  contre l'API d'essai en mémoire (`scripts/qualite/api-essai.mjs`, comptes
-  `@exemple.test`) et les jeux de `src/refonte/donnees/`. Jamais une API, une
-  URL ou un compte réels ; `VITE_AMN_API_URL` pointe sur `127.0.0.1`. Les
-  sorties de build, les captures et les images des maquettes restent hors du
-  dépôt. `npm start` (Electron) reste interdit à tous.
+- **Jamais de tag `v*`, aucune release, aucun déploiement client.**
+- **Seule l'édition Business est commitée** (AMN Business = `internal` dans le code). Aucun commit nouveau sur l'édition cliente (AMN Desktop = `business` : `*.business.*`, `src/business/**`, son déploiement), sauf le jumeau vide d'une couture interne et les gardes d'isolation.
+- **Aucun secret** ni dans le code, ni dans un commit, ni dans un chat, ni dans un ticket, ni dans un dépôt.
+- **Distribution** : **aucune pour l'instant**, ni à l'équipe ni à des clients (décision du 12 nov.) ; l'application tourne seulement en local sur le poste de Harun, sur données fictives. Plus tard : jamais avant le rapport SEC (phase 0 de S6), et jamais par une Release publique.
+- **Aucune donnée réelle de client** tant que SEC-0 n'est pas terminée : ni sur le serveur maison, ni dans un essai, ni dans une capture.
+- **Serveur maison** : rien d'exposé sur Internet (aucun port ouvert, accès par Tailscale seulement) ; aucun nom d'hôte, adresse, nom de machine ni secret dans le dépôt ; le `.env` reste sur le poste.
+- **Notes de préparation** : `docs/refonte/preparation/LOT-xx-<nom>.md`, sur ta branche (modèle : `LOT-06-creer.md`).
+- **`npm start` (Electron) reste interdit à tous**, comme tout serveur autre que local. Aucune donnée réelle (Syraagensy, NWSY), aucun secret.
+- **`build:web` en local, permis à toutes les sessions** (décision du 11 nov., demande de T1), à ces conditions :
+  - servi sur `127.0.0.1` seulement ;
+  - contre l'API d'essai en mémoire (`scripts/qualite/api-essai.mjs`, comptes `@exemple.test`) et les jeux de `src/refonte/donnees/` ;
+  - `VITE_AMN_API_URL` pointe sur `127.0.0.1` ; jamais une API, une URL ou un compte réels ;
+  - les sorties de build, les captures et les images restent hors du dépôt.
+
+  `build:web:business` (édition cliente) reste à T1, pour la comparaison du paquet client.
 
 ## Sécurité : le dépôt est public
 
-`aaronsyaa-dev/amn-desktop` est **public**. **Rien qui décrive une faille de
+`amn-devsec/amn-desktop` (ancienne adresse `aaronsyaa-dev/amn-desktop`, redirigée) est **public**. **Rien qui décrive une faille de
 sécurité n'y est poussé.** Cela couvre :
 
 - les documents (rapports, constats, tickets) ;
@@ -70,6 +76,13 @@ Concrètement :
   code interne. Un nouveau type de moment, ou un `emit` dans un fichier
   partagé, passe par le CO, et l'`emit` partagé se fait via `@edition/socle`
   (vide côté cliente).
+
+## Produit : autonomie, facilité, chaleur (directive du 10 nov., `PLAN-10NOV.md` §4 et §7)
+
+- **Autonomie d'abord** : ce que l'application peut faire seule, sur le poste ou sur notre serveur, elle le fait. Une API payante n'est jamais requise : c'est un connecteur facultatif de H21, activé ou arrêté en trois clics au plus, avec son coût affiché avant.
+- **Facilité** : une tâche courante se fait en trois actions au plus, depuis n'importe où (⌘K et ⌘J comptent pour une), sans manuel.
+- **Tutoiement** dans toute l'interface (« Demande à Ajmani », « Ta journée »). **Vouvoiement** gardé dans tout texte destiné aux clients : courriels, devis, factures, relances, réponses automatiques, page publique, messages reçus d'un client. Table : `_data/tutoiement.json` du dossier v4 ; garde `check:tutoiement`.
+- **Chaleur** : phrases courtes, simples, humaines ; une phrase d'encouragement quand une tâche est finie ; peu de choses à la fois, calme visuel, contrastes doux ; salutation selon l'heure, reprise là où l'on s'était arrêté. Jamais de reproche, d'urgence inventée, de robot ni de mascotte. Le guide de voix du socle fait foi.
 
 ## Fichiers sensibles
 
@@ -115,12 +128,13 @@ Chaque lot a **une branche** `claude/refonte-<lot>` et **une section** dans [`ST
 - **Écrans** (`STATUT.md` § 1.3) : un écran refondu est un nouveau composant dans `src/refonte/<lot>/`, qui réutilise les hooks et l'état existants. Tu ne modifies ni `src/screens/**` ni `appRoot.internal.tsx` : le mécanisme de substitution de LOT-00 s'en charge. Les écrans partagés avec l'édition cliente passent par une couture `@edition/*` dont le jumeau `.business` ne fait rien.
 - **Socle** : `src/socle/**` est en lecture seule dès que LOT-00 est fusionné. Il manque un composant ou un jeton ? Note-le dans la section de ton lot et dis-le au CO, ne le contourne pas.
 - **Registre** : tes écrans NOUVEAU s'ajoutent dans le fichier de ta famille, `src/refonte/modules/declarations/<famille>.ts`.
-- **Sources v3** : ton zip de lot (`AMN-refonte-v3-LOT-xx-….zip`) et le prompt v3 de `prompts/` font foi ; le socle v3 est le §0 de `01-SOCLE-DESIGN.md`. Les fiches de la version précédente sont périmées.
+- **Sources v4** (11 nov.) : le dossier `AMN-Business-dossier-v4` (5 zips `AMN-v4-1-docs.zip` à `AMN-v4-5-images.zip`, décompressés dans un même dossier, hors du dépôt) remplace le v3 pour tous les lots. **`06-V4-NEON-ET-TUTOIEMENT.md` l'emporte sur `01-SOCLE-DESIGN.md`** quand ils divergent ; les styles exacts sont dans `sources-neon/`. Les images v4 font foi pour la fidélité. Les dispositions, les fiches et la logique ne changent pas.
+- **Néon dosé** : couleurs de famille par les jetons `--fam-a` et `--fam-b` du socle, posés par la coquille selon la famille active ; couleurs d'état v4 ; règles de rendu du §3 de `06`. Jamais de couleur écrite à la main.
 - **Composants partagés** : une brique citée par plusieurs lots (`ModuleTile`, `ModuleGroupGrid`, `PageHead`, `IconTile`, `StatusPill`, `AjmaniBar`…) vient du socle, jamais d'un lot. Il t'en manque une ? Note-le dans la section de ton lot et dis-le au CO.
 - **Ludique** : ne simplifie ni le défi d'équipe (L07), ni les trophées et paliers, ni les défis hebdomadaires (`STATUT.md` § 1.10). Aucun chiffre individuel, aucun classement.
 - **Maquettes** : les images du dossier restent **hors du dépôt**. Ne les committe pas, et ne les copie pas dans `docs/`.
 - **Données** : jeux de données fictives uniquement, ceux de `src/refonte/donnees/` (contrôlés par `check:donnees`). Il en manque pour ton lot ? Demande-les au CO, qui les commande à SIM. Les noms, montants et dates des images ne sont jamais codés en dur.
-- **Preuve avant de rendre la main** : les gardes de « Avant de finir ». La capture de chaque écran à 1440 × 900 et sa comparaison à l'image (± 2 px) sont faites **par T1**, puisque les lots ne lancent pas l'app. Un écart se note, il ne se tait pas.
+- **Preuve avant de rendre la main** : les gardes de « Avant de finir ». La capture de chaque écran à 1440 × 900 et sa comparaison à l'image (± 2 px) sont faites par la session elle-même (`build:web` local permis) **et vérifiées par T1**, qui fait foi. Un écart se note, il ne se tait pas.
 
 ## Fin de session
 
