@@ -1,4 +1,4 @@
-import { Trophy } from 'lucide-react';
+import { Target, Trophy } from 'lucide-react';
 import { declarerFamille, vue } from '../declarer';
 
 /**
@@ -161,6 +161,17 @@ export default declarerFamille({
         vue('series', '/series', ['voir ma série', 'voir mes badges', 'voir mes paliers'], ['série', 'jalons', 'badge', 'palier', 'régularité', 'record'], {
           en: { verbes: ['see my streak', 'see my badges', 'see my milestones'], motsCles: ['streak', 'milestones', 'badge', 'record', 'habit'] },
           nouveau: { icone: Trophy, ecran: () => import('../../journee/ecrans/L01/SeriesRefonte'), indice: { fr: 'Ta régularité, sans pression', en: 'Your steady habit, no pressure' } },
+        }),
+      ],
+    },
+    {
+      nom: { fr: 'Mode Focus', en: 'Focus mode' },
+      action: 'organiser',
+      niveau: 'courant',
+      vues: [
+        vue('focus', '/focus', ['me concentrer sur une tâche', 'lancer le mode focus', 'couper le bruit'], ['focus', 'concentration', 'session', 'pomodoro', 'minuteur'], {
+          en: { verbes: ['focus on one task', 'start focus mode', 'mute the noise'], motsCles: ['focus', 'concentration', 'session', 'pomodoro', 'timer'] },
+          nouveau: { icone: Target, ecran: () => import('../../journee/ecrans/L02/FocusRefonte'), indice: { fr: 'Une seule chose, le reste attend', en: 'One thing at a time, the rest waits' } },
         }),
       ],
     },

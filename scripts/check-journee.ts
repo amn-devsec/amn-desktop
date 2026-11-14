@@ -664,7 +664,7 @@ await dit('MJ04 : sur les notes de SIM — chaque note affichée est permise, l�
 });
 
 await dit('L02 : les règles du Pomodoro existant — trois durées, pause de 5 min, pause longue de 15 min à la quatrième séance', () => {
-  assert.deepEqual([...L.DUREES_DE_SEANCE], [15, 25, 50]);
+  assert.deepEqual([...L.DUREES_DE_SEANCE], [15, 25, 35, 45, 50, 90]);
   assert.deepEqual([L.DUREE_PAR_DEFAUT, L.PAUSE_MIN, L.PAUSE_LONGUE_MIN, L.SEANCES_PAR_CYCLE], [25, 5, 15, 4]);
   assert.equal(L.nouveauFocus(40).dureeSeanceMin, 25, 'une durée inconnue retombe sur 25');
   assert.equal(L.nouveauFocus(50).dureeSeanceMin, 50);
@@ -715,7 +715,7 @@ await dit('L02 : le cadran (arrondi vers le haut), les durées figées une fois 
   assert.equal(L.restantEnTexte(L.lancer(f0, 0), 25 * MIN - 1), '00:01');
   assert.equal(L.restantEnTexte(L.lancer(f0, 0), 25 * MIN), '00:00');
   assert.equal(L.choisirLaDuree(f0, 50).dureeSeanceMin, 50);
-  assert.equal(L.choisirLaDuree(f0, 33).dureeSeanceMin, 25, 'seulement parmi les trois durées');
+  assert.equal(L.choisirLaDuree(f0, 33).dureeSeanceMin, 25, 'seulement parmi les six durées (fiche L02)');
   assert.equal(L.choisirLaDuree(L.lancer(f0, 0), 50).dureeSeanceMin, 25, 'pas en cours de séance');
   const enPause = { ...L.phaseSuivante({ ...f0, rang: 1 }).focus };
   assert.equal(L.choisirLaDuree(enPause, 50), enPause, 'pas pendant une pause');

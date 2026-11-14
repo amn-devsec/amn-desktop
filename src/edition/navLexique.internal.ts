@@ -44,6 +44,7 @@ const NAV_EN_INTERNE: Record<string, TraductionNav> = {
   ssl: { label: 'SSL Monitor', hint: 'TLS certificates' },
   // LOT-01 (Ma journée) : les écrans nouveaux.
   series: { label: 'Streaks and milestones', hint: 'Your steady habit, no pressure' },
+  focus: { label: 'Focus mode', hint: 'One thing at a time, the rest waits' },
   // LOT-02 (refonte) : les écrans neufs de « Mes contacts et clients », déclarés au registre des modules.
   pipelineCommercial: { label: 'Sales pipeline', hint: 'The opportunity funnel, from first contact to signature' },
   rdvClients: { label: 'Client meetings', hint: 'The day of your client meetings, hour by hour' },
