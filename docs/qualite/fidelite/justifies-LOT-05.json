@@ -9,6 +9,9 @@
     },
     "H14": {
       "raison": "31,6 % brut. À la une (790 × 262, bordure ambre, accusés de 40 px, réactions et boutons), colonne droite de 302 (anneau de 62, catégories, suggestion, nouveauté) et cartes de la mosaïque tiennent leurs cotes. Ce qui diffère : (1) le rangement de la mosaïque suit la règle de la fiche (la plus récente en haut à gauche, puis chaque carte dans la colonne la moins haute, le brouillon en dernier) ; l'image montre un autre ordre (Équipe sous Design, le brouillon sous la carte de Menna) qu'aucune règle « colonne la moins haute » ne produit : les cartes sont donc ailleurs que sur l'image, ce qui compte pour l'essentiel de l'écart ; (2) les nombres viennent des données de l'aperçu (3/4 et non 5/6, catégories à 2, 2, 1, 1 et non 8, 11, 5, 7, triées par nombre) ; (3) le texte de la suggestion d'Ajmani est composé (« L'annonce « … » n'est pas confirmée par tous… ») au lieu de la phrase de la maquette ; (4) « Aujourd'hui » : les textes d'annonce du jeu fictif sont au tutoiement (« de ton côté »), l'interface ne vouvoie pas l'équipe ; (5) la barre latérale de l'aperçu (voir plus haut)."
+    },
+    "H13": {
+      "raison": "22,9 % brut. Combiné 336 de large (durée mono 28, onde de 28 barres, commandes rondes de 44, pavé de touches de 37), salles 756 × 318 (pièces de 300, 202 et 198 sur deux rangées), historique à lignes sans résumé tronqué tiennent leurs cotes. Ce qui diffère : (1) le texte, décalé de 2 à 4 px dans le combiné et l'historique (interligne, chasse des chiffres) ; (2) l'aperçu ajoute un 4e appel (manqué et rappelé) pour montrer « Rappels du jour » à 1 sur 2, d'où « Manqués 2 » au lieu de 1 et une 4e ligne qui défile dans l'historique ; (3) la file du Standard et les halos suivent la logique (le premier appel du Standard est celui de la personne, ses lignes tiennent sur une ligne) ; (4) la barre latérale de l'aperçu (voir plus haut)."
     }
   }
 }

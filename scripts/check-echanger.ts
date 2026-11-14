@@ -51,8 +51,8 @@ async function charger<T>(code: string): Promise<T> {
 const FICHIERS = ['commun', 'boite', 'hub', 'canaux', 'connecteurs', 'appels', 'annonces', 'courriel', 'reunions', 'partages', 'sondages', 'reponsesAuto', 'i18n', 'phrases'];
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerF40 from '../${ZONE}/ecrans/f40/composer';` + `\nexport * as composerG07 from '../${ZONE}/ecrans/g07/composer';` + `\nexport * as composerH14 from '../${ZONE}/ecrans/h14/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
-const { commun: C, boite: B, hub: H, canaux: CA, connecteurs: CO, appels: AP, annonces: AN, courriel: CM, reunions: RE, partages: PA, sondages: SO, reponsesAuto: AU, i18n: I, phrases: PH, composerF40: CF40, composerG07: CG07, composerH14: CH14, monde } = M;
+const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerF40 from '../${ZONE}/ecrans/f40/composer';` + `\nexport * as composerG07 from '../${ZONE}/ecrans/g07/composer';` + `\nexport * as composerH14 from '../${ZONE}/ecrans/h14/composer';` + `\nexport * as composerH13 from '../${ZONE}/ecrans/h13/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
+const { commun: C, boite: B, hub: H, canaux: CA, connecteurs: CO, appels: AP, annonces: AN, courriel: CM, reunions: RE, partages: PA, sondages: SO, reponsesAuto: AU, i18n: I, phrases: PH, composerF40: CF40, composerG07: CG07, composerH14: CH14, composerH13: CH13, monde } = M;
 const A_SEG = AN.segmentsDeLecture;
 
 const NB = ' ';
@@ -1135,6 +1135,43 @@ await dit('H14 · composerAnnonces : À la une, accusés, « Lu par x sur y », 
   assert.equal(riche.presque.titre, 'Presque à jour');
   assert.deepEqual([0, 1, 2, 3].map((x) => A_SEG(x, 3)), [{ pleins: 0, vert: false }, { pleins: 1, vert: false }, { pleins: 2, vert: false }, { pleins: 3, vert: true }]);
   assert.deepEqual(A_SEG(0, 0), { pleins: 0, vert: false });
+});
+
+await dit('H13 · composerAppels : plan des salles, Standard et sa file, sous-titre, historique et rappels ; sans salle connue, pas de plan', () => {
+  const il = (min: number) => MAINT - min * 60_000;
+  const salle = (id: string, genre: string, extra: any = {}) => ({ def: { id, nom: id, capacite: 8, genre, ton: 'jour', ...(extra.supervision ? { supervision: true } : {}) }, connectes: [], debutDeSession: null, evenementsDuJour: [], ...extra });
+  const salles = [salle('eq', 'equipe', { connectes: [{ email: 'riyad@x', voixA: MAINT }, { email: 'mo@x' }], debutDeSession: il(8), titreDeSession: 'Point', ecranPartage: true }), salle('cl', 'clients', { evenementsDuJour: [{ at: il(-30), titre: 'Rendez-vous' }] }), salle('at', 'creatif'), salle('ga', 'garde', { supervision: true })];
+  const appel = (id: string, sens: string, jour: string, extra: any = {}) => ({ id, titre: `Appel ${id}`, sens, finAt: paris(jour, '12:00'), dureeSec: sens === 'manque' ? 0 : 35 * 60, resume: null, decisions: [], taches: [], moment: { at: paris(jour, '11:25') }, ...extra });
+  const base = { langue: 'fr', maintenant: MAINT, salles, incidentDeclare: false, roleDeSupervision: true, appelEnCours: { nom: 'Aaron · Client', debutAt: il(4), enLigne: true, sous: '' }, file: [{ id: 'f1', nom: 'Léo', debutAt: il(1) }], auTelephone: ['aaron@x'], appels: [appel('1', 'manque', AUJ), appel('2', 'sortant', '2026-10-29', { resume: 'Une phrase. Deux.', decisions: ['d'], taches: ['t'], tachesCreees: true }), appel('3', 'manque', '2026-10-29', { rappele: true })], filtre: 'tout', enLigneAvec: 'Client' };
+  const v = CH13.composerAppels(base);
+  assert.equal(v.sousTitre.replace(/[\u00a0\u202f]/g, ' '), 'Tu es en ligne avec Client · l’équipe est en salle, Léo attend au standard');
+  assert.deepEqual(v.salles.plan.map((p: any) => p.id), ['eq', 'cl', 'at', 'ga', 'standard']);
+  assert.equal(v.salles.sous, '3 personnes connectées · 1 appel en attente');
+  const eq = v.salles.plan[0];
+  assert.deepEqual(eq.personnes.map((p: any) => [p.nom, p.libelle, p.parle]), [['Riyad', 'Riyad parle', true], ['Mo', 'Mo', false]]);
+  assert.ok(/depuis 8 min/.test(eq.sous), eq.sous);
+  assert.ok(/2 sur 8 places · écran partagé/.test(eq.pied.replace(/[\u00a0\u202f]/g, ' ')), eq.pied);
+  assert.equal(v.salles.plan[1].action.libelle, 'Préparer la salle');
+  assert.equal(v.salles.plan[2].action.libelle, 'Réserver', 'une salle sans événement se réserve');
+  assert.equal(v.salles.plan[2].info.texte, 'Rien de prévu aujourd’hui');
+  assert.equal(v.salles.plan[3].fermee, true, 'La Garde est fermée hors incident');
+  const st = v.salles.plan[4];
+  assert.deepEqual(st.file.map((f: any) => [f.nom, f.duree, f.ambre]), [['Aaron · Client', '04:00', false], ['Léo', '01:00', true]]);
+  assert.deepEqual(v.historique.filtres.map((f: any) => [f.id, f.n]), [['tout', 3], ['manques', 2], ['resume', 1]]);
+  assert.equal(v.historique.rappels.texte, 'Rappels du jour : 1 sur 2');
+  assert.equal(v.historique.lignes[0].action.libelle, 'Rappeler', 'un appel manqué pas rappelé se rappelle');
+  assert.equal(v.historique.lignes[0].duree, '0:00');
+  assert.equal(v.historique.lignes[1].duree, '35 min');
+  assert.deepEqual(v.historique.lignes[1].action, { genre: 'coche', libelle: 'tâche créée' });
+  assert.equal(v.historique.lignes[1].resume, 'Une phrase. Deux.', 'le résumé de la ligne vient de la première phrase du résumé');
+  assert.equal(v.historique.lignes[0].etiquettes[0].rouge, true);
+  assert.deepEqual(CH13.composerAppels({ ...base, filtre: 'manques' }).historique.lignes.map((x: any) => x.id), ['1', '3']);
+  const sans = CH13.composerAppels({ ...base, salles: null, appelEnCours: null, file: [], auTelephone: [], enLigneAvec: null, appels: [] });
+  assert.equal(sans.salles, null);
+  assert.equal(sans.sousTitre, 'Personne n’est au téléphone pour l’instant');
+  assert.equal(sans.historique.rappels, null);
+  const garde = CH13.composerAppels({ ...base, roleDeSupervision: false }).salles.plan.map((p: any) => p.id);
+  assert.ok(!garde.includes('ga'), 'la salle de La Garde ne se voit que par la supervision');
 });
 
 await dit('aucune brique visuelle : ni React, ni src/socle/ui, ni code partagé ; seulement les voisins, le dictionnaire du socle et le modèle des connecteurs (S9)', () => {
