@@ -51,8 +51,8 @@ async function charger<T>(code: string): Promise<T> {
 const FICHIERS = ['commun', 'boite', 'hub', 'canaux', 'connecteurs', 'appels', 'annonces', 'courriel', 'reunions', 'partages', 'sondages', 'reponsesAuto', 'i18n', 'phrases'];
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerF40 from '../${ZONE}/ecrans/f40/composer';` + `\nexport * as composerG07 from '../${ZONE}/ecrans/g07/composer';` + `\nexport * as composerH14 from '../${ZONE}/ecrans/h14/composer';` + `\nexport * as composerH13 from '../${ZONE}/ecrans/h13/composer';` + `\nexport * as composerMX05 from '../${ZONE}/ecrans/mx05/composer';` + `\nexport * as composerMX04 from '../${ZONE}/ecrans/mx04/composer';` + `\nexport * as composerMX02 from '../${ZONE}/ecrans/mx02/composer';` + `\nexport * as composerMX01 from '../${ZONE}/ecrans/mx01/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
-const { commun: C, boite: B, hub: H, canaux: CA, connecteurs: CO, appels: AP, annonces: AN, courriel: CM, reunions: RE, partages: PA, sondages: SO, reponsesAuto: AU, i18n: I, phrases: PH, composerF40: CF40, composerG07: CG07, composerH14: CH14, composerH13: CH13, composerMX05: CMX05, composerMX04: CMX04, composerMX02: CMX02, composerMX01: CMX01, monde } = M;
+const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerF40 from '../${ZONE}/ecrans/f40/composer';` + `\nexport * as composerG07 from '../${ZONE}/ecrans/g07/composer';` + `\nexport * as composerH14 from '../${ZONE}/ecrans/h14/composer';` + `\nexport * as composerH13 from '../${ZONE}/ecrans/h13/composer';` + `\nexport * as composerMX05 from '../${ZONE}/ecrans/mx05/composer';` + `\nexport * as composerMX04 from '../${ZONE}/ecrans/mx04/composer';` + `\nexport * as composerMX02 from '../${ZONE}/ecrans/mx02/composer';` + `\nexport * as composerMX01 from '../${ZONE}/ecrans/mx01/composer';` + `\nexport * as composerMX03 from '../${ZONE}/ecrans/mx03/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
+const { commun: C, boite: B, hub: H, canaux: CA, connecteurs: CO, appels: AP, annonces: AN, courriel: CM, reunions: RE, partages: PA, sondages: SO, reponsesAuto: AU, i18n: I, phrases: PH, composerF40: CF40, composerG07: CG07, composerH14: CH14, composerH13: CH13, composerMX05: CMX05, composerMX04: CMX04, composerMX02: CMX02, composerMX01: CMX01, composerMX03: CMX03, monde } = M;
 const A_SEG = AN.segmentsDeLecture;
 
 const NB = ' ';
@@ -1318,6 +1318,46 @@ await dit('MX01 · composerCourriel : dossiers et comptes, fils, résumé d’Aj
   assert.equal(vide.conversation, null);
   assert.equal(vide.sousTitre, 'Boîte partagée de l’équipe · rien de non lu');
   assert.equal(vide.videDuDossier, 'Rien dans ce dossier.');
+});
+
+await dit('MX03 · composerPartages : cartes, jauge d’expiration, ouvertures, transferts, protection, espace, relance ; sans lien, aucune carte inventée ; jamais d’adresse', () => {
+  const lien = (id: string, extra: any = {}) => ({ id, fichier: `${id}.pdf`, tailleOctets: 1_000_000, destinataire: 'Cliente Test', creeAt: paris('2026-10-24', '09:00'), expireLe: '2026-11-11', dureeJours: 30, protection: 'code par courriel', ouvertures: 1, derniereOuvertureAt: paris('2026-10-29', '10:00'), ...extra });
+  const liens = [lien('a', { note: 'Version 3' }), lien('b', { ouvertures: 0, derniereOuvertureAt: null, expireLe: '2026-11-01' }), lien('c', { destinataire: null, expireLe: null, equipe: ['A', 'M'], protection: 'compte' }), lien('d', { expireLe: '2026-10-31' }), lien('e', { revoque: true }), lien('f', { expireLe: '2026-10-01' })];
+  const transferts = [{ id: 't1', sens: 'envoi', at: MAINT - 60_000, nom: 'x.zip', pourcent: 72, avec: 'Cliente', tailleOctets: 61_000_000, secondesRestantes: 12 }, { id: 't2', sens: 'reception', at: MAINT - 120_000, verification: 'verifie', nom: 'y.pdf', pourcent: 100, avec: 'Cabinet', tailleOctets: 500_000 }, { id: 't3', sens: 'reception', at: MAINT - 180_000, verification: 'en-cours', nom: 'z.zip', pourcent: 34, avec: 'Agence', tailleOctets: 140_000_000 }, { id: 't4', sens: 'envoi', at: MAINT - 2 * 86_400_000, nom: 'vieux.zip', pourcent: 100, avec: 'X', tailleOctets: 1 }];
+  const e = { langue: 'fr', maintenant: MAINT, liens, recus: 9, onglet: 'partages', transferts, quotaOctets: 20_000_000_000, reglages: PA.REGLAGES_DU_LIEN_PAR_DEFAUT };
+  const v = CMX03.composerPartages(e);
+  assert.deepEqual(v.cartes.map((c: any) => c.id), ['d', 'b', 'a', 'c'], 'expiration la plus proche d’abord, sans expiration en dernier, ni révoqué ni expiré');
+  assert.equal(v.sousTitre, 'Envoie un lien, pas une pièce jointe · 4 liens actifs, 2 expirent bientôt');
+  assert.deepEqual(v.onglets.map((o: any) => o.libelle), ['Partagés par moi · 4', 'Reçus · 9', 'Expirés · 2']);
+  const cx = Object.fromEntries(v.cartes.map((c: any) => [c.id, c]));
+  assert.equal(cx.d.expiration.texte, 'Expire demain');
+  assert.equal(cx.d.expiration.orange, true);
+  assert.equal(cx.b.expiration.texte, 'Expire dans 2 jours');
+  assert.equal(cx.b.ouvertures.pasEncore, true);
+  assert.equal(cx.b.ouvertures.libelle, 'pas encore ouvert');
+  assert.equal(cx.a.expiration.jauge.texte, '12 / 30 j');
+  assert.equal(cx.a.detail, 'Version 3 · 1 Mo');
+  assert.equal(cx.a.type, 'PDF');
+  assert.equal(cx.a.ouvertures.dernier, 'hier');
+  assert.equal(cx.c.expiration.jauge, null, 'sans expiration, une jauge pointillée');
+  assert.equal(cx.c.expiration.sans, 'interne à l’équipe');
+  assert.equal(cx.c.peutProlonger, false, 'pas de « Prolonger » sans expiration');
+  assert.deepEqual(cx.c.destinataire.equipe, ['A', 'M']);
+  assert.deepEqual(v.transferts.lignes.map((t: any) => [t.genre, t.pourcent]), [['envoi', 72], ['recu', 100], ['verification', 34]], 'les dernières 24 heures seulement');
+  assert.equal(v.transferts.sous, '2 en cours');
+  assert.ok(/12 s restantes/.test(v.transferts.lignes[0].detail), v.transferts.lignes[0].detail);
+  assert.equal(v.protection.pourcent, 100);
+  assert.equal(v.protection.titre, 'Tous tes liens sont protégés');
+  assert.ok(v.suggestion && /Relancer Cliente Test/.test(v.suggestion.titre), 'un lien non ouvert depuis plus de 3 jours qui expire sous 3 jours : relance proposée');
+  assert.equal(CMX03.composerPartages({ ...e, suggestionMasquee: ['b'] }).suggestion, null);
+  assert.equal(CMX03.composerPartages({ ...e, suggestionMasquee: ['b'] }).astuce !== null, true, 'sans relance, une astuce, jamais une carte vide');
+  assert.deepEqual(CMX03.composerPartages({ ...e, onglet: 'expires' }).cartes.map((c: any) => c.id), ['f']);
+  assert.deepEqual(CMX03.composerPartages({ ...e, onglet: 'recus' }).cartes, []);
+  assert.deepEqual(v.reglages.slice(0, 2), ['Expire dans 30 jours', 'Code par e-mail']);
+  const vide = CMX03.composerPartages({ ...e, liens: [], transferts: [] });
+  assert.deepEqual(vide.cartes, []);
+  assert.equal(vide.protection, null);
+  assert.ok(!/https?:|@|token|jeton/i.test(JSON.stringify(v)), 'ni adresse, ni jeton');
 });
 
 await dit('aucune brique visuelle : ni React, ni src/socle/ui, ni code partagé ; seulement les voisins, le dictionnaire du socle et le modèle des connecteurs (S9)', () => {

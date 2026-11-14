@@ -1,4 +1,4 @@
-import { Inbox, Mail } from 'lucide-react';
+import { Inbox, Mail, Share2 } from 'lucide-react';
 import { declarerFamille, vue } from '../declarer';
 
 /**
@@ -103,6 +103,19 @@ export default declarerFamille({
       vues: [
         vue('announcements', '/annonces', ['faire une annonce', 'prévenir toute l’équipe'], ['annonce', 'information', 'tous'], {
           en: { verbes: ['make an announcement', 'tell the whole team'], motsCles: ['announcement', 'news', 'everyone', 'broadcast'] },
+        }),
+      ],
+    },
+    {
+      // MX03 : partager un fichier par un lien protégé (jamais une pièce jointe, jamais sans protection).
+      nom: { fr: 'Partage de fichiers', en: 'File sharing' },
+      action: 'annoncer',
+      niveau: 'courant',
+      vues: [
+        vue('sharedFiles', '/partages', ['envoyer un fichier à un client', 'créer un lien protégé', 'voir qui a ouvert un fichier'], ['partage', 'fichier', 'lien', 'envoyer', 'document', 'protégé'], {
+          en: { verbes: ['send a file to a client', 'create a protected link', 'see who opened a file'], motsCles: ['sharing', 'file', 'link', 'send', 'document', 'protected'] },
+          etiquette: { fr: 'Partage de fichiers', en: 'File sharing' },
+          nouveau: { icone: Share2, ecran: () => import('../../echanger/ecrans/mx03/PagePartages'), indice: { fr: 'Envoyer un lien protégé, pas une pièce jointe', en: 'Send a protected link, not an attachment' } },
         }),
       ],
     },

@@ -24,6 +24,9 @@
     },
     "MX01": {
       "raison": "20,1 % brut. Surface 1108 de large en trois volets (dossiers 196, fils 330, conversation au reste), fils sur trois lignes, résumé d'Ajmani, messages repliés de 40 px, dernier message déplié et compositeur tiennent leurs cotes. Ce qui diffère : (1) le texte, décalé de 2 à 4 px (interligne des fils et du corps du message) ; (2) le résumé cite les phrases de demande du message (règle de `demandesDuMessage`) au lieu des reformulations de la maquette, donc deux lignes par demande ; (3) « Clients » compte 1 fil et non 2, et le fil d'Amina porte « 3 messages en 2 jours » selon les dates du jeu fictif ; (4) la barre latérale de l'aperçu (voir plus haut)."
+    },
+    "MX03": {
+      "raison": "24,3 % brut. Zone de dépôt 768 × 124, filtres, grille de trois colonnes de cartes de 238 de haut, colonne droite de 320 (transferts, anneau de protection, suggestion) tiennent leurs cotes. Ce qui diffère : (1) l'ordre des cartes suit la règle de la fiche (expiration la plus proche d'abord, sans expiration en dernier : « Photos chantier » passe en tête) alors que l'image garde l'ordre de saisie ; chaque carte est donc ailleurs que sur l'image, ce qui compte pour l'essentiel de l'écart ; (2) les nombres viennent des données de l'aperçu (6 liens actifs et non 17, « Expirés · 0 », espace utilisé de 55 Mo et non 2,1 Go) ; (3) le texte, décalé de 2 à 4 px (interligne des cartes et des transferts) ; (4) la barre latérale de l'aperçu (voir plus haut)."
     }
   }
 }
