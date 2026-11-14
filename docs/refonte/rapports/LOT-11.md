@@ -127,3 +127,12 @@ Voir le message au CO : `typecheck` ×2, `lint`, `check:tutoiement`, `check:deve
 
 - Le rendu dans la vraie application (coquille allumée, API d'essai) : pas d'amn-api dans cette session, et les routes `/developpement/*` attendent la décision sur le registre.
 - Les gardes navigateur (T1).
+
+## Retours de T1 sur `a86c470` (14 nov.)
+
+Structure acceptée par T1 : 7 routes montées dans la coquille v4, rien de coupé à 390 px, paquet client identique.
+
+- **Aperçus dans le dépôt** (§1.40) : `scripts/apercu/ecrans/DEV-<id>.tsx`, un par écran, plus `DEV-modeles-sites-code` ; commande `npm run apercu -- DEV-<id>`. Jeux de SIM à l'état rempli (`scripts/apercu/developpement.tsx`). Pour cela, chaque écran expose sa vue seule (`EnsembleDev`, `ProjetsDev`, `DeploiementsDev`, `ServeurDev`, `EditeurDev`, `CoutsDev`, `ModelesDev`), le composant par défaut restant l'enveloppe qui lit les données ; rien ne change dans l'application. `scripts/apercu/coquille.tsx` (fichier partagé) gagne la sous-liste Développement, montrée seulement quand cette famille est dépliée : aucun autre aperçu ne change.
+- **Écarts justifiés** : `docs/qualite/fidelite/justifies-LOT-11.json`.
+- **DEV-modeles-sites** : les 75,6 % de T1 comparent l'état vide de l'application (aucun modèle livré avant la relecture de Harun) à l'image remplie, dessinée en v3 grise avec la barre de « Créer et produire ». L'aperçu montre l'état rempli avec huit pages fictives : 68,5 % brut, 30,7 % en disposition. `DEV-modeles-sites-code.png` est la vue Code d'un modèle ouvert : 79,1 % brut mais 4,8 % en disposition (seul le texte du code diffère). Correctif au passage : la fiche d'un modèle ouvert pose elle-même la feuille du lot (sans cela, ouverte directement, elle s'affichait sans style).
+- **Cibles de 34 px** (§1.39) : zone de clic invisible, centrée, d'au moins 34 × 34 px sur les boutons du socle dans les pages du lot, les puces de secteur, les jetons et les noms de poste du hub ; champ de recherche étiré à la hauteur de sa boîte ; la carte néon rogne en `overflow: clip` avec 4 px de marge pour ne pas couper ces zones ; lignes « À regarder » du hub à 35 px pour que deux zones voisines ne se recouvrent pas. Relevé (point au centre ± 16,5 px, hors coquille) sur les 8 aperçus : aucune cible sous 34 px.
