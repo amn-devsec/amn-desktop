@@ -145,6 +145,8 @@ jobs:
         run: npm run check:creer
       - name: Espace Développement (LOT-11) — journal des exécutions, tâches planifiées locales, état des déploiements
         run: npm run check:developpement
+      - name: Contacts et clients — pipeline, relances (espacement), fidélité, rendez-vous, deux voix
+        run: npm run check:contacts
       - name: Connecteurs et autonomie (LOT-12) — local d'abord, coût avant, trois clics, aucune clé, moteurs locaux
         run: npm run check:connecteurs
 

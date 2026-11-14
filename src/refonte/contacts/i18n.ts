@@ -1,0 +1,146 @@
+import { definirMots, type ParamsMots } from '../../socle/mots';
+import type { Langue } from './commun';
+
+/**
+ * LES MOTS CALCULÉS DE LOT-02 (Mes contacts et clients), fr et en.
+ *
+ * Ne figurent ici que les phrases que la LOGIQUE produit (verdicts de relance,
+ * progression de fidélité, états de rendez-vous, messages envoyés à un client). Le reste
+ * des textes de chaque écran viendra de sa fiche à la construction visuelle.
+ *
+ * DEUX VOIX, comme le veut `REGLES.md` (dossier v4) :
+ *   · l'INTERFACE tutoie (« Tu as déjà relancé… ») ;
+ *   · tout ce qui PART chez un client vouvoie : les clés `client.*`.
+ * `check:contacts` vérifie les deux sens.
+ *
+ * Les comptes se disent par clé : `<base>.1` (0 et 1), `<base>.n` (2 et plus).
+ */
+const EN = {
+  // Pipeline
+  'pipeline.colonne.Nouveau': 'New',
+  'pipeline.colonne.Rendez-vous': 'Meeting',
+  'pipeline.colonne.Devis envoyé': 'Quote sent',
+  'pipeline.colonne.Signé': 'Signed',
+  'pipeline.enRetard.1': '{n} next step is late',
+  'pipeline.enRetard.n': '{n} next steps are late',
+  'pipeline.conversion': '{pct}% of your closed leads signed',
+  'pipeline.conversion.aucune': 'No closed lead yet',
+  'pipeline.sansMontant.1': '{n} lead without an amount, not counted',
+  'pipeline.sansMontant.n': '{n} leads without an amount, not counted',
+  'pipeline.vide': 'No lead yet. Add the first one whenever you like.',
+  'pipeline.signe': 'One more client. Well done!',
+  // Relances — l'interface
+  'relance.attente.terminee': 'This one is closed. Nothing more to send.',
+  'relance.attente.plafond': 'You already sent {n} reminders. A phone call may work better now.',
+  'relance.attente.espacement': 'You reminded them less than {jours} days ago. Next one possible on {quand}.',
+  'relance.attente.memeClient': 'A message already went to this client today. Next one possible on {quand}.',
+  'relance.attente.horsPlage': 'Reminders go out between {debut} and {fin} on weekdays. This one leaves on {quand}.',
+  'relance.envoyee': 'Reminder sent. You have nothing more to do for this one.',
+  'relance.vide': 'No reminder to send. Everyone is up to date.',
+  'relance.pretes.1': '{n} reminder ready',
+  'relance.pretes.n': '{n} reminders ready',
+  // Fidélité
+  'fidelite.niveau.Bronze': 'Bronze',
+  'fidelite.niveau.Argent': 'Silver',
+  'fidelite.niveau.Or': 'Gold',
+  'fidelite.manque': '{n} more points to reach {niveau}',
+  'fidelite.max': 'Highest level reached',
+  'fidelite.points.1': '{n} point',
+  'fidelite.points.n': '{n} points',
+  'fidelite.inactifs.1': '{n} client has been quiet for a while',
+  'fidelite.inactifs.n': '{n} clients have been quiet for a while',
+  // Rendez-vous
+  'rdv.etat.a-venir': 'Confirmed',
+  'rdv.etat.a-confirmer': 'To confirm',
+  'rdv.etat.en-cours': 'Happening now',
+  'rdv.etat.passe': 'Done',
+  'rdv.etat.manque': 'Missed',
+  'rdv.aConfirmer.1': '{n} meeting to confirm',
+  'rdv.aConfirmer.n': '{n} meetings to confirm',
+  'rdv.manque.propose': 'This meeting was missed. Want to suggest a new time?',
+  'rdv.libre.aucun': 'No free slot that day.',
+  // Contacts par client
+  'contacts.principal': 'Write to {nom} first',
+  'contacts.aucun': 'No contact yet for this client. Add the first one.',
+  'contacts.nonLus.1': '{n} unread message',
+  'contacts.nonLus.n': '{n} unread messages',
+  'contacts.sansEchange': 'No news for {n} days',
+  // Ce qui part chez un client (vouvoiement)
+  'client.bonjour': 'Hello,',
+  'client.suite': 'I am following up on my previous message.',
+  'client.facture': 'invoice {objet} for {montant}, due on {jour}, does not appear as paid yet. Could you confirm the payment date?',
+  'client.devis': 'we sent you {objet} {depuis} days ago. Have you had time to look at it? We remain available to discuss it.',
+  'client.rendez-vous': 'we could not meet as planned. Would you like us to find a new time?',
+  'client.prospect': 'following our first conversation, would you like us to detail our proposal for “{objet}”?',
+  'client.inactif': 'we have not spoken for a while. Is there a project we could help you with?',
+  'client.cordialement': 'Kind regards.',
+} as const;
+
+const FR: Record<keyof typeof EN, string> = {
+  'pipeline.colonne.Nouveau': 'Nouveau',
+  'pipeline.colonne.Rendez-vous': 'Rendez-vous',
+  'pipeline.colonne.Devis envoyé': 'Devis envoyé',
+  'pipeline.colonne.Signé': 'Signé',
+  'pipeline.enRetard.1': '{n} prochaine étape en retard',
+  'pipeline.enRetard.n': '{n} prochaines étapes en retard',
+  'pipeline.conversion': '{pct} % de tes prospects conclus ont signé',
+  'pipeline.conversion.aucune': 'Aucun prospect conclu pour l’instant',
+  'pipeline.sansMontant.1': '{n} prospect sans montant, non compté',
+  'pipeline.sansMontant.n': '{n} prospects sans montant, non comptés',
+  'pipeline.vide': 'Aucun prospect pour l’instant. Ajoute le premier quand tu veux.',
+  'pipeline.signe': 'Un client de plus. Bravo !',
+  'relance.attente.terminee': 'Celle-ci est terminée. Il n’y a plus rien à envoyer.',
+  'relance.attente.plafond': 'Tu as déjà envoyé {n} relances. Un appel sera sans doute plus efficace maintenant.',
+  'relance.attente.espacement': 'Tu l’as relancé il y a moins de {jours} jours. La prochaine sera possible le {quand}.',
+  'relance.attente.memeClient': 'Un message est déjà parti aujourd’hui chez ce client. La prochaine sera possible le {quand}.',
+  'relance.attente.horsPlage': 'Les relances partent entre {debut} et {fin}, en semaine. Celle-ci partira le {quand}.',
+  'relance.envoyee': 'Relance envoyée. Tu n’as plus rien à faire pour celle-ci.',
+  'relance.vide': 'Aucune relance à envoyer. Tout le monde est à jour.',
+  'relance.pretes.1': '{n} relance prête',
+  'relance.pretes.n': '{n} relances prêtes',
+  'fidelite.niveau.Bronze': 'Bronze',
+  'fidelite.niveau.Argent': 'Argent',
+  'fidelite.niveau.Or': 'Or',
+  'fidelite.manque': 'Encore {n} points pour passer {niveau}',
+  'fidelite.max': 'Niveau le plus haut atteint',
+  'fidelite.points.1': '{n} point',
+  'fidelite.points.n': '{n} points',
+  'fidelite.inactifs.1': '{n} client est silencieux depuis un moment',
+  'fidelite.inactifs.n': '{n} clients sont silencieux depuis un moment',
+  'rdv.etat.a-venir': 'Confirmé',
+  'rdv.etat.a-confirmer': 'À confirmer',
+  'rdv.etat.en-cours': 'En ce moment',
+  'rdv.etat.passe': 'Passé',
+  'rdv.etat.manque': 'Manqué',
+  'rdv.aConfirmer.1': '{n} rendez-vous à confirmer',
+  'rdv.aConfirmer.n': '{n} rendez-vous à confirmer',
+  'rdv.manque.propose': 'Ce rendez-vous a été manqué. Tu veux proposer un autre créneau ?',
+  'rdv.libre.aucun': 'Aucun créneau libre ce jour-là.',
+  'contacts.principal': 'Écris d’abord à {nom}',
+  'contacts.aucun': 'Aucun contact pour ce client. Ajoute le premier.',
+  'contacts.nonLus.1': '{n} message non lu',
+  'contacts.nonLus.n': '{n} messages non lus',
+  'contacts.sansEchange': 'Sans nouvelles depuis {n} jours',
+  'client.bonjour': 'Bonjour,',
+  'client.suite': 'Je me permets de revenir vers vous au sujet de mon précédent message.',
+  'client.facture': 'sauf erreur de notre part, la facture {objet} de {montant}, échue le {jour}, n’apparaît pas encore comme réglée. Pourriez-vous nous confirmer la date de règlement ?',
+  'client.devis': 'nous vous avons adressé {objet} il y a {depuis} jours. Avez-vous eu le temps de le consulter ? Nous restons à votre disposition pour en discuter.',
+  'client.rendez-vous': 'nous n’avons pas pu nous rencontrer comme prévu. Souhaitez-vous que nous convenions d’un nouveau créneau ?',
+  'client.prospect': 'suite à notre premier échange, souhaitez-vous que nous précisions notre proposition pour « {objet} » ?',
+  'client.inactif': 'nous n’avons pas échangé depuis un moment. Y a-t-il un projet sur lequel nous pourrions vous aider ?',
+  'client.cordialement': 'Bien cordialement.',
+};
+
+const mots = definirMots(EN, FR);
+export const useMotsContacts = mots.useMots;
+export const DICTIONNAIRES_CONTACTS = mots.dictionnaires;
+export type CleContacts = keyof typeof EN;
+
+export function dire(langue: Langue, cle: CleContacts, params?: ParamsMots): string {
+  return mots.traduire(langue, cle, params);
+}
+
+/** `<base>.1` pour 0 et 1, `<base>.n` au-delà (usage français). */
+export function direCompte(langue: Langue, base: string, n: number, params: ParamsMots = {}): string {
+  return dire(langue, `${base}.${n <= 1 ? '1' : 'n'}` as CleContacts, { n, ...params });
+}
