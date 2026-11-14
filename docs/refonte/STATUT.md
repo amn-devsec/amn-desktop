@@ -51,6 +51,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 - 14 nov., 10h15 : **LOT-06 fusionné** (`e1615090`, 15 écrans), **premier lot livré** de la vague de construction. T1 l'a accepté : fidélité sur l'aperçu, les 15 écrans justifiés ; structure sur l'application, les 12 routes montées dans la coquille v4, rien de coupé à 390 px. Suites demandées à S7 : relire 6 écrans au-dessus de 15 % en disposition (H17, MR01, MR10, H16, MR05, MR04) ; zones de clic de 34 px (§1.39) ; l'état vide de H17 (« Le livre de marque d’ · ») ; les entrées de registre de ses 3 écrans neufs. T1 fixe les valeurs acceptées de LOT-06.
 - 14 nov., 10h00 : **LOT-06 complet** (S7, `277263a`, 15 sur 15). S7 et S8 butent tous deux sur `check:systeme-demarrage` (« le registre ne doit pas bouger », qui perd les fonctions des écrans neufs). Le correctif est sur la branche LOT-03 de S5 et arrive avec sa fusion. Ordre : LOT-03, puis S7 et S8 déclarent leurs écrans neufs, puis LOT-06 et LOT-11.
 - 14 nov., 10h00 : méthode de `check:fidelite` (§1.40). La fidélité se mesure sur l'aperçu statique, rempli avec les jeux de SIM ; l'application sert à la structure. Pas de collection nouvelle dans l'API d'essai.
+- 14 nov., 11h05 : zones de clic, règle commune §1.41 : 36 px, et le centre de l'élément ne doit jamais renvoyer un voisin. Bord des zones du socle à 34 px : ajouté à la liste de S0.
 - 14 nov., 11h00 : **LOT-11 Développement fusionné** (S8 `f363811`, T1 `026759b1`), deuxième lot livré : 7 écrans dans les seuils, DEV-modeles-sites justifié (image v3), paquet client identique. Reste « Relancer » 72×26 sur le serveur (S8). Gardes : seuls les échecs connus.
 - 14 nov., 10h55 : **LOT-02 accepté par T1, fusion retenue** : la fusion d'essai rend `check:socle-graphiques` rouge (5 fichiers de `src/refonte/contacts/` importent `socle/ui/graphiques`). Correctif demandé à S1 : `formaterEuro` depuis `socle/formats`, `MiniCourbe` depuis l'index `socle/ui`. La garde de S0 n'est pas touchée.
 - 14 nov., 10h00 : **intégration de F1 reportée**. Elle demande de modifier `check:socle-archetypes` (garde de S0, qui attend Harun) et de pousser une 3ᵉ branche, ce que la session de S5 refuse. Elle reprendra avec S0. LOT-02 : réglages sur le poste et blocs « non disponible » acceptés (S1, 8 écrans sur 13). T1 envoie à S5 les zones exactes qui dépassent pour H11, H12 et ME01.
@@ -830,7 +831,7 @@ Dans l'ordre :
 5. **Palette ⌘K (H41)**, relevé de T1 sur les 20 tâches courantes :
    - (a) ajouter des actions de création (« Nouvelle tâche », « Nouveau client », « Nouvelle facture », « Nouveau devis », « Nouveau rendez-vous »), pour tenir l'objectif de 3 actions au plus ;
    - (b) quand la saisie correspond à un module, **Entrée ouvre le module**, et « Demander à Ajmani » passe en second. Aujourd'hui, « client » puis Entrée lance Ajmani.
-6. **Bouton du socle** : zone de clic invisible de 34 px (il fait 31 px de haut, comme les fiches) ; **boutons de PageHead** décalés de 26 px par rapport aux images, sur les 15 écrans de LOT-06 (relevé de S7).
+6. **Bouton du socle** : zone de clic invisible de 36 px (§1.41 ; il fait 31 px de haut, comme les fiches), et même bord pour `.sc-segment`, `.sc-interrupteur` et les actions de PageHead, aujourd'hui à 34 px exacts ; **boutons de PageHead** décalés de 26 px par rapport aux images, sur les 15 écrans de LOT-06 (relevé de S7).
 7. **« Tous les modules » (D02)** : montrer les vues secondaires de chaque module (36 écrans n'ont aujourd'hui que la Bibliothèque comme chemin) ; ⌘K les trouve par leur nom.
 
 Éléments ludiques protégés (relevé de T1) : absents partout, parce que leurs écrans (LOT-01, LOT-10) ne sont pas encore construits. Ce n'est **pas une régression**. L'absence devient bloquante dès qu'un lot annonce L07, H02, H04 ou L01 livrés : T1 relance son contrôle à chaque lot concerné.
@@ -846,6 +847,12 @@ Sur l'API d'essai, beaucoup d'écrans s'affichent à l'état vide : seuls 8 jeux
 - l'**application** (build interne, API d'essai, coquille v4) sert aux **contrôles de structure** : écran monté dans la coquille, route, paquet client, cibles de 34 px, largeur à 390 px, contraste, et un état vide propre et honnête.
 
 **Pas de nouvelle collection dans l'API d'essai** : ce serait le contrat d'amn-api, donc une décision de Harun (liste « Nouvelles données partagées »). Chaque lot donne dans son rapport la commande d'aperçu de ses écrans.
+
+### 1.41 Zones de clic : 36 px, et le centre de l'élément reste à lui (14 nov.)
+
+Deux précisions de §1.39, mesurées par T1 et S8.
+1. **Taille** : une zone de 34 px exacts laisse dehors la sonde posée à ±17 px, car le bord est exclusif. Les zones invisibles (`::after`) font donc **36 px**, le dessin ne change pas. Le socle a le même bord à 34 px (`.sc-segment`, `.sc-interrupteur`, actions de `PageHead`) : c'est ajouté à la liste de S0 (§1.38).
+2. **Recouvrement** (règle de T1, dans `scripts/qualite/exigences-ecran.mjs`) : c'est **refusé** si le centre, ou la moitié centrale de la boîte visible, renvoie un voisin (un clic au milieu de l'élément part ailleurs). C'est **accepté** si seuls les bords des marges de 34 px se chevauchent : le dernier élément dessiné reçoit le clic dans la marge.
 
 ## 2. Les lots
 
