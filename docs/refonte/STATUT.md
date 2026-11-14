@@ -1051,7 +1051,7 @@ Gardes : `check:socle`, `check:tutoiement`, `check:voix`, `check:socle-controles
 
 | ID | Écran | Type | État | Écart / note |
 |---|---|---|---|---|
-| F10 | Contacts · Vue d'ensemble | nouveau | en cours (préparation) | préparation : aucune logique propre, lit les autres. Attend `ModuleTile`, `ModuleGroupGrid`, `AddModuleTile` |
+| F10 | Contacts · Vue d'ensemble | nouveau | fait | `src/refonte/contacts/hub/` ; substitue `/ensemble/contacts`. Fidélité mesurée sur l'aperçu (jeu de SIM, 30 oct. 10:42) : **11,2 % en disposition** (couleur ± 10), 25,2 % brut ; l'écart est la donnée (noms et chiffres du jeu, pas ceux de l'image). Écarts : « Segments » et « Carte des clients » absents (aucun module au registre) ; 13 tuiles au lieu de 14 (SAV ajouté) ; « Réponse médiane » omise (pas d'historique des réponses) ; « Ils attendent une réponse » dit « messagerie non branchée » dans l'application (G07 n'a pas de conversations clients) |
 | H05 | Contacts · Clients | mixte | en cours (préparation) | préparation : `ClientsScreen` `/clients` ; `clients.ts` : statut et couleur de santé de la fiche, recalculés comme le jeu de SIM |
 | G04 | Contacts · Fiche client | mixte | en cours (préparation) | préparation : `ClientDetail` dans `ClientsScreen` ; « contacts par client » livré (`interlocuteurs.ts`) |
 | H06 | Contacts · Prospects | mixte | en cours (préparation) | préparation : `PipelineScreen` `/pipeline` ; `pipeline.ts` (dont `rouvrir`) et `interet.ts` (échelles à valider) |

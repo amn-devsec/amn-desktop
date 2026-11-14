@@ -55,9 +55,9 @@ async function charger<T>(code: string): Promise<T> {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const M = await charger<any>(
-  "export * as L from '../src/refonte/contacts';\nexport * as monde from '../src/refonte/donnees';\nexport { DICTIONNAIRES_CONTACTS } from '../src/refonte/contacts/i18n';\nexport * as V from '../src/refonte/connecteurs/reglages';",
+  "export * as L from '../src/refonte/contacts';\nexport * as monde from '../src/refonte/donnees';\nexport { DICTIONNAIRES_CONTACTS } from '../src/refonte/contacts/i18n';\nexport * as V from '../src/refonte/connecteurs/reglages';\nexport * as H from '../src/refonte/contacts/hub/modele';\nexport * as N from '../src/refonte/contacts/hub/nuage';\nexport { DICTIONNAIRES_HUB } from '../src/refonte/contacts/hub/i18n';\nexport { depuisMonde } from '../src/refonte/contacts/sources/depuisMonde';",
 );
-const { L, monde, V, DICTIONNAIRES_CONTACTS: DICO } = M;
+const { L, monde, V, H, N, DICTIONNAIRES_HUB: DICO_HUB, depuisMonde, DICTIONNAIRES_CONTACTS: DICO } = M;
 const paris = (jour: string, hhmm: string): number => L.instantParis(jour, hhmm);
 const VOLUMES = ['vide', 'peu', 'normal', 'beaucoup'] as const;
 const mondes = Object.fromEntries(VOLUMES.map((v) => [v, monde.construireMonde({ volume: v })])) as Record<(typeof VOLUMES)[number], any>;
@@ -607,6 +607,7 @@ for (const v of VOLUMES) {
     for (const c of m.clients) {
       const sante = monde.calculerSante(c, { factures: m.factures, devis: m.devis, avis: m.avis }, auj);
       assert.equal(sante, c.sante, `${c.company || c.name} : santé`);
+      assert.equal(L.santeClient(c, { factures: m.factures, devis: m.devis, avis: m.avis }, auj), c.sante, `${c.company || c.name} : santé recalculée (santeClient)`);
       const statut = L.statutClient(c, L.joursDeRetard(m.factures, c.id, auj), auj);
       assert.equal(statut, c.statutAffiche, `${c.company || c.name} : ${c.statutAffiche}`);
       comptes[statut] = (comptes[statut] ?? 0) + 1;
@@ -770,6 +771,35 @@ for (const v of VOLUMES) {
   });
 }
 
+/* ── Ce qui se déduit des sources : les mêmes règles que le jeu de SIM ──── */
+console.log('\nContacts — relances et fidélité déduites des sources (mêmes règles que SIM)\n');
+
+for (const v of VOLUMES) {
+  await dit(`SIM (${v}) : les relances à faire se déduisent des sources (cinq motifs), comme le jeu`, () => {
+    const m = mondes[v];
+    // Le jeu les a plafonnées (4 / 12 / 60) : on compare ce qu'il garde, dans l'ordre de MC07, aux premières déduites.
+    const r = m.entreprise.reglages;
+    const deduites = L.relancesDepuis(
+      { aujourdhui: m.contexte.aujourdhui, clients: m.clients, factures: m.factures, devis: m.devis, evenements: m.evenements, prospects: m.prospects },
+      { devisJours: r.delaiRelanceDevisJours, factureJours: r.delaiRelanceFactureJours, rendezVousJours: r.delaiRelanceRendezVousJours, prospectJours: r.delaiRelanceProspectJours, inactifJours: 30 },
+    );
+    const cle = (x: any) => `${x.motif}:${x.objetId}:${x.clientNom}`;
+    assert.deepEqual(deduites.slice(0, m.relances.length).map(cle), m.relances.map(cle));
+    assert.ok(deduites.length >= m.relances.length);
+  });
+  await dit(`SIM (${v}) : les comptes de fidélité se déduisent des sources (factures, avis), comme le jeu`, () => {
+    const m = mondes[v];
+    const recos = new Map<number, string[]>(m.fidelite.map((c: any) => [c.clientId, c.recommandations]));
+    const deduits = L.fideliteDepuis({ aujourdhui: m.contexte.aujourdhui, clients: m.clients, factures: m.factures, avis: m.avis, recommandations: recos });
+    const parClient = new Map(deduits.map((c: any) => [c.clientId, c]));
+    for (const c of m.fidelite) {
+      const d: any = parClient.get(c.clientId);
+      assert.ok(d, `${c.clientNom} : absent des comptes déduits`);
+      assert.deepEqual([d.points, d.niveau, d.derniereActiviteLe], [c.points, c.niveau, c.derniereActiviteLe], c.clientNom);
+    }
+  });
+}
+
 /* ── Les jeux de SIM : pipeline et relances aux quatre volumes ──────────── */
 console.log('\nContacts — jeux fictifs de SIM\n');
 
@@ -845,31 +875,229 @@ await dit('un encouragement quand une tâche est finie, jamais de reproche (Chal
   assert.deepEqual(reproches, []);
 });
 
+/* ── F10 : la vue d'ensemble ─────────────────────────────────────────────── */
+console.log('\nContacts — F10, vue d’ensemble (chaleur, attentes, rendez-vous, modules)\n');
+
+const base = (o: Record<string, unknown> = {}): any => ({
+  maintenant: paris('2026-10-30', '10:42'), aujourdhui: '2026-10-30', moi: { prenom: 'Camille', email: 'camille@exemple.test' },
+  clients: [], devis: [], factures: [], avis: [], evenements: [], prospects: [], relances: [], fidelite: [], fournisseurs: [], partenaires: [],
+  equipe: [], presence: true, interlocuteurs: [], attentes: [], echanges: [], ...o,
+});
+const fiche = (id: number, jours: number, o: Record<string, unknown> = {}): any => ({
+  id, name: `Client ${id}`, company: `Atelier ${id}`, status: 'active', statutAffiche: 'Actif', sante: 80, debutLe: '2025-01-10',
+  dernierEchangeAt: new Date(paris('2026-10-30', '10:42') - jours * 86_400_000).toISOString(), ...o,
+});
+const facturePayee = (clientId: number, cents: number): any => ({ clientId, status: 'paid', paidAt: '2026-09-01', lines: [{ id: 'l', label: 'x', quantity: 1, unitPriceCents: cents, vatRate: 0 }] });
+const devisVu = (id: number, clientId: number, cents: number, o: Record<string, unknown> = {}): any => ({ id, clientId, numero: `D-${id}`, status: 'sent', vuAt: '2026-10-25T10:00:00.000Z', acceptéLe: null, refuséLe: null, lignes: [{ id: 'l', label: 'x', quantity: 1, unitPriceCents: cents, vatRate: 0 }], ...o });
+
+await dit('chaleur : Chaleureuse sous 7 jours, À entretenir de 7 à 29, Refroidie dès 30', () => {
+  assert.deepEqual([0, 6, 7, 29, 30, 200].map((j) => H.bandeDeChaleur(j)), ['chaleureuse', 'chaleureuse', 'aEntretenir', 'aEntretenir', 'refroidie', 'refroidie']);
+});
+
+await dit('nuage : abscisse en trois bandes de 42 / 34 / 24 %, ordonnée de 5,0 (haut) à 3,0 (bas) dans les marges de l’image', () => {
+  assert.deepEqual([0, 7, 30, 60, 90].map((j) => Math.round(N.positionX(j) * 1000) / 1000), [0, 0.42, 0.76, 1, 1]);
+  const xs = Array.from({ length: 61 }, (_, j) => N.positionX(j));
+  assert.ok(xs.every((x: number, i: number) => i === 0 || x >= xs[i - 1]), 'monotone');
+  assert.equal(N.positionY(5), N.MARGE_HAUT);
+  assert.equal(Math.round(N.positionY(3) * 1000) / 1000, Math.round((1 - N.MARGE_BAS) * 1000) / 1000);
+  assert.equal(N.positionY(9), N.positionY(5), 'bornée');
+  assert.equal(N.positionY(1), N.positionY(3), 'bornée');
+  assert.ok(N.positionY(4) > N.positionY(5) && N.positionY(4) < N.positionY(3));
+  assert.deepEqual([N.rayonDuPoint({ nomme: true, valeurCents: 0 }, 1000), N.rayonDuPoint({ nomme: true, valeurCents: 1000 }, 1000), N.rayonDuPoint({ nomme: false, valeurCents: 0 }, 1000), N.rayonDuPoint({ nomme: false, valeurCents: 1000 }, 1000)], [5, 9, 3, 4.5]);
+});
+
+await dit('nuage : deux noms ne se recouvrent jamais, et le point choisi n’écrit pas son nom (la bulle le dit)', () => {
+  const pts = Array.from({ length: 8 }, (_, i) => ({ clientId: i, nom: `Client numéro ${i}`, jours: 1 + (i % 3), satisfaction: 5, satisfactionMoyenne: false, valeurCents: 1000 - i, nomme: true, bande: 'chaleureuse', statut: 'Actif' }));
+  const vus = N.nomsAffiches(pts, 3);
+  assert.ok(!vus.has(3));
+  assert.ok(vus.size < pts.length, 'tous empilés au même endroit : certains noms doivent céder');
+  const seuls = N.nomsAffiches([{ ...pts[0], jours: 2 }], null);
+  assert.deepEqual([...seuls], [0], 'un nom sans voisin s’écrit');
+});
+
+await dit('« réchauffées cette semaine » : passés à une bande plus chaude depuis lundi 00:00 (vendredi 30 oct. → lundi 26)', () => {
+  const lundi = paris('2026-10-26', '00:00');
+  const il = (jours: number) => new Date(lundi - jours * 86_400_000).toISOString();
+  const apres = new Date(paris('2026-10-28', '10:00')).toISOString();
+  const src = base({
+    clients: [fiche(1, 2, { dernierEchangeAt: apres }), fiche(2, 2, { dernierEchangeAt: apres }), fiche(3, 0, { dernierEchangeAt: apres }), fiche(4, 20)],
+    echanges: [
+      { clientId: 1, at: il(40) }, { clientId: 1, at: apres },    // refroidi lundi (40 j) → chaleureux : réchauffé
+      { clientId: 2, at: il(2) }, { clientId: 2, at: apres },     // chaleureux lundi → chaleureux : pas de changement
+      { clientId: 3, at: apres },                                 // aucun échange avant : « refroidi » → réchauffé
+      { clientId: 4, at: il(20) },                                // 20 j : à entretenir, pas d'échange cette semaine
+    ],
+  });
+  assert.equal(H.chaleurDesRelations(src).rechauffees, 2);
+  assert.equal(H.lundiMinuit(paris('2026-10-30', '10:42')), lundi);
+  assert.equal(H.lundiMinuit(paris('2026-11-01', '23:00')), lundi, 'dimanche : la semaine commencée lundi 26');
+});
+
+await dit('chaleur : un point par client, huit nommés au plus (les plus gros enjeux), satisfaction 3–5 ou moyenne en contour', () => {
+  const clients = Array.from({ length: 12 }, (_, i) => fiche(i + 1, i * 3));
+  const src = base({ clients, factures: clients.map((c: any, i: number) => facturePayee(c.id, (i + 1) * 100_000)), avis: [{ clientId: 1, noteSur5: 2, date: '2026-10-01' }, { clientId: 2, noteSur5: 5, date: '2026-10-02' }] });
+  const c = H.chaleurDesRelations(src);
+  assert.equal(c.total, 12);
+  assert.equal(c.points.filter((p: any) => p.nomme).length, 8);
+  assert.deepEqual(c.points.filter((p: any) => p.nomme).map((p: any) => p.clientId).sort((a: number, b: number) => a - b), [5, 6, 7, 8, 9, 10, 11, 12]);
+  assert.equal(c.points[0].satisfaction, 3, 'une note de 2 se trace à 3,0');
+  assert.equal(c.points[0].satisfactionMoyenne, false);
+  assert.equal(c.points[3].satisfactionMoyenne, true, 'sans avis : la moyenne de l’espace, point en contour');
+  assert.equal(c.parBande.chaleureuse + c.parBande.aEntretenir + c.parBande.refroidie, 12);
+});
+
+await dit('suggestion d’appel : devis envoyé, vu, non signé, chez un client qui s’est tu ; le plus gros d’abord ; jamais chez un chaleureux', () => {
+  const clients = [fiche(1, 9), fiche(2, 12), fiche(3, 2), fiche(4, 40)];
+  const devis = [devisVu(1, 1, 400_000), devisVu(2, 2, 900_000), devisVu(3, 3, 5_000_000), devisVu(4, 4, 100_000, { vuAt: null }), devisVu(5, 1, 700_000, { acceptéLe: '2026-10-27' })];
+  const src = base({ clients, devis });
+  const s = H.suggestionAppel(src, H.chaleurDesRelations(src));
+  assert.deepEqual([s.clientId, s.jours, s.devis.numero, s.devis.cents], [2, 12, 'D-2', 900_000]);
+  assert.equal(H.suggestionAppel(base({ clients: [fiche(3, 2)], devis: [devisVu(3, 3, 1)] }), H.chaleurDesRelations(base({ clients: [fiche(3, 2)] }))), null);
+});
+
+await dit('« Ils attendent une réponse » : la plus ancienne d’abord, barre = attente ÷ 4 h, orange au-delà de 2 h ; null = messagerie non branchée', () => {
+  const now = paris('2026-10-30', '10:42');
+  const a = (nom: string, min: number) => ({ clientId: 1, clientNom: nom, extrait: 'x', depuisMs: now - min * 60_000, canal: 'courriel' });
+  const f = H.filesAttente([a('Dupont', 48), a('Cabinet Roux', 131), a('Boulangerie Léo', 65), a('Roux Santé', 22), a('Très long', 600)], now);
+  assert.deepEqual(f.lignes.map((l: any) => l.nom), ['Très long', 'Cabinet Roux', 'Boulangerie Léo', 'Dupont', 'Roux Santé']);
+  assert.deepEqual(f.lignes.map((l: any) => l.ton), ['attention', 'attention', 'neutre', 'neutre', 'neutre']);
+  assert.deepEqual([f.lignes[0].barre, Math.round(f.lignes[1].barre * 1000) / 1000], [1, 0.546]);
+  assert.equal(f.total, 5);
+  assert.equal(H.filesAttente(null, now), null);
+  assert.deepEqual(H.filesAttente([], now), { lignes: [], total: 0 });
+  assert.deepEqual([22, 65, 131, 600, 3000].map((m) => H.dureeAttente(m)), ['22 min', '1 h 05', '2 h 11', '10 h 00', '2 j']);
+  assert.deepEqual([H.initialesDe('Cabinet Roux'), H.initialesDe('Dupont'), H.initialesDe('Roux-Santé')], ['CR', 'DU', 'RS']);
+});
+
+await dit('prochains rendez-vous : fait, prochain (« dans 18 min »), à venir ; un manqué ou un événement du système n’y est pas ; pied = le prochain jour', () => {
+  const equipe = [{ id: 'm1', prenom: 'Aaron', nom: 'X', nomComplet: 'Aaron X', initiales: 'AX', email: 'aaron@exemple.test', teinte: 2, statut: 'en ligne' }];
+  const e = (id: string, jour: string, hm: string, o: Record<string, unknown> = {}): any => ({ id, title: `Sujet ${id}`, startAt: new Date(paris(jour, hm)).toISOString(), durationMin: 60, clientId: 1, clientName: `Client ${id}`, location: 'Paris', type: 'rendez-vous client', confirmation: 'confirmé', systeme: false, participants: ['aaron@exemple.test'], ...o });
+  const src = base({
+    equipe,
+    clients: [fiche(1, 1)],
+    devis: [devisVu(9, 1, 1000)],
+    evenements: [e('a', '2026-10-30', '09:00'), e('b', '2026-10-30', '11:00'), e('c', '2026-10-30', '14:00', { durationMin: 90 }), e('d', '2026-10-30', '16:30', { durationMin: 45 }), e('x', '2026-10-30', '12:00', { confirmation: 'manqué' }), e('y', '2026-10-30', '13:00', { systeme: true }), e('z', '2026-10-30', '15:00', { type: 'réunion' }), e('s', '2026-11-02', '09:30'), e('t', '2026-11-03', '08:00')],
+  });
+  const f = H.friseDesRendezVous(src);
+  assert.deepEqual(f.lignes.map((l: any) => [l.heure, l.etat]), [['09:00', 'fait'], ['11:00', 'prochain'], ['14:00', 'a-venir'], ['16:30', 'a-venir']]);
+  assert.equal(f.total, 4);
+  assert.equal(f.lignes[1].dansMin, 18);
+  assert.deepEqual(f.lignes[1].etiquettes.map((x: any) => x.genre), ['dernierEchange', 'devisEnAttente']);
+  assert.equal(f.lignes[1].etiquettes[0].jours, 1);
+  assert.deepEqual(f.lignes[0].etiquettes, [], 'seul le prochain porte ses étiquettes');
+  assert.deepEqual(f.lignes[0].responsable, { initiales: 'AX', teinte: 2 });
+  assert.deepEqual([f.suivant.jour, f.suivant.heure], ['2026-11-02', '09:30'], 'le prochain jour : lundi 2 nov.');
+  assert.equal(H.friseDesRendezVous(base()).suivant, null);
+  assert.deepEqual([45, 60, 90, 150].map((m) => H.dureeRdv(m)), ['45 min', '1 h', '1 h 30', '2 h 30']);
+});
+
+await dit('les modules : trois groupes, aucune mesure inventée (null = « pas encore disponible »), « membres » quand la présence est inconnue', () => {
+  const src = base({ clients: [fiche(1, 1, { statutAffiche: 'Impayé' }), fiche(2, 3)], interlocuteurs: null, partenaires: null, presence: false, equipe: [{ id: 'm', prenom: 'A', nom: '', nomComplet: 'A', initiales: 'A', email: 'a@exemple.test', teinte: 0, statut: 'hors ligne' }] });
+  const g = H.groupesDuHub(src, H.chaleurDesRelations(src), H.friseDesRendezVous(src), '/fidelite');
+  const tuile = (id: string) => g.flatMap((x: any) => x.tuiles).find((t: any) => t.id === id);
+  assert.deepEqual(g.map((x: any) => x.cle), ['clients', 'developper', 'autour']);
+  assert.deepEqual(tuile('clients').mesure.params, { n: 2, impayes: 1 });
+  assert.equal(tuile('contactsFiches').disponible, false);
+  assert.equal(tuile('contactsFiches').mesure, null);
+  assert.equal(tuile('partenaires').disponible, false);
+  assert.equal(tuile('directory').mesure.cle, 'tuile.equipe.membres');
+  assert.equal(tuile('loyalty').vers, '/fidelite');
+  assert.equal(tuile('reminders').mesure.cle, 'tuile.relances.aucune', 'aucune relance à envoyer : on le dit, calmement');
+  assert.equal(tuile('aftersales').mesure, null);
+});
+
+await dit('la salutation suit l’heure (Chaleur) : bonjour avant midi, bon après-midi jusqu’à 18 h, bonsoir ensuite', () => {
+  assert.deepEqual([paris('2026-10-30', '09:00'), paris('2026-10-30', '11:59'), paris('2026-10-30', '12:00'), paris('2026-10-30', '17:59'), paris('2026-10-30', '18:00')].map((t) => H.salutationDe(t)), ['bonjour', 'bonjour', 'apresMidi', 'apresMidi', 'bonsoir']);
+});
+
+for (const v of VOLUMES) {
+  await dit(`SIM (${v}) : le modèle de la vue d’ensemble se construit et tient ses comptes`, () => {
+    const m = mondes[v];
+    const src = depuisMonde(m);
+    const mod = H.modeleHub(src);
+    assert.equal(mod.chaleur.total, m.clients.length);
+    assert.equal(mod.chaleur.parBande.chaleureuse + mod.chaleur.parBande.aEntretenir + mod.chaleur.parBande.refroidie, m.clients.length);
+    assert.ok(mod.chaleur.points.filter((p: any) => p.nomme).length <= 8);
+    assert.ok(mod.chaleur.rechauffees <= m.clients.length);
+    for (const p of mod.chaleur.points) assert.ok(p.satisfaction >= 3 && p.satisfaction <= 5 && p.jours >= 0);
+    assert.equal(mod.groupes.flatMap((g: any) => g.tuiles).length, 13);
+    assert.equal(mod.groupes[0].tuiles[0].mesure.params.n, m.clients.length);
+    assert.equal(mod.frise.total, mod.frise.lignes.length);
+    if (mod.attentes) for (let i = 1; i < mod.attentes.lignes.length; i += 1) assert.ok(mod.attentes.lignes[i - 1].attenteMin >= mod.attentes.lignes[i].attenteMin, 'la plus ancienne d’abord');
+    if (mod.suggestion) {
+      const p = mod.chaleur.points.find((x: any) => x.clientId === mod.suggestion.clientId);
+      assert.notEqual(p.bande, 'chaleureuse');
+    }
+  });
+}
+
+await dit('F10 · textes : mêmes clés en fr et en, mêmes paramètres, comptes à deux formes, l’interface tutoie', () => {
+  const en = Object.keys(DICO_HUB.en).sort();
+  assert.deepEqual(Object.keys(DICO_HUB.fr).sort(), en);
+  const params = (t: string) => [...t.matchAll(/\{(\w+)\}/g)].map((x) => x[1]).sort().join(',');
+  for (const k of en) {
+    assert.ok(DICO_HUB.en[k].trim() && DICO_HUB.fr[k].trim(), k);
+    assert.equal(params(DICO_HUB.fr[k]), params(DICO_HUB.en[k]), `paramètres de ${k}`);
+    assert.ok(!VOUVOIEMENT_UI.test(DICO_HUB.fr[k]), `${k} vouvoie : ${DICO_HUB.fr[k]}`);
+  }
+  for (const b of new Set(en.filter((k) => /\.(1|n)$/.test(k)).map((k) => k.replace(/\.(1|n)$/, '')))) for (const l of ['fr', 'en']) assert.ok(DICO_HUB[l][`${b}.1`] && DICO_HUB[l][`${b}.n`], `${b} (${l})`);
+  assert.equal(DICO_HUB.fr['sousTitre.chaud'], '{salut} {prenom}, tes relations sont au chaud', 'la phrase de tutoiement.json');
+  assert.equal(DICO_HUB.fr['modules.sousTitre'], 'ouvre, épingle ou masque', 'la phrase de tutoiement.json');
+});
+
 /* ── Structure ──────────────────────────────────────────────────────────── */
 console.log('\nContacts — structure\n');
 
-const fichiers = fs.readdirSync(path.join(racine, ZONE)).map((f) => path.join(ZONE, f));
+/** Tous les fichiers de la zone, en profondeur (`src/refonte/contacts/**`). */
+function parcourir(dir: string): string[] {
+  return fs.readdirSync(path.join(racine, dir), { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? parcourir(path.join(dir, e.name)) : [path.join(dir, e.name)]));
+}
+const fichiers = parcourir(ZONE).filter((f) => /\.(ts|tsx|css)$/.test(f));
 const source = (f: string) => fs.readFileSync(path.join(racine, f), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+/** La LOGIQUE : les fichiers à la racine de la zone, les `modele.ts` des écrans et les sources — purs, sans React ni brique visuelle. */
+const logique = fichiers.filter((f) => /\.ts$/.test(f) && (path.dirname(f) === ZONE || /(^|\/)(modele|nuage)\.ts$/.test(f) || (f.includes('/sources/') && !f.endsWith('depuisApp.ts'))) && !/i18n\.ts$/.test(f));
+/** Les ÉCRANS : les sous-dossiers (`hub/`…), qui ont le droit de dessiner avec le socle. */
+const ecrans = fichiers.filter((f) => path.dirname(f) !== ZONE && (!f.includes('/sources/') || f.endsWith('depuisApp.ts')));
 
-await dit('mode préparation : aucun composant React, aucun import de src/socle/ui, rien du code partagé ni de l’édition cliente', () => {
+await dit('la logique est pure : ni React, ni brique visuelle, ni code partagé, ni édition cliente', () => {
   const fautes: string[] = [];
-  for (const f of fichiers) {
-    if (/\.tsx$/.test(f)) fautes.push(`${f} : composant visuel`);
+  for (const f of logique) {
     for (const m of source(f).matchAll(/from\s+['"]([^'"]+)['"]/g)) {
-      const cible = m[1];
-      if (/socle\/ui|socle\/familles|\/screens\/|\/components\/|\/business\/|\.business|@edition|react/.test(cible)) fautes.push(`${f} importe ${cible}`);
+      if (/socle\/ui|socle\/familles|\/screens\/|\/components\/|\/business\/|\.business|@edition|react|lucide/.test(m[1])) fautes.push(`${f} importe ${m[1]}`);
     }
   }
   assert.deepEqual(fautes, [], fautes.join('\n'));
 });
 
-await dit('aucune lecture de l’horloge, aucun réseau, aucun stockage dans la logique', () => {
+await dit('les écrans ne touchent ni src/screens, ni src/business, ni l’édition cliente, ni la couture @edition', () => {
   const fautes: string[] = [];
-  for (const f of fichiers) {
-    const s = source(f);
-    if (/Date\.now\s*\(|new Date\s*\(\s*\)|performance\.now|Math\.random|fetch\s*\(|localStorage|sessionStorage|XMLHttpRequest|process\.env/.test(s)) fautes.push(f);
+  for (const f of ecrans.filter((x) => /\.tsx?$/.test(x))) {
+    for (const m of source(f).matchAll(/from\s+['"]([^'"]+)['"]/g)) {
+      if (/\/screens\/|\/business\/|\.business|@edition/.test(m[1])) fautes.push(`${f} importe ${m[1]}`);
+    }
   }
-  assert.deepEqual(fautes, [], `horloge, hasard, réseau ou stockage dans : ${fautes.join(', ')}`);
+  assert.deepEqual(fautes, [], fautes.join('\n'));
+});
+
+await dit('aucune lecture de l’horloge, aucun hasard, aucun réseau dans la logique ; les écrans ne lisent le stockage que par leurs hooks', () => {
+  const fautes: string[] = [];
+  for (const f of logique) {
+    if (/Date\.now\s*\(|new Date\s*\(\s*\)|performance\.now|Math\.random|fetch\s*\(|localStorage|sessionStorage|XMLHttpRequest|process\.env/.test(source(f))) fautes.push(f);
+  }
+  for (const f of ecrans.filter((x) => /\.tsx?$/.test(x))) {
+    if (/Math\.random|fetch\s*\(|XMLHttpRequest|process\.env/.test(source(f))) fautes.push(`${f} (écran)`);
+  }
+  assert.deepEqual(fautes, [], `horloge, hasard ou réseau dans : ${fautes.join(', ')}`);
+});
+
+await dit('aucune couleur écrite à la main dans les feuilles des écrans : jetons du socle seulement', () => {
+  const fautes: string[] = [];
+  for (const f of fichiers.filter((x) => x.endsWith('.css'))) {
+    const css = fs.readFileSync(path.join(racine, f), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+    const trouves = css.match(/#[0-9a-fA-F]{3,8}\b|rgba?\((?!0,\s*0,\s*0)[^)]*\)/g);
+    if (trouves) fautes.push(`${f} : ${[...new Set(trouves)].join(' ')}`);
+  }
+  assert.deepEqual(fautes, [], fautes.join('\n'));
 });
 
 await dit('aucun nom réel, aucune adresse ni secret dans la zone, la note ou le rapport', () => {
