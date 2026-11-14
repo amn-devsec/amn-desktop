@@ -24,7 +24,7 @@ export {
   VOLUMES, type Jour, type Volume,
 } from './outils';
 export { statutAffiche, totauxDeFacture, totauxDeLignes, type Totaux } from './argent';
-export { calculerSante, groupePipeline } from './contacts';
+export { calculerNps, calculerSante, groupePipeline, RAISONS_DE_PERTE } from './contacts';
 export { avancementProjet, journeesDeTravail, serieEnCours, statutProjet, type JourneeDeTravail } from './ma-journee';
 export { moi } from './equipe';
 export { joursSansImpaye, jourDuCreneau } from './complements';

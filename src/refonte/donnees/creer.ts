@@ -12,7 +12,7 @@
 
 import { ARTICLES_ACHAT, PRESTATIONS } from './fond';
 import { cle, cycle, fabriquer, hasardDe, heure, nomClient, quand, salaries } from './commun';
-import { ajouterJours, centimes, compter, estOuvre, lundiDe, type Jour } from './outils';
+import { ajouterJours, centimes, compter, estOuvre, instantParis, iso, lundiDe, type Jour } from './outils';
 import type { Contexte, FicheClient, Fournisseur, Membre } from './types';
 import type {
   ArticleStock, Chantier, Commande, Controle, DossierPhoto, EcartQualite, EtapeTournee, Equipement, Marque, ModeleControle, MouvementStock,
@@ -122,6 +122,7 @@ export function genererCommandes(ctx: Contexte, equipe: readonly Membre[], clien
     const creeLe = ajouterJours(ctx.aujourdhui, -age);
     const prevue = ajouterJours(creeLe, h.entier(1, 6));
     const remise = h.pondere([['Retrait', 4], ['Colis', 3], ['Tournée', 3]] as const);
+    const paiementCommande: Commande['paiement'] = preparation === 'Remise' ? 'Payé' : h.pondere([['Payé', 6], ['À payer', 4]] as const);
     const etapesLibelles = ['Préparer les articles', 'Contrôler la commande', 'Emballer', 'Remettre au client'];
     const faites = preparation === 'À préparer' ? 0 : preparation === 'En préparation' ? 2 : preparation === 'Prête' ? 3 : 4;
     return {
@@ -137,8 +138,13 @@ export function genererCommandes(ctx: Contexte, equipe: readonly Membre[], clien
       urgente: preparation !== 'Remise' && h.chance(0.12),
       etapes: etapesLibelles.map((libelle, k) => ({ libelle, fait: k < faites })),
       preuveRemise: preparation === 'Remise',
-      paiement: preparation === 'Remise' ? 'Payé' : h.pondere([['Payé', 6], ['À payer', 4]] as const),
+      paiement: paiementCommande,
       preparation,
+      // MR07 : tout se déduit de ce qui est déjà tiré (aucun tirage de plus, les autres jeux ne bougent pas).
+      creeAt: iso(Math.min(instantParis(creeLe, `${String(8 + ((i * 7) % 10)).padStart(2, '0')}:${String((i * 13) % 60).padStart(2, '0')}`), ctx.maintenant - 60_000)),
+      heureEcheance: remise === 'Retrait' ? '17:00' : remise === 'Colis' ? '12:00' : '09:30',
+      livreeLe: preparation === 'Remise' ? [creeLe, [ajouterJours(prevue, ((i * 5) % 3) - 1), ctx.aujourdhui].sort()[0]].sort().at(-1) ?? creeLe : null,
+      paiementEnLigne: paiementCommande === 'Payé' && remise !== 'Retrait',
     };
   }).sort((a, b) => b.numero.localeCompare(a.numero));
 }
@@ -294,14 +300,21 @@ export function genererEtapesTournee(ctx: Contexte, equipe: readonly Membre[], c
   jours.forEach((jour, jd) => {
     const par = Math.ceil(n / jours.length);
     let heureCourante = 8 * 60 + h.entier(0, 3) * 15;
+    let trajet = 15; // depuis le dépôt, pour la première étape
     for (let k = 0; k < par && liste.length < n; k += 1) {
       const c = h.choix(clients);
       const commande = aLivrer.length && h.chance(0.4) ? h.choix(aLivrer) : null;
       const duree = h.choix([20, 30, 45, 60]);
       const arrivee = heureCourante;
-      heureCourante += duree + h.entier(10, 30);
+      const trajetPrecedent = trajet;
+      trajet = h.entier(10, 30);
+      heureCourante += duree + trajet;
       const arriveeMs = Date.parse(quand(jour, heure(Math.floor(arrivee / 60), arrivee % 60)));
-      const etat: EtapeTournee['etat'] = jd > 0 ? 'À faire' : arriveeMs + duree * 60_000 <= ctx.maintenant ? 'Fait' : arriveeMs <= ctx.maintenant ? 'En route' : 'À faire';
+      // Fait, sur place chez le client, en route (le trajet est entamé), ou à faire.
+      const etat: EtapeTournee['etat'] = jd > 0 ? 'À faire'
+        : arriveeMs + duree * 60_000 <= ctx.maintenant ? 'Fait'
+        : arriveeMs <= ctx.maintenant ? 'Sur place'
+        : arriveeMs - trajetPrecedent * 60_000 <= ctx.maintenant ? 'En route' : 'À faire';
       liste.push({
         id: cle('et', liste.length + 1),
         jour,
@@ -312,6 +325,8 @@ export function genererEtapesTournee(ctx: Contexte, equipe: readonly Membre[], c
         arriveePrevue: heure(Math.floor(arrivee / 60), arrivee % 60),
         dureeMin: duree,
         etat,
+        trajetMin: trajetPrecedent,
+        distanceKm: Math.max(1, Math.round(trajetPrecedent * 0.55)),
         heureFixee: h.chance(0.3),
         conducteurEmail: h.choix(conducteurs.length ? conducteurs : salaries(equipe)).email,
         commandeId: commande?.id ?? null,
@@ -346,6 +361,9 @@ export function genererEquipements(ctx: Contexte, equipe: readonly Membre[]): Eq
       valeurCents: centimes(h.entier(40, 2400)),
       achatLe: ajouterJours(ctx.aujourdhui, -h.entier(90, 1500)),
       statut: i === n && n >= 14 ? 'Au rebut' : 'En service',
+      dernierEntretienLe: dernier,
+      dernierControleLe: [ajouterJours(dernier, (i * 7) % 25), ctx.aujourdhui].sort()[0],
+      reformeLe: i === n && n >= 14 ? ajouterJours(ctx.aujourdhui, -(10 + (i % 40))) : null,
     };
   });
 }

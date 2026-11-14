@@ -120,6 +120,7 @@ export function genererEntreprise(equipe: readonly Membre[]): Entreprise {
       iban: 'FR00 0000 0000 0000 0000 0000 000',
       bic: 'EXEMFRP1',
       vatExempt: false,
+      regimeTva: 'Réel simplifié',
       paymentTermDays: 30,
       latePenaltyRate: 12,
     },

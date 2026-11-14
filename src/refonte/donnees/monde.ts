@@ -88,7 +88,8 @@ export function construireMonde(options: OptionsMonde = {}): Monde {
 
   const avis = genererAvis(ctx, clients);
   finaliserClients(clients, { factures, devis, avis, evenements }, ctx.aujourdhui, ctx.maintenant);
-  const interlocuteurs = genererInterlocuteurs(ctx, clients, fournisseurs, prospects);
+  const partenaires = genererPartenaires(ctx, equipe, fournisseurs);
+  const interlocuteurs = genererInterlocuteurs(ctx, clients, fournisseurs, prospects, partenaires);
   const relances = genererRelances(ctx, entreprise.reglages, clients, factures, devis, evenements, prospects);
   const fidelite = genererFidelite(ctx, clients, factures);
 
@@ -96,7 +97,6 @@ export function construireMonde(options: OptionsMonde = {}): Monde {
 
   // Compléments des lots déjà faits.
   const prestations = genererPrestations(ctx, equipe, factures);
-  const partenaires = genererPartenaires(ctx, equipe, fournisseurs);
   const creneaux = genererCreneaux(ctx, equipe, clients);
   const depuis30 = ajouterJours(ctx.aujourdhui, -30);
   const notes30 = avis.filter((a) => a.date >= depuis30).map((a) => a.noteSur5);

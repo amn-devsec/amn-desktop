@@ -136,6 +136,8 @@ export function genererInterlocuteurs(
   clients: readonly FicheClient[],
   fournisseurs: readonly Fournisseur[],
   prospects: readonly Prospect[],
+  /** MC05 : les référents des organisations partenaires sont des interlocuteurs de type « partenaire ». */
+  partenaires: readonly { id: string; nom: string }[] = [],
 ): Interlocuteur[] {
   const h = hasard(graineDe(ctx.graine, 'interlocuteurs'));
   const volume = compter(ctx.volumes.interlocuteurs, [0, 1, 2, 3]); // plafond par organisation
@@ -175,6 +177,8 @@ export function genererInterlocuteurs(
     const [prenom, ...reste] = p.contactNom.split(' ');
     ajouter('prospect', p.id, p.nom, `${slug(p.nom)}.${DOMAINE_COURRIEL}`, { prenom, nom: reste.join(' ') });
   }
+  // Le nom de domaine reste court : un courriel de plus de 32 caractères sans tiret ressemblerait à un secret aux contrôles.
+  for (const p of partenaires) ajouter('partenaire', p.id, p.nom, `${slug(p.nom).slice(0, 24).replace(/-+$/, '')}.${DOMAINE_COURRIEL}`);
   return liste.sort((a, b) => b.dernierEchangeAt.localeCompare(a.dernierEchangeAt));
 }
 
@@ -226,9 +230,22 @@ export function genererProspects(ctx: Contexte, equipe: readonly Membre[]): Pros
       signeLe: signe,
       perduLe: perdu,
       clientId: null,
+      raisonPerte: perdu ? RAISONS_DE_PERTE[(i * 7) % RAISONS_DE_PERTE.length] : null,
     });
   }
   return liste;
+}
+
+/** H06 : les raisons qu'on note quand un prospect est perdu. */
+export const RAISONS_DE_PERTE = ['Budget insuffisant', 'Choix d’un concurrent', 'Projet reporté', 'Sans réponse', 'Besoin disparu'] as const;
+
+/** H44 : le NPS (−100 à 100) = part des promoteurs (9 et 10) − part des détracteurs (0 à 6), sur les avis qui ont une recommandation. */
+export function calculerNps(avis: readonly { recommandation: number | null }[]): number | null {
+  const notes = avis.map((a) => a.recommandation).filter((r): r is number => r !== null);
+  if (notes.length === 0) return null;
+  const promoteurs = notes.filter((r) => r >= 9).length;
+  const detracteurs = notes.filter((r) => r <= 6).length;
+  return Math.round(((promoteurs - detracteurs) / notes.length) * 100);
 }
 
 /** MC01 regroupe H06 en quatre colonnes : « contacté » rejoint « nouveau », « gagné » devient « signé ». */
@@ -311,6 +328,7 @@ export function genererAvis(ctx: Contexte, clients: readonly FicheClient[]): Avi
       date: ajouterJours(ctx.aujourdhui, -Math.floor(h.reel() ** 1.4 * 360)),
       themes: h.echantillon(THEMES_AVIS, h.entier(1, 2)),
       canal: h.pondere([['courriel', 5], ['lien public', 3], ['message', 2]] as const),
+      sentiment: note >= 4 ? 'positif' : note === 3 ? 'neutre' : 'négatif',
     });
   }
   return liste.sort((a, b) => b.date.localeCompare(a.date));

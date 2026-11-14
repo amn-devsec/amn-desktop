@@ -14,7 +14,7 @@
 
 import { CATEGORIES_DEPENSE, DEPENSES_TYPES, PRESTATIONS } from './fond';
 import {
-  ajouterJours, arrondir, centimes, compter, ecartJours, graineDe, hasard, instantParis, iso, lundiDe, tva, type Hasard, type Jour,
+  ajouterJours, arrondir, centimes, compter, debutDeMois, ecartJours, graineDe, hasard, instantParis, iso, lundiDe, tva, type Hasard, type Jour,
 } from './outils';
 import type {
   Abonnement, CompteBancaire, Contexte, Contrat, Depense, Devis, Enveloppe, Facture, FicheClient, Membre, Mouvement, Paiement,
@@ -55,6 +55,9 @@ export function statutAffiche(f: Pick<Facture, 'status' | 'dueAt'>, aujourdhui: 
 
 /* -------------------------------- Devis -------------------------------- */
 
+/** Les taux de TVA des lignes : surtout 20 %, un peu de 10 % (travaux, restauration) et de 5,5 % (livres, alimentation). */
+const tauxDeTva = (h: Hasard): number => h.pondere([[20, 86], [10, 9], [5.5, 5]] as const);
+
 function lignesAleatoires(h: Hasard, nombre: number): InvoiceLine[] {
   const uniques = PRESTATIONS.filter((p) => p[2] === null);
   return h.echantillon(uniques, nombre).map(([libelle, prix], k) => ({
@@ -62,7 +65,7 @@ function lignesAleatoires(h: Hasard, nombre: number): InvoiceLine[] {
     label: libelle,
     quantity: h.pondere([[1, 7], [2, 2], [3, 1]] as const),
     unitPriceCents: arrondir(centimes(prix * h.choix([0.9, 1, 1, 1.1])), 1000),
-    vatRate: 20,
+    vatRate: tauxDeTva(h),
   }));
 }
 
@@ -80,7 +83,7 @@ function lignesFacture(h: Hasard): InvoiceLine[] {
     label: libelle,
     quantity: h.pondere([[1, 5], [2, 2], [3, 2], [6, 1]] as const),
     unitPriceCents: centimes(prix),
-    vatRate: 20,
+    vatRate: tauxDeTva(h),
   }));
 }
 
@@ -207,8 +210,8 @@ export function genererFactures(ctx: Contexte, clients: readonly FicheClient[], 
     if (manque > 0) {
       // 1. de préférence une facture réglée il y a peu, redevenue impayée ; 2. sinon n'importe quelle facture réglée plus ancienne ;
       // 3. sinon une facture libre non encore échue, ramenée dans le passé.
-      // Les règlements de la semaine en cours et de la précédente (animerLaSemaine, encaisseAujourdhui) restent réglés.
-      const intouchables = ajouterJours(lundiDe(ctx.aujourdhui), -7);
+      // Les règlements du mois précédent et de ce mois-ci (animerLaSemaine, encaisseAujourdhui) restent réglés.
+      const intouchables = debutDeMois(ajouterJours(debutDeMois(ctx.aujourdhui), -1));
       const payees = brutes.filter((f) => f.status === 'paid' && f.paidAt < intouchables && f.dueAt <= ajouterJours(ctx.aujourdhui, -2)).sort((a, b) => b.dueAt.localeCompare(a.dueAt));
       const recentes = payees.filter((f) => f.dueAt >= ajouterJours(ctx.aujourdhui, -45));
       const choisies = [...recentes, ...payees.filter((f) => !recentes.includes(f))].slice(0, manque);
@@ -251,7 +254,10 @@ export function genererFactures(ctx: Contexte, clients: readonly FicheClient[], 
     const jours = [ajouterJours(lundi, 0), ajouterJours(lundi, 2), ajouterJours(lundi, -7 + 1), ajouterJours(lundi, -7 + 3)].filter((j) => j <= ctx.aujourdhui);
     const cette = jours.filter((j) => j >= lundi).slice(0, parSemaine);
     const avant = jours.filter((j) => j < lundi).slice(0, parSemaine);
-    for (const j of [...cette, ...avant]) {
+    // H25 (« +9 % ce mois ») et G08 comparent le mois à la même date du mois d'avant : le mois précédent a ses règlements, tôt dans le mois.
+    const debutPrecedent = debutDeMois(ajouterJours(debutDeMois(ctx.aujourdhui), -1));
+    const moisPrecedent = [ajouterJours(debutPrecedent, 1), ajouterJours(debutPrecedent, 4)].slice(0, parSemaine);
+    for (const j of [...cette, ...avant, ...moisPrecedent]) {
       if (brutes.filter((f) => f.status === 'paid' && f.paidAt === j).length > 0) continue;
       const f = brutes.find((x) => x.status === 'issued' && x.issuedAt !== '' && x.issuedAt <= j && x.quoteId === null);
       if (f) Object.assign(f, { status: 'paid', paidAt: j, paymentMethod: 'virement', updatedAt: iso(instantParis(j, '12:00')) });
@@ -341,7 +347,7 @@ export function genererDepenses(ctx: Contexte, equipe: readonly Membre[]): Depen
     const age = Math.floor(h.reel() ** 1.15 * 365);
     const jour = ajouterJours(ctx.aujourdhui, -age);
     const montant = arrondir(centimes(moyen * h.choix([0.6, 0.85, 1, 1, 1.2, 1.7, 2.6])), 10);
-    const taux = categorie === 'deplacement' && h.chance(0.3) ? 10 : 20;
+    const taux = categorie === 'deplacement' && h.chance(0.3) ? 10 : categorie === 'autre' && h.chance(0.4) ? 5.5 : 20;
     const recent = age <= 30;
     const justifie = h.chance(recent ? 0.55 : 0.93);
     const noteDeFrais = h.chance(0.25);
@@ -456,6 +462,7 @@ export function genererComptes(ctx: Contexte): CompteBancaire[] {
     soldeCents: 0,
     synchroniseLe: iso(ctx.maintenant - h.entier(10, 50) * 60_000),
     accesLectureSeule: true,
+    historique: [],
   }));
 }
 
@@ -474,7 +481,7 @@ export function genererMouvements(
   const h = hasard(graineDe(ctx.graine, 'mouvements'));
   if (comptes.length === 0) return [];
   const principal = comptes[0];
-  const liste: Omit<Mouvement, 'id'>[] = [];
+  const liste: Omit<Mouvement, 'id' | 'echue'>[] = [];
   const il = ajouterJours(ctx.aujourdhui, -150);
 
   for (const p of paiements) {
@@ -536,12 +543,29 @@ export function genererMouvements(
   const reels = liste.filter((m) => m.reel).sort((a, b) => b.date.localeCompare(a.date)).slice(0, cap);
   // Les prévus couvrent quatre mois (l'horizon de 90 jours de H09) : leur plafond suit.
   const prevus = liste.filter((m) => !m.reel).sort((a, b) => a.date.localeCompare(b.date)).slice(0, Math.ceil(cap * 1.6));
-  const tous = [...reels, ...prevus].sort((a, b) => b.date.localeCompare(a.date)).map((m, i) => ({ ...m, id: `mv-${String(i + 1).padStart(4, '0')}` }));
+  // Un encaissement attendu est « échu » quand la facture qu'il attend l'est déjà (H09, MA07).
+  const echues = new Set(factures.filter((f) => f.status === 'issued' && f.dueAt < ctx.aujourdhui).map((f) => f.id));
+  const tous: Mouvement[] = [...reels, ...prevus]
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .map((m, i) => ({ ...m, id: `mv-${String(i + 1).padStart(4, '0')}`, echue: !m.reel && m.nature === 'Encaissement attendu' && m.lien.type === 'facture' && echues.has(m.lien.id ?? '') }));
 
   // Soldes : le compte principal vaut la cible, ses mouvements réels y mènent ; les autres comptes sont des montants fixes.
   const cible = centimes(h.entier(14, 38) * 1000 + h.entier(0, 99) * 10);
   principal.soldeCents = cible;
   for (const c of comptes.slice(1)) c.soldeCents = centimes(h.entier(2, 60) * 1000 + h.entier(0, 99) * 10);
+  // L'historique de chaque compte : le solde d'aujourd'hui, puis on retire jour après jour ce que les mouvements réels ont apporté.
+  for (const c of comptes) {
+    const parJour = new Map<Jour, number>();
+    for (const m of tous) if (m.reel && m.compteId === c.id) parJour.set(m.date, (parJour.get(m.date) ?? 0) + m.montantCents);
+    let solde = c.soldeCents;
+    const serie: { jour: Jour; soldeCents: number }[] = [];
+    for (let k = 0; k < 90; k += 1) {
+      const jour = ajouterJours(ctx.aujourdhui, -k);
+      serie.push({ jour, soldeCents: solde });
+      solde -= parJour.get(jour) ?? 0;
+    }
+    c.historique = serie.reverse();
+  }
   return tous;
 }
 
@@ -565,6 +589,9 @@ export function genererEnveloppes(ctx: Contexte, equipe: readonly Membre[], depe
   const responsables = equipe.filter((m) => m.role === 'Administrateur' || m.role === 'Membre');
   const mois = ctx.aujourdhui.slice(0, 7);
   const depuis = ajouterJours(ctx.aujourdhui, -180);
+  // Les six derniers mois, le mois courant en dernier.
+  const moisPrecedents: string[] = [mois];
+  for (let k = 1; k < 6; k += 1) moisPrecedents.unshift(ajouterJours(`${moisPrecedents[0]}-01`, -1).slice(0, 7));
   return ENVELOPPES.slice(0, n).map(([nom, description, categorie, icone], i) => {
     const total = depenses.filter((d) => d.category === categorie && d.spentAt >= depuis).reduce((s, d) => s + d.amountCents, 0);
     const moyenne = total / 6;
@@ -577,6 +604,7 @@ export function genererEnveloppes(ctx: Contexte, equipe: readonly Membre[], depe
       responsables: h.echantillon(responsables, Math.min(responsables.length, h.entier(1, 2))).map((m) => m.email),
       categories: [categorie],
       mois,
+      historique: moisPrecedents.map((m) => ({ mois: m, depenseCents: depenses.filter((d) => d.category === categorie && d.spentAt.startsWith(m)).reduce((s, d) => s + d.amountCents, 0) })),
     };
   });
 }

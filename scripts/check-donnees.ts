@@ -74,6 +74,9 @@ const D = await loadFromSrc<{
   attendusCockpit: (m: MondeBrut) => Attendu;
   attendusTableauDeBord: (m: MondeBrut, o?: Record<string, unknown>) => Attendu;
   PALIERS_DE_SERIE: readonly number[];
+  calculerNps: (a: unknown) => number | null;
+  instantParis: (jour: string, hhmm?: string) => number;
+  RAISONS_DE_PERTE: readonly string[];
   genererOrganisationsDeCharge: (o?: { graine?: number; nombre?: number }) => ChargeOrg[];
   choisirConnectees: (o: ChargeOrg[], n: number, graine?: number) => ChargeOrg[];
   emailDuMembre: (o: { domaine: string; effectif: number }, rang: number) => string;
@@ -99,6 +102,7 @@ const vide = D.construireMonde({ volume: 'vide' });
 const jours = (m: MondeBrut): string => m.contexte.aujourdhui;
 const joursCyber = (m: MondeBrut): string => m.contexte.aujourdhuiCyber;
 const aujourdhuiDe = jours;
+const estCourrielFictifLocal = (c: string): boolean => /@[a-z0-9.-]+\.exemple\.test$/.test(c);
 const str = (x: unknown): string => String(x ?? '');
 const num = (x: unknown): number => Number(x);
 
@@ -1308,6 +1312,119 @@ dit('les cas attendus par H04, H25 et G08 existent aussi pour 12 graines', () =>
     assert.equal(b.semaineProchaine.suggere, true, `graine ${graine} : suggestion de la semaine prochaine`);
     assert.ok(D.attendusPrevisions(n).entreesAttendues.nombre > 0 && D.attendusCockpit(n).nouveauxClientsActifs >= 1, `graine ${graine} : entrées attendues, nouveaux clients actifs`);
   }
+});
+
+console.log('  — Les champs que les lots réclament (« Manque aux données »)');
+
+dit('LOT-02 : les partenaires ont leurs référents, les avis un sentiment et un NPS, les prospects perdus une raison', () => {
+  for (const [nom, m] of [['normal', normal], ['beaucoup', gros]] as const) {
+    const ids = new Set(m.partenaires.map((p) => str(p.id)));
+    const deLaListe = m.interlocuteurs.filter((i) => i.organisationType === 'partenaire');
+    assert.ok(deLaListe.length > 0 && deLaListe.every((i) => ids.has(str(i.organisationId))), `${nom} : des interlocuteurs de type partenaire, tous rattachés à un partenaire`);
+    assert.ok(m.partenaires.every((p) => deLaListe.some((i) => i.organisationId === p.id)), `${nom} : chaque partenaire a au moins un référent`);
+    assert.ok(deLaListe.every((i) => estCourrielFictifLocal(str(i.email))), `${nom} : courriels fictifs`);
+    for (const a of m.avis) assert.equal(a.sentiment, num(a.noteSur5) >= 4 ? 'positif' : num(a.noteSur5) === 3 ? 'neutre' : 'négatif', `${nom} : sentiment d’un avis`);
+    const recos = m.avis.map((a) => a.recommandation).filter((r): r is number => typeof r === 'number');
+    const promoteurs = recos.filter((r) => r >= 9).length;
+    const detracteurs = recos.filter((r) => r <= 6).length;
+    assert.equal(D.calculerNps(m.avis), Math.round(((promoteurs - detracteurs) / recos.length) * 100), `${nom} : NPS`);
+    for (const p of m.prospects) {
+      assert.equal(p.raisonPerte !== null, p.perduLe !== null && p.etape === 'perdu', `${nom} : raison de perte ⇔ prospect perdu`);
+      if (p.raisonPerte !== null) assert.ok(D.RAISONS_DE_PERTE.includes(str(p.raisonPerte)));
+    }
+    assert.ok(m.prospects.some((p) => p.etape === 'perdu') && new Set(m.prospects.filter((p) => p.raisonPerte).map((p) => p.raisonPerte)).size >= (nom === 'normal' ? 1 : 2), `${nom} : des raisons de perte`);
+    assert.ok(new Set(m.avis.map((a) => a.sentiment)).size === 3, `${nom} : les trois sentiments existent`);
+  }
+  assert.equal(D.calculerNps([]), null);
+  assert.equal(D.calculerNps([{ recommandation: 10 }, { recommandation: 9 }, { recommandation: 7 }, { recommandation: 3 }]), 25, '2 promoteurs, 1 détracteur, 1 passif : (2 − 1) / 4');
+  assert.equal(D.calculerNps([{ recommandation: null }]), null);
+});
+
+dit('LOT-04 : régime de TVA, taux à 10 et 5,5 %, historique des soldes et des enveloppes, encaissements échus', () => {
+  const id = normal.entreprise.identite as Lien;
+  assert.ok(['Réel normal', 'Réel simplifié', 'Franchise en base'].includes(str(id.regimeTva)));
+  assert.equal(id.vatExempt, id.regimeTva === 'Franchise en base', 'franchise en base ⇔ exonéré de TVA');
+  for (const [nom, m] of [['normal', normal], ['beaucoup', gros]] as const) {
+    const taux = new Set(m.factures.flatMap((f) => (f.lines as Lien[]).map((l) => num(l.vatRate))));
+    assert.ok(taux.has(20) && taux.has(10) && taux.has(5.5), `${nom} : des lignes à 20, 10 et 5,5 %`);
+    for (const f of m.factures) { const t = D.totauxDeFacture(f); assert.equal(t.htCents + t.tvaCents, t.ttcCents); }
+    assert.ok(m.depenses.some((d) => num(d.tvaCents) > 0 && Math.abs(num(d.tvaCents) - Math.round((num(d.amountCents) * 5.5) / 105.5)) <= 1), `${nom} : une dépense à 5,5 %`);
+    for (const c of m.comptes) {
+      const h = c.historique as Lien[];
+      assert.equal(h.length, 90, `${nom} : 90 jours d’historique`);
+      assert.equal(num(h[89].soldeCents), num(c.soldeCents), `${nom} : le dernier point est le solde`);
+      assert.equal(str(h[89].jour), aujourdhuiDe(m));
+      for (let k = 1; k < h.length; k += 1) {
+        assert.equal(D.ecartJours(str(h[k - 1].jour), str(h[k].jour)), 1, 'jours consécutifs');
+        const jour = str(h[k].jour);
+        const bouge = m.mouvements.filter((x) => x.reel && x.compteId === c.id && str(x.date) === jour).reduce((s, x) => s + num(x.montantCents), 0);
+        assert.equal(num(h[k].soldeCents) - num(h[k - 1].soldeCents), bouge, `${nom} : la variation du ${jour} = les mouvements réels du jour`);
+      }
+    }
+    for (const e of m.enveloppes) {
+      const h = e.historique as Lien[];
+      assert.equal(h.length, 6);
+      assert.equal(str(h[5].mois), aujourdhuiDe(m).slice(0, 7), 'le dernier mois est le mois courant');
+      for (let k = 1; k < 6; k += 1) assert.equal(D.ecartJours(`${str(h[k - 1].mois)}-01`, `${str(h[k].mois)}-01`) >= 28 && D.ecartJours(`${str(h[k - 1].mois)}-01`, `${str(h[k].mois)}-01`) <= 31, true, 'mois consécutifs');
+      for (const mois of h) assert.equal(num(mois.depenseCents), m.depenses.filter((d) => (e.categories as string[]).includes(str(d.category)) && str(d.spentAt).startsWith(str(mois.mois))).reduce((s, d) => s + num(d.amountCents), 0), `${nom} : dépensé du mois ${str(mois.mois)}`);
+    }
+    const echues = new Set(m.factures.filter((f) => f.status === 'issued' && str(f.dueAt) < aujourdhuiDe(m)).map((f) => f.id));
+    for (const x of m.mouvements) {
+      const lien = x.lien as Lien;
+      assert.equal(x.echue, x.reel === false && x.nature === 'Encaissement attendu' && lien.type === 'facture' && echues.has(str(lien.id)), `${nom} : échue ⇔ encaissement attendu d’une facture échue`);
+    }
+    assert.ok(m.mouvements.some((x) => x.echue) && m.mouvements.some((x) => x.nature === 'Encaissement attendu' && !x.echue), `${nom} : des encaissements échus et d’autres à venir`);
+  }
+});
+
+dit('LOT-06 : commandes (création, échéance, livraison, paiement en ligne), tournées (trajets, sur place), équipements (entretien, contrôle, réforme)', () => {
+  for (const [nom, m] of [['normal', normal], ['beaucoup', gros]] as const) {
+    for (const c of m.commandes) {
+      assert.equal(D.jourDe(Date.parse(str(c.creeAt))), str(c.creeLe), `${nom} : creeAt tombe le jour de creeLe`);
+      assert.ok(Date.parse(str(c.creeAt)) <= m.contexte.maintenant, `${nom} : commande créée dans le futur`);
+      assert.match(str(c.heureEcheance), /^\d{2}:\d{2}$/);
+      assert.equal(c.livreeLe !== null, c.preparation === 'Remise', `${nom} : livrée ⇔ remise`);
+      if (c.livreeLe !== null) assert.ok(str(c.livreeLe) >= str(c.creeLe) && str(c.livreeLe) <= aujourdhuiDe(m), `${nom} : date de livraison`);
+      if (c.paiementEnLigne) assert.ok(c.paiement === 'Payé' && c.remise !== 'Retrait', `${nom} : paiement en ligne`);
+    }
+    assert.ok(m.commandes.some((c) => c.paiementEnLigne) && m.commandes.some((c) => c.livreeLe !== null) && m.commandes.some((c) => c.livreeLe === null), `${nom} : les cas existent`);
+    const parJour = new Map<string, Lien[]>();
+    for (const e of m.etapesTournee) parJour.set(str(e.jour), [...(parJour.get(str(e.jour)) ?? []), e]);
+    for (const e of m.etapesTournee) {
+      assert.ok(Number.isInteger(num(e.trajetMin)) && num(e.trajetMin) >= 10 && num(e.distanceKm) >= 1, `${nom} : trajet`);
+      if (num(e.ordre) === 1) assert.equal(e.trajetMin, 15, 'depuis le dépôt');
+      // L'état d'une étape du jour se déduit de l'heure : fait, sur place, en route (trajet entamé) ou à faire.
+      if (str(e.jour) === aujourdhuiDe(m)) {
+        const arrivee = D.instantParis(str(e.jour), str(e.arriveePrevue));
+        const fin = arrivee + num(e.dureeMin) * 60_000;
+        const maintenant = m.contexte.maintenant;
+        const attendu = fin <= maintenant ? 'Fait' : arrivee <= maintenant ? 'Sur place' : arrivee - num(e.trajetMin) * 60_000 <= maintenant ? 'En route' : 'À faire';
+        assert.equal(e.etat, attendu, `${nom} : état de l’étape ${str(e.id)}`);
+      }
+      if (e.etat === 'En route' || e.etat === 'Sur place' || e.etat === 'Fait') assert.equal(str(e.jour), aujourdhuiDe(m), `${nom} : seule la tournée du jour a avancé`);
+    }
+    for (const e of m.equipements) {
+      assert.ok(str(e.dernierEntretienLe) <= aujourdhuiDe(m) && str(e.dernierControleLe) >= str(e.dernierEntretienLe) && str(e.dernierControleLe) <= aujourdhuiDe(m), `${nom} : entretien puis contrôle`);
+      assert.equal(str(e.prochainEntretienLe), D.jourDe(Date.parse(`${str(e.dernierEntretienLe)}T12:00:00Z`) + num(e.periodiciteMois) * 30 * 86_400_000), `${nom} : le prochain entretien découle du dernier`);
+      assert.equal(e.reformeLe !== null, e.statut === 'Au rebut', `${nom} : réformé ⇔ au rebut`);
+      if (e.reformeLe !== null) assert.ok(str(e.reformeLe) >= str(e.achatLe) && str(e.reformeLe) <= aujourdhuiDe(m));
+    }
+  }
+  assert.ok(normal.etapesTournee.some((e) => e.etat === 'Sur place' || e.etat === 'En route' || e.etat === 'Fait'), 'la tournée du jour est entamée');
+  // Au fil de la matinée, une étape passe de « À faire » à « En route », « Sur place » puis « Fait » : les quatre états existent, et la règle tient à chaque instant.
+  const vus = new Set<string>();
+  for (let minutes = 7 * 60 + 30; minutes <= 13 * 60; minutes += 10) {
+    const hhmm = `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
+    const maintenant = D.instantParis('2026-10-30', hhmm);
+    const m = D.construireMonde({ volume: 'normal', maintenant });
+    for (const e of m.etapesTournee.filter((x) => str(x.jour) === '2026-10-30')) {
+      const arrivee = D.instantParis('2026-10-30', str(e.arriveePrevue));
+      const attendu = arrivee + num(e.dureeMin) * 60_000 <= maintenant ? 'Fait' : arrivee <= maintenant ? 'Sur place' : arrivee - num(e.trajetMin) * 60_000 <= maintenant ? 'En route' : 'À faire';
+      assert.equal(e.etat, attendu, `à ${hhmm} : étape ${str(e.id)}`);
+      vus.add(str(e.etat));
+    }
+  }
+  assert.deepEqual([...vus].sort(), ['En route', 'Fait', 'Sur place', 'À faire'], 'les quatre états apparaissent dans la matinée');
 });
 
 console.log('  — LOT-14 : la charge');
