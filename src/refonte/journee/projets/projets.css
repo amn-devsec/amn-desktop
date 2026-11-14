@@ -111,3 +111,5 @@
 .sc-pj-astuce p { margin: 6px 0 0; line-height: 1.5; }
 @media (prefers-reduced-motion: reduce) { .sc-pj-lien path { animation: none; } }
 @media (max-width: 1279px) { .sc-pj-bas { grid-template-columns: minmax(0, 1fr); flex: 0 0 auto; } .sc-pj-corps { overflow-x: auto; } }
+.sc-pj-finir .sc-ludique__lignes li { min-height: 36px; }
+.sc-ct-cibles .sc-pj-finir .sc-case::after { height: 36px; }
