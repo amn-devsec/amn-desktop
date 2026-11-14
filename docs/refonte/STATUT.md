@@ -16,13 +16,13 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 | T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | passage 2 fini : socle fusionné (§1.35) | C-008 (gardes sous la coquille v4), puis `check:fidelite` sur chaque lot, priorité 2 |
 | S6 Sécurité | `session_01RHV8Xq2txWkfjAusKvq9DG` | LOT-07 préparation (`afdbccf`) ; **sans zips v4** ; une étape de sécurité attend amn-api | fusion après le contrôle du paquet client par T1 |
 | SIM | `session_011UF2ufZg9moGv2rRZFRuf7` | tout fusionné (`b0173f3`, 115 jeux) ; **sans dossier v4** | listes « Manque aux données » des lots à venir |
-| DS | `session_01TZGDvVWristJnnPK59rruY` | LOT-04 avec les avoirs, fusionné (§1.34) | appliquer §1.33, comparer H09 aux attendus de SIM |
-| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | LOT-03, registre et LOT-05 fusionnés (§1.32) | attend le socle v4 |
-| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | LOT-02 relu avec le v4 et fusionné (§1.31) ; a les zips | attend le socle v4 |
-| S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | préparation v4 fusionnée (`526cd63`) | attend le socle v4 |
-| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | en pause ; ses jeux sont livrés par SIM | feu vert de l'étape 3 au socle v4 |
+| DS | `session_01TZGDvVWristJnnPK59rruY` | **construit LOT-04** | lots de 3 à 5 écrans → T1 → fusion |
+| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | **construit LOT-03, puis LOT-05** | lots de 3 à 5 écrans → T1 → fusion |
+| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **construit LOT-02** (feu vert le 14 nov., 08h) | lots de 3 à 5 écrans → `check:fidelite` de T1 → fusion |
+| S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **construit LOT-06** | lots de 3 à 5 écrans → T1 → fusion |
+| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | **construit LOT-11** (étape 3) | lots de 3 à 5 écrans → T1 → fusion |
 | S9 | `session_01C5DAVygXYax6Q7g436TPQx` | LOT-12 fini, valeurs de MC07 fusionnées (`bcdc65f`) | rien |
-| S2, S3 (première tâche : `check:encres`), F1 | `session_014ZkF6SeGRNi6NR3uEsjM5q`, `session_01FBSpK6n1yYtYXYyxbLAuBV`, `session_01VZHqP3gvzrtnpgsTrrKguV` | arrêtées | relancer au socle v4 (prompts : `PROMPTS-11NOV.md`, §1.21) |
+| S2, S3 (première tâche : `check:encres`), F1 — **relancés le 14 nov., 08h** | `session_014ZkF6SeGRNi6NR3uEsjM5q`, `session_01FBSpK6n1yYtYXYyxbLAuBV`, `session_01VZHqP3gvzrtnpgsTrrKguV` | arrêtées | relancer au socle v4 (prompts : `PROMPTS-11NOV.md`, §1.21) |
 
 **À dire au prochain message** : à T1, (a) La Garde dans l'API d'essai demande une base sur fichier (SIM), (b) comparer le paquet client de `claude/refonte-outils` @ `f52ef5d` (`AutomationsRunner.tsx` partagé) avant sa fusion.
 
