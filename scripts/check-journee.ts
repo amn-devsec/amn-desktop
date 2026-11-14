@@ -274,14 +274,52 @@ await dit('G08 : le cockpit calculé égale `attendusCockpit`, aux quatre volume
       factures: m.factures,
       tickets: m.tickets,
       connecteurs: m.connecteurs,
+      objectifMrrCents: m.entreprise.reglages.objectifMrrCents,
+      connexions: m.utilisateursConnectes,
     });
     const { manque: _a, ...a } = attendu;
     const { manque: _c, ...c } = calcule;
     assert.deepEqual(c, a, nom);
-    assert.equal(calcule.objectifDuMois, null);
-    assert.equal(calcule.utilisateursConnectes, null);
-    assert.ok(calcule.manque.length === 2, 'les deux chiffres absents sont dits, pas inventés');
+    // Une donnée absente est dite dans `manque` (SIM n'a pas de champ pour cela) ; présente, elle n'y figure pas.
+    assert.equal(calcule.manque.some((x: string) => x.startsWith('Objectif du mois')), calcule.objectifDuMois === null, `${nom} : objectif`);
+    assert.equal(calcule.manque.some((x: string) => x.startsWith('Utilisateurs connectés')), calcule.utilisateursConnectes === null, `${nom} : connectés`);
   }
+});
+
+await dit('G08 : l’objectif du mois — anneau arrondi, « plus que… » jamais négatif, rythme en jours, atteint à l’égalité, absent sans réglage', () => {
+  // Octobre 2026 : 31 jours. Le 15, à mi-objectif, on est pile au rythme (0,5 × 31 − 15 = 0,5 → arrondi 1).
+  const o = (jour: string, mrr: number, obj: number | null | undefined) => L.objectifDuMois(jour, mrr, obj);
+  assert.deepEqual(o('2026-10-15', 5000, 10000), { objectifCents: 10000, mrrCents: 5000, resteCents: 5000, partPourcent: 50, ecartDeRythmeJours: 1, atteint: false });
+  assert.equal(o('2026-10-30', 9999, 10000)?.atteint, false, 'un centime avant : pas atteint');
+  assert.equal(o('2026-10-30', 10000, 10000)?.atteint, true, 'à l’égalité : atteint');
+  assert.equal(o('2026-10-30', 12500, 10000)?.resteCents, 0, '« plus que » ne descend pas sous zéro');
+  assert.equal(o('2026-10-30', 12500, 10000)?.partPourcent, 125, 'l’anneau peut dépasser 100');
+  assert.equal(o('2026-10-10', 1000, 10000)?.ecartDeRythmeJours, -7, 'en retard de 7 jours (0,1 × 31 − 10 = −6,9)');
+  assert.equal(o('2026-02-14', 5000, 10000)?.ecartDeRythmeJours, 0, 'février 2026 : 28 jours, 0,5 × 28 − 14 = 0');
+  assert.equal(o('2028-02-14', 5000, 10000)?.ecartDeRythmeJours, 1, 'février 2028 : 29 jours (bissextile), 0,5 × 29 − 14 = 0,5');
+  assert.equal(o('2026-10-15', 5000, 0), null);
+  assert.equal(o('2026-10-15', 5000, null), null);
+  assert.equal(o('2026-10-15', 5000, undefined), null);
+  assert.equal(o('2026-10-15', 5000, -5), null, 'un objectif négatif n’est pas un objectif');
+});
+
+await dit('G08 : les utilisateurs connectés — sept derniers jours connus, aujourd’hui en dernier, le futur ne compte pas, vide : absent', () => {
+  const c = (jour: string, connectes: number) => ({ jour, connectes });
+  const dix = Array.from({ length: 10 }, (_, i) => c(L.ajouterJours('2026-10-21', i), i + 1)); // du 21 au 30 octobre
+  const r = L.connexionsDeLaSemaine('2026-10-30', [...dix].reverse());
+  assert.deepEqual(r?.parJour.map((x: any) => x.jour), ['2026-10-24', '2026-10-25', '2026-10-26', '2026-10-27', '2026-10-28', '2026-10-29', '2026-10-30']);
+  assert.equal(r?.aujourdhui, 10, 'le dernier jour est aujourd’hui');
+  assert.equal(L.connexionsDeLaSemaine('2026-10-27', dix)?.aujourdhui, 7, 'le 28, le 29 et le 30 sont à venir : on s’arrête au 27');
+  assert.equal(L.connexionsDeLaSemaine('2026-10-20', dix), null, 'rien d’avant le 21 : pas de série');
+  assert.equal(L.connexionsDeLaSemaine('2026-10-30', []), null);
+  assert.equal(L.connexionsDeLaSemaine('2026-10-30', undefined), null);
+  assert.equal(L.connexionsDeLaSemaine('2026-10-22', dix)?.parJour.length, 2, 'moins de sept jours connus : on en rend moins, sans inventer');
+  // Sans la donnée dans l'entrée, le cockpit le dit.
+  const m = mondes.normal;
+  const sans = L.cockpitDuClient({ aujourdhui: m.contexte.aujourdhui, abonnements: m.abonnements, paiements: m.paiements, clients: m.clients, factures: m.factures, tickets: m.tickets, connecteurs: m.connecteurs });
+  assert.equal(sans.objectifDuMois, null);
+  assert.equal(sans.utilisateursConnectes, null);
+  assert.equal(sans.manque.length, 2, 'les deux chiffres absents sont dits, pas inventés');
 });
 
 await dit('G08 : un abonnement est actif un jour donné — commencé, et actif ou résilié plus tard (les limites du jour même)', () => {
