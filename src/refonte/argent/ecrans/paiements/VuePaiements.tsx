@@ -1,5 +1,5 @@
 import React, { useId, useMemo } from 'react';
-import { Link2, RefreshCw, Settings, Sparkles } from 'lucide-react';
+import { Link2, RefreshCw, Scale, Settings, Sparkles } from 'lucide-react';
 import { PageHead } from '../../../../socle/ui/archetypes';
 import { AnneauProgression, BarreProgression, Bouton, Chargement, EtatVide, PastilleEtat, Squelette, type EtatPastille } from '../../../../socle/ui';
 import { LiveDot } from '../../../../socle/ui/vivant';
@@ -71,6 +71,8 @@ export interface VuePaiementsProps {
   enLigne: boolean;
   /** Vrai si la personne peut créer et envoyer des liens. */
   peutEcrire: boolean;
+  /** Le Comparateur de devis de l'Atelier (F1), s'il est intégré : un lien, rien d'autre (STATUT §1.33 n° 4). */
+  comparateur?: { ouvrir: () => void } | null;
   actions: ActionsPaiements;
 }
 
@@ -101,7 +103,7 @@ function quand(iso: string, aujourdhui: Jour, tm: (c: CleMotsPaiements) => strin
   return formaterDate(iso, { day: 'numeric', month: 'short' }, locale);
 }
 
-export function VuePaiements({ statut, connexion, paiements, versements, maintenant, majLe, enLigne, peutEcrire, actions }: VuePaiementsProps) {
+export function VuePaiements({ statut, connexion, paiements, versements, maintenant, majLe, enLigne, peutEcrire, comparateur = null, actions }: VuePaiementsProps) {
   const { tm, langue } = useMots();
   const locale = langue === 'en' ? 'en-GB' : 'fr-FR';
   const id = useId();
@@ -128,7 +130,10 @@ export function VuePaiements({ statut, connexion, paiements, versements, mainten
         className="ar-entete"
         titre={tm('page.titre')}
         sousTitre={sousTitre}
-        secondaires={[{ libelle: tm('page.reglages'), icone: <Settings aria-hidden size={14} />, onClick: actions.reglages }]}
+        secondaires={[
+          ...(comparateur ? [{ libelle: tm('page.comparateur'), icone: <Scale aria-hidden size={14} />, onClick: comparateur.ouvrir }] : []),
+          { libelle: tm('page.reglages'), icone: <Settings aria-hidden size={14} />, onClick: actions.reglages },
+        ]}
         primaire={peutEcrire && connexion.etat !== 'non-connecte' ? { libelle: tm('page.creerLien'), icone: <Link2 aria-hidden size={14} />, onClick: actions.creerLien, disabled: !enLigne } : undefined}
       />
 

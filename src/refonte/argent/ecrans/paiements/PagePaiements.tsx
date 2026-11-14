@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { VuePaiements } from './VuePaiements';
+import { lienAtelier } from '../commun/atelier';
 
 /**
  * MA03 · PAIEMENTS EN LIGNE — la page branchée, montée à la place de `/acompte` (substitution de LOT-04).
@@ -25,6 +26,7 @@ export default function PagePaiements() {
   const [majLe] = useState(() => new Date().toISOString());
   const enLigne = typeof navigator === 'undefined' ? true : navigator.onLine !== false;
   const rien = () => undefined;
+  const comparateur = lienAtelier('comparateurDevis');
   return (
     <VuePaiements
       statut="pret"
@@ -35,6 +37,7 @@ export default function PagePaiements() {
       majLe={majLe}
       enLigne={enLigne}
       peutEcrire={false}
+      comparateur={comparateur ? { ouvrir: () => navigate(comparateur.vers) } : null}
       actions={{ creerLien: rien, reglages: () => navigate('/settings'), envoyerLien: rien, ouvrir: rien, reessayer: rien }}
     />
   );
