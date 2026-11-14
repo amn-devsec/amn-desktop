@@ -21,4 +21,7 @@ export default declarerSubstitutions('contacts', [
 
   // H06 — Prospects : le nuage intérêt × montant. « Colonnes » et la création restent servies par l'écran d'origine (`useOutlet`).
   { route: '/pipeline', composant: lazy(() => import('../../contacts/prospects/PageProspects')) },
+
+  // H44 — Retours clients : la jauge, les thèmes et le mur. « Demander un avis » passe par l'écran d'origine (`useOutlet`).
+  { route: '/avis', composant: lazy(() => import('../../contacts/retours/PageRetours')) },
 ]);

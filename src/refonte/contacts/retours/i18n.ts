@@ -1,0 +1,158 @@
+import { definirMots } from '../../../socle/mots';
+
+/**
+ * LES MOTS DE « RETOURS CLIENTS » (H44), fr et en. L'anglais est le schéma, le français est typé contre lui. Tutoiement
+ * (dossier v4, `_data/tutoiement.json`). Les comptes : `<base>.1` (0 et 1), `<base>.n` (2 et plus).
+ */
+const EN = {
+  'titre': 'Customer feedback',
+  'sousTitre': 'What your clients really think · {pos} positive reviews out of {n}',
+  'sousTitre.repondre.1': ', {n} is waiting for an answer',
+  'sousTitre.repondre.n': ', {n} are waiting for an answer',
+  'sousTitre.aucun': 'No review in the last 12 months yet',
+  'action.exporter': 'Export',
+  'action.demander': 'Ask for a review',
+
+  'reco.titre': 'Recommendation',
+  'reco.avis': '{n} reviews · 12 months',
+  'reco.sur': 'out of 100',
+  'reco.libelle.excellent': 'Excellent',
+  'reco.libelle.tresBon': 'Very good',
+  'reco.libelle.bon': 'Good',
+  'reco.libelle.aAmeliorer': 'To improve',
+  'reco.libelle.fragile': 'Fragile',
+  'reco.delta.hausse': '+{n} points since {mois}',
+  'reco.delta.baisse': '−{n} points since {mois}',
+  'reco.delta.nul': 'Unchanged since {mois}',
+  'reco.note': 'Average rating',
+  'reco.sur5': 'out of 5',
+  'reco.recommandent': '{n} % recommend',
+  'reco.neutres': '{n} % neutral',
+  'reco.decus': '{n} % disappointed',
+  'reco.jauge': 'Recommendation score {score} out of 100, {libelle}',
+  'reco.repartition': 'Recommend {a} %, neutral {b} %, disappointed {c} %',
+  'reco.courbe': 'Average rating per month, from {debut} to {fin}',
+  'reco.aucun': 'No review yet',
+
+  'themes.titre': 'What comes back',
+  'themes.sous': 'share of positive reviews',
+  'themes.avis.1': '{n} review',
+  'themes.avis.n': '{n} reviews',
+  'themes.indisponible': 'The reviews saved here have no themes yet.',
+  'themes.filtrer': 'Show the reviews about {theme}',
+
+  'collecte.titre': 'Collect reviews',
+  'collecte.indisponible': 'Review requests are not tracked yet: no count and no automatic rule to show.',
+
+  'mur.titre': 'What your clients say',
+  'mur.puces': 'Filter the reviews',
+  'mur.puce.tous': 'All',
+  'mur.puce.aRepondre': 'To answer',
+  'mur.puce.cinqEtoiles': '5 stars',
+  'mur.theme': 'Theme: {theme}',
+  'mur.theme.retirer': 'Remove the theme filter',
+  'mur.tri': 'Most recent',
+  'mur.plus': 'See more reviews',
+  'mur.aucun': 'No review matches.',
+  'mur.aucun.effacer': 'Clear the filters',
+
+  'carte.etoiles': '{n} stars out of 5',
+  'carte.aujourdhui': 'today',
+  'carte.hier': 'yesterday',
+  'carte.jours': '{n} d ago',
+  'carte.ouvrir': 'Review by {client}',
+
+  'repondre.pastille': 'To answer',
+  'repondre.depuis.1': 'for {n} day',
+  'repondre.depuis.n': 'for {n} days',
+  'repondre.facture.n': 'Their invoice {numero} is {jours} days late: answer before sending a reminder.',
+  'repondre.facture.1': 'Their invoice {numero} is {jours} day late: answer before sending a reminder.',
+  'repondre.ajmani': 'Answer with Ajmani',
+  'repondre.aide': 'Nothing is sent without your go-ahead.',
+
+  'etat.vide.titre': 'No review yet',
+  'etat.vide.texte': 'Ask for a first review.',
+  'etat.erreur': 'The reviews could not be loaded.',
+  'etat.reessayer': 'Try again',
+  'etat.chargement': 'Loading the reviews…',
+  'etat.horsLigne': 'You are offline: these are the last saved reviews.',
+} as const;
+
+const FR: Record<keyof typeof EN, string> = {
+  'titre': 'Retours clients',
+  'sousTitre': 'Ce que tes clients pensent vraiment · {pos} avis positifs sur {n}',
+  'sousTitre.repondre.1': ', {n} attend une réponse',
+  'sousTitre.repondre.n': ', {n} attendent une réponse',
+  'sousTitre.aucun': 'Aucun avis sur les 12 derniers mois pour l’instant',
+  'action.exporter': 'Exporter',
+  'action.demander': 'Demander un avis',
+
+  'reco.titre': 'Recommandation',
+  'reco.avis': '{n} avis · 12 mois',
+  'reco.sur': 'sur 100',
+  'reco.libelle.excellent': 'Excellent',
+  'reco.libelle.tresBon': 'Très bon',
+  'reco.libelle.bon': 'Bon',
+  'reco.libelle.aAmeliorer': 'À améliorer',
+  'reco.libelle.fragile': 'Fragile',
+  'reco.delta.hausse': '+{n} points depuis {mois}',
+  'reco.delta.baisse': '−{n} points depuis {mois}',
+  'reco.delta.nul': 'Inchangé depuis {mois}',
+  'reco.note': 'Note moyenne',
+  'reco.sur5': 'sur 5',
+  'reco.recommandent': '{n} % recommandent',
+  'reco.neutres': '{n} % neutres',
+  'reco.decus': '{n} % déçus',
+  'reco.jauge': 'Score de recommandation {score} sur 100, {libelle}',
+  'reco.repartition': 'Recommandent {a} %, neutres {b} %, déçus {c} %',
+  'reco.courbe': 'Note moyenne par mois, de {debut} à {fin}',
+  'reco.aucun': 'Pas encore d’avis',
+
+  'themes.titre': 'Ce qui revient',
+  'themes.sous': 'part d’avis positifs',
+  'themes.avis.1': '{n} avis',
+  'themes.avis.n': '{n} avis',
+  'themes.indisponible': 'Les avis enregistrés ici n’ont pas encore de thème.',
+  'themes.filtrer': 'Voir les avis sur {theme}',
+
+  'collecte.titre': 'Collecter des avis',
+  'collecte.indisponible': 'Les demandes d’avis ne sont pas encore suivies : ni compte, ni règle d’envoi automatique à montrer.',
+
+  'mur.titre': 'Ce que disent tes clients',
+  'mur.puces': 'Filtrer les avis',
+  'mur.puce.tous': 'Tous',
+  'mur.puce.aRepondre': 'À répondre',
+  'mur.puce.cinqEtoiles': '5 étoiles',
+  'mur.theme': 'Thème : {theme}',
+  'mur.theme.retirer': 'Retirer le filtre de thème',
+  'mur.tri': 'Plus récents',
+  'mur.plus': 'Voir plus d’avis',
+  'mur.aucun': 'Aucun avis ne correspond.',
+  'mur.aucun.effacer': 'Effacer les filtres',
+
+  'carte.etoiles': '{n} étoiles sur 5',
+  'carte.aujourdhui': 'aujourd’hui',
+  'carte.hier': 'hier',
+  'carte.jours': 'il y a {n} j',
+  'carte.ouvrir': 'Avis de {client}',
+
+  'repondre.pastille': 'À répondre',
+  'repondre.depuis.1': 'depuis {n} jour',
+  'repondre.depuis.n': 'depuis {n} jours',
+  'repondre.facture.n': 'Sa facture {numero} a {jours} jours de retard : réponds avant de la relancer.',
+  'repondre.facture.1': 'Sa facture {numero} a {jours} jour de retard : réponds avant de la relancer.',
+  'repondre.ajmani': 'Répondre avec Ajmani',
+  'repondre.aide': 'Rien ne part sans ton accord.',
+
+  'etat.vide.titre': 'Pas encore d’avis',
+  'etat.vide.texte': 'Demande un premier avis.',
+  'etat.erreur': 'Les avis n’ont pas pu être chargés.',
+  'etat.reessayer': 'Réessayer',
+  'etat.chargement': 'Chargement des avis…',
+  'etat.horsLigne': 'Tu es hors ligne : voici les derniers avis enregistrés.',
+};
+
+const mots = definirMots(EN, FR);
+export const useMotsRetours = mots.useMots;
+export const traduireRetours = mots.traduire;
+export const DICTIONNAIRES_RETOURS = mots.dictionnaires;

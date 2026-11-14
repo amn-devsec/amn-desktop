@@ -55,9 +55,9 @@ async function charger<T>(code: string): Promise<T> {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const M = await charger<any>(
-  "export * as L from '../src/refonte/contacts';\nexport * as monde from '../src/refonte/donnees';\nexport { DICTIONNAIRES_CONTACTS } from '../src/refonte/contacts/i18n';\nexport * as V from '../src/refonte/connecteurs/reglages';\nexport * as H from '../src/refonte/contacts/hub/modele';\nexport * as N from '../src/refonte/contacts/hub/nuage';\nexport { DICTIONNAIRES_HUB } from '../src/refonte/contacts/hub/i18n';\nexport { depuisMonde } from '../src/refonte/contacts/sources/depuisMonde';\nexport * as C from '../src/refonte/contacts/clients/modele';\nexport { DICTIONNAIRES_CLIENTS } from '../src/refonte/contacts/clients/i18n';\nexport * as G from '../src/refonte/contacts/fiche/modele';\nexport { DICTIONNAIRES_FICHE } from '../src/refonte/contacts/fiche/i18n';\nexport * as P from '../src/refonte/contacts/prospects/modele';\nexport * as PN from '../src/refonte/contacts/prospects/nuage';\nexport { DICTIONNAIRES_PROSPECTS } from '../src/refonte/contacts/prospects/i18n';",
+  "export * as L from '../src/refonte/contacts';\nexport * as monde from '../src/refonte/donnees';\nexport { DICTIONNAIRES_CONTACTS } from '../src/refonte/contacts/i18n';\nexport * as V from '../src/refonte/connecteurs/reglages';\nexport * as H from '../src/refonte/contacts/hub/modele';\nexport * as N from '../src/refonte/contacts/hub/nuage';\nexport { DICTIONNAIRES_HUB } from '../src/refonte/contacts/hub/i18n';\nexport { depuisMonde } from '../src/refonte/contacts/sources/depuisMonde';\nexport * as C from '../src/refonte/contacts/clients/modele';\nexport { DICTIONNAIRES_CLIENTS } from '../src/refonte/contacts/clients/i18n';\nexport * as G from '../src/refonte/contacts/fiche/modele';\nexport { DICTIONNAIRES_FICHE } from '../src/refonte/contacts/fiche/i18n';\nexport * as P from '../src/refonte/contacts/prospects/modele';\nexport * as PN from '../src/refonte/contacts/prospects/nuage';\nexport { DICTIONNAIRES_PROSPECTS } from '../src/refonte/contacts/prospects/i18n';\nexport * as RT from '../src/refonte/contacts/retours/modele';\nexport { DICTIONNAIRES_RETOURS } from '../src/refonte/contacts/retours/i18n';",
 );
-const { L, monde, V, H, N, C, G, DICTIONNAIRES_HUB: DICO_HUB, DICTIONNAIRES_CLIENTS: DICO_CLIENTS, DICTIONNAIRES_FICHE: DICO_FICHE, P, PN, DICTIONNAIRES_PROSPECTS: DICO_PROSPECTS, depuisMonde, DICTIONNAIRES_CONTACTS: DICO } = M;
+const { L, monde, V, H, N, C, G, DICTIONNAIRES_HUB: DICO_HUB, DICTIONNAIRES_CLIENTS: DICO_CLIENTS, DICTIONNAIRES_FICHE: DICO_FICHE, P, PN, DICTIONNAIRES_PROSPECTS: DICO_PROSPECTS, RT, DICTIONNAIRES_RETOURS: DICO_RETOURS, depuisMonde, DICTIONNAIRES_CONTACTS: DICO } = M;
 const paris = (jour: string, hhmm: string): number => L.instantParis(jour, hhmm);
 const VOLUMES = ['vide', 'peu', 'normal', 'beaucoup'] as const;
 const mondes = Object.fromEntries(VOLUMES.map((v) => [v, monde.construireMonde({ volume: v })])) as Record<(typeof VOLUMES)[number], any>;
@@ -1432,6 +1432,124 @@ await dit('H06 · textes : mêmes clés en fr et en, mêmes paramètres, comptes
   }
   for (const b of new Set(en.filter((k) => /\.(1|n)$/.test(k)).map((k) => k.replace(/\.(1|n)$/, '')))) for (const l of ['fr', 'en']) assert.ok(DICO_PROSPECTS[l][`${b}.1`] && DICO_PROSPECTS[l][`${b}.n`], `${b} (${l})`);
   assert.equal(DICO_PROSPECTS.fr['peek.rien'], 'Survole un point pour voir le détail');
+});
+
+/* ── H44 : Retours clients ─────────────────────────────────────────────── */
+console.log('\nContacts — H44, Retours clients (recommandation, thèmes, mur de citations)\n');
+
+const avisH44 = (id: string, note: number, o: Record<string, unknown> = {}): any => ({
+  id, clientId: 7, clientNom: `Client ${id}`, noteSur5: note, recommandation: null, texte: `Avis ${id}`, date: '2026-10-20', themes: [], canal: 'courriel', sentiment: 'positif', ...o,
+});
+
+await dit('H44 · recommandent / neutres / déçus : note 0–10 (9-10, 7-8, 0-6) ou, sans elle, 5 étoiles / 4 / 3 ou moins', () => {
+  assert.deepEqual([10, 9, 8, 7, 6, 0].map((r) => RT.categorie({ recommandation: r, noteSur5: 1 })), ['recommandent', 'recommandent', 'neutres', 'neutres', 'decus', 'decus']);
+  assert.deepEqual([5, 4, 3, 1].map((n) => RT.categorie({ recommandation: null, noteSur5: n })), ['recommandent', 'neutres', 'decus', 'decus']);
+  assert.equal(RT.categorie({ recommandation: 3, noteSur5: 5 }), 'decus', 'la note de recommandation passe devant les étoiles');
+});
+
+await dit('H44 · score = % recommandent − % déçus (70 − 8 = 62), parts arrondies pour sommer 100, jauge à (score + 100) ÷ 200 (81 %)', () => {
+  const avis = [...Array.from({ length: 34 }, (_, i) => avisH44(`r${i}`, 5)), ...Array.from({ length: 11 }, (_, i) => avisH44(`n${i}`, 4)), ...Array.from({ length: 4 }, (_, i) => avisH44(`d${i}`, 2))];
+  const r = RT.scoreDe(avis);
+  assert.equal(r.parts.recommandent + r.parts.neutres + r.parts.decus, 100);
+  assert.equal(r.score, r.parts.recommandent - r.parts.decus);
+  const m = RT.modeleRetours(base({ avis }));
+  assert.equal(m.score, r.score);
+  assert.equal(m.remplissage, (r.score + 100) / 200);
+  assert.deepEqual(RT.arrondirA100([1, 1, 1]), [34, 33, 33]);
+  assert.deepEqual(RT.arrondirA100([0, 0, 0]), [0, 0, 0]);
+  assert.equal(RT.scoreDe([]), null);
+  assert.equal(RT.modeleRetours(base()).score, null);
+  assert.equal(RT.modeleRetours(base()).remplissage, 0);
+  assert.deepEqual([70, 62, 50, 49, 30, 29, 0, -1].map((s) => RT.libelleReco(s)), ['excellent', 'tresBon', 'tresBon', 'bon', 'bon', 'aAmeliorer', 'aAmeliorer', 'fragile']);
+});
+
+await dit('H44 · écart avec il y a 3 mois : positif = vert, nul = neutre, négatif = orange ; sans base, pas d’écart', () => {
+  const ancien = [avisH44('a1', 3, { date: '2026-06-01' }), avisH44('a2', 3, { date: '2026-06-10' })];
+  const recent = [avisH44('b1', 5, { date: '2026-10-10' }), avisH44('b2', 5, { date: '2026-10-12' })];
+  const m = RT.modeleRetours(base({ avis: [...ancien, ...recent] }));
+  assert.ok(m.delta != null && m.delta > 0, `delta ${m.delta}`);
+  assert.equal(RT.modeleRetours(base({ avis: recent })).delta, null);
+});
+
+await dit('H44 · note moyenne sur 12 mois (une décimale), courbe de six mois, avis plus vieux qu’un an exclus', () => {
+  const m = RT.modeleRetours(base({ avis: [avisH44('a', 5, { date: '2026-10-10' }), avisH44('b', 4, { date: '2026-10-11' }), avisH44('c', 4, { date: '2026-08-02' }), avisH44('d', 1, { date: '2025-09-01' })] }));
+  assert.equal(m.noteMoyenne, 4.3);
+  assert.equal(m.nbAvis, 3, 'l’avis de 2025-09 est hors fenêtre');
+  assert.equal(m.courbe.length, 6);
+  assert.deepEqual([m.courbe[5], m.courbe[3], m.courbe[4]], [4.5, 4, null]);
+  assert.deepEqual(m.moisCourbe, ['2026-05', '2026-10']);
+});
+
+await dit('H44 · thèmes : part positive (4-5 étoiles) parmi les avis qui l’évoquent, les cinq plus cités, couleur 70 / 45 ; aucun thème = non disponible', () => {
+  const lot = (theme: string, pos: number, neg: number) => [...Array.from({ length: pos }, (_, i) => avisH44(`${theme}p${i}`, 5, { themes: [theme] })), ...Array.from({ length: neg }, (_, i) => avisH44(`${theme}n${i}`, 2, { themes: [theme] }))];
+  const m = RT.modeleRetours(base({ avis: [...lot('Rapidité', 12, 1), ...lot('Prix', 6, 4), ...lot('Exports', 2, 4), ...lot('A', 1, 0), ...lot('B', 1, 0), ...lot('C', 1, 0)] }));
+  assert.equal(m.themes.length, 5);
+  assert.deepEqual(m.themes.slice(0, 3).map((t: any) => [t.theme, t.avis, t.partPositive, t.couleur]), [['Rapidité', 13, 92, 'vert'], ['Prix', 10, 60, 'orange'], ['Exports', 6, 33, 'rouge']]);
+  assert.equal(RT.modeleRetours(base({ avis: [avisH44('x', 5)] })).themes, null);
+  assert.equal(RT.modeleRetours(base({ avis: [avisH44('x', 5)] })).collecte, null, 'collecte non suivie : non disponible');
+});
+
+await dit('H44 · « À répondre » : 3 étoiles ou moins, dans les 30 jours ; le plus récent est mis en avant, avec sa facture la plus en retard', () => {
+  const src = base({
+    avis: [avisH44('ok', 5, { date: '2026-10-28' }), avisH44('vieux', 2, { date: '2026-08-01' }), avisH44('a', 3, { date: '2026-10-21', clientId: 3, clientNom: 'Atelier Sarah' }), avisH44('b', 1, { date: '2026-10-05' })],
+    factures: [factureH05(3, { number: 'F-2036', dueAt: '2026-09-26', lines: [{ id: 'l', label: 'x', quantity: 1, unitPriceCents: 64_000, vatRate: 0 }] }), factureH05(3, { number: 'F-2040', dueAt: '2026-10-20' })],
+  });
+  const m = RT.modeleRetours(src);
+  assert.deepEqual(m.chips, { tous: 4, aRepondre: 2, cinqEtoiles: 1 });
+  assert.equal(m.aRepondre.carte.id, 'a');
+  assert.equal(m.aRepondre.depuisJours, 9);
+  assert.deepEqual(m.aRepondre.factureEnRetard, { numero: 'F-2036', jours: 34, cents: 64_000 });
+  assert.equal(RT.modeleRetours(base({ avis: [avisH44('ok', 5)] })).aRepondre, null);
+  assert.deepEqual(RT.filtrerMur(m.avis, 'aRepondre', null).map((c: any) => c.id), ['a', 'b']);
+  assert.deepEqual(RT.filtrerMur(m.avis, 'cinqEtoiles', null).map((c: any) => c.id), ['ok']);
+  assert.deepEqual(RT.filtrerMur([...m.avis], 'tous', 'Rien').length, 0);
+});
+
+await dit('H44 · mur : trois colonnes, la carte à répondre seule au milieu, aucun avis perdu ni doublé, l’ordre du temps gardé dans chaque colonne', () => {
+  const cartes = Array.from({ length: 9 }, (_, i) => ({ id: `c${i}`, client: 'X', clientId: 1, note: 5, positif: true, texte: 'x'.repeat(40 + i * 7), date: `2026-10-${String(28 - i).padStart(2, '0')}`, themes: [], initiale: 'X', aRepondre: i === 4 }));
+  const [g, c, d] = RT.repartirMur(cartes, 'c4');
+  assert.deepEqual(c.map((x: any) => x.id), ['c4']);
+  assert.equal(g.length + c.length + d.length, 9);
+  assert.equal(new Set([...g, ...c, ...d].map((x: any) => x.id)).size, 9);
+  for (const col of [g, d]) assert.deepEqual(col.map((x: any) => x.date), [...col.map((x: any) => x.date)].sort().reverse());
+  assert.ok(Math.abs(g.length - d.length) <= 1);
+  const sans = RT.repartirMur(cartes, null);
+  assert.ok(sans.every((col: any[]) => col.length >= 2));
+});
+
+await dit('H44 · export CSV : en-tête, une ligne par avis, guillemets doublés, cellule commençant par = + - @ neutralisée', () => {
+  const csv = RT.csvDesAvis([{ id: 'a', client: '=HYPERLINK("x")', clientId: 1, note: 5, positif: true, texte: 'Il a dit « oui » ; "vraiment"', date: '2026-10-20', themes: ['Rapidité', 'Suivi'], initiale: 'H', aRepondre: false }]);
+  const lignes = csv.replace('﻿', '').trim().split('\r\n');
+  assert.equal(lignes[0], '"date";"client";"note_sur_5";"texte";"themes"');
+  assert.ok(lignes[1].includes('"\'=HYPERLINK(""x"")"'), lignes[1]);
+  assert.ok(lignes[1].includes('"Il a dit « oui » ; ""vraiment"""'));
+  assert.ok(lignes[1].endsWith('"Rapidité | Suivi"'));
+});
+
+await dit('H44 · sur les jeux de SIM (quatre volumes) : le modèle se construit, parts = 100 ou 0, aucune carte perdue', () => {
+  for (const v of VOLUMES) {
+    const src = depuisMonde(mondes[v]);
+    const m = RT.modeleRetours(src);
+    assert.equal(m.avis.length, src.avis.length, v);
+    assert.equal(m.parts.recommandent + m.parts.neutres + m.parts.decus, m.nbAvis === 0 ? 0 : 100, v);
+    assert.equal(m.recommandent + m.neutres + m.decus, m.nbAvis, v);
+    if (m.score != null) assert.ok(m.score >= -100 && m.score <= 100 && m.remplissage >= 0 && m.remplissage <= 1, v);
+    const mur = RT.repartirMur(m.avis, m.aRepondre?.carte.id ?? null);
+    assert.equal(mur[0].length + mur[1].length + mur[2].length, m.avis.length, v);
+  }
+});
+
+await dit('H44 · textes : mêmes clés en fr et en, mêmes paramètres, comptes à deux formes, l’interface tutoie', () => {
+  const en = Object.keys(DICO_RETOURS.en).sort();
+  assert.deepEqual(Object.keys(DICO_RETOURS.fr).sort(), en);
+  const params = (t: string) => [...t.matchAll(/\{(\w+)\}/g)].map((x) => x[1]).sort().join(',');
+  for (const k of en) {
+    assert.ok(DICO_RETOURS.en[k].trim() && DICO_RETOURS.fr[k].trim(), k);
+    assert.equal(params(DICO_RETOURS.fr[k]), params(DICO_RETOURS.en[k]), `paramètres de ${k}`);
+    assert.ok(!VOUVOIEMENT_UI.test(DICO_RETOURS.fr[k]), `${k} vouvoie : ${DICO_RETOURS.fr[k]}`);
+  }
+  for (const b of new Set(en.filter((k) => /\.(1|n)$/.test(k)).map((k) => k.replace(/\.(1|n)$/, '')))) for (const l of ['fr', 'en']) assert.ok(DICO_RETOURS[l][`${b}.1`] && DICO_RETOURS[l][`${b}.n`], `${b} (${l})`);
+  assert.equal(DICO_RETOURS.fr['sousTitre'], 'Ce que tes clients pensent vraiment · {pos} avis positifs sur {n}', 'la phrase de tutoiement.json');
 });
 
 /* ── Structure ──────────────────────────────────────────────────────────── */
