@@ -476,7 +476,6 @@ console.log('\nContacts — fidélité (MC02)\n');
 await dit('paliers de la fiche : Bronze dès 0, Argent dès 800, Or dès 1 800', () => {
   for (const [pts, niv] of [[0, 'Bronze'], [799, 'Bronze'], [800, 'Argent'], [1799, 'Argent'], [1800, 'Or'], [9000, 'Or']] as const) assert.equal(L.niveauPour(pts), niv, String(pts));
   assert.equal(L.niveauPour(500), 'Bronze', '500 points ne suffisent plus pour Argent');
-  assert.equal(L.niveauPour(500, L.PALIERS_DU_JEU_SIM), 'Argent', 'les paliers du jeu de SIM, eux, restent à 500');
 });
 
 await dit('progression : points qui manquent, part dans le niveau, Or = plafond', () => {
@@ -545,17 +544,81 @@ await dit('les points d’un client = euros TTC payés sur 12 mois, jamais une f
 });
 
 for (const v of VOLUMES) {
-  await dit(`SIM (${v}) : chaque compte de fidélité redonne ses points depuis les factures, et son niveau découle de ses points (paliers du jeu de SIM : 500 et 1 500)`, () => {
+  await dit(`SIM (${v}) : chaque compte de fidélité redonne ses points (factures, avis, recommandations) et son niveau, aux paliers de la fiche`, () => {
     const m = mondes[v];
     for (const c of m.fidelite) {
-      assert.equal(L.pointsDe(m.factures, c.clientId, m.contexte.aujourdhui), c.points, c.clientNom);
-      assert.ok(L.niveauCoherent(c, L.PALIERS_DU_JEU_SIM), `${c.clientNom} : ${c.points} → ${c.niveau}`);
+      const activite = {
+        clientId: c.clientId,
+        factures: m.factures,
+        avis: m.avis.filter((a: any) => a.clientId === c.clientId).map((a: any) => a.date),
+        recommandations: c.recommandations,
+      };
+      assert.equal(L.pointsProgramme(activite, m.contexte.aujourdhui), c.points, `${c.clientNom} : points`);
+      assert.ok(L.niveauCoherent(c), `${c.clientNom} : ${c.points} → ${c.niveau}`);
+      assert.equal(L.niveauPour(c.points), c.niveau);
+      for (const r of c.recommandations) assert.ok(r <= m.contexte.aujourdhui && L.ecartJours(r, m.contexte.aujourdhui) <= 365, `${c.clientNom} : recommandation du ${r}`);
     }
     const r = L.resumeFidelite(m.fidelite, m.contexte.aujourdhui);
     assert.equal(r.total, m.fidelite.length);
     assert.equal(r.parNiveau.Bronze + r.parNiveau.Argent + r.parNiveau.Or, r.total);
   });
 }
+
+await dit('SIM (normal) : les trois paliers sont représentés, ce qui permet de contrôler les seuils 800 et 1 800', () => {
+  const niveaux = new Set(mondes.normal.fidelite.map((c: any) => c.niveau));
+  assert.deepEqual([...niveaux].sort(), ['Argent', 'Bronze', 'Or']);
+  for (const c of mondes.normal.fidelite) assert.ok(c.niveau === 'Or' ? c.points >= 1800 : c.niveau === 'Argent' ? c.points >= 800 && c.points < 1800 : c.points < 800, c.clientNom);
+});
+
+/* ── Clients : statut et santé (fiche H05) ──────────────────────────────── */
+console.log('\nContacts — statut et santé des clients (H05, G04)\n');
+
+const cl = (o: Record<string, unknown> = {}) => ({ debutLe: '2025-01-10', dernierEchangeAt: '2026-10-28T10:00:00.000Z', sante: 80, ...o });
+
+await dit('statut : Impayé au-delà de 7 jours de retard (prioritaire), À relancer à 7 jours ou moins, ou 5 jours sans échange, ou santé sous 45, Nouveau sous 30 jours', () => {
+  const auj = '2026-10-30';
+  assert.equal(L.statutClient(cl(), [8], auj), 'Impayé');
+  assert.equal(L.statutClient(cl({ sante: 20 }), [30, 2], auj), 'Impayé', 'l’impayé l’emporte sur tout');
+  assert.equal(L.statutClient(cl(), [7], auj), 'À relancer', '7 jours pile : encore « à relancer »');
+  assert.equal(L.statutClient(cl(), [4], auj), 'À relancer');
+  assert.equal(L.statutClient(cl({ dernierEchangeAt: '2026-10-24T10:00:00.000Z' }), [], auj), 'À relancer', '6 jours sans échange');
+  assert.equal(L.statutClient(cl({ dernierEchangeAt: '2026-10-25T10:00:00.000Z' }), [], auj), 'Actif', '5 jours pile : encore actif');
+  assert.equal(L.statutClient(cl({ sante: 44 }), [], auj), 'À relancer');
+  assert.equal(L.statutClient(cl({ sante: 45 }), [], auj), 'Actif');
+  assert.equal(L.statutClient(cl({ debutLe: '2026-10-10' }), [], auj), 'Nouveau');
+  assert.equal(L.statutClient(cl({ debutLe: '2026-09-30' }), [], auj), 'Actif', '30 jours pile : plus nouveau');
+  assert.equal(L.statutClient(cl({ debutLe: '2026-10-10', sante: 30 }), [], auj), 'À relancer', 'un nouveau à relancer reste à relancer');
+});
+
+await dit('santé : vert dès 70, orange de 45 à 69, rouge sous 45 ; libellés de G04 ; santé du portefeuille ; tri « à traiter d’abord »', () => {
+  assert.deepEqual([100, 70, 69, 45, 44, 0].map((s) => L.couleurSante(s)), ['vert', 'vert', 'orange', 'orange', 'rouge', 'rouge']);
+  assert.deepEqual([100, 85, 84, 70, 69, 45, 44].map((s) => L.libelleSante(s)), ['excellente', 'excellente', 'bonne', 'bonne', 'a-surveiller', 'a-surveiller', 'fragile']);
+  assert.deepEqual(L.santeDuPortefeuille([90, 70, 60, 44, 10]), { bonne: 2, aSurveiller: 1, fragile: 2 });
+  const e = (statut: string, retardMaxJours: number, sante: number, d: string) => ({ statut, retardMaxJours, sante, dernierEchangeAt: d });
+  const l = [e('Actif', 0, 90, '2026-10-20'), e('À relancer', 3, 50, 'x'), e('Impayé', 10, 80, 'x'), e('Impayé', 40, 60, 'x'), e('À relancer', 1, 30, 'x'), e('Actif', 0, 90, '2026-10-29')];
+  assert.deepEqual(l.sort(L.comparerATraiter).map((x: any) => [x.statut, x.retardMaxJours, x.sante]), [['Impayé', 40, 60], ['Impayé', 10, 80], ['À relancer', 1, 30], ['À relancer', 3, 50], ['Actif', 0, 90], ['Actif', 0, 90]]);
+});
+
+for (const v of VOLUMES) {
+  await dit(`SIM (${v}) : la santé et le statut de chaque client se recalculent à l’identique depuis les factures, les devis et les avis`, () => {
+    const m = mondes[v];
+    const auj = m.contexte.aujourdhui;
+    const comptes: Record<string, number> = {};
+    for (const c of m.clients) {
+      const sante = monde.calculerSante(c, { factures: m.factures, devis: m.devis, avis: m.avis }, auj);
+      assert.equal(sante, c.sante, `${c.company || c.name} : santé`);
+      const statut = L.statutClient(c, L.joursDeRetard(m.factures, c.id, auj), auj);
+      assert.equal(statut, c.statutAffiche, `${c.company || c.name} : ${c.statutAffiche}`);
+      comptes[statut] = (comptes[statut] ?? 0) + 1;
+    }
+    assert.equal(Object.values(comptes).reduce((a, b) => a + b, 0), m.clients.length);
+  });
+}
+
+await dit('SIM (normal) : les quatre statuts de la fiche apparaissent dans le jeu', () => {
+  const vus = new Set(mondes.normal.clients.map((c: any) => c.statutAffiche));
+  assert.deepEqual([...vus].sort(), ['Actif', 'Impayé', 'Nouveau', 'À relancer']);
+});
 
 /* ── Rendez-vous ────────────────────────────────────────────────────────── */
 console.log('\nContacts — rendez-vous clients (MC06)\n');
