@@ -589,6 +589,100 @@ if (M.HAB_modele) {
   });
 }
 
+/* ── MJ03 · Planning de l'équipe ────────────────────────────────────────── */
+if (M.PLA_modele) {
+  console.log('\nMa journée — MJ03, Planning de l’équipe (un bloc par personne, charge, créneaux libres, équilibre)\n');
+  const PLA = M.PLA_modele;
+  const NOW = paris('2026-10-30', '10:42');
+  const pers = (id: string, o: Record<string, unknown> = {}): any => ({ id, nom: id, role: 'rôle', enLigne: true, moi: false, disponibiliteH: 35, ...o });
+  const cr = (id: string, p: string, jour: string, debut: string, fin: string, o: Record<string, unknown> = {}): any => ({ id, jour, debut, fin, titre: `Créneau ${id}`, categorie: 'interne', personnes: [p], ...o });
+  const pl = (personnes: any[], creneaux: any[], o: Record<string, unknown> = {}) => PLA.modelePlanning({ personnes, creneaux, maintenant: NOW, ...o });
+
+  await dit('la semaine : lundi 26 au vendredi 30, un bloc par personne, la personne connectée d’abord, puis l’ordre donné ; jamais un tri par charge', () => {
+    const m = pl([pers('b'), pers('c'), pers('a', { moi: true })], [cr('1', 'c', '2026-10-26', '09:00', '18:00')]);
+    assert.deepEqual([m.lundi, m.vendredi, m.semaineCourante], ['2026-10-26', '2026-10-30', true]);
+    assert.deepEqual(m.blocs.map((b: any) => b.id), ['a', 'b', 'c'], 'moi d’abord, puis l’ordre de l’équipe, pas par charge (c est la plus chargée)');
+    assert.equal(m.blocs[0].lignes.length, 5);
+    assert.deepEqual(pl([pers('a')], [], { jour: '2026-11-03' }).semaineCourante, false);
+  });
+
+  await dit('la barre : position et largeur sur l’axe 9:00–18:00 (784 px, 87,1 px par heure), pas de titre sous 34 px', () => {
+    const m = pl([pers('a')], [cr('1', 'a', '2026-10-30', '10:00', '12:00'), cr('2', 'a', '2026-10-30', '16:00', '16:20')]);
+    const [b1, b2] = m.blocs[0].lignes[4].barres;
+    assert.deepEqual([Math.round(b1.x * 784), Math.round(b1.largeur * 784)], [87, 174]);
+    assert.equal(b1.sansTitre, false);
+    assert.equal(b2.sansTitre, true);
+    assert.equal(PLA.heures(150), '2 h 30');
+    assert.equal(PLA.heures(45), '45 min');
+  });
+
+  await dit('le total du jour, le réservé de la semaine et la charge ÷ 35 h : verte sous 85 %, orange de 85 à 100 %, rouge au-delà', () => {
+    const jours = ['2026-10-26', '2026-10-27', '2026-10-28', '2026-10-29', '2026-10-30'];
+    const pleine = (p: string, h: number) => jours.map((j, i) => cr(`${p}${i}`, p, j, '09:00', `${String(9 + h).padStart(2, '0')}:00`));
+    const m = pl([pers('v'), pers('o'), pers('r')], [...pleine('v', 5), ...pleine('o', 6), ...pleine('r', 8)]);
+    assert.deepEqual(m.blocs.map((b: any) => [b.reserveMin / 60, b.ton]), [[25, 'ok'], [30, 'orange'], [40, 'rouge']]);
+    assert.equal(m.blocs[0].lignes[0].totalMin, 300);
+    assert.equal(Math.round(m.blocs[1].charge * 100), 86);
+    assert.equal(pl([pers('x', { disponibiliteH: 30 })], pleine('x', 6)).blocs[0].ton, 'rouge' === 'rouge' ? 'orange' : '', '30 h sur 30 h : à 100 % exactement, orange');
+  });
+
+  await dit('la semaine remplie : réservé de l’équipe ÷ disponible de l’équipe', () => {
+    const m = pl([pers('a'), pers('b'), pers('c')], [cr('1', 'a', '2026-10-27', '09:00', '19:00'.replace('19', '18')), cr('2', 'b', '2026-10-27', '09:00', '18:00')]);
+    assert.deepEqual([m.remplie.reserveMin, m.remplie.disponibleMin, m.remplie.pourcent], [1080, 6300, 17]);
+    assert.equal(pl([], []).remplie.pourcent, null, 'sans personne : pas de pourcentage');
+  });
+
+  await dit('les créneaux libres du jour : trous d’au moins 1 h entre l’heure courante et 18:00, additionnés pour l’équipe ; rien hors de la semaine courante', () => {
+    const m = pl([pers('a'), pers('r')], [
+      cr('1', 'a', '2026-10-30', '09:45', '12:00'), cr('2', 'a', '2026-10-30', '14:00', '17:00'), cr('3', 'r', '2026-10-30', '16:00', '17:00'),
+    ]);
+    const a = m.blocs[0].lignes[4].libres.map((l: any) => [l.debut, l.fin]);
+    assert.deepEqual(a, [['12:00', '14:00'], ['17:00', '18:00']]);
+    const r = m.blocs[1].lignes[4].libres.map((l: any) => [l.debut, l.fin, l.dureeMin]);
+    assert.deepEqual(r, [['10:42', '16:00', 318], ['17:00', '18:00', 60]]);
+    assert.equal(m.heuresLibresAujourdhuiMin, 180 + 378);
+    assert.equal(pl([pers('a')], [], { jour: '2026-11-03' }).heuresLibresAujourdhuiMin, null);
+    assert.deepEqual(PLA.creneauxLibres([{ debut: '09:00', fin: '17:30' }], 9 * 60), [], 'un trou de 30 min ne se montre pas');
+  });
+
+  await dit('l’état du moment : « Rendez-vous X à HH:MM » (client dans moins de 30 min), « Occupé jusqu’à » pendant un créneau, « Libre jusqu’à » sinon', () => {
+    const m = pl([pers('a'), pers('b'), pers('c')], [
+      cr('1', 'a', '2026-10-30', '11:00', '12:00', { categorie: 'client', titre: 'RDV', titreLong: 'Rendez-vous Menna' }),
+      cr('2', 'b', '2026-10-30', '10:00', '12:00'), cr('3', 'c', '2026-10-30', '16:00', '17:00'),
+    ]);
+    assert.deepEqual(m.blocs.map((b: any) => b.moment), [{ genre: 'rendezVous', titre: 'Rendez-vous Menna', heure: '11:00' }, { genre: 'occupe', jusqua: '12:00' }, { genre: 'libre', jusqua: '16:00' }]);
+    assert.equal(pl([pers('a')], [cr('1', 'a', '2026-10-30', '15:00', '16:00', { categorie: 'client' })]).blocs[0].moment.genre, 'libre', 'un client dans plus de 30 min : libre');
+    assert.equal(pl([pers('a')], [], { jour: '2026-11-03' }).blocs[0].moment, null, 'hors de la semaine courante : pas d’état');
+  });
+
+  await dit('le chevauchement : les deux barres se partagent la hauteur, marquées ; bout à bout ne chevauche pas ; une absence ne compte pas dans la charge', () => {
+    const m = pl([pers('a', { absents: ['2026-10-29'] })], [cr('1', 'a', '2026-10-27', '10:00', '12:00'), cr('2', 'a', '2026-10-27', '11:00', '13:00'), cr('3', 'a', '2026-10-28', '09:00', '10:00'), cr('4', 'a', '2026-10-28', '10:00', '11:00'), cr('5', 'a', '2026-10-29', '09:00', '18:00')]);
+    const mar = m.blocs[0].lignes[1].barres;
+    assert.deepEqual(mar.map((b: any) => [b.conflit, b.rangees, b.rangee]), [[true, 2, 0], [true, 2, 1]]);
+    assert.deepEqual(m.blocs[0].lignes[2].barres.map((b: any) => b.conflit), [false, false], 'bout à bout');
+    assert.deepEqual([m.blocs[0].lignes[3].absent, m.blocs[0].lignes[3].barres.length, m.blocs[0].lignes[3].totalMin], [true, 0, 0]);
+    assert.equal(m.blocs[0].reserveMin, 240 + 120, 'le créneau du jour d’absence ne compte pas');
+  });
+
+  await dit('le bandeau d’équilibre : la moins chargée contre la moins chargée des autres, arrondi à l’heure, seulement à partir de 2 h et de trois personnes', () => {
+    const h = (p: string, heures: number) => cr(p, p, '2026-10-26', '09:00', `${String(9 + Math.floor(heures)).padStart(2, '0')}:${heures % 1 ? '15' : '00'}`);
+    const m = pl([pers('a'), pers('b'), pers('r')], [h('a', 8), h('b', 6), h('r', 1)]);
+    assert.deepEqual(m.equilibre, { nom: 'r', ecartH: 5 });
+    assert.equal(pl([pers('a'), pers('b'), pers('r')], [h('a', 3), h('b', 3), h('r', 2)]).equilibre, null, 'moins de 2 h d’écart : rien à dire');
+    assert.equal(pl([pers('a'), pers('b')], [h('a', 8), h('b', 1)]).equilibre, null, 'à deux, l’écart n’est pas un déséquilibre à rééquilibrer');
+  });
+
+  await dit('l’état vide : aucun créneau', () => {
+    assert.equal(pl([pers('a')], []).vide, true);
+    assert.equal(pl([pers('a')], [cr('1', 'a', '2026-10-26', '09:00', '10:00')]).vide, false);
+  });
+
+  await dit('MJ03 · textes : mêmes clés en fr et en, tutoiement', () => {
+    motsJustes(M.DICTIONNAIRES_PLANNING, 'MJ03');
+    assert.equal(M.DICTIONNAIRES_PLANNING.fr['action.ajouter'], 'Ajouter un créneau');
+  });
+}
+
 /* ── Structure ──────────────────────────────────────────────────────────── */
 console.log('\nMa journée — structure des écrans de S1\n');
 const lister = (d: string): string[] => (fs.existsSync(path.join(racine, d)) ? fs.readdirSync(path.join(racine, d), { recursive: true, withFileTypes: true }).filter((f: any) => f.isFile()).map((f: any) => path.relative(racine, path.join(f.parentPath ?? f.path, f.name)).replace(/\\/g, '/')) : []);

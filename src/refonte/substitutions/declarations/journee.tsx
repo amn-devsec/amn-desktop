@@ -16,4 +16,7 @@ export default declarerSubstitutions('journee', [
 
   // MJ02 — Habitudes : la grille de régularité. Créer, retirer et la bibliothèque passent par l'écran d'origine (`useOutlet`).
   { route: '/personnel/habitudes', composant: lazy(() => import('../../journee/habitudes/PageHabitudes')) },
+
+  // MJ03 — Planning de l'équipe : un bloc par personne. Créer, modifier et dupliquer passent par l'écran d'origine (`useOutlet`).
+  { route: '/planning', composant: lazy(() => import('../../journee/planning/PagePlanning')) },
 ]);
