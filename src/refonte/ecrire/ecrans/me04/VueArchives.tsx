@@ -140,12 +140,14 @@ export function VueArchives(p: VueArchivesProps) {
 
           <section className="ec-carte ec-me04__recherche" aria-label={l.recherche}>
             <div className="ec-me04__champ">
-              <Search size={15} aria-hidden />
-              <input value={p.recherche.valeur} onChange={(e) => p.recherche.onChange(e.target.value)} placeholder={l.chercher} aria-label={l.chercher} />
-              <span className="ec-me04__contenu">
+              <label className="ec-me04__saisie">
+                <Search size={15} aria-hidden />
+                <input value={p.recherche.valeur} onChange={(e) => p.recherche.onChange(e.target.value)} placeholder={l.chercher} aria-label={l.chercher} />
+              </label>
+              <label className="ec-me04__contenu">
                 {l.dansLeContenu}
                 <Interrupteur actif={p.recherche.contenu} onChange={p.recherche.onContenu} libelle={l.dansLeContenu} />
-              </span>
+              </label>
             </div>
             <div className="ec-me04__types" role="group" aria-label={l.types}>
               {p.recherche.types.map((t) => (

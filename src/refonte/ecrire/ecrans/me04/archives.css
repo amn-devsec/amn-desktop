@@ -128,13 +128,22 @@
 .ec-me04__champ {
   display: flex;
   align-items: center;
-  gap: 10px;
   height: 40px;
-  padding: 0 12px;
+  padding: 0;
   border-radius: 10px;
   border: 1px solid var(--socle-bord-champ);
   background: var(--socle-champ);
   color: var(--socle-texte-3);
+}
+.ec-me04__saisie {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  align-self: stretch;
+  padding: 0 0 0 12px;
+  cursor: text;
 }
 .ec-me04__champ input {
   flex: 1;
@@ -149,8 +158,11 @@
 .ec-me04__contenu {
   display: inline-flex;
   align-items: center;
+  align-self: stretch;
   gap: 8px;
+  padding: 0 12px 0 10px;
   font-size: 12px;
+  cursor: pointer;
 }
 .ec-me04__types {
   display: flex;

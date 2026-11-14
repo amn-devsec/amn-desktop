@@ -173,7 +173,7 @@
  * LES CHAMPS ET LES INTERRUPTEURS (§1.41) : un champ de recherche remplit son `label` (36 px de haut au moins, bordure comprise) : le clic
  * tombe sur le champ lui-même, jamais sur une zone posée par-dessus. Les interrupteurs du socle (34 × 20) reçoivent la zone de 36 px.
  */
-.ec-h10__recherche input, .ec-h11__recherche input, .ec-me04__champ input, .ec-me05__champ input, .ec-me05__filtre input { align-self: stretch; }
+.ec-h10__recherche input, .ec-h11__recherche input, .ec-me04__saisie input, .ec-me05__champ input, .ec-me05__filtre input { align-self: stretch; }
 :is(.ec-page, .ec-f20, .ec-h10) :is([role='switch'], [role='radio'], .sc-bouton-icone) { position: relative; }
 :is(.ec-page, .ec-f20, .ec-h10) :is([role='switch'], [role='radio'], .sc-bouton-icone)::after {
   content: '';
