@@ -877,8 +877,14 @@ await dit('vue d’ensemble (F30) : 5 clients nommés, le reste groupé ; solde 
 console.log('\nL’argent — rejoué sur les jeux fictifs\n');
 
 const MONDES: { nom: string; m: any }[] = [];
-for (const volume of ['vide', 'peu', 'normal', 'beaucoup']) MONDES.push({ nom: volume, m: monde.construireMonde({ volume }) });
-for (const graine of [7, 42, 2026]) MONDES.push({ nom: `normal/${graine}`, m: monde.construireMonde({ volume: 'normal', graine }) });
+// Chaque monde avec et sans avoirs (option `avoirs` de SIM) : la logique doit tenir dans les deux cas.
+for (const avoirs of [false, true]) {
+  const suffixe = avoirs ? '+avoirs' : '';
+  for (const volume of ['vide', 'peu', 'normal', 'beaucoup']) MONDES.push({ nom: `${volume}${suffixe}`, m: monde.construireMonde({ volume, avoirs }) });
+  for (const graine of [7, 42, 2026]) MONDES.push({ nom: `normal/${graine}${suffixe}`, m: monde.construireMonde({ volume: 'normal', graine, avoirs }) });
+}
+assert.ok(MONDES.some(({ m }) => (m.avoirs ?? []).length > 0), 'aucun avoir dans les mondes « +avoirs » : le rejeu serait vide');
+assert.ok(MONDES.some(({ m }) => m.paiements.some((p: any) => p.etat === 'réussi' && m.factures.some((f: any) => f.id === p.factureId && f.status === 'issued'))), 'aucun règlement partiel dans les jeux : le rejeu serait vide');
 
 /* Les jeux de SIM calculent encore la TVA PAR TAUX (avant la décision du 14 nov., §1.29 n° 1) : en attendant leur
  * alignement, la logique est comparée À L'IDENTIQUE à `money.ts`, et aux jeux à une tolérance d'un centime par ligne
@@ -901,15 +907,19 @@ await dit('totaux et reste dû : identiques à money.ts ; aux jeux, à un centim
       assert.equal(t.htCents, ref.htCents, `${nom} ${f.id} HT`);
       assert.ok(Math.abs(t.tvaCents - ref.tvaCents) <= ecartLignes(f), `${nom} ${f.id} TVA ${t.tvaCents} / ${ref.tvaCents}`);
       if (t.tvaCents !== ref.tvaCents) ecarts += 1;
-      const reste = F.resteDu(f, { factures: tf, paiements: [] });
-      // Le reste dû des jeux tient compte des avoirs ; un avoir ne doit jamais rien.
+      // Le reste dû des jeux tient compte des avoirs ET des règlements partiels ; un avoir ne doit jamais rien.
+      const reste = F.resteDu(f, { factures: tf, paiements: m.paiements });
       assert.ok(Math.abs(reste - f.soldeCents) <= (f.soldeCents ? ecartLignes(f) : 0), `${nom} ${f.id} reste dû ${reste} / ${f.soldeCents}`);
-      if (f.status === 'issued') assert.equal(reste, M.netDueCents(f, tf), `${nom} ${f.id} = netDueCents`);
+      // netDueCents (useInvoices) ne connaît que les avoirs : il égale le reste dû avant règlements, au centime.
+      if (f.status === 'issued') {
+        assert.equal(F.resteDu(f, { factures: tf, paiements: [] }), M.netDueCents(f, tf), `${nom} ${f.id} = netDueCents`);
+        assert.equal(reste, Math.max(0, M.netDueCents(f, tf) - F.encaisse(f, m.paiements)), `${nom} ${f.id} = netDueCents − réglé`);
+      }
       if (f.kind === 'creditNote') {
         assert.equal(reste, 0, `${nom} ${f.id} : un avoir n’est jamais dû`);
         continue;
       }
-      assert.equal(traduit[F.statutFacture(f, auj, { factures: tf, paiements: [] })], monde.statutAffiche(f, auj), `${nom} ${f.id} statut`);
+      assert.equal(traduit[F.statutFacture(f, auj, { factures: tf, paiements: m.paiements })], monde.statutAffiche(f, auj), `${nom} ${f.id} statut`);
     }
   }
   console.log(`      (factures dont la TVA diffère d’un centime entre les deux règles, sur tous les mondes : ${ecarts})`);
@@ -995,13 +1005,20 @@ await dit('devis, budget, tarifs, impayés et banque sur les jeux : aucun NaN, c
     }
     for (const p of m.prestations) assert.ok(TA.margePct(p.prixCents, p.coutCents) === null || Number.isFinite(TA.margePct(p.prixCents, p.coutCents)));
     const tf = toutes(m);
-    const tranches = IM.tranchesDeRetard(tf, auj, { paiements: [] });
-    assert.equal(tranches.reduce((s: number, t: any) => s + t.montantCents, 0), IM.totalImpaye(tf, auj, { paiements: [] }));
-    // Les avoirs ne sont jamais des impayés ; ils réduisent celui de leur facture (comme netDueCents et soldeCents des jeux).
+    const reglements = { paiements: m.paiements };
+    const tranches = IM.tranchesDeRetard(tf, auj, reglements);
+    assert.equal(tranches.reduce((s: number, t: any) => s + t.montantCents, 0), IM.totalImpaye(tf, auj, reglements));
+    // Les avoirs ne sont jamais des impayés ; avoirs et règlements partiels réduisent celui de leur facture (comme soldeCents des jeux).
     const enRetard = m.factures.filter((f: any) => (f.kind ?? 'invoice') === 'invoice' && monde.statutAffiche(f, auj) === 'En retard');
-    const attendu = enRetard.reduce((s: number, f: any) => s + M.netDueCents(f, tf), 0);
-    assert.equal(IM.totalImpaye(tf, auj, { paiements: [] }), attendu, `${nom} impayés`);
-    assert.ok(IM.impayes(tf, auj, { paiements: [] }).every((i: any) => i.facture.kind !== 'creditNote'), `${nom} : un avoir compté comme impayé`);
+    const attendu = enRetard.reduce((s: number, f: any) => s + Math.max(0, M.netDueCents(f, tf) - F.encaisse(f, m.paiements)), 0);
+    assert.equal(IM.totalImpaye(tf, auj, reglements), attendu, `${nom} impayés`);
+    const tolerance = enRetard.reduce((s: number, f: any) => s + ecartLignes(f), 0);
+    assert.ok(Math.abs(IM.totalImpaye(tf, auj, reglements) - enRetard.reduce((s: number, f: any) => s + f.soldeCents, 0)) <= tolerance, `${nom} impayés / soldeCents`);
+    assert.ok(IM.impayes(tf, auj, reglements).every((i: any) => i.facture.kind !== 'creditNote'), `${nom} : un avoir compté comme impayé`);
+    // Remises des jeux (prix de grille par ligne, MA12) : jamais négatives, en centimes entiers ; une ligne au prix de grille ne compte pas.
+    const lignes = tf.filter((f: any) => f.kind !== 'creditNote').flatMap((f: any) => f.lines).filter((l: any) => l.prixGrilleCents != null);
+    const remises = TA.remisesAccordees(lignes.map((l: any) => ({ prixGrilleCents: l.prixGrilleCents, prixFactureCents: l.unitPriceCents, quantite: l.quantity })));
+    assert.ok(Number.isInteger(remises) && remises >= 0, `${nom} remises ${remises}`);
     for (const c of m.comptes) assert.equal(c.accesLectureSeule, true);
   }
 });
