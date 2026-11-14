@@ -6,28 +6,34 @@
 
 Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `baff3a3`.
 
-**Si la limite d'utilisation coupe le CO** : à la reprise (un message de Harun, une session, ou le réveil programmé), relire ce bloc, faire `git fetch` des branches `claude/refonte-*`, puis reprendre la boucle (lister, lire, contrôler, fusionner, répondre, mettre à jour). Réveil du CO : `send_later`, toutes les 45 min environ, réarmé à chaque tour.
+**Si la limite d'utilisation coupe le CO** : à la reprise (un message de Harun, une session, ou le réveil programmé), relire ce bloc, faire `git fetch` des branches `claude/refonte-*`, puis reprendre la boucle (lister, lire, contrôler, fusionner, répondre, mettre à jour). Réveil du CO : `send_later`, toutes les 20 min tant que des sessions travaillent, 45 min quand toutes attendent (consigne de Harun), réarmé à chaque tour.
 
 | Session | Identifiant | État | Prochain geste |
 |---|---|---|---|
-| S0 Socle | `session_01SJe828c2W5EnkMY4fhFY6z` | passe finale v4 finie (`888f7a0`) | corriger ce que T1 signale ; puis la baisse des échecs connus |
+| S0 Socle | `session_01SJe828c2W5EnkMY4fhFY6z` | passe finale v4 finie (`888f7a0`) ; corrige `ancres` et `avoirs` | puis ce que T1 signale |
 | T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | passage 2 sur `888f7a0` en cours | son verdict → fusion du socle v4 et allumage (§1.9) |
 | S6 Sécurité | `session_01RHV8Xq2txWkfjAusKvq9DG` | LOT-07 en préparation ; une étape de sécurité attend amn-api | couture H20, tarifs H21 (§1.26) |
 | SIM | `session_011UF2ufZg9moGv2rRZFRuf7` | chargeur vers l'API d'essai en cours | livrer → mettre à jour `LANCER-EN-LOCAL.md` |
 | DS | `session_01TZGDvVWristJnnPK59rruY` | préparation de LOT-04 fusionnée (§1.29) ; **sans dossier v4** | relire ses points [fiche] dès qu'il a les zips |
-| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | LOT-03 fusionné (§1.29) | registre (12 vues vers `creer`), puis LOT-05 |
+| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | LOT-03 et registre fusionnés | préparation de LOT-05 |
 | S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | décisions reçues (§1.28) ; lecture du v4 | relire et fusionner sa reprise |
 | S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | préparation v4 fusionnée (`526cd63`) | attend le socle v4 |
 | S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | en pause | feu vert de l'étape 3 au socle v4 ; jeux à commander à SIM |
 | S9 | `session_01C5DAVygXYax6Q7g436TPQx` | LOT-12 fini (§1.26) | rien |
-| S2, S3, F1 | `session_014ZkF6SeGRNi6NR3uEsjM5q`, `session_01FBSpK6n1yYtYXYyxbLAuBV`, `session_01VZHqP3gvzrtnpgsTrrKguV` | arrêtées | relancer au socle v4 (prompts : `PROMPTS-11NOV.md`, §1.21) |
+| S2, S3 (première tâche : `check:encres`), F1 | `session_014ZkF6SeGRNi6NR3uEsjM5q`, `session_01FBSpK6n1yYtYXYyxbLAuBV`, `session_01VZHqP3gvzrtnpgsTrrKguV` | arrêtées | relancer au socle v4 (prompts : `PROMPTS-11NOV.md`, §1.21) |
+
+**À dire au prochain message** : à DS, Commandes et Boutique quittent Argent pour Créer ; à S6, les vues terrain et stock quittent Outils pour Créer (`bb54c03`).
 
 **Décisions provisoires en cours** (révisables par Harun) : arrondi et régime de TVA, seuils de l'argent (§1.29) ; valeurs de départ des connecteurs (§1.22 n° 3) ; plafonds de relance 3 et 1 par jour (§1.28 n° 4) ; seuils de charge (validés, §1.20). Liste « À décider par Harun » : `POINT-HARUN.md`.
 
-**Échecs connus à faire baisser** (gardes rouges, aussi sur `main` selon S0, à confirmer par T1) : migration, encres, xss, visite, support. Aucune fusion n'en ajoute un nouveau.
+**Échecs connus à faire baisser** (relevé du CO le 14 nov., `main` @ `630ef45` comparé à `refonte-vivante`) :
+- **rouges aussi sur `main`** : xss, support (code de sortie 1), et migration, visite (code 2, ils demandent un build ou un navigateur). À traiter par leur propriétaire après le socle v4.
+- **régressions de la refonte** (vertes sur `main`, absentes d'`editions.yml`, donc passées inaperçues) : `check:ancres` (`Coquille.tsx`, `PageDemoSocle.tsx`) et `check:avoirs` (`lucide-react` non résolu) sont **confiés à S0** le 14 nov., avec leur ajout à `editions.yml`. `check:encres` (`src/refonte/garde/equipes.ts:45`, deux copies de jetons de couleur) est pour **S3**, en première tâche à sa relance.
+- Aucune fusion n'a ajouté de nouvel échec : le déplacement du registre (`bb54c03`) a été comparé avant et après.
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov. : registre, 11 vues déplacées vers `creer` par S5 (`bb54c03`), fusionné : 101 entrées, 142 vues. LOT-04 (Commandes, Boutique) et LOT-07 (terrain, stock) prévenus par le CO. Régressions `ancres` et `avoirs` confiées à S0, `encres` à S3.
 - 14 nov. : LOT-04 et LOT-03 préparations fusionnées (`baff3a3`). TVA par ligne comme `money.ts` (provisoire), régime de TVA réglable (provisoire), numérotation existante, archives sans nouvelle collection (§1.29).
 - 14 nov. : LOT-06 préparation v4 fusionnée (`750d8b3`). Les 12 vues à rapatrier dans `creer` sont listées par S7, et S5 fait le déplacement.
 - 14 nov. : messages directs du CO aux sessions, règle dans `REGLES.md`.

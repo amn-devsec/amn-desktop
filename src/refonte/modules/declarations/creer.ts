@@ -1,10 +1,20 @@
 import { declarerFamille, vue } from '../declarer';
 
 /**
- * CRÉER ET PRODUIRE — vidéo, visuels, publication, événements.
+ * CRÉER ET PRODUIRE — fabriquer, livrer, stocker, puis vidéo, visuels, publication, événements.
  *
  * Décision validée : les Événements vivent ici. Regroupés : Vidéo (Montage,
  * Production) ; Visuels et marque ; Ma page publique (Mini-page, Portfolio).
+ *
+ * RAPATRIÉS LE 14 NOV. (STATUT §1.27 n° 1, liste de la note de LOT-06) : les modules dont l'écran est un
+ * écran de LOT-06 reviennent ici, avec les actions Fabriquer, Livrer et Stocker (les trois premiers groupes
+ * de F50). Chantiers (Montage, Interventions = « Bons d'intervention ») et Qualité et contrôles ; Commandes
+ * et Tournées (et itinéraires) ; Stock (et prévision), Matériel (et flotte) et Boutique en ligne. Ils
+ * venaient d'Outils (terrain, stock) et d'Argent (vendre). Le registre refusant les vues en double, ce qui
+ * est l'écran d'un autre lot reste dans sa famille et F50 le montre en tuile de lien : Salles (Appels et
+ * salles, Échanger), Médias (Documents, Écrire). Les écrans qui n'existent pas encore (Catalogue produits,
+ * Réservations sur `/reservations`, Photos de chantier sur `/photos-chantier`) s'ajoutent ici avec leur écran
+ * (`nouveau`) quand LOT-06 les construit ; « Fabrication » reste masqué tant qu'il n'existe pas.
  */
 
 export default declarerFamille({
@@ -13,12 +23,94 @@ export default declarerFamille({
   teinte: 'creer',
   nom: { fr: 'Créer et produire', en: 'Create and produce' },
   actions: {
+    fabriquer: { fr: 'Fabriquer', en: 'Make' },
+    livrer: { fr: 'Livrer', en: 'Deliver' },
+    stocker: { fr: 'Stocker', en: 'Stock' },
     video: { fr: 'Vidéo et son', en: 'Video and audio' },
     visuels: { fr: 'Images et visuels', en: 'Images and visuals' },
     publier: { fr: 'Publier', en: 'Publish' },
     evenements: { fr: 'Événements', en: 'Events' },
   },
   modules: [
+    {
+      nom: { fr: 'Chantiers', en: 'Job sites' },
+      action: 'fabriquer',
+      niveau: 'courant',
+      vues: [
+        vue('assembly', '/montage', ['suivre un chantier', 'cocher une étape de montage'], ['montage', 'chantier', 'étape', 'pose'], {
+          en: { verbes: ['follow a job site', 'tick off an assembly step'], motsCles: ['assembly', 'job site', 'step', 'installation'] },
+        }),
+        vue('interventions', '/interventions', ['faire un compte rendu d’intervention', 'photographier avant et après'], ['intervention', 'déplacement', 'compte rendu', 'photo'], {
+          en: { verbes: ['write an intervention report', 'photograph before and after'], motsCles: ['intervention', 'call-out', 'report', 'photo', 'field service'] },
+        }),
+      ],
+    },
+    {
+      action: 'fabriquer',
+      niveau: 'courant',
+      vues: [
+        vue('checklists', '/controles', ['faire un contrôle qualité', 'cocher une check-list'], ['contrôle', 'qualité', 'check-list', 'liste'], {
+          en: { verbes: ['do a quality check', 'tick off a checklist'], motsCles: ['inspection', 'quality', 'checklist', 'control'] },
+        }),
+      ],
+    },
+    {
+      action: 'livrer',
+      niveau: 'courant',
+      vues: [
+        vue('orders', '/commandes', ['voir les commandes', 'traiter une commande', 'expédier une commande'], ['commande', 'vente', 'site', 'expédition'], {
+          en: { verbes: ['see orders', 'process an order'], motsCles: ['order', 'sale', 'website', 'shipping'] },
+        }),
+      ],
+    },
+    {
+      nom: { fr: 'Tournées et itinéraires', en: 'Rounds and routes' },
+      action: 'livrer',
+      niveau: 'courant',
+      vues: [
+        vue('rounds', '/tournees', ['préparer une tournée', 'livrer'], ['tournée', 'livraison', 'arrêt'], {
+          en: { verbes: ['prepare a delivery round', 'deliver'], motsCles: ['round', 'delivery', 'stop', 'route'] },
+        }),
+        vue('itineraries', '/itineraires', ['optimiser un itinéraire', 'préparer les arrêts de demain'], ['itinéraire', 'trajet', 'route', 'carte'], {
+          en: { verbes: ['optimize a route', 'prepare tomorrow’s stops'], motsCles: ['route', 'itinerary', 'trip', 'map', 'directions'] },
+        }),
+      ],
+    },
+    {
+      nom: { fr: 'Stock et prévision', en: 'Stock and forecast' },
+      action: 'stocker',
+      niveau: 'courant',
+      vues: [
+        vue('stock', '/stock', ['vérifier le stock', 'ajouter du stock'], ['stock', 'inventaire', 'rupture', 'article', 'entrepôt'], {
+          en: { verbes: ['check stock', 'add stock'], motsCles: ['stock', 'inventory', 'out of stock', 'item', 'warehouse'] },
+        }),
+        vue('stockForecast', '/prevision-stock', ['savoir quand commander', 'prévoir une rupture'], ['prévision', 'stock', 'réassort', 'commande'], {
+          en: { verbes: ['know when to reorder', 'predict a stock-out'], motsCles: ['forecast', 'stock', 'restock', 'reorder'] },
+        }),
+      ],
+    },
+    {
+      nom: { fr: 'Matériel et flotte', en: 'Equipment and fleet' },
+      action: 'stocker',
+      niveau: 'courant',
+      vues: [
+        vue('equipment', '/materiel', ['réserver du matériel', 'voir qui a le matériel'], ['matériel', 'outil', 'réservation', 'prêt'], {
+          en: { verbes: ['book equipment', 'see who has the equipment'], motsCles: ['equipment', 'tools', 'booking', 'loan'] },
+        }),
+        vue('fleet', '/flotte', ['suivre un véhicule', 'noter le kilométrage'], ['flotte', 'véhicule', 'voiture', 'camion', 'kilométrage'], {
+          en: { verbes: ['track a vehicle', 'log the mileage'], motsCles: ['fleet', 'vehicle', 'car', 'van', 'mileage'] },
+        }),
+      ],
+    },
+    {
+      action: 'stocker',
+      niveau: 'courant',
+      vues: [
+        vue('shop', '/boutique', ['vendre en ligne', 'voir les paniers abandonnés'], ['boutique', 'e-commerce', 'panier', 'produit'], {
+          en: { verbes: ['sell online', 'see abandoned carts'], motsCles: ['shop', 'store', 'e-commerce', 'cart', 'product'] },
+        }),
+      ],
+    },
     {
       nom: { fr: 'Vidéo', en: 'Video' },
       action: 'video',
