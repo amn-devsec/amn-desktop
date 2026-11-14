@@ -11,6 +11,7 @@ import { moisCourt } from '../clients/formats';
 import { rangerLibelles, type FiltreContacts, type LigneContact, type ModeleContacts, type ProfilContact, type Recence } from './modele';
 import { useMotsContacts } from './i18n';
 import './personnes.css';
+import '../cibles.css';
 
 /**
  * « FICHES CONTACTS » (MC03) — le carnet de personnes : la liste compacte et le grand profil. Mise en page et états, sans
@@ -60,7 +61,7 @@ export function VueContacts({ statut, horsLigne = false, modele, selectionId, fi
   const { tm } = useMotsContacts();
   const profil = modele.profil;
   return (
-    <Page>
+    <Page className="sc-ct-cibles">
       <PageHead
         titre={tm('titre')}
         sousTitre={tm('sousTitre')}

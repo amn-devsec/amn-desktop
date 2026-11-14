@@ -40,13 +40,13 @@
 .sc-fi-autres text { font-size: 12px; fill: var(--socle-texte-3); }
 .sc-fi-tige { stroke: var(--socle-bord-controle); stroke-width: 1; }
 .sc-fi-contact { fill: var(--socle-texte-3); }
-.sc-fi-carre rect { fill: var(--socle-sous-carte); stroke: var(--socle-bord-controle); stroke-width: 1.2; cursor: pointer; }
+.sc-fi-carre rect:not(.sc-ct-zone) { fill: var(--socle-sous-carte); stroke: var(--socle-bord-controle); stroke-width: 1.2; cursor: pointer; }
 .sc-fi-carre__lettre { font-size: 12px; font-weight: 600; fill: var(--socle-texte-1); pointer-events: none; }
 .sc-fi-carre:focus-visible { outline: none; }
-.sc-fi-carre:focus-visible rect { stroke: var(--socle-texte-1); stroke-width: 2.2; }
+.sc-fi-carre:focus-visible rect:not(.sc-ct-zone) { stroke: var(--socle-texte-1); stroke-width: 2.2; }
 .sc-fi-client__nom { font-size: 12px; fill: var(--socle-texte-2); pointer-events: none; }
 .sc-fi-client__points { font-size: 11px; fill: var(--socle-texte-3); font-family: var(--socle-mono, ui-monospace, monospace); pointer-events: none; }
-.sc-fi-client[data-bientot] .sc-fi-carre rect { fill: var(--fam-a); fill-opacity: 0.18; stroke: var(--fam-a); }
+.sc-fi-client[data-bientot] .sc-fi-carre rect:not(.sc-ct-zone) { fill: var(--fam-a); fill-opacity: 0.18; stroke: var(--fam-a); }
 .sc-fi-client[data-bientot] .sc-fi-client__nom { fill: var(--socle-texte-1); font-weight: 500; }
 .sc-fi-client[data-pale] { opacity: 0.3; }
 .sc-fi-montee line { stroke: var(--fam-a); stroke-width: 1.3; stroke-dasharray: 3 4; animation: sc-fi-flux 1.6s linear infinite; }

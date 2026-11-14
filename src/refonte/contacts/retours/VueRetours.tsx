@@ -11,6 +11,7 @@ import { DemiJauge } from './DemiJauge';
 import { useMotsRetours } from './i18n';
 import { moisCourt } from '../clients/formats';
 import './retours.css';
+import '../cibles.css';
 
 /**
  * « RETOURS CLIENTS » (H44) — la mesure à gauche, le mur des citations à droite : mise en page et états, sans accès aux données.
@@ -59,7 +60,7 @@ export function VueRetours({ statut, horsLigne = false, modele, actions, lecture
   const colonnes = repartirMur(montrees, miseEnAvant);
 
   return (
-    <Page>
+    <Page className="sc-ct-cibles">
       <PageHead
         titre={tm('titre')}
         sousTitre={sous}

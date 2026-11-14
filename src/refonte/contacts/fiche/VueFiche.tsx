@@ -13,6 +13,7 @@ import { moisCourt } from '../clients/formats';
 import type { ElementOuvert, ModeleFiche } from './modele';
 import { useMotsFiche } from './i18n';
 import './fiche.css';
+import '../cibles.css';
 
 /**
  * « FICHE CLIENT » (G04) — le dossier d'un client : mise en page et états, sans accès aux données.
@@ -53,12 +54,12 @@ export interface VueFicheProps {
 export function VueFiche({ statut, horsLigne = false, modele, actions, destinataire }: VueFicheProps) {
   const { tm, langue } = useMotsFiche();
   if (statut === 'chargement') {
-    return <Page><div className="sc-fc" aria-busy="true" aria-label={tm('etat.chargement')}><div className="sc-fc-squelette sc-fc-colonne" /><div className="sc-fc-droite"><div className="sc-fc-squelette sc-fc-frise" /><div className="sc-fc-milieu"><div className="sc-fc-squelette" /><div className="sc-fc-squelette" /></div></div></div></Page>;
+    return <Page className="sc-ct-cibles"><div className="sc-fc" aria-busy="true" aria-label={tm('etat.chargement')}><div className="sc-fc-squelette sc-fc-colonne" /><div className="sc-fc-droite"><div className="sc-fc-squelette sc-fc-frise" /><div className="sc-fc-milieu"><div className="sc-fc-squelette" /><div className="sc-fc-squelette" /></div></div></div></Page>;
   }
   if (statut === 'erreur' || statut === 'archive' || !modele) {
     const archive = statut === 'archive';
     return (
-      <Page>
+      <Page className="sc-ct-cibles">
         <BlocEtat
           icone={<AlertCircle size={20} strokeWidth={1.7} />}
           ton="attention"
@@ -76,7 +77,7 @@ export function VueFiche({ statut, horsLigne = false, modele, actions, destinata
   const sousTitre = m.sansHistorique ? '' : `${tm(m.sousTitre.mois === 1 ? 'sousTitre.relation.1' : 'sousTitre.relation.n', { n: m.sousTitre.mois })}${trait}${rdv}`;
 
   return (
-    <Page>
+    <Page className="sc-ct-cibles">
       <PageHead
         titre={m.nom}
         sousTitre={sousTitre || undefined}

@@ -8,6 +8,7 @@ import { BlocEtat } from '../../../socle/ui/situations';
 import type { CartePersonne, ChargeSemaine, ModeleEquipe } from './modele';
 import { useMotsEquipe } from './i18n';
 import './equipe.css';
+import '../cibles.css';
 
 /**
  * « ÉQUIPE » (MC04) — qui fait quoi, qui est chargé : trois grandes cartes de personne et une bande basse. Mise en page et
@@ -45,7 +46,7 @@ export function VueEquipe({ statut, horsLigne = false, modele, actions, lecture 
   const m = modele;
   const personnes = tm(m.total === 1 ? 'sousTitre.personnes.1' : 'sousTitre.personnes.n', { n: m.total });
   return (
-    <Page>
+    <Page className="sc-ct-cibles">
       <PageHead
         titre={tm('titre')}
         sousTitre={m.chargeMoyenne == null ? personnes : tm('sousTitre.charge', { personnes, n: m.chargeMoyenne })}

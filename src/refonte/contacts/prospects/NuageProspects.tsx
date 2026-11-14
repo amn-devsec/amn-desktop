@@ -101,7 +101,9 @@ export function NuageProspects({ modele, points, actifId, figeId, onSurvol, onCh
         const g = parId.get(p.id) as { x: number; y: number; r: number };
         const actif = p.id === actifId;
         return (
-          <g key={p.id}>
+          <g key={p.id} onMouseEnter={() => onSurvol(p.id)} onMouseLeave={() => onSurvol(null)} onClick={() => onChoisir(p.id)}>
+            {/* Zone de clic invisible de 34 px au moins (STATUT §1.39) : les événements remontent à ce groupe. */}
+            <circle cx={g.x} cy={g.y} r={Math.max(g.r + 1, 17)} className="sc-ct-zone" />
             {actif && <circle cx={g.x} cy={g.y} r={g.r + 6} className="sc-pr-nuage__halo" />}
             <circle
               cx={g.x}
@@ -115,11 +117,8 @@ export function NuageProspects({ modele, points, actifId, figeId, onSurvol, onCh
               role="button"
               aria-label={tm('nuage.point', { nom: p.nom, montant: montant(p.montantCents), interet: p.interet, chance: p.chance })}
               aria-pressed={p.id === figeId}
-              onMouseEnter={() => onSurvol(p.id)}
-              onMouseLeave={() => onSurvol(null)}
               onFocus={() => onSurvol(p.id)}
               onBlur={() => onSurvol(null)}
-              onClick={() => onChoisir(p.id)}
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onChoisir(p.id); } }}
             >
               <title>{p.nom}</title>

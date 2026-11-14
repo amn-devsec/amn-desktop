@@ -6,6 +6,7 @@ import { BlocEtat } from '../../../socle/ui/situations';
 import { PX_PAR_HEURE, HEURE_DEBUT, HEURE_FIN, LARGEUR_RUBAN, type CarteRdv, type ModeleJournee } from './modele';
 import { useMotsRdv } from './i18n';
 import './rdv.css';
+import '../cibles.css';
 
 /**
  * « RENDEZ-VOUS CLIENTS » (MC06) — le ruban de la journée : les rendez-vous sur un axe horaire de 08:00 à 19:00, la bande de
@@ -49,7 +50,7 @@ export function VueRdv({ statut, horsLigne = false, modele, actions, lecture = f
   const jourDecale = (n: number) => { const d = new Date(`${m.jour}T12:00:00Z`); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
 
   return (
-    <Page>
+    <Page className="sc-ct-cibles">
       <PageHead
         titre={tm('titre')}
         sousTitre={m.prochain ? tm('sousTitre', { heure: m.prochain.heure }) : tm('sousTitre.aucun')}

@@ -13,6 +13,7 @@ import { Entonnoir } from './Entonnoir';
 import type { ModeleEntonnoir, Periode } from './modele';
 import { useMotsPipeline } from './i18n';
 import './pipeline.css';
+import '../cibles.css';
 
 /**
  * « PIPELINE COMMERCIAL » (MC01) — l'entonnoir des opportunités : mise en page et états, sans accès aux données.
@@ -51,7 +52,7 @@ export function VuePipeline({ statut, horsLigne = false, modele, actions, lectur
   const m = modele;
 
   return (
-    <Page>
+    <Page className="sc-ct-cibles">
       <PageHead
         titre={tm('titre')}
         sousTitre={tm('sousTitre', { montant: euros(m.enJeuCents, langue) })}

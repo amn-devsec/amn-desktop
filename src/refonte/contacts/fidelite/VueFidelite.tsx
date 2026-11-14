@@ -11,6 +11,7 @@ import { euros } from '../commun';
 import { gardeLeFiltre, type ClientPose, type FiltreEchelle, type Geste, type ModeleFidelite } from './modele';
 import { useMotsFidelite } from './i18n';
 import './fidelite.css';
+import '../cibles.css';
 
 /**
  * « FIDÉLITÉ » (MC02) — l'échelle des paliers : mise en page et états, sans accès aux données.
@@ -50,7 +51,7 @@ export function VueFidelite({ statut, horsLigne = false, modele, faits, actions,
   const [filtre, setFiltre] = useState<FiltreEchelle>('tous');
   const m = modele;
   return (
-    <Page>
+    <Page className="sc-ct-cibles">
       <PageHead
         titre={tm('titre')}
         sousTitre={tm('sousTitre')}
@@ -167,6 +168,7 @@ function Pose({ c, y, jour, nb, gardee, onOuvrir, niveauSuivantY }: { c: ClientP
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOuvrir(c.clientId); } }}
         className="sc-fi-carre"
       >
+        <rect x={x - 17} y={haut - 4} width={34} height={34} className="sc-ct-zone" />
         <rect x={x - 13} y={haut} width={26} height={26} rx={7} />
         <text x={x} y={haut + 17} textAnchor="middle" className="sc-fi-carre__lettre">{c.initiale}</text>
         <title>{tm('client.info', { nom: c.nom, points: nb(c.points), jour: jour(c.derniereActiviteLe) })}</title>

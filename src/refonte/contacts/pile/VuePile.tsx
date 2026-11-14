@@ -10,6 +10,7 @@ import type { TonMessage } from '../relances';
 import type { CarteRelance, EtapeFrise, LigneFile, ModelePile } from './modele';
 import { useMotsPile } from './i18n';
 import './pile.css';
+import '../cibles.css';
 
 /**
  * « RELANCES » (MC07) — la pile focalisée : la file du jour à gauche (260 × 664), la relance au premier plan au centre
@@ -226,7 +227,7 @@ export function VuePile({ statut, horsLigne = false, modele, ton, envoi, annulat
   );
 
   return (
-    <Page>
+    <Page className="sc-ct-cibles">
       <PageHead
         titre={tm('titre')}
         sousTitre={sousTitre}

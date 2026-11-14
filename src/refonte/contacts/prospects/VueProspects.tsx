@@ -13,6 +13,7 @@ import { PeekProspect } from './PeekProspect';
 import { filtrerPoints, listeParInteret, type FiltreProspects, type ModeleProspects, type PointProspect } from './modele';
 import { useMotsProspects } from './i18n';
 import './prospects.css';
+import '../cibles.css';
 
 /**
  * « PROSPECTS » (H06) — le nuage intérêt × montant : mise en page et états, sans accès aux données.
@@ -86,7 +87,7 @@ export function VueProspects({ statut, horsLigne = false, modele, vue, faits, ac
   ];
 
   return (
-    <Page>
+    <Page className="sc-ct-cibles">
       <PageHead
         titre={tm('titre')}
         sousTitre={sousTitre}

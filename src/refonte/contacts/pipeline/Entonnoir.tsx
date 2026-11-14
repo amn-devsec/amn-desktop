@@ -89,7 +89,34 @@ export function Entonnoir({ modele, aujourdhui, selectionId, onSelection, onDepl
         const cy = enGlisse ? glisse.y : y;
         const select = selectionId === p.id;
         return (
-          <g key={p.id} className="sc-mc-deal" data-selection={select ? '' : undefined} data-glisse={enGlisse ? '' : undefined}>
+          <g
+            key={p.id}
+            className="sc-mc-deal"
+            data-selection={select ? '' : undefined}
+            data-glisse={enGlisse ? '' : undefined}
+            onClick={() => onSelection(select ? null : p.id)}
+            onPointerDown={(ev) => {
+              if (lecture || ev.button !== 0) return;
+              (ev.currentTarget as Element).setPointerCapture(ev.pointerId);
+              const pt = versSvg(ev);
+              setGlisse({ id: p.id, x: pt.x, y: pt.y, cible: null });
+            }}
+            onPointerMove={(ev) => {
+              if (!glisse || glisse.id !== p.id) return;
+              const pt = versSvg(ev);
+              setGlisse({ id: p.id, x: pt.x, y: pt.y, cible: COLONNE_DE_X(pt.x) });
+            }}
+            onPointerUp={(ev) => {
+              if (!glisse || glisse.id !== p.id) return;
+              const pt = versSvg(ev);
+              const vers = COLONNE_DE_X(pt.x);
+              setGlisse(null);
+              if (vers && vers !== p.colonne) onDeplacer(p.id, vers);
+            }}
+            onPointerCancel={() => setGlisse(null)}
+          >
+            {/* Zone de clic invisible de 34 px au moins (STATUT §1.39) : les événements remontent à ce groupe. */}
+            <circle cx={cx} cy={cy} r={Math.max(rayon, 19)} className="sc-ct-zone" />
             {select && <circle cx={cx} cy={cy} r={rayon + 6} className="sc-mc-halo" />}
             <circle
               cx={cx}
@@ -101,32 +128,12 @@ export function Entonnoir({ modele, aujourdhui, selectionId, onSelection, onDepl
               role="button"
               aria-pressed={select}
               aria-label={tm('pastille.clavier', { nom: p.nom, etape: tm(`etape.${p.colonne}` as const), montant: montant(p.montantCents) })}
-              onClick={() => onSelection(select ? null : p.id)}
               onKeyDown={(ev) => {
                 if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); onSelection(select ? null : p.id); }
                 if (lecture) return;
                 const vers = ev.key === 'ArrowRight' ? colonneVoisine(p.colonne, 1) : ev.key === 'ArrowLeft' ? colonneVoisine(p.colonne, -1) : null;
                 if (vers) { ev.preventDefault(); onDeplacer(p.id, vers); }
               }}
-              onPointerDown={(ev) => {
-                if (lecture || ev.button !== 0) return;
-                (ev.currentTarget as Element).setPointerCapture(ev.pointerId);
-                const pt = versSvg(ev);
-                setGlisse({ id: p.id, x: pt.x, y: pt.y, cible: null });
-              }}
-              onPointerMove={(ev) => {
-                if (!glisse || glisse.id !== p.id) return;
-                const pt = versSvg(ev);
-                setGlisse({ id: p.id, x: pt.x, y: pt.y, cible: COLONNE_DE_X(pt.x) });
-              }}
-              onPointerUp={(ev) => {
-                if (!glisse || glisse.id !== p.id) return;
-                const pt = versSvg(ev);
-                const vers = COLONNE_DE_X(pt.x);
-                setGlisse(null);
-                if (vers && vers !== p.colonne) onDeplacer(p.id, vers);
-              }}
-              onPointerCancel={() => setGlisse(null)}
             >
               <title>{tm('pastille.info', { nom: p.nom, montant: montant(p.montantCents), etape: tm(`etape.${p.colonne}` as const), responsable: p.responsable ? tm('pastille.responsable', { nom: p.responsable }) : '', n: jourDepuis(p.depuis, aujourdhui) })}</title>
             </circle>

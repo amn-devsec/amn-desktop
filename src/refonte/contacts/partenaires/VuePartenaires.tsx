@@ -10,6 +10,7 @@ import { cheminLien, CENTRE, largeurDuLibelle, ORBITES, placer, RAYON_DISQUE, ZO
 import { gardeLeFiltre, type FiltreReseau, type ModeleReseau, type NoeudPartenaire } from './modele';
 import { useMotsPartenaires } from './i18n';
 import './partenaires.css';
+import '../cibles.css';
 
 /**
  * « PARTENAIRES » (MC05) — la carte du réseau : AMN au centre bas, les partenaires sur trois orbites selon la fréquence des
@@ -52,7 +53,7 @@ export function VuePartenaires({ statut, horsLigne = false, modele, actions, lec
   const m = modele;
   const choisi = m ? m.noeuds.find((n) => n.id === choix) ?? null : null;
   return (
-    <Page>
+    <Page className="sc-ct-cibles">
       <PageHead
         titre={tm('titre')}
         sousTitre={tm('sousTitre', { n: m?.total ?? 0 })}

@@ -12,6 +12,7 @@ import { partsDeLaBarre, TAILLE_PAGE, type ModeleClients, type SegmentClient, ty
 import { useMotsClients } from './i18n';
 import { PastilleStatut, PhraseEchange, TuileClientVue, usePhraseProchaine } from './TuileClientVue';
 import './clients.css';
+import '../cibles.css';
 
 /**
  * « CLIENTS » (H05) — la mosaïque des clients : mise en page et états, sans accès aux données.
@@ -82,7 +83,7 @@ export function VueClients({ statut, horsLigne = false, modele, visibles, filtre
   ];
 
   return (
-    <Page>
+    <Page className="sc-ct-cibles">
       <PageHead
         titre={tm('titre')}
         sousTitre={sousTitre}

@@ -10,6 +10,7 @@ import { FriseDesRendezVous } from './FriseRdv';
 import type { LigneAttente, LigneRdvHub, ModeleHub, SuggestionAppel } from './modele';
 import { useMotsHub } from './i18n';
 import './hub.css';
+import '../cibles.css';
 
 /**
  * LA VUE D'ENSEMBLE « MES CONTACTS ET CLIENTS » (F10) — la mise en page et les états, sans accès aux données.
@@ -54,7 +55,7 @@ export function VueHub({ statut, modele, actions, versTousLesModules, mediane = 
   else if (premier) morceaux.push(tm('sousTitre.rdv', { nom: premier.client, heure: premier.heure }));
 
   return (
-    <Page>
+    <Page className="sc-ct-cibles">
       <PageHead
         titre={tm('titre')}
         sousTitre={morceaux.join(' · ')}

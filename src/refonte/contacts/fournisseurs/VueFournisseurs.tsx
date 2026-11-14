@@ -9,6 +9,7 @@ import { euros } from '../commun';
 import type { Besoin, ColonneFournisseur, Critere, ModeleFournisseurs, Urgence } from './modele';
 import { useMotsFournisseurs } from './i18n';
 import './fournisseurs.css';
+import '../cibles.css';
 
 /**
  * « FOURNISSEURS » (H45) — la matrice « Comparer pour un besoin » : mise en page et états, sans accès aux données.
@@ -51,7 +52,7 @@ export function VueFournisseurs({ statut, horsLigne = false, modele, actions, le
     : `${tm('sousTitre.emporte', { article: m.besoin.article, nom: rec.nom, livraison: jourLong(rec.livraison, langue), qualite: rec.qualite ?? 0 })}${rec.meilleurs.prix ? tm('sousTitre.emporte.prix') : ''}`;
 
   return (
-    <Page>
+    <Page className="sc-ct-cibles">
       <PageHead
         titre={tm('titre')}
         sousTitre={sous}
