@@ -40,7 +40,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 | Jour | Construits | Livrés (cumul) | Livrés depuis la veille | Lots préparés | Lots finis | Note |
 |---|---|---|---|---|---|---|
-| 14 nov. | 57 / 153 | 44 (LOT-00 9, LOT-06 15, LOT-11 7, LOT-02 13) | 44 | 8 / 13 | 3 / 13 (LOT-06, LOT-11, LOT-02) ; LOT-00 attend l'allumage | LOT-02 retiré à 11h25 (`check:clavier`), refusionné corrigé à 11h40. LOT-03 (9) et LOT-05 (10) complets, chez T1. Les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. |
+| 14 nov. | 63 / 153 | 44 (LOT-00 9, LOT-06 15, LOT-11 7, LOT-02 13) | 44 | 8 / 13 | 3 / 13 (LOT-06, LOT-11, LOT-02) ; LOT-00 attend l'allumage | LOT-02 retiré à 11h25 (`check:clavier`), refusionné corrigé à 11h40. LOT-03 (9) et LOT-05 (10) complets, chez T1. Les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. |
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
