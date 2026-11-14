@@ -88,9 +88,9 @@ async function charger<T>(code: string): Promise<T> {
     platform: 'browser',
     target: 'es2022',
     charset: 'utf8',
-    jsx: 'automatic',
-    // Un écran neuf du registre (`nouveau.ecran`, import dynamique) peut tirer une feuille de style : le contrôle ne la lit pas.
+    // Les écrans neufs importent leur feuille de style : la garde ne lit que la logique, la feuille se charge vide.
     loader: { '.css': 'empty' },
+    jsx: 'automatic',
     tsconfig: path.join(racine, 'tsconfig.json'),
     define: { 'process.env.NODE_ENV': '"production"', 'import.meta.env.DEV': 'false', __AMN_EDITION__: '"internal"', __AMN_VERSION__: '"0.0.0"' },
     logLevel: 'silent',
@@ -215,6 +215,19 @@ const m = await charger<{
 const catalogue = m.NAV_SECTIONS.flatMap((s) => s.items);
 const parId = new Map(m.REGISTRE.map((e) => [e.id, e]));
 const R = m.REGISTRE_MODULES;
+
+/**
+ * LES 101 ENTRÉES D'AVANT (le registre du 14 nov., avant tout écran neuf). Elles ne disparaissent jamais ; chaque écran neuf
+ * déclaré (`nouveau`) ajoute une entrée, et le compte s'en déduit : 101 + les écrans neufs. Ajouter un écran n'oblige donc
+ * pas à toucher ce contrôle, et en perdre un ancien le rougit.
+ */
+const ENTREES_D_AVANT: readonly string[] = ["home", "agenda", "tasks", "projects", "okr", "weekly", "time", "shifts", "habits", "budget", "courses", "personalGoals", "pomodoro", "health", "clients", "aftersales", "pipeline", "reviews", "loyalty", "suppliers", "directory", "notes", "logbook", "decisions", "reports", "writing", "templates", "sharedEditor", "binder", "knowledge", "esign", "clauses", "invoices", "contracts", "cashCount", "ticketing", "donations", "expenses", "cashForecast", "watch", "analytics", "reconciliation", "currencies", "dm", "hall", "meetings", "calls", "announcements", "polls", "newsletter", "forms", "chatbot", "switchboard", "recruitment", "procedures", "training", "certifications", "payslips", "assembly", "checklists", "orders", "rounds", "stock", "equipment", "shop", "video", "podcast", "adVisuals", "productShots", "postPlanner", "minisite", "evenements", "qr", "calculators", "automations", "dataPort", "bom", "gdpr", "csr", "kyc", "settings", "members", "assistance", "library", "vault", "extensions", "gardeSalle", "gardePile", "gardeOrganigramme", "gardeBureaux", "gardeCommune", "gardeCalendrier", "tour", "orgs", "generator", "supervision", "sites", "socMaturity", "clientReport", "access", "scanner"];
+type RegistreMin = { entrees: readonly { id: string; vues: readonly { id: string }[] }[]; vues: readonly { id: string; nouveau?: unknown }[] };
+/** Les entrées d'avant qui manquent au registre ; le compte attendu est 101 + les entrées qui portent un écran neuf. */
+const entreesPerdues = (r: RegistreMin): string[] => ENTREES_D_AVANT.filter((id) => !r.entrees.some((e) => e.id === id));
+const ecransNeufsDeclares = (r: RegistreMin): string[] => r.vues.filter((v) => v.nouveau).map((v) => v.id);
+const compteJuste = (r: RegistreMin): boolean => r.entrees.length === ENTREES_D_AVANT.length + r.entrees.filter((e) => e.vues.some((v) => ecransNeufsDeclares(r).includes(v.id))).length;
+
 
 /* ── 1. Le registre et le catalogue ───────────────────────────────────────── */
 
@@ -400,9 +413,8 @@ await dit('Créer et produire rapatrie les modules des écrans de LOT-06 (STATUT
   }
   const creer = R.familles.find((f) => f.id === 'creer');
   assert.deepEqual(creer?.actions.map((a) => a.id).slice(0, 3), ['fabriquer', 'livrer', 'stocker'], 'les trois groupes de F50 d’abord');
-  // Les écrans neufs (`nouveau`) s'ajoutent au catalogue : on compte les entrées de l'ancien catalogue, pas elles.
-  const nouveauxEcrans = R.vues.filter((v) => v.nouveau).length;
-  assert.equal(R.entrees.length - nouveauxEcrans, 101, 'on déplace, on ne perd rien');
+  assert.deepEqual(entreesPerdues(R), [], 'on déplace, on ne perd rien : aucune des 101 entrées d’avant ne disparaît');
+  assert.ok(compteJuste(R), `101 entrées plus les écrans neufs déclarés : ${R.entrees.length} au registre`);
   assert.deepEqual(fautes, [], fautes.join('\n'));
 });
 
@@ -471,9 +483,31 @@ await dit('une entrée à une seule vue garde le nom du catalogue (le rail et la
   assert.deepEqual(fautes, [], fautes.join('\n'));
 });
 
-await dit('chaque module du catalogue a un nom anglais (l’interface anglaise ne retombe pas sur le français)', () => {
-  const sans = catalogue.filter((i) => !m.NAV_EN[i.key]?.label).map((i) => `${i.key} (${i.label})`);
+/**
+ * Le nom anglais d'un module du catalogue : celui de `NAV_EN`, ou — pour un ÉCRAN NEUF du registre (`nouveau`) — celui de sa
+ * déclaration (`etiquette.en`, sinon le nom de son entrée). `NAV_EN` reste le repli et l'exigence de tous les autres.
+ */
+const nomAnglaisDeclare = (r: { vues: readonly Vue[] }, cle: string): string | undefined => {
+  const v = r.vues.find((x) => x.id === cle && x.nouveau);
+  return v ? (v.etiquette?.en ?? v.entreeNom?.en) : undefined;
+};
+const sansNomAnglais = (items: readonly { key: string; label: string }[], r: { vues: readonly Vue[] }, navEn: Record<string, { label?: string }>): string[] =>
+  items.filter((i) => !navEn[i.key]?.label && !nomAnglaisDeclare(r, i.key)).map((i) => `${i.key} (${i.label})`);
+
+await dit('chaque module du catalogue a un nom anglais (l’interface anglaise ne retombe pas sur le français) ; un écran neuf peut le déclarer', () => {
+  const sans = sansNomAnglais(catalogue, R as never, m.NAV_EN);
   assert.deepEqual(sans, [], `sans nom anglais : ${sans.join(', ')}`);
+});
+
+await dit('contrôle négatif : un écran neuf sans nom anglais déclaré est refusé ; un module ancien sans NAV_EN aussi ; le nom déclaré suffit à l’écran neuf', () => {
+  const vue = (id: string, extra: Partial<Vue> = {}): Vue => ({ id, route: `/${id}`, entree: id, principale: true, famille: 'creer', teinte: 'creer', action: 'creer.x', niveau: 'courant', verbes: ['x'], motsCles: ['x'], ...extra });
+  const item = (key: string) => ({ key, label: key });
+  const sansEn = { vues: [vue('neufSansEn', { nouveau: {} })] };
+  assert.deepEqual(sansNomAnglais([item('neufSansEn')], sansEn, {}), ['neufSansEn (neufSansEn)'], 'écran neuf sans nom anglais');
+  const avecEn = { vues: [vue('neufAvecEn', { nouveau: {}, etiquette: { fr: 'Neuf', en: 'New' } }), vue('neufParEntree', { nouveau: {}, entreeNom: { fr: 'Neuf', en: 'New too' } })] };
+  assert.deepEqual(sansNomAnglais([item('neufAvecEn'), item('neufParEntree')], avecEn, {}), [], 'le nom déclaré suffit');
+  assert.deepEqual(sansNomAnglais([item('ancien')], { vues: [vue('ancien', { etiquette: { fr: 'A', en: 'A' } })] }, {}), ['ancien (ancien)'], 'un module ancien garde l’exigence de NAV_EN, même avec une étiquette');
+  assert.deepEqual(sansNomAnglais([item('ancien')], { vues: [] }, { ancien: { label: 'Old' } }), [], 'NAV_EN reste le repli');
 });
 
 await dit('chaque vue a ses verbes et mots-clés en anglais, au même nombre de verbes au moins', () => {
@@ -561,14 +595,66 @@ await dit('une famille ajoutée (un fichier) arrive aux familles, aux essentiels
   assert.ok(item, 'absent du catalogue');
   assert.equal(item.to, '/essai/gabarits');
   assert.equal(sections.find((s) => s.items.includes(item))?.space, 'workspace');
-  const deLaBase = new Set(m.ecransNeufs().map((e) => e.route));
-  assert.deepEqual(m.ecransNeufs(r).map((e) => e.route).filter((x) => !deLaBase.has(x)), ['/essai/gabarits'], 'route non montée');
+  // Seules les routes de l'essai se comparent : les écrans neufs réels du registre (LOT-03, LOT-05, LOT-11…) s'y ajoutent sans le rougir.
+  assert.deepEqual(m.ecransNeufs(r).map((e) => e.route).filter((route) => route.startsWith('/essai/')), ['/essai/gabarits'], 'route non montée');
   const g = m.composerRail({ catalogue: [...catalogue, item].map((i) => ({ key: i.key })), epingles: [], recents: [], quand: new Date(2026, 9, 21, 9), essentiels });
   assert.ok(g.essentiels.some((i) => i.key === 'essaiGabarits'), 'absent du rail');
-  // Le registre réel : chaque écran neuf déclaré (LOT-02…) arrive au catalogue et aux routes, et rien d'autre.
-  const declares = R.vues.filter((v) => v.nouveau).map((v) => v.route).sort();
-  assert.deepEqual(m.sectionsDuRegistre(R).flatMap((s) => s.items.map((i) => i.to)).sort(), declares);
-  assert.deepEqual(m.ecransNeufs(R).map((e) => e.route).sort(), declares);
+  // L'essai ne fuit pas dans le registre réel : aucune route /essai/ ; ce qui est ajouté au catalogue et aux routes, ce sont
+  // exactement les écrans neufs déclarés, et rien d'autre.
+  assert.deepEqual(m.ecransNeufs(R).filter((e) => e.route.startsWith('/essai/')), []);
+  const declares = R.vues.filter((v) => v.nouveau).map((v) => v.id).sort();
+  assert.deepEqual(m.sectionsDuRegistre(R).flatMap((sec) => sec.items.map((i) => i.key)).sort(), declares, 'le catalogue ne gagne que les écrans neufs déclarés');
+  assert.deepEqual(m.ecransNeufs(R).map((e) => e.id).sort(), declares, 'les routes ne gagnent que les écrans neufs déclarés');
+});
+
+await dit('contrôle négatif : le filtre /essai/ ne cache pas un second écran d’essai, et un écran hors /essai/ reste compté parmi les écrans neufs', () => {
+  const deux = m.declarerFamille({
+    id: 'atelier2',
+    ordre: 98,
+    teinte: 'creer',
+    nom: { fr: 'Atelier bis', en: 'Workshop bis' },
+    actions: { fabriquer: { fr: 'Fabriquer', en: 'Make' } },
+    modules: [
+      {
+        nom: { fr: 'Autre', en: 'Other' },
+        action: 'fabriquer',
+        niveau: 'courant',
+        vues: [m.vue('essaiAutre', '/essai/autre', ['calculer autre chose'], ['autre'], { nouveau: { icone: () => null, ecran: async () => ({ default: () => null }), indice: { fr: 'Autre', en: 'Other' } } })],
+      },
+    ],
+  });
+  // Un écran neuf HORS /essai/, déclaré par ce contrôle lui-même : il ne dépend pas de l'état du registre réel.
+  const neuf = m.declarerFamille({
+    id: 'atelier3',
+    ordre: 97,
+    teinte: 'creer',
+    nom: { fr: 'Atelier ter', en: 'Workshop ter' },
+    actions: { fabriquer: { fr: 'Fabriquer', en: 'Make' } },
+    modules: [
+      {
+        nom: { fr: 'Exemple', en: 'Example' },
+        action: 'fabriquer',
+        niveau: 'courant',
+        vues: [m.vue('neufExemple', '/neuf/exemple', ['voir un exemple'], ['exemple'], { nouveau: { icone: () => null, ecran: async () => ({ default: () => null }), indice: { fr: 'Exemple', en: 'Example' } } })],
+      },
+    ],
+  });
+  const r = m.assembler([...m.FICHIERS, { chemin: 'declarations/zz-atelier.ts', declaration: declarationOk() }, { chemin: 'declarations/zz-autre.ts', declaration: deux }, { chemin: 'declarations/zz-neuf.ts', declaration: neuf }]);
+  const essai = m.ecransNeufs(r).map((e) => e.route).filter((route) => route.startsWith('/essai/')).sort();
+  assert.deepEqual(essai, ['/essai/autre', '/essai/gabarits'], 'deux routes d’essai : les deux se voient');
+  assert.notDeepEqual(essai, ['/essai/gabarits'], 'la comparaison de l’essai rougirait si une route d’essai en plus apparaissait');
+  assert.ok(m.ecransNeufs(r).length > essai.length, 'les écrans neufs réels restent comptés');
+});
+
+await dit('contrôle négatif : une entrée d’avant qui disparaît, une entrée en trop, un compte qui ne suit pas un écran neuf rougissent', () => {
+  const sansEsign = { entrees: R.entrees.filter((e) => e.id !== 'esign'), vues: R.vues };
+  assert.deepEqual(entreesPerdues(sansEsign as never), ['esign'], 'une entrée d’avant disparue est nommée');
+  assert.equal(compteJuste(sansEsign as never), false, 'et le compte ne tient plus');
+  const enTrop = { entrees: [...R.entrees, { id: 'intrus', vues: [{ id: 'intrus' }] }], vues: R.vues };
+  assert.equal(compteJuste(enTrop as never), false, 'une entrée en plus qui n’est pas un écran neuf déclaré');
+  const avecNeuf = { entrees: [...R.entrees, { id: 'neuf', vues: [{ id: 'neuf' }] }], vues: [...R.vues, { id: 'neuf', nouveau: {} }] };
+  assert.equal(compteJuste(avecNeuf as never), true, 'un écran neuf déclaré ajoute exactement une entrée');
+  assert.deepEqual(entreesPerdues(avecNeuf as never), []);
 });
 
 await dit('un module ajouté seul (un fichier) rejoint sa famille, après ceux du fichier de la famille', () => {

@@ -232,7 +232,7 @@ const EN = {
   'flotte.avant.carburant': 'Check the fuel level',
   'flotte.avant.charge': 'Check the charge',
   'flotte.avant.pneus': 'Check the tyres',
-  'flotte.avant.papiers': 'Check the papers on board',
+  'flotte.avant.carnet': 'Fill in the logbook',
 
   // MR10 — photos de chantier
   'photos.phase.Avant': 'Before',
@@ -468,7 +468,7 @@ const FR: Readonly<Record<keyof typeof EN, string>> = {
   'flotte.avant.carburant': 'Vérifier le niveau de carburant',
   'flotte.avant.charge': 'Vérifier la charge',
   'flotte.avant.pneus': 'Contrôler les pneus',
-  'flotte.avant.papiers': 'Vérifier les papiers à bord',
+  'flotte.avant.carnet': 'Remplir le carnet de bord',
 
   'photos.phase.Avant': 'Avant',
   'photos.phase.Pendant': 'Pendant',

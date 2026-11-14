@@ -1,6 +1,6 @@
 {
   "lot": "LOT-06",
-  "_": "Les écrans livrés de LOT-06 (Créer et produire). Un fichier par lot. Horloge : vendredi 30 oct. 2026 à 10:42. Coquille allumée.",
+  "_": "Les 15 écrans de LOT-06 (Créer et produire), claude/refonte-creer. Mesure sur l'aperçu statique du lot (STATUT §1.40) ; la route sert aux contrôles de structure sur l'application. MR05, MR06 et MR10 (routes nouvelles /catalogue, /reservations, /photos-chantier) ne sont montés qu'après la fusion de LOT-03 : aperçu seulement.",
   "defaut": {
     "mac": true,
     "date": "2026-10-30T10:42:00+01:00",
@@ -42,6 +42,186 @@
     {
       "id": "H16",
       "route": "#/montage",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "H17",
+      "route": "#/identite-visuelle",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "MR01",
+      "route": "#/montage-video",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "MR02",
+      "route": "#/mini-page",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "MR03",
+      "route": "#/tournees",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "MR04",
+      "route": "#/materiel",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "MR05",
+      "route": "#/catalogue",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "MR06",
+      "route": "#/reservations",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "MR07",
+      "route": "#/commandes",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "MR08",
+      "route": "#/boutique",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "MR09",
+      "route": "#/flotte",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "MR10",
+      "route": "#/photos-chantier",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
+    },
+    {
+      "id": "MR11",
+      "route": "#/controles",
       "etapes": [
         {
           "attendre": "main, [role=main], h1"

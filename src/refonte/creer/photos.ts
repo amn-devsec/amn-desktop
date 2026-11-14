@@ -29,6 +29,8 @@ export interface DossierEntree {
   signatureClient?: boolean;
   demarre?: boolean;
   debutPrevuLe?: Jour | null;
+  /** Jour où l'intervention s'est terminée (clôture) ; absent tant qu'elle est en cours. */
+  termineLe?: Jour | null;
 }
 
 /** Puces : comptes par phase (7 + 21 + 8 = 36). */
@@ -97,6 +99,16 @@ export function planchePhotosParJour(photos: readonly PhotoEntree[], max = VIGNE
     });
 }
 
+/**
+ * Suggestion d'Ajmani « Compléter … » : une intervention terminée depuis plus de 2 jours sans photo après. La plus ancienne d'abord.
+ * Sans déclencheur : `null` (la barre garde son astuce).
+ */
+export function dossierACompleter<T extends DossierEntree>(dossiers: readonly T[], aujourdhui: Jour): T | null {
+  return dossiers
+    .filter((d) => d.termineLe && ecartJours(d.termineLe, aujourdhui) > 2 && !d.photos.some((p) => p.phase === 'Après'))
+    .sort((a, b) => (a.termineLe as Jour).localeCompare(b.termineLe as Jour))[0] ?? null;
+}
+
 /* -------- Comparaison avant / après -------- */
 
 /** Écart d'orientation en degrés, entre 0 et 180. */
@@ -115,7 +127,7 @@ export function memeCadrage(avant: PhotoEntree, apres: PhotoEntree): boolean {
  * Appariement « même endroit » : pour une photo avant, la photo après du même lieu dont l'orientation
  * est la plus proche. Sans lieu ni orientation exploitable : `null` (choix manuel des deux photos).
  */
-export function apparier(avant: PhotoEntree, apres: readonly PhotoEntree[]): PhotoEntree | null {
+export function apparier<T extends PhotoEntree>(avant: PhotoEntree, apres: readonly T[]): T | null {
   if (!avant.lieu) return null;
   const memeLieu = apres.filter((p) => p.phase === 'Après' && p.lieu === avant.lieu);
   if (memeLieu.length === 0) return null;

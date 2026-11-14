@@ -46,6 +46,10 @@ const NAV_EN_INTERNE: Record<string, TraductionNav> = {
   partenaires: { label: 'Partners', hint: 'Those who move the business forward without being clients' },
   contactsFiches: { label: 'Contact sheets', hint: 'The people behind your clients: role, details, relationship' },
   fideliteNiveaux: { label: 'Loyalty tiers', hint: 'The tier ladder: who is Bronze, Silver or Gold' },
+  // Les trois écrans neufs de « Créer et produire » (LOT-06, STATUT §1.27 c) : internes pour l'instant.
+  catalogue: { label: 'Product catalogue', hint: 'Price, margin and stock of each product' },
+  reservations: { label: 'Bookings', hint: 'Rooms and equipment, slot by slot' },
+  photosChantier: { label: 'Site photos', hint: 'Before, during, after, dated and filed' },
 };
 
 export const NAV_EN: Record<string, TraductionNav> = {

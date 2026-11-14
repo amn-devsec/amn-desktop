@@ -113,14 +113,14 @@ export default function PagePile(): React.ReactElement {
       // Point 8 : rien ne part sans un clic — celui-ci — et jamais quand la règle d'espacement l'interdit.
       if (!c || !c.peutPartir) return;
       try { void navigator.clipboard?.writeText(`${c.sujet}\n\n${c.corps}`); } catch { /* presse-papiers refusé : le texte reste dans la carte */ }
-      setBrouillons((b) => { const { [c.cle]: _perdu, ...reste } = b; return reste; });
+      setBrouillons((b) => { const reste = { ...b }; delete reste[c.cle]; return reste; });
       noter('envoyee', c.cle, tm('annuler.copie', { client: c.clientNom }));
     },
     reporter: () => { const c = modele?.courante; if (c) noter('reportee', c.cle, tm('annuler.reporte', { client: c.clientNom })); },
     passer: () => { const c = modele?.courante; if (c) { setPassees((p) => [...p.filter((x) => x !== c.cle), c.cle]); setSelection(null); } },
     appeler: () => navigate('/agenda'),
     ouvrirLigne: setSelection,
-    ton: (t) => { setTon(t); const c = modele?.courante; if (c) setBrouillons((b) => { const { [c.cle]: _perdu, ...reste } = b; return reste; }); },
+    ton: (t) => { setTon(t); const c = modele?.courante; if (c) setBrouillons((b) => { const reste = { ...b }; delete reste[c.cle]; return reste; }); },
     brouillon: (cle, texte) => setBrouillons((b) => ({ ...b, [cle]: texte })),
     modeles: () => { setPassee(true); navigate('/relances', { replace: true, state: { origine: true } }); },
     modifierReglages: () => navigate('/settings'),

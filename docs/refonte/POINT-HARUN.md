@@ -1,8 +1,8 @@
 # Point pour Harun
 
-> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 09h35 UTC., 09h00 UTC., 08h40 UTC., 08h20 UTC., 08h00 UTC.
+> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 10h15 UTC., 10h00 UTC., 10h00 UTC., 09h35 UTC., 09h00 UTC., 08h40 UTC., 08h20 UTC., 08h00 UTC.
 
-**Compteurs** (14 nov., 09h00) : **écrans construits 39 / 153** (9 de LOT-00, plus 30 sur les branches : LOT-11 7 sur 7, LOT-03 9 sur 9, LOT-06 10, LOT-02 4), **livrés 9** (LOT-00, avec le socle v4) · **lots préparés 8 / 13**, lots finis 0 / 13 (LOT-00 attend l'allumage de la nouvelle coquille) · **écrans livrés depuis la veille : 9**. La courbe : `STATUT.md`, « Vitesse ».
+**Compteurs** (14 nov., 10h15) : **écrans construits 48 / 153, livrés 24** (LOT-00 9, **LOT-06 Créer et produire 15, premier lot livré**) · **lots préparés 8 / 13, lots finis 1 / 13** (LOT-06) · **écrans livrés depuis la veille : 24**. La courbe : `STATUT.md`, « Vitesse ».
 
 **À ton réveil, une ligne à coller dans la session S0** (rien d'urgent, le reste avance sans elle) :
 
