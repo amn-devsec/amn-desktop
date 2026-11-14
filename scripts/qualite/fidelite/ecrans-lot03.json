@@ -11,7 +11,18 @@
   "ecrans": [
     {
       "id": "F20",
-      "route": "#/ensemble/ecrire"
+      "route": "#/ensemble/ecrire",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
     }
   ]
 }

@@ -11,15 +11,48 @@
   "ecrans": [
     {
       "id": "F50",
-      "route": "#/ensemble/creer"
+      "route": "#/ensemble/creer",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
     },
     {
       "id": "H15",
-      "route": "#/stock"
+      "route": "#/stock",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
     },
     {
       "id": "H16",
-      "route": "#/montage"
+      "route": "#/montage",
+      "etapes": [
+        {
+          "attendre": "main, [role=main], h1"
+        },
+        {
+          "clicSiPresent": "button:has-text('Compris')"
+        },
+        {
+          "pause": 700
+        }
+      ]
     }
   ]
 }

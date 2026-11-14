@@ -19,7 +19,7 @@
  *
  *   AMN_DOSSIER_V4=<dossier> AMN_E2E_EMAIL=essai.interne@exemple.test AMN_E2E_PASSWORD=… \
  *     node scripts/qualite/fidelite/garde.mjs --lot LOT-00 --dist <build> [--dist-dev <build NODE_ENV=development>] \
- *       [--api http://127.0.0.1:4171] [--sortie <dossier>] [--seulement H40,H41] [--rapport f.md]
+ *       [--api http://127.0.0.1:4171] [--sortie <dossier>] [--seulement H40,H41] [--rapport f.md] [--depuis <worktree-du-lot>]
  *
  * Sûreté : celle de `capturer.mjs` (build servi depuis le disque, réseau limité à cette machine, compte @exemple.test).
  * Sortie 0 = rien ne dépasse (ou images absentes), 1 = au moins un écran dépasse, 2 = erreur d'usage ou de capture.
@@ -59,7 +59,11 @@ if (!DIST) { console.error('--dist <build de l’édition interne> manquant'); p
 const slug = LOT.toLowerCase().replace('-', '');
 const scenarios = path.join(ICI, `ecrans-${slug}.json`);
 const fAcceptes = path.join(RACINE, 'docs', 'qualite', 'fidelite', `acceptes-${LOT}.json`);
-const fJustifies = path.join(RACINE, 'docs', 'qualite', 'fidelite', `justifies-${LOT}.json`);
+// `--depuis <worktree>` : les écarts justifiés du lot sont écrits par la session du lot, sur SA branche (docs/qualite/fidelite/justifies-LOT-xx.json) :
+// on les lit là où la branche est extraite, avant la fusion. Sans lui, ceux du dépôt courant.
+const DEPUIS = opt('depuis');
+const fJustifiesLot = DEPUIS ? path.join(path.resolve(DEPUIS), 'docs', 'qualite', 'fidelite', `justifies-${LOT}.json`) : null;
+const fJustifies = fJustifiesLot && fs.existsSync(fJustifiesLot) ? fJustifiesLot : path.join(RACINE, 'docs', 'qualite', 'fidelite', `justifies-${LOT}.json`);
 if (!fs.existsSync(scenarios)) { console.error(`pas de scénarios pour ${LOT} : ${path.relative(RACINE, scenarios)} (un fichier par lot, modèle ecrans-lot00.json)`); process.exit(2); }
 const lire = (f, defaut) => (fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : defaut);
 const acceptes = lire(fAcceptes, { mesure: 'strict', valeurs: {} });
