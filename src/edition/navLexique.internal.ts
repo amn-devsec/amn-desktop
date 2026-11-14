@@ -54,6 +54,7 @@ const NAV_EN_INTERNE: Record<string, TraductionNav> = {
   cockpit: { label: 'Client cockpit', hint: 'Their activity online, live: revenue, users, tickets, health' },
   missions: { label: 'Missions and tickets', hint: 'Team and client tickets, in columns' },
   notesRapides: { label: 'Quick notes', hint: 'Note in two seconds, sort later' },
+  rappels: { label: 'Reminders', hint: 'What rings now, what is coming, and how you are told' },
   pipelineCommercial: { label: 'Sales pipeline', hint: 'The opportunity funnel, from first contact to signature' },
   rdvClients: { label: 'Client meetings', hint: 'The day of your client meetings, hour by hour' },
   partenaires: { label: 'Partners', hint: 'Those who move the business forward without being clients' },

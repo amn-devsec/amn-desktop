@@ -1,4 +1,4 @@
-import { Columns3, Gauge, StickyNote } from 'lucide-react';
+import { BellRing, Columns3, Gauge, StickyNote } from 'lucide-react';
 import { declarerFamille, vue } from '../declarer';
 
 /**
@@ -114,6 +114,21 @@ export default declarerFamille({
             icone: StickyNote,
             ecran: () => import('../../journee/notes/PageNotes'),
             indice: { fr: 'Noter en deux secondes, classer plus tard', en: 'Note in two seconds, sort later' },
+          },
+        }),
+      ],
+    },
+    {
+      nom: { fr: 'Rappels', en: 'Reminders' },
+      action: 'suivre',
+      niveau: 'courant',
+      vues: [
+        vue('rappels', '/rappels', ['voir ce qui sonne maintenant', 'reporter un rappel', 'ne rien oublier aujourd’hui'], ['rappel', 'reporter', 'à reprendre', 'récurrent', 'heures calmes', 'prévenu'], {
+          en: { verbes: ['see what rings now', 'snooze a reminder', 'forget nothing today'], motsCles: ['reminder', 'snooze', 'recurring', 'quiet hours', 'notified'] },
+          nouveau: {
+            icone: BellRing,
+            ecran: () => import('../../journee/rappels/PageRappels'),
+            indice: { fr: 'Ce qui sonne maintenant, ce qui arrive, et comment tu es prévenu', en: 'What rings now, what is coming, and how you are told' },
           },
         }),
       ],

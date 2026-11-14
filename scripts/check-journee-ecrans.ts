@@ -767,6 +767,106 @@ if (M.NOT_modele) {
   });
 }
 
+/* ── MJ05 · Rappels ──────────────────────────────────────────────────────── */
+if (M.RAP_modele) {
+  console.log('\nMa journée — MJ05, Rappels (sections, à reprendre, report, tenus à temps)\n');
+  const RAP = M.RAP_modele;
+  const NOW = paris('2026-10-30', '10:42');
+  const rp = (id: string, jour: string, h: string, o: Record<string, unknown> = {}): any => ({ id, titre: `Rappel ${id}`, contexte: '', personne: 'a', initiale: 'A', quandAt: new Date(paris(jour, h)).toISOString(), fait: false, faitAt: null, avanceeMin: 15, ...o });
+  const fil = (rappels: any[], o: Record<string, unknown> = {}) => RAP.modeleRappels({ rappels, maintenant: NOW, ...o });
+  const ids = (m: any, cle: string): string[] => (m.sections.find((s: any) => s.cle === cle)?.rappels ?? []).map((r: any) => r.id);
+
+  await dit('les sections : faits du jour, Maintenant (à reprendre + les 15 prochaines minutes), Plus tard, Demain, semaine ; une section vide disparaît ; ordre chronologique', () => {
+    const m = fil([
+      rp('f', '2026-10-30', '08:00', { fait: true, faitAt: new Date(paris('2026-10-30', '08:01')).toISOString() }), rp('r', '2026-10-30', '10:00'), rp('b', '2026-10-30', '10:45'), rp('t', '2026-10-30', '17:00'), rp('t2', '2026-10-30', '14:00'),
+      rp('d', '2026-10-31', '10:00'), rp('s2', '2026-11-03', '08:30'), rp('s1', '2026-11-02', '09:00'),
+    ]);
+    assert.deepEqual(m.sections.map((s: any) => s.cle), ['faits', 'maintenant', 'plus-tard', 'demain', 'semaine']);
+    assert.deepEqual(ids(m, 'maintenant'), ['r', 'b'], 'l’imminent reste dans Maintenant, pas dans Plus tard');
+    assert.deepEqual(ids(m, 'plus-tard'), ['t2', 't']);
+    assert.deepEqual(ids(m, 'semaine'), ['s1', 's2'], 'chronologique strict');
+    assert.deepEqual(fil([rp('x', '2026-10-30', '15:00')]).sections.map((s: any) => s.cle), ['plus-tard'], 'rien de fait, rien en cours : ces sections disparaissent');
+  });
+
+  await dit('« à reprendre depuis n » (jamais « en retard ») et « dans n min » ; le compteur du titre : restants du jour, dont à reprendre', () => {
+    const m = fil([rp('r', '2026-10-30', '10:00'), rp('b', '2026-10-30', '10:45'), rp('t', '2026-10-30', '17:00'), rp('t2', '2026-10-30', '14:00'), rp('d', '2026-10-31', '10:00')]);
+    const [r, b] = m.sections[0].rappels;
+    assert.deepEqual([r.noeud, r.delai], ['a-reprendre', { genre: 'reprendre', minutes: 42 }]);
+    assert.deepEqual([b.noeud, b.delai], ['bientot', { genre: 'dans', minutes: 3 }]);
+    assert.deepEqual([m.restantAujourdhui, m.aReprendre], [4, 1], 'demain ne compte pas');
+  });
+
+  await dit('« Cette semaine » ou « Semaine prochaine » : le vendredi, la suite est la semaine prochaine', () => {
+    assert.equal(fil([]).etiquetteSemaine, 'Semaine prochaine');
+    assert.equal(RAP.modeleRappels({ rappels: [], maintenant: paris('2026-10-28', '10:00') }).etiquetteSemaine, 'Cette semaine');
+  });
+
+  await dit('l’heure du fil : « HH:MM » aujourd’hui et demain, « Lun. 9:00 » au-delà', () => {
+    assert.equal(RAP.heureDuFil(new Date(paris('2026-10-30', '14:00')).toISOString(), '2026-10-30'), '14:00');
+    assert.equal(RAP.heureDuFil(new Date(paris('2026-10-31', '10:00')).toISOString(), '2026-10-30'), '10:00');
+    assert.equal(RAP.heureDuFil(new Date(paris('2026-11-02', '09:00')).toISOString(), '2026-10-30'), 'Lun. 9:00');
+    assert.equal(RAP.heureDuFil(new Date(paris('2026-11-03', '08:30')).toISOString(), '2026-10-30'), 'Mar. 8:30');
+  });
+
+  await dit('les puces de report : +1 h, 14:00, Ce soir, le prochain jour ouvré à 9:00 (« Lundi » un vendredi, « Demain » sinon) ; jamais dans les heures calmes', () => {
+    const calmes = { actif: true, debut: '20:00', fin: '08:00' };
+    const p = RAP.pucesDeReport(NOW, calmes);
+    assert.deepEqual(p.map((x: any) => [x.cle, x.heure]), [['plus1h', '11:42'], ['apresMidi', '14:00'], ['soir', '18:00'], ['ouvre', '09:00']]);
+    assert.equal(p[3].jourSemaine, 1, 'un vendredi : lundi');
+    assert.equal(p[3].jourDemain, false);
+    const mercredi = RAP.pucesDeReport(paris('2026-10-28', '10:00'), calmes);
+    assert.deepEqual([mercredi[3].jourDemain, mercredi[3].jourSemaine], [true, 4]);
+    const tard = RAP.pucesDeReport(paris('2026-10-30', '19:30'), calmes);
+    assert.deepEqual(tard.map((x: any) => x.cle), ['ouvre'], '+1 h tomberait à 20:30 (calme), plus d’après-midi, plus de soir');
+    assert.equal(RAP.estCalme(21 * 60, calmes), true);
+    assert.equal(RAP.estCalme(7 * 60, calmes), true);
+    assert.equal(RAP.estCalme(12 * 60, calmes), false);
+    assert.equal(RAP.estCalme(21 * 60, { ...calmes, actif: false }), false);
+    assert.equal(RAP.prochainJourOuvre('2026-10-30'), '2026-11-02');
+  });
+
+  await dit('« Tenus à temps » : faits dans l’heure ÷ échus ce mois ; l’écart en points se compare au mois précédent ; sans échus, pas de pourcentage', () => {
+    const tenu = (id: string, j: string, h: string, tard = false) => rp(id, j, h, { fait: true, faitAt: new Date(paris(j, tard ? '15:00' : h) + 600_000).toISOString() });
+    const mois = [...['a', 'b', 'c'].map((i) => tenu(i, '2026-10-05', '09:00')), tenu('d', '2026-10-06', '09:00', true), rp('fut', '2026-10-30', '17:00')];
+    const prec = [...['p1', 'p2'].map((i) => tenu(i, '2026-09-15', '09:00')), tenu('p3', '2026-09-15', '09:00', true), tenu('p4', '2026-09-15', '09:00', true)];
+    const t = RAP.tenusATemps([...mois, ...prec], NOW);
+    assert.deepEqual([t.traites, t.total, t.pourcent, t.ecartPoints], [3, 4, 75, 25], '75 % ce mois contre 50 %');
+    assert.deepEqual(RAP.tenusATemps([], NOW), { pourcent: null, traites: 0, total: 0, ecartPoints: null });
+  });
+
+  await dit('le filtre « Les miens » / « Équipe », la section « Déjà fait » (aujourd’hui seulement) et l’état vide', () => {
+    const rs = [rp('a', '2026-10-30', '15:00', { personne: 'a' }), rp('b', '2026-10-30', '16:00', { personne: 'b' }), rp('h', '2026-10-29', '09:00', { fait: true, faitAt: new Date(paris('2026-10-29', '09:05')).toISOString() })];
+    assert.deepEqual(ids(fil(rs, { filtre: 'miens', moi: 'a' }), 'plus-tard'), ['a']);
+    assert.deepEqual(ids(fil(rs, { filtre: 'equipe', moi: 'a' }), 'plus-tard'), ['b']);
+    assert.deepEqual(ids(fil(rs), 'faits'), [], 'ce qui est fait hier n’est plus sur le fil du jour');
+    assert.equal(fil([]).vide, true);
+  });
+
+  await dit('un rappel PROPOSÉ n’existe pas tant qu’il n’est pas programmé : sur le fil, en pointillé, hors du compte des rappels du jour', () => {
+    const m = fil([rp('p', '2026-11-02', '09:00', { propose: true }), rp('s', '2026-11-03', '08:30')]);
+    const s = m.sections[0];
+    assert.deepEqual([s.nbPrevus, s.nbProposes, s.rappels[0].noeud], [1, 1, 'propose']);
+    assert.deepEqual(RAP.tenusATemps([rp('p', '2026-10-02', '09:00', { propose: true })], NOW).total, 0, 'un proposé ne compte pas dans Tenus à temps');
+  });
+
+  await dit('heures calmes : un rappel dans la plage porte « silencieux »', () => {
+    const m = fil([rp('n', '2026-10-30', '21:00'), rp('j', '2026-10-30', '15:00')], { calmes: { actif: true, debut: '20:00', fin: '08:00' } });
+    assert.deepEqual(m.sections[0].rappels.map((r: any) => r.silencieux), [false, true]);
+  });
+
+  await dit('VOIX : aucun mot « retard » dans les textes, aucun rouge dans la feuille', () => {
+    const dicos = JSON.stringify(M.DICTIONNAIRES_RAPPELS.fr).toLowerCase();
+    assert.ok(!/en retard|retard/.test(dicos), 'un rappel passé est « à reprendre »');
+    const css = fs.readFileSync(path.join(racine, 'src/refonte/journee/rappels/rappels.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+    assert.ok(!/etat-critique/.test(css), 'jamais de rouge sur un rappel');
+  });
+
+  await dit('MJ05 · textes : mêmes clés en fr et en, tutoiement', () => {
+    motsJustes(M.DICTIONNAIRES_RAPPELS, 'MJ05');
+    assert.equal(M.DICTIONNAIRES_RAPPELS.fr['action.nouveau'], 'Nouveau rappel');
+  });
+}
+
 /* ── Structure ──────────────────────────────────────────────────────────── */
 console.log('\nMa journée — structure des écrans de S1\n');
 const lister = (d: string): string[] => (fs.existsSync(path.join(racine, d)) ? fs.readdirSync(path.join(racine, d), { recursive: true, withFileTypes: true }).filter((f: any) => f.isFile()).map((f: any) => path.relative(racine, path.join(f.parentPath ?? f.path, f.name)).replace(/\\/g, '/')) : []);
