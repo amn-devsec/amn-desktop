@@ -77,7 +77,7 @@ export function permisHorsLigne(niveau: NiveauAction): boolean {
 
 /* ── Le bouton primaire porte un verbe précis ── */
 
-const VERBES_VAGUES = new Set(['ok', 'valider', 'validez', 'oui', 'confirmer', 'confirmez', 'continuer', 'continuez', 'accepter', 'accepte', 'dac', 'dacc', 'go', 'yes', 'confirm', 'validate', 'continue', 'accept', 'submit']);
+const VERBES_VAGUES = new Set(['ok', 'valider', 'valide', 'validez', 'oui', 'confirmer', 'confirme', 'confirmez', 'continuer', 'continuez', 'accepter', 'accepte', 'dac', 'dacc', 'go', 'yes', 'confirm', 'validate', 'continue', 'accept', 'submit']);
 
 function premierMot(libelle: string): string {
   return libelle

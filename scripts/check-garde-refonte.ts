@@ -96,7 +96,7 @@ const teinte = ([r, g, b]: Rvb) => {
   return { h: (h * 60 + 360) % 360, s: d / (1 - Math.abs(mx + mn - 1)) };
 };
 
-const feuille = lire('src/index.css');
+const feuille = lire('src/socle/theme.css');
 const debutSocle = feuille.indexOf('LE SOCLE DE LA REFONTE (S0)');
 function surfaces(selecteur: string): Rvb[] {
   const i = feuille.indexOf(selecteur, debutSocle);

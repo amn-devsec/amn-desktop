@@ -30,7 +30,8 @@
   grid-template-columns: var(--sd-sommaire) minmax(0, 1fr);
   min-height: 100vh;
   background-color: var(--socle-fond-page);
-  background-image: var(--socle-halo);
+  /* v4 (06 §3 règle 1) : les deux halos de la famille. */
+  background-image: var(--socle-halos);
   color: var(--socle-texte-1);
   font-size: 13.5px;
   line-height: 1.5;
@@ -130,7 +131,10 @@
 .sd-rangee > .sd-cas .sd-cas__corps { width: auto; }
 .sd-cas__legende { color: var(--socle-texte-3); font-size: 11.5px; line-height: 14px; }
 
-.sd-rangee { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 14px 20px; margin-top: 12px; }
+/* Les pièces d'une rangée se posent sur une même ligne de base : leurs légendes s'alignent, quelle que soit la hauteur de chacune. */
+.sd-rangee { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px 20px; margin-top: 12px; }
+/* Seules les pièces légendées (`.sd-cas`) s'alignent par le bas ; une pièce posée seule garde le haut de la rangée. */
+.sd-rangee > :not(.sd-cas) { align-self: flex-start; }
 .sd-bloc__titre + .sd-rangee { margin-top: 0; }
 .sd-grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--sd-min, 220px), 1fr)); align-items: start; gap: var(--sd-ecart); }
 .sd-pile { display: flex; max-width: 520px; flex-direction: column; gap: 16px; }
@@ -174,6 +178,9 @@
 /* Un filet décoratif : posé en fond d'une barre, jamais en couleur de texte. */
 .sd-jeton[data-genre='decor'] .sd-jeton__echantillon { background: var(--socle-carte-bas); }
 .sd-jeton[data-genre='decor'] .sd-jeton__echantillon::before { content: ''; width: 70%; height: 2px; border-radius: 99px; background: var(--sd-ech); }
+/* Les gris de décor (B15) ne sont pas des filets : l'échantillon se remplit, comme un fond d'illustration. */
+.sd-jeton[data-genre='decor'] .sd-jeton__echantillon[style*='--socle-decor'] { background: var(--sd-ech); }
+.sd-jeton[data-genre='decor'] .sd-jeton__echantillon[style*='--socle-decor']::before { display: none; }
 .sd-jeton[data-genre='famille'] .sd-jeton__echantillon { background: var(--sd-ech); }
 .sd-jeton[data-genre='etat'] .sd-jeton__echantillon { background: var(--socle-carte-bas); }
 .sd-jeton[data-genre='avatar'] .sd-jeton__echantillon { background: var(--sd-ech); color: var(--socle-texte-1); font-size: 16px; font-weight: 600; }
@@ -202,7 +209,8 @@
   border: 1px solid var(--socle-bord-carte);
   border-radius: var(--socle-rayon-carte);
   background-color: var(--socle-fond-page);
-  background-image: var(--socle-halo);
+  /* v4 (06 §3 règle 1) : les deux halos de la famille. */
+  background-image: var(--socle-halos);
 }
 
 /* ═══ Étroit : le sommaire passe en haut ═══ */
@@ -214,3 +222,76 @@
   .sd-sommaire__reglage { margin-top: 0; }
   .sd-contenu { padding: 28px 18px 80px; }
 }
+
+/* ═══ Vivant (v3) ═══ */
+/* Une ligne de saisie, comme la barre Ajmani : le curseur avant le texte. */
+.sd-saisie {
+  display: flex;
+  height: var(--socle-hauteur-ajmani);
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0 16px;
+  border: 1px solid var(--socle-bord-controle);
+  border-radius: 14px;
+  background: var(--socle-champ);
+  color: var(--socle-texte-3);
+  font-size: 13px;
+}
+.sd-journal { display: flex; align-items: baseline; gap: 10px; margin: 0; color: var(--socle-texte-courant); font-size: 12px; }
+.sd-journal-liste { margin: 0; padding: 0; list-style: none; }
+.sd-journal-liste li {
+  display: flex;
+  gap: 10px;
+  max-width: 420px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--socle-bord-ligne);
+  color: var(--socle-texte-courant);
+  font-size: 12px;
+}
+/* La carte de chaleur : une colonne d'étiquettes, six créneaux. */
+.sd-chaleur {
+  display: grid;
+  grid-template-columns: 72px repeat(6, 22px);
+  align-items: center;
+  gap: 4px;
+  margin-top: 12px;
+}
+.sd-chaleur__axe { color: var(--socle-texte-3); font-size: 10.5px; font-variant-numeric: tabular-nums; text-align: center; }
+.sd-chaleur__axe:first-letter { text-transform: uppercase; }
+/* Le petit graphe des liens qui avancent : des nœuds en sous-carte. */
+.sd-flux { display: block; max-width: 100%; height: auto; overflow: visible; }
+.sd-flux__noeud rect { fill: var(--socle-sous-carte); stroke: var(--socle-bord-carte); }
+.sd-flux__noeud text { fill: var(--socle-texte-courant); font-size: 12px; }
+.sd-flux__noeud:hover rect { stroke: var(--socle-bord-survol); }
+/* Le radar : un disque de sous-carte et son balayage conique. */
+.sd-radar {
+  position: relative;
+  display: block;
+  width: 96px;
+  height: 96px;
+  overflow: hidden;
+  border: 1px solid var(--socle-bord-carte);
+  border-radius: 50%;
+  background: var(--socle-sous-carte);
+}
+.sd-radar__balai { position: absolute; inset: 0; }
+.sd-survol-carte {
+  padding: 14px 16px;
+  border: 1px solid var(--socle-bord-carte);
+  border-radius: var(--socle-rayon-carte);
+  background: linear-gradient(180deg, var(--socle-carte-haut), var(--socle-carte-bas));
+  color: var(--socle-texte-1);
+  font-size: 13px;
+}
+.sd-survol-ligne { min-width: 220px; padding: 10px 12px; border-bottom: 1px solid var(--socle-bord-ligne); color: var(--socle-texte-courant); font-size: 13px; }
+
+/* ═══ Les briques partagées (v3) : une colonne de tuiles de module, la grille 2 × 132 des épinglés de D02, un cadre large ═══ */
+.sd-modules { display: flex; width: 300px; flex-direction: column; gap: 2px; }
+.sd-puces { display: grid; grid-template-columns: repeat(2, 132px); gap: 6px; }
+.sd-etroit--large { max-width: 720px; }
+
+/* ═══ Alignement § 4 : les motifs — hachure en fond, pointillé d'état en bordure, posés par leur jeton (--sd-motif) ═══ */
+.sd-motif { display: block; width: 120px; height: 44px; border-radius: 10px; background-color: var(--socle-sous-carte); }
+.sd-motif[data-genre='fond'] { background-image: var(--sd-motif); }
+.sd-motif[data-genre='bord'] { border: var(--sd-motif); }

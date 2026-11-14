@@ -34,9 +34,11 @@ export interface BarreProgressionProps {
   texte?: string;
   className?: string;
   style?: React.CSSProperties;
+  /** Remplissage depuis 0 à l'apparition (couche de mouvement §0.2 : 900 ms, départ à 200 ms). Défaut : oui. */
+  anime?: boolean;
 }
 
-export function BarreProgression({ valeur, ton = 'neutre', hauteur = 5, reperes = false, libelle, texte, className = '', style }: BarreProgressionProps) {
+export function BarreProgression({ valeur, ton = 'neutre', hauteur = 5, reperes = false, libelle, texte, className = '', style, anime = true }: BarreProgressionProps) {
   const v = borne(valeur);
   return (
     <span
@@ -51,7 +53,7 @@ export function BarreProgression({ valeur, ton = 'neutre', hauteur = 5, reperes 
       className={`sc-barre ${className}`}
       style={style}
     >
-      <span style={{ width: `${Math.round(v * 100)}%` }} />
+      <span data-mvt={anime ? 'remplit' : undefined} style={{ width: `${Math.round(v * 100)}%` }} />
       {reperes && [25, 50, 75].map((r) => <i key={r} aria-hidden style={{ left: `${r}%` }} />)}
     </span>
   );
@@ -69,12 +71,14 @@ export interface AnneauProgressionProps {
   piste?: 'defaut' | 'anneau';
   /** Au centre : un chiffre court (« 3/7 », « 42 % »). */
   children?: React.ReactNode;
+  /** Tracé depuis 0 à l'apparition (couche de mouvement §0.2 : 1,1 s, départ à 250 ms). Défaut : oui. */
+  anime?: boolean;
 }
 
-export function AnneauProgression({ valeur, libelle, texte, taille = 44, epaisseur = 4, ton = 'neutre', piste = 'defaut', children }: AnneauProgressionProps) {
+export function AnneauProgression({ valeur, libelle, texte, taille = 44, epaisseur = 4, ton = 'neutre', piste = 'defaut', children, anime = true }: AnneauProgressionProps) {
   const v = borne(valeur);
   // Défauts : pas de style en ligne, la feuille (`.sc-anneau__trait`, `__piste`) décide comme avant.
-  const styleTrait = ton === 'neutre' ? undefined : { stroke: couleurTon(ton) };
+  const styleTrait = ton === 'neutre' ? undefined : ({ '--sc-anneau-c': couleurTon(ton) } as React.CSSProperties);
   const stylePiste = piste === 'anneau' ? { stroke: 'var(--socle-anneau-fond)' } : undefined;
   const r = (taille - epaisseur) / 2;
   const tour = 2 * Math.PI * r;
@@ -87,7 +91,7 @@ export function AnneauProgression({ valeur, libelle, texte, taille = 44, epaisse
       aria-valuenow={Math.round(v * 100)}
       aria-valuetext={texte}
       className="sc-anneau"
-      style={{ width: taille, height: taille }}
+      style={{ width: taille, height: taille, ...(anime ? ({ '--sc-mvt-tour': tour } as React.CSSProperties) : null) }}
     >
       <svg width={taille} height={taille} viewBox={`0 0 ${taille} ${taille}`} aria-hidden>
         <circle className="sc-anneau__piste" cx={taille / 2} cy={taille / 2} r={r} strokeWidth={epaisseur} style={stylePiste} />
@@ -98,6 +102,7 @@ export function AnneauProgression({ valeur, libelle, texte, taille = 44, epaisse
           r={r}
           strokeWidth={epaisseur}
           strokeDasharray={tour}
+          data-mvt={anime ? 'anneau' : undefined}
           strokeDashoffset={tour * (1 - v)}
           style={styleTrait}
         />
@@ -131,6 +136,8 @@ export interface TuileKpiProps {
 }
 
 export function TuileKpi({ libelle, valeur, variation, detail, ton = 'neutre', barre, libelleBarre, famille, hauteur = 84, droite, onClick, ...aria }: TuileKpiProps) {
+  // La variation tient sur une ligne et s'ellipse (§4 : 84 à 92 px) : l'infobulle redonne toujours la phrase entière.
+  const infobulle = [variation, detail].filter(Boolean).join(' — ') || undefined;
   const contenu = (
     <>
       <span className="sc-kpi__label">
@@ -152,13 +159,13 @@ export function TuileKpi({ libelle, valeur, variation, detail, ton = 'neutre', b
   );
   if (onClick) {
     return (
-      <button type="button" data-socle="kpi" data-famille={famille} data-hauteur={hauteur === 84 ? undefined : hauteur} onClick={onClick} aria-label={aria['aria-label']} title={detail} className="sc-kpi sc-focus">
+      <button type="button" data-socle="kpi" data-famille={famille} data-hauteur={hauteur === 84 ? undefined : hauteur} onClick={onClick} aria-label={aria['aria-label']} title={infobulle} className="sc-kpi sc-focus">
         {contenu}
       </button>
     );
   }
   return (
-    <div data-socle="kpi" data-famille={famille} data-hauteur={hauteur === 84 ? undefined : hauteur} aria-label={aria['aria-label']} title={detail} className="sc-kpi">
+    <div data-socle="kpi" data-famille={famille} data-hauteur={hauteur === 84 ? undefined : hauteur} aria-label={aria['aria-label']} title={infobulle} className="sc-kpi">
       {contenu}
     </div>
   );

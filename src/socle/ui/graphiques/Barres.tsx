@@ -5,6 +5,7 @@ import { PointsInteractifs, TableauAlternatif, useActif, useLargeur, type ZoneGr
 import { formaterNombre } from './format';
 import type { PointGraphique } from './Courbe';
 import { couleurTon, type TonGraphique } from './tons';
+import { decalageBarres, styleRang } from '../../couche-mouvement';
 
 /**
  * LES BARRES — des colonnes grises, une seule mise en valeur en bleu d'information,
@@ -20,8 +21,9 @@ import { couleurTon, type TonGraphique } from './tons';
  *
  * Accessibilité : `role="img"` avec un résumé (« Barres, 7 colonnes, de X à Y »),
  * un tableau `sr-only` avec toutes les valeurs, des boutons par colonne tant
- * que `interactif` n'est pas coupé. L'entrée est une croissance de 400 ms depuis
- * la ligne de base, supprimée par `prefers-reduced-motion` et par Mouvement « aucun ».
+ * que `interactif` n'est pas coupé. L'entrée vient de la couche de mouvement commune
+ * (§0.2) : chaque colonne pousse depuis la ligne de base en 700 ms, avec un décalage de
+ * 22 à 40 ms selon leur nombre ; supprimée par `prefers-reduced-motion`, « réduit » et « aucun ».
  */
 export interface BarresProps {
   donnees: readonly PointGraphique[];
@@ -29,7 +31,7 @@ export interface BarresProps {
   libelle: string;
   /** Nom de la série, pour le tableau lu par les lecteurs d'écran. */
   nom?: string;
-  /** La couleur de la colonne mise en valeur : défaut « info » (`--socle-etat-info`). */
+  /** La couleur de la colonne mise en valeur : défaut « famille », la couleur a de la famille (06-V4 §3, règle 8). */
   ton?: TonGraphique;
   /** Indice de la colonne mise en valeur (dans `donnees`, valeurs finies seules), `null` pour aucune ; défaut : la plus grande. */
   miseEnValeur?: number | null;
@@ -49,14 +51,17 @@ const LARGEUR_MAX_COLONNE = 36;
 const FILET = 2;
 const TAILLE_VALEUR = 12;
 
-export function Barres({ donnees, libelle, nom, ton = 'info', miseEnValeur, hauteur = 160, formater = formaterNombre, interactif = true, className = '' }: BarresProps) {
+export function Barres({ donnees, libelle, nom, ton = 'famille', miseEnValeur, hauteur = 160, formater = formaterNombre, interactif = true, className = '' }: BarresProps) {
   const { ts } = useSocleLangue();
   const [ref, largeur] = useLargeur<HTMLDivElement>(LARGEUR_DEFAUT);
   const { actif, onActiver, onDesactiver } = useActif();
 
   const colonnes = donnees.map((d) => ({ etiquette: String(d.etiquette), v: d.valeur })).filter((c) => estFini(c.v));
   const n = colonnes.length;
-  const style = { '--sc-g-c': couleurTon(ton) } as React.CSSProperties;
+  // v4 (06 §3 règle 8) : les colonnes neutres en dégradé de la couleur a de la famille (50 % → 10 %),
+  // la mise en valeur dans la couleur du ton, pleine en haut (→ 30 %), avec sa lueur (graphiques.css).
+  const idDegrade = React.useId().replace(/:/g, '');
+  const style = { '--sc-g-c': couleurTon(ton), '--sc-g-neutre': `url(#${idDegrade}-n)`, '--sc-g-mise': `url(#${idDegrade}-m)` } as React.CSSProperties;
   const r = resumer(colonnes.map((c) => c.v));
   const resume = `${libelle}. ${r ? ts('graphique.barres', { n: r.n, min: formater(r.min), max: formater(r.max) }) : ts('graphique.barres.vide')}`;
 
@@ -104,10 +109,23 @@ export function Barres({ donnees, libelle, nom, ton = 'info', miseEnValeur, haut
     );
   };
 
+  // Le décalage entre deux colonnes (22 à 40 ms selon leur nombre), lu par la couche de mouvement.
+  const styleDessin = { '--sc-mvt-barre-decalage': `${decalageBarres(n)}ms` } as React.CSSProperties;
+
   return (
     <div ref={ref} className={`sc-g sc-g--barres ${className}`} style={style} data-socle="barres">
       <div className="sc-g__scene">
-        <svg role="img" aria-label={resume} viewBox={`0 0 ${largeur} ${hauteur}`} preserveAspectRatio="xMidYMid meet" focusable="false" className="sc-g__svg">
+        <svg role="img" aria-label={resume} viewBox={`0 0 ${largeur} ${hauteur}`} preserveAspectRatio="xMidYMid meet" focusable="false" className="sc-g__svg" style={styleDessin}>
+          <defs>
+            <linearGradient id={`${idDegrade}-n`} x1="0" y1="0" x2="0" y2="1">
+              <stop className="sc-g__degrade-famille" offset="0" stopOpacity="0.5" />
+              <stop className="sc-g__degrade-famille" offset="1" stopOpacity="0.1" />
+            </linearGradient>
+            <linearGradient id={`${idDegrade}-m`} x1="0" y1="0" x2="0" y2="1">
+              <stop className="sc-g__degrade" offset="0" stopOpacity="1" />
+              <stop className="sc-g__degrade" offset="1" stopOpacity="0.3" />
+            </linearGradient>
+          </defs>
           <line className="sc-g__grille" x1={MARGE_COTES} x2={largeur - MARGE_COTES} y1={y0} y2={y0} />
           {colonnes.map((c, i) => {
             const bas = c.v < 0;
@@ -116,6 +134,8 @@ export function Barres({ donnees, libelle, nom, ton = 'info', miseEnValeur, haut
               <rect
                 key={i}
                 className="sc-g__colonne"
+                data-mvt="pousse"
+                style={styleRang(i)}
                 x={centre(i) - epaisseur / 2}
                 y={bas ? y0 : y0 - haut}
                 width={epaisseur}

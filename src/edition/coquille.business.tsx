@@ -14,6 +14,16 @@ export function CoquilleSection(): null {
   return null;
 }
 
+/** L'écran de veille v3 (G09) n'existe pas côté cliente : la vitrine du jour (`VeilleCliente`) reste la sienne. */
+export function EcranDeVeille(): null {
+  return null;
+}
+
+/** « Aujourd'hui » n'existe pas côté cliente : le fournisseur rend ses enfants, sans rien. */
+export function FournisseurAujourdhui({ children }: { children?: React.ReactNode }): React.ReactElement {
+  return <>{children}</>;
+}
+
 /** Toujours faux : la coquille d'origine. */
 export function useCoquilleActive(): boolean {
   return false;

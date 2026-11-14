@@ -16,12 +16,13 @@
   --sc-g-legende: 12.5px;
   /* Ligne d'une courbe : 2 px (§4). */
   --sc-g-trait: 2px;
-  /* Animation d'entrée : tracé de 400 ms. */
-  --sc-g-trace: 400ms;
   /* Pastille de légende : 8 px (§1, pastilles de famille). */
   --sc-g-pastille: 8px;
   /* Valeur au centre de l'anneau (72 à 80 px) : 600, tabulaire. La spec ne donne pas de taille. */
   --sc-g-anneau-valeur: 16px;
+  /* Les petits anneaux (LOT-06, 26 à 58 px) : 13 px de 48 à 71, 11 px de 40 à 47, rien en dessous (`coteAnneau`). */
+  --sc-g-anneau-valeur-moyen: 13px;
+  --sc-g-anneau-valeur-petit: 11px;
 }
 
 .sc-g {
@@ -47,16 +48,18 @@
 
 /* ── Courbe ── */
 .sc-g__degrade { stop-color: var(--sc-g-c); }
-.sc-g__aire { stroke: none; animation: sc-g-fondu var(--sc-g-trace) ease-out both; }
+.sc-g__degrade-famille { stop-color: var(--fam-a); }
+.sc-g__aire { stroke: none; }
 .sc-g__ligne {
   fill: none;
   stroke: var(--sc-g-c);
   stroke-width: var(--sc-g-trait);
   stroke-linecap: round;
   stroke-linejoin: round;
-  /* pathLength vaut 1 : un seul trait plein que l'animation « dessine ». */
+  /* pathLength vaut 1 : un seul trait plein que la couche de mouvement « dessine » (data-mvt="trace"). */
   stroke-dasharray: 1;
-  animation: sc-g-trace var(--sc-g-trace) cubic-bezier(0.16, 1, 0.3, 1) both;
+  /* v4 (06 §3 règle 7) : la courbe porte la lueur de sa couleur ; l'aire dessous part de 0,42 (Courbe.tsx). */
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--sc-g-c) 67%, transparent));
 }
 .sc-g__ligne2 {
   fill: none;
@@ -65,13 +68,11 @@
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-dasharray: 4 4;
-  animation: sc-g-fondu var(--sc-g-trace) ease-out both;
 }
 .sc-g__fin {
   fill: var(--socle-carte-bas);
   stroke: var(--sc-g-c);
   stroke-width: var(--sc-g-trait);
-  animation: sc-g-fondu 200ms ease-out 300ms both;
 }
 .sc-g__repere { stroke: var(--socle-bord-controle); stroke-width: 1; shape-rendering: crispEdges; }
 .sc-g__point { fill: var(--sc-g-c); stroke: var(--socle-carte-bas); stroke-width: 2; }
@@ -123,17 +124,18 @@
 
 /* ── Barres ── */
 .sc-g__colonne {
-  fill: var(--socle-colonne-graphique);
+  /* v4 (06 §3 règle 8) : une colonne neutre en dégradé de la couleur a de la famille, 50 % → 10 % (Barres.tsx pose le dégradé). */
+  fill: var(--sc-g-neutre, var(--socle-colonne-graphique));
   transform-box: fill-box;
   transform-origin: 50% 100%;
   transition: fill 150ms ease-out;
-  animation: sc-g-croit var(--sc-g-trace) cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 .sc-g__colonne[data-sens='bas'] { transform-origin: 50% 0; }
 /* Une valeur nulle : un filet, plus clair que la colonne, pour qu'on la voie. */
 .sc-g__colonne[data-zero='oui'] { fill: var(--socle-texte-3); }
-.sc-g__colonne[data-actif='oui'] { fill: color-mix(in srgb, var(--sc-g-c) 55%, var(--socle-colonne-graphique)); }
-.sc-g__colonne[data-mise='oui'] { fill: var(--sc-g-c); }
+.sc-g__colonne[data-actif='oui'] { fill: var(--sc-g-mise, var(--sc-g-c)); }
+/* La colonne mise en valeur : pleine (→ 30 %), et sa lueur. */
+.sc-g__colonne[data-mise='oui'] { fill: var(--sc-g-mise, var(--sc-g-c)); filter: drop-shadow(0 0 7px var(--sc-g-c)); }
 .sc-g__valeur {
   fill: var(--socle-texte-1);
   font-family: inherit;
@@ -150,7 +152,8 @@
 .sc-g__segment {
   fill: none;
   stroke-linecap: butt;
-  animation: sc-g-segment var(--sc-g-trace) cubic-bezier(0.16, 1, 0.3, 1) both;
+  /* v4 (06 §3 règle 7) : chaque arc porte la lueur de sa couleur (son trait). */
+  filter: drop-shadow(0 0 5px color-mix(in srgb, currentColor 60%, transparent));
 }
 .sc-g__donut-centre {
   position: absolute;
@@ -179,9 +182,10 @@
   stroke-width: var(--sc-g-trait);
   stroke-linecap: round;
   stroke-linejoin: round;
-  animation: sc-g-fondu var(--sc-g-trace) ease-out both;
+  stroke-dasharray: 1;
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--sc-g-c) 67%, transparent));
 }
-.sc-g__mini-fin { fill: var(--sc-g-c); animation: sc-g-fondu 200ms ease-out 200ms both; }
+.sc-g__mini-fin { fill: var(--sc-g-c); filter: drop-shadow(0 0 5px var(--sc-g-c)); }
 .sc-g__repos { stroke: var(--socle-bord-controle); stroke-width: var(--sc-g-trait); stroke-linecap: round; }
 
 /* ── Pas encore de données ── */
@@ -204,14 +208,21 @@
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
 }
+.sc-g-anneau[data-cote='moyen'] .sc-anneau__centre { font-size: var(--sc-g-anneau-valeur-moyen); }
+.sc-g-anneau[data-cote='petit'] .sc-anneau__centre { font-size: var(--sc-g-anneau-valeur-petit); }
+/* Muet (sous 40 px) avec un centre donné par l'appelant : la plus petite cote, jamais celle de 72 px. */
+.sc-g-anneau[data-cote='muet'] .sc-anneau__centre { font-size: var(--sc-g-anneau-valeur-petit); }
 
-/* ── Entrées de 400 ms ── */
-@keyframes sc-g-fondu { from { opacity: 0; } }
-@keyframes sc-g-trace { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
-@keyframes sc-g-croit { from { transform: scaleY(0); } }
-@keyframes sc-g-segment { from { stroke-dasharray: 0 var(--sc-g-tour); } }
+/*
+  ── Les entrées : la couche de mouvement commune (src/socle/mouvement.css, §0.2) ──
+  Aucune animation n'est écrite ici. Les composants posent `data-mvt` sur ce qui bouge : la ligne se
+  trace (« trace », 1,3 s), l'aire et la série en pointillé suivent en fondu (« aire »), le point final
+  arrive à 1,2 s (« point-final »), les colonnes poussent (« pousse », 700 ms, décalage 22 à 40 ms),
+  les segments du donut et l'anneau se tracent (« arc », « anneau », 1,1 s). La feuille commune coupe
+  tout en mouvement réduit, « aucun » et `prefers-reduced-motion`.
+*/
 
-/* Pas d'animation d'entrée si le système demande moins de mouvement (le réglage Mouvement « aucun » est déjà géré par src/index.css). */
+/* Ceinture et bretelles : si le système demande moins de mouvement, rien ne bouge dans un graphique (survols compris). */
 @media (prefers-reduced-motion: reduce) {
   .sc-g * { animation: none; transition: none; }
 }

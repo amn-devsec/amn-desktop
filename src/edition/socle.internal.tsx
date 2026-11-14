@@ -1,9 +1,12 @@
 import { CoquilleSection } from '../refonte/coquille/CoquilleSection';
+import { EcranDeVeilleSection } from '../refonte/systeme/veille/EcranDeVeilleSection';
 import React, { useEffect } from 'react';
 import { MotionConfig } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
 import { configMotion, choixMouvement, ecrireMouvement, NIVEAUX_MOUVEMENT, systemeDemandeMoins, useMouvement, type NiveauMouvement } from '../socle/mouvement';
 import { poserJournal } from '../socle/moments';
 import { useSocleLangue, type CleSocle } from '../socle/i18n';
+import { Bouton, Carte, PastilleEtat, Segmente } from '../socle/ui';
 
 /**
  * LE SOCLE DE LA REFONTE, CÔTÉ INTERNE — ce que l'édition interne branche.
@@ -47,28 +50,65 @@ const LIBELLES: Record<NiveauMouvement, { titre: CleSocle; aide: CleSocle }> = {
 };
 
 /**
- * Le réglage, dans Paramètres. Habillé comme ses voisines (`panel`,
- * `eyebrow`) : l'écran des réglages n'a pas encore migré vers le socle, et une
- * section graphite au milieu de cartes noires serait une tache.
- *
- * Trois choix exclusifs : un groupe de boutons radio (flèches et Espace au
- * clavier, comme partout ailleurs), pas un interrupteur.
+ * LES ANCRES DES RÉGLAGES. `SettingsScreen` (partagé, non modifié) pose un `id="reglages-<rubrique>"` sur chacune
+ * de ses rubriques (« guide » et « extensions » sont posées par les sections qu'il monte, `GuideSection` et
+ * `ExtensionsSection`), et son plan y défile. Un écran de la refonte qui envoie aux Réglages (H40 « Réglages » → la
+ * rubrique Notifications) passe la rubrique dans l'état de navigation : `navigate('/settings', { state: { section:
+ * 'notifications' } })`. Les trois surfaces de LOT-00 ci-dessous ont aussi la leur.
  */
+export const ANCRES_REGLAGES = ['profil', 'accueil', 'guide', 'extensions', 'securite', 'notifications', 'apparence', 'poste', 'modules', 'donnees', 'mouvement', 'ecran-de-veille', 'coquille'] as const;
+
+/** L'identifiant à faire défiler pour une rubrique demandée, ou `null` si elle n'existe pas (rien ne bouge). */
+export function ancreDeReglages(section: unknown): string | null {
+  return typeof section === 'string' && (ANCRES_REGLAGES as readonly string[]).includes(section) ? `reglages-${section}` : null;
+}
+
+/** Fait défiler les Réglages jusqu'à la rubrique demandée par l'écran qui y envoie. Ne rend rien. */
+function AncreDesReglages() {
+  const { state } = useLocation();
+  const niveau = useMouvement();
+  const ancre = ancreDeReglages((state as { section?: unknown } | null)?.section);
+  useEffect(() => {
+    if (!ancre) return undefined;
+    // Les rubriques entrent en cascade : on attend deux images avant de défiler, et sans glissement si le mouvement est réduit.
+    let seconde = 0;
+    const premiere = requestAnimationFrame(() => {
+      seconde = requestAnimationFrame(() => document.getElementById(ancre)?.scrollIntoView({ behavior: niveau === 'complet' ? 'smooth' : 'auto', block: 'start' }));
+    });
+    return () => {
+      cancelAnimationFrame(premiere);
+      cancelAnimationFrame(seconde);
+    };
+  }, [ancre, niveau]);
+  return null;
+}
+
 /**
- * La porte des Réglages de la refonte : le réglage Mouvement, puis la nouvelle
- * coquille (session DS). Une seule porte, pour que `SettingsScreen` — partagé
- * par les deux éditions — n'ait pas à connaître la seconde : le paquet client
- * reste identique octet pour octet.
+ * La porte des Réglages de la refonte : le réglage Mouvement, l'écran de veille
+ * (G09, ligne de H18), puis la nouvelle coquille (session DS). Une seule porte,
+ * pour que `SettingsScreen` — partagé par les deux éditions — n'ait pas à
+ * connaître les suivantes : le paquet client reste identique octet pour octet.
+ *
+ * Trois surfaces, chacune la sienne (demande du dirigeant : aucun gabarit
+ * générique) : Mouvement choisit un niveau dans un segmenté ; l'écran de
+ * veille s'allume d'un interrupteur et règle deux délais (segmenté, liste) ;
+ * la nouvelle coquille dit ce qu'elle apporte et s'allume d'un interrupteur.
  */
 export function MouvementSection() {
   return (
     <>
+      <AncreDesReglages />
       <MouvementBloc />
+      <EcranDeVeilleSection />
       <CoquilleSection />
     </>
   );
 }
 
+/**
+ * MOUVEMENT — un niveau parmi trois, dans un segmenté (flèches au clavier) ; sous lui, ce que le niveau choisi
+ * fait ; la note du système s'il demande moins ; « Suivre le système » quand un choix est écrit sur ce poste.
+ */
 function MouvementBloc() {
   const { ts } = useSocleLangue();
   const niveau = useMouvement();
@@ -76,40 +116,29 @@ function MouvementBloc() {
   const systeme = systemeDemandeMoins();
 
   return (
-    <section className="panel p-4" id="reglages-mouvement">
-      <p className="eyebrow mb-1" id="reglages-mouvement-titre">
-        {ts('mouvement.titre')}
-      </p>
-      <p className="mb-3 max-w-2xl text-[12px] leading-relaxed text-text-secondary">{ts('mouvement.texte')}</p>
-      <div role="radiogroup" aria-labelledby="reglages-mouvement-titre" className="flex flex-col">
-        {NIVEAUX_MOUVEMENT.map((n) => (
-          <label key={n} className="flex cursor-pointer items-start gap-3 border-b border-border-row py-3 last:border-b-0">
-            <input
-              type="radio"
-              name="amn-mouvement"
-              value={n}
-              checked={niveau === n}
-              onChange={() => ecrireMouvement(n)}
-              className="mt-1 h-4 w-4 flex-none accent-[var(--color-text-primary)]"
-            />
-            <span className="min-w-0">
-              <span className="block text-[13.5px] font-semibold text-text-primary">{ts(LIBELLES[n].titre)}</span>
-              <span className="block text-[12px] leading-relaxed text-text-secondary">{ts(LIBELLES[n].aide)}</span>
-            </span>
-          </label>
-        ))}
-      </div>
-      {systeme && !choisi && <p className="mt-3 text-[12px] leading-relaxed text-text-secondary">{ts('mouvement.systeme')}</p>}
-      {choisi && (
-        <button
-          type="button"
-          onClick={() => ecrireMouvement(null)}
-          className="mt-3 inline-flex min-h-11 items-center border border-border-strong px-3 text-[13px] font-semibold text-text-body hover:bg-surface-hover md:min-h-9"
-        >
-          {ts('mouvement.revenirSysteme')}
-        </button>
-      )}
-    </section>
+    <div id="reglages-mouvement" data-reglage="mouvement">
+      <Carte titre={ts('mouvement.titre')} actions={<PastilleEtat etat={choisi ? 'info' : 'neutre'}>{ts(LIBELLES[niveau].titre)}</PastilleEtat>}>
+        <p className="mb-3 max-w-2xl">{ts('mouvement.texte')}</p>
+        <Segmente libelle={ts('mouvement.choix')} options={NIVEAUX_MOUVEMENT.map((n) => ({ cle: n, libelle: ts(LIBELLES[n].titre) }))} valeur={niveau} onChange={(cle) => ecrireMouvement(cle as NiveauMouvement)} />
+        <div className="mt-2 max-w-2xl">
+          <p aria-live="polite" className="sc-champ__aide">
+            {ts(LIBELLES[niveau].aide)}
+          </p>
+        </div>
+        {systeme && !choisi && (
+          <div className="mt-2 max-w-2xl">
+            <p className="sc-champ__aide">{ts('mouvement.systeme')}</p>
+          </div>
+        )}
+        {choisi && (
+          <div className="mt-3">
+            <Bouton variante="discret" taille="petit" onClick={() => ecrireMouvement(null)}>
+              {ts('mouvement.revenirSysteme')}
+            </Bouton>
+          </div>
+        )}
+      </Carte>
+    </div>
   );
 }
 

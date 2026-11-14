@@ -3,7 +3,7 @@
  *
  * Il prouve que la page :
  *   1. se rend en HTML statique sans exception, avec une section par groupe du socle (base, contrôles, graphiques,
- *      situations, archétypes) et son sommaire en BOUTONS (jamais `href="#…"` : l'application est en HashRouter) ;
+ *      situations, archétypes, briques partagées) et son sommaire en BOUTONS (jamais `href="#…"` : l'application est en HashRouter) ;
  *   2. montre TOUS les composants exportés par `src/socle/ui/index.ts` et ses sous-index — la liste est lue dans les
  *      `export { … }`, pas recopiée ; les seules exceptions sont écrites plus bas, avec leur raison ;
  *   3. lit ses jetons (noms réels de `noir.css`, valeurs lues par `getComputedStyle`), n'invente aucune couleur,
@@ -103,27 +103,28 @@ await dit('la page se rend en HTML statique sans exception, sous le fond de page
 /** Les groupes du socle et la ou les sections qui les montrent. */
 const GROUPES: Record<string, string[]> = {
   base: ['jetons', 'boutons', 'cartes', 'avatars', 'progression', 'kpi', 'taches', 'etats'],
-  controles: ['cartes', 'champs', 'ludiques', 'suggestion'],
-  graphiques: ['graphiques', 'progression'],
+  controles: ['cartes', 'champs', 'ludiques', 'suggestion', 'alignement'],
+  graphiques: ['graphiques', 'progression', 'alignement'],
   situations: ['etats'],
   archetypes: ['archetypes', 'gabarit'],
+  briques: ['briques'],
 };
 
 await dit('une section par groupe du socle, chacune avec titre, description et liste des états ; l’ordre est celui du sommaire', () => {
-  assert.equal(R.SECTIONS.length, 15);
+  assert.equal(R.SECTIONS.length, 18);
   const trouvees = [...html.matchAll(/<section id="sd-([a-z]+)" data-section="([a-z]+)" aria-labelledby="sd-([a-z]+)-titre" class="sd-section">/g)];
   assert.deepEqual(trouvees.map((m) => m[1]), [...R.SECTIONS], 'sections absentes ou dans le désordre');
   for (const m of trouvees) assert.ok(m[1] === m[2] && m[2] === m[3], `identifiants incohérents pour ${m[1]}`);
-  assert.equal(compter(html, /<h2 id="sd-[a-z]+-titre" class="sd-section__titre">[^<]+<\/h2>/g), 15, 'un titre par section');
-  assert.equal(compter(html, /<p class="sd-section__desc">[^<]{20,}<\/p>/g), 15, 'une description par section');
-  assert.equal(compter(html, /<p class="sd-section__etats"><span class="sd-section__etats-etiquette">ÉTATS<\/span> [^<]{10,}<\/p>/g), 15, 'une liste d’états par section');
+  assert.equal(compter(html, /<h2 id="sd-[a-z]+-titre" class="sd-section__titre">[^<]+<\/h2>/g), 18, 'un titre par section');
+  assert.equal(compter(html, /<p class="sd-section__desc">[^<]{20,}<\/p>/g), 18, 'une description par section');
+  assert.equal(compter(html, /<p class="sd-section__etats"><span class="sd-section__etats-etiquette">ÉTATS<\/span> [^<]{10,}<\/p>/g), 18, 'une liste d’états par section');
   for (const [groupe, sections] of Object.entries(GROUPES)) for (const s of sections) assert.ok(R.SECTIONS.includes(s), `le groupe « ${groupe} » vise la section « ${s} », qui n’existe pas`);
   assert.ok(R.SECTIONS.includes('mouvement') && R.SECTIONS.includes('jetons'));
 });
 
 await dit('le sommaire est fait de boutons qui font scrollIntoView : aucun href="#…" (HashRouter), aucune ancre', () => {
   const nav = /<nav aria-label="[^"]+">([\s\S]*?)<\/nav>/.exec(html)?.[1] ?? '';
-  assert.equal(compter(nav, /<button type="button"[^>]*class="sd-sommaire__lien sc-focus"/g), 15, 'quinze boutons');
+  assert.equal(compter(nav, /<button type="button"[^>]*class="sd-sommaire__lien sc-focus"/g), 18, 'dix-huit boutons');
   assert.equal(compter(nav, /<a[\s>]/g), 0, 'aucune ancre dans le sommaire');
   assert.ok(!/href="#/.test(html), 'un href="#…" dans le rendu');
   assert.ok(!/href="#/.test(pageSansCommentaires) && !/href=\{`#/.test(pageSansCommentaires), 'un href="#…" dans la source');
@@ -141,9 +142,9 @@ await dit('le réglage Mouvement : quatre boutons qui appellent ecrireMouvement(
 });
 
 await dit('pas d’interrupteur « thème clair » : ce thème ne redéfinit aucun jeton --socle-* (les briques noires n’en changeraient pas)', () => {
-  const index = lire('src/index.css');
+  const index = lire('src/socle/theme.css');
   const bloc = /:root\[data-theme='clair'\] \{([\s\S]*?)\n\}/.exec(index)?.[1];
-  assert.ok(bloc, 'le bloc du thème clair est introuvable dans src/index.css');
+  assert.ok(bloc, 'le bloc du thème clair est introuvable dans src/socle/theme.css');
   assert.ok(!/(^|[\s;{])--socle-[\w-]+\s*:/.test(bloc as string), 'le thème clair redéfinit un jeton --socle-* : il faut alors reposer l’interrupteur');
   assert.ok(!/data-theme|dataset\.theme/.test(pageSansCommentaires.replace(/Pas d'interrupteur[\s\S]*?$/m, '')), 'la page touche à data-theme sans que rien ne change');
 });
@@ -168,18 +169,22 @@ const EXCEPTIONS: Record<string, string> = {
   AvisCollaboration: 'montré par /dev/etats (H43, modèle 8)',
 };
 
-/** Les noms exportés par un fichier d'index, en suivant les `export { … } from` et les `export * from`. */
-function exportes(fichier: string, vus = new Set<string>()): string[] {
+/**
+ * Les noms exportés par un fichier d'index, en suivant les `export { … } from` et les `export * from` ; un `X as Y`
+ * (le catalogue des noms des fiches, `noms.ts`) garde son origine : l'alias est montré quand sa brique l'est.
+ */
+function exportes(fichier: string, vus = new Set<string>()): { nom: string; origine: string }[] {
   const cle = path.resolve(racine, fichier);
   if (vus.has(cle)) return [];
   vus.add(cle);
   const source = sansCommentaires(fs.readFileSync(cle, 'utf8'));
-  const noms: string[] = [];
+  const noms: { nom: string; origine: string }[] = [];
   for (const m of source.matchAll(/export\s*\{([^}]*)\}\s*from\s*'([^']+)'/g)) {
     for (const brut of m[1].split(',')) {
       const nom = brut.trim();
       if (!nom || nom.startsWith('type ')) continue;
-      noms.push(nom.split(/\s+as\s+/).pop() as string);
+      const parts = nom.split(/\s+as\s+/);
+      noms.push({ nom: parts[parts.length - 1], origine: parts[0] });
     }
   }
   for (const m of source.matchAll(/export\s*\*\s*from\s*'([^']+)'/g)) {
@@ -190,7 +195,10 @@ function exportes(fichier: string, vus = new Set<string>()): string[] {
   return noms;
 }
 
-const composants = [...new Set(exportes('src/socle/ui/index.ts'))].filter((n) => /^[A-Z][A-Za-z0-9]*$/.test(n) && !/^[A-Z0-9_]+$/.test(n)).sort();
+const exportsSocle = exportes('src/socle/ui/index.ts');
+const composants = [...new Set(exportsSocle.map((e) => e.nom))].filter((n) => /^[A-Z][A-Za-z0-9]*$/.test(n) && !/^[A-Z0-9_]+$/.test(n)).sort();
+/** Les alias du catalogue des noms des fiches (`noms.ts`) : nom de fiche → brique. */
+const ALIAS = new Map(exportsSocle.filter((e) => e.origine !== e.nom && /^[A-Z]/.test(e.nom)).map((e) => [e.nom, e.origine]));
 
 await dit('la liste des composants est bien lue dans les index du socle (garde contre un analyseur qui ne verrait plus rien)', () => {
   assert.ok(composants.length >= 80, `seulement ${composants.length} composants lus`);
@@ -199,7 +207,11 @@ await dit('la liste des composants est bien lue dans les index du socle (garde c
 });
 
 await dit('chaque composant exporté par le socle apparaît dans la page, sauf les exceptions écrites et justifiées', () => {
-  const absents = composants.filter((n) => !(n in EXCEPTIONS) && !new RegExp(`<${n}(?=[\\s/>]|<)`).test(pageSansCommentaires));
+  const montre = (n: string) => new RegExp(`<${n}(?=[\\s/>]|<)`).test(pageSansCommentaires);
+  // Un alias de fiche (`Card` = `Carte`) est tenu pour montré quand sa brique l'est ; sa brique doit être un composant exporté.
+  for (const [alias, origine] of ALIAS) assert.ok(composants.includes(origine), `l’alias « ${alias} » vise « ${origine} », que le socle n’exporte pas`);
+  assert.ok(ALIAS.size >= 20, `seulement ${ALIAS.size} alias lus dans noms.ts`);
+  const absents = composants.filter((n) => !(n in EXCEPTIONS) && !montre(n) && !(ALIAS.has(n) && montre(ALIAS.get(n) as string)));
   assert.deepEqual(absents, [], `composants du socle absents de la démonstration : ${absents.join(', ')}`);
   for (const [nom, raison] of Object.entries(EXCEPTIONS)) {
     assert.ok(composants.includes(nom), `l’exception « ${nom} » n’est plus exportée par le socle`);
@@ -215,7 +227,9 @@ await dit('la page ne montre rien de plus que le socle exporte : ses imports vie
     for (const m of sansCommentaires(lire(f)).matchAll(/(?:from|import)\s+'([^']+)'/g)) {
       const chemin = m[1];
       if (chemin.startsWith('.')) {
-        assert.ok(/^(\.\/|\.\.\/\.\.\/\.\.\/socle\/)/.test(chemin), `${f} importe « ${chemin} » : hors du socle`);
+        // Les exemples lisent les jeux fictifs de `src/refonte/donnees` (des données, jamais un composant) ; la page, non.
+        const permis = f.endsWith('/exemples.ts') ? /^(\.\/|\.\.\/\.\.\/\.\.\/socle\/|\.\.\/\.\.\/donnees$)/ : /^(\.\/|\.\.\/\.\.\/\.\.\/socle\/)/;
+        assert.ok(permis.test(chemin), `${f} importe « ${chemin} » : hors du socle`);
       } else assert.ok(['react', 'lucide-react'].includes(chemin), `${f} importe le paquet « ${chemin} »`);
     }
   }
@@ -233,6 +247,24 @@ await dit('le rendu contient les cellules typées du tableau, trois colonnes de 
   assert.equal(compter(html, /class="sc-chronologie"/g), 1);
   assert.equal(compter(html, /class="sc-semaine__evenement sc-focus"/g), 5, 'cinq événements dans la semaine');
   assert.ok(html.includes('data-aujourdhui="true"'), 'aujourd’hui porte sa pastille : la semaine affichée est la semaine courante');
+});
+
+await dit('la section « Alignement § 4 » montre les variantes : anneau 26 à 72 (muet, petit, moyen), case 16, segmenté compact, recherche 38, Mono 11 à 18, hachures et pointillés par leur jeton, gris de décor, état vide avec icône', () => {
+  const zone = html.slice(html.indexOf('id="sd-alignement"'));
+  assert.ok(zone.length > 2000, 'section absente');
+  for (const t of [26, 34, 40, 48, 58, 72]) assert.ok(zone.includes(`<svg width="${t}" height="${t}" viewBox="0 0 ${t} ${t}"`), `anneau de ${t} px`);
+  for (const cote of ['muet', 'petit', 'moyen']) assert.ok(zone.includes(`data-cote="${cote}"`), `anneau ${cote}`);
+  assert.ok(zone.includes('data-taille="16"') && zone.includes('data-taille="serie"'), 'cases de 16 et 24 px');
+  assert.ok(zone.includes('data-taille="compact"'), 'segmenté compact');
+  assert.ok(zone.includes('data-hauteur="38"'), 'recherche de 38 px');
+  assert.equal(compter(zone, /data-socle="mono"/g), 6, 'six Mono (11, 12,5, 14, 18, time, code)');
+  assert.ok(zone.includes('style="font-size:11px"') && zone.includes('style="font-size:18px"'), 'Mono de 11 et 18 px');
+  for (const j of ['--socle-hachure-attention', '--socle-hachure-grise', '--socle-pointille-ok', '--socle-pointille-attention']) assert.ok(zone.includes(`style="--sd-motif:var(${j})"`), `motif ${j}`);
+  assert.match(css, /\.sd-motif\[data-genre='fond'\] \{ background-image: var\(--sd-motif\); \}/);
+  assert.match(css, /\.sd-motif\[data-genre='bord'\] \{ border: var\(--sd-motif\); \}/);
+  assert.match(zone, /<span aria-hidden="true" class="sc-vide__icone"><svg/, 'état vide avec icône');
+  for (const g of ['--socle-decor-1', '--socle-decor-2', '--socle-decor-3']) assert.ok(html.includes(`data-genre="decor"><div class="sd-jeton__echantillon" style="--sd-ech:var(${g})"`), `gris de décor ${g}`);
+  assert.match(css, /\.sd-jeton\[data-genre='decor'\] \.sd-jeton__echantillon\[style\*='--socle-decor'\] \{ background: var\(--sd-ech\); \}/);
 });
 
 await dit('le gabarit de page : Page autonome, en-tête avec un seul bouton primaire, quatre KPI, colonne droite', () => {
@@ -261,7 +293,7 @@ await dit('jetons : tous les noms montrés existent dans noir.css, par groupe, e
   const nombre = (g: string) => parGenre.get(g)?.length ?? 0;
   assert.ok(nombre('fond') >= 12 && nombre('bord') >= 10, 'fonds et bordures');
   assert.equal(nombre('encre'), 4, 'les quatre encres T1 à T4');
-  assert.equal(nombre('decor'), 2, 'les deux filets décoratifs');
+  assert.equal(nombre('decor'), 5, 'les deux filets décoratifs et les trois gris de décor (B15)');
   assert.equal(nombre('famille'), 7);
   assert.equal(nombre('etat'), 4);
   assert.equal(nombre('avatar'), 6);
@@ -287,6 +319,9 @@ await dit('aucune encre « discret » en texte : ni dans la feuille, ni dans la 
   }
   // Le sélecteur de l'avatar pose du T1 sur la couleur d'avatar : lisible.
   assert.match(css, /\[data-genre='avatar'\] \.sd-jeton__echantillon \{[^}]*color: var\(--socle-texte-1\)/);
+  // Les rangées : les pièces légendées s'alignent par le bas (leurs légendes sur une ligne), une pièce posée seule garde le haut.
+  assert.match(css, /\.sd-rangee \{[^}]*align-items: flex-end;/, 'les légendes d’une rangée s’alignent');
+  assert.match(css, /\.sd-rangee > :not\(\.sd-cas\) \{ align-self: flex-start; \}/, 'une pièce sans légende reste en haut de sa rangée');
 });
 
 await dit('demo.css : aucune couleur en dur (ni hex, ni rgb, ni hsl), tout par var(--socle-…) ; chaque --socle-* existe, chaque --sd-* est défini', () => {
@@ -332,7 +367,7 @@ await dit('aucun nom propre d’exemple : ni les noms de la maquette ni de perso
   for (let t = 0; t < 6; t += 1) assert.ok(html.includes(`data-teinte="${t}"`), `la teinte d’avatar ${t} n’est pas montrée`);
 });
 
-await dit('français : vouvoiement, aucun point d’exclamation, aucun émoji, dans les sources et dans le rendu', () => {
+await dit('français : tutoiement (v4, 06 §4), aucun point d’exclamation, aucun émoji, dans les sources et dans le rendu', () => {
   const emoji = /\p{Extended_Pictographic}/u;
   const sansSignesDeClavier = (s: string) => s.replace(/[⌘·§→−–—…]/g, '');
   for (const f of FICHIERS) {
@@ -350,7 +385,7 @@ await dit('français : vouvoiement, aucun point d’exclamation, aucun émoji, d
     }
   }
   for (const [cle, v] of Object.entries(fr)) {
-    assert.ok(!/(?<![\p{L}])(tu|toi|tes)(?![\p{L}])|(?<![\p{L}])t['’][\p{L}]/iu.test(v), `fr « ${cle} » : tutoiement`);
+    assert.ok(!/(?<![\p{L}])(vous|votre|vos)(?![\p{L}])|(?<![\p{L}’'-])(?!chez\b|assez\b)\p{L}+ez(?![\p{L}])/iu.test(v.replace(/[Rr]endez-vous/g, '')), `fr « ${cle} » : vouvoiement`);
     assert.ok(!/'/.test(v), `fr « ${cle} » : apostrophe droite (utiliser ’)`);
     assert.deepEqual([...v.matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort(), [...en[cle].matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort(), `fr « ${cle} » : mêmes paramètres que l’anglais`);
   }

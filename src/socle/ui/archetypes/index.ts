@@ -1,3 +1,8 @@
+/*
+ * v3 (01-SOCLE-DESIGN §0.3) : les archétypes ne sont PLUS des gabarits à copier. Ce sont des briques réutilisables
+ * (un tableau, un kanban, une semaine…) qu'un écran peut poser dans SA surface ; chaque écran a sa composition
+ * propre, décrite par sa fiche. Rien n'est retiré : d'autres écrans les emploient.
+ */
 /**
  * Briques du groupe « archetypes » (LOT-00) : le gabarit de page et les cinq archétypes de module du §5.
  *
@@ -12,7 +17,7 @@
  * Mode d'emploi : `import { Page, EnTeteDePage, RangeeKpi, DispositionPage, Tableau } from '../socle/ui';` — voir l'en-tête de `Page.tsx`.
  * La logique sans React (tri, placement des événements, clavier) est dans `./logique/*` ; les entrées utiles sont réexportées ici.
  */
-export { Page, EnTeteDePage, RangeeKpi, ColonneDroite, DispositionPage, type PageProps, type ActionPage, type EnTeteDePageProps, type ColonneDroiteProps, type DispositionPageProps } from './Page';
+export { Page, PageHead, EnTeteDePage, RangeeKpi, ColonneDroite, DispositionPage, type PageProps, type ActionPage, type PageHeadProps, type EnTeteDePageProps, type ColonneDroiteProps, type DispositionPageProps } from './Page';
 export {
   Tableau,
   CelluleNom,

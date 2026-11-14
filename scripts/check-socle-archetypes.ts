@@ -298,16 +298,30 @@ await dit('kanban : déplacer un ticket — autre colonne, même colonne, colonn
   assert.equal(K.indexDepot([], 5), 0);
 });
 
-await dit('formats : à la française — espace avant % et €, virgule décimale, heure sur deux chiffres', () => {
+await dit('formats : à la française — espace avant % et €, virgule décimale, heure sur deux chiffres ; « — » pour une valeur illisible, jamais « -0 € »', () => {
   assert.equal(norm(F.formaterPourcent(0.78)), '78 %');
   assert.equal(norm(F.formaterPourcent(1.4)), '100 %', 'borné à 100 %');
-  assert.equal(norm(F.formaterPourcent(Number.NaN)), '0 %');
+  // Un ratio ou un montant qui n'est pas un nombre fini se lit « — » (jamais « 0 % » pour un inconnu, jamais « NaN € »).
+  for (const v of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY]) {
+    assert.equal(F.formaterPourcent(v), '—', `formaterPourcent(${v})`);
+    assert.equal(F.formaterMontant(v), '—', `formaterMontant(${v})`);
+  }
   assert.equal(norm(F.formaterMontant(1250)), '1 250 €');
   assert.equal(norm(F.formaterMontant(1250.5)), '1 250,50 €');
+  assert.equal(norm(F.formaterMontant(-0)), '0 €');
+  // Moins d'un demi-centime, positif ou négatif : « 0 € », comme formaterEuro ; un demi-centime s'arrondit (Intl).
+  for (const v of [-0.001, -0.004, 0.004, -0.0049]) assert.equal(norm(F.formaterMontant(v)), '0 €', `formaterMontant(${v})`);
+  assert.equal(norm(F.formaterMontant(-0.005)), '-0,01 €');
+  assert.equal(norm(F.formaterMontant(-12.5)), '-12,50 €');
   assert.equal(F.formaterHeure(new Date(2031, 0, 1, 9, 5)), '09:05');
   assert.equal(F.formaterDate(new Date(2031, 0, 3), { weekday: 'long' }), new Intl.DateTimeFormat('fr-FR', { weekday: 'long' }).format(new Date(2031, 0, 3)));
   assert.notEqual(F.formaterDate(new Date(2031, 0, 3), { weekday: 'long' }, 'en-US'), F.formaterDate(new Date(2031, 0, 3), { weekday: 'long' }), 'la langue vient de l’argument');
-  assert.equal(F.dateIso('pas une date'), '');
+  // Une date illisible ne lève rien : « — » à l'écran, « » dans <time dateTime>.
+  for (const d of ['pas une date', Number.NaN]) {
+    assert.equal(F.formaterDate(d), '—', `formaterDate(${d})`);
+    assert.equal(F.formaterHeure(d), '—', `formaterHeure(${d})`);
+    assert.equal(F.dateIso(d), '', `dateIso(${d})`);
+  }
 });
 
 await dit('la logique est sans React ni import : elle se charge seule', () => {
@@ -336,11 +350,12 @@ const tokenPx = (nom: string): number => {
   return Number(m[1]);
 };
 
-await dit('page : h1 28 px / 600 / -0,02 em / 1,1 ; sous-titre 13,5 px T4 marge 7 ; actions à 9 px, boutons de 31 px', () => {
+await dit('page (v4, 06 §3 règle 3) : h1 30 px / 700 / -0,03 em / 1,1, dégradé #FFF → b ; sous-titre 13,5 px T4 marge 7 ; actions à 9 px, boutons de 31 px', () => {
   const h1 = bloc('.sc-page__titre');
-  assert.match(h1, /font-size:\s*28px/);
-  assert.match(h1, /font-weight:\s*600/);
-  assert.match(h1, /letter-spacing:\s*-0\.02em/);
+  assert.match(h1, /font-size:\s*30px/);
+  assert.match(h1, /font-weight:\s*700/);
+  assert.match(h1, /letter-spacing:\s*-0\.03em/);
+  assert.match(h1, /background:\s*linear-gradient\(100deg, var\(--socle-blanc\) 30%, var\(--fam-b\)\)/);
   assert.match(h1, /line-height:\s*1\.1\b/);
   const sous = bloc('.sc-page__sous-titre');
   assert.match(sous, /font-size:\s*13\.5px/);
@@ -454,7 +469,7 @@ await dit('cartes : 3 colonnes à 14 px (2 sous 1280 px), icône de 38 px teinte
   assert.match(css, /@media \(max-width: 1279\.98px\)\s*\{[^}]*\.sc-grille-cartes\s*\{\s*grid-template-columns:\s*repeat\(var\(--sc-grille-colonnes-etroit, 2\)/);
   const i = bloc('.sc-carte-module__icone');
   assert.match(i, /width:\s*38px[^}]*height:\s*38px/);
-  assert.match(i, /background:\s*color-mix\(in srgb, var\(--fam, var\(--socle-fam-outils\)\) 13%, transparent\)/);
+  assert.match(i, /background:\s*color-mix\(in srgb, var\(--fam, var\(--fam-a\)\) 13%, transparent\)/);
   assert.match(bloc('.sc-carte-module__titre'), /font-size:\s*14px[^}]*font-weight:\s*600/);
   const d = bloc('.sc-carte-module__description');
   assert.match(d, /font-size:\s*12\.5px/);
@@ -487,8 +502,8 @@ await dit('semaine : 46 px par heure, blocs teintés 14 % avec filet de 3 px, au
   assert.match(bloc('.sc-semaine'), /--sc-px-heure:\s*46px/);
   assert.match(bloc('.sc-semaine__jour'), /background-size:\s*100% var\(--sc-px-heure\)/);
   const e = bloc('.sc-semaine__evenement');
-  assert.match(e, /border-left:\s*3px solid var\(--fam, var\(--socle-fam-outils\)\)/);
-  assert.match(e, /background:\s*color-mix\(in srgb, var\(--fam, var\(--socle-fam-outils\)\) 14%, transparent\)/);
+  assert.match(e, /border-left:\s*3px solid var\(--fam, var\(--fam-a\)\)/);
+  assert.match(e, /background:\s*color-mix\(in srgb, var\(--fam, var\(--fam-a\)\) 14%, transparent\)/);
   assert.match(css, /\.sc-semaine__titre-jour\[data-aujourdhui='true'\] \.sc-semaine__numero \{ background: var\(--socle-primaire\); color: var\(--socle-primaire-encre\)/);
   assert.match(bloc('.sc-semaine__maintenant'), /height:\s*2px/);
   assert.match(bloc('.sc-semaine__tete'), /position:\s*sticky/);
@@ -496,12 +511,12 @@ await dit('semaine : 46 px par heure, blocs teintés 14 % avec filet de 3 px, au
   for (const m of css.matchAll(/\.sc-semaine__[\w-]+\s*\{[^}]*font-size:\s*([\d.]+)px/g)) assert.ok(Number(m[1]) >= 10.5, `texte de ${m[1]} px sous le plancher de 10,5`);
 });
 
-await dit('ligne de temps : heure 42 px (12 px T4), pastille de 26 px, filet vertical #2a2a2d, titre 13,5 px / 500, détail 12 px T4', () => {
+await dit('ligne de temps : heure 42 px (12 px T4), pastille de 26 px, filet vertical #222224 (§4), titre 13,5 px / 500, détail 12 px T4', () => {
   const l = bloc('.sc-ligne-temps');
   assert.match(l, /--sc-heure-largeur:\s*42px/);
   assert.match(l, /--sc-pastille:\s*26px/);
   assert.match(css, /\.sc-ligne-temps:not\(\[data-dernier='true'\]\)::before \{[^}]*background:\s*var\(--socle-filet-vertical\)/);
-  assert.equal(noir.get('--socle-filet-vertical'), '#2a2a2d');
+  assert.equal(noir.get('--socle-filet-vertical'), '#222224', 'le filet vertical du §4 TimelineItem (mesuré à #2a2a2d avant l’alignement du § 4)');
   assert.match(bloc('.sc-ligne-temps__heure'), /font-size:\s*12px/);
   assert.match(bloc('.sc-ligne-temps__heure'), /color:\s*var\(--socle-texte-3\)/);
   assert.match(bloc('.sc-ligne-temps__titre'), /font-size:\s*13\.5px[^}]*font-weight:\s*500/);
