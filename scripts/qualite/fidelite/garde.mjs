@@ -106,7 +106,13 @@ for (const r of resultats) {
   const source = mesure === 'disposition' ? r.structure ?? r : r;
   const ecart = source.tauxEcart * 100;
   const accepte = typeof acceptes.valeurs?.[id] === 'number' ? acceptes.valeurs[id] : null;
-  const d = decider({ ecart, accepte, justifie: justifies.ecrans?.[id] ?? null });
+  let d = decider({ ecart, accepte, justifie: justifies.ecrans?.[id] ?? null });
+  // Surveillance de la disposition (couleur ±10), quand le lot l'a demandée : une hausse de plus de 2 points fait échouer aussi.
+  const dispoAcceptee = acceptes.surveillerDisposition ? acceptes.disposition?.[id] : undefined;
+  if (typeof dispoAcceptee === 'number' && r.structure && !echoue(d.statut)) {
+    const dd = decider({ ecart: r.structure.tauxEcart * 100, accepte: dispoAcceptee });
+    if (echoue(dd.statut)) d = { statut: 'echec', raison: `disposition : ${dd.raison}` };
+  }
   if (echoue(d.statut)) echecs += 1;
   lignes.push({ id, ecart, accepte, ...d });
 }
