@@ -1459,6 +1459,8 @@ La colonne « État » reste `à faire` : un écran n'est « fait » qu'une fois
 
 Lire `05-CYBER-MODELE-COMMUN.md` : consentement d'abord (accord signé, périmètre, dates), OSINT limité à l'organisation du client, interface seulement. Famille contextuelle dans la barre latérale (§1.7).
 
+Tenu par S8 depuis le 14 nov. Note de préparation : [`preparation/LOT-10-cyber.md`](preparation/LOT-10-cyber.md) (ordre, origines, données, logique, 5 questions au CO, champs à demander à SIM). Construits d'abord : CY01, CY02, CY03, CY05, CY06, CY08, CY09, CY10, CY14.
+
 | ID | Écran | Type | État | Écart / note |
 |---|---|---|---|---|
 | CY01 | Cyber · Vue d'ensemble | nouveau | à faire | |
