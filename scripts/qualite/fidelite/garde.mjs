@@ -19,7 +19,7 @@
  *
  *   AMN_DOSSIER_V4=<dossier> AMN_E2E_EMAIL=essai.interne@exemple.test AMN_E2E_PASSWORD=… \
  *     node scripts/qualite/fidelite/garde.mjs --lot LOT-00 --dist <build> [--dist-dev <build NODE_ENV=development>] \
- *       [--api http://127.0.0.1:4171] [--sortie <dossier>] [--seulement H40,H41] [--rapport f.md] [--depuis <worktree-du-lot>]
+ *       [--api http://127.0.0.1:4171] [--sortie <dossier>] [--seulement H40,H41] [--rapport f.md] [--depuis <worktree-du-lot>] [--source apercu|application]
  *
  * Sûreté : celle de `capturer.mjs` (build servi depuis le disque, réseau limité à cette machine, compte @exemple.test).
  * Sortie 0 = rien ne dépasse (ou images absentes), 1 = au moins un écran dépasse, 2 = erreur d'usage ou de capture.
@@ -53,7 +53,6 @@ if (!DOSSIER || !fs.existsSync(images)) {
   console.log(`check:fidelite ${LOT} : images absentes (${DOSSIER ? `${DOSSIER}/images introuvable` : 'AMN_DOSSIER_V4 non définie'}) — la garde ne compte ni pour ni contre.`);
   process.exit(0);
 }
-if (!DIST) { console.error('--dist <build de l’édition interne> manquant'); process.exit(2); }
 
 // 2. Les fichiers du lot.
 const slug = LOT.toLowerCase().replace('-', '');
@@ -69,10 +68,17 @@ const lire = (f, defaut) => (fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'u
 const acceptes = lire(fAcceptes, { mesure: 'strict', valeurs: {} });
 const justifies = lire(fJustifies, { ecrans: {} });
 const mesure = acceptes.mesure === 'disposition' ? 'disposition' : 'strict';
+// Où se mesure la fidélité (STATUT §1.40) : sur l'APERÇU STATIQUE du lot, sur les jeux de SIM, à l'état rempli comme l'image
+// (`--source apercu`, avec `--depuis <worktree du lot>`) ; ou sur l'application et l'API d'essai (`application`, LOT-00).
+const SOURCE = opt('source') ?? acceptes.source ?? 'application';
+if (SOURCE === 'apercu' && !DEPUIS) { console.error('--source apercu demande --depuis <worktree du lot> (là où se trouve scripts/apercu/)'); process.exit(2); }
+if (SOURCE !== 'apercu' && !DIST) { console.error('--dist <build de l’édition interne> manquant'); process.exit(2); }
 
 // 3. Capture + comparaison (lot.mjs), dans un dossier hors du dépôt : les PNG ne se commitent jamais.
 const sortie = path.resolve(opt('sortie', fs.mkdtempSync(path.join(os.tmpdir(), 'fidelite-'))));
-const a = [path.join(ICI, 'lot.mjs'), '--scenarios', scenarios, '--dist', DIST, '--images', images, '--api', API, '--sortie', sortie];
+const a = [path.join(ICI, 'lot.mjs'), '--scenarios', scenarios, '--images', images, '--api', API, '--sortie', sortie];
+if (DIST) a.push('--dist', DIST);
+if (SOURCE === 'apercu') a.push('--apercu-racine', DEPUIS);
 if (fs.existsSync(path.join(DOSSIER, '_data'))) a.push('--data', path.join(DOSSIER, '_data'));
 if (DIST_DEV) a.push('--dist-dev', DIST_DEV);
 // Les écrans dont l'image v4 n'est pas (encore) dans le dossier ne comptent ni pour ni contre : on les dit, on ne les mesure pas.
@@ -95,6 +101,7 @@ let echecs = 0;
 let erreurs = 0;
 for (const r of resultats) {
   const id = r.ecran ?? r.id;
+  if (r.sansApercu) { lignes.push({ id, ecart: null, accepte: null, statut: 'sans-image', raison: 'pas d’aperçu statique dans la branche (scripts/apercu/ecrans/' + id + '.tsx) : ni pour ni contre' }); continue; }
   if (r.erreur) { erreurs += 1; lignes.push({ id, ecart: null, accepte: null, statut: 'erreur', raison: r.erreur }); continue; }
   const source = mesure === 'disposition' ? r.structure ?? r : r;
   const ecart = source.tauxEcart * 100;
@@ -106,7 +113,7 @@ for (const r of resultats) {
 
 for (const id of sansImage) lignes.push({ id, ecart: null, accepte: null, statut: 'sans-image', raison: 'image v4 absente du dossier : ni pour ni contre' });
 const marque = { 'sans-image': '–', accepte: '✓', 'nouveau-ok': '✓', 'nouveau-justifie': '≈', echec: '✗', 'nouveau-echec': '✗', erreur: '!' };
-console.log(`\ncheck:fidelite ${LOT} — écart brut (${mesure === 'strict' ? '±2 px, couleur ±2' : 'disposition, couleur ±10'}) · seuils : +${SEUIL_HAUSSE} points sur l’accepté, ${SEUIL_NOUVEAU} % pour un écran nouveau`);
+console.log(`\ncheck:fidelite ${LOT} — mesuré sur ${SOURCE === 'apercu' ? 'l’aperçu statique du lot' : 'l’application'} — écart brut (${mesure === 'strict' ? '±2 px, couleur ±2' : 'disposition, couleur ±10'}) · seuils : +${SEUIL_HAUSSE} points sur l’accepté, ${SEUIL_NOUVEAU} % pour un écran nouveau`);
 for (const l of lignes) console.log(`${marque[l.statut]} ${l.id.padEnd(4)} ${l.ecart === null ? '—'.padStart(6) : `${pct(l.ecart)} %`.padStart(8)}  ${l.accepte === null ? 'nouveau' : `accepté ${pct(l.accepte)} %`}  ${l.raison}`);
 
 if (RAPPORT) {
