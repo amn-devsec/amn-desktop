@@ -901,7 +901,7 @@ La colonne « État » reste `à faire` : un écran n'est « fait » qu'une fois
 | MR11 | `controles`, `ecarts` | résultat « sans objet » ; cause et date de relevé de l'écart |
 | F50 | (tous) | contrôle qualité ouvert rattaché à un chantier ; étape « Réception » des chantiers |
 
-**Questions pour le CO**
+**Questions pour le CO — toutes tranchées au §1.27 (14 nov.)** ; la note de préparation applique les réponses (liste exacte des modules à rapatrier, routes `/reservations` et `/photos-chantier`, tuile « Modèles de sites », « Fabrication » masqué). Texte d'origine :
 
 1. *Familles du registre.* F50 annonce 16 modules « Créer et produire », mais 11 sont déclarés dans `outils`, `argent`, `echanger` ou `ecrire` et 2 n’existent pas (question 3). Faut-il les rattacher à `creer` (les fichiers de ces familles sont à d'autres lots) ou garder le hub comme simple vue transversale ?
 2. *MR05 Catalogue produits* n'existe pas : on crée la collection `products` (avec lien vers `stockItems`) ? Cela touche `SyncContext` et le contrat amn-api.

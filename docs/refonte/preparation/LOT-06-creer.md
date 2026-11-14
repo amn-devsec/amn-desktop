@@ -29,6 +29,30 @@
 
 **DEV-modeles-sites (LOT-11).** Peut avoir une **seconde entrée dans Créer et produire**, par la sous-liste « Développement » de la barre latérale et **sans doublon dans le registre** (STATUT §1.17 n° 3, §1.19 n° 1). Le lot Créer ne déclare rien pour elle : aucune vue, aucun champ « aussi dans ». Le seul lien utile est F50 : si le CO le souhaite, une tuile « Modèles de sites » du groupe MONTRER pourrait pointer vers la vue de LOT-11 (non construit, non décidé).
 
+### Décisions du CO (STATUT §1.27, 14 nov.) appliquées à cette note
+
+- **Familles.** Les modules dont l'écran est un écran de LOT-06 reviennent dans `creer`, avec les actions `fabriquer`, `livrer`, `stocker` (comme la barre latérale v4). **Liste exacte du déplacement (à faire par S5, propriétaire du registre) :**
+
+| Vue du registre | Route | Famille actuelle | Action dans `creer` | Écran |
+|---|---|---|---|---|
+| `assembly` (Chantiers) | `/montage` | outils | `fabriquer` | H16 |
+| `interventions` (« Bons d'intervention », libellé de la fiche, gardé) | `/interventions` | outils | `fabriquer` | tuile de F50 |
+| `checklists` (Qualité et contrôles) | `/controles` | outils | `fabriquer` | MR11 |
+| `orders` (Commandes) | `/commandes` | argent | `livrer` | MR07 |
+| `rounds` (Tournées) | `/tournees` | outils | `livrer` | MR03 |
+| `fleet` (Flotte) | `/flotte` | outils | `livrer` | MR09 |
+| `reservations` (**nouvelle vue**) | `/reservations` | — | `livrer` | MR06 |
+| `stock` | `/stock` | outils | `stocker` | H15 |
+| `equipment` (Matériel) | `/materiel` | outils | `stocker` | MR04 |
+| `catalogue` (**nouvelle vue**, sur `stockItems`) | `/catalogue` | — | `stocker` | MR05 |
+| `shop` (Boutique en ligne) | `/boutique` | argent | `stocker` | MR08 |
+| `photosChantier` (**nouvelle vue**) | `/photos-chantier` | — | `fabriquer` | MR10 |
+
+  Restent dans `creer` tels quels : `video`, `videoProductions`, `brand`, `adVisuals`, `minisite`, `portfolio`. **Gardent leur famille** (écran d'un autre lot ; F50 les affiche par une tuile de lien, sans doublon) : `rooms` (Salles, `echanger`) et `media` (Médiathèque, `ecrire`). « Fabrication » est **masqué** tant qu'il n'existe pas : F50 n'affiche pas sa tuile (le groupe FABRIQUER compte 3 tuiles). La tuile « **Modèles de sites** » de F50 renvoie vers DEV-modeles-sites (LOT-11), sans entrée au registre.
+- **MR05 sur `stockItems`**, sans collection `products`. Ce que `StockItemData` n'a pas (prix, photos, TVA, prix d'achat, niveau conseillé, fournisseur) s'affiche « non disponible » avec la raison ; la collection `products` est une **demande à amn-api**, présentée à Harun par le CO. La logique de `catalogue.ts` lit déjà ces champs comme facultatifs.
+- **Aucune collection synchronisée nouvelle** (Q4) : H16, MR02, MR04, MR10, MR11 se construisent sur l'existant ; les champs absents (budget, sections, énergie, écarts, phases multi-photos…) sont « non disponibles » avec une demande à amn-api (liste « Manque aux données » du STATUT).
+- **MR03** : plan schématique, sans service ni clé (Q5). **Vidéo** : les deux sources (`videoEdits`, `videoProductions`) sont gardées et reliées (Q6). **Formats** : importer `src/socle/formats.ts` après la fusion du socle v4 et supprimer la copie de `commun.ts` (Q7). **Apostrophes courbes** (Q8). **Publier** distinct d'écrire, défini par H19 ; d'ici là seul le dirigeant publie et les autres passent par « Demander la publication » (Q9). **Aucun nouveau stockage de fichiers** (Q10). Q11 et Q12 : SIM.
+
 ### Déclarations préparées (à poser quand le socle v4 est fusionné ; rien n'est écrit dans `declarations/creer.ts` ni ailleurs)
 
 **A. Substitutions** (`src/refonte/substitutions/declarations/creer.tsx`) — l'écran refondu remplace l'écran d'origine à la même route :
@@ -42,21 +66,21 @@
 | MR02 Ma page publique | `/mini-page` | `minisite` | `PagePubliqueRefonte` (`/portfolio` : `portfolio`, inchangé) |
 | MR03 Tournées | `/tournees` | `rounds` | `TourneesRefonte` |
 | MR04 Matériel | `/materiel` | `equipment` | `MaterielRefonte` |
-| MR06 Réservations | `/salles` (et prêts de `/materiel`) | `rooms` | `ReservationsRefonte` (route de l'écran à confirmer : voir Q1) |
 | MR07 Commandes | `/commandes` | `orders` | `CommandesRefonte` |
 | MR08 Boutique en ligne | `/boutique` | `shop` | `BoutiqueRefonte` |
 | MR09 Flotte de véhicules | `/flotte` | `fleet` | `FlotteRefonte` |
-| MR10 Photos de chantier | `/media` (écran dérivé de la messagerie) ou nouvelle route | `media` | `PhotosChantierRefonte` (route à trancher : Q1/Q10) |
 | MR11 Qualité et contrôles | `/controles` | `checklists` | `QualiteRefonte` |
 
 Les clés `module` viennent de `declarations/*.ts` (vérifiées le 14 nov.) ; `check:substitutions` les comparera aux gardes `ModuleRoute` : à revalider à la pose.
 
-**B. Écrans nouveaux** (registre, `declarations/creer.ts`, avec `nouveau: { icone, ecran, indice }`) :
+**B. Écrans sur route nouvelle ou nouvelle entrée** (registre, `declarations/creer.ts`, avec `nouveau: { icone, ecran, indice }` ; routes ajoutées dans `appRoot.internal.tsx` seulement, §1.27 c) :
 
-| Écran | Vue (`id`) proposée | Route proposée | Action de la famille | Niveau |
+| Écran | Vue (`id`) | Route | Action | Niveau |
 |---|---|---|---|---|
-| F50 Vue d'ensemble | `creerEnsemble` | `/ensemble/creer` (route générique déjà là : F50 la remplace par substitution ou par `nouveau`, au choix du CO) | — (hub) | essentiel |
-| MR05 Catalogue produits | `catalogue` | `/catalogue` | `publier` (ou nouvelle action « Vendre » : Q1) | courant |
+| F50 Vue d'ensemble | `creerEnsemble` | `/ensemble/creer` (route générique, remplacée par F50) | — (hub) | essentiel |
+| MR05 Catalogue produits | `catalogue` | `/catalogue` | `stocker` | courant |
+| MR06 Réservations | `reservations` | **`/reservations`** | `livrer` | courant |
+| MR10 Photos de chantier | `photosChantier` | **`/photos-chantier`** | `fabriquer` (ou `visuels`, au choix de S5) | courant |
 
 Verbes et mots-clés proposés (fr/en) : Catalogue → « ajouter un produit », « mettre à jour un prix » ; mots-clés `catalogue`, `produit`, `prix`, `référence`, `fiche produit`. Les actions de `creer.ts` (`video`, `visuels`, `publier`, `evenements`) ne couvrent pas Stock, Chantiers, Commandes… : si ces modules sont rapatriés dans la famille (Q1), prévoir les actions `fabriquer`, `livrer`, `stocker`.
 

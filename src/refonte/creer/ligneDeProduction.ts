@@ -223,12 +223,18 @@ export function articlesPourLaSuggestion<T>(sousSeuilSansCommande: readonly T[],
 export type GroupeModules = 'fabriquer' | 'livrer' | 'stocker' | 'montrer';
 export interface ModuleDeLaFamille { id: string; groupe: GroupeModules; ecran: string }
 
-/** Rangés du premier geste à la vitrine, tous visibles. Les deux derniers noms de « Fabriquer » sont PROPOSÉS (à confirmer). */
+/**
+ * Les 16 tuiles, rangées du premier geste à la vitrine (décisions du CO, STATUT §1.27) : « Bons d'intervention »
+ * est gardé (`/interventions`) ; « Fabrication » est MASQUÉ tant qu'il n'existe pas (`MODULE_MASQUE`) ; « Modèles
+ * de sites » renvoie vers DEV-modeles-sites (LOT-11), sans doublon dans le registre.
+ */
+/** Module de la fiche F50 qui n'existe pas : jamais affiché, rien n'est simulé. */
+export const MODULE_MASQUE = 'fabrication';
+
 export const SEIZE_MODULES: readonly ModuleDeLaFamille[] = [
   { id: 'chantiers', groupe: 'fabriquer', ecran: 'H16' },
   { id: 'qualite', groupe: 'fabriquer', ecran: 'MR11' },
   { id: 'bons-intervention', groupe: 'fabriquer', ecran: 'à créer' },
-  { id: 'fabrication', groupe: 'fabriquer', ecran: 'D02' },
   { id: 'commandes', groupe: 'livrer', ecran: 'MR07' },
   { id: 'tournees', groupe: 'livrer', ecran: 'MR03' },
   { id: 'flotte', groupe: 'livrer', ecran: 'MR09' },
@@ -241,6 +247,7 @@ export const SEIZE_MODULES: readonly ModuleDeLaFamille[] = [
   { id: 'visuels', groupe: 'montrer', ecran: 'H17' },
   { id: 'page-publique', groupe: 'montrer', ecran: 'MR02' },
   { id: 'photos-chantier', groupe: 'montrer', ecran: 'MR10' },
+  { id: 'modeles-sites', groupe: 'montrer', ecran: 'DEV-modeles-sites' }, // tuile de lien vers LOT-11, sans entrée au registre
 ];
 
 /** Une tuile est grisée (« Non activée pour votre métier ») si son module n'est pas activé ; elle ouvre alors D02 pour l'activer. */
