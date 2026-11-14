@@ -1,4 +1,4 @@
-# LOT-15 · Studio de contenu — note de préparation (étape 1)
+# BDT-2 · Studio de contenu — note de préparation (étape 1)
 
 > Branche `claude/refonte-studio`, partie de `claude/refonte-vivante` @ `0ca14694`. Rédigée le 14 nov. 2026 par S9, à la demande du CO. Relue contre [`PLAN-BUREAU-DE-TRAVAIL.md`](../PLAN-BUREAU-DE-TRAVAIL.md) §2 et `STATUT.md` §1.43 dès leur arrivée sur `refonte-vivante` (`a12a81b7`).
 > Étape 1 seulement : aucun écran, aucune dépendance ajoutée au dépôt. Images de synthèse, aucune donnée réelle, aucune clé.
@@ -6,7 +6,7 @@
 ## 1. En bref
 
 - **Le principe tient** : tout le studio peut marcher **sans IA**, en local, avec des outils gratuits et ouverts. L'IA reste une option locale, toujours avec un geste manuel à côté. Jamais de musique par défaut. Rien ne se publie sans un clic.
-- **Preuve dans un vrai Electron 43.2.0** (Node 24.18, Chrome 150), sans l'application : sharp et smartcrop (processus principal), ffmpeg en outil séparé avec contrôle de licence, onnxruntime-web en WebAssembly dans une fenêtre isolée, et le recadrage par le canvas seul. Résultats : §4, essai rejouable : [`LOT-15-essai/`](LOT-15-essai/LISEZ-MOI.md).
+- **Preuve dans un vrai Electron 43.2.0** (Node 24.18, Chrome 150), sans l'application : sharp et smartcrop (processus principal), ffmpeg en outil séparé avec contrôle de licence, onnxruntime-web en WebAssembly dans une fenêtre isolée, et le recadrage par le canvas seul. Résultats : §4, essai rejouable : [`BDT-2-essai/`](BDT-2-essai/LISEZ-MOI.md).
 - **Images** : le plan retient sharp (libvips en LGPL liée dynamiquement, admise par §1.43) pour l'export par lot ; l'essai montre que le **canvas du rendu** suffit aussi pour l'aperçu et les exports simples, sans rien ajouter. Proposition : les deux, chacun à sa place (§8, question 1).
 - **Pas prouvé dans cette session** (§5) : la construction **LGPL** de ffmpeg, le modèle de détourage MediaPipe, whisper.cpp pour les sous-titres, Piper pour la voix. Le téléchargement et l'exécution de ces binaires ou modèles récupérés sur Internet ont été **refusés par le garde-fou de la session** ; je ne l'ai pas contourné. Ils sont à prouver sur le poste de Harun, ou avec une autorisation explicite.
 - **Licences** (§1.43) : MIT, Apache, BSD ou MPL de préférence ; LGPL liée dynamiquement ; GPL seulement en outil séparé ; jamais d'AGPL. Piper dépend d'espeak-ng (GPL-3.0, à confirmer à la source) : il reste donc un **processus séparé**, jamais lié à l'app (§5). `check:licences`, à créer par T1, contrôlera la liste.
@@ -44,7 +44,7 @@ Jamais d'AGPL. Aucune musique fournie : une piste ne s'ajoute que si la personne
 
 ## 4. Preuve : ce qui tourne en local dans Electron (essai du 14 nov.)
 
-Banc d'essai minimal : `main.cjs` (processus principal) et `page.html` (fenêtre cachée, `sandbox`, `contextIsolation`, sans Node), lancés par **Electron 43.2.0**, la version du dépôt, sans l'application ni `npm start`, sans réseau, sur une image de synthèse de 1200 × 800 (fond uni, sujet contrasté décentré à droite). Sortie complète : [`LOT-15-essai/resultat.json`](LOT-15-essai/resultat.json).
+Banc d'essai minimal : `main.cjs` (processus principal) et `page.html` (fenêtre cachée, `sandbox`, `contextIsolation`, sans Node), lancés par **Electron 43.2.0**, la version du dépôt, sans l'application ni `npm start`, sans réseau, sur une image de synthèse de 1200 × 800 (fond uni, sujet contrasté décentré à droite). Sortie complète : [`BDT-2-essai/resultat.json`](BDT-2-essai/resultat.json).
 
 | Essai | Où | Résultat |
 |---|---|---|

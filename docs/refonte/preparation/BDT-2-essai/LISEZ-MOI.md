@@ -1,4 +1,4 @@
-# LOT-15 · essai minimal dans Electron
+# BDT-2 · essai minimal dans Electron
 
 Preuve que les outils du studio tournent en local dans un **vrai Electron** (43.2.0, la version du dépôt), sans l'application, sans réseau, sur des images de synthèse. Résultat obtenu le 14 nov. : [`resultat.json`](resultat.json).
 

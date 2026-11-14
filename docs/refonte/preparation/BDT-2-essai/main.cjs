@@ -1,4 +1,4 @@
-// Banc d'essai minimal de LOT-15 : un vrai Electron, sans l'application, sans réseau, images de synthèse.
+// Banc d'essai minimal de BDT-2 : un vrai Electron, sans l'application, sans réseau, images de synthèse.
 const { app, BrowserWindow } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs');
