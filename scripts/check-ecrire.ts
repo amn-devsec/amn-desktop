@@ -51,8 +51,8 @@ async function charger<T>(code: string): Promise<T> {
 const FICHIERS = ['commun', 'serie', 'pages', 'relecture', 'documents', 'signatures', 'modeles', 'journal', 'redaction', 'archives', 'connaissances', 'hub', 'i18n', 'phrases'];
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerH10 from '../${ZONE}/ecrans/h10/composer';\nexport * as composerF20 from '../${ZONE}/ecrans/f20/composer';\nexport * as composerH11 from '../${ZONE}/ecrans/h11/composer';\nexport * as composerH12 from '../${ZONE}/ecrans/h12/composer';\nexport * as composerME01 from '../${ZONE}/ecrans/me01/composer';\nexport * as composerME02 from '../${ZONE}/ecrans/me02/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
-const { commun: C, serie: S, pages: P, relecture: R, documents: D, signatures: G, modeles: MO, journal: J, redaction: RE, archives: A, connaissances: K, hub: H, i18n: I, phrases: PH, composerH10: CH10, composerF20: CF20, composerH11: CH11, composerH12: CH12, composerME01: CME01, composerME02: CME02, monde } = M;
+const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerH10 from '../${ZONE}/ecrans/h10/composer';\nexport * as composerF20 from '../${ZONE}/ecrans/f20/composer';\nexport * as composerH11 from '../${ZONE}/ecrans/h11/composer';\nexport * as composerH12 from '../${ZONE}/ecrans/h12/composer';\nexport * as composerME01 from '../${ZONE}/ecrans/me01/composer';\nexport * as composerME02 from '../${ZONE}/ecrans/me02/composer';\nexport * as composerME03 from '../${ZONE}/ecrans/me03/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
+const { commun: C, serie: S, pages: P, relecture: R, documents: D, signatures: G, modeles: MO, journal: J, redaction: RE, archives: A, connaissances: K, hub: H, i18n: I, phrases: PH, composerH10: CH10, composerF20: CF20, composerH11: CH11, composerH12: CH12, composerME01: CME01, composerME02: CME02, composerME03: CME03, monde } = M;
 
 const NB = ' ';
 const paris = (j: string, hhmm: string) => C.instantParis(j, Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3)));
@@ -1337,6 +1337,26 @@ await dit('ME02 · composerRedaction : les corrections se lisent barrées et sou
   assert.deepEqual(decisions, [[3, 'acceptee'], [3, 'refusee']]);
   assert.equal(v.lettre.entetes[0].valeur, 'Message de Léo');
   assert.equal(CME02.composerRedaction({ ...e, brouillons: [] }, { onChoisir: () => undefined, onDecider: () => undefined }).lettre, null);
+});
+
+await dit('ME03 · composerModeles : galerie triée par usage, barre relative au plus utilisé, variables {nom}, rien de copié à trous', () => {
+  const m = (id: string, nom: string, contenu: string, usages: number, sources?: object) => ({ id, nom, contenu, usages, sources });
+  const modeles = [m('a', 'B modèle', 'Bonjour {prénom}, voici {objet}. Cordialement.', 10), m('b', 'A modèle', 'Sans variable.', 20), m('c', 'C modèle', 'Rien', 0, {})];
+  const e = { langue: 'fr', modeles, choisi: 'a', valeurs: {}, recommandes: null };
+  const v = CME03.composerModeles(e);
+  assert.deepEqual(v.cartes.map((c: any) => [c.id, c.taux]), [['b', 100], ['a', 50], ['c', 0]]);
+  assert.deepEqual(v.cartes.map((c: any) => c.usage), ['Utilisé 20 fois ce mois', 'Utilisé 10 fois ce mois', 'Pas encore utilisé']);
+  assert.equal(v.cartes[1].actif, true);
+  assert.deepEqual(v.variables.map((x: any) => [x.nom, x.source]), [['prénom', 'à saisir'], ['objet', 'à saisir']]);
+  assert.equal(v.restantes, 2, 'deux trous : on ne copie pas');
+  const rempli = CME03.composerModeles({ ...e, valeurs: { 'prénom': 'Karim', objet: 'le devis' } });
+  assert.equal(rempli.resultat, 'Bonjour Karim, voici le devis. Cordialement.');
+  assert.equal(rempli.restantes, 0);
+  assert.deepEqual(CME03.enTeteDesVariables('fr', [{ nom: 'a', source: 'catalogue' }, { nom: 'b', source: 'à saisir' }]), { entete: '2 variables', sous: '1 remplies toutes seules, 1 à saisir' });
+  assert.deepEqual(CME03.enTeteDesVariables('fr', []), { entete: 'Aucune variable', sous: '' });
+  assert.equal(CME03.composerModeles({ ...e, modeles: [] }).courant, null);
+  assert.ok(CME03.lignesDeMiniature('un deux').length >= 3 && CME03.lignesDeMiniature('mot '.repeat(500)).length <= 8);
+  assert.deepEqual(CME03.composerModeles({ ...e, recommandes: ['A modèle', 'Z'] }).bibliotheque, { libelle: 'Ta bibliothèque 1 sur 2', pourcent: 50 });
 });
 
 await dit('rien ne lit l’horloge ni le hasard : « maintenant » est toujours un paramètre', () => {

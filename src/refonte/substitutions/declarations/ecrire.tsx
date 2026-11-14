@@ -18,4 +18,6 @@ export default declarerSubstitutions('ecrire', [
   { route: '/personnel/journal', composant: lazy(() => import('../../ecrire/ecrans/me01/PageJournal')) },
   // ME02 — Rédaction et traduction, à la place de l'écran de rédaction (même route).
   { route: '/outils/redaction', composant: lazy(() => import('../../ecrire/ecrans/me02/PageRedaction')) },
+  // ME03 — Modèles, à la place de l'écran des modèles (même route).
+  { route: '/outils/modeles', composant: lazy(() => import('../../ecrire/ecrans/me03/PageModeles')) },
 ]);
