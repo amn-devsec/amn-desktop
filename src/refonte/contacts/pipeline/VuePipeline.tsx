@@ -49,7 +49,6 @@ export function VuePipeline({ statut, horsLigne = false, modele, actions, lectur
   const { tm, langue } = useMotsPipeline();
   const [selection, setSelection] = useState<string | null>(selectionInitiale);
   const m = modele;
-  const e = (c: Colonne) => m.etapes.find((x) => x.colonne === c);
 
   return (
     <Page>
