@@ -28,8 +28,9 @@ const opt = (n, d = null) => { const i = args.indexOf(`--${n}`); return i >= 0 ?
 const DIST = opt('dist');
 const API = opt('api', 'http://127.0.0.1:4171');
 const SORTIE = opt('sortie');
+const TEXTES = opt('textes'); // dossier de textes rendus (*.txt, p. ex. la sortie de check:fidelite sur l'aperçu rempli) : on cherche là, sans navigateur
 const CONTROLE = args.includes('--controle'); // contrôle positif : trois écrans, un mot qui s'y trouve sûrement ; doit sortir « trouvé »
-if (!DIST) { console.error('Usage : ludiques-proteges.mjs --dist <build-interne> [--api …] [--sortie f.json]'); process.exit(2); }
+if (!DIST && !TEXTES) { console.error('Usage : ludiques-proteges.mjs --dist <build-interne> [--api …] [--sortie f.json]  |  --textes <dossier de *.txt>'); process.exit(2); }
 if (!/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/.test(API)) { console.error('--api : cette machine seulement'); process.exit(2); }
 const MAIL = process.env.AMN_E2E_EMAIL ?? 'essai.interne@exemple.test';
 const MDP = process.env.AMN_E2E_PASSWORD ?? 'Interne-2026-Essai';
@@ -41,10 +42,12 @@ const ELEMENTS = [
   { id: 'L07 · aussi en cours', mots: [/aussi en cours/i] },
   { id: 'L07 · proposer un défi', mots: [/proposer un défi/i] },
   { id: 'L07 · page « Défis d’équipe »', mots: [/défis d.équipe/i] },
-  { id: 'défis hebdomadaires', mots: [/défi/i, /cette semaine|de la semaine/i, /\d+\s*\/\s*\d+|jauge/i] },
+  { id: 'défis hebdomadaires', mots: [/défi/i, /cette semaine|de la semaine/i, /\d+\s*(?:\/|sur)\s*\d+|jauge/i] },
   { id: 'H02 · série et prochain palier', mots: [/série de \d+ jours?/i, /prochain palier/i] },
   { id: 'H04 · Bilan de la semaine', mots: [/bilan de la semaine/i, /clôturer la semaine/i] },
   { id: 'L01 · Séries et jalons', mots: [/séries et jalons/i, /partager un succès/i] },
+  { id: 'MJ02 · Habitudes, séries', mots: [/faites aujourd.hui/i, /de régularité/i, /série \d+ (j|sem)/i] },
+  { id: 'MJ02 · Journées complètes', mots: [/journées complètes/i, /sur \d+ jours/i] },
   { id: 'CY01 · Cyber, vue d’ensemble', mots: [/blue team/i, /osint/i] },
   { id: 'CY04 · SOC', mots: [/nouvelle règle/i, /ouvrir la garde/i] },
   { id: 'MB04 · Messages et alertes (mobile)', mots: [/messages et alertes/i], mobile: true },
@@ -56,7 +59,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
 const ORIGINE = 'https://amn.local';
 const hote = new URL(API).host;
 const attendre = (ms) => new Promise((r) => setTimeout(r, ms));
-const nav = await chromium.launch({ executablePath: process.env.AMN_E2E_CHROMIUM ?? '/opt/pw-browsers/chromium', args: ['--no-sandbox', '--no-proxy-server', '--disable-features=LocalNetworkAccessChecks,PrivateNetworkAccessSendPreflights,PrivateNetworkAccessRespectPreflightResults,BlockInsecurePrivateNetworkRequests'] });
+const nav = TEXTES ? null : await chromium.launch({ executablePath: process.env.AMN_E2E_CHROMIUM ?? '/opt/pw-browsers/chromium', args: ['--no-sandbox', '--no-proxy-server', '--disable-features=LocalNetworkAccessChecks,PrivateNetworkAccessSendPreflights,PrivateNetworkAccessRespectPreflightResults,BlockInsecurePrivateNetworkRequests'] });
 
 async function parcourir(largeur) {
   const ctx = await nav.newContext({ viewport: { width: largeur, height: largeur < 600 ? 800 : 900 }, serviceWorkers: 'block', locale: 'fr-FR' });
@@ -94,9 +97,11 @@ async function parcourir(largeur) {
   return textes;
 }
 
-const bureau = await parcourir(1440);
-const mobile = ELEMENTS.some((e) => e.mobile) ? await parcourir(390) : new Map();
-await nav.close();
+const bureau = TEXTES
+  ? new Map(fs.readdirSync(TEXTES).filter((f) => f.endsWith('.txt')).map((f) => [f.replace(/\.txt$/, ''), fs.readFileSync(path.join(TEXTES, f), 'utf8')]))
+  : await parcourir(1440);
+const mobile = !TEXTES && ELEMENTS.some((e) => e.mobile) ? await parcourir(390) : new Map();
+if (nav) await nav.close();
 
 const resultats = ELEMENTS.map((e) => {
   const source = e.mobile ? mobile : bureau;

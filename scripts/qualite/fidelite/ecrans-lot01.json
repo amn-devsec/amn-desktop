@@ -1,6 +1,6 @@
 {
  "lot": "LOT-01",
- "_": "Les écrans de LOT-01 (Ma journée), claude/refonte-journee. Mesure sur l'aperçu statique du lot (STATUT §1.40). Premier passage : N01, H25, H02, H04. L01, L02, L03, L07 s'ajoutent quand leurs aperçus existent.",
+ "_": "Les écrans de LOT-01 (Ma journée), mesurés sur l'aperçu statique du lot (STATUT §1.40). Moitié S7 (claude/refonte-journee) : N01, H25, H02, H04. Moitié S1 (claude/refonte-journee-2) : H01, H03, G08, MJ01, MJ02. L01, L02, L03, L07 s'ajoutent quand leurs aperçus existent.",
  "defaut": {
   "mac": true,
   "date": "2026-10-30T10:42:00+01:00",
@@ -57,6 +57,186 @@
   {
    "id": "H04",
    "route": "#/revue-hebdo",
+   "etapes": [
+    {
+     "attendre": "main, [role=main], h1"
+    },
+    {
+     "clicSiPresent": "button:has-text('Compris')"
+    },
+    {
+     "pause": 700
+    }
+   ]
+  },
+  {
+   "id": "H01",
+   "route": "#/agenda",
+   "etapes": [
+    {
+     "attendre": "main, [role=main], h1"
+    },
+    {
+     "clicSiPresent": "button:has-text('Compris')"
+    },
+    {
+     "pause": 700
+    }
+   ]
+  },
+  {
+   "id": "H03",
+   "route": "#/missions",
+   "etapes": [
+    {
+     "attendre": "main, [role=main], h1"
+    },
+    {
+     "clicSiPresent": "button:has-text('Compris')"
+    },
+    {
+     "pause": 700
+    }
+   ]
+  },
+  {
+   "id": "G08",
+   "route": "#/cockpit-client",
+   "etapes": [
+    {
+     "attendre": "main, [role=main], h1"
+    },
+    {
+     "clicSiPresent": "button:has-text('Compris')"
+    },
+    {
+     "pause": 700
+    }
+   ]
+  },
+  {
+   "id": "MJ01",
+   "route": "#/projets",
+   "etapes": [
+    {
+     "attendre": "main, [role=main], h1"
+    },
+    {
+     "clicSiPresent": "button:has-text('Compris')"
+    },
+    {
+     "pause": 700
+    }
+   ]
+  },
+  {
+   "id": "MJ02",
+   "route": "#/personnel/habitudes",
+   "etapes": [
+    {
+     "attendre": "main, [role=main], h1"
+    },
+    {
+     "clicSiPresent": "button:has-text('Compris')"
+    },
+    {
+     "pause": 700
+    }
+   ]
+  },
+  {
+   "id": "L01",
+   "route": "#/series",
+   "etapes": [
+    {
+     "attendre": "main, [role=main], h1"
+    },
+    {
+     "clicSiPresent": "button:has-text('Compris')"
+    },
+    {
+     "pause": 700
+    }
+   ]
+  },
+  {
+   "id": "L02",
+   "route": "#/focus",
+   "etapes": [
+    {
+     "attendre": "main, [role=main], h1"
+    },
+    {
+     "clicSiPresent": "button:has-text('Compris')"
+    },
+    {
+     "pause": 700
+    }
+   ]
+  },
+  {
+   "id": "L03",
+   "route": "#/rituel",
+   "etapes": [
+    {
+     "attendre": "main, [role=main], h1"
+    },
+    {
+     "clicSiPresent": "button:has-text('Compris')"
+    },
+    {
+     "pause": 700
+    }
+   ]
+  },
+  {
+   "id": "L07",
+   "route": "#/defis",
+   "etapes": [
+    {
+     "attendre": "main, [role=main], h1"
+    },
+    {
+     "clicSiPresent": "button:has-text('Compris')"
+    },
+    {
+     "pause": 700
+    }
+   ]
+  },
+  {
+   "id": "MJ03",
+   "route": "#/planning",
+   "etapes": [
+    {
+     "attendre": "main, [role=main], h1"
+    },
+    {
+     "clicSiPresent": "button:has-text('Compris')"
+    },
+    {
+     "pause": 700
+    }
+   ]
+  },
+  {
+   "id": "MJ04",
+   "route": "#/notes-rapides",
+   "etapes": [
+    {
+     "attendre": "main, [role=main], h1"
+    },
+    {
+     "clicSiPresent": "button:has-text('Compris')"
+    },
+    {
+     "pause": 700
+    }
+   ]
+  },
+  {
+   "id": "MJ05",
+   "route": "#/rappels",
    "etapes": [
     {
      "attendre": "main, [role=main], h1"
