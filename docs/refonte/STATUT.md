@@ -44,6 +44,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov. : LOT-03 et LOT-05 complétés d'après les images v4 (S5, `0804131`, `425e4ad`), fusionnés (`d41501a`). Écarts image/texte : tutoiement dans l'interface (F20, MX05) ; humeur et énergie de ME01 comme l'image, bandeau de série non codé tant que la fiche n'a pas de règle ; compteurs de H10 et F40 calculés depuis les données, jamais repris de l'image.
 - 14 nov. : LOT-04 avec les avoirs fusionné (`0727968`, 70 propriétés). Rôles du serveur dans H19, `owner` publie, `owner` et `admin` gèrent les connecteurs (provisoire), prises de H21 sur le poste, tarifs tels que publiés (§1.34).
 - 14 nov. : données de SIM fusionnées (`b76b7cb`, 109 jeux, 114 contrôles). Gardes lues avant le push, toutes vertes, `check:argent` (69) compris. Les avoirs n'entrent dans le monde que sur demande, jusqu'à ce que DS les lise ; ensuite une ligne de `monde.ts` les active par défaut. Les jeux de LOT-11 sont livrés.
 - 14 nov. : LOT-04 relu avec le v4, fusionné (`74bb0d4`) ; neuf décisions, dont le moteur de relances unique et la série de G03 (§1.33).
