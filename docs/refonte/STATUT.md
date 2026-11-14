@@ -531,7 +531,7 @@ Fusionnée (`4254e7a`) : le modèle des connecteurs, les moteurs locaux, le form
 |---|---|---|
 | 1 | Notion et Webhooks, sans catégorie | Comme proposé : Webhooks est la brique « événements reçus » d'amn-api, affichée comme prise « chez nous ». Notion passe par « Demander un connecteur » tant que la liste des catégories ne l'ajoute pas. |
 | 2 | Prise arrêtée | Comme proposé : même dessin que « libre », avec « arrêtée le … » à la place de « libre, à brancher ». |
-| 3 | Valeurs par défaut | **Adoptées comme valeurs de départ**, toutes modifiables dans les réglages : plage clients lun.–ven. 08:00–19:00, plage équipe 07:30–21:00, 7 jours entre relances, 30 courriels par heure, rotation 7 / 4 / 6, suggestion à 70 % du forfait. Harun peut les corriger à tout moment. |
+| 3 | Valeurs par défaut | **Adoptées comme valeurs de départ**, toutes modifiables dans les réglages : plage clients lun.–ven. ~~08:00–19:00~~ **09:00–18:00**, plage équipe 07:30–21:00, ~~7~~ **5** jours entre relances (corrigé d'après la fiche MC07, §1.31), 30 courriels par heure, rotation 7 / 4 / 6, suggestion à 70 % du forfait. Harun peut les corriger à tout moment. |
 | 4 | Moteur de H20, aussi chargé par l'édition cliente | **Une couture `@edition/*`**, pas un déplacement. Un jumeau `.business` reprend le comportement actuel, à l'identique, et le `.internal` branche le format étendu. L'édition cliente ne change donc pas, ce que `check:client-statique` prouve. C'est S6 qui la pose, dans LOT-07. |
 | 5 | Section LOT-12 dans §7 | **Oui, courte** : état, sha, gardes et dépendances, sans table d'écrans. S9 la crée et y touche seul. |
 
