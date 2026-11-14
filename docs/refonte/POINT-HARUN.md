@@ -33,7 +33,7 @@
 
 1. Sur github.com, dans l'organisation **amn-devsec** : **New repository**. Nom : `amn-refonte-dossier`. Visibilité : **Private**. Coche « Add a README ».
 2. Toujours dans amn-devsec : **Settings › GitHub Apps › Claude › Configure**. Dans « Repository access », si « Only select repositories » est coché, ajoute `amn-refonte-dossier`, puis Save. Si « All repositories » est coché, il n'y a rien à faire.
-3. Écris-moi « dépôt créé ». **Je dépose moi-même le dossier v4** dans ce dépôt privé, à partir de ma copie décompressée : 603 fichiers, 94 Mo, aucun au-dessus de 25 Mo. Tu n'as donc rien à envoyer.
+3. Écris-moi « dépôt créé ». **Je dépose moi-même le dossier v4** dans ce dépôt privé, à partir de ma copie décompressée : 603 fichiers, 94 Mo, aucun au-dessus de 25 Mo. Tu n'as donc rien à envoyer. Je le mets sur une branche `claude/refonte-dossier-v4`, jamais sur `main`, comme partout ailleurs.
 4. Ensuite, je vérifie qu'une session le lit vraiment, puis je dis à chaque session de l'ajouter et de le lire. Plus aucun zip à donner à la main.
 
 Rien de secret dans ce dossier, et il ne va jamais dans le dépôt public.
