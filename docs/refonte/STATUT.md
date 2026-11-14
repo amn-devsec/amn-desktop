@@ -4,7 +4,7 @@
 
 ## REPRISE (à lire en premier après une compaction ; tenu par le CO, réécrit à chaque tour)
 
-Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `f820c70`.
+Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `5b2e8d0`.
 
 **Si la limite d'utilisation coupe le CO** : à la reprise (un message de Harun, une session, ou le réveil programmé), relire ce bloc, faire `git fetch` des branches `claude/refonte-*`, puis reprendre la boucle (lister, lire, contrôler, fusionner, répondre, mettre à jour). Réveil du CO : `send_later`, toutes les 20 min tant que des sessions travaillent, 45 min quand toutes attendent (consigne de Harun), réarmé à chaque tour.
 
@@ -13,16 +13,16 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 | S0 Socle | `session_01SJe828c2W5EnkMY4fhFY6z` | passe finale v4 finie (`888f7a0`) ; corrige `ancres` et `avoirs` | puis ce que T1 signale |
 | T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | passage 2 sur `888f7a0` en cours (avec le delta d'`ancres` et `avoirs` de S0) | son verdict → fusion du socle v4 et allumage (§1.9) ; puis `check:fidelite` (§1.30) |
 | S6 Sécurité | `session_01RHV8Xq2txWkfjAusKvq9DG` | LOT-07 en préparation ; une étape de sécurité attend amn-api | couture H20, tarifs H21 (§1.26) |
-| SIM | `session_011UF2ufZg9moGv2rRZFRuf7` | chargeur livré et fusionné (`5f0a900`) ; **sans dossier v4** | numérotation, champs de LOT-06, puis jeux de LOT-11 |
-| DS | `session_01TZGDvVWristJnnPK59rruY` | préparation de LOT-04 fusionnée (§1.29) ; **sans dossier v4** | relire ses points [fiche] dès qu'il a les zips |
-| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | LOT-03 et registre fusionnés | préparation de LOT-05 |
+| SIM | `session_011UF2ufZg9moGv2rRZFRuf7` | `c9e8713` prêt mais **retiré** (casse `check:argent`) ; **sans dossier v4** | refusionner quand DS lit les avoirs ; puis fidélité, H05, LOT-03, LOT-11 |
+| DS | `session_01TZGDvVWristJnnPK59rruY` | préparation de LOT-04 fusionnée (§1.29) ; **sans dossier v4** | **lire les avoirs (nature creditNote)** pour que `check:argent` passe sur `c9e8713` |
+| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | LOT-03, registre et LOT-05 fusionnés (§1.32) | attend le socle v4 |
 | S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | LOT-02 relu avec le v4 et fusionné (§1.31) ; a les zips | attend le socle v4 |
 | S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | préparation v4 fusionnée (`526cd63`) | attend le socle v4 |
 | S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | en pause | feu vert de l'étape 3 au socle v4 ; jeux à commander à SIM |
-| S9 | `session_01C5DAVygXYax6Q7g436TPQx` | LOT-12 fini (§1.26) | rien |
+| S9 | `session_01C5DAVygXYax6Q7g436TPQx` | LOT-12 fini, valeurs de MC07 fusionnées (`bcdc65f`) | rien |
 | S2, S3 (première tâche : `check:encres`), F1 | `session_014ZkF6SeGRNi6NR3uEsjM5q`, `session_01FBSpK6n1yYtYXYyxbLAuBV`, `session_01VZHqP3gvzrtnpgsTrrKguV` | arrêtées | relancer au socle v4 (prompts : `PROMPTS-11NOV.md`, §1.21) |
 
-**À dire au prochain message** : à SIM, les jeux de fidélité (paliers 800 / 1 800, avis 50, recommandation 200) et le statut des clients (H05), §1.31 ; à DS, Commandes et Boutique quittent Argent pour Créer ; à S6, les vues terrain et stock quittent Outils pour Créer (`bb54c03`).
+**À dire au prochain message** : à T1, La Garde dans l'API d'essai demande une base sur fichier (SIM) ; à S6, les vues terrain et stock quittent Outils pour Créer (`bb54c03`).
 
 **Décisions provisoires en cours** (révisables par Harun) : arrondi et régime de TVA, seuils de l'argent (§1.29) ; valeurs de départ des connecteurs (§1.22 n° 3) ; plafonds de relance 3 et 1 par jour (§1.28 n° 4) ; seuils de charge (validés, §1.20). Liste « À décider par Harun » : `POINT-HARUN.md`.
 
@@ -38,10 +38,13 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 | Jour | Construits | Livrés (cumul) | Livrés depuis la veille | Lots préparés | Lots finis | Note |
 |---|---|---|---|---|---|---|
-| 14 nov. | 9 / 153 | 0 | 0 | 6 / 13 | 0 / 13 | les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 06, 11 et 12. La note de LOT-08 n'est pas fusionnée. |
+| 14 nov. | 9 / 153 | 0 | 0 | 7 / 13 | 0 / 13 | les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. La note de LOT-08 n'est pas fusionnée. |
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov. : LOT-05 préparation et réglages de MC07 fusionnés (`5b2e8d0`), gardes lues avant le push (§1.32).
+- 14 nov. : **incident**. La fusion de `c9e8713` (SIM) a été poussée (`c565bd7`) avant que ses gardes soient lues : `check:argent` était rouge (avoirs rangés avec les factures). Elle a été retirée quelques minutes après (`8121e07`), et tout est revenu au vert. DS adapte sa logique aux avoirs, puis le CO refusionne. **Correction de méthode : le CO lit toutes les gardes avant chaque push, jamais après.**
+- 14 nov. : LOT-02 (`1c036fd`) fusionné : les relances lisent `connecteurs/reglages.ts`.
 - 14 nov. : LOT-02 relu avec le v4, fusionné. Les fiches l'emportent sur les valeurs du CO : relances à 5 j, 9:00–18:00, une par client et par semaine glissante, une seule source de réglages (§1.31).
 - 14 nov. : test quotidien avec Harun, dossier v4 dans un dépôt privé, `check:fidelite` confié à T1 avec un seuil provisoire (2 points au-dessus de l'accepté, 15 % pour un écran nouveau) (§1.30).
 - 14 nov. : données fictives de SIM fusionnées (`f820c70`, 106 contrôles) : chargeur vers l'API d'essai (127.0.0.1, `@exemple.test`), dates à 10:42, attendus, scénarios de charge, partenaires. Jeux de LOT-11 commandés à SIM dès maintenant. `LANCER-EN-LOCAL.md` étape 4 à jour.
@@ -676,6 +679,19 @@ Fusionné. `check:contacts` (85), les typechecks et lint sont verts, et aucune g
 | 4 | « Messagerie » (MC03) | Ce sont les échanges de G07, pas le courriel. Corrigé par S1. |
 | 5 | Échelles de l'intérêt (H06) | Le choix de S1 est adopté, **provisoire, révisable par Harun**. |
 
+### 1.32 LOT-05 préparation (S5, `44690a3`) et réglages de MC07 (S9, `bcdc65f`) : fusionnés
+
+Fusionnés (`5b2e8d0`). Gardes lues **avant** le push, et toutes vertes : `check:echanger` (88), `check:connecteurs` (103), `check:contacts` (85, qui lit les nouvelles valeurs de S9), les typechecks, lint, et aucune garde nouvelle rouge.
+
+| # | Question de S5 (LOT-05) | Décision |
+|---|---|---|
+| 1 | Entrée « Messagerie » du registre | **Oui** : quand G07 arrive, l'entrée actuelle (équipe) est renommée « Canaux », G07 prend « Messagerie », et les deux sont essentielles. |
+| 2 | MX01, MX03, MX06, nouveaux modules | **Oui** : ils entrent au registre avec leur écran, à la construction. Leurs collections rejoignent la liste présentée à Harun. D'ici là, « non disponible », avec la raison. |
+| 3 | Heures ouvrées de la promesse de 2 h | **Une seule source** : la plage de `src/refonte/connecteurs/reglages.ts` (lun.–ven. 9:00–18:00, §1.31). Elle sert aussi d'horaires de l'organisation tant qu'il n'en existe pas d'autres. |
+| 4 | Présence « lit / écrit » | **Masquée** au premier jet, sans rien simuler (comme §1.29, LOT-03 n° 3). |
+| 5 | « Messages programmés » | Le nom de la fiche est gardé, **provisoire, révisable par Harun**. |
+| 6 | Tutoiement dans MX04 | **La v4 l'emporte** : tutoiement dans l'interface, vouvoiement pour ce qui part chez un client. |
+
 ## 2. Les lots
 
 Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en parallèle, une branche chacun ; **LOT-09 en dernier**. Les chiffres viennent de `03-INDEX.md` : 9 + 16 + 13 + 9 + 17 + 10 + 15 + 16 + 12 + 11 + 14 = **142**. (Le tableau du fichier 00 compte G05 dans LOT-05 ; l'index et les prompts le rangent dans LOT-00. Le CO suit l'index.)
@@ -978,16 +994,32 @@ Préparation par DS (14 nov.) : logique pure `src/refonte/argent/` et `check:arg
 
 | ID | Écran | Type | État | Écart / note |
 |---|---|---|---|---|
-| F40 | Échanger · Vue d'ensemble | nouveau | à faire | |
-| G07 | Échanger · Messagerie d'équipe | mixte | à faire | |
-| H13 | Échanger · Appels | mixte | à faire | |
-| H14 | Échanger · Annonces | mixte | à faire | |
-| MX01 | Échanger · Courriel | mixte | à faire | |
-| MX02 | Échanger · Réunions | mixte | à faire | |
-| MX03 | Échanger · Partage de fichiers | mixte | à faire | |
-| MX04 | Échanger · Canaux | mixte | à faire | |
-| MX05 | Échanger · Sondages | mixte | à faire | |
-| MX06 | Échanger · Réponses automatiques | mixte | à faire | |
+| F40 | Échanger · Vue d'ensemble | nouveau | en cours (préparation) | préparation : page sans module ; logique `hub.ts` (règle d'attente, canaux actifs, dix tuiles). Attend `ModuleTile`, `ModuleGroupGrid`, `AddModuleTile` |
+| G07 | Échanger · Messagerie (boîte des clients) | mixte | en cours (préparation) | préparation : **aucun écran de boîte des clients** ; logique `boite.ts` (couloirs, Boîte à zéro, série) et `connecteurs.ts` ; l'entrée « Messagerie » du registre est la messagerie d'équipe (note §4, question 1) |
+| H13 | Échanger · Appels | mixte | en cours (préparation) | préparation : `CallsScreen` `/appels`, `SallesScreen` `/salles` ; logique `appels.ts` ; sans ligne pro : appel dans l'application seulement |
+| H14 | Échanger · Annonces | mixte | en cours (préparation) | préparation : `AnnouncementsScreen` `/annonces` (lecture seulement) ; logique `annonces.ts` |
+| MX01 | Échanger · Courriel | mixte | en cours (préparation) | préparation : **aucun module existant** ; logique `courriel.ts` ; prise « messagerie » de la baie, attend amn-api |
+| MX02 | Échanger · Réunions | mixte | en cours (préparation) | préparation : `MeetingsScreen` `/reunions` ; logique `reunions.ts` |
+| MX03 | Échanger · Partage de fichiers | mixte | en cours (préparation) | préparation : **aucun module existant** ; logique `partages.ts` ; aucune adresse de lien dans les types ; stockage d'équipe attend LOT-13 |
+| MX04 | Échanger · Canaux | mixte | en cours (préparation) | préparation : `GroupsScreen` `/groupes` et messages privés ; logique `canaux.ts` |
+| MX05 | Échanger · Sondages | mixte | en cours (préparation) | préparation : `PollsScreen` `/sondages` ; logique `sondages.ts` |
+| MX06 | Échanger · Réponses automatiques | mixte | en cours (préparation) | préparation : **aucun module existant** ; logique `reponsesAuto.ts` (naît désactivée, vouvoiement vérifié) |
+
+Préparation par S5 (14 nov., `claude/refonte-echanger`) : note [`preparation/LOT-05-echanger.md`](preparation/LOT-05-echanger.md), logique dans `src/refonte/echanger/`, garde `check:echanger` (88 contrôles), rapport [`rapports/LOT-05-preparation.md`](rapports/LOT-05-preparation.md). Aucun écran visuel. Dossier v4 lu (fiches, `06`, `tutoiement.json`) ; **les images v4 n'ont pas été ouvertes**. G07 est la boîte des clients ; WhatsApp, SMS, le courriel et la téléphonie sont des prises de la baie de S9 : `connecteurs.ts` dit « connecteur à brancher » et ne simule rien. Ce qui part chez un client reste au vouvoiement (la logique le vérifie, elle n'écrit aucun texte client).
+
+**Manque au socle**
+- `ModuleTile`, `ModuleGroupGrid`, `AddModuleTile` pour F40 ; `SuggestionCompact`, `FlagUrgent`, `Kbd`, `LiveDot`, `Caret` (cités, à confirmer par S0).
+- `formats.ts` : le lot garde une copie de `nombre` et `pct` à retirer à la fusion du socle v4.
+- `check:tutoiement` : pas encore dans la base (la garde du lot refuse « vous / votre / vos » et les impératifs en « -ez » dans ses textes).
+
+**Manque aux données**
+- Messagerie : le canal et le sens de chaque message client, l'état de tri, les notes internes, les adresses et numéros des fiches pour le rattachement.
+- Courriel (MX01) : une boîte partagée, des fils, l'état d'analyse des pièces jointes, les envois programmés.
+- Annonces : épinglage, catégories, destinataires, heure de lecture par personne, réactions. Sondages : types de réponse, destinataires clients. Réunions : début réel, ordre du jour minuté, notes en direct.
+- Partage de fichiers (MX03) : tout (liens, ouvertures, protection, quota).
+- Réponses automatiques (MX06) : des règles structurées et leurs envois.
+- Appels : ligne professionnelle, file d'attente, transfert, présence vocale.
+- Aucune collection synchronisée n'est ajoutée sans l'accord de Harun (§1.27 n° 4) : en attendant, « non disponible », avec la raison.
 
 ### LOT-06 · Créer et produire — `claude/refonte-creer` — 15 écrans
 
@@ -1157,9 +1189,9 @@ Brief : `07-ESPACE-DEV.md`. Entrée de barre latérale au-dessus de « Surveilla
 
 Tenue par S9. Pas d'écran à soi : H21 est à LOT-07 (S6), DEV-couts et DEV-editeur à LOT-11 (S8).
 
-- **État** : préparation fusionnée (`890522d`, dans `4254e7a`, §1.22). Décisions du §1.22 appliquées dans le modèle : prise Webhooks « chez nous » (catégorie « Événements reçus »), « Demander un connecteur » pour Notion, prise arrêtée dessinée comme libre avec « arrêtée le … », valeurs de départ réunies et modifiables (`reglages.ts`). Branche : voir le dernier message de S9.
+- **État** : préparation fusionnée (`890522d`, dans `4254e7a`, §1.22). Décisions du §1.22 appliquées dans le modèle : prise Webhooks « chez nous » (catégorie « Événements reçus »), « Demander un connecteur » pour Notion, prise arrêtée dessinée comme libre avec « arrêtée le … », valeurs de départ réunies et modifiables (`reglages.ts`). Relances alignées sur la fiche MC07 (§1.31) : 5 jours entre deux relances d'une facture (3 à 14), plage clients lun.–ven. 09:00–18:00, 3 relances au plus par facture, une relance au plus par client sur 7 jours glissants ; `reglages.ts` est la seule source, S1 la lit. Branche : voir le dernier message de S9.
 - **Contenu** : `src/refonte/connecteurs/` (catalogue, tarifs à relever, cycle en 3 clics, règles de H21 et de DEV-couts, flux Quand / Si / Alors rangés dans le moteur de H20, moteurs locaux, liste « Demandé à amn-api »). Note : [`preparation/LOT-12-connecteurs.md`](preparation/LOT-12-connecteurs.md).
-- **Gardes** : `check:connecteurs` (100 contrôles, en CI), plus typecheck des deux éditions, lint, `check:donnees`.
+- **Gardes** : `check:connecteurs` (103 contrôles, en CI), plus typecheck des deux éditions, lint, `check:donnees`. `check:contacts` (S1) fige encore les anciennes valeurs (7 jours, 08:00–19:00) : à mettre à jour par S1 avec cette fusion.
 - **Dépendances** :
   - S6 (LOT-07) : la couture `@edition/*` du moteur de H20 (jumeau `.business` à l'identique) ; l'écran H21 ; le relevé des tarifs au moment de construire H21.
   - S8 (LOT-11) : DEV-couts et DEV-editeur, construits sur ce modèle.

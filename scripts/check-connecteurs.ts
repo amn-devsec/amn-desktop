@@ -767,14 +767,18 @@ dit('rattrapage : trois jours fermés, UNE exécution (la plus récente) ; déj�
   assert.equal(planificateur.occurrenceAExecuter(p, { dernierPassageAt: null, creeeAt: paris('2026-11-12', '09:00') }, MAINTENANT), null);
 });
 
-dit('plages calmes : pas de texte client le week-end ni la nuit ; on avance au vendredi soir, on repousse au lundi matin', () => {
+dit('plages calmes (MC07) : textes clients du lundi au vendredi, 09:00–18:00 ; on avance au vendredi 17:59, on repousse au lundi 09:00', () => {
+  assert.deepEqual(planificateur.PLAGE_CLIENTS, { jours: [1, 2, 3, 4, 5], debut: '09:00', fin: '18:00' });
+  assert.equal(planificateur.dansLaPlage(paris('2026-11-12', '08:59'), planificateur.PLAGE_CLIENTS), false);
+  assert.equal(planificateur.dansLaPlage(paris('2026-11-12', '09:00'), planificateur.PLAGE_CLIENTS), true);
+  assert.equal(planificateur.dansLaPlage(paris('2026-11-12', '17:59'), planificateur.PLAGE_CLIENTS), true);
+  assert.equal(planificateur.dansLaPlage(paris('2026-11-12', '18:00'), planificateur.PLAGE_CLIENTS), false);
   const samedi = paris('2026-11-14', '10:00');
   assert.equal(planificateur.dansLaPlage(samedi, planificateur.PLAGE_CLIENTS), false);
   assert.equal(planificateur.dansLaPlage(samedi, planificateur.PLAGE_EQUIPE), true);
-  assert.equal(planificateur.prochainCreneau(samedi, planificateur.PLAGE_CLIENTS), paris('2026-11-16', '08:00'));
-  assert.equal(planificateur.dernierCreneau(samedi, planificateur.PLAGE_CLIENTS), paris('2026-11-13', '18:59'));
+  assert.equal(planificateur.prochainCreneau(samedi, planificateur.PLAGE_CLIENTS), paris('2026-11-16', '09:00'));
+  assert.equal(planificateur.dernierCreneau(samedi, planificateur.PLAGE_CLIENTS), paris('2026-11-13', '17:59'));
   assert.equal(planificateur.prochainCreneau(MAINTENANT, planificateur.PLAGE_CLIENTS), MAINTENANT);
-  assert.equal(planificateur.dansLaPlage(paris('2026-11-12', '19:00'), planificateur.PLAGE_CLIENTS), false);
 });
 
 section('Moteurs locaux : courriels par la boîte de l’équipe');
@@ -814,14 +818,15 @@ dit('mailto : tout est encodé, les retours à la ligne deviennent CRLF', () => 
   assert.ok(!/\s/.test(l));
 });
 
-dit('décision : désinscrit, déjà parti, doublon sous 7 jours, hors plage → différé au lundi 08:00', () => {
+dit('décision : désinscrit, déjà parti, doublon sous 7 jours, hors plage → différé au lundi 09:00', () => {
   assert.deepEqual(courriels.decider(COURRIEL, ctxEnvoi()), { statut: 'envoyer' });
   assert.equal(courriels.decider(COURRIEL, ctxEnvoi({ desinscrits: new Set(['camille.roux@client.exemple.test']) })).raison, 'desinscrit');
   assert.equal(courriels.decider(COURRIEL, ctxEnvoi({ envoyes: [{ id: COURRIEL.id, a: COURRIEL.a, modeleId: 'x', at: 0 }] })).raison, 'deja-envoye');
   const recent = { id: 'autre', a: 'camille.roux@client.exemple.test', modeleId: 'accuse-devis', at: MAINTENANT - 6 * 86_400_000 };
   assert.equal(courriels.decider(COURRIEL, ctxEnvoi({ envoyes: [recent] })).raison, 'doublon-recent');
   assert.equal(courriels.decider(COURRIEL, ctxEnvoi({ envoyes: [{ ...recent, at: MAINTENANT - 8 * 86_400_000 }] })).statut, 'envoyer');
-  assert.deepEqual(courriels.decider(COURRIEL, ctxEnvoi({ maintenant: paris('2026-11-14', '10:00') })), { statut: 'differer', a: paris('2026-11-16', '08:00') });
+  assert.deepEqual(courriels.decider(COURRIEL, ctxEnvoi({ maintenant: paris('2026-11-14', '10:00') })), { statut: 'differer', a: paris('2026-11-16', '09:00') });
+  assert.deepEqual(courriels.decider(COURRIEL, ctxEnvoi({ maintenant: paris('2026-11-12', '08:30') })), { statut: 'differer', a: paris('2026-11-12', '09:00') });
   assert.equal(courriels.decider({ ...COURRIEL, a: 'pas une adresse' }, ctxEnvoi()).raison, 'adresse-invalide');
 });
 
@@ -860,13 +865,42 @@ dit('relances : mise en demeure et dernier avis attendent toujours une personne 
   assert.deepEqual(v, { rappel: false, ferme: false, 'mise-en-demeure': true, 'dernier-avis': true });
 });
 
-dit('relances : jamais deux à moins de 7 jours ; le ton qui monte est signalé ; sans courriel, une tâche', () => {
+dit('relances (MC07) : 5 jours entre deux relances d’une facture, une par client sur 7 jours glissants ; le ton qui monte est signalé ; sans courriel, une tâche', () => {
+  assert.equal(relances.DELAI_ENTRE_RELANCES_JOURS, 5);
+  assert.deepEqual(relances.DELAI_ENTRE_RELANCES_BORNES, { min: 3, max: 14 });
+  assert.equal(relances.FENETRE_PAR_CLIENT_JOURS, 7);
   const recente = facture('a', '2026-10-01', { derniereRelance: { palier: 'ferme', le: '2026-11-06' } });
-  assert.equal(relances.relancesDuJour([recente], AUJ).length, 0);
+  assert.equal(relances.relancesDuJour([recente], AUJ).length, 0, '6 jours : la fenêtre du client bloque encore');
+  assert.equal(relances.relancesDuJour([recente], AUJ, { fenetreParClientJours: 6 }).length, 1, 'sans la fenêtre, 6 jours ≥ 5 suffisent');
+  assert.equal(relances.relancesDuJour([{ ...recente, derniereRelance: { palier: 'ferme', le: '2026-11-08' } }], AUJ, { fenetreParClientJours: 1 }).length, 0, '4 jours < 5');
   const r = relances.relancesDuJour([{ ...recente, derniereRelance: { palier: 'ferme', le: '2026-11-05' } }], AUJ)[0];
   assert.equal(r.palier, 'mise-en-demeure');
   assert.equal(r.toneAMonte, true);
   assert.equal(relances.relancesDuJour([facture('b', '2026-11-01', { courriel: undefined })], AUJ)[0].sansContact, true);
+});
+
+dit('relances (MC07) : 3 au plus par facture, ensuite suivi à la main', () => {
+  assert.equal(relances.MAX_RELANCES_PAR_FACTURE, 3);
+  const f = (n: number) => facture(`f${n}`, '2026-10-01', { relancesEnvoyees: n, derniereRelance: n ? { palier: 'ferme', le: '2026-10-20' } : null });
+  assert.deepEqual(relances.relancesDuJour([f(0), f(1), f(2), f(3), f(4)], AUJ).map((x: any) => x.factureId), ['f0', 'f1', 'f2']);
+  assert.deepEqual(relances.relancesAuPlafond([f(0), f(2), f(3), f(4), { ...f(5), payee: true }]), ['f3', 'f4']);
+  assert.deepEqual(relances.relancesDuJour([f(2)], AUJ, { maxRelancesParFacture: 2 }), []);
+});
+
+dit('relances (MC07) : un client, une relance — ses factures dues partent ensemble ; un client relancé cette semaine attend', () => {
+  const r = relances.relancesDuJour(
+    [
+      facture('c1-a', '2026-11-09', { clientId: 1 }),
+      facture('c1-b', '2026-10-13', { clientId: 1 }),
+      facture('c2-a', '2026-11-01', { clientId: 2 }),
+      facture('c2-b', '2026-10-01', { clientId: 2, derniereRelance: { palier: 'ferme', le: '2026-11-09' } }),
+      facture('c3-a', '2026-11-01', { clientId: 3, derniereRelance: { palier: 'rappel', le: '2026-11-05' } }),
+    ],
+    AUJ,
+  );
+  assert.deepEqual(r.map((x: any) => [x.factureId, x.regroupees]), [['c1-b', ['c1-a']], ['c3-a', []]]);
+  assert.equal(r[0].validationHumaine, true, 'une mise en demeure dans le lot : la relance attend une personne');
+  assert.equal(new Set(r.map((x: any) => x.factureId)).size, r.length);
 });
 
 dit('relances : les clés de message existent dans le dictionnaire commun, au vouvoiement', () => {
@@ -881,8 +915,8 @@ dit('relances : les clés de message existent dans le dictionnaire commun, au vo
 
 const RDV_LUNDI = { id: 'rdv1', debutAt: paris('2026-11-16', '09:00'), clientJoignable: true };
 
-dit('rappels : le client la veille, avancé au vendredi 18:59 si la veille est un dimanche ; l’équipe une heure avant', () => {
-  assert.equal(rappels.heureDuRappel(RDV_LUNDI.debutAt, { avantMin: 1440, pour: 'client' }), paris('2026-11-13', '18:59'));
+dit('rappels : le client la veille, avancé au vendredi 17:59 si la veille est un dimanche ; l’équipe une heure avant', () => {
+  assert.equal(rappels.heureDuRappel(RDV_LUNDI.debutAt, { avantMin: 1440, pour: 'client' }), paris('2026-11-13', '17:59'));
   assert.equal(rappels.heureDuRappel(RDV_LUNDI.debutAt, { avantMin: 60, pour: 'equipe' }), paris('2026-11-16', '08:00'));
   const vendredi = rappels.rappelsDus([RDV_LUNDI], new Set(), paris('2026-11-13', '19:30'));
   assert.deepEqual(vendredi.map((r: any) => r.id), ['rappel-rdv1-1440']);
@@ -951,11 +985,14 @@ dit('une demande pour un outil déjà au catalogue renvoie à « Brancher » ; u
   assert.equal(K.demanderUnConnecteur('x'.repeat(61), 'x@equipe.exemple.test', MAINTENANT).raison, 'nom-invalide');
 });
 
-dit('valeurs de départ adoptées : 08:00–19:00 en semaine, 07:30–21:00, 7 jours, 30 par heure, 7 / 4 / 6, 70 %', () => {
+dit('valeurs de départ (MC07 pour les relances) : 09:00–18:00 en semaine, 07:30–21:00, 5 jours, 3 par facture, 7 jours par client, 30 par heure, 7 / 4 / 6, 70 %', () => {
   const v = K.VALEURS_DE_DEPART;
-  assert.deepEqual(v.plageClients, { jours: [1, 2, 3, 4, 5], debut: '08:00', fin: '19:00' });
+  assert.deepEqual(v.plageClients, { jours: [1, 2, 3, 4, 5], debut: '09:00', fin: '18:00' });
   assert.deepEqual(v.plageEquipe, { jours: [1, 2, 3, 4, 5, 6, 7], debut: '07:30', fin: '21:00' });
-  assert.equal(v.delaiEntreRelancesJours, 7);
+  assert.equal(v.delaiEntreRelancesJours, 5);
+  assert.equal(v.maxRelancesParFacture, 3);
+  assert.equal(v.fenetreParClientJours, 7);
+  assert.deepEqual(K.reglesDeRelance(v), { delaiEntreRelancesJours: 5, maxRelancesParFacture: 3, fenetreParClientJours: 7 });
   assert.equal(v.maxCourrielsParHeure, 30);
   assert.deepEqual(v.rotationSauvegardes, { quotidiennes: 7, hebdomadaires: 4, mensuelles: 6 });
   assert.equal(v.seuilSuggestionForfaitPct, 70);
@@ -972,18 +1009,30 @@ dit('modifiables : un réglage changé l’emporte, le reste garde sa valeur de 
     plageClients: { jours: [], debut: '08:00', fin: '19:00' },
     plageEquipe: { jours: [1], debut: '21:00', fin: '07:30' },
     delaiEntreRelancesJours: 0,
+    maxRelancesParFacture: 4,
+    fenetreParClientJours: 6,
     maxCourrielsParHeure: 2.5,
     rotationSauvegardes: { quotidiennes: 0 },
     seuilSuggestionForfaitPct: 150,
   });
-  assert.deepEqual(K.defautsDesReglages(mauvais), ['plage-clients', 'plage-equipe', 'delai-relances', 'max-courriels', 'rotation', 'seuil-forfait']);
+  assert.deepEqual(K.defautsDesReglages(mauvais), ['plage-clients', 'plage-equipe', 'delai-relances', 'max-relances-facture', 'fenetre-client', 'max-courriels', 'rotation', 'seuil-forfait']);
+});
+
+dit('délai entre relances réglable de 3 à 14 jours, pas au-delà ; jamais plus de 3 par facture ni moins de 7 jours par client', () => {
+  const defaut = (sur: any) => K.defautsDesReglages(K.avecValeursDeDepart(sur));
+  for (const d of [3, 5, 14]) assert.deepEqual(defaut({ delaiEntreRelancesJours: d }), [], `${d}`);
+  for (const d of [2, 15, 4.5]) assert.deepEqual(defaut({ delaiEntreRelancesJours: d }), ['delai-relances'], `${d}`);
+  assert.deepEqual(defaut({ maxRelancesParFacture: 1 }), []);
+  assert.deepEqual(defaut({ maxRelancesParFacture: 0 }), ['max-relances-facture']);
+  assert.deepEqual(defaut({ fenetreParClientJours: 14 }), []);
+  assert.deepEqual(defaut({ fenetreParClientJours: 7 - 1 }), ['fenetre-client']);
 });
 
 dit('les moteurs prennent les réglages changés : relances, envois, rappels, rotation', () => {
-  const r = K.avecValeursDeDepart({ delaiEntreRelancesJours: 3, maxCourrielsParHeure: 5, plageClients: { jours: [1, 2, 3, 4, 5, 6, 7], debut: '08:00', fin: '20:00' }, rotationSauvegardes: { quotidiennes: 2, hebdomadaires: 0, mensuelles: 0 } });
-  const f = facture('a', '2026-10-01', { derniereRelance: { palier: 'ferme', le: '2026-11-08' } });
-  assert.equal(relances.relancesDuJour([f], AUJ).length, 0);
-  assert.equal(relances.relancesDuJour([f], AUJ, r.delaiEntreRelancesJours).length, 1);
+  const r = K.avecValeursDeDepart({ delaiEntreRelancesJours: 10, maxCourrielsParHeure: 5, plageClients: { jours: [1, 2, 3, 4, 5, 6, 7], debut: '08:00', fin: '20:00' }, rotationSauvegardes: { quotidiennes: 2, hebdomadaires: 0, mensuelles: 0 } });
+  const f = facture('a', '2026-10-01', { derniereRelance: { palier: 'ferme', le: '2026-11-04' } });
+  assert.equal(relances.relancesDuJour([f], AUJ).length, 1, '8 jours : permis par défaut');
+  assert.equal(relances.relancesDuJour([f], AUJ, K.reglesDeRelance(r)).length, 0, '8 jours < 10 réglés');
   assert.equal(courriels.lotDeLHeure(Array.from({ length: 9 }, (_, i) => ({ id: `${i}` })), 0, r.maxCourrielsParHeure).length, 5);
   const samedi = paris('2026-11-14', '10:00');
   assert.deepEqual(courriels.decider(COURRIEL, { ...ctxEnvoi({ maintenant: samedi }), plage: r.plageClients }), { statut: 'envoyer' });
@@ -1142,11 +1191,13 @@ for (const volume of ['vide', 'peu', 'normal', 'beaucoup']) {
     assert.deepEqual(clesSensibles(prises), []);
     for (const c of K.CATALOGUE) assert.ok(['local', 'externe'].includes(K.modeDeCategorie(c.id, prises)));
 
-    const factures = monde.factures.map((f: any) => ({ id: f.id, echeance: f.dueAt, payee: f.status === 'paid', enLitige: f.status !== 'issued' && f.status !== 'paid', derniereRelance: null }));
-    const enRetard = monde.factures.filter((f: any) => D.statutAffiche(f, aujourdhui) === 'En retard').length;
+    const factures = monde.factures.map((f: any) => ({ id: f.id, clientId: f.clientId ?? undefined, echeance: f.dueAt, payee: f.status === 'paid', enLitige: f.status !== 'issued' && f.status !== 'paid', derniereRelance: null }));
+    const enRetard = monde.factures.filter((f: any) => D.statutAffiche(f, aujourdhui) === 'En retard');
+    const clientsEnRetard = new Set(enRetard.map((f: any) => (f.clientId === null ? `facture:${f.id}` : `client:${f.clientId}`)));
     const r = relances.relancesDuJour(factures, aujourdhui);
-    assert.equal(r.length, enRetard, 'une relance proposée par facture en retard, ni plus ni moins');
-    assert.equal(new Set(r.map((x: any) => x.id)).size, r.length);
+    assert.equal(r.length, clientsEnRetard.size, 'une relance par client en retard, ni plus ni moins');
+    const couvertes = r.flatMap((x: any) => [x.factureId, ...x.regroupees]).sort();
+    assert.deepEqual(couvertes, enRetard.map((f: any) => f.id).sort(), 'chaque facture en retard est dans une relance, une seule fois');
 
     const rdvs = monde.evenements.map((e: any) => ({ id: e.id, debutAt: Date.parse(e.startAt), clientJoignable: e.clientId !== null }));
     const dus = rappels.rappelsDus(rdvs, new Set(), maintenant);

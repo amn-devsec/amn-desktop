@@ -322,7 +322,7 @@ export function genererJournalAcces(
     const acteurClient = tirage < 0.25 && clients.length ? h.choix(clients) : null;
     const inconnu = tirage > 0.96;
     const membre = h.choix(gens);
-    const numero = factures.filter((f) => f.number).length ? h.choix(factures.filter((f) => f.number)).number : '2026-0001';
+    const numero = factures.filter((f) => f.number).length ? h.choix(factures.filter((f) => f.number)).number : 'F-2026-0001';
     const actions: readonly (readonly [string, EntreeJournalAcces['resultat']])[] = acteurClient
       ? [[`A consulté la facture ${numero}`, 'Autorisé'], ['A téléchargé le devis', 'Autorisé']]
       : [[`A ouvert la facture ${numero}`, 'Autorisé'], ['A consulté la fiche d’un client', 'Autorisé'], ['A exporté la liste des clients', 'Autorisé'], [`A modifié le rôle de ${h.choix(gens).prenom}`, 'À revoir'], [`A révélé le secret « ${secretsNoms.length ? h.choix(secretsNoms) : 'Passerelle de paiement'} »`, 'À revoir'], ['A envoyé une relance', 'Autorisé']];

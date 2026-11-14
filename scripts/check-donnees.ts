@@ -280,14 +280,14 @@ dit('numérotation continue sans trou, par année, dans l’ordre d’émission 
   const emises = gros.factures.filter((f) => f.status !== 'draft').sort((a, b) => str(a.number).localeCompare(str(b.number)));
   const parAn = new Map<string, number[]>();
   for (const f of emises) {
-    const m = /^(\d{4})-(\d{4})$/.exec(str(f.number));
+    const m = /^F-(\d{4})-(\d{4})$/.exec(str(f.number));
     assert.ok(m, `numéro mal formé : ${str(f.number)}`);
     parAn.set(m[1], [...(parAn.get(m[1]) ?? []), Number(m[2])]);
   }
   for (const [an, suite] of parAn) assert.deepEqual(suite, suite.map((_, i) => i + 1), `trou dans la numérotation de ${an}`);
   assert.ok(gros.factures.filter((f) => f.status === 'draft').every((f) => str(f.number) === '' && str(f.issuedAt) === ''), 'brouillons');
   for (const an of parAn.keys()) {
-    const dates = emises.filter((f) => str(f.number).startsWith(`${an}-`)).map((f) => str(f.issuedAt));
+    const dates = emises.filter((f) => str(f.number).includes(`-${an}-`)).map((f) => str(f.issuedAt));
     assert.ok(dates.every((d) => d.startsWith(an)), `une facture ${an} n’est pas émise en ${an}`);
   }
   assert.ok(emises.length > 500);
@@ -306,36 +306,8 @@ dit('le solde dû vaut le TTC d’une facture envoyée, zéro sinon ; les totaux
     const t = D.totauxDeFacture(f);
     assert.ok(Number.isInteger(t.htCents) && Number.isInteger(t.tvaCents));
     assert.equal(t.ttcCents, t.htCents + t.tvaCents);
-    const repris = gros.avoirs.filter((x) => x.creditNoteFor === f.id).reduce((n, x) => n + D.totauxDeFacture(x).ttcCents, 0);
-    assert.equal(num(f.soldeCents), f.status === 'issued' ? Math.max(0, t.ttcCents - repris) : 0, 'reste dû = TTC − avoirs');
+    assert.equal(num(f.soldeCents), f.status === 'issued' ? t.ttcCents : 0);
   }
-});
-dit('les avoirs : AV-AAAA-NNNN continu, rattachés à une facture du même client, jamais plus grands qu’elle, le reste dû baisse', () => {
-  for (const [nom, m] of [['normal', normal], ['peu', peu], ['beaucoup', gros], ['vide', vide]] as const) {
-    const parAn = new Map<string, number[]>();
-    const emises = [...m.avoirs].sort((a, b) => str(a.number).localeCompare(str(b.number)));
-    for (const a of emises) {
-      const mt = /^AV-(\d{4})-(\d{4})$/.exec(str(a.number));
-      assert.ok(mt, `${nom} : numéro d’avoir ${str(a.number)}`);
-      parAn.set(mt[1], [...(parAn.get(mt[1]) ?? []), Number(mt[2])]);
-      assert.equal(a.kind, 'creditNote');
-      const origine = m.factures.find((f) => f.id === a.creditNoteFor);
-      assert.ok(origine && (origine.status === 'paid' || origine.status === 'issued'), `${nom} : facture d’origine émise`);
-      assert.equal(origine.clientId, a.clientId, `${nom} : même client`);
-      assert.ok(str(a.issuedAt) >= str(origine.issuedAt) && str(a.issuedAt) <= aujourdhuiDe(m), `${nom} : date de l’avoir`);
-      assert.ok(str(a.number).startsWith(`AV-${str(a.issuedAt).slice(0, 4)}-`), `${nom} : l’année du numéro est celle de l’émission`);
-      const total = m.avoirs.filter((x) => x.creditNoteFor === origine.id).reduce((n, x) => n + D.totauxDeFacture(x).ttcCents, 0);
-      assert.ok(total <= D.totauxDeFacture(origine).ttcCents, `${nom} : un avoir ne dépasse pas sa facture`);
-      if (origine.status === 'issued') assert.ok(total < D.totauxDeFacture(origine).ttcCents, `${nom} : sur une facture encore due, l’avoir est partiel`);
-      assert.equal(num(a.soldeCents), 0, 'un avoir n’est jamais dû');
-    }
-    for (const [an, suite] of parAn) assert.deepEqual(suite, suite.map((_, i) => i + 1), `${nom} : trou dans les avoirs de ${an}`);
-    assert.equal(new Set([...m.factures, ...m.avoirs].map((f) => f.id)).size, m.factures.length + m.avoirs.length, `${nom} : identifiants uniques`);
-    assert.ok(m.factures.every((f) => !f.kind || f.kind === 'invoice'), 'les factures restent des factures');
-  }
-  assert.ok(normal.avoirs.length >= 1 && gros.avoirs.length >= 10, 'des avoirs dès « normal »');
-  assert.ok(gros.avoirs.some((a) => gros.factures.find((f) => f.id === a.creditNoteFor)?.status === 'issued') && gros.avoirs.some((a) => gros.factures.find((f) => f.id === a.creditNoteFor)?.status === 'paid'), 'avoirs sur factures dues et réglées');
-  assert.equal(vide.avoirs.length, 0);
 });
 dit('le statut « En retard » se déduit (envoyée + échéance passée) ; il y en a, mais peu', () => {
   const retard = gros.factures.filter((f) => D.statutAffiche(f, aujourdhui) === 'En retard');
@@ -616,12 +588,11 @@ function invariants(m: MondeBrut, nom: string): void {
   const parAn = new Map<string, number[]>();
   for (const f of m.factures) {
     const t = D.totauxDeFacture(f);
-    const repris = m.avoirs.filter((x) => x.creditNoteFor === f.id).reduce((n, x) => n + D.totauxDeFacture(x).ttcCents, 0);
-    assert.equal(num(f.soldeCents), f.status === 'issued' ? Math.max(0, t.ttcCents - repris) : 0, `${nom} : solde`);
+    assert.equal(num(f.soldeCents), f.status === 'issued' ? t.ttcCents : 0, `${nom} : solde`);
     if (f.status === 'draft') { assert.equal(str(f.number), ''); continue; }
     assert.ok(str(f.dueAt) >= str(f.issuedAt) && str(f.issuedAt) <= auj, `${nom} : dates ${str(f.number)}`);
     if (f.status === 'paid') assert.ok(str(f.paidAt) >= str(f.issuedAt) && str(f.paidAt) <= auj, `${nom} : paiement ${str(f.number)}`);
-    const mt = /^(\d{4})-(\d{4})$/.exec(str(f.number));
+    const mt = /^F-(\d{4})-(\d{4})$/.exec(str(f.number));
     assert.ok(mt, `${nom} : numéro ${str(f.number)}`);
     parAn.set(mt[1], [...(parAn.get(mt[1]) ?? []), Number(mt[2])]);
   }
@@ -752,8 +723,7 @@ dit('TVA : la TVA à reverser est celle des factures émises moins celle des dé
     const [a, mEcheance] = str(e.echeanceLe).split('-').map(Number);
     const an = mEcheance === 1 ? a - 1 : a;
     const cleMois = `${an}-${String(mois).padStart(2, '0')}`;
-    const col = gros.factures.filter((f) => f.status !== 'draft' && f.status !== 'cancelled' && str(f.issuedAt).startsWith(cleMois)).reduce((t, f) => t + D.totauxDeFacture(f).tvaCents, 0)
-      - gros.avoirs.filter((x) => str(x.issuedAt).startsWith(cleMois)).reduce((t, x) => t + D.totauxDeFacture(x).tvaCents, 0);
+    const col = gros.factures.filter((f) => f.status !== 'draft' && f.status !== 'cancelled' && str(f.issuedAt).startsWith(cleMois)).reduce((t, f) => t + D.totauxDeFacture(f).tvaCents, 0);
     const ded = gros.depenses.filter((d) => str(d.spentAt).startsWith(cleMois)).reduce((t, d) => t + num(d.tvaCents), 0);
     assert.equal(num(e.montantCents), col - ded, `TVA de ${m[1]}`);
   }
@@ -954,7 +924,7 @@ dit('chantiers, photos, tournées, matériel, flotte, réservations, qualité : 
     assert.ok(point, 'un écart naît d’un point non conforme');
     assert.equal(e.gravite, point.criticite === 'critique' ? 'critique' : 'mineur');
   }
-  for (const c of gros.controles) { if (c.statut === 'À faire') assert.ok((c.resultats as Lien[]).every((r) => r.conforme === null)); if (c.statut === 'Terminé') assert.ok((c.resultats as Lien[]).every((r) => r.conforme !== null || r.sansObjet === true)); for (const r of c.resultats as Lien[]) if (r.sansObjet === true) assert.equal(r.conforme, null, 'sans objet : pas de résultat'); }
+  for (const c of gros.controles) { if (c.statut === 'À faire') assert.ok((c.resultats as Lien[]).every((r) => r.conforme === null)); if (c.statut === 'Terminé') assert.ok((c.resultats as Lien[]).every((r) => r.conforme !== null)); }
 });
 
 console.log('  — Outils');
@@ -1455,94 +1425,6 @@ dit('LOT-06 : commandes (création, échéance, livraison, paiement en ligne), t
     }
   }
   assert.deepEqual([...vus].sort(), ['En route', 'Fait', 'Sur place', 'À faire'], 'les quatre états apparaissent dans la matinée');
-});
-
-dit('LOT-06 (suite) : stock, chantiers, marque, vidéos, pages, produits, ressources, véhicules, photos, contrôles', () => {
-  for (const [nom, m] of [['normal', normal], ['beaucoup', gros]] as const) {
-    const auj = aujourdhuiDe(m);
-    // H15
-    for (const a of m.articles) {
-      assert.equal(a.niveauCible, num(a.seuilAlerte) * 3);
-      for (const mv of a.mouvements as Lien[]) assert.equal(mv.emplacement, a.emplacement, `${nom} : emplacement d’un mouvement`);
-      for (const c of a.commandesFournisseur as Lien[]) assert.ok(str(c.commandeeLe) <= auj && str(c.arriveeLe) > str(c.commandeeLe) && (c.recue === true ? str(c.arriveeLe) <= auj : str(c.arriveeLe) >= auj), `${nom} : commande fournisseur`);
-      if (D.quantiteEnStock(a) < num(a.seuilAlerte)) assert.ok((a.commandesFournisseur as Lien[]).some((c) => c.recue === false), `${nom} : un article sous son seuil a une commande en route`);
-    }
-    for (const f of m.fournisseurs) assert.ok(Number.isInteger(num(f.fraisDePortCents)) && num(f.fraisDePortCents) > 0 && (f.francoCents === null || num(f.francoCents) > num(f.fraisDePortCents)), `${nom} : franco et port`);
-    assert.ok(m.fournisseurs.some((f) => f.francoCents !== null) && m.fournisseurs.some((f) => f.francoCents === null), `${nom} : avec et sans franco`);
-    // H16, F50
-    for (const c of m.chantiers) {
-      const e = c.etapes as Lien[];
-      assert.equal(e.reduce((s, x) => s + num(x.poids), 0), 100, `${nom} : les poids font 100`);
-      assert.equal(str(e[e.length - 1].nom), 'Réception', `${nom} : dernière étape « Réception »`);
-      for (const x of e) assert.ok(num(x.partRealisee) >= 0 && num(x.partRealisee) <= 1 && (x.faite === true ? x.partRealisee === 1 : num(x.partRealisee) < 1), `${nom} : part réalisée`);
-      if (c.statut === 'Terminé') assert.ok(e.every((x) => x.faite === true), `${nom} : terminé = reçu`);
-      for (const i of c.interventions as Lien[]) assert.equal(i.fait === true, str(i.le) <= auj && c.statut !== 'À venir', `${nom} : intervention faite ⇔ passée`);
-      for (const l of c.livraisons as Lien[]) assert.equal(l.recue === true, str(l.le) <= auj, `${nom} : livraison reçue ⇔ passée`);
-      if (c.statut === 'À venir') assert.equal((c.livraisons as unknown[]).length, 0);
-    }
-    assert.ok(m.controles.some((c) => c.chantierId !== null && c.statut !== 'Terminé'), `${nom} : F50 — un contrôle ouvert rattaché à un chantier`);
-    // H17
-    for (const q of m.marque) {
-      const p = q.palette as Lien[];
-      assert.equal(p.reduce((s, x) => s + num(x.partUsage), 0), 100, `${nom} : la palette fait 100 %`);
-      assert.ok(p.every((x) => ['Principale', 'Secondaire', 'Accent', 'Fond', 'Texte'].includes(str(x.role))) && (q.aEviter as string[]).length >= 3 && str(q.modifieLe) <= auj);
-    }
-    // MR01
-    for (const v of m.videos) {
-      const rang = ['Idée', 'Tournage', 'Montage', 'Sous-titrage', 'Relecture', 'Publiée'].indexOf(str(v.etape));
-      assert.ok(rang >= 0);
-      assert.equal((v.plans as unknown[]).length > 0, rang >= 2, `${nom} : des plans dès le montage`);
-      assert.equal((v.sousTitres as unknown[]).length > 0, rang >= 3, `${nom} : des sous-titres dès l’étape « Sous-titrage »`);
-      assert.equal((v.commentaires as unknown[]).length > 0, rang >= 4, `${nom} : des commentaires dès la relecture`);
-      assert.equal(v.publieeLe !== null, v.etape === 'Publiée');
-      if (v.publieeLe !== null) assert.ok(str(v.publieeLe) <= auj);
-    }
-    assert.ok(new Set(m.videos.map((v) => v.etape)).size === 6, `${nom} : les six étapes existent`);
-    // MR02
-    for (const pg of m.pagesPubliques) {
-      assert.equal((pg.visitesParJour as number[]).length, 7);
-      assert.equal((pg.visitesParJour as number[]).reduce((s, x) => s + x, 0), num(pg.visites7j), `${nom} : les visites par jour font celles des 7 jours`);
-      assert.ok((pg.sections as unknown[]).length >= 3 && (pg.visitesParJour as number[]).every((x) => x >= 0));
-    }
-    assert.ok(m.pagesPubliques.some((pg) => (pg.avis as Lien[]).some((a) => a.accordClient === false)) && m.pagesPubliques.some((pg) => (pg.avis as Lien[]).some((a) => a.accordClient === true)), `${nom} : des avis avec et sans accord`);
-    // MR04, MR05
-    for (const e of m.equipements) assert.ok(str(e.affectationDepuis) <= auj, `${nom} : affectation datée, dans le passé`);
-    for (const p of m.produits) {
-      assert.ok([20, 10, 5.5].includes(num(p.tvaPourcent)));
-      const a = m.articles.find((x) => x.id === p.articleId);
-      if (a) {
-        assert.equal(p.prixAchatCents, a.prixAchatCents);
-        assert.equal((p.ventesParSemaine as number[]).length, 8);
-        const ventes = (a.mouvements as Lien[]).filter((x) => x.motif === 'Vente');
-        // La somme des huit semaines est celle des ventes datées de ces huit semaines (du lundi d'il y a 7 semaines à aujourd'hui).
-        const lundiCourant = D.jourDe(Date.parse(`${auj}T12:00:00Z`) - ((new Date(`${auj}T12:00:00Z`).getUTCDay() + 6) % 7) * 86_400_000);
-        const debutFenetre = D.jourDe(Date.parse(`${lundiCourant}T12:00:00Z`) - 49 * 86_400_000);
-        const attendu = ventes.filter((x) => str(x.le) >= debutFenetre && str(x.le) <= auj).reduce((s, x) => s - num(x.delta), 0);
-        assert.equal((p.ventesParSemaine as number[]).reduce((s, x) => s + x, 0), attendu, `${nom} : les ventes par semaine se lisent dans les mouvements`);
-        assert.ok(num(p.niveauConseille) >= num(p.seuilAlerte), 'niveau conseillé ≥ seuil');
-      } else assert.ok(p.prixAchatCents === null && p.niveauConseille === null && (p.ventesParSemaine as unknown[]).length === 0 && p.photos === 0);
-    }
-    // MR06, MR09, MR10, MR11
-    for (const r of m.ressources) for (const ind of r.indisponibilites as Lien[]) {
-      assert.ok(str(ind.debut) <= str(ind.fin));
-      assert.ok(m.reservations.filter((x) => x.ressourceId === r.id).every((x) => { const j = D.jourDe(Date.parse(str(x.debutAt))); return j < str(ind.debut) || j > str(ind.fin); }), `${nom} : aucune réservation pendant une indisponibilité`);
-    }
-    assert.ok(m.ressources.some((r) => (r.indisponibilites as unknown[]).length > 0) && m.ressources.some((r) => (r.conflits as unknown[]).length > 0), `${nom} : indisponibilités et conflits`);
-    for (const v of m.vehicules) {
-      assert.ok(['Diesel', 'Essence', 'Électrique', 'Hybride'].includes(str(v.energie)) && num(v.niveauPourcent) >= 0 && num(v.niveauPourcent) <= 100 && num(v.autonomieKm) > 0);
-      const j = v.parJour as Lien[];
-      assert.equal(j.length, 7);
-      assert.equal(str(j[6].jour), auj);
-      for (const x of j) assert.equal(x.carburantL === null, v.energie === 'Électrique', `${nom} : pas de carburant pour un véhicule électrique`);
-    }
-    for (const d of m.dossiersPhotos) {
-      for (const p of d.photos as Lien[]) assert.ok(['portrait', 'paysage'].includes(str(p.orientation)));
-      if (d.signatureClient !== null) assert.ok(m.chantiers.find((c) => c.id === d.chantierId)?.statut === 'Terminé' && str((d.signatureClient as Lien).le) <= auj);
-    }
-    for (const c of m.controles) for (const r of c.resultats as Lien[]) if (r.sansObjet === true) assert.ok(c.statut === 'Terminé' && r.conforme === null);
-    assert.ok(m.controles.some((c) => (c.resultats as Lien[]).some((r) => r.sansObjet === true)), `${nom} : un point « sans objet »`);
-    for (const e of m.ecarts) assert.ok(str(e.cause).length > 0 && str(e.releveLe) === str(m.controles.find((c) => c.id === e.controleId)?.le));
-  }
 });
 
 console.log('  — LOT-14 : la charge');
