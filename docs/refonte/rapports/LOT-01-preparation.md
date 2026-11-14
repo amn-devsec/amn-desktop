@@ -5,7 +5,7 @@ Branche `claude/refonte-journee`, partie de `claude/refonte-vivante` @ `fc94d38`
 ## Résumé
 
 1. **Mode préparation** : les 5 zips v4 n'étaient pas sur la machine. Les 16 fiches, `04-ECARTS-MAQUETTES.md`, `06-V4`, `_data/tutoiement.json` et les images n'ont pas été lus. **Aucun écran n'est construit** (0 sur 16).
-2. **La logique pure du lot** est dans `src/refonte/journee/` (13 fichiers, sans React ni horloge) : la série (clôture des priorités), les paliers et jalons, H04, G08 et H25 calculés, les projets, les défis d'équipe, les habitudes, les rappels, le planning, le kanban, et les phrases qui en découlent (tutoiement, fr et en).
+2. **La logique pure du lot** est dans `src/refonte/journee/` (15 fichiers, sans React ni horloge) : la série (clôture des priorités), les paliers et jalons, H04, G08 et H25 calculés, les projets, les défis d'équipe, les habitudes, les rappels, le planning, le kanban, et les phrases qui en découlent (tutoiement, fr et en).
 3. **H04, G08 et H25 égalent les valeurs attendues de SIM**, aux quatre volumes et sur quatre graines de plus. Vérifié par mutation : la garde rougit quand une règle est cassée.
 4. **Les éléments ludiques protégés sont des propriétés du code** testées : aucun chiffre individuel, aucun classement, aucun point perdu, aucun reproche (L07, L01, trophées, défis).
 5. **`check:journee`** (45 contrôles, ajouté à `editions.yml`) et toutes les gardes demandées sont vertes.
@@ -26,7 +26,7 @@ Fichiers sensibles : `package.json`, `editions.yml` et `check-tutoiement.ts` : *
 
 ## Gardes
 
-`typecheck`, `typecheck:business`, `lint`, `check:accueils`, `check:socle`, `check:moments`, `check:navigation`, `check:donnees`, `check:tutoiement` et `check:journee` : **verts**. Les 70 gardes sans réseau d'`editions.yml` relancées : **vertes**.
+`typecheck`, `typecheck:business`, `lint`, `check:accueils`, `check:socle`, `check:moments`, `check:navigation`, `check:donnees`, `check:tutoiement` et `check:journee` : **verts**. Toutes les gardes sans réseau d’`editions.yml` relancées : **vertes**.
 
 ## Décisions demandées au CO (détail : note §5)
 
