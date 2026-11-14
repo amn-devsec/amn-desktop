@@ -21,7 +21,8 @@ Le plan complet est dans [`PLAN-BUREAU-DE-TRAVAIL.md`](PLAN-BUREAU-DE-TRAVAIL.md
 **Tes questions**
 1. **La liste des sites faits par AMN**, dont ceux de ta base de projets Claude, pour choisir les premiers modèles. Pour chacun : fait pour un client ou non, et si l'accord du client existe.
 2. **L'accord des clients** : qui le demande (toi, Mohamed ?) et sous quelle forme (un courriel suffit-il ?). Sans accord, le site reste une référence privée, hors du dépôt public.
-3. **Les sources de vulnérabilités** (CISA, NVD, OSV) demandent un accès réseau sortant. Elles sont gratuites et publiques, et interrogées seulement à la demande. Recommandation : oui.
+3. **« hatf »** : tu l'emploies pour le dépannage informatique et les diagnostics. Est-ce le nom d'une activité, d'une marque ou d'une offre d'AMN ? F1 en a besoin pour nommer la fiche d'intervention.
+4. **Les sources de vulnérabilités** (CISA, NVD, OSV) demandent un accès réseau sortant. Elles sont gratuites et publiques, et interrogées seulement à la demande. Recommandation : oui.
 
 ## Lignes à coller (ton accord direct, que ces sessions demandent)
 
