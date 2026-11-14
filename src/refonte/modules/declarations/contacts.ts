@@ -1,3 +1,4 @@
+import { Filter } from 'lucide-react';
 import { declarerFamille, vue } from '../declarer';
 
 /**
@@ -48,6 +49,21 @@ export default declarerFamille({
         }),
         vue('leadScoring', '/scoring-leads', ['savoir quel prospect appeler', 'classer mes prospects'], ['scoring', 'score', 'lead', 'priorité'], {
           en: { verbes: ['know which lead to call', 'rank my leads'], motsCles: ['scoring', 'score', 'lead', 'priority'] },
+        }),
+      ],
+    },
+    {
+      nom: { fr: 'Pipeline commercial', en: 'Sales pipeline' },
+      action: 'prospecter',
+      niveau: 'courant',
+      vues: [
+        vue('pipelineCommercial', '/pipeline-commercial', ['suivre mes opportunités', 'voir ce qui va se signer', 'fixer mon objectif du mois', 'voir la prévision de ventes'], ['entonnoir', 'opportunité', 'prévision', 'objectif du mois', 'signature'], {
+          en: { verbes: ['follow my opportunities', 'see what is about to sign', 'set my goal for the month', 'see the sales forecast'], motsCles: ['funnel', 'opportunity', 'forecast', 'monthly goal', 'signature'] },
+          nouveau: {
+            icone: Filter,
+            ecran: () => import('../../contacts/pipeline/PagePipeline'),
+            indice: { fr: 'L’entonnoir des opportunités, de la prise de contact à la signature', en: 'The opportunity funnel, from first contact to signature' },
+          },
         }),
       ],
     },

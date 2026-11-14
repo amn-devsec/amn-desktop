@@ -48,6 +48,8 @@ export interface SourcesContacts {
   avis: Avis[];
   evenements: Evenement[];
   prospects: Prospect[];
+  /** Le jour où chaque prospect est entré dans son étape actuelle (id → jour). Absent : l'âge dans l'étape se compte depuis la création. */
+  entreesEtape?: Readonly<Record<string, Jour>>;
   relances: Relance[];
   fidelite: CompteFidelite[];
   fournisseurs: Fournisseur[];

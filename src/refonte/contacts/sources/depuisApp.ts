@@ -22,6 +22,7 @@ import type { Echange, MembreSource, SourcesContacts } from './types';
  */
 
 interface ProspectBrut {
+  movedAt?: string;
   name: string;
   company: string;
   valueCents: number;
@@ -43,7 +44,10 @@ interface FournisseurBrut {
   email: string;
 }
 
-const ETAPE_DE: Record<ProspectBrut['stage'], Prospect['etape']> = { contact: 'nouveau', qualifie: 'contacté', proposition: 'devis envoyé', gagne: 'gagné', perdu: 'perdu' };
+/** Les étapes de l'application (contact, qualifié, devis envoyé, gagné) deviennent celles de la refonte ; « qualifié » est l'étape du rendez-vous (MC01 : Nouveau, Rendez-vous, Devis envoyé, Signé). */
+export const ETAPE_DE: Record<ProspectBrut['stage'], Prospect['etape']> = { contact: 'nouveau', qualifie: 'rendez-vous', proposition: 'devis envoyé', gagne: 'gagné', perdu: 'perdu' };
+/** Et le chemin inverse, pour écrire un déplacement dans la collection. */
+export const STAGE_DE: Readonly<Record<'nouveau' | 'rendez-vous' | 'devis envoyé' | 'gagné' | 'perdu', ProspectBrut['stage']>> = { nouveau: 'contact', 'rendez-vous': 'qualifie', 'devis envoyé': 'proposition', gagné: 'gagne', perdu: 'perdu' };
 
 const jourDe = (iso: string | undefined): Jour => (iso ? jourDeInstant(iso) : '');
 
@@ -189,6 +193,7 @@ export function useSourcesContacts(maintenant: number): ResultatSources {
       avis,
       evenements,
       prospects,
+      entreesEtape: Object.fromEntries(prospectsBruts.filter((p) => p.movedAt).map((p) => [p.id, jourDe(p.movedAt)])),
       relances,
       fidelite: fideliteDepuis({ aujourdhui, clients: fiches, factures, avis: avisSimples }),
       fournisseurs,

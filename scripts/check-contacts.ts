@@ -55,9 +55,9 @@ async function charger<T>(code: string): Promise<T> {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const M = await charger<any>(
-  "export * as L from '../src/refonte/contacts';\nexport * as monde from '../src/refonte/donnees';\nexport { DICTIONNAIRES_CONTACTS } from '../src/refonte/contacts/i18n';\nexport * as V from '../src/refonte/connecteurs/reglages';\nexport * as H from '../src/refonte/contacts/hub/modele';\nexport * as N from '../src/refonte/contacts/hub/nuage';\nexport { DICTIONNAIRES_HUB } from '../src/refonte/contacts/hub/i18n';\nexport { depuisMonde } from '../src/refonte/contacts/sources/depuisMonde';\nexport * as C from '../src/refonte/contacts/clients/modele';\nexport { DICTIONNAIRES_CLIENTS } from '../src/refonte/contacts/clients/i18n';\nexport * as G from '../src/refonte/contacts/fiche/modele';\nexport { DICTIONNAIRES_FICHE } from '../src/refonte/contacts/fiche/i18n';\nexport * as P from '../src/refonte/contacts/prospects/modele';\nexport * as PN from '../src/refonte/contacts/prospects/nuage';\nexport { DICTIONNAIRES_PROSPECTS } from '../src/refonte/contacts/prospects/i18n';\nexport * as RT from '../src/refonte/contacts/retours/modele';\nexport { DICTIONNAIRES_RETOURS } from '../src/refonte/contacts/retours/i18n';\nexport * as FO from '../src/refonte/contacts/fournisseurs/modele';\nexport { DICTIONNAIRES_FOURNISSEURS } from '../src/refonte/contacts/fournisseurs/i18n';",
+  "export * as L from '../src/refonte/contacts';\nexport * as monde from '../src/refonte/donnees';\nexport { DICTIONNAIRES_CONTACTS } from '../src/refonte/contacts/i18n';\nexport * as V from '../src/refonte/connecteurs/reglages';\nexport * as H from '../src/refonte/contacts/hub/modele';\nexport * as N from '../src/refonte/contacts/hub/nuage';\nexport { DICTIONNAIRES_HUB } from '../src/refonte/contacts/hub/i18n';\nexport { depuisMonde } from '../src/refonte/contacts/sources/depuisMonde';\nexport * as C from '../src/refonte/contacts/clients/modele';\nexport { DICTIONNAIRES_CLIENTS } from '../src/refonte/contacts/clients/i18n';\nexport * as G from '../src/refonte/contacts/fiche/modele';\nexport { DICTIONNAIRES_FICHE } from '../src/refonte/contacts/fiche/i18n';\nexport * as P from '../src/refonte/contacts/prospects/modele';\nexport * as PN from '../src/refonte/contacts/prospects/nuage';\nexport { DICTIONNAIRES_PROSPECTS } from '../src/refonte/contacts/prospects/i18n';\nexport * as RT from '../src/refonte/contacts/retours/modele';\nexport { DICTIONNAIRES_RETOURS } from '../src/refonte/contacts/retours/i18n';\nexport * as FO from '../src/refonte/contacts/fournisseurs/modele';\nexport { DICTIONNAIRES_FOURNISSEURS } from '../src/refonte/contacts/fournisseurs/i18n';\nexport * as PL from '../src/refonte/contacts/pipeline/modele';\nexport * as PG from '../src/refonte/contacts/pipeline/geometrie';\nexport { DICTIONNAIRES_PIPELINE } from '../src/refonte/contacts/pipeline/i18n';",
 );
-const { L, monde, V, H, N, C, G, DICTIONNAIRES_HUB: DICO_HUB, DICTIONNAIRES_CLIENTS: DICO_CLIENTS, DICTIONNAIRES_FICHE: DICO_FICHE, P, PN, DICTIONNAIRES_PROSPECTS: DICO_PROSPECTS, RT, DICTIONNAIRES_RETOURS: DICO_RETOURS, FO, DICTIONNAIRES_FOURNISSEURS: DICO_FOURNISSEURS, depuisMonde, DICTIONNAIRES_CONTACTS: DICO } = M;
+const { L, monde, V, H, N, C, G, DICTIONNAIRES_HUB: DICO_HUB, DICTIONNAIRES_CLIENTS: DICO_CLIENTS, DICTIONNAIRES_FICHE: DICO_FICHE, P, PN, DICTIONNAIRES_PROSPECTS: DICO_PROSPECTS, RT, DICTIONNAIRES_RETOURS: DICO_RETOURS, FO, DICTIONNAIRES_FOURNISSEURS: DICO_FOURNISSEURS, PL, PG, DICTIONNAIRES_PIPELINE: DICO_PIPELINE, depuisMonde, DICTIONNAIRES_CONTACTS: DICO } = M;
 const paris = (jour: string, hhmm: string): number => L.instantParis(jour, hhmm);
 const VOLUMES = ['vide', 'peu', 'normal', 'beaucoup'] as const;
 const mondes = Object.fromEntries(VOLUMES.map((v) => [v, monde.construireMonde({ volume: v })])) as Record<(typeof VOLUMES)[number], any>;
@@ -1675,6 +1675,161 @@ await dit('H45 · textes : mêmes clés en fr et en, mêmes paramètres, comptes
   }
   for (const b of new Set(en.filter((k) => /\.(1|n)$/.test(k)).map((k) => k.replace(/\.(1|n)$/, '')))) for (const l of ['fr', 'en']) assert.ok(DICO_FOURNISSEURS[l][`${b}.1`] && DICO_FOURNISSEURS[l][`${b}.n`], `${b} (${l})`);
   assert.equal(DICO_FOURNISSEURS.fr['actions.urgence.depannage'], 'Poids réglés pour un dépannage : le délai compte davantage.', 'la phrase de la fiche');
+});
+
+/* ── MC01 : Pipeline commercial ────────────────────────────────────────── */
+console.log('\nContacts — MC01, Pipeline commercial (entonnoir, pastilles, prévision, sortie)\n');
+
+const dealMC01 = (id: string, etape: string, euros: number | null, o: Record<string, unknown> = {}): any => prospect({ id, nom: `Opportunité ${id}`, etape, montantCents: euros == null ? null : euros * 100, creeLe: '2026-10-01', ...o });
+const exemple = (): any[] => [
+  dealMC01('n1', 'nouveau', 900), dealMC01('n2', 'nouveau', 650), dealMC01('n3', 'nouveau', 350),
+  dealMC01('r1', 'rendez-vous', 480), dealMC01('r2', 'rendez-vous', 420),
+  dealMC01('d1', 'devis envoyé', 12_400), dealMC01('d2', 'devis envoyé', 3_200),
+  dealMC01('s1', 'gagné', 2_800, { signeLe: '2026-10-05' }), dealMC01('s2', 'gagné', 1_600, { signeLe: '2026-10-12' }), dealMC01('s3', 'gagné', 1_100, { signeLe: '2026-10-20' }), dealMC01('s4', 'gagné', 700, { signeLe: '2026-10-27' }),
+];
+
+await dit('MC01 · l’exemple de la fiche : 18 400 € en jeu (signé exclu), prévision 9 320 € = Σ montant × chance, lignes 8 580 / 360 / 380', () => {
+  const m = PL.modeleEntonnoir(base({ prospects: exemple() }), { objectifCents: 800_000 });
+  assert.equal(m.enJeuCents, 1_840_000);
+  assert.equal(m.prevision.totalCents, 932_000);
+  assert.deepEqual(m.prevision.contributions.map((c: any) => [c.colonne, c.cents]), [['Nouveau', 38_000], ['Rendez-vous', 36_000], ['Devis envoyé', 858_000]]);
+  assert.deepEqual(m.etapes.map((e: any) => [e.numero, e.nb, e.totalCents, e.chance]), [['01', 3, 190_000, 20], ['02', 2, 90_000, 40], ['03', 2, 1_560_000, 55]]);
+  assert.deepEqual(m.sortie, { lignes: m.sortie.lignes, nb: 4, totalCents: 620_000 });
+  assert.deepEqual(m.objectif, { objectifCents: 800_000, signeCents: 620_000, reste: 180_000, atteint: false, part: 0.775 });
+});
+
+await dit('MC01 · rayon = 9 + 0,34 × √montant (surface proportionnelle) : 12 400 € ≈ 46,9 ; 350 € ≈ 15,4 ; sans montant = 9', () => {
+  assert.deepEqual([1_240_000, 35_000, null, 0].map((c) => Math.round(PL.rayonDePastille(c) * 10) / 10), [46.9, 15.4, 9, 9]);
+  const grande = PL.rayonDePastille(1_240_000) - 9;
+  const petite = PL.rayonDePastille(35_000) - 9;
+  assert.ok(Math.abs((grande / petite) ** 2 - 1_240_000 / 35_000) < 0.01, 'le rayon moins 9 suit la racine du montant');
+  const m = PL.modeleEntonnoir(base({ prospects: exemple() }));
+  assert.equal(m.etapes[2].pastilles.find((p: any) => p.id === 'd1').grande, true);
+  assert.equal(m.etapes[0].pastilles.find((p: any) => p.id === 'n3').grande, false);
+});
+
+await dit('MC01 · objectif : « encore N » ; atteint = vert ; sans objectif = « Fixez votre objectif » (null) ; la sortie ne liste que le mois civil', () => {
+  const src = base({ prospects: [...exemple(), dealMC01('s0', 'gagné', 5_000, { signeLe: '2026-09-15' })] });
+  assert.equal(PL.modeleEntonnoir(src).objectif, null);
+  const atteint = PL.modeleEntonnoir(src, { objectifCents: 500_000 });
+  assert.deepEqual([atteint.objectif.atteint, atteint.objectif.reste, atteint.objectif.part], [true, 0, 1]);
+  assert.equal(PL.modeleEntonnoir(src).sortie.nb, 4, 'octobre seulement');
+  assert.equal(PL.modeleEntonnoir(src, { periode: 'trimestre' }).sortie.nb, 5, '90 jours : septembre y entre');
+  assert.equal(PL.modeleEntonnoir(src, { periode: 'tout' }).sortie.totalCents, 1_120_000);
+});
+
+await dit('MC01 · taux de passage : sans historique de mouvements = null (« — »), avec = entrées dans l’étape suivante ÷ entrées, 90 jours', () => {
+  const src = base({ prospects: exemple() });
+  const sans = PL.modeleEntonnoir(src);
+  assert.equal(sans.tauxIndisponibles, true);
+  assert.ok(sans.etapes.every((e: any) => e.taux === null));
+  assert.equal(sans.passagePourcent, null);
+  const mv = [
+    ...['a', 'b', 'c', 'd', 'e'].map((id) => ({ prospectId: id, vers: 'nouveau', le: '2026-10-01' })),
+    ...['a', 'b', 'c'].map((id) => ({ prospectId: id, vers: 'rendez-vous', le: '2026-10-10' })),
+    { prospectId: 'a', vers: 'devis envoyé', le: '2026-10-20' },
+    { prospectId: 'z', vers: 'nouveau', le: '2025-01-01' },
+  ];
+  const m = PL.modeleEntonnoir(src, { mouvements: mv });
+  assert.equal(m.tauxIndisponibles, false);
+  assert.equal(m.etapes[0].taux, 0.6);
+  assert.equal(Math.round(m.etapes[1].taux * 100), 33);
+  assert.equal(m.passagePourcent, 60);
+});
+
+await dit('MC01 · « N j sans réponse » : devis envoyé depuis 5 jours ou plus ; la suggestion est le plus gros ; âge moyen dans l’étape (ou depuis la création sans date d’entrée)', () => {
+  const src = base({ prospects: exemple(), entreesEtape: { d1: '2026-10-24', d2: '2026-10-10', r1: '2026-10-28', r2: '2026-10-26', n1: '2026-10-29' } });
+  const m = PL.modeleEntonnoir(src);
+  assert.equal(m.etapes[2].pastilles.find((p: any) => p.id === 'd1').sansReponse, 6);
+  assert.equal(m.etapes[2].pastilles.find((p: any) => p.id === 'd2').sansReponse, 20);
+  assert.deepEqual(m.suggestion, { id: 'd1', nom: 'Opportunité d1', cents: 1_240_000, jours: 6 }, 'le plus gros montant d’abord');
+  assert.equal(m.etapes[1].ageMoyenJours, 3, '(2 + 4) ÷ 2');
+  assert.equal(m.ageDepuisCreation, false);
+  const sansDates = PL.modeleEntonnoir(base({ prospects: exemple() }));
+  assert.equal(sansDates.ageDepuisCreation, true);
+  assert.equal(sansDates.etapes[0].ageMoyenJours, 29);
+  assert.equal(PL.modeleEntonnoir(base({ prospects: [dealMC01('n1', 'nouveau', 100)] })).suggestion, null, 'sans cas : la carte « astuce »');
+});
+
+await dit('MC01 · au-delà du plus lisible, les plus petites se regroupent en « + N » (les plus grosses restent), le compte de l’étape reste entier', () => {
+  const src = base({ prospects: Array.from({ length: 9 }, (_, i) => dealMC01(`n${i}`, 'nouveau', 100 * (i + 1))) });
+  const e = PL.modeleEntonnoir(src).etapes[0];
+  assert.equal(e.nb, 9);
+  assert.equal(e.pastilles.length, PL.MAX_PAR_ETAPE.Nouveau);
+  assert.equal(e.pastilles.length + e.regroupees.length, 9);
+  assert.ok(Math.min(...e.pastilles.map((p: any) => p.montantCents)) > Math.max(...e.regroupees.map((p: any) => p.montantCents)));
+  assert.equal(e.totalCents, 450_000, '100 + 200 + … + 900 = 4 500 €');
+});
+
+await dit('MC01 · géométrie : la bande va de 146 à 60 de demi-hauteur, trois étapes de 245, pastilles de taux sur l’axe à 245 / 490 / 751', () => {
+  assert.equal(PG.demiHauteur(0), 146);
+  assert.equal(PG.demiHauteur(735), 60);
+  assert.ok(PG.demiHauteur(367) < 146 && PG.demiHauteur(367) > 60);
+  const xs = Array.from({ length: 50 }, (_, i) => PG.demiHauteur((i * 735) / 49));
+  assert.ok(xs.every((v: number, i: number) => i === 0 || v <= xs[i - 1]), 'monotone');
+  assert.deepEqual([...PG.PASTILLES_TAUX_X], [245, 490, 751]);
+  assert.deepEqual([PG.ZONE.largeur, PG.ZONE.hauteur, PG.ZONE.sortieLargeur, PG.ZONE.sortieHauteur], [1070, 300, 290, 280]);
+  assert.equal(PG.nomCourt('Boulangerie Léo'), 'Boulangerie Léo');
+  assert.equal(PG.nomCourt('Brasserie Hautefeuille'), 'Brasserie Haute…');
+});
+
+await dit('MC01 · placement : aucune pastille ne se touche, toutes restent dans la bande de leur étape et loin des taux de passage ; l’exemple de la fiche tient sans rien frôler', () => {
+  const verifie = (m: any, strict: boolean) => {
+    m.etapes.forEach((e: any, i: number) => {
+      const ronds = e.pastilles.map((p: any) => ({ id: p.id, rayon: p.rayon, libelle: PG.largeurLibelle(p.nom, '12 400 €') }));
+      const pos = PG.placerEtape(ronds, i);
+      assert.equal(pos.length, ronds.length);
+      for (let a = 0; a < pos.length; a += 1) {
+        assert.ok(pos[a].x - pos[a].rayon >= i * 245 && pos[a].x + pos[a].rayon <= (i + 1) * 245, `${e.colonne} ${pos[a].id} dans son étape`);
+        assert.ok(Math.abs(pos[a].y - 150) + pos[a].rayon <= PG.demiHauteur(pos[a].x) + 1, `${e.colonne} ${pos[a].id} dans la bande`);
+        for (const x of PG.PASTILLES_TAUX_X) assert.ok(Math.hypot(pos[a].x - x, pos[a].y - 150) >= pos[a].rayon + 12 || Math.abs(pos[a].x - x) > pos[a].rayon + 34, `${pos[a].id} sur le taux ${x}`);
+        for (let b = a + 1; b < pos.length; b += 1) assert.ok(Math.hypot(pos[a].x - pos[b].x, pos[a].y - pos[b].y) >= pos[a].rayon + pos[b].rayon, `${pos[a].id} / ${pos[b].id}`);
+      }
+      void strict;
+    });
+  };
+  verifie(PL.modeleEntonnoir(base({ prospects: exemple() })), true);
+  for (const v of VOLUMES) verifie(PL.modeleEntonnoir(depuisMonde(mondes[v])), false);
+});
+
+await dit('MC01 · déplacer : colonne voisine, bornes aux deux bouts', () => {
+  assert.deepEqual(['Nouveau', 'Rendez-vous', 'Devis envoyé', 'Signé'].map((c) => PL.colonneVoisine(c, 1)), ['Rendez-vous', 'Devis envoyé', 'Signé', null]);
+  assert.deepEqual(['Nouveau', 'Rendez-vous', 'Signé'].map((c) => PL.colonneVoisine(c, -1)), [null, 'Nouveau', 'Devis envoyé']);
+});
+
+await dit('MC01 · signatures par mois : six mois, le mois courant en dernier, fait encourageant (égale le meilleur) ; rien de négatif si le mois est faible', () => {
+  const src = base({ prospects: [...exemple().filter((p: any) => p.etape !== 'gagné'), ...['2026-10-02', '2026-10-09', '2026-10-16', '2026-10-20', '2026-09-01', '2026-09-02', '2026-09-03', '2026-09-04', '2026-06-01'].map((j, i) => dealMC01(`g${i}`, 'gagné', 1000, { signeLe: j }))] });
+  const m = PL.modeleEntonnoir(src);
+  assert.deepEqual(m.signatures.mois.map((x: any) => x.nb), [0, 1, 0, 0, 4, 4]);
+  assert.equal(m.signatures.fait.genre, 'egale-meilleur');
+  const faible = PL.modeleEntonnoir(base({ prospects: [dealMC01('g', 'gagné', 1000, { signeLe: '2026-10-02' }), ...['2026-08-01', '2026-08-02', '2026-08-03'].map((j, i) => dealMC01(`h${i}`, 'gagné', 1000, { signeLe: j }))] }));
+  assert.ok(faible.signatures.fait == null || faible.signatures.fait.genre !== 'record');
+});
+
+await dit('MC01 · sur les jeux de SIM (quatre volumes) : le modèle se construit, « en jeu » exclut les signés, les comptes tiennent', () => {
+  for (const v of VOLUMES) {
+    const src = depuisMonde(mondes[v]);
+    const m = PL.modeleEntonnoir(src);
+    const ouverts = src.prospects.filter((p: any) => p.etape !== 'gagné' && p.etape !== 'perdu');
+    assert.equal(m.enJeuCents, ouverts.reduce((s: number, p: any) => s + (p.montantCents ?? 0), 0), v);
+    assert.equal(m.etapes.reduce((s: number, e: any) => s + e.nb, 0), ouverts.length, v);
+    assert.equal(m.total, ouverts.length, v);
+    assert.equal(m.prevision.contributions.reduce((s: number, c: any) => s + c.cents, 0), m.prevision.totalCents, v);
+    assert.ok(m.etapes.every((e: any) => e.pastilles.length <= PL.MAX_PAR_ETAPE[e.colonne] && e.pastilles.length + e.regroupees.length === e.nb), v);
+  }
+});
+
+await dit('MC01 · textes : mêmes clés en fr et en, mêmes paramètres, comptes à deux formes, l’interface tutoie', () => {
+  const en = Object.keys(DICO_PIPELINE.en).sort();
+  assert.deepEqual(Object.keys(DICO_PIPELINE.fr).sort(), en);
+  const params = (t: string) => [...t.matchAll(/\{(\w+)\}/g)].map((x) => x[1]).sort().join(',');
+  for (const k of en) {
+    assert.ok(DICO_PIPELINE.en[k].trim() && DICO_PIPELINE.fr[k].trim(), k);
+    assert.equal(params(DICO_PIPELINE.fr[k]), params(DICO_PIPELINE.en[k]), `paramètres de ${k}`);
+    assert.ok(!VOUVOIEMENT_UI.test(DICO_PIPELINE.fr[k]), `${k} vouvoie : ${DICO_PIPELINE.fr[k]}`);
+  }
+  for (const b of new Set(en.filter((k) => /\.(1|n)$/.test(k)).map((k) => k.replace(/\.(1|n)$/, '')))) for (const l of ['fr', 'en']) assert.ok(DICO_PIPELINE[l][`${b}.1`] && DICO_PIPELINE[l][`${b}.n`], `${b} (${l})`);
+  assert.equal(DICO_PIPELINE.fr['suggestion.texte.n'], 'Le devis de {montant} est ouvert depuis {n} jours sans réponse. Je prépare un message court et poli, tu le relis avant l’envoi.', 'la phrase de tutoiement.json');
 });
 
 /* ── Structure ──────────────────────────────────────────────────────────── */

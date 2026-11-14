@@ -40,6 +40,8 @@ const NAV_EN_INTERNE: Record<string, TraductionNav> = {
   scanner: { label: 'Scanner', hint: 'Vulnerability scanning' },
   comply: { label: 'Comply', hint: 'GDPR compliance' },
   ssl: { label: 'SSL Monitor', hint: 'TLS certificates' },
+  // LOT-02 (refonte) : les écrans neufs de « Mes contacts et clients », déclarés au registre des modules.
+  pipelineCommercial: { label: 'Sales pipeline', hint: 'The opportunity funnel, from first contact to signature' },
 };
 
 export const NAV_EN: Record<string, TraductionNav> = {

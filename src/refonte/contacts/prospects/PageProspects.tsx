@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate, useOutlet } from 'react-router-dom';
+import { useLocation, useNavigate, useOutlet } from 'react-router-dom';
 import { useAssistant } from '../../../assistant/AssistantContext';
 import { useSourcesContacts } from '../sources/depuisApp';
 import { jourDeInstant } from '../commun';
@@ -45,7 +45,8 @@ export default function PageProspects(): React.ReactElement {
   const { open: ouvrirAjmani } = useAssistant();
   const maintenant = useMaintenant();
   const { statut, sources } = useSourcesContacts(maintenant);
-  const [vue, setVue] = useState<VueProspect>('nuage');
+  const location = useLocation();
+  const [vue, setVue] = useState<VueProspect>(() => ((location.state as { vue?: VueProspect } | null)?.vue === 'colonnes' ? 'colonnes' : 'nuage'));
   const lundi = lundiDe(jourDeInstant(maintenant));
   const [faits, setFaits] = useState<Set<string>>(() => lireFaits(lundi));
   useEffect(() => setFaits(lireFaits(lundi)), [lundi]);
