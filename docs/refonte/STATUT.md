@@ -14,12 +14,12 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 |---|---|---|---|
 | S0 Socle | `session_01SJe828c2W5EnkMY4fhFY6z` | attend l'accord direct de Harun | sa liste, §1.38 |
 | T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | `check:fidelite` et `tester-branche` par lot | LOT-03 `2da78ad5` (fidélité 9/9, structure en cours) ; LOT-05 après « Gérer » |
-| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **LOT-02 livré** (13/13, `7796608f`) | pastilles de 20 px de MC07 et H45 ; puis libre |
+| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **LOT-02 livré** ; segments de MC07 et de H45 à 38 px (`ca47af79`) chez T1 | **LOT-01, moitié S1** (H01, H03, G08, MJ01 à MJ05) sur `claude/refonte-journee-2` |
 | S2 | `session_014ZkF6SeGRNi6NR3uEsjM5q` | préparation de LOT-01 finie ; **sans zips v4** ; la construction de LOT-01 passe à S7 | en pause jusqu'aux zips, puis un autre lot |
 | S3 | `session_01FBSpK6n1yYtYXYyxbLAuBV` | attend l'accord de Harun (`check:encres`) ; **sans zips v4** | correctif d'`equipes.ts`, puis LOT-08 |
 | S5 | `session_012jWErBSSkcoVaU3iN895bQ` | **LOT-03 complet** (ME05 `2da78ad5`) ; **LOT-05 complet** (10/10, `d706a9bd`) | « Gérer » (sondages, canaux), zones de 36 px, rapport LOT-05 |
 | S6 | `session_01RHV8Xq2txWkfjAusKvq9DG` | préparation de LOT-07 fusionnée ; **sans zips v4** ; LOT-10 passe à S8 | construire LOT-07 dès les zips ; relire la sécurité de LOT-10 avant sa fusion |
-| S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **LOT-06 livré** (`66719328` fusionné) | zones de 34 → 36 px et « Réduire » (#/tournees), puis **LOT-01** sur `claude/refonte-journee` |
+| S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **LOT-06 livré** (`66719328` fusionné) | zones de 34 → 36 px et « Réduire » (#/tournees), puis **LOT-01, moitié S7** (N01, H25, H02, H04, L01, L02, L03, L07) |
 | S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | **LOT-11 livré** (`6a87e35` fusionné) | attend l'accord de Harun pour LOT-10 Cyber (POINT-HARUN) |
 | DS | `session_01TZGDvVWristJnnPK59rruY` | attend l'accord direct de Harun pour construire LOT-04 | commencer par MA03, H07, MA12 |
 | SIM, S9, F1 | `session_011UF2ufZg9moGv2rRZFRuf7`, `session_01C5DAVygXYax6Q7g436TPQx`, `session_01VZHqP3gvzrtnpgsTrrKguV` | en pause | F1 : intégration reportée (S0) |
@@ -51,6 +51,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 - 14 nov., 10h15 : **LOT-06 fusionné** (`e1615090`, 15 écrans), **premier lot livré** de la vague de construction. T1 l'a accepté : fidélité sur l'aperçu, les 15 écrans justifiés ; structure sur l'application, les 12 routes montées dans la coquille v4, rien de coupé à 390 px. Suites demandées à S7 : relire 6 écrans au-dessus de 15 % en disposition (H17, MR01, MR10, H16, MR05, MR04) ; zones de clic de 34 px (§1.39) ; l'état vide de H17 (« Le livre de marque d’ · ») ; les entrées de registre de ses 3 écrans neufs. T1 fixe les valeurs acceptées de LOT-06.
 - 14 nov., 10h00 : **LOT-06 complet** (S7, `277263a`, 15 sur 15). S7 et S8 butent tous deux sur `check:systeme-demarrage` (« le registre ne doit pas bouger », qui perd les fonctions des écrans neufs). Le correctif est sur la branche LOT-03 de S5 et arrive avec sa fusion. Ordre : LOT-03, puis S7 et S8 déclarent leurs écrans neufs, puis LOT-06 et LOT-11.
 - 14 nov., 10h00 : méthode de `check:fidelite` (§1.40). La fidélité se mesure sur l'aperçu statique, rempli avec les jeux de SIM ; l'application sert à la structure. Pas de collection nouvelle dans l'API d'essai.
+- 14 nov., 11h45 : **LOT-01 partagé entre S7 et S1** pour aller plus vite. S7 : N01, H25, H02, H04, L01, L02, L03, L07, sur `claude/refonte-journee`. S1 : H01, H03, G08, MJ01 à MJ05, sur `claude/refonte-journee-2`. Fichiers communs (`declarations/jour.ts`, §7) : chacun n'ajoute que ses lignes, le CO résout à la fusion. LOT-09 attend toujours les lots 01 à 08 (§1.4). Réversible.
 - 14 nov., 11h40 : **LOT-02 Contacts refusionné** : le retrait `2b02ad23` est annulé, puis fusion de `7796608f` (clavier : 16 → 0, nuages bornés par le voisin, MC03). T1 l'accepte : 75 contrôles verts, dont clavier ; 13 écrans dans les seuils ; 0 clic au centre renvoyé à un voisin. Reste à S1 : pastilles de 20 px de MC07 et H45. Fusionnés avec : LOT-06 `66719328` (S7 reprend les zones de 34 → 36 px et « Réduire » des tournées), LOT-11 `6a87e35` (accepté), T1 `8c7bf98e`. §1.41 : 36 px, formule de T1. Gardes du CO : toutes les `check:*`, seuls les échecs connus.
 - 14 nov., 11h37 : S8 demande l'accord direct de Harun pour LOT-10, nouveau lot qui touche à la sécurité. La ligne à coller est dans POINT-HARUN. En attendant, S8 ne crée pas la branche.
 - 14 nov., 11h35 : **LOT-10 Cyber confié à S8** sur `claude/refonte-cyber`, au lieu de S6. S6 n'a pas les zips et a déjà les 30 écrans de LOT-07 ; S8 a les zips et a fini LOT-11. S8 commence par la note de préparation et les écrans sans dépendance. CY07, CY11, CY12, CY13 et CY04 attendent leurs lots. Les 4 `CYB-*` attendent leurs fiches, et les prix de CYB-chiffrage sont à Harun. S6 relit la sécurité avant la fusion. Réversible.
@@ -891,7 +892,7 @@ Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en para
 |---|---|---|---|
 | S0 Socle | LOT-00 puis socle v3 | ✓ | LOT-00 (v2) fusionné. Socle v3 en cours : §1.10 et §5. |
 | S2 | LOT-01 | ✓ | N01 remplace son Accueil ; M1, M2 et M4 sont absorbés par G05, H40 et H42. Ses 5 commits postérieurs (`b228f5d`) ne sont pas fusionnés. |
-| S1 | LOT-02, puis LOT-09 | ✓ | **LOT-09 confié à S1 après LOT-02** (décision de Harun). |
+| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **LOT-02 livré** ; segments de MC07 et de H45 à 38 px (`ca47af79`) chez T1 | **LOT-01, moitié S1** (H01, H03, G08, MJ01 à MJ05) sur `claude/refonte-journee-2` |
 | S5 | LOT-03, puis LOT-05 | ✓ | S5 reste propriétaire du registre. |
 | DS | LOT-04 | ✓ à condition | Ne pousse plus dans `src/socle/**`. Banque en lecture seule ; LOT-04 n'affiche que l'état « connecté / à connecter », la configuration est dans H21 (LOT-07). |
 | **S7** (nouvelle) | LOT-06 | ✓ | **Décision de Harun : LOT-06 confié à S7, F1 écartée.** Sonnet 5.5, effort élevé. À créer. |
@@ -907,13 +908,13 @@ Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en para
 |---|---|---|---|---|---|
 | S0 / LOT-00 | `claude/refonte-socle` | **v2 fusionné** (`488cdcc`) ; socle v3 à suivre sur la même branche | `fdd6366` | `rapports/LOT-00.md` (sur sa branche) | Questions de LOT-00 : §7, section LOT-00 |
 | DS | `claude/refonte-design-socle` | gelée, reprise par LOT-00 | `e97f479` | `rapports/DS.md` (branche LOT-00) | — |
-| S1 | `claude/refonte-s1-navigation` | fusionnée (ancienne tranche) | `e788af8` | [`rapports/S1.md`](rapports/S1.md) | Prend LOT-02 puis LOT-09 |
+| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **LOT-02 livré** ; segments de MC07 et de H45 à 38 px (`ca47af79`) chez T1 | **LOT-01, moitié S1** (H01, H03, G08, MJ01 à MJ05) sur `claude/refonte-journee-2` |
 | S2 | `claude/refonte-s2-accueil` | fusionnée à `a537dbe` ; 5 commits non fusionnés | `b228f5d` | [`rapports/S2.md`](rapports/S2.md) | Remplacée par LOT-01 |
 | S3 | `claude/refonte-s3-supervisor` (ancienne), `claude/refonte-garde` (LOT-08) | ancienne fusionnée ; LOT-08 en préparation (note seulement, aucun code) | `e7f4f25`, `2eedc9b` | `docs/refonte/preparation-garde.md` (branche LOT-08) | 15 questions tranchées au §1.8 |
 | S4 | — | annulée | — | — | — |
 | S5 | `claude/refonte-s5-modules` | fusionnée, y compris les 4 commits postérieurs (`5410081`) | `b82e50f` | [`rapports/S5.md`](rapports/S5.md) | Prend LOT-03 puis LOT-05 |
 | S6 | `claude/refonte-sec-*` | phase 1 en cours, privée. **Ne pas fusionner sans décision de Harun.** | — | `docs/securite/**`, hors dépôt | Prend LOT-07 puis LOT-10 |
-| S7 | `claude/refonte-creer` | **à créer** | — | — | LOT-06 |
+| S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **LOT-06 livré** (`66719328` fusionné) | zones de 34 → 36 px et « Réduire » (#/tournees), puis **LOT-01, moitié S7** (N01, H25, H02, H04, L01, L02, L03, L07) |
 | F1 | `claude/refonte-atelier-f1` | prête, non fusionnée, rien de branché | `59056ad` | `docs/atelier/PRET.md` | C-003 à appliquer ; 3 modules choisis (§1.21), à intégrer après le socle v4 |
 | T1 | `claude/refonte-qualite-t1`, `claude/refonte-qualite` | **les deux fusionnées** (`97929c1`, `3cc8dff`) | `51a962d`, `f2e243a` | [`../qualite/SANTE.md`](../qualite/SANTE.md) | Passage 2 à faire sur `refonte-vivante` |
 | SIM | `claude/refonte-donnees-fictives`, `claude/refonte-sim-bac-a-sable` | **données fusionnées** (`4fe559b`) + `check:donnees` en CI ; bac à sable non fusionné | `4fe559b`, `95d9765` | [`rapports/DONNEES.md`](rapports/DONNEES.md) | Suite : §1.11 |
