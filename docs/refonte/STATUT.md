@@ -4,7 +4,7 @@
 
 ## REPRISE (à lire en premier après une compaction ; tenu par le CO, réécrit à chaque tour)
 
-Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `ed3bdcb`.
+Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `5014f1cc`.
 
 **Avoirs** : réglé, ils sont présents par défaut (`b0173f3`).
 
@@ -12,17 +12,17 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 | Session | Identifiant | État | Prochain geste |
 |---|---|---|---|
-| S0 Socle | `session_01SJe828c2W5EnkMY4fhFY6z` | passe finale v4 finie (`888f7a0`) ; correctifs `ancres` et `avoirs` prêts mais **attend l'accord direct de Harun** pour pousser | ligne à coller par Harun (POINT-HARUN) ; puis ce que T1 signale |
-| T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | passage 2 fini : socle fusionné (§1.35) | C-008 (gardes sous la coquille v4), puis `check:fidelite` sur chaque lot, priorité 2 |
-| S6 Sécurité | `session_01RHV8Xq2txWkfjAusKvq9DG` | LOT-07 préparation **fusionnée** (`3030072`) ; **sans zips v4** ; une étape de sécurité attend amn-api | construire LOT-07 dès qu'il a les zips |
-| SIM | `session_011UF2ufZg9moGv2rRZFRuf7` | tout fusionné (`b0173f3`, 115 jeux) ; **sans dossier v4** | listes « Manque aux données » des lots à venir |
-| DS | `session_01TZGDvVWristJnnPK59rruY` | **construit LOT-04** | lots de 3 à 5 écrans → T1 → fusion |
-| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | **LOT-03 complet, 9 sur 9** (`a565a07`) ; `check:navigation` durable redemandé (2ᵉ fois) | garde durable, puis justifications, puis LOT-05 |
-| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **construit LOT-02** (feu vert le 14 nov., 08h) | lots de 3 à 5 écrans → `check:fidelite` de T1 → fusion |
-| S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **LOT-06 livré** (fusionné le 14 nov.) | suites : 6 écrans à relire, zones de clic de 34 px, état vide de H17, entrées de registre des 3 écrans neufs |
-| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | LOT-11, 7 sur 7 ; correction de `check:navigation` fusionnée | pousser ses 6 déclarations → T1 remesure → fusion |
-| S9 | `session_01C5DAVygXYax6Q7g436TPQx` | LOT-12 fini, valeurs de MC07 fusionnées (`bcdc65f`) | rien |
-| S2, S3 (première tâche : `check:encres`), F1 — **relancés le 14 nov., 08h** | `session_014ZkF6SeGRNi6NR3uEsjM5q`, `session_01FBSpK6n1yYtYXYyxbLAuBV`, `session_01VZHqP3gvzrtnpgsTrrKguV` | arrêtées | relancer au socle v4 (prompts : `PROMPTS-11NOV.md`, §1.21) |
+| S0 Socle | `session_01SJe828c2W5EnkMY4fhFY6z` | attend l'accord direct de Harun | sa liste, §1.38 |
+| T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | `check:fidelite` par lot (aperçu + application) | mesure des zones de clic par sonde ; LOT-03, puis LOT-11 |
+| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | construit LOT-02 (8 sur 13) | MC03 à MC07, justifies-LOT-02 |
+| S2 | `session_014ZkF6SeGRNi6NR3uEsjM5q` | préparation de LOT-01 finie ; **sans zips v4** | en pause jusqu'aux zips |
+| S3 | `session_01FBSpK6n1yYtYXYyxbLAuBV` | attend l'accord de Harun (`check:encres`) ; **sans zips v4** | correctif d'`equipes.ts`, puis LOT-08 |
+| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | LOT-03 complet, mise en page acceptée ; ME05 encore dans l'ancien bureau | retirer `/knowledge` et `/decisions` du Supervisor → T1 → fusion ; puis LOT-05 |
+| S6 | `session_01RHV8Xq2txWkfjAusKvq9DG` | préparation de LOT-07 fusionnée ; **sans zips v4** | construire LOT-07 dès les zips |
+| S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **LOT-06 livré**, suites fusionnées | reprendre MR01, MR10, H16, MR05, MR04 (disposition) |
+| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | LOT-11, 7 sur 7, structure bonne | pousser ses aperçus et `justifies-LOT-11.json`, vérifier DEV-modeles-sites → T1 → fusion |
+| DS | `session_01TZGDvVWristJnnPK59rruY` | attend l'accord direct de Harun pour construire LOT-04 | commencer par MA03, H07, MA12 |
+| SIM, S9, F1 | `session_011UF2ufZg9moGv2rRZFRuf7`, `session_01C5DAVygXYax6Q7g436TPQx`, `session_01VZHqP3gvzrtnpgsTrrKguV` | en pause | F1 : intégration reportée (S0) |
 
 **À dire au prochain message** : à chaque lot, donner dans son rapport la commande d'aperçu de ses écrans (§1.40) ; à chaque lot, ses exigences de cibles et de largeur (§1.37) ; à DS, la place des modules de F1 est corrigée (MA03 ↔ H07, §1.33 n° 4) ; à T1, (a) La Garde dans l'API d'essai demande une base sur fichier (SIM), (b) comparer le paquet client de `claude/refonte-outils` @ `f52ef5d` (`AutomationsRunner.tsx` partagé) avant sa fusion.
 
