@@ -19,7 +19,8 @@ export type {
   Projet, Prospect, Rappel, Relance, RoleMembre, SousTache, StatutClientAffiche, StatutProjet, Tache, Ticket, TypeEvenement,
 } from './types';
 export {
-  ajouterJours, courriel, ecartJours, estCourrielFictif, estTelephoneFictif, GRAINE_REFERENCE, instantParis, jourDe, MAINTENANT_REFERENCE,
+  ajouterJours, courriel, ecartJours, estCourrielFictif, estTelephoneFictif, GRAINE_REFERENCE, heureDe, instantParis, jourDe, MAINTENANT_CYBER,
+  MAINTENANT_REFERENCE, maintenantCyberDe,
   VOLUMES, type Jour, type Volume,
 } from './outils';
 export { statutAffiche, totauxDeFacture, totauxDeLignes, type Totaux } from './argent';

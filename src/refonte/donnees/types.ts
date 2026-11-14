@@ -74,6 +74,10 @@ export interface Contexte {
   maintenant: number;
   /** Le jour de Paris de `maintenant`. */
   aujourdhui: Jour;
+  /** « Maintenant » du lot Cyber (mardi 3 nov. 2026, 10 h 42 au défaut), en ms. */
+  maintenantCyber: number;
+  /** Le jour de Paris de `maintenantCyber`. */
+  aujourdhuiCyber: Jour;
   /** Le volume demandé pour chaque jeu. */
   volumes: Record<NomDuJeu, Volume>;
 }

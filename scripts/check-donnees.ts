@@ -41,7 +41,7 @@ async function loadFromSrc<T>(entry: string): Promise<T> {
 }
 
 type Lien = Record<string, unknown>;
-type MondeBrut = Record<string, Lien[]> & { contexte: { aujourdhui: string; maintenant: number }; entreprise: Lien };
+type MondeBrut = Record<string, Lien[]> & { contexte: { aujourdhui: string; maintenant: number; aujourdhuiCyber: string; maintenantCyber: number }; entreprise: Lien };
 const D = await loadFromSrc<{
   construireMonde: (o?: Record<string, unknown>) => MondeBrut;
   NOMS_DES_JEUX: readonly string[];
@@ -55,6 +55,7 @@ const D = await loadFromSrc<{
   journeesDeTravail: (t: unknown, email: string, jusqua: string, n?: number) => { jour: string; bouclee: boolean }[];
   serieEnCours: (j: unknown, aujourdhui: string) => number;
   jourDe: (ms: number) => string;
+  heureDe: (ms: number) => string;
   ecartJours: (a: string, b: string) => number;
   etatOrganisation: (score: number, alertes: string[], derniere: string, intervalleH: number, maintenant: number) => string;
   etatAccord: (a: unknown, aujourdhui: string) => string;
@@ -78,6 +79,7 @@ const gros = D.construireMonde({ volume: 'beaucoup' });
 const peu = D.construireMonde({ volume: 'peu' });
 const vide = D.construireMonde({ volume: 'vide' });
 const jours = (m: MondeBrut): string => m.contexte.aujourdhui;
+const joursCyber = (m: MondeBrut): string => m.contexte.aujourdhuiCyber;
 const str = (x: unknown): string => String(x ?? '');
 const num = (x: unknown): number => Number(x);
 
@@ -116,12 +118,26 @@ dit('chaque jeu garde ses tirages quand on change le volume d’un autre', () =>
   const a = D.construireMonde({ volume: 'normal', volumes: { avis: 'vide' } });
   assert.equal(JSON.stringify(a.clients.map((c) => c.name)), JSON.stringify(normal.clients.map((c) => c.name)));
 });
-dit('la référence est le vendredi 30 octobre 2026', () => {
+dit('la référence est le vendredi 30 octobre 2026, 10 h 42 ; Cyber est au mardi 3 novembre 2026, 10 h 42', () => {
   assert.equal(jours(normal), '2026-10-30');
+  assert.equal(D.heureDe(normal.contexte.maintenant), '10:42');
+  assert.equal(new Date(`${jours(normal)}T12:00:00Z`).getUTCDay(), 5, 'un vendredi');
+  assert.equal(joursCyber(normal), '2026-11-03');
+  assert.equal(D.heureDe(normal.contexte.maintenantCyber), '10:42');
+  assert.equal(new Date(`${joursCyber(normal)}T12:00:00Z`).getUTCDay(), 2, 'un mardi');
+  for (const m of [peu, gros]) assert.deepEqual([jours(m), joursCyber(m)], ['2026-10-30', '2026-11-03']);
 });
-dit('un autre « maintenant » décale tout le monde de façon cohérente', () => {
+dit('le bureau est daté du 30 oct. et Cyber du 3 nov. : La Garde n’a rien après le 30, la veille de Cyber tombe le 3', () => {
+  const futurBureau = (x: unknown) => typeof x === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(x) && Date.parse(x) > normal.contexte.maintenant;
+  for (const a of normal.alertes) assert.ok(!futurBureau(a.detecteeAt), 'alerte de La Garde datée après le 30 oct.');
+  const veille = normal.alertesVeille.filter((a) => a.publieeLe === joursCyber(normal));
+  assert.ok(veille.length > 0, 'CY05 : une alerte de veille publiée le 3 nov.');
+});
+dit('un autre « maintenant » décale tout le monde de façon cohérente, Cyber compris (quatre jours plus tard)', () => {
   const m = D.construireMonde({ volume: 'normal', maintenant: Date.parse('2027-03-12T10:00:00Z') });
   assert.equal(jours(m), '2027-03-12');
+  assert.equal(joursCyber(m), '2027-03-16');
+  assert.equal(D.heureDe(m.contexte.maintenantCyber), D.heureDe(m.contexte.maintenant));
   assert.ok(m.factures.every((f) => !f.issuedAt || str(f.issuedAt) <= '2027-03-12'));
 });
 
@@ -942,21 +958,21 @@ dit('l’état d’une organisation se déduit du score, des alertes ouvertes et
     assert.ok(ids(gros.clients).has(o.clientId) && num(o.score) >= 0 && num(o.score) <= 100);
     assert.equal(o.lettre, str(o.nom)[0].toUpperCase());
   }
-  for (const m of [normal, gros]) assert.deepEqual([...new Set(m.organisations.map((o) => o.etat))].sort(), ['Critique', 'Sain', 'À surveiller'], 'les trois états existent');
+  for (const m of [normal, gros]) assert.deepEqual([...new Set(m.organisations.map((o) => o.etat))].sort(), ['Attention', 'Critique', 'Sain'], 'les trois états existent');
   // Une organisation peut avoir un bon score et pourtant être critique : c'est l'alerte (ou la ronde) qui décide.
   assert.ok(gros.organisations.some((o) => o.etat === 'Critique' && num(o.score) >= 65), 'N02 : « 71 en rouge à cause de l’alerte critique »');
   // Les bornes de N02 6.1, écrites en dur : sans elles, comparer la fonction à elle-même ne prouverait rien.
   const maintenant = gros.contexte.maintenant;
   const ilYa = (min: number) => new Date(maintenant - min * 60_000).toISOString();
   const cas: [string, number, string[], number, number, string][] = [
-    ['score 70', 70, [], 5, 4, 'Sain'], ['score 69', 69, [], 5, 4, 'À surveiller'], ['score 45', 45, [], 5, 4, 'À surveiller'], ['score 44', 44, [], 5, 4, 'Critique'],
-    ['alerte moyenne', 95, ['Moyenne'], 5, 4, 'À surveiller'], ['alerte critique', 95, ['Critique'], 5, 4, 'Critique'], ['alertes faibles seules', 95, ['Faible', 'Faible'], 5, 4, 'Sain'],
-    ['ronde à exactement 2 intervalles', 95, [], 2 * 4 * 60, 4, 'Sain'], ['ronde juste au-delà de 2 intervalles', 95, [], 2 * 4 * 60 + 1, 4, 'À surveiller'],
-    ['ronde à 24 h pile (intervalle 4 h)', 95, [], 24 * 60, 4, 'À surveiller'], ['ronde au-delà de 24 h', 95, [], 24 * 60 + 1, 4, 'Critique'], ['ronde à 24 h pile (intervalle 24 h) : pas encore deux intervalles', 95, [], 24 * 60, 24, 'Sain'], ['le plus grave l’emporte', 80, ['Moyenne'], 25 * 60, 4, 'Critique'],
+    ['score 70', 70, [], 5, 4, 'Sain'], ['score 69', 69, [], 5, 4, 'Attention'], ['score 45', 45, [], 5, 4, 'Attention'], ['score 44', 44, [], 5, 4, 'Critique'],
+    ['alerte moyenne', 95, ['Moyenne'], 5, 4, 'Attention'], ['alerte critique', 95, ['Critique'], 5, 4, 'Critique'], ['alertes faibles seules', 95, ['Faible', 'Faible'], 5, 4, 'Sain'],
+    ['ronde à exactement 2 intervalles', 95, [], 2 * 4 * 60, 4, 'Sain'], ['ronde juste au-delà de 2 intervalles', 95, [], 2 * 4 * 60 + 1, 4, 'Attention'],
+    ['ronde à 24 h pile (intervalle 4 h)', 95, [], 24 * 60, 4, 'Attention'], ['ronde au-delà de 24 h', 95, [], 24 * 60 + 1, 4, 'Critique'], ['ronde à 24 h pile (intervalle 24 h) : pas encore deux intervalles', 95, [], 24 * 60, 24, 'Sain'], ['le plus grave l’emporte', 80, ['Moyenne'], 25 * 60, 4, 'Critique'],
   ];
   for (const [nom, score, alertes, minutes, intervalle, attendu] of cas) assert.equal(D.etatOrganisation(score, alertes, ilYa(minutes), intervalle, maintenant), attendu, nom);
   const regle = D.etatOrganisation(90, [], new Date(gros.contexte.maintenant - 3 * 3_600_000).toISOString(), 1, gros.contexte.maintenant);
-  assert.equal(regle, 'À surveiller', 'une ronde de plus de deux intervalles pèse');
+  assert.equal(regle, 'Attention', 'une ronde de plus de deux intervalles pèse');
   assert.equal(D.etatOrganisation(90, ['Faible'], new Date(gros.contexte.maintenant - 600_000).toISOString(), 4, gros.contexte.maintenant), 'Sain', 'des alertes faibles seules ne changent rien');
 });
 
@@ -1036,20 +1052,20 @@ console.log('  — Cyber');
 
 dit('accords : l’état se déduit de la signature et des dates ; les quatre états existent ; un outil « Accord requis » est bloqué sans accord valide', () => {
   for (const a of gros.accords) {
-    const etat = D.etatAccord(a, jours(gros));
+    const etat = D.etatAccord(a, joursCyber(gros));
     assert.equal(etat === 'En attente', !a.signe);
-    if (a.signe) assert.equal(etat, str(a.finLe) < jours(gros) ? 'Expiré' : D.ecartJours(jours(gros), str(a.finLe)) <= 30 ? 'Expire bientôt' : 'Valide');
+    if (a.signe) assert.equal(etat, str(a.finLe) < joursCyber(gros) ? 'Expiré' : D.ecartJours(joursCyber(gros), str(a.finLe)) <= 30 ? 'Expire bientôt' : 'Valide');
     assert.ok(str(a.finLe) > str(a.debutLe) && (a.perimetre as Lien).domaines && ((a.perimetre as Lien).domaines as string[]).every((d) => /\.exemple\.test$/.test(d)));
     assert.ok(str(a.conditionArret).length > 0);
   }
-  assert.deepEqual([...new Set(normal.accords.map((a) => D.etatAccord(a, jours(normal))))].sort(), ['En attente', 'Expire bientôt', 'Expiré', 'Valide']);
+  assert.deepEqual([...new Set(normal.accords.map((a) => D.etatAccord(a, joursCyber(normal))))].sort(), ['En attente', 'Expire bientôt', 'Expiré', 'Valide']);
   const requis = { accord: 'Accord requis' };
   const mk = (signe: boolean, debutLe: string, finLe: string) => ({ signe, debutLe, finLe });
-  assert.equal(D.outilDisponible(requis, [], jours(normal)), false, 'aucun accord');
-  assert.equal(D.outilDisponible(requis, [mk(true, '2026-01-01', '2026-02-01')], jours(normal)), false, 'accord expiré');
-  assert.equal(D.outilDisponible(requis, [mk(false, '2026-10-01', '2027-01-01')], jours(normal)), false, 'accord non signé');
-  assert.equal(D.outilDisponible(requis, [mk(true, '2026-09-01', '2026-11-10')], jours(normal)), true, 'accord qui expire bientôt');
-  assert.equal(D.outilDisponible({ accord: 'Passif' }, [], jours(normal)), true, 'un outil passif n’exige aucun accord');
+  assert.equal(D.outilDisponible(requis, [], joursCyber(normal)), false, 'aucun accord');
+  assert.equal(D.outilDisponible(requis, [mk(true, '2026-01-01', '2026-02-01')], joursCyber(normal)), false, 'accord expiré');
+  assert.equal(D.outilDisponible(requis, [mk(false, '2026-10-01', '2027-01-01')], joursCyber(normal)), false, 'accord non signé');
+  assert.equal(D.outilDisponible(requis, [mk(true, '2026-09-01', '2026-11-10')], joursCyber(normal)), true, 'accord qui expire bientôt');
+  assert.equal(D.outilDisponible({ accord: 'Passif' }, [], joursCyber(normal)), true, 'un outil passif n’exige aucun accord');
 });
 
 dit('outils : 54 au volume normal (9 familles × 6), les types et accords de la fiche, des noms génériques', () => {
@@ -1078,26 +1094,26 @@ dit('missions, constats, documents : accords, phases, signatures, états', () =>
   }
   assert.ok(normal.missions.some((m) => m.etat === 'En cours' && normal.accords.find((a) => a.id === m.accordId)?.signe === false), 'CY12 : une mission en cours dont l’accord attend sa signature');
   assert.ok(new Set(normal.missions.map((m) => m.etat)).size === 3 && normal.missions.some((m) => m.mensuelle));
-  for (const c of gros.constats) { const m = gros.missions.find((x) => x.id === c.missionId); assert.ok(m && m.etat !== 'À préparer' && str(c.creeLe) >= str(m.debutLe) && str(c.creeLe) <= jours(gros)); }
+  for (const c of gros.constats) { const m = gros.missions.find((x) => x.id === c.missionId); assert.ok(m && m.etat !== 'À préparer' && str(c.creeLe) >= str(m.debutLe) && str(c.creeLe) <= joursCyber(gros)); }
   assert.deepEqual([...new Set(gros.constats.map((c) => c.gravite))].sort(), ['Critique', 'Faible', 'Moyenne']);
   const docsAccord = gros.documentsCyber.filter((d) => d.type === 'Accord');
   assert.equal(docsAccord.length, gros.accords.length, 'un document par accord');
   for (const d of docsAccord) assert.equal(d.signature, gros.accords.find((a) => a.clientId === d.clientId)?.signe ? 'Signé' : 'À signer');
-  assert.ok(new Set(gros.documentsCyber.map((d) => d.type)).size === 7 && gros.documentsCyber.every((d) => str(d.modifieLe) <= jours(gros)));
+  assert.ok(new Set(gros.documentsCyber.map((d) => d.type)).size === 7 && gros.documentsCyber.every((d) => str(d.modifieLe) <= joursCyber(gros)));
 });
 
 dit('veille, conformité, sensibilisation, parc : compteurs recoupés, rien de nominatif', () => {
   const lg = new Set(gros.logicielsClients.map((l) => l.id));
-  for (const a of gros.alertesVeille) assert.ok((a.logicielsConcernes as string[]).every((id) => lg.has(id)) && str(a.publieeLe) <= jours(gros));
+  for (const a of gros.alertesVeille) assert.ok((a.logicielsConcernes as string[]).every((id) => lg.has(id)) && str(a.publieeLe) <= joursCyber(gros));
   const concernes = new Set(gros.alertesVeille.flatMap((a) => a.logicielsConcernes as string[]));
   for (const l of gros.logicielsClients) assert.equal(l.concerneParVeille, concernes.has(str(l.id)));
-  assert.ok(normal.alertesVeille.some((a) => a.publieeLe === jours(normal)) && normal.alertesVeille.some((a) => (a.logicielsConcernes as unknown[]).length > 0), 'CY05 « N vous concernent »');
-  assert.ok(gros.fuites.some((f) => f.etat === 'à traiter') && gros.fuites.every((f) => str(f.detecteeLe) <= jours(gros)));
+  assert.ok(normal.alertesVeille.some((a) => a.publieeLe === joursCyber(normal)) && normal.alertesVeille.some((a) => (a.logicielsConcernes as unknown[]).length > 0), 'CY05 « N vous concernent »');
+  assert.ok(gros.fuites.some((f) => f.etat === 'à traiter') && gros.fuites.every((f) => str(f.detecteeLe) <= joursCyber(gros)));
   for (const d of gros.dossiersConformite) { assert.equal((d.points as unknown[]).length, 5); assert.equal(d.registreRevuLe === null, !(d.points as Lien[])[0].ok); }
   assert.deepEqual([...new Set(gros.dossiersConformite.map((d) => D.niveauConformite(d)))].sort(), ['Conforme', 'Partiel', 'À traiter']);
   for (const c of gros.campagnes) {
     const eq = c.parEquipe as Lien[];
-    if (c.etat === 'Planifiée') assert.ok(num(c.envoyes) === 0 && eq.length === 0 && str(c.le) > jours(gros));
+    if (c.etat === 'Planifiée') assert.ok(num(c.envoyes) === 0 && eq.length === 0 && str(c.le) > joursCyber(gros));
     else { assert.equal(eq.reduce((t, e) => t + num(e.envoyes), 0), num(c.envoyes)); assert.equal(eq.reduce((t, e) => t + num(e.cliques), 0), num(c.cliques)); assert.ok(num(c.cliques) <= num(c.envoyes) && num(c.signales) <= num(c.envoyes) && num(c.ouverts) <= num(c.envoyes)); }
     if (c.type !== 'Simulation') assert.ok(num(c.cliques) === 0 && num(c.signales) === 0);
   }
@@ -1124,7 +1140,7 @@ function invariantsSuite(m: MondeBrut, nom: string): void {
   }
   for (const a of m.articles) { let c = 0; for (const mv of [...(a.mouvements as Lien[])].sort((x, y) => str(x.le).localeCompare(str(y.le)))) { c += num(mv.delta); assert.ok(c >= 0, `${nom} : stock négatif`); } }
   for (const mi of m.missions) if (mi.accordId !== null) assert.equal(m.accords.find((a) => a.id === mi.accordId)?.clientId, mi.clientId, `${nom} : accord d’une mission`);
-  for (const a of m.accords) assert.equal(D.etatAccord(a, auj) === 'En attente', !a.signe, `${nom} : accord`);
+  for (const a of m.accords) assert.equal(D.etatAccord(a, joursCyber(m)) === 'En attente', !a.signe, `${nom} : accord`);
   const parRessource = new Map<string, Lien[]>();
   for (const r of m.reservations) parRessource.set(str(r.ressourceId), [...(parRessource.get(str(r.ressourceId)) ?? []), r]);
   for (const l of parRessource.values()) { const t = [...l].sort((x, y) => str(x.debutAt).localeCompare(str(y.debutAt))); for (let i = 1; i < t.length; i += 1) assert.ok(str(t[i].debutAt) >= str(t[i - 1].finAt), `${nom} : chevauchement`); }
@@ -1151,7 +1167,7 @@ dit('les cas attendus par les écrans existent dès « normal », pour 12 graine
     assert.ok(n.incidents.some((i) => i.etape === 'En traitement'), `${nom} : incident en traitement`);
     assert.ok(n.articles.some((a) => D.quantiteEnStock(a) < num(a.seuilAlerte)), `${nom} : stock bas`);
     assert.ok(n.signatures.length >= 10 && new Set(n.signatures.map((s) => s.etat)).size >= 6, `${nom} : états de signature`);
-    assert.equal(new Set(n.accords.map((a) => D.etatAccord(a, jours(n)))).size, 4, `${nom} : états d’accord`);
+    assert.equal(new Set(n.accords.map((a) => D.etatAccord(a, joursCyber(n)))).size, 4, `${nom} : états d’accord`);
     assert.ok(n.echeancesFiscales.some((e) => e.paiement === 'À payer' && str(e.echeanceLe) < jours(n)), `${nom} : échéance fiscale en retard`);
     assert.ok(n.sites.some((s) => s.etat === 'Dégradé') && n.notifications.some((x) => !x.lue), `${nom} : sites, notifications`);
   }

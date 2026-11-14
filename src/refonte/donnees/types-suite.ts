@@ -805,7 +805,7 @@ export interface UsageCalcul {
 
 /* ================================ La Garde ================================ */
 
-export type EtatGarde = 'Sain' | 'À surveiller' | 'Critique';
+export type EtatGarde = 'Sain' | 'Attention' | 'Critique';
 export type GraviteAlerte = 'Critique' | 'Moyenne' | 'Faible';
 
 /** H30, H31, N02. L'état se déduit (voir `etatOrganisation`) : il n'est stocké ici que pour comparer. */

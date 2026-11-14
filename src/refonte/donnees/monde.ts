@@ -27,14 +27,16 @@ import { genererEntreprise, genererEquipe } from './equipe';
 import {
   finaliserProjets, genererEvenements, genererHabitudes, genererNotes, genererProjets, genererRappels, genererTaches, genererTickets,
 } from './ma-journee';
-import { ajouterJours, GRAINE_REFERENCE, jourDe, MAINTENANT_REFERENCE, VOLUMES, type Volume } from './outils';
+import { ajouterJours, GRAINE_REFERENCE, jourDe, MAINTENANT_REFERENCE, maintenantCyberDe, VOLUMES, type Volume } from './outils';
 import { NOMS_DES_JEUX, type Contexte, type Monde, type NomDuJeu } from './types';
 
 export interface OptionsMonde {
   /** Défaut : `GRAINE_REFERENCE`. */
   graine?: number;
-  /** « Maintenant » en ms. Défaut : `MAINTENANT_REFERENCE` (vendredi 30 octobre 2026, 10 h 15). */
+  /** « Maintenant » en ms. Défaut : `MAINTENANT_REFERENCE` (vendredi 30 octobre 2026, 10 h 42). */
   maintenant?: number;
+  /** « Maintenant » du lot Cyber. Défaut : `MAINTENANT_CYBER` (mardi 3 novembre 2026) ; décalé comme `maintenant` si celui-ci l'est. */
+  maintenantCyber?: number;
   /** Volume de tous les jeux. Défaut : `normal`. */
   volume?: Volume;
   /** Volume particulier de certains jeux (prime sur `volume`). */
@@ -46,7 +48,8 @@ export function creerContexte(options: OptionsMonde = {}): Contexte {
   const base = options.volume ?? 'normal';
   const volumes = Object.fromEntries(NOMS_DES_JEUX.map((nom) => [nom, options.volumes?.[nom] ?? base])) as Record<NomDuJeu, Volume>;
   for (const v of Object.values(volumes)) if (!VOLUMES.includes(v)) throw new Error(`Volume inconnu : ${String(v)}`);
-  return { graine: options.graine ?? GRAINE_REFERENCE, maintenant, aujourdhui: jourDe(maintenant), volumes };
+  const maintenantCyber = options.maintenantCyber ?? maintenantCyberDe(maintenant);
+  return { graine: options.graine ?? GRAINE_REFERENCE, maintenant, aujourdhui: jourDe(maintenant), maintenantCyber, aujourdhuiCyber: jourDe(maintenantCyber), volumes };
 }
 
 export function construireMonde(options: OptionsMonde = {}): Monde {
@@ -165,18 +168,19 @@ export function construireMonde(options: OptionsMonde = {}): Monde {
   const criteresMaturite = genererCriteres(ctx);
   const offresCyber = genererOffres(ctx, equipe, organisations);
 
-  // Cyber : des outils, des accords, des missions ; rien d'offensif, que du pilotage.
-  const outilsCyber = genererOutilsCyber(ctx);
-  const accords = genererAccords(ctx, clients);
-  const missions = genererMissions(ctx, equipe, clients, accords);
-  const constats = genererConstats(ctx, missions);
-  const documentsCyber = genererDocumentsCyber(ctx, equipe, missions, accords, clients);
-  const logicielsClients = genererLogiciels(ctx, clients);
-  const alertesVeille = genererAlertesVeille(ctx, logicielsClients);
-  const fuites = genererFuites(ctx, clients);
-  const dossiersConformite = genererDossiersConformite(ctx, clients);
-  const campagnes = genererCampagnes(ctx, clients);
-  const parcSecurite = genererParcSecurite(ctx, clients);
+  // Cyber : des outils, des accords, des missions ; rien d'offensif, que du pilotage. Ses images sont du mardi 3 nov. : un contexte à part.
+  const ctxCyber = { ...ctx, maintenant: ctx.maintenantCyber, aujourdhui: ctx.aujourdhuiCyber };
+  const outilsCyber = genererOutilsCyber(ctxCyber);
+  const accords = genererAccords(ctxCyber, clients);
+  const missions = genererMissions(ctxCyber, equipe, clients, accords);
+  const constats = genererConstats(ctxCyber, missions);
+  const documentsCyber = genererDocumentsCyber(ctxCyber, equipe, missions, accords, clients);
+  const logicielsClients = genererLogiciels(ctxCyber, clients);
+  const alertesVeille = genererAlertesVeille(ctxCyber, logicielsClients);
+  const fuites = genererFuites(ctxCyber, clients);
+  const dossiersConformite = genererDossiersConformite(ctxCyber, clients);
+  const campagnes = genererCampagnes(ctxCyber, clients);
+  const parcSecurite = genererParcSecurite(ctxCyber, clients);
 
   return {
     contexte: ctx, entreprise, equipe, taches, evenements, projets, tickets, notes, rappels, habitudes, clients, interlocuteurs, prospects,
