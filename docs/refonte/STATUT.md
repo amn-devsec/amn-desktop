@@ -880,7 +880,7 @@ Mots fr/en par `definirMots`. Gardes : `check:socle-controles|graphiques|situati
 | MC04 | Contacts · Équipe | mixte | en cours (préparation) | préparation : se construit sur le trombinoscope (`DirectoryScreen`, §1.28) |
 | MC05 | Contacts · Partenaires | mixte | en cours (préparation) | préparation : aucun écran ; le jeu d'organisations partenaires est commandé à SIM (§1.28) |
 | MC06 | Contacts · Rendez-vous clients | mixte | en cours (préparation) | préparation : `AgendaScreen` partagé (couture requise) et `BookingScreen` ; `rendezvous.ts` (trajets : durées du service d'itinéraire, LOT-12) |
-| MC07 | Contacts · Relances | mixte | en cours (préparation) | préparation : `RemindersScreen` ne relance que les factures ; `relances.ts` applique les huit points de la fiche pour les cinq motifs. **Valeurs fiche (5 j, 9:00–18:00) ≠ CO (7 j, 08:00–19:00) : à trancher** |
+| MC07 | Contacts · Relances | mixte | en cours (préparation) | préparation : `RemindersScreen` ne relance que les factures ; `relances.ts` applique les huit points de la fiche pour les cinq motifs ; 5 jours et 9:00–18:00 lus de `connecteurs/reglages.ts` (§1.31, réglable de 3 à 14 j) |
 
 Préparation par S1 (14 nov., `claude/refonte-contacts`) : note [`preparation/LOT-02-contacts.md`](preparation/LOT-02-contacts.md), logique dans `src/refonte/contacts/`, garde `check:contacts` (85 contrôles). Aucun écran visuel. **Dossier v4 lu le 14 nov.** (deuxième passe) : les règles « à confirmer » sont levées ou transformées en questions (note §7).
 

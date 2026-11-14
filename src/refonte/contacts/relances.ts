@@ -1,5 +1,4 @@
-import { PLAGE_CLIENTS } from '../connecteurs/moteurs/planificateur';
-import { DELAI_ENTRE_RELANCES_JOURS } from '../connecteurs/moteurs/relances';
+import { VALEURS_DE_DEPART } from '../connecteurs/reglages';
 import type { MotifRelance, Relance } from '../donnees/types';
 import { ajouterJours, ecartJours, euros, instantParis, jourDe, jourFrancais, jourSemaine, minutesDe, MS_MINUTE, type Jour, type Langue } from './commun';
 import { dire } from './i18n';
@@ -23,10 +22,10 @@ import { dire } from './i18n';
  * S'y ajoute la règle de H44 : si le client a une facture en retard ET un avis sans réponse,
  * les relances sont en pause (7 jours au plus).
  *
- * D'OÙ VIENNENT LES VALEURS. La fiche donne 5 jours entre deux relances et la plage 9:00–18:00 ;
- * le CO a adopté pour toute l'autonomie 7 jours et 08:00–19:00 (`STATUT.md` §1.22), lus chez S9
- * (`connecteurs/reglages.ts`) pour qu'il n'y ait qu'une source. La fiche fixe l'intervalle
- * réglable (3 à 14). Écart signalé au CO dans la note du lot.
+ * D'OÙ VIENNENT LES VALEURS. La fiche l'emporte (CO, `STATUT.md` §1.31) : 5 jours entre deux
+ * relances d'un objet, plage clients lun.–ven. 9:00–18:00, réglable de 3 à 14 jours. Ces valeurs
+ * n'ont qu'une source, `connecteurs/reglages.ts` (`VALEURS_DE_DEPART`) ; ce fichier les LIT, sans
+ * constante recopiée. Les tests passent leurs propres règles quand ils ont besoin de dates fixes.
  *
  * Le verdict dit toujours POURQUOI et QUAND : l'écran n'a jamais à inventer une phrase.
  */
@@ -48,14 +47,14 @@ export interface ReglesRelance {
 export const ESPACEMENT_MIN_JOURS = 3;
 export const ESPACEMENT_MAX_JOURS = 14;
 
-/** Les valeurs de départ. L'espacement et la plage viennent de l'autonomie (S9) ; le reste de la fiche MC07. */
+/** Les valeurs de départ. L'espacement et la plage sont LUS de `connecteurs/reglages.ts` (une seule source, §1.31) ; le reste vient de la fiche MC07. */
 export const REGLES_PAR_DEFAUT: ReglesRelance = {
-  espacementJours: DELAI_ENTRE_RELANCES_JOURS,
+  espacementJours: VALEURS_DE_DEPART.delaiEntreRelancesJours,
   maxParObjet: 3,
   clientDelaiJours: 7,
   heuresApresEchange: 24,
   pauseAvisJours: 7,
-  fenetre: { debut: PLAGE_CLIENTS.debut, fin: PLAGE_CLIENTS.fin, jours: PLAGE_CLIENTS.jours },
+  fenetre: { debut: VALEURS_DE_DEPART.plageClients.debut, fin: VALEURS_DE_DEPART.plageClients.fin, jours: VALEURS_DE_DEPART.plageClients.jours },
 };
 
 /** Les réglages saisis, bornés comme la fiche le veut : l'espacement entre 3 et 14 jours. */
