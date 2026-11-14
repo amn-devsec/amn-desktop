@@ -198,3 +198,13 @@ export function semaineEnDisques(mots: MotsParJour, aujourdhui: Jour): DisqueDeS
 
 /** Jours qui séparent deux jours : exposé pour les écrans qui disent « il y a 12 jours ». */
 export const joursEntre = ecartJours;
+
+/**
+ * « Page du jour écrite, palier de 14 jours dimanche » (H10, image v4) : le premier jour où le prochain palier serait
+ * atteint si on écrit chaque jour à partir d'aujourd'hui (un jour de repos écrit compte aussi : le repos ne casse
+ * rien, il n'oblige pas). `null` au-delà du dernier palier.
+ */
+export function jourDuPalier(s: Pick<Serie, 'joursAvantPalier' | 'ecritAujourdhui'>, aujourdhui: Jour): Jour | null {
+  if (s.joursAvantPalier === null) return null;
+  return ajouterJours(aujourdhui, s.ecritAujourdhui ? s.joursAvantPalier : s.joursAvantPalier - 1);
+}

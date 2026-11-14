@@ -115,3 +115,10 @@ export interface CaseDeGalerie {
 /** Tri de la galerie : les plus utilisés ce mois d'abord ; la case proposée en dernier. */
 export const trierGalerie = (cases: readonly CaseDeGalerie[]): CaseDeGalerie[] =>
   [...cases].sort((a, b) => Number(!!a.proposee) - Number(!!b.proposee) || b.usagesMois - a.usagesMois || a.nom.localeCompare(b.nom));
+
+/** « Utilisé 31 fois ce mois, par … et … » (image v4) : les personnes, la plus assidue d’abord. */
+export function utilisateursDuMois(usages: readonly { at: Instant; email: string }[], debutDuMois: Instant): string[] {
+  const n = new Map<string, number>();
+  for (const u of usages) if (ms(u.at) >= ms(debutDuMois)) n.set(u.email, (n.get(u.email) ?? 0) + 1);
+  return [...n].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([e]) => e);
+}
