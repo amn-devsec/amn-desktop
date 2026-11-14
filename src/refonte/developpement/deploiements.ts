@@ -274,7 +274,7 @@ export function parJour(ds: readonly Deploiement[], maintenant: Instant, n = 14,
     c.total += 1;
     if (etatGlobal(d) === 'echec') c.echec = true;
   }
-  return jours.map((j) => ({ jour: j, libelle: jourEtMois(j, langue), ...parCle.get(j)! }));
+  return jours.map((j) => ({ jour: j, libelle: jourEtMois(j, langue), ...(parCle.get(j) ?? { total: 0, echec: false }) }));
 }
 
 /** « En ligne maintenant » : par dépôt et par cible, la dernière version réussie, la plus récente d'abord. */

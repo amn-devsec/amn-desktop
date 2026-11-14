@@ -51,10 +51,10 @@ async function charger<T>(code: string): Promise<T> {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const M = await charger<any>(
-  ['commun', 'deploiements', 'journal', 'planification', 'i18n'].map((f) => `export * as ${f} from '../src/refonte/developpement/${f}';`).join('\n') +
+  ['commun', 'deploiements', 'journal', 'planification', 'i18n', 'vues'].map((f) => `export * as ${f} from '../src/refonte/developpement/${f}';`).join('\n') +
     "\nexport * as monde from '../src/refonte/donnees';",
 );
-const { commun: C, deploiements: D, journal: J, planification: P, i18n: I, monde } = M;
+const { commun: C, deploiements: D, journal: J, planification: P, i18n: I, vues: V, monde } = M;
 
 const NB = ' ';
 const t = (iso: string) => Date.parse(iso);
@@ -467,6 +467,82 @@ await dit('libellés : jours, nuits, semaine, intervalles, passage unique (fr et
   assert.equal(P.libellePlanification(quotidien('08:00'), 'en'), 'Every day at 08:00');
 });
 
+/* ── Ce que les écrans tirent des données (vues.ts) ─────────────────────── */
+console.log('\nDéveloppement — vues des écrans (DEV-projets, DEV-ensemble)\n');
+
+const depot = (id: string, extra: Record<string, unknown> = {}) => ({
+  id, nom: `depot-${id}`, description: 'x', branche: 'main', langages: [{ nom: 'TypeScript', part: 100 }],
+  tests: { etat: 'verts', echecs: 0, depuisLe: null }, commitsParSemaine: Array.from({ length: 31 }, (_, k) => (k === 30 ? 3 : k % 4)),
+  dernierCommitAt: '2026-11-11T09:00:00Z', cible: 'Hébergement web', version: null, ticketIds: ['t1', 't2'], teinte: 0, ...extra,
+});
+await dit('lignes d’une carte de dépôt : branche principale, autre branche, version et tickets', () => {
+  const ouverts = { ouverts: 2 };
+  assert.deepEqual(V.lignesDuDepot(depot('a'), M0, ouverts), { branche: 'main · dernier commit hier', cible: 'Hébergement web · 2 tickets' });
+  assert.equal(V.lignesDuDepot(depot('b', { branche: 'refonte-v2' }), M0, ouverts).branche, 'refonte-v2 · 3 commits');
+  assert.equal(V.lignesDuDepot(depot('c', { version: '1.2.41', cible: 'Édition interne' }), M0, { ouverts: 0 }).cible, 'v1.2.41 Édition interne · 0 ticket');
+  assert.equal(V.lignesDuDepot(depot('d', { dernierCommitAt: '2026-11-09T09:00:00Z' }), M0, ouverts).branche, 'main · dernier commit il y a 3 j');
+});
+await dit('pastille, tri (en échec d’abord), commits de la semaine, part de dépôts verts', () => {
+  const ko = depot('k', { tests: { etat: 'echec', echecs: 1, depuisLe: '2026-11-12T06:30:00Z' }, dernierCommitAt: '2026-11-01T09:00:00Z' });
+  assert.deepEqual(V.pastilleDepot(depot('a')), { ton: 'succes', texte: 'Tests verts' });
+  assert.deepEqual(V.pastilleDepot(ko), { ton: 'attention', texte: '1 test en échec' });
+  assert.deepEqual(V.trierDepots([depot('a'), ko]).map((x: any) => x.id), ['k', 'a']);
+  assert.equal(V.commitsDeLaSemaine([depot('a'), ko]), 6);
+  assert.equal(V.partTestsVerts([depot('a'), ko]), 50);
+  assert.equal(V.partTestsVerts([]), null);
+});
+await dit('carte d’activité : 31 semaines, des cases de bas en haut selon le niveau, jamais un jour inventé', () => {
+  const c = V.carteDActivite([depot('a')]);
+  assert.equal(c.length, 31);
+  assert.ok(c.every((x: any) => x.cases >= 0 && x.cases <= 7));
+  assert.equal(c[0].cases, 0); // semaine sans commit
+  assert.equal(Math.max(...c.map((x: any) => x.cases)), 7);
+});
+await dit('« À regarder aujourd’hui » : rouge d’abord, tests du matin, tickets bloquants, déploiement non repris, service', () => {
+  const ko = depot('k', { tests: { etat: 'echec', echecs: 1, depuisLe: '2026-11-12T06:30:00Z' } });
+  const r = V.aRegarder({
+    depots: [ko, depot('a', { ticketIds: ['t1', 't2', 't3'] })],
+    deploiements: [jouer(base('x1', 'depot-x', 'apercu', '2026-11-12T04:00:00Z'), '2026-11-12T04:00:00Z', [3, 40, 19, 0, 0], 'tests')],
+    services: [{ id: 's1', nom: 'Mails sortants', etat: 'attention', disponibilite30jPct: 99.41 }, { id: 's2', nom: 'Base', etat: 'en marche', disponibilite30jPct: 99.99 }],
+    ouverts: new Set(['t1', 't2', 't3']),
+    bloquants: new Set(['t3']),
+    maintenant: M0,
+  });
+  assert.deepEqual(r.map((x: any) => x.cle), ['deploiement:x1', 'tickets:a', 'tests:k', 'service:s1']);
+  assert.equal(r.find((x: any) => x.cle === 'tests:k').texte, '1 test en échec depuis ce matin');
+  assert.equal(r.find((x: any) => x.cle === 'tickets:a').texte, '3 tickets ouverts, dont 1 bloquant');
+  assert.equal(r.find((x: any) => x.cle === 'deploiement:x1').texte, 'déploiement vers Aperçu en échec');
+});
+await dit('disque : « tranquille pour 2 ans » à 1,1 Go par semaine (160 Go, 38 utilisés)', () => {
+  const s = V.semainesAvantPlein(160, 38, [1.0, 1.2, 1.1, 1.1]);
+  assert.ok(Math.abs(s - 110.9) < 0.1);
+  assert.equal(V.texteDuree(s), '2 ans');
+  assert.equal(V.texteDuree(30), '7 mois');
+  assert.equal(V.texteDuree(3), '3 semaines');
+  assert.equal(V.semainesAvantPlein(160, 38, [1]), null);
+  assert.equal(V.semainesAvantPlein(160, 38, [0, 0]), null);
+});
+await dit('coûts : part faite seul sur les opérations branchées, payé du mois sans commission', () => {
+  const cs = [
+    { mode: 'local', consommationMois: { utilise: 412 }, payeCeMoisCents: 0 },
+    { mode: 'payant', consommationMois: { utilise: 180 }, payeCeMoisCents: 1400 },
+    { mode: 'a-brancher', consommationMois: { utilise: 0 }, payeCeMoisCents: 0 },
+  ];
+  assert.equal(V.partFaiteSeul(cs), Math.round((412 / 592) * 100));
+  assert.equal(V.partFaiteSeul([]), null);
+  assert.equal(V.payeDuMois(cs), 1400);
+});
+await dit('jeux de SIM : les dépôts se lisent sans adaptateur (volumes vide à beaucoup)', () => {
+  for (const v of ['vide', 'peu', 'normal', 'beaucoup']) {
+    const mm = monde.construireMonde({ volume: v });
+    for (const d of mm.depots) {
+      assert.equal(d.commitsParSemaine.length, 31);
+      V.lignesDuDepot(d, monde.MAINTENANT_REFERENCE, { ouverts: 0 });
+    }
+    assert.equal(V.carteDActivite(mm.depots).length, 31);
+  }
+});
+
 /* ── Textes ─────────────────────────────────────────────────────────────── */
 console.log('\nDéveloppement — textes (tutoiement, deux langues)\n');
 
@@ -491,9 +567,17 @@ const fichiersSous = (dossier: string): string[] => {
 };
 const zone = fichiersSous(ZONE);
 
-await dit('préparation : aucun écran visuel (.tsx) avant le feu vert du CO', () => {
+/** Les fichiers visuels permis (étape 3, feu vert du CO le 14 nov.) : les écrans du lot et leurs briques. */
+const VISUELS = new Set(['donnees.tsx', 'briques.tsx', 'VueDEnsemble.tsx', 'ProjetsDeCode.tsx', 'Deploiements.tsx', 'ServeurSante.tsx', 'EditeurDeFlux.tsx', 'CoutsEtApi.tsx', 'ModelesDeSites.tsx']);
+await dit('construction : seuls les écrans du lot et leurs briques sont des .tsx', () => {
   assert.ok(zone.length >= 5, 'la zone du lot est vide');
-  assert.deepEqual(zone.filter((f) => f.endsWith('.tsx')), []);
+  assert.deepEqual(zone.filter((f) => f.endsWith('.tsx') && !VISUELS.has(path.basename(f))), []);
+});
+await dit('feuilles de style du lot : jetons du socle seulement, aucune couleur écrite à la main', () => {
+  for (const f of zone.filter((x) => x.endsWith('.css'))) {
+    const src = fs.readFileSync(path.join(racine, f), 'utf8');
+    assert.doesNotMatch(src, /#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(/i, f);
+  }
 });
 await dit('la logique n’importe ni l’écran partagé, ni l’édition cliente, ni le pont du poste', () => {
   for (const f of zone) {
