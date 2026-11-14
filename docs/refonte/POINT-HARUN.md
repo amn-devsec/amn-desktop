@@ -1,12 +1,12 @@
 # Point pour Harun
 
-> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., nuit.
+> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 03h30 UTC.
 
-**⚠ Zips v4** : **DS et S1 ont écrit dans leur rapport qu'ils ne les avaient pas.** Je leur ai demandé de confirmer, ainsi qu'à SIM : la réponse sera ici au prochain tour. Ils continuent sans attendre, mais leurs textes ne sont pas comparés aux fiches v4 tant qu'ils n'ont pas les zips. Il leur faut les 5 zips : `AMN-v4-1-docs.zip` et `AMN-v4-2` à `5-images.zip`.
+**⚠ Zips v4** : **SIM a confirmé qu'il ne les a pas. DS et S1 ont écrit la même chose dans leur rapport** (j'attends leur confirmation). Ils continuent sans attendre, mais leurs textes ne sont pas comparés aux fiches v4 tant qu'ils n'ont pas les zips. Il leur faut les 5 zips : `AMN-v4-1-docs.zip` et `AMN-v4-2` à `5-images.zip`.
 
-**Fait** : préparations fusionnées pour LOT-02 (S1), LOT-03 (S5), LOT-04 (DS), LOT-06 (S7), LOT-11 (S8) et LOT-12 (S9), toutes gardes vertes. Passe finale du socle v4 terminée (S0).
+**Fait** : le chargeur de données fictives de SIM est fusionné : `LANCER-EN-LOCAL.md` étape 4 montre comment remplir l'application sur ton PC. Préparations fusionnées pour LOT-02 (S1), LOT-03 (S5), LOT-04 (DS), LOT-06 (S7), LOT-11 (S8) et LOT-12 (S9), toutes gardes vertes. Passe finale du socle v4 terminée (S0).
 
-**En cours** : T1 vérifie le socle v4 (passage 2). SIM fait le chargeur des données fictives pour ton PC. S5 déplace des modules dans le registre, puis prépare LOT-05. S6 prépare LOT-07.
+**En cours** : T1 vérifie le socle v4 (passage 2). SIM complète ses jeux (numérotation, Créer, Développement). S0 répare deux contrôles cassés par le socle. S5 déplace des modules dans le registre, puis prépare LOT-05. S6 prépare LOT-07.
 
 **Bloqué** : rien. La fusion du socle v4 attend le verdict de T1.
 
