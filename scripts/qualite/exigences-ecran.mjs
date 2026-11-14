@@ -42,7 +42,7 @@ const ORIGINE = 'https://amn.local';
 const hote = new URL(API).host;
 const attendre = (ms) => new Promise((r) => setTimeout(r, ms));
 const nav = await chromium.launch({ executablePath: process.env.AMN_E2E_CHROMIUM ?? '/opt/pw-browsers/chromium', args: ['--no-sandbox', '--no-proxy-server', '--disable-features=LocalNetworkAccessChecks,PrivateNetworkAccessSendPreflights,PrivateNetworkAccessRespectPreflightResults,BlockInsecurePrivateNetworkRequests'] });
-const ctx = await nav.newContext({ viewport: { width: LARGEUR, height: 800 }, hasTouch: true, serviceWorkers: 'block', locale: 'fr-FR' });
+const ctx = await nav.newContext({ viewport: { width: LARGEUR, height: 800 }, hasTouch: true, serviceWorkers: 'block', locale: 'fr-FR', reducedMotion: 'reduce' }); // mouvement réduit : pas d'apparition échelonnée, donc pas de couche qui ne reçoit pas encore le clic pendant la mesure
 await ctx.route((u) => !['file:', 'data:', 'blob:', 'about:'].includes(u.protocol) && u.host !== hote, (route) => {
   const u = new URL(route.request().url());
   if (u.origin !== ORIGINE) return route.abort();
@@ -103,7 +103,7 @@ for (const route of ROUTES) {
       // un lien en ligne dans une phrase est exempté
       if (e.tagName === 'A' && cs.display === 'inline' && e.parentElement && (e.parentElement.textContent || '').trim().length > (e.textContent || '').trim().length + 12) continue;
       if (b.width >= min && b.height >= min) continue; // la boîte suffit
-      e.scrollIntoView({ block: 'center', inline: 'center' });
+      e.scrollIntoView({ block: 'center', inline: 'center', behavior: 'instant' }); // 'instant' : un défilement doux (scroll-behavior: smooth) fausserait les coordonnées lues juste après
       b = e.getBoundingClientRect();
       if (b.bottom < 0 || b.right < 0 || b.top > innerHeight || b.left > innerWidth) continue;
       const cx = b.left + b.width / 2;
@@ -122,14 +122,15 @@ for (const route of ROUTES) {
       // Un voisin qui ne mord que sur la marge de 34 px, hors de la boîte, est acceptable (le dernier dessiné reçoit le clic de la marge).
       const boite = [[0, 0], [-b.width / 4, -b.height / 4], [b.width / 4, -b.height / 4], [-b.width / 4, b.height / 4], [b.width / 4, b.height / 4]]; // la moitié centrale de la boîte
       let recouvre = false;
+      let qui = '';
       for (const [dx, dy] of boite) {
         const x = cx + dx;
         const y = cy + dy;
         if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight) continue;
         const t = document.elementFromPoint(x, y);
-        if (!(t && (t === e || e.contains(t)))) { recouvre = true; break; }
+        if (!(t && (t === e || e.contains(t)))) { recouvre = true; qui = t ? `${t.tagName.toLowerCase()}.${String(t.className).split(' ')[0].slice(0, 28)} « ${((t.getAttribute('aria-label') || t.textContent || '') + '').trim().replace(/\s+/g, ' ').slice(0, 24)} »` : 'rien'; break; }
       }
-      if (rate.length) petites.push(`${Math.round(b.width)}×${Math.round(b.height)} « ${nom(e)} » (zone de clic : ${rate.length} point(s) sur 9 hors de l’élément${recouvre ? ' ; RECOUVREMENT : un voisin reçoit le clic sur la boîte même' : ''})`);
+      if (rate.length) petites.push(`${Math.round(b.width)}×${Math.round(b.height)} « ${nom(e)} » (zone de clic : ${rate.length} point(s) sur 9 hors de l’élément${recouvre ? ` ; RECOUVREMENT : le clic au milieu de la boîte va à ${qui}` : ''})`);
       else sauvees += 1;
     }
     return { debord, coupables, petites, sauvees };
