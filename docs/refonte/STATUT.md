@@ -3,7 +3,7 @@
 > Tenu par le CO. Une session ne modifie que **la section de son lot** dans « 7. Écrans » (une ligne par écran) ; tout le reste est au CO. Règles : [`REGLES.md`](REGLES.md).
 
 - Branche d'intégration : **`claude/refonte-vivante`** (décision du 31 oct., §1.1). Base `main` @ `630ef45`.
-- Dernière mise à jour : 2026-11-14. S6 passe à LOT-07 ; réponses à S7 (LOT-06) : §1.27. LOT-12 terminé : §1.26. Passage 2 de T1 sur le socle v4 : §1.25.
+- Dernière mise à jour : 2026-11-14. Messages directs du CO aux sessions (REGLES). LOT-02 préparation fusionnée : §1.28. Réponses à S7 : §1.27. Passage 2 de T1 : §1.25.
 - LOT-00 (socle v2) est fusionné (`488cdcc`), avec les 4 commits de S5. **Le socle v3 s'y ajoute avant la construction visuelle des lots** (S0 a ses consignes). D'ici là, chaque lot prépare et construit sa logique : §5.
 - Fusionnés aussi le 1er nov. : T1 (API d'essai, bac à sable, contrôle de fidélité) et les données fictives de SIM (100 jeux, `4fe559b`), avec `check:donnees` en CI (87 contrôles).
 - Gardes locales sur `refonte-vivante` : `typecheck`, `typecheck:business`, `lint` et les 55 contrôles sans navigateur de `editions.yml` verts.
@@ -557,6 +557,21 @@ Ce qui reste, hors S9 :
 | d | Tuile « Modèles de sites » dans F50 | **Oui** : une tuile de lien vers DEV-modeles-sites (LOT-11), sans doublon dans le registre (§1.17 n° 3). |
 
 **Zips v4** : S5 et S7 les ont reçus le 14 nov. S7 lève ses points « à vérifier », et S5 démarre LOT-03 puis LOT-05.
+
+### 1.28 LOT-02 préparation (S1, `00d9198`) : fusionnée, décisions du CO
+
+Fusionnée (`66ba5c4`). Après la fusion : `check:contacts` (63 contrôles), les typechecks des deux éditions, lint, `check:navigation` et `check:connecteurs` sont verts. S1 n'avait pas le dossier v4 : textes et règles « à confirmer » à relire dès qu'il l'a.
+
+| # | Question de S1 | Décision |
+|---|---|---|
+| 1 | Fidélité : tampons (`loyaltyCards`, réel) ou points et niveaux (fiche MC02) | **Les deux, sans rien perdre.** MC02 (points et niveaux) est l'écran. La carte à tampons existante reste une formule au choix de l'organisation, et c'est la formule par défaut là où elle sert déjà. Aucune donnée existante n'est convertie de force. |
+| 2 | Relances : un moteur ou deux | **Un seul moteur** pour les cinq motifs, celui de `src/lib/relances.ts`, étendu (même règle que §1.19 n° 4). Les paliers d'escalade des factures restent tels quels. |
+| 3 | Collection d'interlocuteurs | **Décision de Harun** (nouvelle collection synchronisée, §1.27 n° 4). Elle lui est présentée avec `products` et les modèles plus riches de LOT-06. D'ici là, MC03 s'affiche « non disponible », avec la raison. |
+| 4 | Plafonds de 3 relances et d'un message par client et par jour | **Adoptés comme valeurs de départ**, modifiables dans les réglages, comme au §1.22 n° 3. À relire avec MC07. |
+| 5 | MC04 Équipe et MC05 Partenaires | MC04 se construit sur le trombinoscope existant. Pour MC05, le jeu d'organisations partenaires est **commandé à SIM** (liste « Manque aux données »). |
+| — | Rouvrir un prospect gagné ou perdu | Selon la fiche H06. Si elle ne dit rien : un prospect **perdu** se rouvre, avec confirmation et une trace. Un prospect **gagné** ne se rouvre pas, car il est devenu client. |
+| — | « Messagerie » (MC03) | Selon la fiche MC03. Si elle ne dit rien : le courriel. |
+| — | Raccourci « Relancer » | Aucun, confirmé (§1.8 n° 14). |
 
 ## 2. Les lots
 
