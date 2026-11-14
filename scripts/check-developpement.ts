@@ -568,7 +568,7 @@ const fichiersSous = (dossier: string): string[] => {
 const zone = fichiersSous(ZONE);
 
 /** Les fichiers visuels permis (étape 3, feu vert du CO le 14 nov.) : les écrans du lot et leurs briques. */
-const VISUELS = new Set(['donnees.tsx', 'briques.tsx', 'VueDEnsemble.tsx', 'ProjetsDeCode.tsx', 'Deploiements.tsx', 'ServeurSante.tsx', 'EditeurDeFlux.tsx', 'CoutsEtApi.tsx', 'ModelesDeSites.tsx']);
+const VISUELS = new Set(['donnees.tsx', 'briques.tsx', 'VueDEnsemble.tsx', 'ProjetsDeCode.tsx', 'PageDeploiements.tsx', 'ServeurSante.tsx', 'EditeurDeFlux.tsx', 'CoutsEtApi.tsx', 'ModelesDeSites.tsx']);
 await dit('construction : seuls les écrans du lot et leurs briques sont des .tsx', () => {
   assert.ok(zone.length >= 5, 'la zone du lot est vide');
   assert.deepEqual(zone.filter((f) => f.endsWith('.tsx') && !VISUELS.has(path.basename(f))), []);
@@ -578,6 +578,14 @@ await dit('feuille du lot (styles.ts) : jetons du socle seulement, aucune couleu
   const feuille = fs.readFileSync(path.join(racine, ZONE, 'styles.ts'), 'utf8');
   assert.doesNotMatch(feuille, /#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(/i);
   assert.match(feuille, /var\(--fam-a\)/);
+});
+await dit('aucun nom de fichier ne diffère d’un autre par la casse seule (Windows et macOS ne les distinguent pas)', () => {
+  const vus = new Map<string, string>();
+  for (const f of zone) {
+    const cle = f.toLowerCase().replace(/\.(tsx?|ts)$/, '');
+    assert.ok(!vus.has(cle), `${f} et ${vus.get(cle)} ne diffèrent que par la casse`);
+    vus.set(cle, f);
+  }
 });
 await dit('la logique n’importe ni l’écran partagé, ni l’édition cliente, ni le pont du poste', () => {
   for (const f of zone) {

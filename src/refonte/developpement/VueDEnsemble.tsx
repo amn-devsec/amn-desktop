@@ -11,7 +11,7 @@ import { useDonneesDeveloppement } from './donnees';
 import { dire, direCompte } from './i18n';
 import { compteursDuJour, executionsDuMois, resumeFlux } from './journal';
 import { aRegarder, commitsDeLaSemaine, partFaiteSeul, payeDuMois, reussisDeLaSemaine, semainesAvantPlein, texteDuree } from './vues';
-import { ROUTES_DEV } from './routes';
+import { ROUTES_DEV } from './chemins';
 
 /**
  * DEV-ensemble · DÉVELOPPEMENT, VUE D'ENSEMBLE — le 8e hub (`/ensemble/developpement`).

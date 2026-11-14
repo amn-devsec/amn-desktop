@@ -7,7 +7,7 @@ import { dateCourte } from './commun';
 import { planifies as planifiesAVenir, resumeSemaine, type Deploiement as DeploiementLogique } from './deploiements';
 import { useDonneesDeveloppement } from './donnees';
 import { dire, direCompte } from './i18n';
-import { ROUTES_DEV } from './routes';
+import { ROUTES_DEV } from './chemins';
 import { aRegarder, carteDActivite, commitsDeLaSemaine, lignesDuDepot, pastilleDepot, partTestsVerts, ticketsDuDepot, trierDepots } from './vues';
 
 /**
