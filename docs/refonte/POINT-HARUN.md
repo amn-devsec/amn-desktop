@@ -4,7 +4,7 @@
 
 **Compteurs** (14 nov.) : **écrans construits 9 / 153**, ceux de LOT-00, qui attendent la vérification de T1 · **lots préparés 7 / 13**, lots finis 0 / 13 · **écrans livrés depuis la veille : 0**. Courbe jour par jour : `STATUT.md`, « Vitesse ».
 
-**⚠ Zips v4** : **SIM est le seul qui ne les a pas.** S1, DS, S5 et S7 les ont. La solution durable est le dépôt privé décrit plus bas. Elle évite de redonner les zips à chaque session.
+**⚠ Zips v4** : **Il manque les 5 zips à S6 (LOT-07) et à SIM.** S1, DS, S5 et S7 les ont. Le dépôt privé décrit plus bas règle cela pour toutes les sessions. La solution durable est le dépôt privé décrit plus bas. Elle évite de redonner les zips à chaque session.
 
 ## Programme de test du jour
 

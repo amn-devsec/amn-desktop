@@ -4,7 +4,7 @@
 
 ## REPRISE (à lire en premier après une compaction ; tenu par le CO, réécrit à chaque tour)
 
-Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `b76b7cb`.
+Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `87d86b0`.
 
 **Avoirs** : SIM a refait sa branche par-dessus le retrait (`7570fef`, fusionnée). Les avoirs sont désormais facultatifs (`construireMonde({ avoirs: true })`). Quand DS les lit, SIM passe `avoirs` à `true` par défaut, une ligne dans `monde.ts`.
 
@@ -14,9 +14,9 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 |---|---|---|---|
 | S0 Socle | `session_01SJe828c2W5EnkMY4fhFY6z` | passe finale v4 finie (`888f7a0`) ; corrige `ancres` et `avoirs` | puis ce que T1 signale |
 | T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | passage 2 sur `888f7a0` en cours (avec le delta d'`ancres` et `avoirs` de S0) | son verdict → fusion du socle v4 et allumage (§1.9) ; puis `check:fidelite` (§1.30) |
-| S6 Sécurité | `session_01RHV8Xq2txWkfjAusKvq9DG` | LOT-07 préparation prête (`f52ef5d`) ; une étape de sécurité attend amn-api | fusion après le contrôle du paquet client par T1 |
+| S6 Sécurité | `session_01RHV8Xq2txWkfjAusKvq9DG` | LOT-07 préparation (`afdbccf`) ; **sans zips v4** ; une étape de sécurité attend amn-api | fusion après le contrôle du paquet client par T1 |
 | SIM | `session_011UF2ufZg9moGv2rRZFRuf7` | `7570fef` fusionné (jeux de LOT-11, avoirs sur demande) ; **sans dossier v4** | fidélité, H05, LOT-03, règlements partiels, remises, MR08, résumé de DEV-serveur ; avoirs par défaut quand DS est prêt |
-| DS | `session_01TZGDvVWristJnnPK59rruY` | LOT-04 relu avec le v4 et fusionné (§1.33) ; a les zips | **lire les avoirs** : encore 2 propriétés rouges sur `c9e8713` |
+| DS | `session_01TZGDvVWristJnnPK59rruY` | LOT-04 avec les avoirs, fusionné (§1.34) | appliquer §1.33, comparer H09 aux attendus de SIM |
 | S5 | `session_012jWErBSSkcoVaU3iN895bQ` | LOT-03, registre et LOT-05 fusionnés (§1.32) | attend le socle v4 |
 | S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | LOT-02 relu avec le v4 et fusionné (§1.31) ; a les zips | attend le socle v4 |
 | S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | préparation v4 fusionnée (`526cd63`) | attend le socle v4 |
@@ -44,6 +44,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov. : LOT-04 avec les avoirs fusionné (`0727968`, 70 propriétés). Rôles du serveur dans H19, `owner` publie, `owner` et `admin` gèrent les connecteurs (provisoire), prises de H21 sur le poste, tarifs tels que publiés (§1.34).
 - 14 nov. : données de SIM fusionnées (`b76b7cb`, 109 jeux, 114 contrôles). Gardes lues avant le push, toutes vertes, `check:argent` (69) compris. Les avoirs n'entrent dans le monde que sur demande, jusqu'à ce que DS les lise ; ensuite une ligne de `monde.ts` les active par défaut. Les jeux de LOT-11 sont livrés.
 - 14 nov. : LOT-04 relu avec le v4, fusionné (`74bb0d4`) ; neuf décisions, dont le moteur de relances unique et la série de G03 (§1.33).
 - 14 nov. : LOT-07 préparation (S6, `f52ef5d`). Couture `@edition/automatisations` et tarifs de H21 relevés. Fusion à blanc propre : aucune garde nouvelle rouge, typechecks verts, un seul conflit d'ajout dans `editions.yml`. **Fusion en attente** : elle touche `AutomationsRunner.tsx`, partagé avec l'édition cliente, donc T1 compare d'abord le paquet client (règle D). LOT-05 (`df07f85`) fusionné.
@@ -712,6 +713,20 @@ Fusionné (`74bb0d4`). Gardes lues avant le push : `check:argent` (69), les type
 | 7 | Période de TVA | Un réglage, mensuel ou trimestriel. **Mensuel par défaut**, comme les jeux ; le trimestre est la somme des mois. **Provisoire**, à valider par un comptable. |
 | 8 | Ordre des cartes de MA04 | **La règle de la fiche** (retard décroissant). L'écart avec l'image est noté. |
 | 9 | Seuils | Les valeurs de la fiche remplacent les miennes là où elles existent. Elles restent réglables. |
+
+### 1.34 Avoirs lus par DS (`0727968`), questions de LOT-07 (S6)
+
+LOT-04 fusionné : `check:argent` passe ses 70 propriétés, avec et sans les avoirs. Gardes lues avant le push, toutes vertes. SIM peut passer `avoirs` à `true` par défaut.
+
+| # | Question de S6 (LOT-07) | Décision |
+|---|---|---|
+| 1 | Zips v4 de LOT-07 | **S6 ne les a pas** : Harun les lui donne, ou le dépôt privé du dossier les rend lisibles (§1.30 n° 2). D'ici là, S6 prépare ce qui ne dépend pas des fiches. |
+| 2 | Rôles : fictifs (MC04) ou serveur | **Les rôles du serveur**, seuls réels : Propriétaire (`owner`), Administrateur (`admin`), Membre (`member`), Invité (`guest`). « Partenaire » n'est pas un rôle : les partenaires sont des contacts (MC05). SIM aligne ses rôles fictifs sur ces quatre. |
+| 3 | « Rôle dirigeant » | **Oui, c'est `owner`.** |
+| 4 | Où vit le droit de publier | **Une règle par rôle**, sans champ nouveau : `owner` publie, les autres passent par « Demander la publication ». Un droit réglable par personne serait une demande à amn-api, présentée à Harun. **Provisoire.** |
+| 5 | Qui gère les connecteurs | **`owner` et `admin`** (`isAdminRole`). **Provisoire, révisable par Harun.** |
+| 6 | Où vit l'état des prises de H21 | **Sur le poste** pour l'instant (local d'abord). Les clés ne sont jamais sur le poste, elles restent chez amn-api. L'état passera au serveur avec LOT-13. |
+| 7 | Devise et plafonds des tarifs | **Tels que publiés** : un prix en dollars reste en dollars, avec la mention « publié en dollars », sans conversion inventée. Le plafond par transaction est indiqué comme publié. |
 
 ## 2. Les lots
 
