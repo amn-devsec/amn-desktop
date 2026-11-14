@@ -44,6 +44,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov., 09h10 : **C-008 réglé** (patch de T1, appliqué par le CO dans `check-contraste.mjs` et `routes-coquille.mjs`). Sous la coquille v4, les gardes trouvent 160 écrans au lieu de 15 ; contraste : 34 622 textes, aucun sous AA ; plus de faux rouge sur le néon. C-009 corrigé aussi. Restent des défauts réels, à répartir : 11 familles de cibles trop petites, 4 écrans qui débordent à 390 px, 39 écrans de l'ancienne barre que la coquille v4 ne relie plus.
 - 14 nov., 09h00 : LOT-02, 4 écrans sur 13 (S1, `479995a`). La création préremplie demanderait de toucher `src/screens` : refusé, puisque l'édition cliente ne change pas. Les boutons ouvrent la création existante, avec l'écart noté. L'intérêt de H06 est estimé et dit comme tel.
 - 14 nov., 08h55 : attendus du cockpit G08 (SIM `651ba70`) et calcul de S2 (`bf2f29e`) fusionnés ensemble. `check:journee` est à 64, toutes les gardes sont vertes. SIM et S2 n'ont plus rien en attente avant les zips v4.
 - 14 nov., 08h50 : LOT-03, 5 écrans sur 9 (S5, `60de991`). Acceptés : `src/refonte/ecrire` au périmètre de `check:tutoiement`, avec 4 zones client ; « Signatures » qui s'ouvre sur H12 ; la série de ME01, sans devoir (repos le week-end, aucun reproche). S5 doit d'abord passer l'intégration de F1 et la correction durable de `check:navigation`.
@@ -758,7 +759,7 @@ LOT-04 fusionné : `check:argent` passe ses 70 propriétés, avec et sans les av
 **Allumage de la coquille par défaut (§1.9) : pas encore.** T1 ne le valide pas tant que ces points restent ouverts :
 - **C-006** (S0) : tutoiement. 6 chaînes visibles sur LOT-00 et la coquille, plus 79 lignes sur 19 autres écrans. `check:tutoiement` est vert parce qu'il ne lit que les 353 textes du dictionnaire : il faut l'étendre au rendu.
 - **C-007** (S3) : `check:encres`, des copies de jetons dans `src/refonte/garde/equipes.ts`.
-- **C-008** (T1) : sous la coquille v4, les gardes navigateur ne trouvent que 15 écrans sur 142. Elles sont à adapter avant toute certification, et le faux rouge de `check:contraste` (texte sombre sur dégradé néon) aussi.
+- ~~**C-008** (T1)~~ : **réglé le 14 nov.**, les gardes trouvent 160 écrans. Ont été révélés : 11 familles de cibles, 4 écrans à 390 px, 39 écrans de l'ancienne barre que la coquille ne relie plus.
 - Les correctifs `ancres` et `avoirs` (S0) ; l'ancienne garde `check:coquille` interne, à adapter (S0) ; C-005, CSS inerte dans le paquet client, 64 sélecteurs (S0) ; C-009, un compte neuf qui voit H42 fait planter `check:contraste` (S0 ou T1) ; C-010, encre T4 à `#8b8b8f` (S0).
 
 **Fidélité de LOT-00** (mesures de T1, écart brut à ± 2 px, valeurs acceptées dans `docs/qualite/fidelite/acceptes-LOT-00.json`) : G09 13,3 · G06 11,4 · H42 18,1 · H40 20,0 · H47 21,3 · H41 22,7 · H43 27,6 · D02 30,6 · G05 43,4 %. En disposition (couleur à ± 10), tous les écrans sont sous 15 %. Les écarts justifiés sont dans `justifies-LOT-00.json`.
