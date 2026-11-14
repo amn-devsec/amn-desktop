@@ -15,15 +15,15 @@
  *      limites (0, 1, 2 points, égaux, négatifs, zéro), points au clavier et
  *      désactivables, légendes, anneau sans régression.
  *   5. LES SOURCES : aucune couleur écrite en dur, aucune encre « discret »,
- *      aucun texte sous 10,5 px, jetons existants, animation 400 ms coupée par
- *      `prefers-reduced-motion`, imports limités au socle, mots fr/en.
+ *      aucun texte sous 10,5 px, jetons existants, animation d'entrée confiée à la couche de
+ *      mouvement commune (§0.2) et coupée par `prefers-reduced-motion`, imports limités au socle, mots fr/en.
  *
  *   npm run check:socle-graphiques
  */
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { assert, chargerRendu, creerEssais, jetons, lire, racine, sansCommentaires } from './lib/essai-socle.ts';
+import { assert, charger, chargerRendu, creerEssais, jetons, lire, racine, sansCommentaires } from './lib/essai-socle.ts';
 
 const { dit, fin } = creerEssais('Graphiques du socle — courbe, barres, donut, anneau, formats français\n');
 
@@ -62,7 +62,7 @@ interface Modules {
 
 const M = (await chargerRendu<Modules & Record<string, unknown>>(
   [
-    "import { Courbe, MiniCourbe, Barres, Donut, Anneau, formaterNombre, formaterPourcent, formaterEuro } from '../src/socle/ui/graphiques';",
+    "import { Courbe, MiniCourbe, Barres, Donut, Anneau, formaterNombre, formaterPourcent, formaterEuro, tailleAnneau, epaisseurAnneau, coteAnneau, TAILLE_ANNEAU_MIN, TAILLE_ANNEAU_MAX } from '../src/socle/ui/graphiques';",
     "import { calculerEchelle, positionner, repartirPourcents, arcsDonut, pasEtiquettes, indicesEtiquetes, resumer, cheminLigne, TAILLE_AXE } from '../src/socle/ui/graphiques/calculs';",
     "import { couleurTon } from '../src/socle/ui/graphiques/tons';",
     "import { AnneauProgression } from '../src/socle/ui/Indicateurs';",
@@ -73,6 +73,7 @@ const M = (await chargerRendu<Modules & Record<string, unknown>>(
     'Courbe', 'MiniCourbe', 'Barres', 'Donut', 'Anneau', 'AnneauProgression', 'formaterNombre', 'formaterPourcent', 'formaterEuro',
     'calculerEchelle', 'positionner', 'repartirPourcents', 'arcsDonut', 'pasEtiquettes', 'indicesEtiquetes', 'resumer', 'cheminLigne',
     'TAILLE_AXE', 'couleurTon', 'formatCentsCompact', 'traduireSocle', 'DICTIONNAIRES_SOCLE',
+    'tailleAnneau', 'epaisseurAnneau', 'coteAnneau', 'TAILLE_ANNEAU_MIN', 'TAILLE_ANNEAU_MAX',
   ],
 )) as unknown as Modules & { h: (t: unknown, p?: Record<string, unknown> | null, ...c: unknown[]) => unknown; rendre: (e: unknown) => string };
 
@@ -291,9 +292,9 @@ await dit('Courbe : alternative textuelle — un tableau sr-only avec les 12 val
   assert.match(html, /<th scope="row">févr\.<\/th><td>5<\/td>/);
 });
 
-await dit('Courbe : la forme du dessin — aire dégradée .28 → 0, ligne tracée, point final cerclé, grille, axes en jeton', () => {
+await dit('Courbe : la forme du dessin — aire dégradée .42 → 0 (v4, 06 §3 règle 7), ligne tracée, point final cerclé, grille, axes en jeton', () => {
   const html = rend(M.Courbe, { donnees: points(JEU, MOIS), libelle: 'Activité' });
-  assert.match(html, /<stop class="sc-g__degrade" offset="0" stop-opacity="0.28"/);
+  assert.match(html, /<stop class="sc-g__degrade" offset="0" stop-opacity="0.42"/);
   assert.match(html, /<stop class="sc-g__degrade" offset="1" stop-opacity="0"/);
   assert.match(html, /<path class="sc-g__ligne" d="M[^"]+" pathLength="1"/);
   assert.match(html, /<path class="sc-g__aire" d="M[^"]+Z" fill="url\(#/);
@@ -463,7 +464,14 @@ await dit('Barres : la plus grande est mise en valeur avec sa valeur au-dessus ;
   const aucune = rend(M.Barres, { donnees: points(MESURES, SEMAINE), libelle: 'Appels', miseEnValeur: null });
   assert.equal(compter(aucune, /data-mise="oui"/g), 0);
   assert.equal(compter(aucune, /sc-g__valeur/g), 0);
-  assert.match(html, /style="--sc-g-c:var\(--socle-etat-info\)"/, 'la mise en valeur est « info » par défaut');
+  // v4 (06 §3 règle 8) : la couleur a de la famille par défaut ; neutres en dégradé 50 % → 10 % de a, mise en valeur pleine → 30 %.
+  assert.match(html, /style="--sc-g-c:var\(--fam-a\);--sc-g-neutre:url\(#([\w-]+)-n\);--sc-g-mise:url\(#\1-m\)"/, 'la mise en valeur est « famille » par défaut');
+  assert.match(html, /<linearGradient id="[\w-]+-n" x1="0" y1="0" x2="0" y2="1"><stop class="sc-g__degrade-famille" offset="0" stop-opacity="0.5"><\/stop><stop class="sc-g__degrade-famille" offset="1" stop-opacity="0.1"><\/stop><\/linearGradient>/);
+  assert.match(html, /<linearGradient id="[\w-]+-m" x1="0" y1="0" x2="0" y2="1"><stop class="sc-g__degrade" offset="0" stop-opacity="1"><\/stop><stop class="sc-g__degrade" offset="1" stop-opacity="0.3"><\/stop><\/linearGradient>/);
+  assert.match(rend(M.Barres, { donnees: points(MESURES, SEMAINE), libelle: 'Appels', ton: 'info' }), /style="--sc-g-c:var\(--socle-etat-info\);/, 'un ton d’état reste possible');
+  const cssG = sansCommentaires(lire(`${REP}/graphiques.css`));
+  assert.match(cssG, /\.sc-g__degrade-famille \{ stop-color: var\(--fam-a\); \}/);
+  assert.match(cssG, /\.sc-g__colonne\[data-mise='oui'\] \{ fill: var\(--sc-g-mise, var\(--sc-g-c\)\); filter: drop-shadow\(0 0 7px var\(--sc-g-c\)\); \}/, 'la lueur de la mise en valeur');
 });
 
 await dit('Barres : étiquettes d’axe en T4 (classe d’axe), colonnes en jeton, une zone cliquable par colonne', () => {
@@ -496,9 +504,10 @@ await dit('Donut : 116 px, épaisseur 14, un cercle par segment, couleurs = jeto
   const cercles = [...html.matchAll(/<circle class="sc-g__segment"[^>]*>/g)].map((m) => m[0]);
   assert.equal(cercles.length, 3);
   for (const c of cercles) assert.match(c, /stroke-width="14"/);
-  assert.match(cercles[0], /style="stroke:var\(--socle-etat-info\)"/);
-  assert.match(cercles[1], /style="stroke:var\(--socle-fam-argent\)"/);
-  assert.match(cercles[2], /style="stroke:var\(--socle-etat-attention\)"/);
+  // `color` suit le trait : la lueur v4 de l'arc (graphiques.css) le lit en currentColor.
+  assert.match(cercles[0], /style="stroke:var\(--socle-etat-info\);color:var\(--socle-etat-info\)"/);
+  assert.match(cercles[1], /style="stroke:var\(--socle-fam-argent\);color:var\(--socle-fam-argent\)"/);
+  assert.match(cercles[2], /style="stroke:var\(--socle-etat-attention\);color:var\(--socle-etat-attention\)"/);
   assert.match(html, /aria-label="Dépenses\. Répartition, parts : 3, total : 10\u202f000\u00a0€"/);
 });
 
@@ -582,10 +591,45 @@ await dit('Anneau : alias de AnneauProgression — 72 px, épaisseur 8, fond --s
 
 await dit('Anneau : un ton d’état colore le trait ; centre libre possible', () => {
   const html = rend(M.Anneau, { valeur: 0.6, libelle: 'x', ton: 'succes' });
-  assert.match(html, /class="sc-anneau__trait"[^>]*style="stroke:var\(--socle-etat-succes\)"/);
+  // v4 : le ton passe par --sc-anneau-c, que la feuille lit pour le trait ET sa lueur (06 §3 règle 7).
+  assert.match(html, /class="sc-anneau__trait"[^>]*style="--sc-anneau-c:var\(--socle-etat-succes\)"/);
+  const briques = sansCommentaires(lire('src/socle/ui/briques.css'));
+  assert.match(briques, /\.sc-anneau \.sc-anneau__trait \{ stroke: var\(--sc-anneau-c, var\(--socle-texte-1\)\);/);
+  assert.match(briques, /\.sc-anneau \.sc-anneau__trait\[style\*='--sc-anneau-c'\] \{ filter: drop-shadow\(0 0 6px color-mix\(in srgb, var\(--sc-anneau-c\) 67%, transparent\)\); \}/);
   assert.match(rend(M.Anneau, { valeur: 0.6, libelle: 'x' }), /<circle class="sc-anneau__trait"[^>]*stroke-dashoffset="[\d.]+"><\/circle>/, 'neutre : pas de style en ligne sur le trait');
   const centre = rend(M.Anneau, { valeur: 3 / 7, libelle: 'x', children: '3/7' });
   assert.match(centre, /sc-anneau__centre">3\/7</);
+});
+
+await dit('Anneau : de 26 à 58 px (LOT-06), épaisseur proportionnée (3 à 6), valeur centrée 13 px puis 11 px, muette sous 40 ; borné à [26, 80]', () => {
+  const G = M as unknown as { tailleAnneau: (t?: number) => number; epaisseurAnneau: (t: number) => number; coteAnneau: (t: number) => string; TAILLE_ANNEAU_MIN: number; TAILLE_ANNEAU_MAX: number };
+  assert.equal(G.TAILLE_ANNEAU_MIN, 26);
+  assert.equal(G.TAILLE_ANNEAU_MAX, 80);
+  assert.deepEqual([G.tailleAnneau(10), G.tailleAnneau(26), G.tailleAnneau(58), G.tailleAnneau(100), G.tailleAnneau(Number.NaN), G.tailleAnneau(undefined)], [26, 26, 58, 80, 72, 72]);
+  assert.deepEqual([26, 34, 40, 48, 58, 64, 72, 76, 80].map(G.epaisseurAnneau), [3, 4, 4, 5, 6, 7, 8, 8, 8]);
+  assert.deepEqual([26, 39, 40, 47, 48, 71, 72, 80].map(G.coteAnneau), ['muet', 'muet', 'petit', 'petit', 'moyen', 'moyen', 'grand', 'grand']);
+  const petit = rend(M.Anneau, { valeur: 0.5, libelle: 'x', taille: 26 });
+  assert.match(petit, /<svg width="26" height="26" viewBox="0 0 26 26"/);
+  assert.equal(compter(petit, /stroke-width="3"/g), 2);
+  assert.match(petit, /data-cote="muet"/);
+  assert.doesNotMatch(petit, /sc-anneau__centre/, 'rien d’écrit au centre sous 40 px');
+  assert.match(petit, new RegExp(`aria-valuetext="50${NBSP}%"`), 'la valeur reste dite en mots');
+  assert.match(rend(M.Anneau, { valeur: 0.5, libelle: 'x', taille: 26, children: '3' }), /sc-anneau__centre">3</, 'children force un centre');
+  const moyen = rend(M.Anneau, { valeur: 0.5, libelle: 'x', taille: 58 });
+  assert.match(moyen, /width="58"/);
+  assert.equal(compter(moyen, /stroke-width="6"/g), 2);
+  assert.match(moyen, /data-cote="moyen"/);
+  assert.match(moyen, new RegExp(`sc-anneau__centre">50${NBSP}%<`));
+  assert.match(rend(M.Anneau, { valeur: 0.5, libelle: 'x', taille: 44 }), /data-cote="petit"/);
+  assert.doesNotMatch(rend(M.Anneau, { valeur: 0.5, libelle: 'x' }), /data-cote/, '72 px : rien de plus qu’avant');
+  assert.match(rend(M.Anneau, { valeur: 0.5, libelle: 'x', taille: 200 }), /width="80" height="80"/);
+  const feuille = sansCommentaires(lire(`${REP}/graphiques.css`));
+  assert.match(feuille, /--sc-g-anneau-valeur-moyen:\s*13px/);
+  assert.match(feuille, /--sc-g-anneau-valeur-petit:\s*11px/);
+  assert.match(feuille, /\.sc-g-anneau\[data-cote='moyen'\] \.sc-anneau__centre \{ font-size: var\(--sc-g-anneau-valeur-moyen\); \}/);
+  assert.match(feuille, /\.sc-g-anneau\[data-cote='petit'\] \.sc-anneau__centre \{ font-size: var\(--sc-g-anneau-valeur-petit\); \}/);
+  // Muet avec un centre forcé par `children` : la plus petite cote, pas les 16 px de l'anneau de 72.
+  assert.match(feuille, /\.sc-g-anneau\[data-cote='muet'\] \.sc-anneau__centre \{ font-size: var\(--sc-g-anneau-valeur-petit\); \}/, 'un centre donné sous 40 px prend 11 px');
 });
 
 await dit('AnneauProgression : défaut inchangé — 44 px, épaisseur 4, aucun style en ligne sur le trait ni sur la piste', () => {
@@ -619,7 +663,7 @@ await dit('aucune encre « discret » (trait-discret, trait-tres-discret, #77777
   }
   // Et le texte des graphiques prend T1, T2, T3 ou T4 : jamais un fond ni une bordure.
   const texte = [...css.matchAll(/(?:^|[;{\s])(?:color|fill)\s*:\s*([^;}]+)/g)].map((m) => m[1].trim());
-  const permis = /^(var\(--socle-texte-[123]\)|var\(--sc-g-c\)|var\(--socle-carte-bas\)|none|var\(--socle-colonne-graphique\)|color-mix\(in srgb, var\(--sc-g-c\) \d+%, var\(--socle-colonne-graphique\)\))$/;
+  const permis = /^(var\(--socle-texte-[123]\)|var\(--sc-g-c\)|var\(--socle-carte-bas\)|none|var\(--socle-colonne-graphique\)|var\(--sc-g-neutre, var\(--socle-colonne-graphique\)\)|var\(--sc-g-mise, var\(--sc-g-c\)\)|color-mix\(in srgb, var\(--sc-g-c\) \d+%, var\(--socle-colonne-graphique\)\))$/;
   for (const t of texte) assert.ok(permis.test(t), `encre inattendue : ${t}`);
 });
 
@@ -636,7 +680,7 @@ await dit('aucun texte sous 10,5 px : plancher des axes, et toute taille écrite
 
 await dit('la colonne, la grille et le fond d’anneau sont les jetons de la spec', () => {
   assert.match(css, /\.sc-g__grille\s*\{[^}]*stroke:\s*var\(--socle-grille-graphique\)/);
-  assert.match(css, /\.sc-g__colonne\s*\{[^}]*fill:\s*var\(--socle-colonne-graphique\)/);
+  assert.match(css, /\.sc-g__colonne\s*\{[^}]*fill:\s*var\(--sc-g-neutre, var\(--socle-colonne-graphique\)\)/, 'le dégradé v4, la colonne v3 en repli');
   assert.match(css, /\.sc-g__piste\s*\{[^}]*stroke:\s*var\(--socle-anneau-fond\)/);
   assert.match(css, /--sc-g-trait:\s*2px/);
   assert.match(css, /--sc-g-pastille:\s*8px/);
@@ -660,12 +704,26 @@ await dit('chaque var(--socle-…) employée existe dans noir.css, chaque var(--
   }
 });
 
-await dit('animation d’entrée de 400 ms, coupée par prefers-reduced-motion (et par Mouvement « aucun », déjà géré dans src/index.css)', () => {
-  assert.match(css, /--sc-g-trace:\s*400ms/);
-  assert.equal(compter(css, /animation:[^;]*var\(--sc-g-trace\)/g) >= 5, true);
+await dit('animation d’entrée : la couche de mouvement commune (§0.2) — data-mvt posé, aucune animation propre, coupée par prefers-reduced-motion', () => {
+  // v3 : les cotes ne sont plus 400 ms partout mais celles du §0.2, tenues par src/socle/mouvement.css (check:socle-vivant).
+  assert.ok(!/animation(?:-name)?\s*:(?!\s*none\b)|@keyframes/.test(css), 'graphiques.css ne déclare plus d’animation : la couche commune s’en charge');
+  const courbe = rend(M.Courbe, { donnees: points([1, 3, 2, 4]), secondeSerie: [2, 2, 3, 3], libelle: 'x' });
+  for (const nom of ['trace', 'aire', 'point-final']) assert.match(courbe, new RegExp(`data-mvt="${nom}"`), `courbe : data-mvt="${nom}"`);
+  assert.match(rend(M.MiniCourbe, { valeurs: [1, 3, 2], libelle: 'x' }), /pathLength="1" data-mvt="trace"/);
+  const barres = rend(M.Barres, { donnees: points([1, 2, 3]), libelle: 'x' });
+  assert.equal(compter(barres, /data-mvt="pousse" style="--sc-mvt-rang:\d+"/g), 3, 'une colonne, un rang');
+  assert.match(barres, /--sc-mvt-barre-decalage:(2[2-9]|3\d|40)ms/);
+  assert.match(rend(M.Donut, { segments: [{ libelle: 'A', valeur: 1, ton: 'info' }, { libelle: 'B', valeur: 2, ton: 'argent' }], libelle: 'x' }), /data-mvt="arc"/);
+  assert.match(rend(M.Anneau, { valeur: 0.5, libelle: 'x' }), /data-mvt="anneau"/);
+  assert.doesNotMatch(rend(M.Anneau, { valeur: 0.5, libelle: 'x', anime: false }), /data-mvt/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)\s*\{[^}]*\.sc-g \*\s*\{[^}]*animation:\s*none/);
-  assert.match(sansCommentaires(lire('src/index.css')), /:root\[data-mouvement='aucun'\] \*[\s\S]*?animation-duration:\s*0\.01ms !important/);
+  const couche = sansCommentaires(lire('src/socle/mouvement.css'));
+  assert.match(couche, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\[data-mvt\][^{]*\{\s*animation:\s*none/);
+  assert.match(sansCommentaires(lire('src/socle/theme.css')), /:root\[data-mouvement='aucun'\] \*[\s\S]*?animation-duration:\s*0\.01ms !important/);
 });
+
+/** Ce qu'un fichier hors du socle n'a pas le droit d'importer : le groupe des graphiques et ses mots (le balayeur ci-dessous et la preuve sur `src/socle/formats.ts` lisent la même règle). */
+const IMPORT_GRAPHIQUES = /socle\/(ui\/)?graphiques|socle\/mots\/graphiques/;
 
 await dit('les graphiques n’importent que le socle, src/lib, src/i18n et les bibliothèques ; aucun fichier partagé ne les importe', () => {
   for (const f of composants) {
@@ -685,13 +743,53 @@ await dit('les graphiques n’importent que le socle, src/lib, src/i18n et les b
       if (e.isDirectory()) {
         if (rel === 'src/socle') continue;
         marcher(rel);
-      } else if (/\.(tsx?|css)$/.test(e.name) && /socle\/(ui\/)?graphiques|socle\/mots\/graphiques/.test(lire(rel))) dehors.push(rel);
+      } else if (/\.(tsx?|css)$/.test(e.name) && IMPORT_GRAPHIQUES.test(lire(rel))) dehors.push(rel);
     }
   })('src');
   const permis = new Set(['src/refonte/accueil/Ambiance.tsx']);
   for (const f of dehors) assert.ok(permis.has(f), `${f} importe les graphiques du socle`);
   const pkg = JSON.parse(lire('package.json')) as { dependencies?: Record<string, string> };
   assert.ok(!Object.keys(pkg.dependencies ?? {}).some((d) => /chart|d3|recharts|victory|nivo|visx/i.test(d)), 'aucune bibliothèque de graphiques');
+});
+
+await dit('src/socle/formats.ts (LOT-06, point 6) : les formats importables depuis tout code interne, identiques à leurs sources, sans copie', async () => {
+  type Formats = Record<string, (...a: never[]) => string> & { ESPACE_INSECABLE: string; ESPACE_FINE: string; TIRET_ABSENT: string };
+  const F = await charger<Formats>('src/socle/formats.ts');
+  for (const nom of ['formaterNombre', 'formaterPourcent', 'formaterEuro', 'formaterRatio', 'formaterMontant', 'formaterDate', 'formaterHeure', 'dateIso']) assert.equal(typeof F[nom], 'function', `${nom} exporté`);
+  assert.equal(F.ESPACE_INSECABLE, NBSP);
+  assert.equal(F.ESPACE_FINE, FINE);
+  assert.equal(F.TIRET_ABSENT, '—');
+  for (const v of [0, 3.8, 999, 1234567.5, -1234.5, Number.NaN]) {
+    assert.equal((F.formaterNombre as (n: number) => string)(v), M.formaterNombre(v), `formaterNombre(${v})`);
+    assert.equal((F.formaterPourcent as (n: number) => string)(v), M.formaterPourcent(v), `formaterPourcent(${v})`);
+    assert.equal((F.formaterEuro as (n: number) => string)(v), M.formaterEuro(v), `formaterEuro(${v})`);
+  }
+  assert.equal((F.formaterRatio as (n: number) => string)(0.78), `78${NBSP}%`);
+  assert.equal(sansBlancs((F.formaterMontant as (n: number) => string)(1250)), sansBlancs(`1 250 €`));
+  assert.equal((F.formaterHeure as (d: Date) => string)(new Date(2031, 2, 12, 10, 42)), '10:42');
+  assert.match((F.formaterDate as (d: Date) => string)(new Date(2031, 2, 12)), /^12 mars$/);
+  // « — » pour une valeur illisible, des deux côtés du module (ratio, montant, date, heure) ; jamais « -0 € » ; `dateIso` rend « ».
+  for (const v of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY]) {
+    assert.equal((F.formaterRatio as (n: number) => string)(v), F.TIRET_ABSENT, `formaterRatio(${v})`);
+    assert.equal((F.formaterMontant as (n: number) => string)(v), F.TIRET_ABSENT, `formaterMontant(${v})`);
+  }
+  assert.equal(sansBlancs((F.formaterMontant as (n: number) => string)(-0)), sansBlancs('0 €'));
+  for (const v of [-0.001, -0.004]) {
+    assert.equal(sansBlancs((F.formaterMontant as (n: number) => string)(v)), sansBlancs('0 €'), `formaterMontant(${v}) : jamais « -0,00 € »`);
+    assert.equal(sansBlancs((F.formaterMontant as (n: number) => string)(v)), sansBlancs((F.formaterEuro as (n: number) => string)(v)), `formaterMontant(${v}) = formaterEuro(${v})`);
+  }
+  for (const d of ['pas une date', Number.NaN]) {
+    assert.equal((F.formaterDate as (d: string | number) => string)(d), F.TIRET_ABSENT, `formaterDate(${d})`);
+    assert.equal((F.formaterHeure as (d: string | number) => string)(d), F.TIRET_ABSENT, `formaterHeure(${d})`);
+    assert.equal((F.dateIso as (d: string | number) => string)(d), '', `dateIso(${d})`);
+  }
+  // Le module ne recopie rien : il réexporte ses deux sources, et rien d'autre.
+  const src = sansCommentaires(lire('src/socle/formats.ts'));
+  assert.deepEqual([...src.matchAll(/from '([^']+)'/g)].map((m) => m[1]).sort(), ['./ui/archetypes/logique/formats', './ui/graphiques/format']);
+  assert.ok(!/function |=>/.test(src), 'aucune fonction écrite ici');
+  // Et un fichier interne qui l'importe ne tombe pas sous l'interdiction des graphiques : la règle même du balayeur, appliquée à cet import.
+  assert.ok(!IMPORT_GRAPHIQUES.test("import { formaterEuro } from '../../socle/formats';"), 'socle/formats passe le balayeur');
+  assert.ok(IMPORT_GRAPHIQUES.test("import { formaterEuro } from '../../socle/ui/graphiques/format';"), 'le balayeur refuse bien le groupe');
 });
 
 await dit('mots : fr et en portent les mêmes clés et les mêmes {paramètres}, sans point d’exclamation', () => {

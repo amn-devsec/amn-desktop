@@ -1,0 +1,125 @@
+{
+  "lot": "LOT-00",
+  "_": "Les 9 écrans de LOT-00 (v4). Chaque entrée dit comment amener l'app à l'état de l'image : route, horloge, stockage, gestes. 'mac' : les maquettes sont dessinées sur un Mac (⌘). La nouvelle coquille est éteinte par défaut dans l'app : on l'allume par localStorage['amn.coquille'] = 'noir'. Horloge des maquettes de bureau : vendredi 30 oct. 2026 à 10:42 (Cyber : mardi 3 nov. 2026).",
+  "defaut": {
+    "mac": true,
+    "date": "2026-10-30T10:42:00+01:00",
+    "stockage": {
+      "amn.coquille": "noir"
+    }
+  },
+  "ecrans": [
+    {
+      "id": "H40",
+      "route": "#/notifications"
+    },
+    {
+      "id": "H41",
+      "route": "#/tasks",
+      "etapes": [
+        {
+          "touches": "Meta+k"
+        },
+        {
+          "attendre": "[role=dialog] input"
+        },
+        {
+          "saisie": "menna",
+          "delai": 40
+        },
+        {
+          "pause": 700
+        }
+      ],
+      "zone": [
+        284,
+        84,
+        880,
+        660
+      ]
+    },
+    {
+      "id": "H42",
+      "route": "#/demarrage"
+    },
+    {
+      "id": "H47",
+      "route": "#/demarrage/metier",
+      "etapes": [
+        {
+          "attendre": ".met-carte"
+        },
+        {
+          "clic": ".met-carte:has-text('Conseil et services')"
+        },
+        {
+          "pause": 900
+        }
+      ]
+    },
+    {
+      "id": "H43",
+      "route": "#/dev/etats",
+      "dev": true,
+      "gabarit": "aucun"
+    },
+    {
+      "id": "D02",
+      "route": "#/tous-les-modules",
+      "etapes": [
+        {
+          "attendre": "input[type=search]"
+        },
+        {
+          "pause": 600
+        }
+      ]
+    },
+    {
+      "id": "G06",
+      "sansConnexion": true,
+      "gabarit": "aucun",
+      "stockage": {}
+    },
+    {
+      "id": "G05",
+      "route": "#/",
+      "date": "2026-10-30T10:42:00+01:00",
+      "etapes": [
+        {
+          "touches": "Meta+j"
+        },
+        {
+          "attendre": "[role=dialog]"
+        },
+        {
+          "saisie": "Relance les factures en retard, ton courtois",
+          "delai": 30
+        },
+        {
+          "pause": 1200
+        }
+      ],
+      "zone": [
+        380,
+        80,
+        720,
+        680
+      ]
+    },
+    {
+      "id": "G09",
+      "route": "#/",
+      "gabarit": "aucun",
+      "etapes": [
+        {
+          "attendre": "[data-socle=coquille]"
+        },
+        {
+          "pause": 7000
+        }
+      ],
+      "accelerer": 60
+    }
+  ]
+}

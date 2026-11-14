@@ -119,8 +119,16 @@ jobs:
         run: npm run check:socle-situations
       - name: LOT-00 — archétypes du socle
         run: npm run check:socle-archetypes
+      - name: Tutoiement (v4) — l'interface tutoie, le vouvoiement ne reste que chez le client
+        run: npm run check:tutoiement
+      - name: Voix — commande vocale et guide de voix du socle
+        run: npm run check:voix
       - name: LOT-00 — coquille du socle
         run: npm run check:socle-coquille
+      - name: v3 — vivant et couche de mouvement du socle
+        run: npm run check:socle-vivant
+      - name: v3 — briques partagées du socle (ModuleTile, IconTile, CountBadge, PageHead, alias des fiches)
+        run: npm run check:socle-briques
       - name: LOT-00 — tous les modules
         run: npm run check:systeme-modules
       - name: LOT-00 — notifications
@@ -133,6 +141,10 @@ jobs:
         run: npm run check:systeme-demo
       - name: LOT-00 — démarrage
         run: npm run check:systeme-demarrage
+      - name: LOT-00 — connexion
+        run: npm run check:systeme-connexion
+      - name: LOT-00 — écran de veille
+        run: npm run check:systeme-veille
       - name: Ajmani et l'Accueil vivant — parole, scènes, fil du jour, éditions
         run: npm run check:ajmani
       - name: Garde visible (S3) — accents, résumé, fil, contrat d'alertes, isolement
@@ -143,10 +155,16 @@ jobs:
         run: npm run check:donnees
       - name: Créer et produire (LOT-06) — logique des 15 écrans, sur cas écrits et sur les jeux fictifs
         run: npm run check:creer
+      - name: Substitution d'écrans (§ 1.3) — routes d'origine, garde ModuleRoute, jumeau cliente inerte
+        run: npm run check:substitutions
+      - name: Preuve statique d'isolement de l'édition cliente — graphe d'imports et texte du paquet
+        run: npm run check:client-statique
       - name: Espace Développement (LOT-11) — journal des exécutions, tâches planifiées locales, état des déploiements
         run: npm run check:developpement
       - name: Contacts et clients — pipeline, relances (espacement), fidélité, rendez-vous, deux voix
         run: npm run check:contacts
+      - name: Ma journée — série, H04, G08 et H25 face à SIM, défis (aucun chiffre individuel, aucun classement), voix
+        run: npm run check:journee
       - name: Connecteurs et autonomie (LOT-12) — local d'abord, coût avant, trois clics, aucune clé, moteurs locaux
         run: npm run check:connecteurs
       - name: Échanger (LOT-05) — boîte des clients, Boîte à zéro, canaux, appels, annonces, courriel, réunions, partages, sondages, réponses automatiques
@@ -156,6 +174,8 @@ jobs:
       - name: L’argent (LOT-04) — facturation, TVA, impayés, trésorerie, cas écrits à l’avance, banque en lecture seule
         run: npm run check:argent
 
+      - name: Fidélité aux images v4 — tests de la règle de décision (les images restent hors du dépôt)
+        run: npm run test:fidelite
       - name: Contrôle de la file d'envoi
         run: npm run check:envoi
 

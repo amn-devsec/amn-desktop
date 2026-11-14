@@ -16,24 +16,35 @@ await dit('noir.css : les jetons de 01-SOCLE-DESIGN §1 et §4, valeur pour vale
   const attendu: Record<string, string> = {
     '--socle-fond-page': '#0c0c0d', '--socle-fond-lateral': '#101011', '--socle-bord-lateral': '#222224',
     '--socle-texte-1': '#ededed', '--socle-texte-courant': '#c4c4c8', '--socle-texte-2': '#a0a0a5', '--socle-texte-3': '#8a8a8e',
-    '--socle-etat-succes': '#8fbf7a', '--socle-etat-attention': '#e0b35a', '--socle-etat-critique': '#e08a80', '--socle-etat-info': '#8aa4d6',
+    // Les couleurs d'état v4 (06-V4 §2), à la place des v3.
+    '--socle-etat-succes': '#5ee6a8', '--socle-etat-attention': '#ffbe5c', '--socle-etat-critique': '#ff6b7a', '--socle-etat-info': '#6ea8ff',
     '--socle-sous-carte': '#111112', '--socle-bord-sous-carte': '#212123', '--socle-bord-bouton': '#2e2e31', '--socle-bord-champ': '#5a5a60',
     '--socle-bord-controle': '#28282b', '--socle-bord-entete': '#1d1d1f', '--socle-bord-ligne': '#19191b', '--socle-pointille': '#2e2e33',
     '--socle-ticket': '#171718', '--socle-bord-ticket': '#262628', '--socle-bord-kanban': '#1e1e20',
     '--socle-suggestion-haut': '#17181a', '--socle-suggestion-bas': '#141415', '--socle-bord-suggestion': '#2c2e32',
     '--socle-tag': '#1a1a1c', '--socle-pilule': '#171718', '--socle-bord-pilule': '#2a2a2d', '--socle-bord-kbd': '#333336', '--socle-kbd': '#111112',
-    '--socle-case-vide': '#3a3a3e', '--socle-toggle-actif': '#2e4327', '--socle-toggle-inactif': '#242427', '--socle-onglet-compteur': '#1c1c1e',
+    // L'interrupteur allumé n'a plus de jeton : un dégradé a → b de la famille, écrit dans controles.css (v4, sources néon).
+    '--socle-case-vide': '#3a3a3e', '--socle-toggle-inactif': '#242427', '--socle-onglet-compteur': '#1c1c1e',
     '--socle-segment-actif': '#242427', '--socle-segment-fond': '#141415', '--socle-anneau-fond': '#1e1e20',
-    '--socle-avatar-a': '#4b4b55', '--socle-avatar-m': '#5a524a', '--socle-avatar-r': '#46544f', '--socle-avatar-c': '#3f4a5c', '--socle-avatar-t': '#54485c', '--socle-avatar-l': '#5c4a4a',
     '--socle-squelette': '#1e1e21', '--socle-squelette-ligne': '#222225', '--socle-squelette-reflet': '#26262a',
-    '--socle-dialogue': '#1a1a1c', '--socle-bord-dialogue': '#34343a', '--socle-bord-toast': '#2c3327',
+    '--socle-dialogue': '#1a1a1c', '--socle-bord-dialogue': '#34343a', '--socle-bord-toast': '#243931',
     '--socle-palette-fond': '#141416', '--socle-bord-palette': '#34343a', '--socle-panneau': '#111112', '--socle-bord-panneau': '#29292c',
   };
   for (const [nom, valeur] of Object.entries(attendu)) assert.equal(j.get(nom), valeur, nom);
+  // Le bord du toast v4 : le succès v4 à 15 % sur le fond du dialogue (au niveau près), plus le #2c3327 du succès v3.
+  {
+    const rgb = (x: string) => [1, 3, 5].map((i) => parseInt(x.slice(i, i + 2), 16));
+    const [s, d, t] = [rgb(j.get('--socle-etat-succes') as string), rgb(j.get('--socle-dialogue') as string), rgb(j.get('--socle-bord-toast') as string)];
+    t.forEach((v, i) => assert.ok(Math.abs(v - (0.15 * s[i] + 0.85 * d[i])) <= 0.5, `bord du toast, composante ${i} : ${v}`));
+  }
+  // Avatars v4 (06 §3 règle 13) : les six dégradés pastel des sources (des dégradés : lus dans le texte de la feuille).
+  for (const [k, a, b] of [['a', '#ff6b7a', '#a58bff'], ['m', '#6ea8ff', '#4fe3c1'], ['r', '#5ee6a8', '#3bb8c9'], ['c', '#7cc4ff', '#6e7bff'], ['t', '#c08bff', '#ff7eb6'], ['l', '#ffa463', '#ff6b7a']]) {
+    assert.match(noir, new RegExp(`--socle-avatar-${k}: linear-gradient\\(135deg, ${a}, ${b}\\);`), `--socle-avatar-${k}`);
+  }
 });
 
 await dit('les encres de texte tiennent 4,5:1 sur toutes les surfaces (le plancher T4 #8a8a8e)', () => {
-  const fonds = ['--socle-fond-page', '--socle-fond-lateral', '--socle-carte-haut', '--socle-carte-bas', '--socle-sous-carte', '--socle-champ', '--socle-ticket', '--socle-tag', '--socle-suggestion-haut', '--socle-suggestion-bas', '--socle-dialogue', '--socle-palette-fond', '--socle-panneau'];
+  const fonds = ['--socle-fond-page', '--socle-fond-lateral', '--socle-carte-haut', '--socle-carte-bas', '--socle-sous-carte', '--socle-champ', '--socle-ticket', '--socle-tag', '--socle-suggestion-haut', '--socle-suggestion-bas', '--socle-suggestion-fond', '--socle-ajmani-fond', '--socle-verre-haut', '--socle-verre-bas', '--socle-dialogue', '--socle-palette-fond', '--socle-panneau'];
   for (const encre of ['--socle-texte-1', '--socle-texte-courant', '--socle-texte-2', '--socle-texte-3'])
     for (const fond of fonds) assert.ok(rapportContraste(val(encre), val(fond)) >= 4.5, `${encre} sur ${fond}`);
   // Le compteur de la pastille de filtre active (gris sur #ededed) : AA.
@@ -70,10 +81,10 @@ await dit('les boutons : primaire 8 × 15, secondaire 7 × 13 + bordure, 12,5 px
 
 const K = await chargerRendu<Record<string, any>>( // eslint-disable-line @typescript-eslint/no-explicit-any
   [
-    "import { Bouton, Carte, Saisie, Avatar, PileAvatars, PastilleEtat, BarreProgression, TuileKpi, CaseACocher, tonDeSante, teinteDe } from '../src/socle/ui';",
+    "import { Bouton, Carte, Saisie, Avatar, PileAvatars, PastilleEtat, BarreProgression, TuileKpi, CaseACocher, EtatVide, Mono, tailleMono, TAILLE_MONO_MIN, TAILLE_MONO_MAX, tonDeSante, teinteDe } from '../src/socle/ui';",
     "import { SousCarte, Tag, DrapeauUrgent, PastilleFiltre, Interrupteur, BoutonIcone, Selecteur, BoiteRecherche, Onglets, PanneauOnglet, Segmente, cleSuivante, IconeEtincelle, SuggestionAjmani, CarteCases, CarteAnneau, CarteSerie, CarteJalon } from '../src/socle/ui/controles';",
   ].join('\n'),
-  ['Bouton', 'Carte', 'Saisie', 'Avatar', 'PileAvatars', 'PastilleEtat', 'BarreProgression', 'TuileKpi', 'CaseACocher', 'tonDeSante', 'teinteDe', 'SousCarte', 'Tag', 'DrapeauUrgent', 'PastilleFiltre', 'Interrupteur', 'BoutonIcone', 'Selecteur', 'BoiteRecherche', 'Onglets', 'PanneauOnglet', 'Segmente', 'cleSuivante', 'IconeEtincelle', 'SuggestionAjmani', 'CarteCases', 'CarteAnneau', 'CarteSerie', 'CarteJalon'],
+  ['Bouton', 'Carte', 'Saisie', 'Avatar', 'PileAvatars', 'PastilleEtat', 'BarreProgression', 'TuileKpi', 'CaseACocher', 'EtatVide', 'Mono', 'tailleMono', 'TAILLE_MONO_MIN', 'TAILLE_MONO_MAX', 'tonDeSante', 'teinteDe', 'SousCarte', 'Tag', 'DrapeauUrgent', 'PastilleFiltre', 'Interrupteur', 'BoutonIcone', 'Selecteur', 'BoiteRecherche', 'Onglets', 'PanneauOnglet', 'Segmente', 'cleSuivante', 'IconeEtincelle', 'SuggestionAjmani', 'CarteCases', 'CarteAnneau', 'CarteSerie', 'CarteJalon'],
 );
 const { h, rendre } = K;
 
@@ -170,11 +181,38 @@ await dit('Navigation au clavier : suivant, précédent, début, fin, en boucle'
   assert.equal(K.cleSuivante(cles, 'z', 'ArrowRight'), null);
 });
 
+await dit('zones de clic de 34 px (§7.6, décision du CO) sans changer le dessin : interrupteur, cases, segments, boutons de PageHead', () => {
+  const controles = sansCommentaires(lire('src/socle/ui/controles/controles.css'));
+  const briques = sansCommentaires(lire('src/socle/ui/briques.css'));
+  const archetypes = sansCommentaires(lire('src/socle/ui/archetypes/archetypes.css'));
+  // Une zone invisible : un ::after sans fond, sans bordure ni ombre, posé en absolu sur son contrôle.
+  const invisible = (regle: string) => assert.doesNotMatch(regle, /background|border|box-shadow|outline|color/, `zone de clic peinte : ${regle}`);
+  for (const [css, sel, attendu] of [
+    [controles, '.sc-interrupteur::after', /content: '';\s*position: absolute; top: 50%; left: 50%; width: 34px; height: 34px; transform: translate\(-50%, -50%\);/],
+    [briques, '.sc-case::after', /content: '';\s*position: absolute; top: 50%; left: 50%; width: 34px; height: 34px; transform: translate\(-50%, -50%\);/],
+    [controles, '.sc-segment::after', /content: '';\s*position: absolute; top: 50%; left: 50%; width: max\(100%, 34px\); height: max\(100%, 34px\); transform: translate\(-50%, -50%\);/],
+    [archetypes, ".sc-page__actions [data-socle='bouton']::after", /content: '';\s*position: absolute; top: 50%; right: 0; left: 0; height: 34px; transform: translateY\(-50%\);/],
+  ] as const) {
+    const r = new RegExp(`${sel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} \\{([^}]*)\\}`).exec(css)?.[1] ?? '';
+    assert.match(r, attendu, `${sel} : zone de 34 px`);
+    invisible(r);
+  }
+  // Les contrôles qui la portent sont positionnés (sinon la zone se poserait ailleurs), et leur dessin ne bouge pas.
+  assert.match(controles, /\.sc-interrupteur \{[^}]*position: relative;[^}]*width: 34px;[^}]*height: 20px;/);
+  assert.match(briques, /\.sc-case \{ position: relative; \}/);
+  assert.match(controles, /\.sc-segment \{ position: relative; \}/);
+  assert.match(briques, /\.sc-case \{[^}]*width: 18px;[^}]*height: 18px;/);
+  assert.match(archetypes, /\.sc-page__actions \[data-socle='bouton'\] \{ min-height: 31px; \}/);
+  assert.match(lire('src/socle/ui/Bouton.tsx'), /'relative inline-flex/, 'le bouton est positionné');
+});
+
 await dit('Segmenté : radiogroup, choix unique annoncé', () => {
   const r = rendre(h(K.Segmente, { libelle: 'Taille', valeur: 'b', onChange: () => undefined, options: [{ cle: 'a', libelle: 'Seul·e' }, { cle: 'b', libelle: '2 à 5' }] }));
   assert.match(r, /role="radiogroup"/);
   assert.equal((r.match(/role="radio"/g) ?? []).length, 2);
-  assert.match(r, /aria-checked="true"[^>]*>2 à 5/);
+  assert.match(r, /aria-checked="true"[^>]*><span class="sc-segment__texte" data-texte="2 à 5">2 à 5<\/span><\/button>/);
+  // Le libellé réserve la largeur de sa forme grasse : sa copie est le texte même, lue par la feuille (attr), jamais par l'arbre d'accessibilité.
+  assert.equal((r.match(/<span class="sc-segment__texte" data-texte="([^"]*)">\1<\/span>/g) ?? []).length, 2, 'chaque segment porte sa copie exacte');
 });
 
 await dit('Suggestion d’Ajmani : étincelle décorative, titre, deux boutons, jamais d’avatar', () => {
@@ -247,6 +285,180 @@ await dit('Case à cocher : ronde de 18 px, 24 px dans une série', () => {
   assert.match(/\.sc-case \{[^}]*\}/.exec(css)?.[0] ?? '', /width:\s*18px[\s\S]*height:\s*18px[\s\S]*border-radius:\s*99px/);
   assert.match(css, /\.sc-case\[data-taille='serie'\] \{ width: 24px; height: 24px; \}/);
   assert.match(rendre(h(K.CaseACocher, { coche: true, libelle: 'x', taille: 'serie' })), /data-taille="serie"/);
+});
+
+/* ── §4, brique par brique : les valeurs mesurées dans le CSS calculé de /dev/socle (aperçu SOCLE-DEMO).
+      Une assertion par valeur ; celles qui ont été corrigées le disent. ── */
+const briques = sansCommentaires(lire('src/socle/ui/briques.css'));
+const controles = sansCommentaires(lire('src/socle/ui/controles/controles.css'));
+const regle = (css: string, selecteur: string): string => {
+  const i = css.indexOf(`\n${selecteur} {`) + 1;
+  assert.ok(i > 0, `règle ${selecteur} introuvable`);
+  return css.slice(i, css.indexOf('}', i) + 1);
+};
+
+await dit('§4 Card, Subcard, IconButton, Kpi : rayons, rembourrages et cotes', () => {
+  // v4 (06 §3 règle 2) : la carte et le Kpi, rayon 16, reflet 6,5 % et ombre portée (le détail : check:socle, les quinze règles).
+  assert.match(regle(briques, ":root[data-ambiance='noir'] :is([data-socle='carte'], .sc-kpi)"), /border-radius:\s*var\(--socle-rayon-carte\)[\s\S]*box-shadow:\s*inset 0 1px 0 var\(--socle-reflet-carte\), var\(--socle-ombre-carte\)/);
+  assert.match(briques, /\[data-socle='carte'\]:not\(\[data-sans-marge='true'\]\) \{ padding: 16px 18px; \}/);
+  assert.match(briques, /\[data-socle='carte'\]\[data-compacte='true'\]:not\(\[data-sans-marge='true'\]\) \{ padding: 14px 16px; \}/);
+  assert.equal(j.get('--socle-rayon-carte'), undefined, 'le rayon est une cote, pas une couleur');
+  assert.match(noir, /--socle-rayon-carte:\s*16px/);
+  assert.match(noir, /--socle-rayon-sous-carte:\s*11px/);
+  assert.match(regle(controles, '.sc-sous-carte'), /padding:\s*12px 14px[\s\S]*border-radius:\s*var\(--socle-rayon-sous-carte\)[\s\S]*background:\s*var\(--socle-sous-carte\)/);
+  assert.match(regle(controles, '.sc-bouton-icone'), /width:\s*34px[\s\S]*height:\s*34px[\s\S]*border:\s*1px solid var\(--socle-bord-bouton\)[\s\S]*border-radius:\s*var\(--socle-rayon-controle\)/);
+  assert.match(controles, /\.sc-bouton-icone svg \{ width: 15px; height: 15px; \}/);
+  assert.match(regle(briques, '.sc-kpi'), /min-height:\s*84px[\s\S]*padding:\s*14px 16px/);
+  assert.match(briques, /\.sc-kpi\[data-hauteur='92'\] \{ min-height: 92px; \}/);
+  assert.match(regle(briques, '.sc-kpi__label'), /color:\s*var\(--socle-texte-3\)[\s\S]*font-size:\s*12px/);
+  assert.match(regle(briques, '.sc-kpi__valeur'), /font-size:\s*24px[\s\S]*font-weight:\s*600[\s\S]*letter-spacing:\s*-0\.02em/);
+  assert.match(regle(briques, '.sc-kpi__variation'), /font-size:\s*12px/);
+  // 84 à 92 px, jamais plus : la variation ne passe pas sous la valeur, elle s'ellipse (une seconde ligne ferait 94 px).
+  assert.match(regle(briques, '.sc-kpi__valeur'), /flex-wrap:\s*nowrap/, 'la valeur et sa variation sur une ligne');
+  assert.match(regle(briques, '.sc-kpi__variation'), /min-width:\s*0;\s*overflow:\s*hidden[\s\S]*text-overflow:\s*ellipsis;\s*white-space:\s*nowrap/, 'la variation s’ellipse');
+  // Une variation coupée se relit toujours : l'infobulle de la tuile porte la variation, puis la phrase entière s'il y en a une.
+  const seule = rendre(h(K.TuileKpi, { libelle: 'Objectif', valeur: 3, variation: 'Fixé à la revue hebdo' }));
+  assert.match(seule, /title="Fixé à la revue hebdo"/, 'sans detail, l’infobulle redit la variation');
+  const avec = rendre(h(K.TuileKpi, { libelle: 'CA', valeur: 7, variation: '+12 %', detail: 'En hausse de 12 %.', onClick: () => undefined }));
+  assert.match(avec, /title="\+12 % — En hausse de 12 %\."/, 'avec detail, la variation puis la phrase');
+  assert.doesNotMatch(rendre(h(K.TuileKpi, { libelle: 'CA', valeur: 7 })), /title=/, 'rien à redire, pas d’infobulle');
+  // Avec une mini-courbe (70 px à 16 px du bord), la valeur et sa variation s'arrêtent avant elle.
+  assert.match(briques, /\.sc-kpi:has\(> \.sc-kpi__droite\) \.sc-kpi__valeur \{ max-width: calc\(100% - 86px\); \}/, 'aucun texte sous la mini-courbe');
+});
+
+await dit('§4 StatusPill, Pill, Tag, FlagUrgent, Kbd : fonds, bordures, tailles et rayons', () => {
+  // v4 (sources néon) : 3 × 10 / 8, bordée, 11,5 px / 600.
+  assert.match(regle(briques, '.sc-etat'), /padding:\s*3px 10px 3px 8px[\s\S]*border:\s*1px solid[\s\S]*border-radius:\s*var\(--socle-rayon-pastille\)[\s\S]*font-size:\s*11\.5px;\s*font-weight:\s*600/);
+  assert.match(briques, /\.sc-etat::before \{ content: ''; width: 6px; height: 6px;/);
+  assert.match(regle(briques, '.sc-etiquette'), /padding:\s*4px 10px[\s\S]*border:\s*1px solid var\(--socle-bord-pilule\)[\s\S]*border-radius:\s*var\(--socle-rayon-pastille\)[\s\S]*background:\s*var\(--socle-pilule\)[\s\S]*font-size:\s*11\.5px/);
+  assert.match(regle(controles, '.sc-tag'), /padding:\s*2px 8px[\s\S]*border-radius:\s*var\(--socle-rayon-tag\)[\s\S]*background:\s*var\(--socle-tag\)[\s\S]*color:\s*var\(--socle-texte-2\)[\s\S]*font-size:\s*11px/);
+  assert.match(noir, /--socle-rayon-tag:\s*6px/);
+  assert.match(regle(controles, '.sc-urgent'), /border-radius:\s*var\(--socle-rayon-tag\)[\s\S]*background:\s*color-mix\(in srgb, var\(--socle-etat-critique\) 13%, transparent\)[\s\S]*color:\s*var\(--socle-etat-critique\)[\s\S]*font-size:\s*11px[\s\S]*font-weight:\s*600/);
+  assert.match(regle(briques, '.sc-kbd'), /border:\s*1px solid var\(--socle-bord-kbd\)[\s\S]*border-radius:\s*5px[\s\S]*background:\s*var\(--socle-kbd\)[\s\S]*color:\s*var\(--socle-texte-3\)[\s\S]*font-size:\s*11px/);
+  assert.match(briques, /\[data-socle='bouton'\] \.sc-kbd \{[^}]*opacity: 0\.6/);
+});
+
+await dit('§4 Avatar, AvatarStack, Sq, Progress, Check, Toggle : cotes et couleurs', () => {
+  assert.match(briques, /\.sc-avatar\[data-forme='carre'\] \{ border-radius: 9px; \}/);
+  assert.match(regle(briques, ".sc-avatar[data-en-ligne='true']::after"), /width:\s*8px[\s\S]*height:\s*8px[\s\S]*background:\s*var\(--socle-etat-succes\)[\s\S]*box-shadow:\s*0 0 0 2px/);
+  assert.match(briques, /\.sc-pile \.sc-avatar \+ \.sc-avatar \{ margin-left: -7px; \}/);
+  assert.match(briques, /\.sc-pile \.sc-avatar \{ box-shadow: 0 0 0 2px/);
+  assert.match(regle(briques, '.sc-barre'), /height:\s*5px[\s\S]*border-radius:\s*99px[\s\S]*background:\s*var\(--socle-piste\)/);
+  assert.match(briques, /\.sc-barre\[data-hauteur='4'\] \{ height: 4px; \}/);
+  assert.match(briques, /\.sc-barre\[data-hauteur='8'\] \{ height: 8px; \}/);
+  // v4 (06 §3 règle 9) : la progression en dégradé a → b, avec sa lueur.
+  assert.match(regle(briques, '.sc-barre > span'), /background:\s*linear-gradient\(90deg, var\(--fam-a\), var\(--fam-b\)\);\s*box-shadow:\s*0 0 10px color-mix\(in srgb, var\(--fam-a\) 55%, transparent\)/);
+  assert.equal(j.get('--socle-piste'), '#252528');
+  assert.equal(j.get('--socle-fam-outils'), '#7cc4ff', 'Outils : sa couleur a v4');
+  // Une barre d'état : sa couleur pleine et sa lueur (v4).
+  for (const t of ['succes', 'attention', 'critique']) assert.match(briques, new RegExp(`\\.sc-barre\\[data-ton='${t}'\\] > span \\{ --sc-barre-c: var\\(--socle-etat-${t}\\); \\}`));
+  assert.match(briques, /\.sc-barre\[data-ton\] > span \{ background: var\(--sc-barre-c\); box-shadow: 0 0 10px color-mix\(in srgb, var\(--sc-barre-c\) 55%, transparent\); \}/);
+  assert.match(regle(briques, '.sc-case'), /width:\s*18px[\s\S]*height:\s*18px[\s\S]*border:\s*1\.5px solid var\(--socle-case-vide\)[\s\S]*border-radius:\s*99px/);
+  // v4 (sources néon) : cochée, en dégradé a → b avec sa lueur, coche à l'encre sombre.
+  assert.match(briques, /\.sc-case\[aria-checked='true'\] \{ border-color: transparent; background: linear-gradient\(135deg, var\(--fam-a\), var\(--fam-b\)\); box-shadow: 0 0 12px -2px var\(--fam-a\); color: var\(--socle-encre-accent\); \}/);
+  // Corrigé (LOT-06) : 16 px, coche de 11 px.
+  assert.match(briques, /\.sc-case\[data-taille='16'\] \{ width: 16px; height: 16px; \}/);
+  assert.match(briques, /\.sc-case\[data-taille='16'\] svg \{ width: 11px; height: 11px; \}/);
+  const petite = rendre(h(K.CaseACocher, { coche: true, libelle: 'x', taille: 16 }));
+  assert.match(petite, /data-taille="16"/);
+  assert.match(petite, /<svg[^>]*width="11"/);
+  assert.match(rendre(h(K.CaseACocher, { coche: false, libelle: 'x', taille: 24 })), /data-taille="serie"/);
+  assert.doesNotMatch(rendre(h(K.CaseACocher, { coche: false, libelle: 'x', taille: 18 })), /data-taille/);
+  assert.match(regle(controles, '.sc-interrupteur'), /width:\s*34px[\s\S]*height:\s*20px[\s\S]*background:\s*var\(--socle-toggle-inactif\)/);
+  assert.match(regle(controles, '.sc-interrupteur > span'), /width:\s*14px[\s\S]*height:\s*14px[\s\S]*background:\s*var\(--socle-texte-3\)/);
+  // v4 (sources néon) : allumé, la piste et la pastille en dégradé a → b, chacune avec sa lueur.
+  assert.match(controles, /\.sc-interrupteur\[aria-checked='true'\] \{ background: linear-gradient\(135deg, var\(--fam-a\), var\(--fam-b\)\); box-shadow: 0 0 12px -3px var\(--fam-a\); \}/);
+  assert.match(controles, /\.sc-interrupteur\[aria-checked='true'\] > span \{ background: linear-gradient\(135deg, var\(--fam-a\), var\(--fam-b\)\); box-shadow: 0 0 10px -2px color-mix\(in srgb, var\(--fam-a\) 70%, transparent\); transform: translateX\(14px\); \}/);
+});
+
+await dit('§4 Field, Tabs, Segmented (et compact), SearchBox (34 et 38) : cotes', () => {
+  assert.match(controles, /\.sc-champ \{ display: flex; flex-direction: column; gap: 6px; \}/);
+  assert.match(regle(controles, '.sc-champ__etiquette'), /color:\s*var\(--socle-texte-3\)[\s\S]*font-size:\s*12px/);
+  assert.match(regle(controles, '.sc-champ__aide'), /color:\s*var\(--socle-texte-3\)[\s\S]*font-size:\s*11\.5px/);
+  const champ = /\.sc-champ__controle,\s*\.sc-selecteur \{[^}]*\}/.exec(controles)?.[0] ?? '';
+  assert.match(champ, /height:\s*40px[\s\S]*border:\s*1px solid var\(--socle-bord-champ\)[\s\S]*border-radius:\s*var\(--socle-rayon-champ\)[\s\S]*font-size:\s*13\.5px/);
+  assert.match(noir, /--socle-rayon-champ:\s*10px/);
+  assert.match(regle(controles, '.sc-onglets'), /gap:\s*26px/);
+  assert.match(regle(controles, '.sc-onglet'), /color:\s*var\(--socle-texte-3\)[\s\S]*font-size:\s*13px/);
+  assert.match(controles, /\.sc-onglet\[aria-selected='true'\] \{ color: var\(--socle-texte-1\); font-weight: 600; \}/);
+  assert.match(controles, /\.sc-onglet\[aria-selected='true'\]::after \{[^}]*height: 2px; background: var\(--fam-a\); \}/, 'v4 : le soulignement de la couleur a');
+  assert.match(regle(controles, '.sc-onglet__compteur'), /background:\s*var\(--socle-onglet-compteur\)/);
+  assert.match(regle(controles, '.sc-segmente'), /padding:\s*3px[\s\S]*border:\s*1px solid var\(--socle-bord-controle\)[\s\S]*border-radius:\s*var\(--socle-rayon-champ\)[\s\S]*background:\s*var\(--socle-segment-fond\)/);
+  assert.match(controles, /\.sc-segment\[aria-checked='true'\] \{\s*background: linear-gradient\(135deg, color-mix\(in srgb, var\(--fam-a\) 30%, transparent\), color-mix\(in srgb, var\(--fam-b\) 16%, transparent\)\);\s*box-shadow: inset 0 0 0 1px color-mix\(in srgb, var\(--fam-a\) 45%, transparent\);\s*color: var\(--socle-blanc\);\s*font-weight: 600;\s*\}/, 'le segment choisi (v4) : dégradé a → b, liseré, encre blanche, et la graisse (repère non chromatique, décision du CO)');
+  assert.match(controles, /\.sc-segment__texte::after \{ content: attr\(data-texte\); height: 0; overflow: hidden; font-weight: 600; visibility: hidden;/, 'la largeur de la forme grasse est réservée, hors de l’arbre d’accessibilité');
+  assert.match(regle(controles, '.sc-segment'), /font-weight:\s*500/);
+  // Désactivé (un fieldset coupé, Réglages › Écran de veille) : l'état se voit comme sur `.sc-selecteur:disabled`, et le survol ne colore plus le segment.
+  assert.match(controles, /\.sc-segment:disabled \{ cursor: not-allowed; opacity: 0\.6; \}/, 'un segment désactivé se voit');
+  assert.match(controles, /\.sc-segment:hover:where\(:not\(:disabled\)\) \{ color: var\(--socle-texte-courant\); \}/, 'le survol épargne un segment désactivé, sans gagner de spécificité');
+  assert.doesNotMatch(controles, /\.sc-segment:hover \{/, 'pas de survol sans :not(:disabled)');
+  // Le segment choisi reste en T1 au survol : aucune règle de survol plus spécifique que `.sc-segment[aria-checked='true']`
+  // (un `:not()` hors `:where()` compte), et la règle du choisi vient APRÈS celle du survol (à spécificité égale, l'ordre tranche).
+  assert.doesNotMatch(controles, /\.sc-segment:hover:(?!where\()[^{]*\{[^}]*color/, 'un survol plus spécifique que le segment choisi');
+  assert.ok(controles.indexOf(".sc-segment:hover:where(") < controles.indexOf(".sc-segment[aria-checked='true'] {"), 'la règle du segment choisi suit celle du survol');
+  // Ajouté (LOT-06) : le segmenté compact, 26 px.
+  assert.match(controles, /\.sc-segmente\[data-taille='compact'\] \{ padding: 2px; border-radius: var\(--socle-rayon-controle\); \}/);
+  assert.match(controles, /\.sc-segmente\[data-taille='compact'\] \.sc-segment \{ padding: 3px 9px; border-radius: 6px; font-size: 12px; line-height: 14px; \}/);
+  const compact = rendre(h(K.Segmente, { libelle: 'Niveau', valeur: 'a', onChange: () => undefined, taille: 'compact', options: [{ cle: 'a', libelle: 'A' }, { cle: 'b', libelle: 'B' }] }));
+  assert.match(compact, /role="radiogroup"[^>]*data-taille="compact"/);
+  assert.doesNotMatch(rendre(h(K.Segmente, { libelle: 'Niveau', valeur: 'a', onChange: () => undefined, options: [{ cle: 'a', libelle: 'A' }] })), /data-taille/);
+  assert.match(regle(controles, '.sc-boite-recherche'), /height:\s*34px[\s\S]*border:\s*1px solid var\(--socle-bord-controle\)[\s\S]*border-radius:\s*var\(--socle-rayon-champ\)[\s\S]*background:\s*var\(--socle-champ\)/);
+  assert.match(rendre(h(K.BoiteRecherche, { valeur: '', onChange: () => undefined, libelle: 'x' })), /<svg[^>]*width="14"/, 'loupe de 14 px');
+  // Ajouté (D02) : la variante de 38 px.
+  assert.match(controles, /\.sc-boite-recherche\[data-hauteur='38'\] \{ height: 38px; padding: 0 12px; \}/);
+  assert.match(rendre(h(K.BoiteRecherche, { valeur: '', onChange: () => undefined, libelle: 'x', hauteur: 38 })), /data-hauteur="38"/);
+  assert.doesNotMatch(rendre(h(K.BoiteRecherche, { valeur: '', onChange: () => undefined, libelle: 'x', hauteur: 38, grande: true })), /data-hauteur/, 'grande l’emporte');
+  assert.doesNotMatch(rendre(h(K.BoiteRecherche, { valeur: '', onChange: () => undefined, libelle: 'x' })), /data-hauteur/);
+});
+
+await dit('§4 Empty (EtatVide) : pointillé #2e2e33, rayon 14, icône 44 px, titre 14 / 600, texte 12,5 T4 de 300 px au plus, toujours une action (corrigé)', () => {
+  // v4 : les cartes passent à 16 ; la zone vide garde son rayon 14 (sources v4), comme les boîtes (--socle-rayon-boite).
+  assert.match(regle(briques, '.sc-vide'), /border:\s*1px dashed var\(--socle-pointille\)[\s\S]*border-radius:\s*var\(--socle-rayon-boite\)/);
+  assert.match(noir, /--socle-rayon-boite: 14px;/);
+  assert.equal(j.get('--socle-pointille'), '#2e2e33');
+  assert.match(regle(briques, '.sc-vide__icone'), /width:\s*44px[\s\S]*height:\s*44px[\s\S]*border-radius:\s*12px/);
+  assert.match(regle(briques, '.sc-vide__titre'), /color:\s*var\(--socle-texte-1\)[\s\S]*font-size:\s*14px[\s\S]*font-weight:\s*600/);
+  assert.match(regle(briques, '.sc-vide__texte'), /max-width:\s*300px[\s\S]*color:\s*var\(--socle-texte-3\)[\s\S]*font-size:\s*12\.5px/);
+  assert.doesNotMatch(sansCommentaires(lire('src/socle/ui/situations/situations.css')), /\.sc-vide__(titre|texte) \{/, 'plus de surcharge de l’état vide dans situations.css');
+  const r = rendre(h(K.EtatVide, { titre: 'Rien ici', texte: 'Ajoutez un premier élément.', icone: h('svg', null), action: h('button', { type: 'button' }, 'Ajouter') }));
+  assert.match(r, /<span aria-hidden="true" class="sc-vide__icone"><svg><\/svg><\/span>/);
+  assert.match(r, /<p class="sc-vide__titre">Rien ici<\/p>/);
+  assert.match(r, /<button type="button">Ajouter<\/button>/);
+  assert.doesNotMatch(rendre(h(K.EtatVide, { texte: 'x', action: null })), /sc-vide__icone|sc-vide__titre/);
+  assert.match(sansCommentaires(lire('src/socle/ui/Etats.tsx')), /action: React\.ReactNode;/, 'l’action est demandée (jamais oubliée)');
+});
+
+await dit('§4 Suggestion et cartes ludiques : cotes', () => {
+  // v4 (06 §3 règle 12) : 16 × 18, rayon des cartes, bord en dégradé a → b (padding-box / border-box), ombre de la couleur a.
+  assert.match(regle(controles, '.sc-suggestion'), /padding:\s*16px 18px[\s\S]*border:\s*1px solid transparent[\s\S]*border-radius:\s*var\(--socle-rayon-carte\)[\s\S]*linear-gradient\(var\(--socle-suggestion-fond\), var\(--socle-suggestion-fond\)\) padding-box,\s*linear-gradient\(135deg, var\(--fam-a\), var\(--fam-b\)\) border-box/);
+  assert.match(regle(controles, '.sc-suggestion__entete'), /font-size:\s*12px[\s\S]*font-weight:\s*600/);
+  assert.match(regle(controles, '.sc-etincelle'), /color:\s*var\(--socle-etat-succes\)/);
+  assert.match(regle(controles, '.sc-suggestion__titre'), /color:\s*var\(--socle-texte-1\)[\s\S]*font-size:\s*13px[\s\S]*font-weight:\s*600/);
+  assert.match(regle(controles, '.sc-suggestion__texte'), /color:\s*var\(--socle-texte-2\)[\s\S]*font-size:\s*12\.5px/);
+  assert.match(rendre(h(K.SuggestionAjmani, { titre: 'T', texte: 'x', primaire: { libelle: 'Oui', onClick: () => undefined } })), /<svg[^>]*width="12" height="12"/, 'étincelle de 12 px');
+  assert.match(controles, /\.sc-ludique__lignes li \{ display: flex; min-height: 33px;/);
+  assert.match(controles, /\.sc-ludique__serie li \{/);
+  assert.match(rendre(h(K.CarteAnneau, { titre: 'T', texte: 'x', valeur: 0.5, centre: '50 %' })), /<svg width="72" height="72"/);
+  assert.equal((rendre(h(K.CarteAnneau, { titre: 'T', texte: 'x', valeur: 0.5, centre: '50 %' })).match(/stroke-width="8"/g) ?? []).length, 2);
+});
+
+await dit('Mono (§0.4) : en ligne, .sc-mono (police monospace du socle, chiffres tabulaires), 11 à 18 px bornés, time avec dateTime', () => {
+  assert.equal(K.TAILLE_MONO_MIN, 11);
+  assert.equal(K.TAILLE_MONO_MAX, 18);
+  assert.deepEqual([K.tailleMono(undefined), K.tailleMono(9), K.tailleMono(11), K.tailleMono(12.5), K.tailleMono(18), K.tailleMono(24), K.tailleMono(Number.NaN)], [undefined, 11, 11, 12.5, 18, 18, undefined]);
+  // ±Infinity est hors bornes comme 100 ou -5 : ramené, pas hérité.
+  assert.deepEqual([K.tailleMono(Number.POSITIVE_INFINITY), K.tailleMono(Number.NEGATIVE_INFINITY)], [18, 11]);
+  assert.equal(rendre(h(K.Mono, null, '10:42:07')), '<span data-socle="mono" class="sc-mono">10:42:07</span>');
+  assert.match(rendre(h(K.Mono, { taille: 24, className: 'x' }, '3')), /<span data-socle="mono" class="sc-mono x" style="font-size:18px">3<\/span>/);
+  // La borne l'emporte sur un style de l'appelant (la clé garde sa place dans l'objet, la valeur est celle de la borne) ; le reste du style passe.
+  assert.match(rendre(h(K.Mono, { taille: 14, style: { fontSize: 40, color: 'red' } }, '3')), /style="font-size:14px;color:red"/, 'style.fontSize ne contourne pas la borne');
+  assert.match(rendre(h(K.Mono, { as: 'time', dateTime: '2026-10-30T10:42:07', taille: 11 }, '10:42:07')), /<time data-socle="mono" class="sc-mono" style="font-size:11px" dateTime="2026-10-30T10:42:07">/);
+  assert.match(rendre(h(K.Mono, { as: 'code' }, 'FAC-0142')), /^<code /);
+  assert.doesNotMatch(sansCommentaires(lire('src/socle/ui/Mono.tsx')), /#[0-9a-f]{6}|color:|font-family/i, 'ni couleur ni police écrites ici : .sc-mono de noir.css');
+  const mono = /\.sc-mono \{[^}]*\}/.exec(sansCommentaires(noir))?.[0] ?? '';
+  assert.match(mono, /font-family:\s*var\(--socle-police-mono\)/);
+  assert.match(mono, /font-variant-numeric:\s*tabular-nums/);
+  assert.match(mono, /font-variant-ligatures:\s*none/);
+  assert.match(noir, /--socle-police-mono:\s*ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;/);
 });
 
 await dit('aucun avatar, personnage ni image dans les composants du groupe', () => {

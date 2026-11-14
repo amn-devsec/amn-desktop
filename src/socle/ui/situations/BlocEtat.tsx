@@ -1,15 +1,23 @@
 import React from 'react';
-import { CircleAlert, Lock, RotateCcw, Search, Send, Users, Wifi, Plus } from 'lucide-react';
+import { CircleAlert, Download, Lock, RotateCcw, Search, Send, Undo2, Users, Wifi, Plus } from 'lucide-react';
 import { useSocleLangue } from '../../i18n';
 import type { Famille } from '../../familles';
 import { Bouton } from '../Bouton';
+import { IconTile, type IconTileProps } from '../briques-partagees/IconTile';
 import { propsBouton } from './statique';
 
 /**
  * LE BLOC D'ÉTAT — la colonne centrée de « quand il n'y a rien » (H43, modèles 1, 3, 4, 5, et l'erreur de chargement).
  *
- * Une tuile d'icône de 48 px, un titre, un texte de 240 px au plus, et des boutons à 8 px l'un de l'autre.
+ * Une tuile d'icône de 48 px (`IconTile` du socle, 36 en compact — ses cotes, son fond et son glyphe sont ceux de la
+ * brique ; sa teinte vient du ton, ci-dessous : les tons d'état lui sont passés en `ton`, la famille et le gris du
+ * neutre standard par la variable `--sc-ton` du bloc), un titre, un texte de 240 px au plus, et des boutons à 8 px
+ * l'un de l'autre.
  * LA RÈGLE : jamais de zone morte. `actions` est donc OBLIGATOIRE — un état sans bouton ne compile pas.
+ *
+ * `taille="compact"` : le `StateBlock` de la v3 (H43 en situation, au centre d'une carte de contenu) — tuile de 36 px
+ * (rayon 10, glyphe de 16), titre 13,5 px / 600, texte 12 px T4 (300 px au plus), boutons compacts de 25 px. La taille
+ * standard reste celle des écrans qui l'emploient déjà.
  *
  * Le ton colore l'icône ET sa tuile (la couleur de l'icône à 13 %) ; il ne porte jamais le sens à lui seul,
  * l'icône et le titre le disent aussi.
@@ -26,8 +34,8 @@ import { propsBouton } from './statique';
 export type TonEtat = 'famille' | 'attention' | 'neutre' | 'critique';
 
 export interface BlocEtatProps {
-  /** Le glyphe (lucide, 20 px, trait 1,7). Décoratif : le titre dit déjà la situation. */
-  icone: React.ReactNode;
+  /** Le glyphe (lucide, 20 px, trait 1,7). Décoratif : le titre dit déjà la situation. `null` : pas de tuile (v3, facultative). */
+  icone: React.ReactNode | null;
   ton?: TonEtat;
   /** La famille dont on prend la couleur quand `ton="famille"`. À défaut, celle du `data-famille` d'un parent. */
   famille?: Famille;
@@ -39,16 +47,27 @@ export interface BlocEtatProps {
   niveauTitre?: 2 | 3 | 4 | 5 | 6;
   /** `status` ou `alert` quand le bloc apparaît après coup (hors connexion, erreur) : il est alors annoncé. */
   annonce?: 'status' | 'alert';
+  /** `compact` : les cotes v3 (tuile 36, titre 13,5, texte 12, boutons de 25 px). */
+  taille?: TailleEtat;
   className?: string;
 }
 
-export function BlocEtat({ icone, ton = 'neutre', famille, titre, texte, actions, niveauTitre = 3, annonce, className }: BlocEtatProps) {
+export type TailleEtat = 'standard' | 'compact';
+
+/**
+ * Le ton de la tuile d'icône : les tons d'état de la brique (`attention`, `critique`) et l'aplat du neutre compact
+ * (`neutre`, l'écart T1 de H43) ; la famille et le gris T3 du neutre standard (cote de H43) passent par `--sc-ton`.
+ */
+function tonTuile(ton: TonEtat, taille: TailleEtat): IconTileProps['ton'] {
+  if (ton === 'attention' || ton === 'critique') return ton;
+  return ton === 'neutre' && taille === 'compact' ? 'neutre' : undefined;
+}
+
+export function BlocEtat({ icone, ton = 'neutre', famille, titre, texte, actions, niveauTitre = 3, annonce, taille = 'standard', className }: BlocEtatProps) {
   const Titre = `h${niveauTitre}` as 'h3';
   return (
-    <div role={annonce} data-ton={ton} data-famille={famille} className={['sc-bloc-etat', className].filter(Boolean).join(' ')}>
-      <span aria-hidden className="sc-bloc-etat__icone">
-        {icone}
-      </span>
+    <div role={annonce} data-ton={ton} data-famille={famille} data-taille={taille === 'compact' ? 'compact' : undefined} className={['sc-bloc-etat', className].filter(Boolean).join(' ')}>
+      {icone !== null && <IconTile className="sc-bloc-etat__icone" taille={taille === 'compact' ? 36 : 48} ton={tonTuile(ton, taille)} part={13} icone={icone} />}
       <Titre className="sc-bloc-etat__titre">{titre}</Titre>
       {texte && <p className="sc-bloc-etat__texte">{texte}</p>}
       <div className="sc-bloc-etat__actions">{actions}</div>
@@ -63,6 +82,7 @@ interface Commun {
   /** Aperçu : les boutons restent atteignables au clavier mais ne font rien (`aria-disabled`). */
   statique?: boolean;
   niveauTitre?: BlocEtatProps['niveauTitre'];
+  taille?: TailleEtat;
   className?: string;
 }
 
@@ -83,7 +103,7 @@ export type EtatVideInvitationProps = Commun & {
 
 export function EtatVideInvitation(props: EtatVideInvitationProps) {
   const { ts } = useSocleLangue();
-  const { objet, icone, famille, statique, niveauTitre, className } = props;
+  const { objet, icone, famille, statique, niveauTitre, taille, className } = props;
   const params = { objet };
   let texte: string;
   let actions: React.ReactNode;
@@ -102,7 +122,7 @@ export function EtatVideInvitation(props: EtatVideInvitationProps) {
           {ts('etat.vide.ajouter')}
         </Bouton>
         {props.onImporter && (
-          <Bouton variante="secondaire" taille="petit" {...propsBouton(statique, props.onImporter)}>
+          <Bouton variante="secondaire" taille="petit" icone={taille === 'compact' ? <Download size={13} strokeWidth={1.9} /> : undefined} {...propsBouton(statique, props.onImporter)}>
             {ts('etat.vide.importer')}
           </Bouton>
         )}
@@ -118,6 +138,7 @@ export function EtatVideInvitation(props: EtatVideInvitationProps) {
       texte={texte}
       actions={actions}
       niveauTitre={niveauTitre}
+      taille={taille}
       className={className}
     />
   );
@@ -130,7 +151,7 @@ export type EtatHorsConnexionProps = Commun & {
   onReessayer: () => void;
 };
 
-export function EtatHorsConnexion({ onReessayer, statique, niveauTitre, className }: EtatHorsConnexionProps) {
+export function EtatHorsConnexion({ onReessayer, statique, niveauTitre, taille, className }: EtatHorsConnexionProps) {
   const { ts } = useSocleLangue();
   return (
     <BlocEtat
@@ -140,6 +161,7 @@ export function EtatHorsConnexion({ onReessayer, statique, niveauTitre, classNam
       texte={ts('etat.hors.texte')}
       annonce={statique ? undefined : 'status'}
       niveauTitre={niveauTitre}
+      taille={taille}
       className={className}
       actions={
         <Bouton variante="secondaire" taille="petit" icone={<RotateCcw size={14} strokeWidth={1.9} />} {...propsBouton(statique, onReessayer)}>
@@ -165,7 +187,7 @@ function capitaliser(texte: string): string {
   return texte ? texte.charAt(0).toLocaleUpperCase() + texte.slice(1) : texte;
 }
 
-export function EtatAccesRefuse({ prenom, onDemander, demandeEnvoyee = false, statique, niveauTitre, className }: EtatAccesRefuseProps) {
+export function EtatAccesRefuse({ prenom, onDemander, demandeEnvoyee = false, statique, niveauTitre, taille, className }: EtatAccesRefuseProps) {
   const { ts } = useSocleLangue();
   return (
     <BlocEtat
@@ -176,6 +198,7 @@ export function EtatAccesRefuse({ prenom, onDemander, demandeEnvoyee = false, st
       texte={demandeEnvoyee ? ts('etat.acces.prevenu', { prenom: capitaliser(prenom) }) : ts('etat.acces.texte', { prenom })}
       annonce={statique ? undefined : 'status'}
       niveauTitre={niveauTitre}
+      taille={taille}
       className={className}
       actions={
         demandeEnvoyee ? (
@@ -197,6 +220,10 @@ export function EtatAccesRefuse({ prenom, onDemander, demandeEnvoyee = false, st
 export type EtatAucunResultatProps = Commun & {
   /** Ce que la personne a cherché, tel quel. */
   terme: string;
+  /** `null` : pas de tuile (v3 : le champ de recherche juste au-dessus dit déjà qu'on cherche). */
+  icone?: React.ReactNode | null;
+  /** Une icône de 13 px devant « Voir {X} » (v3 : le document). */
+  iconeAction?: React.ReactNode;
 } & (
     // Un élément proche existe (tolérance aux fautes de frappe) : on le propose.
     | { proche: string; onVoirProche: () => void; onEffacer?: never }
@@ -206,18 +233,19 @@ export type EtatAucunResultatProps = Commun & {
 
 export function EtatAucunResultat(props: EtatAucunResultatProps) {
   const { ts } = useSocleLangue();
-  const { terme, statique, niveauTitre, className } = props;
+  const { terme, statique, niveauTitre, taille, className } = props;
   return (
     <BlocEtat
       ton="neutre"
-      icone={<Search aria-hidden {...ICONE} />}
+      icone={props.icone === undefined ? <Search aria-hidden {...ICONE} /> : props.icone}
       titre={ts('etat.aucun.titre', { terme })}
       texte={props.proche !== undefined ? ts('etat.aucun.proche', { proche: props.proche }) : ts('etat.aucun.sans')}
       niveauTitre={niveauTitre}
+      taille={taille}
       className={className}
       actions={
         props.proche !== undefined ? (
-          <Bouton variante="primaire" taille="petit" {...propsBouton(statique, props.onVoirProche)}>
+          <Bouton variante="primaire" taille="petit" icone={props.iconeAction} {...propsBouton(statique, props.onVoirProche)}>
             {ts('etat.aucun.voir', { proche: props.proche })}
           </Bouton>
         ) : (
@@ -235,24 +263,34 @@ export function EtatAucunResultat(props: EtatAucunResultatProps) {
 export type EtatErreurChargementProps = Commun & {
   /** Les objets au pluriel, sans déterminant : « clients ». */
   objets: string;
+  /** L'accord du participe : « chargés » (masculin, défaut) ou « chargées » (« Les prévisions n'ont pas pu être chargées »). */
+  genre?: 'masculin' | 'feminin';
   onReessayer: () => void;
+  /** Ce qui suit « Réessayer » sur la même ligne (v3 : « nouvel essai dans 20 s »). */
+  apres?: React.ReactNode;
+  /** L'icône (v3 : le triangle d'alerte) ; à défaut, le cercle. */
+  icone?: React.ReactNode;
 };
 
-export function EtatErreurChargement({ objets, onReessayer, statique, niveauTitre, className }: EtatErreurChargementProps) {
+export function EtatErreurChargement({ objets, genre = 'masculin', onReessayer, apres, icone, statique, niveauTitre, taille, className }: EtatErreurChargementProps) {
   const { ts } = useSocleLangue();
   return (
     <BlocEtat
       ton="critique"
-      icone={<CircleAlert aria-hidden {...ICONE} />}
-      titre={ts('etat.erreur.titre', { objets })}
+      icone={icone ?? <CircleAlert aria-hidden {...ICONE} />}
+      titre={ts(genre === 'feminin' ? 'etat.erreur.titre.f' : 'etat.erreur.titre', { objets })}
       texte={ts('etat.erreur.texte')}
       annonce={statique ? undefined : 'alert'}
       niveauTitre={niveauTitre}
+      taille={taille}
       className={className}
       actions={
-        <Bouton variante="secondaire" taille="petit" icone={<RotateCcw size={14} strokeWidth={1.9} />} {...propsBouton(statique, onReessayer)}>
-          {ts('etat.erreur.reessayer')}
-        </Bouton>
+        <>
+          <Bouton variante="secondaire" taille="petit" icone={taille === 'compact' ? <Undo2 size={13} strokeWidth={1.9} /> : <RotateCcw size={14} strokeWidth={1.9} />} {...propsBouton(statique, onReessayer)}>
+            {ts('etat.erreur.reessayer')}
+          </Bouton>
+          {apres}
+        </>
       }
     />
   );

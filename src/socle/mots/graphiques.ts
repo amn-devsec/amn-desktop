@@ -47,6 +47,6 @@ export const FR_GRAPHIQUES: Record<keyof typeof EN_GRAPHIQUES, string> = {
   'graphique.serie1': 'Série 1',
   'graphique.serie2': 'Série 2',
   'graphique.point': '{etiquette} : {valeur}',
-  'graphique.points': 'Points du graphique. Utilisez les flèches gauche et droite pour vous déplacer.',
+  'graphique.points': 'Points du graphique. Utilise les flèches gauche et droite pour te déplacer.',
   'graphique.legende': 'Légende',
 };

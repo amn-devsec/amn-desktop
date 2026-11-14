@@ -19,6 +19,7 @@ import {
 import { choixMouvement, ecrireMouvement, lireMouvement, useMouvement, type NiveauMouvement } from '../../../socle/mouvement';
 import { FAMILLES } from '../../../socle/familles';
 import {
+  AddModuleTile,
   Anneau,
   AnneauProgression,
   Avatar,
@@ -28,7 +29,9 @@ import {
   BoiteRecherche,
   Bouton,
   BoutonIcone,
+  Caret,
   Carte,
+  CountBadge,
   CarteAnneau,
   CarteCases,
   CarteJalon,
@@ -61,16 +64,28 @@ import {
   EtapeFranchie,
   Etiquette,
   EtatVide,
+  FilterChips,
+  FlowLine,
+  Gauge,
   GrilleCartes,
+  HeatCell,
   IconeEtincelle,
+  IconTile,
+  ModuleGroupGrid,
+  ModuleTile,
+  PageHead,
+  StatusPill,
+  InlineSuggestion,
   Interrupteur,
   Kanban,
   LigneActivite,
   LigneTache,
   LigneTemps,
   ListeScindee,
+  LiveDot,
   MiniCourbe,
   Modale,
+  Mono,
   Onglets,
   Page,
   PanneauOnglet,
@@ -85,6 +100,7 @@ import {
   Segmente,
   Selecteur,
   Semaine,
+  Severity,
   SousCarte,
   Squelette,
   SqueletteLignes,
@@ -105,8 +121,12 @@ import {
   type TonBarre,
   type TonEtat,
   type TonVariation,
+  type NiveauSeverite,
+  type TonVivant,
 } from '../../../socle/ui';
+import { arriveeLigne } from '../../../socle/couche-mouvement';
 import {
+  comptesFictifs,
   BARRES,
   COLONNES_KANBAN,
   COURBE,
@@ -175,6 +195,9 @@ export const SECTIONS = [
   'gabarit',
   'etats',
   'mouvement',
+  'vivant',
+  'briques',
+  'alignement',
 ] as const;
 export type IdSection = (typeof SECTIONS)[number];
 
@@ -235,7 +258,7 @@ function ChoixEtat<T extends string>({ libelle, options, valeur, onChange }: { l
 /* ─────────────────────────────  1. Les jetons  ───────────────────────────── */
 
 type GenreEchantillon = 'fond' | 'bord' | 'encre' | 'decor' | 'famille' | 'etat' | 'avatar';
-type CleRole = 'role.t1' | 'role.t2' | 'role.t3' | 'role.t4' | 'role.decor1' | 'role.decor2';
+type CleRole = 'role.t1' | 'role.t2' | 'role.t3' | 'role.t4' | 'role.decor1' | 'role.decor2' | 'role.decor3';
 
 interface Jeton {
   jeton: string;
@@ -297,6 +320,10 @@ const GROUPES_JETONS: { cle: 'fonds' | 'bordures' | 'encres' | 'decor' | 'famill
     jetons: [
       { jeton: '--socle-trait-discret', role: 'role.decor1' },
       { jeton: '--socle-trait-tres-discret', role: 'role.decor2' },
+      // Les gris de décor (B15) : illustrations seulement, jamais un texte ni un état (check:socle).
+      { jeton: '--socle-decor-1', role: 'role.decor3' },
+      { jeton: '--socle-decor-2', role: 'role.decor3' },
+      { jeton: '--socle-decor-3', role: 'role.decor3' },
     ],
   },
   { cle: 'familles', genre: 'famille', jetons: FAMILLES.map((f) => ({ jeton: `--socle-fam-${f}` })) },
@@ -750,10 +777,10 @@ function SectionKpi() {
       <Bloc titre={tm('kpi.courbe')}>
         <div className="sd-grille" style={{ '--sd-min': '260px' } as React.CSSProperties}>
           <Cas legende={`84 px · ${tm('kpi.avecCourbe')}`}>
-            <TuileKpi libelle={tm('kpi.libelle')} valeur={formaterEuro(8450)} variation={tm('kpi.variation')} ton="succes" droite={<MiniCourbe valeurs={TENDANCE} libelle={tm('kpi.libelle')} ton="succes" />} />
+            <TuileKpi libelle={tm('kpi.libelle')} valeur={formaterEuro(8450)} variation={tm('kpi.hausseCourte')} ton="succes" detail={tm('kpi.detail')} droite={<MiniCourbe valeurs={TENDANCE} libelle={tm('kpi.libelle')} ton="succes" />} />
           </Cas>
           <Cas legende={`92 px · ${tm('kpi.avecCourbe')}`}>
-            <TuileKpi libelle={tm('kpi.libelle')} valeur={formaterEuro(8450)} variation={tm('kpi.baisse')} ton="critique" hauteur={92} droite={<MiniCourbe valeurs={TENDANCE_BAISSE} libelle={tm('kpi.libelle')} ton="critique" />} />
+            <TuileKpi libelle={tm('kpi.libelle')} valeur={formaterEuro(8450)} variation={tm('kpi.baisseCourte')} ton="critique" hauteur={92} droite={<MiniCourbe valeurs={TENDANCE_BAISSE} libelle={tm('kpi.libelle')} ton="critique" />} />
           </Cas>
         </div>
       </Bloc>
@@ -1497,7 +1524,7 @@ function SectionGabarit() {
             primaire={{ libelle: tm('bouton.nouveau'), icone: <Plus />, raccourci: '⌘N' }}
           />
           <RangeeKpi libelle={tm('gabarit.kpi')}>
-            <TuileKpi libelle={tm('kpi.libelle')} valeur={formaterEuro(12480)} variation={tm('kpi.variation')} ton="succes" droite={<MiniCourbe valeurs={TENDANCE} libelle={tm('kpi.libelle')} ton="succes" />} />
+            <TuileKpi libelle={tm('kpi.libelle')} valeur={formaterEuro(8450)} droite={<MiniCourbe valeurs={TENDANCE} libelle={tm('kpi.libelle')} ton="succes" />} />
             <TuileKpi libelle={tm('kpi.libelle')} valeur="37" variation={tm('kpi.variation')} ton="info" />
             <TuileKpi libelle={tm('kpi.libelle')} valeur="72 %" barre={0.72} libelleBarre={tm('progression.libelle')} />
             <TuileKpi libelle={tm('kpi.libelle')} valeur="4" variation={tm('kpi.baisse')} ton="critique" />
@@ -1683,6 +1710,350 @@ function SectionMouvement() {
   );
 }
 
+/* ─────────────────────────────  16. Vivant (v3)  ───────────────────────────── */
+
+const TONS_VOYANT: TonVivant[] = ['ok', 'attention', 'critique', 'info'];
+const NIVEAUX: NiveauSeverite[] = ['critique', 'moyen', 'faible', 'info', 'ok'];
+/** Une semaine de cinq jours sur six créneaux : des intensités de 0 à 1, fictives. */
+const CHALEUR: number[][] = [
+  [0, 0.1, 0.3, 0.2, 0, 0.1],
+  [0.2, 0.5, 0.9, 0.6, 0.3, 0.1],
+  [0.1, 0.3, 0.6, 1, 0.7, 0.2],
+  [0, 0.2, 0.4, 0.5, 0.2, 0],
+  [0.1, 0, 0.2, 0.3, 0.1, 0],
+];
+const HEURES_CHALEUR = [8, 10, 12, 14, 16, 18];
+
+function SectionVivant() {
+  const { tm, langue } = useMotsDemo();
+  const [filtre, setFiltre] = useState('tout');
+  const [suggestion, setSuggestion] = useState<'aucune' | 'oui' | 'non'>('aucune');
+  const [ouverte, setOuverte] = useState('');
+  const [tour, setTour] = useState(0);
+  const jours = nomsDesJours(langue === 'fr' ? 'fr-FR' : 'en-GB').slice(0, 5);
+  const puces = [
+    { cle: 'tout', libelle: tm('vivant.puces.tout'), compteur: 12 },
+    { cle: 'critique', libelle: tm('vivant.puces.critiques'), compteur: 2 },
+    { cle: 'moyen', libelle: tm('vivant.puces.moyens'), compteur: 4 },
+    { cle: 'faible', libelle: tm('vivant.puces.faibles'), compteur: 6 },
+  ];
+  return (
+    <Section id="vivant">
+      <Bloc titre={tm('vivant.voyant')}>
+        <div className="sd-rangee">
+          {TONS_VOYANT.map((t) => (
+            <Cas key={t} legende={t}>
+              <LiveDot ton={t} libelle={tm(`vivant.voyant.${t}`)} afficherLibelle />
+            </Cas>
+          ))}
+          <Cas legende={tm('vivant.voyant.sansOnde')}>
+            <LiveDot libelle={tm('vivant.voyant.ok')} afficherLibelle onde={false} />
+          </Cas>
+          <Cas legende={tm('vivant.voyant.petit')}>
+            <LiveDot libelle={tm('vivant.voyant.enLigne')} afficherLibelle taille={6} halo={false} onde={false} />
+          </Cas>
+        </div>
+      </Bloc>
+      <Bloc titre={tm('vivant.curseur')}>
+        <div className="sd-etroit">
+          <p className="sd-saisie">
+            <Caret />
+            <span>{tm('vivant.curseur.texte')}</span>
+          </p>
+        </div>
+      </Bloc>
+      <Bloc titre={tm('vivant.niveaux')}>
+        <div className="sd-rangee">
+          {NIVEAUX.map((n) => (
+            <Cas key={n} legende={n}>
+              <Severity niveau={n} />
+            </Cas>
+          ))}
+        </div>
+        <div className="sd-rangee">
+          <Cas legende={tm('vivant.mono')}>
+            <Mono as="p" className="sd-journal" taille={12}>
+              <span>10:42:07</span> <Severity niveau="info" /> <span>{tm('vivant.mono.journal')}</span>
+            </Mono>
+          </Cas>
+        </div>
+      </Bloc>
+      <Bloc titre={tm('vivant.puces')}>
+        <FilterChips libelle={tm('vivant.puces.libelle')} puces={puces} valeur={filtre} onChange={setFiltre} />
+        <p role="status" className="sd-note">
+          {tm('vivant.puces.choisi', { filtre: puces.find((p) => p.cle === filtre)?.libelle ?? '' })}
+        </p>
+      </Bloc>
+      <Bloc titre={tm('vivant.jauge')}>
+        <div className="sd-rangee">
+          {[
+            { v: 0, ton: 'neutre' as const },
+            { v: 42, ton: 'critique' as const },
+            { v: 64, ton: 'attention' as const },
+            { v: 86, ton: 'ok' as const },
+            { v: 100, ton: 'info' as const },
+          ].map(({ v, ton }) => (
+            <Cas key={v} legende={`${v} · ${ton}`}>
+              <Gauge valeur={v} ton={ton} libelle={tm('vivant.jauge.libelle')} />
+            </Cas>
+          ))}
+        </div>
+      </Bloc>
+      <Bloc titre={tm('vivant.chaleur')}>
+        <div className="sd-chaleur" role="group" aria-label={tm('vivant.chaleur')}>
+          <span aria-hidden />
+          {HEURES_CHALEUR.map((h) => (
+            <span key={h} aria-hidden className="sd-chaleur__axe">
+              {h}
+            </span>
+          ))}
+          {CHALEUR.map((ligne, j) => (
+            <React.Fragment key={j}>
+              <span aria-hidden className="sd-chaleur__axe">
+                {jours[j].nom}
+              </span>
+              {ligne.map((v, i) => (
+                <HeatCell key={i} intensite={v} libelle={tm('vivant.chaleur.case', { jour: jours[j].nom, heure: HEURES_CHALEUR[i], n: Math.round(v * 10) })} />
+              ))}
+            </React.Fragment>
+          ))}
+        </div>
+        <div className="sd-rangee">
+          {[0, 0.5, 1].map((v) => (
+            <Cas key={v} legende={tm('vivant.chaleur.cliquable')}>
+              <HeatCell
+                intensite={v}
+                ton="info"
+                libelle={tm('vivant.chaleur.case', { jour: jours[4].nom, heure: 10, n: Math.round(v * 10) })}
+                onClick={() => setOuverte(tm('vivant.chaleur.case', { jour: jours[4].nom, heure: 10, n: Math.round(v * 10) }))}
+              >
+                {Math.round(v * 10)}
+              </HeatCell>
+            </Cas>
+          ))}
+        </div>
+        <p role="status" className="sd-note">
+          {ouverte ? tm('vivant.chaleur.ouverte', { libelle: ouverte }) : ''}
+        </p>
+      </Bloc>
+      <Bloc titre={tm('vivant.flux')}>
+        <svg className="sd-flux" viewBox="0 0 520 120" width="520" height="120" role="group" aria-label={tm('vivant.flux')}>
+          <FlowLine de={[110, 30]} a={[250, 60]} ton="info" libelle={tm('vivant.flux.actif')} />
+          <FlowLine de={[110, 90]} a={[250, 60]} duree={2200} />
+          <FlowLine de={[330, 60]} a={[430, 60]} actif={false} ton="attention" libelle={tm('vivant.flux.arret')} />
+          {[
+            { x: 20, y: 16, cle: 'a' },
+            { x: 20, y: 76, cle: 'b' },
+            { x: 250, y: 46, cle: 'c' },
+            { x: 430, y: 46, cle: 'd' },
+          ].map((n) => (
+            <g key={n.cle} className="sd-flux__noeud" data-mvt-survol="noeud">
+              <rect x={n.x} y={n.y} width={n.cle === 'c' ? 80 : 90} height={28} rx={8} />
+              <text x={n.x + (n.cle === 'c' ? 40 : 45)} y={n.y + 18} textAnchor="middle">
+                {tm(`vivant.flux.noeud.${n.cle as 'a' | 'b' | 'c' | 'd'}`)}
+              </text>
+            </g>
+          ))}
+        </svg>
+      </Bloc>
+      <Bloc titre={tm('vivant.suggestion')}>
+        <div className="sd-etroit">
+          <InlineSuggestion texte={tm('vivant.suggestion.texte')} onOui={() => setSuggestion('oui')} onNon={() => setSuggestion('non')} />
+          <p role="status" className="sd-note">
+            {suggestion === 'aucune' ? '' : tm(suggestion === 'oui' ? 'vivant.suggestion.reponse.oui' : 'vivant.suggestion.reponse.non')}
+          </p>
+        </div>
+      </Bloc>
+      <Bloc titre={tm('vivant.couche')}>
+        <p className="sd-note">{tm('vivant.couche.note')}</p>
+        <div className="sd-rangee">
+          <Bouton variante="secondaire" icone={<RotateCcw />} onClick={() => setTour((t) => t + 1)}>
+            {tm('vivant.couche.rejouer')}
+          </Bouton>
+        </div>
+        <div key={tour}>
+          <Bloc titre={tm('vivant.couche.entree')}>
+            <div className="sd-grille" style={{ '--sd-min': '150px' } as React.CSSProperties}>
+              {[1, 2, 3, 4, 5, 6].map((n, i) => (
+                <Carte key={n} compacte rang={i} titre={tm('vivant.couche.carte', { n })} niveauTitre={4}>
+                  <BarreProgression valeur={n / 6} libelle={tm('vivant.couche.carte', { n })} />
+                </Carte>
+              ))}
+            </div>
+          </Bloc>
+          <Bloc titre={tm('vivant.couche.cascade')}>
+            <div className="sd-grille" data-mvt="cascade" style={{ '--sd-min': '150px' } as React.CSSProperties}>
+              {[7, 8, 9, 10].map((n) => (
+                <SousCarte key={n}>{tm('vivant.couche.carte', { n })}</SousCarte>
+              ))}
+            </div>
+          </Bloc>
+          <Bloc titre={tm('vivant.couche.mesures')}>
+            <div className="sd-rangee">
+              <Anneau valeur={0.64} libelle={tm('vivant.jauge.libelle')} ton="succes" />
+              <Gauge valeur={72} libelle={tm('vivant.jauge.libelle')} ton="info" />
+              <div className="sd-etroit">
+                <Barres donnees={BARRES} libelle={tm('graphiques.libelle')} hauteur={120} interactif={false} />
+              </div>
+              <MiniCourbe valeurs={TENDANCE} libelle={tm('graphiques.libelle')} ton="argent" />
+            </div>
+          </Bloc>
+          <Bloc titre={tm('vivant.couche.arrivee')}>
+            <ul className="sd-journal-liste">
+              <li {...arriveeLigne()} data-mvt-survol="ligne" className="sc-mono">
+                <span>10:42:07</span> <span>{tm('vivant.couche.ligne')}</span>
+              </li>
+            </ul>
+          </Bloc>
+        </div>
+        <Bloc titre={tm('vivant.couche.boucles')}>
+          <div className="sd-rangee">
+            <Cas legende={tm('vivant.couche.balayage')}>
+              <span className="sd-radar">
+                <span className="sd-radar__balai" data-mvt="balayage" />
+              </span>
+            </Cas>
+          </div>
+        </Bloc>
+        <Bloc titre={tm('vivant.couche.survols')}>
+          <div className="sd-rangee">
+            <Cas legende={tm('vivant.survol.carte')}>
+              <div className="sd-survol-carte" data-mvt-survol="carte">
+                {tm('vivant.couche.carte', { n: 1 })}
+              </div>
+            </Cas>
+            <Cas legende={tm('vivant.survol.bouton')}>
+              <Bouton variante="secondaire">{tm('bouton.libelle')}</Bouton>
+            </Cas>
+            <Cas legende={tm('vivant.survol.ligne')}>
+              <div className="sd-survol-ligne" data-mvt-survol="ligne">
+                {tm('vivant.couche.ligne')}
+              </div>
+            </Cas>
+          </div>
+        </Bloc>
+      </Bloc>
+    </Section>
+  );
+}
+
+/* ─────────────────────────────  18. Alignement § 4  ───────────────────────────── */
+
+const TAILLES_ANNEAU = [26, 34, 40, 48, 58, 72] as const;
+const TAILLES_CASE = [16, 18, 24] as const;
+const TAILLES_MONO = [11, 12.5, 14, 18] as const;
+/** Les motifs : hachures (en fond) et pointillés d'état (en bordure), posés par leur jeton. */
+const MOTIFS = [
+  { cle: 'hachureAttention', jeton: '--socle-hachure-attention', genre: 'fond' },
+  { cle: 'hachureGrise', jeton: '--socle-hachure-grise', genre: 'fond' },
+  { cle: 'pointilleOk', jeton: '--socle-pointille-ok', genre: 'bord' },
+  { cle: 'pointilleAttention', jeton: '--socle-pointille-attention', genre: 'bord' },
+] as const;
+
+function SectionAlignement() {
+  const { tm } = useMotsDemo();
+  const [niveau, setNiveau] = useState('a');
+  const [niveauCompact, setNiveauCompact] = useState('a');
+  const [recherche, setRecherche] = useState('');
+  const [cases, setCases] = useState<Record<number, boolean>>({ 16: true, 18: false, 24: true });
+  const niveaux = [
+    { cle: 'a', libelle: tm('alignement.niveau.a') },
+    { cle: 'b', libelle: tm('alignement.niveau.b') },
+    { cle: 'c', libelle: tm('alignement.niveau.c') },
+  ];
+  return (
+    <Section id="alignement">
+      <Bloc titre={tm('alignement.anneau')}>
+        <div className="sd-rangee">
+          {TAILLES_ANNEAU.map((t, i) => (
+            <Cas key={t} legende={tm('alignement.px', { n: t })}>
+              <Anneau valeur={(i + 2) / 8} libelle={tm('alignement.anneau.libelle')} taille={t} ton={i % 2 ? 'succes' : 'neutre'} />
+            </Cas>
+          ))}
+          <Cas legende={tm('alignement.anneau.centre')}>
+            <Anneau valeur={0.5} libelle={tm('alignement.anneau.libelle')} taille={34} ton="info">
+              3
+            </Anneau>
+          </Cas>
+        </div>
+      </Bloc>
+      <Bloc titre={tm('alignement.case')}>
+        <div className="sd-rangee">
+          {TAILLES_CASE.map((t) => (
+            <Cas key={t} legende={tm('alignement.px', { n: t })}>
+              <CaseACocher coche={cases[t]} taille={t} libelle={tm('alignement.case.libelle', { n: t })} onChange={(v) => setCases((c) => ({ ...c, [t]: v }))} />
+            </Cas>
+          ))}
+        </div>
+      </Bloc>
+      <Bloc titre={tm('alignement.segmente')}>
+        <div className="sd-rangee">
+          <Cas legende={tm('alignement.segmente.normal')}>
+            <Segmente libelle={tm('alignement.segmente.libelle')} options={niveaux} valeur={niveau} onChange={setNiveau} />
+          </Cas>
+          <Cas legende={tm('alignement.segmente.compact')}>
+            <Segmente libelle={tm('alignement.segmente.libelle')} options={niveaux} valeur={niveauCompact} onChange={setNiveauCompact} taille="compact" />
+          </Cas>
+        </div>
+      </Bloc>
+      <Bloc titre={tm('alignement.recherche')}>
+        <div className="sd-rangee">
+          <Cas legende={tm('alignement.px', { n: 34 })}>
+            <div className="sd-etroit">
+              <BoiteRecherche valeur={recherche} onChange={setRecherche} libelle={tm('alignement.recherche.libelle')} placeholder={tm('alignement.recherche.libelle')} raccourci="/" />
+            </div>
+          </Cas>
+          <Cas legende={tm('alignement.px', { n: 38 })}>
+            <div className="sd-etroit">
+              <BoiteRecherche valeur={recherche} onChange={setRecherche} libelle={tm('alignement.recherche.libelle')} placeholder={tm('alignement.recherche.libelle')} raccourci="/" hauteur={38} />
+            </div>
+          </Cas>
+        </div>
+      </Bloc>
+      <Bloc titre={tm('alignement.mono')}>
+        <div className="sd-rangee">
+          {TAILLES_MONO.map((t) => (
+            <Cas key={t} legende={tm('alignement.px', { n: t })}>
+              <Mono taille={t}>10:42:07</Mono>
+            </Cas>
+          ))}
+          <Cas legende={tm('alignement.mono.time')}>
+            <Mono as="time" dateTime="10:42:07" taille={12.5}>
+              10:42:07
+            </Mono>
+          </Cas>
+          <Cas legende={tm('alignement.mono.code')}>
+            <Mono as="code" taille={12}>
+              FAC-0142
+            </Mono>
+          </Cas>
+        </div>
+      </Bloc>
+      <Bloc titre={tm('alignement.motifs')}>
+        <div className="sd-rangee">
+          {MOTIFS.map((m) => (
+            <Cas key={m.cle} legende={tm(`alignement.motif.${m.cle}`)}>
+              <span
+                role="img"
+                aria-label={tm(`alignement.motif.${m.cle}`)}
+                className="sd-motif"
+                data-genre={m.genre}
+                style={{ '--sd-motif': `var(${m.jeton})` } as React.CSSProperties}
+              />
+            </Cas>
+          ))}
+        </div>
+        <p className="sd-note">{tm('alignement.motifs.note')}</p>
+      </Bloc>
+      <Bloc titre={tm('alignement.vide')}>
+        <div className="sd-etroit">
+          <EtatVide icone={<FolderOpen />} titre={tm('alignement.vide.titre')} texte={tm('alignement.vide.texte')} action={<Bouton variante="secondaire" icone={<Plus />} onClick={SANS_ACTION}>{tm('alignement.vide.action')}</Bouton>} />
+        </div>
+      </Bloc>
+    </Section>
+  );
+}
+
 /* ─────────────────────────────  La page  ───────────────────────────── */
 
 /** Remet le réglage Mouvement dans l'état où la page l'a trouvé quand elle se démonte. */
@@ -1692,6 +2063,152 @@ function useRestaurerMouvement(): void {
     return () => ecrireMouvement(avant);
   }, []);
 }
+
+/* ─────────────────────────────  17. Les briques partagées (v3, STATUT §1.10 point 1)  ───────────────────────────── */
+
+const TAILLES_TUILE = [22, 26, 28, 36, 38, 42, 44, 48] as const;
+const TONS_TUILE = ['neutre', 'succes', 'attention', 'critique', 'info'] as const;
+const ETATS_BRIQUES = ['succes', 'attention', 'critique', 'info', 'neutre'] as const;
+const GLYPHES_BRIQUES = [Calendar, Users, FileText, Mail, FolderOpen, Bell] as const;
+
+function SectionBriques() {
+  const { tm } = useMotsDemo();
+  const [choisi, setChoisi] = useState(MODULES[0].id);
+  const [vue, setVue] = useState('tous');
+  const comptes = useMemo(comptesFictifs, []);
+  const icone = (i: number) => {
+    const Glyphe = GLYPHES_BRIQUES[i % GLYPHES_BRIQUES.length];
+    return <Glyphe />;
+  };
+  const tuile = (m: (typeof MODULES)[number], i: number, accessoire?: React.ReactNode, sousTexte?: string) => (
+    <ModuleTile key={m.id} nom={m.titre} famille={m.famille} icone={icone(i)} sousTexte={sousTexte} accessoire={accessoire} actif={choisi === m.id} onClick={() => setChoisi(m.id)} />
+  );
+  return (
+    <Section id="briques">
+      <Bloc titre={tm('briques.tuile')}>
+        <div className="sd-rangee">
+          {TAILLES_TUILE.map((t) => (
+            <Cas key={t} legende={`${t} px`}>
+              <IconTile taille={t} famille="contacts" icone={<Users />} />
+            </Cas>
+          ))}
+        </div>
+        <div className="sd-rangee">
+          {TONS_TUILE.map((ton) => (
+            <Cas key={ton} legende={tm(`briques.ton.${ton}`)}>
+              <IconTile taille={36} ton={ton} icone={<Bell />} />
+            </Cas>
+          ))}
+          <Cas legende={tm('briques.tuile.d02')}>
+            <IconTile taille={22} famille="argent" part={10} bordure icone={<FileText />} />
+          </Cas>
+          <Cas legende={tm('briques.tuile.h41')}>
+            <IconTile taille={26} famille="contacts" part={14} icone={<Users />} />
+          </Cas>
+          <Cas legende={tm('briques.tuile.garde')}>
+            <IconTile taille={28} famille="garde" icone={<Bell />} />
+          </Cas>
+          <Cas legende={tm('briques.tuile.nommee')}>
+            <IconTile taille={38} famille="creer" libelle={tm('briques.tuile.nommee')} icone={<FolderOpen />} />
+          </Cas>
+        </div>
+      </Bloc>
+      <Bloc titre={tm('briques.compteur')}>
+        <div className="sd-rangee">
+          <Cas legende={tm('briques.compteur.standard')}>
+            <CountBadge n={comptes.aFaire} />
+          </Cas>
+          <Cas legende={tm('briques.compteur.critique')}>
+            <CountBadge n={2} critique />
+          </Cas>
+          <Cas legende={tm('briques.compteur.laterale')}>
+            <CountBadge n={comptes.factures} variante="laterale" />
+          </Cas>
+          <Cas legende={tm('briques.compteur.texte')}>
+            <CountBadge n={comptes.clients} variante="texte" />
+          </Cas>
+          <Cas legende={tm('briques.compteur.plafond')}>
+            <CountBadge n={120} />
+          </Cas>
+          <Cas legende={tm('briques.compteur.zero')}>
+            <span className="sd-note">{tm('briques.compteur.rien')}</span>
+            <CountBadge n={0} />
+          </Cas>
+        </div>
+      </Bloc>
+      <Bloc titre={tm('briques.module')}>
+        <div className="sd-rangee">
+          <Cas legende={tm('briques.module.standard')}>
+            <div className="sd-modules">
+              {tuile(MODULES[0], 0, <CountBadge n={comptes.aFaire} />, tm('briques.sous.afaire', { n: comptes.aFaire }))}
+              {tuile(MODULES[1], 1, <StatusPill etat="succes">{tm('briques.etat.succes')}</StatusPill>, tm('briques.sous.clients', { n: comptes.clients }))}
+              {tuile(MODULES[2], 2, <LiveDot libelle={tm('briques.direct')} afficherLibelle onde={false} halo={false} taille={6} />)}
+              <AddModuleTile onClick={() => setChoisi(MODULES[0].id)} />
+            </div>
+          </Cas>
+          <Cas legende={tm('briques.module.ligne')}>
+            <div className="sd-puces">
+              {MODULES.slice(0, 5).map((m, i) => (
+                <ModuleTile key={m.id} variante="ligne" nom={m.titre} famille={m.famille} icone={icone(i)} tuile={{ part: 10, bordure: true }} onClick={() => setChoisi(m.id)} />
+              ))}
+              <AddModuleTile variante="ligne" onClick={() => setChoisi(MODULES[0].id)} />
+            </div>
+          </Cas>
+        </div>
+      </Bloc>
+      <Bloc titre={tm('briques.groupe')}>
+        <div className="sd-etroit sd-etroit--large">
+          <ModuleGroupGrid titre={tm('briques.groupe.a')} colonnes={3} onAjouter={() => setChoisi(MODULES[0].id)}>
+            {MODULES.slice(0, 5).map((m, i) => tuile(m, i, i === 0 ? <CountBadge n={comptes.aFaire} /> : undefined))}
+          </ModuleGroupGrid>
+          <ModuleGroupGrid titre={tm('briques.groupe.b')} colonnes={2}>
+            {MODULES.slice(3).map((m, i) => tuile(m, i + 3))}
+          </ModuleGroupGrid>
+        </div>
+      </Bloc>
+      <Bloc titre={tm('briques.entete')}>
+        <div className="sd-etroit sd-etroit--large">
+          <Cas legende={tm('briques.entete.boutons')}>
+            <PageHead
+              titre={tm('briques.entete.titre')}
+              sousTitre={tm('briques.entete.sous')}
+              secondaires={[{ libelle: tm('briques.entete.secondaire'), icone: <Settings aria-hidden />, infobulle: tm('briques.entete.secondaire') }]}
+              primaire={{ libelle: tm('briques.entete.primaire'), icone: <Plus aria-hidden /> }}
+            />
+          </Cas>
+          <Cas legende={tm('briques.entete.controles')}>
+            <PageHead
+              titre={tm('briques.entete.titre')}
+              sousTitre={tm('briques.entete.sous')}
+              controles={
+                <Segmente
+                  libelle={tm('briques.entete.controles')}
+                  valeur={vue}
+                  onChange={setVue}
+                  options={[
+                    { cle: 'tous', libelle: tm('briques.entete.tous') },
+                    { cle: 'miens', libelle: tm('briques.entete.miens') },
+                  ]}
+                />
+              }
+            />
+          </Cas>
+        </div>
+      </Bloc>
+      <Bloc titre={tm('briques.pastille')}>
+        <div className="sd-rangee">
+          {ETATS_BRIQUES.map((e) => (
+            <Cas key={e} legende={tm(`briques.ton.${e}`)}>
+              <StatusPill etat={e}>{tm(`briques.etat.${e}`)}</StatusPill>
+            </Cas>
+          ))}
+        </div>
+      </Bloc>
+    </Section>
+  );
+}
+
+/* ─────────────────────────────  La page  ───────────────────────────── */
 
 export function PageDemoSocle() {
   const { tm } = useMotsDemo();
@@ -1763,6 +2280,9 @@ export function PageDemoSocle() {
         <SectionGabarit />
         <SectionEtats />
         <SectionMouvement />
+        <SectionVivant />
+        <SectionBriques />
+        <SectionAlignement />
       </div>
     </div>
   );

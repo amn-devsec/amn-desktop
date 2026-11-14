@@ -440,9 +440,11 @@ const jeton = (nom: string) => {
 await dit('les valeurs validées par Harun', () => {
   assert.equal(jeton('socle-fond').toLowerCase(), '#0c0c0d');
   assert.equal(jeton('bg').toLowerCase(), '#0c0c0d');
-  assert.equal(jeton('socle-surface').toLowerCase(), '#131314');
-  assert.equal(jeton('socle-eleve').toLowerCase(), '#161617');
-  assert.equal(jeton('socle-bord').toLowerCase(), '#232325');
+  // v4 (06-V4 §3, règle 2 ; sources néon) : surface, élevé et bord suivent les cartes — #111113 → #19191c, bord #2a2a2e
+  // (v3 : #131314, #161617, #232325).
+  assert.equal(jeton('socle-surface').toLowerCase(), '#111113');
+  assert.equal(jeton('socle-eleve').toLowerCase(), '#19191c');
+  assert.equal(jeton('socle-bord').toLowerCase(), '#2a2a2e');
   assert.equal(jeton('socle-texte').toLowerCase(), '#ededed');
   assert.equal(jeton('socle-texte-doux').toLowerCase(), '#8a8a8e');
 });

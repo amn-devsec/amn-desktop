@@ -28,6 +28,9 @@ import path from 'node:path';
 
 const RACINE = path.resolve(new URL('..', import.meta.url).pathname);
 const CSS = path.join(RACINE, 'src/index.css');
+/* Le socle de la refonte, que `src/index.css` importe par la couture `@edition/socle-theme.css` (édition interne) : ses
+   jetons comptent autant que ceux de la feuille commune — ils y vivaient avant d'en sortir (C-001). */
+const CSS_SOCLE = path.join(RACINE, 'src/socle/theme.css');
 
 /* Les valeurs du paquet de design que le dépôt a explicitement REFUSÉES, avec
    la raison — un contrôle qui dit « interdit » sans dire pourquoi se contourne
@@ -38,7 +41,7 @@ const REFUSEES = new Map([
 
 /* On lit les jetons dans la feuille plutôt que de les redéclarer : une liste
    recopiée ici serait exactement la faute que ce fichier traque. */
-const feuille = fs.readFileSync(CSS, 'utf8');
+const feuille = `${fs.readFileSync(CSS, 'utf8')}\n${fs.readFileSync(CSS_SOCLE, 'utf8')}`;
 const jetons = new Map();
 for (const [, nom, valeur] of feuille.matchAll(/^\s*(--color-[\w-]+):\s*(#[0-9a-fA-F]{3,8})\s*;/gm)) {
   jetons.set(valeur.toLowerCase(), nom);

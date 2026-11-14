@@ -12,7 +12,11 @@ export { Etiquette, PastilleEtat, Avatar, PileAvatars, Raccourci, initiales, tei
 export { CaseACocher, LigneTache, type CaseACocherProps, type LigneTacheProps } from './Taches';
 export { EtatVide, Squelette, Chargement } from './Etats';
 export { LigneActivite, EtapeFranchie } from './Activite';
+export { Mono, tailleMono, TAILLE_MONO_MIN, TAILLE_MONO_MAX, type MonoProps } from './Mono';
 export * from './situations';
 export * from './graphiques';
 export * from './archetypes';
 export * from './controles';
+export * from './vivant';
+export * from './briques-partagees';
+export * from './noms';

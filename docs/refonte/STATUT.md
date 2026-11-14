@@ -4,25 +4,25 @@
 
 ## REPRISE (à lire en premier après une compaction ; tenu par le CO, réécrit à chaque tour)
 
-Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `dabcd1e`.
+Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `ed3bdcb`.
 
-**Avoirs** : SIM a refait sa branche par-dessus le retrait (`7570fef`, fusionnée). Les avoirs sont désormais facultatifs (`construireMonde({ avoirs: true })`). Quand DS les lit, SIM passe `avoirs` à `true` par défaut, une ligne dans `monde.ts`.
+**Avoirs** : réglé, ils sont présents par défaut (`b0173f3`).
 
 **Si la limite d'utilisation coupe le CO** : à la reprise (un message de Harun, une session, ou le réveil programmé), relire ce bloc, faire `git fetch` des branches `claude/refonte-*`, puis reprendre la boucle (lister, lire, contrôler, fusionner, répondre, mettre à jour). Réveil du CO : `send_later`, toutes les 20 min tant que des sessions travaillent, 45 min quand toutes attendent (consigne de Harun), réarmé à chaque tour.
 
 | Session | Identifiant | État | Prochain geste |
 |---|---|---|---|
-| S0 Socle | `session_01SJe828c2W5EnkMY4fhFY6z` | passe finale v4 finie (`888f7a0`) ; corrige `ancres` et `avoirs` | puis ce que T1 signale |
-| T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | passage 2 sur `888f7a0` en cours (avec le delta d'`ancres` et `avoirs` de S0) | son verdict → fusion du socle v4 et allumage (§1.9) ; puis `check:fidelite` (§1.30) |
+| S0 Socle | `session_01SJe828c2W5EnkMY4fhFY6z` | passe finale v4 finie (`888f7a0`) ; correctifs `ancres` et `avoirs` prêts mais **attend l'accord direct de Harun** pour pousser | ligne à coller par Harun (POINT-HARUN) ; puis ce que T1 signale |
+| T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | passage 2 fini : socle fusionné (§1.35) | C-008 (gardes sous la coquille v4), puis `check:fidelite` sur chaque lot, priorité 2 |
 | S6 Sécurité | `session_01RHV8Xq2txWkfjAusKvq9DG` | LOT-07 préparation (`afdbccf`) ; **sans zips v4** ; une étape de sécurité attend amn-api | fusion après le contrôle du paquet client par T1 |
-| SIM | `session_011UF2ufZg9moGv2rRZFRuf7` | `7570fef` fusionné (jeux de LOT-11, avoirs sur demande) ; **sans dossier v4** | fidélité, H05, LOT-03, règlements partiels, remises, MR08, résumé de DEV-serveur ; avoirs par défaut quand DS est prêt |
-| DS | `session_01TZGDvVWristJnnPK59rruY` | LOT-04 avec les avoirs, fusionné (§1.34) | appliquer §1.33, comparer H09 aux attendus de SIM |
-| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | LOT-03, registre et LOT-05 fusionnés (§1.32) | attend le socle v4 |
-| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | LOT-02 relu avec le v4 et fusionné (§1.31) ; a les zips | attend le socle v4 |
-| S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | préparation v4 fusionnée (`526cd63`) | attend le socle v4 |
-| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | en pause ; ses jeux sont livrés par SIM | feu vert de l'étape 3 au socle v4 |
+| SIM | `session_011UF2ufZg9moGv2rRZFRuf7` | tout fusionné (`b0173f3`, 115 jeux) ; **sans dossier v4** | listes « Manque aux données » des lots à venir |
+| DS | `session_01TZGDvVWristJnnPK59rruY` | **construit LOT-04** | lots de 3 à 5 écrans → T1 → fusion |
+| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | **construit LOT-03, puis LOT-05** | lots de 3 à 5 écrans → T1 → fusion |
+| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **construit LOT-02** (feu vert le 14 nov., 08h) | lots de 3 à 5 écrans → `check:fidelite` de T1 → fusion |
+| S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **construit LOT-06** | lots de 3 à 5 écrans → T1 → fusion |
+| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | **construit LOT-11** (étape 3) | lots de 3 à 5 écrans → T1 → fusion |
 | S9 | `session_01C5DAVygXYax6Q7g436TPQx` | LOT-12 fini, valeurs de MC07 fusionnées (`bcdc65f`) | rien |
-| S2, S3 (première tâche : `check:encres`), F1 | `session_014ZkF6SeGRNi6NR3uEsjM5q`, `session_01FBSpK6n1yYtYXYyxbLAuBV`, `session_01VZHqP3gvzrtnpgsTrrKguV` | arrêtées | relancer au socle v4 (prompts : `PROMPTS-11NOV.md`, §1.21) |
+| S2, S3 (première tâche : `check:encres`), F1 — **relancés le 14 nov., 08h** | `session_014ZkF6SeGRNi6NR3uEsjM5q`, `session_01FBSpK6n1yYtYXYyxbLAuBV`, `session_01VZHqP3gvzrtnpgsTrrKguV` | arrêtées | relancer au socle v4 (prompts : `PROMPTS-11NOV.md`, §1.21) |
 
 **À dire au prochain message** : à T1, (a) La Garde dans l'API d'essai demande une base sur fichier (SIM), (b) comparer le paquet client de `claude/refonte-outils` @ `f52ef5d` (`AutomationsRunner.tsx` partagé) avant sa fusion.
 
@@ -40,10 +40,17 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 | Jour | Construits | Livrés (cumul) | Livrés depuis la veille | Lots préparés | Lots finis | Note |
 |---|---|---|---|---|---|---|
-| 14 nov. | 9 / 153 | 0 | 0 | 7 / 13 | 0 / 13 | les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. La note de LOT-08 n'est pas fusionnée. |
+| 14 nov. | 9 / 153 | 9 (LOT-00, socle v4) | 9 | 8 / 13 | 0 / 13 (LOT-00 attend l'allumage) | les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. La note de LOT-08 n'est pas fusionnée. |
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov., 08h20 : LOT-01 préparation fusionnée (S2). La série suit la clôture des priorités ; S2 peut modifier une ligne de `calculer.ts` du socle, puisque S0 est bloqué ; moment `defi.tenu` accepté (§1.36).
+- 14 nov., 08h : DS demande l'accord direct de Harun avant de construire, et n'a pas accès à amn-api : ses captures passent par l'aperçu statique, comme pour S0, et T1 garde les captures sur API. La session de S3 a refusé l'édition d'`equipes.ts` (C-007) : il faut l'accord de Harun. S3 n'a pas les zips v4. Lignes à coller dans `POINT-HARUN.md`.
+- 14 nov., 08h : **socle v4 fusionné** (`a76c201`) après le feu vert de T1. La coquille n'est pas allumée par défaut (conditions de T1, §1.35). Feu vert à la construction des écrans pour tous les lots préparés.
+- 14 nov., 05h25 : outils de T1 fusionnés (`be05376`) : contrôle de fidélité v4, garde `check:fidelite` (tests unitaires 2 sur 2), conditions de la coquille v4. Gardes vertes. Le verdict du passage 2 sur le socle est toujours attendu.
+- 14 nov., 05h : **S0, deuxième échec sur le même point** (anti-blocage, règle C). Diagnostic : S0 ne pousse pas sur un message d'une autre session, et attend l'accord direct de Harun. Ce n'est pas un défaut de travail : c'est une règle de prudence de la session. Tentatives : deux messages du CO, dont un avec la règle de `REGLES.md`. Correctif proposé par S0 et retenu par le CO : un pont `@edition/moments` séparé, avec son jumeau `*.business`. Mis dans `POINT-HARUN.md`, une ligne à coller par Harun. Rien d'autre n'est bloqué par là.
+- 14 nov., 04h30 : S0 s'était arrêté pour demander une confirmation avant de corriger `ancres` et `avoirs`. Le CO l'a relancé avec carte blanche dans son cadre (règle « Messages du CO »). Première relance sur ce point.
+- 14 nov. : données de SIM `b0173f3` fusionnées : avoirs par défaut, rôles du serveur, jeu `serveur`. Gardes lues avant le push, toutes vertes (les trois rouges annoncés par SIM étaient déjà réglés sur `refonte-vivante`).
 - 14 nov. : jeux de SIM `541b2bd` fusionnés avec les adaptations de S1 (`c06c8f3`), DS (`d99a197`) et S5 (`17a89e7`, `76a1ed8`), en une passe (`dabcd1e`). Gardes lues avant le push : contacts 93, argent 70, ecrire 99, echanger 94, donnees 116 ; aucune garde nouvelle rouge.
 - 14 nov. : jeux de SIM `541b2bd` (fidélité de MC02, statut H05, liste de LOT-03, règlements partiels, remises, MR08) **pas encore fusionnés**. Ils rendent `check:contacts`, `check:argent` et `check:ecrire` rouges, par des changements commandés. S1, DS et S5 adaptent leur logique, puis le CO fusionne quand les trois sont verts dessus.
 - 14 nov. : arbitrage S6 / S9. S6 étend le modèle des connecteurs (zone de S9, en pause) pour les devises et les plafonds : champs facultatifs seulement, aucune somme mêlant € et $, `check:connecteurs` étendu sans rien assouplir, une ligne dans le rapport de S9.
@@ -732,6 +739,43 @@ LOT-04 fusionné : `check:argent` passe ses 70 propriétés, avec et sans les av
 | 6 | Où vit l'état des prises de H21 | **Sur le poste** pour l'instant (local d'abord). Les clés ne sont jamais sur le poste, elles restent chez amn-api. L'état passera au serveur avec LOT-13. |
 | 7 | Devise et plafonds des tarifs | **Tels que publiés** : un prix en dollars reste en dollars, avec la mention « publié en dollars », sans conversion inventée. Le plafond par transaction est indiqué comme publié. |
 
+### 1.35 Socle v4 fusionné (14 nov., 08h) ; coquille pas encore allumée par défaut
+
+**Passage 2 de T1 sur `888f7a0` : feu vert à la fusion.** Rapport : `docs/qualite/SANTE.md` « Passage 2 » (claude/refonte-qualite @ `e4d20af`, fusionnée).
+- L'édition cliente est intacte : le JS du paquet client ne contient que les coutures vides, aucun mot interdit, et pas de `data-famille-active`.
+- 59 `check:*` d'`editions.yml` sont verts, ainsi que le typecheck et lint.
+- Les trois conditions du §1.25 tiennent : attribut de famille posé et retiré en direct ; aucune animation infinie en mouvement réduit ; contraste mesuré sur les pixels, 1 136 textes, dont un seul à 4,49:1 (C-010).
+
+**Fusionné** : `a76c201`, puis les outils de T1, puis `check:fidelite` et `test:fidelite` branchés (`9759cbd`). Seul conflit : des ajouts côte à côte dans `package.json` et `editions.yml`, tous gardés, sans doublon. Gardes lues avant le push : aucune garde rouge nouvelle, aucune garde d'`editions.yml` rouge, typechecks et lint verts.
+
+**Allumage de la coquille par défaut (§1.9) : pas encore.** T1 ne le valide pas tant que ces points restent ouverts :
+- **C-006** (S0) : tutoiement. 6 chaînes visibles sur LOT-00 et la coquille, plus 79 lignes sur 19 autres écrans. `check:tutoiement` est vert parce qu'il ne lit que les 353 textes du dictionnaire : il faut l'étendre au rendu.
+- **C-007** (S3) : `check:encres`, des copies de jetons dans `src/refonte/garde/equipes.ts`.
+- **C-008** (T1) : sous la coquille v4, les gardes navigateur ne trouvent que 15 écrans sur 142. Elles sont à adapter avant toute certification, et le faux rouge de `check:contraste` (texte sombre sur dégradé néon) aussi.
+- Les correctifs `ancres` et `avoirs` (S0) ; l'ancienne garde `check:coquille` interne, à adapter (S0) ; C-005, CSS inerte dans le paquet client, 64 sélecteurs (S0) ; C-009, un compte neuf qui voit H42 fait planter `check:contraste` (S0 ou T1) ; C-010, encre T4 à `#8b8b8f` (S0).
+
+**Fidélité de LOT-00** (mesures de T1, écart brut à ± 2 px, valeurs acceptées dans `docs/qualite/fidelite/acceptes-LOT-00.json`) : G09 13,3 · G06 11,4 · H42 18,1 · H40 20,0 · H47 21,3 · H41 22,7 · H43 27,6 · D02 30,6 · G05 43,4 %. En disposition (couleur à ± 10), tous les écrans sont sous 15 %. Les écarts justifiés sont dans `justifies-LOT-00.json`.
+
+**Feu vert à la construction des écrans**, derrière le drapeau de la coquille. La coquille reste éteinte par défaut ; on l'allume dans Paramètres › Nouvelle coquille. Pour chaque lot :
+- un commit par écran, et un push par lot de 3 à 5 écrans ;
+- avant de signaler au CO : `check:tutoiement` et la garde du lot ;
+- avant la fusion : T1 passe `check:fidelite`.
+
+### 1.36 LOT-01 préparation (S2, `09a0a28`) : fusionnée, décisions du CO
+
+Fusionnée. Les gardes, lues avant le push, sont vertes : `check:journee` (45), aucune garde nouvelle rouge, typechecks et lint. **S2 n'a pas les zips v4** : rien n'est construit, et les écrans sans fiche lue restent « à faire ». La session de S2 n'a pas pu écrire dans STATUT : le CO a reporté ses lignes au §7.
+
+| # | Question de S2 | Décision |
+|---|---|---|
+| 1 | Trois définitions de « série » | **(c), la clôture des priorités du jour**, comme le dit la règle du §1.10 (« Série = clôture des 3 priorités »). `calculerAujourdhui` (fichier de S0, qui attend Harun) passe à `serieDeLaJournee` : **S2 est autorisé à faire ce changement d'une ligne**, avec `check:socle-vivant` et les gardes du socle verts. SIM aligne ses attendus H04 et H25. |
+| 2 | Pas de priorités du jour dans les jeux | **Commandé à SIM** : un jeu `dailyPriorities`. |
+| 3 | H25 « même règle que N01 » | **Le fil du jour de N01**, comme le dit le texte cité de la fiche. **Provisoire**, à relire avec la fiche. |
+| 4 | Engagements écrits de L07 | Ils demandent une collection nouvelle : la question rejoint la liste présentée à Harun. D'ici là, l'invitation à écrire son engagement s'affiche, et l'enregistrement est « non disponible », avec la raison. |
+| 5 | Moment `defi.tenu` (ton `fete`) | **Accepté.** S2 l'ajoute au catalogue et à la liste de `check:moments`. |
+| 6 | Agrégats Stripe de G08 | Une demande à amn-api (Harun et Mohamed). Aucune clé ne passe par le poste. |
+| 7 | Routes de G08, H03 et MJ05 | À lire sur les fiches, quand S2 aura les zips. |
+| 8 | Périmètre de `check:tutoiement` | Ajout de `src/refonte/journee` : **accepté**. |
+
 ## 2. Les lots
 
 Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en parallèle, une branche chacun ; **LOT-09 en dernier**. Les chiffres viennent de `03-INDEX.md` : 9 + 16 + 13 + 9 + 17 + 10 + 15 + 16 + 12 + 11 + 14 = **142**. (Le tableau du fichier 00 compte G05 dans LOT-05 ; l'index et les prompts le rangent dans LOT-00. Le CO suit l'index.)
@@ -858,44 +902,144 @@ Total : 142 écrans = 0 re-habillage + 105 mixtes + 37 nouveaux (types de l'inde
 
 ### LOT-00 · Système et démarrage — `claude/refonte-socle` — 9 écrans
 
-8 sur 8 faits par S0, **fusionné** (`488cdcc`, rapport [`rapports/LOT-00.md`](rapports/LOT-00.md)). Aucune capture, l'app n'ayant pas été lancée : T1 les fera au passage 2.
+**v2** : 8 sur 8 faits, **fusionné** (`488cdcc`). **v3** (design v3 du dirigeant, 1er nov.) : les 8 écrans refaits, plus **G09 Écran de veille** (ajout du dirigeant, 4 nov.), la coquille v3, la couche de mouvement et les composants du §0.4, **et, le 6 nov., le socle v3 complet du §1.10** : briques partagées, `useAujourdhui`, mécanisme de substitution (§1.3), `check:coquille` sur la barre v3, audit du §4 et du §1.2, réglages propres des écrans : sur la branche, **à fusionner**. `refonte-vivante` (`fc1623e`) y est fusionnée : la fusion sera directe. Le dossier complet (fidélité écran par écran, écarts de T1 corrigés et laissés, écarts v3, écarts du socle complet, questions) : [`rapports/LOT-00.md`](rapports/LOT-00.md).
+
+Captures : faites par S0 **sans lancer l'app** (aperçu statique `file://` des vrais composants de chaque écran sur données fictives, `npm run apercu -- <ID>`, capture et comparaison avec l'outil de T1) ; T1 refera les siennes au passage 2. Pourcentages ci-dessous : pixels hors ± 2 px, données d'exemple écartées. Après le socle complet, les 13 aperçus (9 écrans, 4 en coquille) sont **identiques au pixel** à ceux d'avant (0 px d'écart), donc mêmes pourcentages.
+
+**Captures v4 (point 9 de la passe finale, 12 nov.)** : les 9 écrans et les 4 aperçus en coquille, capturés à 1440 × 900 et comparés aux images v4 (`AMN-Business-dossier-v4/images`) par l'outil de T1, **en brut** (aucune zone de données d'exemple écartée, contrairement aux pourcentages v3 de la colonne « Écart / note » ; coquilles : zone principale écartée). Avant → après les corrections du point 9 :
+
+| Aperçu | Écart brut v4 | Ce qui reste (écarts gardés ou à T1) |
+|---|---|---|
+| H40 | 16,3 % → **14,5 %** | données fictives de l'aperçu (contenus des fils, anneau) |
+| H41 | 19,9 % → **19,9 %** | la page derrière la palette (vide dans l'aperçu, remplie dans l'image) ; pas d'effectif, de contacts ni de note épinglée (aucune source) |
+| H42 | 10,4 % → **9,9 %** | données fictives (étapes, papier) ; pas de référent ni de créneaux |
+| H47 | 15,7 % → **15,3 %** | totaux réels des modèles (10 à 12 au lieu de 20) ; encarts automatisations et modèles absents |
+| H43 | 36,6 % → **24,0 %** | fonds des mini-fenêtres (à ± 4 niveaux sur de grandes surfaces, comptés en entier) ; contenus des neuf situations |
+| D02 | 24,9 % → **12,2 %** | lignes du registre : **écart gardé** (§1.18 : l'ordre et les comptes du registre font foi), hors pourcentage |
+| G06 | 24,8 % → **12,3 %** | « Bon retour, Aaron », compte enregistré, clé d'accès et lien par e-mail : n'existent pas dans le dépôt (fiche §8), non dessinés |
+| G05 | 39,1 % → **39,1 %** | la page derrière le voile (l'image montre l'Accueil rempli) ; « Préparer les relances » au lieu d'« Envoyer » ; pas de ligne « Objet » |
+| G09 | 19,5 % → **3,4 %** | orbites et balayage (mouvement figé à un autre instant) |
+| Coquille H40 / H42 / H47 / D02 | 3,7 / 2,8 / 3,2 / 10,1 % → **3,6 / 2,6 / 2,8 / 10,0 %** | la section « ESPACES DE TRAVAIL » (Développement), absente des images antérieures à §1.17 ; D02 : la page derrière le voile |
 
 | ID | Écran | Type | État | Écart / note |
 |---|---|---|---|---|
-| H40 | Système · Notifications | mixte | fait | `/notifications`, cloche de l'en-tête. Seul le canal « App » a des émetteurs ; mail et mobile : filtres seulement |
-| H41 | Système · Recherche ⌘K | mixte | fait | « Écrire à X » ouvre `mailto:` ; pas de ⌘↵ (fenêtre unique d'Electron) |
-| H42 | Système · Démarrage | mixte | fait | `/demarrage`, une fois, à la toute première connexion. Étapes 5 et 6 (paiement, appareil mobile) manuelles : aucune donnée de connecteur |
-| H47 | Système · Choisir son métier | mixte | fait | `/demarrage/metier`. Réglage personnel, pas d'organisation ; « Passer » ne masque aucun module |
-| H43 | Système · États et messages | nouveau | fait | `/dev/etats`, en développement seulement, et les briques `situations` |
-| D02 | Système · Tous les modules | mixte | fait | Comptes par famille tirés du registre (14 / 7 / 12 / 12 / 15 / 7 / 19 / 15), pas de la maquette (12 / 14 / 9 / 18 / 10 / 16 / 14 / 8). Total 101 et niveaux 16 / 62 / 23 conformes |
-| G06 | Système · Connexion | mixte | fait | `/login`. « Demandez un accès » affiche un texte, sans flux de demande ; « 12 organisations » est une constante de présentation à valider |
-| G05 | Échanger · Ajmani, barre ⌘J ouverte | mixte | fait | Prépare un brouillon de relance, n'envoie rien ; « Décrire » passe à l'assistant existant |
-| G09 | Système · Écran de veille | nouveau | fait dans le socle v3 (non fusionné) | Ajouté le 6 nov. Capture comparée : 0 % hors ± 2 px. Verrouillage : écart gardé (§1.12). Bascule avec la nouvelle coquille |
+| H40 | Système · Notifications | mixte | fait (v4) | 0,22 %. Seul le canal « App » a des émetteurs ; niveau de bruit et silence enregistrés sans émetteur (effet : pointillé de l'anneau) ; pas de « lu par … » (aucune source) ; « Réglages » ouvre la rubrique Notifications des Paramètres |
+| H41 | Système · Recherche ⌘K | mixte | fait (v4) | palette 0,62 % ; pas de ⌘↵ (fenêtre unique d'Electron) ; pas d'effectif, de contacts ni de note épinglée dans l'aperçu (aucune source) |
+| H42 | Système · Démarrage | mixte | fait (v4) | 0,33 % ; une fois, à la toute première connexion ; « Créer le devis » ouvre les clients (aucun devis prérempli, H07) ; étapes 5 et 6 manuelles ; pas de référent ni de créneaux (→ `/assistance`) |
+| H47 | Système · Choisir son métier | mixte | fait (v4) | 0,51 % ; réglage personnel ; totaux réels des modèles (10 à 12) au lieu de 20 ; encarts automatisations et modèles absents (les modèles de métier n'en créent pas) |
+| H43 | Système · États et messages | nouveau | fait (v4) | 0,72 % ; `/dev/etats` (développement seulement) et les briques `situations` compactes ; `BlocEtat` passe par `IconTile` |
+| D02 | Système · Tous les modules | mixte | fait (v4) | vraie page de la coquille (plus un panneau) ; 0,30 % hors lignes du registre ; comptes du registre (14 / 7 / 11 / 13 / 15 / 7 / 19 / 15), la 4ᵉ colonne défile dans sa carte ; Cyber « 9 espaces » (catalogue) ; tuiles, grille des épinglés et tuile d'ajout = `ModuleTile`, `ModuleGroupGrid`, `AddModuleTile` |
+| G06 | Système · Connexion | mixte | fait (v4) | 0,09 % hors balayage et méthodes absentes ; clé d'accès, lien par e-mail et compte enregistré n'existent pas dans le dépôt : non dessinés (fiche §8) ; authentification inchangée (`check:systeme-connexion`) ; « 12 organisations » : texte fixe |
+| G05 | Échanger · Ajmani ⌘J | mixte | fait (v4) | bandes à ± 1 px ; « Préparer les relances » au lieu d'« Envoyer » (n'envoie rien) ; pas de ligne « Objet » ni de modèle approuvé (aucune source) |
+| G09 | Système · Écran de veille | nouveau | fait (v4) | 0,00 % ; derrière le drapeau de la coquille (éteint : le voile d'avant) ; jamais pendant un appel, un partage, une dictée ou une vidéo ; **aucun verrouillage après inactivité n'existe** (écart gardé, §1.12) : délai enregistré sans effet, « Espace verrouillé » non affiché ; réglage « Écran de veille » dans Paramètres (surface propre, 6 nov.) |
 
-Questions de S0 et réponses du CO :
+**Passe finale v4 (12 nov., §1.13 et §1.14) : points 1 à 9 faits, et les compléments du CO (§1.17).** Un commit par point sur la branche :
+
+| Point | État | Commit |
+|---|---|---|
+| 1. Les six constats de la seconde passe adverse, et « -0,00 € » | fait : `Segmented` choisi en T1 au survol (`:where`), `Kpi` avec infobulle complète et rien sous la mini-courbe, gardes `check:socle-briques` / `check:socle-situations` (tuile de `BlocEtat` sous toute écriture), `check:socle` (liste de sélecteurs entière), `check:coquille` (`color(srgb …)` lu, `oklch` / `lab` / `lch` refusés), rangées de `/dev/socle`, `formaterMontant` | `8815d6d` |
+| 2. Réponses du CO aux 14 questions | fait : zones de clic de 34 px invisibles (interrupteur, cases, segments, boutons de `PageHead` ; mesurées dans Chromium, dessin inchangé), segment choisi en graisse 600 (largeur réservée), compteurs (la déclaration du module l'emporte, l'activité non vue en repli), `FournisseurAujourdhui` au-dessus des deux coquilles, sept routes exactes pour les hubs (`hubs.ts`, La Garde : `/ensemble/garde`), C-001 fermé (socle dans `src/socle/theme.css` par la couture `@edition/socle-theme.css` ; feuille cliente compilée identique à celle de `main`), deux PNG retirés, drapeau `critique` lu par D02 (aucun posé : attendu de S5), `vers` / `onClick` exclusifs, bureaux mesurés coquille allumée | `1345183` |
+| 3. Jetons de famille `--fam-a` / `--fam-b` | fait : onze paires (`--socle-fam-<famille>-a/-b`), posées par la coquille selon la famille active (`data-famille-active` ; Cyber, sinon la famille, sinon Système) et par tout bloc `data-famille` ; Cyber distinct de La Garde ; rien ne les lit encore (aperçus identiques) | `d35320f` |
+| 4. Couleurs d'état v4 | fait : les huit couleurs de 06 §2 dans `noir.css` (états et teintes de famille qui les portaient) ; `check:socle` refuse toute couleur d'état v3 dans le socle et les zones de LOT-00 ; `check:coquille` passe à l'ambre et aux teintes v4 | `505d73a` |
+| 5. Les quinze règles de rendu (06 §3) | fait : halos de la famille (un jeton `--socle-halos` qui suit la paire de l'élément), cartes v4, h1 et grands chiffres en dégradé, boutons principal et secondaire, pastilles, lueurs (points, anneaux, courbes, arcs), histogrammes, progression, barre latérale active (famille, module, repère 3 × 14), onglets, segments, puces, bord dégradé de la barre Ajmani et des suggestions, avatars, tuiles d'icône ; mouvement réduit et « aucun » coupent les lueurs animées ; teintes v3 passées en v4 (Outils `#7CC4FF`, La Garde `#5EE6A8`, interrupteur allumé, bord du toast `#243931`) ; `check:socle` vérifie les quinze règles, `check:coquille --page` mesure la barre v4 | `4e49562` |
+| 6. Entrée « Développement » | fait : toujours visible, dernière ligne d'ESPACE juste au-dessus de SURVEILLANCE, dépliée sur ses écrans (modules du registre quand LOT-11 déclare `developpement`, sinon sa vue d'ensemble `/ensemble/developpement`, substituable) ; deux signaux (déploiements en cours, tests en échec) déclarés par LOT-11 : `declarerCompteurs({ famille: 'developpement', useCompteurs, useSignaux })` dans `src/refonte/compteurs/developpement.ts` | `175d0be` |
+| 6 bis. Compléments du CO (§1.17, §1.19) | fait : section « ESPACES DE TRAVAIL » (Développement seul, juste au-dessus de SURVEILLANCE) ; sous-liste dans l'ordre des 13 lignes de l'image, modules de LOT-11 à leur rang et vues reprises d'autres familles (Automatisations, Coffre-fort, Base de connaissances ; Connecteurs, Missions et tickets, Sauvegardes dès qu'ils seront au registre), cinq lignes au plus puis « + N autres » ; 8ᵉ hub `/ensemble/developpement` | `7134ca6` |
+| 7. Tutoiement | fait : coquille, mots du socle et 9 écrans (et leurs aperçus), d'après `_data/tutoiement.json` ; vouvoiement gardé dans le brouillon de relance (texte client), « Combien êtes-vous ? » (l'équipe) et les mots reconnus à la saisie ; **guide de voix** du socle (`src/socle/mots/voix.ts`) ; gardes des écrans passées à l'exigence du tutoiement | `8c8b8e9` |
+| 8. Gardes | fait : `check:tutoiement` (périmètre, zones client, lexiques de saisie, citations, écrits dans la garde) ; `check:voix` étendu au guide de voix et aux mots du socle ; les deux dans le workflow des éditions | `b5d61a5` |
+| 9. Captures v4 | fait : tableau ci-dessus ; corrections trouvées par la comparaison, toutes d'après les sources : la famille active posée aussi sur la racine du document (palettes ⌘K / ⌘J, dialogues et toasts en portail la reçoivent), le 3ᵉ halo des sources (140 pages sur 143), le voile de halos des pages pleines (D02, G06, G09, H43), le bouton principal de G06, l'instant de G09, la case cochée de G05, le bord dégradé du « point d'Ajmani » de H40 | voir le message au CO |
+
+Écarts et restes de la passe finale (points 1 à 9) :
+
+- Les pourcentages de la colonne « Écart / note » sont ceux de la v3 ; ceux de la v4 sont au tableau des captures v4, en brut.
+- Outils : le CO a demandé sa couleur v4 ; les sources v4 (F60, H18 à H20, tuiles de D02) dessinent encore son icône en `#9A9AA0`. Appliqué : `#7CC4FF`, sa couleur a, comme toute famille.
+- Bord du toast : les sources v4 de H43 gardent `#2C3327` ; appliqué `#243931`, la même règle qu'avant (le succès à 15 % sur le fond du dialogue) avec le succès v4.
+- Gardés comme les sources : les tuiles plates de D02 / H41 / H43 (`part`), le rayon 14 des boîtes (dialogue, toast, palettes, zone vide). Écarts restants : la teinte d'avatar par nom (les sources la prennent à l'initiale) ; l'instant de G09 rendu dans sa couleur a, sans le dégradé de la source (un disque de 10 px).
+- `check:encres` : ses 4 fautes restent celles d'avant, dans la zone de La Garde (`src/refonte/garde/equipes.ts`), hors socle.
+- `check:ajmani` (« valeurs validées ») : surface, élevé et bord passent aux valeurs des cartes v4 (`#111113`, `#19191C`, `#2A2A2E`), parce que `check:socle` exige que ces miroirs suivent les cartes.
+- Développement : à 900 px de haut, une famille dépliée et trois épinglés, la colonne dépasse d'une ligne et défile (la carte « Aujourd'hui » s'atteint en descendant). La source DEV le montre en tête d'« ESPACES DE TRAVAIL » avec ses treize sous-modules : appliqué la place demandée par le CO et la règle des cinq lignes.
+- Réponse 12 du §1.13 (registre d'exemple de D02) : **retirée** par le CO (§1.18) ; l'aperçu garde le vrai registre de S5, écart gardé hors pourcentage.
+- Réponse 14 : les images F10, F30, F50, F70, MR06, MR09, H16, N01 et H18 sont dans le dossier v4 ; les cotes provisoires du socle seront reprises au point 9.
+- `check:coquille` en mode bundle (second passage avec les bureaux) : non exécuté ici, à T1.
+- `src/index.css` (fichier sensible, « ajouts seulement ») perd le bloc du socle sur décision du CO (C-001) : il ne garde, de plus que `main`, que l'import de la couture. Un `*.business.*` nouveau : `src/edition/socle-theme.business.css`, le jumeau vide de cette couture.
+
+**Socle v3 (§1.10), état au 6 nov. : complet, sauf l'allumage (§1.9).** Un commit par livrable et par écran ; tout est sur la branche.
+
+| Pièce | État | Où |
+|---|---|---|
+| Mouvement §0.2, police monospace, composants §0.4 | fait (`3c0ad5d`) ; les noms des fiches `amn-grow`, `amn-slide`, `amn-bar`, `amnFlow`, `amnHalo` sur la même couche (`c173bcf`) | `src/socle/mouvement.css`, `couche-mouvement.ts`, `src/socle/ui/vivant/` |
+| Barre latérale v3, carte « Aujourd'hui », **Cyber toujours visible** (SURVEILLANCE, compteur du SOC) | fait (`f9251f7`) ; compteurs de la barre **déclarables par lot** (`7d53523`) : un fichier `src/refonte/compteurs/<famille>.ts` ramassé seul | `src/socle/coquille/`, `src/refonte/coquille/` |
+| `useAujourdhui` (point 3) : un seul calcul pour la barre et N01 | fait (`be95edc`) : fonction pure `calculerAujourdhui` (règles de S2 appelées, pas recopiées), fournisseur monté une fois dans la coque interne, la carte et `useAccueil` lisent le même objet ; LOT-01 le lit sans recalculer | `src/refonte/coquille/aujourdhui/` |
+| Briques partagées (point 1) | fait (`83e8433` → `dcd3679`) : `ModuleTile`, `ModuleGroupGrid`, `AddModuleTile`, `PageHead`, `IconTile`, `CountBadge`, `StatusPill` ; `IconButton`, `SearchBox`, `AvatarStack`, `AjmaniBar`, `SuggestionCompact`, `FlagUrgent` = noms des fiches posés sur les briques existantes (`noms.ts`) ; D02, la barre, H40, H42, H47, H41 et H43 passent par elles **sans changer un pixel** (captures identiques) | `src/socle/ui/briques-partagees/`, `src/socle/ui/noms.ts` |
+| Audit du §4 (chaque brique mesurée dans le CSS calculé) et du §1.2 | fait (`da4f2c2`, `b52665d`) : tout à la valeur exacte sauf trois corrections (Empty = `EtatVide` : pointillé `#2E2E33`, rayon 14, titre 14, texte 300 px, tuile 44, action obligatoire ; filet de TimelineItem `#222224` ; rayon de bouton 9) ; ajouts demandés par LOT-06 : `Anneau` 26 à 80 px, `Check` 16 px, `Segmented` compact, `SearchBox` 38 px, `Mono`, `src/socle/formats.ts`, jetons de décor, hachures et pointillés d'état | `src/socle/ui/`, `src/socle/noir.css`, `src/socle/formats.ts` |
+| Mécanisme de substitution (§1.3) | fait (`634c965`, `bfaf40d`) : un fichier `src/refonte/substitutions/declarations/<lot>.tsx` par lot, ramassé seul ; un point unique `SubstitutionDEcran` à la place des quatre `Outlet` de la coque interne (`AppLayout` × 2, `ClientContextLayout`, `CadreBureau` des bureaux ; route, `ModuleRoute` et session de support conservés) ; jumeau cliente inerte ; **aucune substitution réelle déclarée** (LOT-00 n'a rien d'honnête à substituer : D02 est déjà la route d'origine) ; preuve statique d'isolement `check:client-statique` (graphe d'imports depuis `src/renderer.tsx` avec les alias client + motifs de `check:business`), sans build servi | `src/refonte/substitutions/`, `@edition/substitutions`, `AppLayout`, `ClientContextLayout` |
+| `check:coquille` sur la barre v3 (point 5) | fait (`53fc39a`, `6ccedb2`) : second passage coquille allumée en mode bundle (même squelette que le premier, **à prouver par T1** : aucun build servi ici ; lancer `AMN_COQUILLE=eteinte` puis `allumee`) ; mode `--page` prouvé sur les quatre aperçus en coquille (OK) et sur des copies sabotées (ambre opaque ou translucide, pastilles, encre et interlettrage des sections, réseau) ; le premier passage (T1) ne voit que l'ambre opaque, comme avant | `scripts/check-coquille.mjs` |
+| Réglages propres aux écrans (demande du dirigeant, 6 nov.) | fait (`c03bed3`) : Mouvement (segmenté, état en pastille), Écran de veille (interrupteur d'en-tête, délai en segmenté, verrou en liste), Nouvelle coquille (ce qu'elle apporte, interrupteur) : trois surfaces distinctes sur les contrôles du socle, aucun gabarit ; H40 « Réglages » atteint la rubrique Notifications (`ANCRES_REGLAGES`) ; G09 reste inactif ; D02, H47, H43, G06, G05, H41 : aucun réglage prévu | `src/edition/socle.internal.tsx`, `src/refonte/systeme/veille/EcranDeVeilleSection.tsx`, `src/refonte/coquille/CoquilleSection.tsx` |
+| Allumage de la coquille (§1.9) | **non fait** : attend le passage 2 de T1 ; une ligne de `src/refonte/coquille/drapeau.ts` | — |
+
+**Lecture de la demande du 6 nov.** (« socle complet, pour les deux éditions ») : le socle est **utilisable par les deux éditions** à travers les coutures `@edition/*` (chaque brique interne a son jumeau cliente inerte), et **l'édition cliente ne change pas** (REGLES, §1.3) : `src/screens/**` intact, aucun `*.business.*` changé de comportement, preuve statique `check:client-statique` en plus de `check:business` (T1). « Une page de réglages propre à chaque écran concerné » : le §0.3 (aucun gabarit) appliqué aux trois réglages de LOT-00 ; H18 (LOT-07) n'est pas construit, les surfaces vivent dans la porte interne des Paramètres. `/ensemble/:famille` reste le repli générique (§1.10 point 2).
+
+**Ce qui n'est pas branché (dit, jamais simulé)** : la coquille, éteinte par défaut ; les compteurs de Stock, Chantiers et Commandes (LOT-06) ne sont pas déclarés, seul le point d'entrée existe ; les alertes Cyber : rien tant que le SOC n'est pas prêt (`useCyber().pret`) ; le délai de verrouillage de l'écran de veille, enregistré sans effet (aucun verrou n'existe, l'aide le dit) ; aucune substitution déclarée ; `check:coquille` en mode bundle coquille allumée, non exécuté ici.
+
+**Provisoire (attend une fiche ou une décision)** : les cotes de `ModuleTile` standard (41 px), de `ModuleGroupGrid` et d'`AddModuleTile` (fiches F10 à F70 non disponibles au socle) ; `Segmented` compact 26 px, `Anneau` 26 à 58 px, hachures et pointillés (fiches MR06, MR09, H16 non disponibles) ; `IconTile` 44 (Empty) rayon 12 et glyphe 20, `IconTile` 38 rayon 10 et glyphe 18 (aucune image ne dessine ces deux tailles).
+
+**Vérification adverse (6 nov., détail dans le rapport)** : sept vérificateurs indépendants (briques, alignement § 4, « Aujourd'hui », substitution, `check:coquille` et réglages, transversal, visuel), puis trois réfutateurs par constat majeur. Aucun bloquant ; dix majeurs confirmés et **tous corrigés** sur la branche : catalogue `noms.ts` périmé sur Empty (alias `Empty` = `EtatVide` posé) ; formats « — » non tenus par `formaterMontant`, `formaterRatio`, `formaterDate`, `formaterHeure` ; pastilles de jour qui ne suivaient plus l'heure ; les 77 routes des bureaux (`CadreBureau`) hors du point de substitution ; clé `module` d'une substitution non vérifiée contre la route d'origine ; `check:substitutions` faux positif sur `node_modules` lié ; ambre translucide invisible pour `check:coquille` v3 ; ancres « guide » et « extensions » omises (prémisse fausse du compte rendu) ; segmenté sans état désactivé visible ; sous-texte de `ModuleTile` ouverte sous AA. Mineurs : 35 corrigés, 20 (notes ou décisions du CO) laissés et dits dans le rapport. Les 13 aperçus restent identiques au pixel après corrections, sauf `SOCLE-DEMO` (le libellé du sommaire « Alignement § 4 ») et `REGLAGES-LOT-00` (aides de Mouvement, texte relié au commutateur), tous deux sans image de référence. Une seconde passe adverse, sur les corrections elles-mêmes, a été **arrêtée sur instruction du CO avant son arbitrage** : rien n'en a été corrigé. Ses constats sont consignés dans le rapport avec le plus petit correctif, pour décision : deux confirmés par les réfutateurs (au survol, le segment actif d'un `Segmented` passe de T1 à T2, régression de la correction de l'état désactivé, une ligne de `controles.css` ; `Kpi` coupe une variation longue de l'Accueil vivant dans une colonne de deux tuiles), quatre non arbitrés (trois trous de gardes : une redéfinition de la tuile de `BlocEtat` écrite en sélecteur composé, une liste de sélecteurs sur deux lignes dans `check:socle`, un ambre écrit en `color-mix()` / `oklch()` pour `check:coquille` ; et l'alignement des rangées de `/dev/socle`), plus des mineurs et des notes.
+
+Questions de S0 et réponses du CO (v2) :
 
 1. *Allumer la nouvelle coquille par défaut ?* Oui, dans le socle v3, après le passage 2 de T1 (§1.9).
 2. *Phrase « Connexion protégée… journal de la Garde » et constante « 12 organisations » (G06) ?* À valider par Harun. Par défaut, on garde le texte de la fiche, et la constante reste un texte fixe, jamais une donnée lue avant la connexion.
 3. *Réglage d'organisation pour le métier (H47) ?* Pas au premier jet : le réglage reste personnel, la solution la plus simple.
 4. *Émetteurs « mail » et « mobile » pour H40 ?* Hors LOT-00. Le mobile passe par LOT-09 (notifications web), le mail devient une demande à amn-api.
 
+Questions v3 de S0 pour le CO (détail dans le rapport) : brancher Ajmani (G05) sur l'envoi réel de Relances (N3, 10 s pour annuler) ? créer un vrai verrouillage après inactivité menant à G06 (touche à l'authentification) ? compte mémorisé sur le poste (G06) ? D02 : lignes de 21 px (fiche) ou cibles de 34 px (§7.6) ? sources manquantes à créer (devis prérempli H07, créneaux du référent, contacts par client, note épinglée, automatisations et modèles des métiers L04, historique des ouvertures) ? H40 : émetteurs du niveau de bruit, du silence et du résumé du matin ; retenir les rendez-vous en « L'essentiel » (fiche) ou non (image) ?
+
+Questions du socle complet (6 nov., détail dans le rapport) — **répondues par le CO au §1.13, appliquées le 12 nov. (point 2 ci-dessus)** :
+
+1. Compteurs de la barre : deux déclarations sur une même adresse s'additionnent (livré). Faut-il plutôt que la déclaration du module l'emporte sur l'activité non vue ?
+2. `FournisseurAujourdhui` est monté dans la branche « nouvelle coquille » de la coque. Le monter au-dessus des deux coquilles, pour que l'Accueil vivant partage l'objet même drapeau éteint ?
+3. Empty : `EtatVide` suit maintenant le §4 (alias `Empty`) ; l'Accueil vivant (LOT-01) et les archétypes `Tableau` et `Scinde` en héritent (pointillé une marche plus claire, rayon 14 : à signaler à S1 pour sa capture N01). `BlocEtat` (H43) garde ses cotes mesurées sur l'image (48 / 15 / 240) et son neutre standard (gris T3 à 13 %, là où `IconTile` neutre est l'aplat `#1A1A1C`). Une seule brique à terme, ou une par contexte ?
+4. `IconTile` : les images de D02 (10 %, bordure) et de H41 (14 %) diffèrent du 13 % du socle ; les écrans gardent leurs pixels par `part` / `bordure`. Variantes officielles, ou images à aligner par DS ?
+5. Hubs F10 à F70 : déclarer la substitution de `/ensemble/:famille` (route paramétrée, un seul lot peut la déclarer) ou sept routes exactes ?
+6. Session de support cliente : un substitut « identique » suit le drapeau `amn.coquille` du poste (choix fait, écrit dans la doc) ou s'affiche dès sa déclaration ? Et la clé `module` d'une substitution s'applique aussi dans l'édition interne, où la route d'origine n'a aucune garde `ModuleRoute` : voulu, ou garde en session de support seulement ?
+7. `check:coquille`, second passage : mesurer aussi les bureaux (Supervisor, Cyber, Studio, Stratégie, La Garde) ? Le voyant de La Garde orange en « attention » dans la barre : seule exception admise à « aucun ambre dans la colonne » ? Le premier passage (T1) ne voit que l'ambre opaque : l'étendre au translucide ?
+8. Rubrique Notifications : garder l'état de navigation `{ section }` ou passer à une route `/settings/notifications` quand H18 (LOT-07) arrivera ? Sans H18, les trois réglages de LOT-00 partagent le même cadre de carte (titre, état ou commutateur à droite) : acceptable ?
+9. C-001 (T1) : `src/index.css`, atteint par le paquet client, porte 48 références au socle (sélecteurs inertes faute de DOM) : les sortir avant la fusion ?
+10. Cibles sous 34 px dictées par le §4 lui-même : boutons de `PageHead` 31 px, `Toggle` 34 × 20, segments 29 à 30 px, cases 16 / 18 / 24, segmenté compact 26. Le §4 prime-t-il sur le §7.6 (≥ 34 px) ? Si c'est le §7.6, l'interrupteur gagne une zone de clic de 34 px sans changer de dessin et les boutons passent à 34. Même question pour le segment choisi, porté par le fond et l'encre seulement (§4) : un repère non chromatique ?
+11. Briques : interdire aussi `vers` + `onClick` ensemble sur `ModuleTile` / `AddModuleTile` (aujourd'hui : lien qui prévient) ? Garder la règle « `Kpi` ≤ 92 px, variation sur une ligne en ellipse » ou imposer une variation courte par les fiches ? Étendre l'interdit des gris de décor aux `fill` / `stroke` posés en `.tsx` (au risque de refuser une illustration) ?
+12. D02 : le « chiffre rouge » d'Alertes (fiche) n'a pas de source : ajouter un drapeau `critique` au registre des modules ? Avec le registre fictif, la 4ᵉ colonne déborde (fiche : 101 noms visibles) : rééquilibrer les données d'exemple ?
+13. Deux captures PNG suivies à la racine du dépôt public (`v-discussion.png`, `v-scan-inline.png`, antérieures) : les déplacer ou les retirer ?
+14. Fiches à fournir au socle pour lever le provisoire : F10, F30, F50, F70 (`LiveModuleTile`), MR06, MR09, H16, N01, H18.
+
 Gardes en échec avant comme après le lot, sans lien avec lui : `check:encres` (`src/refonte/garde/equipes.ts`), `check:migration`, `check:xss`, `check:visite`, `check:support`. Aucune n'est dans la CI ; elles attendent un environnement.
 
-#### Composants disponibles pour les autres lots
+#### Composants disponibles pour les autres lots (liste exacte des exports, mise à jour le 12 nov.)
 
-Tout s'importe depuis `src/socle/ui` (`index.ts`), dans le code interne seulement, jamais depuis un fichier partagé.
+Tout s'importe depuis `src/socle/ui` (`index.ts`) sauf mention, dans le code interne seulement, jamais depuis un fichier partagé. Les noms des fiches (anglais, §4) sont des alias réels (`src/socle/ui/noms.ts`), donnés entre parenthèses. Mots fr/en par `definirMots` (`src/socle/mots.ts`). Mode d'emploi : [`refonte-socle.md`](../refonte-socle.md).
 
-| Groupe | Dossier | Contenu |
+| Groupe | Dossier | Exports |
 |---|---|---|
-| Base | `src/socle/ui/*.tsx` | `Bouton` (`raccourci`), `Carte`, `Modale`, `Saisie`, `TuileKpi`, `BarreProgression`, `AnneauProgression`, `Etiquette`, `PastilleEtat`, `Avatar`, `PileAvatars`, `Raccourci`, `CaseACocher`, `LigneTache`, `LigneActivite`, `EtapeFranchie`, `EtatVide`, `Squelette` |
-| Contrôles | `controles/` | `Interrupteur`, `BoutonIcone`, `Selecteur`, `BoiteRecherche`, `Onglets`, `Segmente`, `SuggestionAjmani`, `Tag`, `SousCarte`, `CarteCases`, `CarteAnneau`, `CarteSerie`, `CarteJalon` |
-| Situations | `situations/` | `EtatChargement`, `SqueletteLignes`, `DialogueConfirmation`, `FournisseurToasts` + `useToastsSocle`, `AvisCollaboration` |
-| Graphiques | `graphiques/` | `Courbe`, `MiniCourbe`, `Barres`, `Donut`, `Anneau` ; formats `formaterNombre`, `formaterEuro`, `formaterPourcent` |
-| Archétypes | `archetypes/` | `Page`, `RangeeKpi`, `ColonneDroite`, `Kanban`, `GrilleCartes`, `Scinde`, `Semaine`, `LigneTemps`, tableau triable (`trierLignes`…) |
-| Coquille | `src/socle/coquille/` | `BarreLaterale`, `EnTete`, `BarreAjmani`, `Coquille` |
-| Système | `src/refonte/systeme/` | notifications, recherche, Ajmani, modules, connexion, démarrage, H43, démonstration (`/dev/socle`) |
+| Base | `src/socle/ui/*.tsx` | `Bouton` (`Button`), `Carte` (`Card`), `Modale`, `Saisie` (`Field`), `TuileKpi` (`Kpi`), `TuileAjouter`, `BarreProgression` (`Progress`), `AnneauProgression` (`Ring`), `tonDeSante`, `Etiquette`, `PastilleEtat` (`StatusPill`), `Avatar`, `PileAvatars` (`AvatarStack`), `Raccourci` (`Kbd`), `initiales`, `teinteDe`, `CaseACocher` (`Check`, tailles 16 / 18 / 24), `LigneTache`, `LigneActivite`, `EtapeFranchie`, `EtatVide` (`Empty`, action obligatoire), `Squelette`, `Chargement`, `Mono` (+ `tailleMono`, `TAILLE_MONO_MIN/MAX`) |
+| Briques partagées (v3, §1.10 point 1) | `briques-partagees/` | `IconTile` (22 à 48 ; `part` et `bordure` officielles), `CountBadge` (+ `PLAFOND_COMPTE` ; `critique` : chiffre rouge), `ModuleTile` et `AddModuleTile` (`vers` OU `onClick`, type `CibleTuile`), `ModuleGroupGrid` (`onAjouter` OU `versAjouter`, type `AjoutGroupe`) ; `PageHead` (= `EnTeteDePage`, dans `archetypes/`) ; zones de clic de 34 px sur l'interrupteur, les cases, les segments et les boutons de `PageHead` |
+| Contrôles | `controles/` | `Interrupteur` (`Toggle`), `BoutonIcone` (`IconButton`), `Selecteur` (`Select`), `BoiteRecherche` (`SearchBox`, 34 ou 38 px), `Onglets` (`Tabs`), `PanneauOnglet`, `Segmente` (`Segmented`, normale ou compacte), `cleSuivante`, `SuggestionAjmani` (`Suggestion`), `IconeEtincelle`, `Tag`, `SousCarte` (`Subcard`), `DrapeauUrgent` (`FlagUrgent`), `PastilleFiltre`, cartes ludiques `CarteCases`, `CarteAnneau`, `CarteSerie`, `CarteJalon` |
+| Vivant (v3, §0.4) | `vivant/` | `LiveDot`, `Caret`, `Severity` (+ `NIVEAUX_SEVERITE`), `FilterChips` (`Chips`), `Gauge`, `HeatCell` (+ `opaciteChaleur`, `OPACITE_CHALEUR`), `FlowLine` (+ `cheminFlux`), `InlineSuggestion` (`SuggestionCompact`), `TONS_VIVANT` |
+| Situations | `situations/` | `BlocEtat` (+ `EtatVideInvitation`, `EtatHorsConnexion`, `EtatAccesRefuse`, `EtatAucunResultat`, `EtatErreurChargement`), `SqueletteLignes`, `EtatChargement`, `useChargementDiffere`, `DialogueConfirmation`, `DialogueConfirmationEnPlace`, `Toast`, `FournisseurToasts`, `useToastsSocle`, `AvisCollaboration`, `SANS_ACTION` |
+| Graphiques | `graphiques/` | `Courbe`, `MiniCourbe` (`Sparkline`), `Barres`, `Donut` (+ `ECART_DONUT`), `Anneau` (26 à 80 px ; `tailleAnneau`, `epaisseurAnneau`, `coteAnneau`, `EPAISSEUR_ANNEAU`, `TAILLE_ANNEAU_MIN/MAX`), `calculerEchelle`, `repartirPourcents`, `arcsDonut`, `couleurTon`, formats `formaterNombre`, `formaterPourcent`, `formaterEuro` |
+| Formats (hors `ui/`, importable de tout code interne) | `src/socle/formats.ts` | `formaterNombre`, `formaterPourcent`, `formaterRatio`, `formaterEuro`, `formaterMontant`, `formaterDate`, `formaterHeure`, `dateIso`, `ESPACE_INSECABLE`, `ESPACE_FINE`, `TIRET_ABSENT` |
+| Archétypes (briques, pas des gabarits) | `archetypes/` | `Page`, `PageHead` (`EnTeteDePage`), `RangeeKpi`, `ColonneDroite`, `DispositionPage`, `Kanban`, `ColonneKanban`, `Ticket`, `GrilleCartes`, `CarteModule`, `Scinde`, `ListeScindee`, `ElementListe`, `DetailScinde`, `Semaine`, `LigneTemps` (`TimelineItem`), `ChronologieTemps`, `Tableau` + cellules (`CelluleNom`, `CelluleTexte`, `CelluleEtat`, `CelluleProgression`, `CelluleAvatar`, `CelluleMontant`, `CelluleTag`, `CelluleDate`, `CelluleCase`, `CelluleInterrupteur`, `CelluleIcone`, `CelluleBouton`), `TexteTronque` ; logique `trierLignes`, `filtrerLignes`, `regrouperLignes`, `prochainTri`, `ariaSort`, `deplacerElement`, `deplacerLineaire`, `deplacerDansGrille`, `nombreDeColonnes`, `debutDeSemaine`, `joursConsecutifs`, `memeJour`, `placerEvenements`, `positionMaintenant`, `PX_PAR_HEURE` |
+| Mouvement (§0.2) | `src/socle/mouvement.css`, `src/socle/mouvement.ts`, `src/socle/couche-mouvement.ts` | attribut `data-mvt="entree\|cascade\|arrivee\|fondu\|remplit\|anneau\|arc\|pousse\|trace\|aire\|point-final\|onde\|flux\|balayage\|curseur"`, survols `data-mvt-survol="carte\|bouton\|ligne\|noeud"` ; classes des fiches `.amn-grow`, `.amn-slide`, `.amn-bar`, keyframes `amnFlow`, `amnHalo` ; `styleRang`, `rangMouvement`, `entreeCarte`, `arriveeLigne`, `decalageBarres`, `dureeFlux`, `niveauVivant`, `useMouvementVivant`, `entreeMotion`, `COTES_MOUVEMENT`, `COURBE_MOUVEMENT`, `CLASSES_MOUVEMENT` (+ type `ClasseMouvement`) ; réglage `useMouvement`, `lireMouvement`, `ecrireMouvement`, `choixMouvement`, `systemeDemandeMoins`, `configMotion`, `niveauParDefaut`, `NIVEAUX_MOUVEMENT`, `CLE_MOUVEMENT`, `EVENEMENT_MOUVEMENT` ; coupé par `prefers-reduced-motion` et Mouvement « aucun » |
+| Jetons | `src/socle/noir.css`, `src/socle/theme.css` (jetons `--color-socle-*` / `fam-` / `etat-` et règles `data-famille`, par la couture `@edition/socle-theme.css`) | `--socle-*` (§1 ; couleurs d'état v4 de 06 §2), `--socle-police-mono` + `.sc-mono`, `--socle-decor-1/2/3` (illustrations seulement), `--socle-hachure-attention`, `--socle-hachure-grise`, `--socle-pointille-ok`, `--socle-pointille-attention`, `--socle-veille-noir` (G09 seulement) ; la teinte de sélection des fiches est `--socle-fam-creer` |
+| Coquille | `src/socle/coquille/`, `src/refonte/coquille/` | `BarreLaterale` (`Sidebar`), `EnTete` (`Header`), `BarreAjmani` (`AjmaniBar`), `Coquille`, `PaletteAjmani` ; `usePageCoquille({ famille, sousPage, miettes, tousLesModules?, ajmani? })`, `ContextePageCoquille` (`page.ts`), `pagesSysteme.ts` ; drapeau `lireCoquille`, `ecrireCoquille`, `useCoquilleActive`, `CLE_COQUILLE` (`drapeau.ts`) ; `Coquille` prend `famille` (v4 : la famille de couleur active) ; `BarreLaterale` prend `developpement` (toujours là, section « ESPACES DE TRAVAIL ») ; type `SignalLateral` (signaux d'une ligne) ; `ID_DEVELOPPEMENT` (`donnees.ts`) ; `ORDRE_DEVELOPPEMENT`, `lignesDeveloppement` (`sousListeDeveloppement.ts`) ; la coquille pose aussi sa famille sur la racine du document (portails) |
+| « Aujourd'hui » (§1.10 point 3) | `src/refonte/coquille/aujourdhui/` | `useAujourdhui` (lit le contexte, sinon calcule ; expose aussi `acces` : tâches, priorités, rendez-vous, factures, clients lus une fois, type `AccesAujourdhui`), `useCalculAujourdhui`, `calculerAujourdhui` (pure), `FournisseurAujourdhui` (aussi par `@edition/coquille`), `ContexteAujourdhui`, `useCarteAujourdhui`, `delaiAvant`, `heureDe` |
+| Compteurs de la barre | `src/refonte/coquille/declarerCompteurs.ts`, `compteurs.ts`, `src/refonte/compteurs/<famille>.ts` | `declarerCompteurs({ famille, useCompteurs, useRepli?, useSignaux? })` (rien ne s'additionne : la déclaration du module l'emporte, `useRepli` ne remplit que les adresses libres ; `useSignaux` : Développement seulement, type `SignauxDeveloppement`), `verifierDeclaration` ; `ramasserCompteurs`, `fusionnerCompteurs`, `useCompteursDe`, `useCompteursDeclares`, `fusionnerSignaux`, `useSignauxDe`, `useSignauxDeclares`, `COMPTEURS_DECLARES` ; déclarations livrées : `jour.ts`, `cyber.ts` (`developpement.ts` : à LOT-11) |
+| Substitution d'écrans (§1.3) | `src/refonte/substitutions/`, `@edition/substitutions` | `declarerSubstitutions(lot, [...])` (`declarer.ts`), `trouverSubstitution`, `assemblerSubstitutions`, `REGISTRE_SUBSTITUTIONS` (`registre.ts`), `SubstitutionDEcran`, `SubstitutionDEcranDe` ; hubs F10 à F70 : `HUBS`, `ROUTE_GENERIQUE_HUBS`, `fauteDeHub` (`hubs.ts` : sept routes exactes, une par lot) ; un fichier `declarations/<lot>.tsx` par lot ; quatre points de substitution dans la coque interne (`AppLayout` × 2, `ClientContextLayout`, `CadreBureau`) ; huit hubs (`HUBS`, F10 à F70 et DEV-ensemble `/ensemble/developpement`) |
+| Réglages (porte interne des Paramètres) | `src/edition/socle.internal.tsx` | `MouvementSection` (les trois surfaces), `ANCRES_REGLAGES`, `ancreDeReglages`, `RacineSocle` (racine de l'édition interne, antérieure) ; un écran envoie par `navigate('/settings', { state: { section } })` |
+| Bus de moments, familles, mots | `src/socle/moments.ts`, `familles.ts`, `mots.ts` | `subscribe`, `emit` (`emettreMoment` par `@edition/socle`), `poserJournal`, `reinitialiserMoments`, `CATALOGUE_DES_MOMENTS`, `TYPES_DE_MOMENTS` ; `FAMILLES`, `estFamille`, **`FAMILLES_COULEUR`** (les onze familles v4, type `FamilleCouleur`), `estFamilleCouleur`, `familleDeCouleur` ; `definirMots` ; guide de voix `src/socle/mots/voix.ts` : `TOURNURES`, `ecartsDeVoix(texte, zone)`, `VOUS_PLURIELS`, `ENCOURAGEMENTS`, `encouragement(n)` |
+| Couleurs de famille v4 (06 §1) | `src/socle/noir.css` | `--socle-fam-<famille>-a` / `-b` (onze familles : les sept, `garde`, `cyber`, `developpement`, `systeme`) ; un écran lit **`var(--fam-a)`** et **`var(--fam-b)`**, posés par la coquille selon la famille active (`data-famille-active`) ou par un bloc `data-famille` ; Système par défaut ; `--socle-halos` (les trois halos de la paire de l'élément, à poser sous `--socle-fond-page`) ; `sc-halos-ecran` (le voile des pages pleines, `--socle-halos-ecran`) ; les quinze règles de rendu (06 §3) sont portées par les briques : aucun lot n'écrit une couleur |
+| Système | `src/refonte/systeme/` | notifications, recherche, Ajmani, modules, connexion, démarrage, veille (G09), H43, démonstration (`/dev/socle`, dix-huit sections dont « Briques partagées » et « Alignement § 4 ») |
+| Aperçus de capture | `scripts/apercu/` | `npm run apercu -- <ID>` ; `ApercuBureau` (`scripts/apercu/coquille.tsx`) pour un écran dans la coquille ; `SOCLE-DEMO`, `REGLAGES-LOT-00`, `COQUILLE-*` |
+| Contrôle de la coquille | `scripts/check-coquille.mjs` | mode bundle (T1, deux passages : coquille éteinte puis allumée, `AMN_COQUILLE=eteinte\|allumee`), mode `--page <index.html>` (page statique, réseau refusé) |
 
-Mots fr/en par `definirMots`. Gardes : `check:socle-controles|graphiques|situations|archetypes|coquille`, `check:systeme-modules|notifications|recherche|ajmani|demo|demarrage`.
+Gardes : `check:socle`, `check:tutoiement`, `check:voix`, `check:socle-controles|graphiques|situations|archetypes|coquille|vivant|briques`, `check:systeme-modules|notifications|recherche|ajmani|demo|demarrage|connexion|veille`, `check:substitutions`, `check:client-statique`, `check:donnees` ; toutes en CI (`editions.yml`). `check:coquille` (navigateur) n'y est pas.
 
 ### LOT-01 · Ma journée — `claude/refonte-journee` — 16 écrans
 
@@ -903,22 +1047,22 @@ Mots fr/en par `definirMots`. Gardes : `check:socle-controles|graphiques|situati
 
 | ID | Écran | Type | État | Écart / note |
 |---|---|---|---|---|
-| N01 | Ma journée · Accueil | mixte | à faire | |
-| H25 | Ma journée · Tableau de bord, widgets | mixte | à faire | |
-| G08 | Ma journée · Cockpit client : Stripe, utilisateurs, tickets | mixte | à faire | |
+| N01 | Ma journée · Accueil | mixte | en cours (préparation) | préparation (S2) : lit `useAujourdhui` ; série = `serieDeLaJournee` (§1.36 n° 1) |
+| H25 | Ma journée · Tableau de bord, widgets | mixte | en cours (préparation) | préparation : `tableauDeBord` = attendus de SIM ; grille à lire sur la fiche |
+| G08 | Ma journée · Cockpit client : Stripe, utilisateurs, tickets | mixte | en cours (préparation) | préparation : `cockpitDuClient` = attendus de SIM ; agrégats seulement, aucune clé ; route à lire sur la fiche |
 | H01 | Ma journée · Calendrier | mixte | à faire | |
-| H02 | Ma journée · Tâches | mixte | à faire | |
-| H03 | Ma journée · Missions et tickets, kanban | mixte | à faire | |
-| H04 | Ma journée · Bilan de la semaine | mixte | à faire | |
-| MJ01 | Ma journée · Projets | mixte | à faire | |
-| MJ03 | Ma journée · Planning de l'équipe | mixte | à faire | |
-| MJ02 | Ma journée · Habitudes | mixte | à faire | |
+| H02 | Ma journée · Tâches | mixte | en cours (préparation) | préparation : paliers et série ; **trophées protégés** |
+| H03 | Ma journée · Missions et tickets, kanban | mixte | en cours (préparation) | préparation : `trierLaColonne`, `deplacer` ; aucun écran d'origine |
+| H04 | Ma journée · Bilan de la semaine | mixte | en cours (préparation) | préparation : `bilanDeLaSemaine` = attendus de SIM ; **trophées et paliers protégés** |
+| MJ01 | Ma journée · Projets | mixte | en cours (préparation) | préparation : `projetCalcule` = SIM |
+| MJ03 | Ma journée · Planning de l'équipe | mixte | en cours (préparation) | préparation : `chevauchements`, `personnesDuCreneau` |
+| MJ02 | Ma journée · Habitudes | mixte | en cours (préparation) | préparation : `serieDHabitude`, `tauxDeTenue` (propositions) |
 | MJ04 | Ma journée · Notes rapides | mixte | à faire | |
-| MJ05 | Ma journée · Rappels | mixte | à faire | |
+| MJ05 | Ma journée · Rappels | mixte | en cours (préparation) | préparation : `etatDuRappel` ; aucun écran d'origine |
 | L03 | Ma journée · Rituel du matin | nouveau | à faire | |
 | L02 | Ma journée · Mode Focus | nouveau | à faire | |
-| L01 | Ma journée · Séries et jalons | nouveau | à faire | |
-| L07 | Ma journée · Défis d'équipe | nouveau | à faire | |
+| L01 | Ma journée · Séries et jalons | nouveau | en cours (préparation) | préparation : `serieDeLaJournee`, paliers 5/10/20/30/50/100 ; **protégé** ; priorités absentes des jeux |
+| L07 | Ma journée · Défis d'équipe | nouveau | en cours (préparation) | préparation : défis, jauge, frise, célébrations, engagements, proposition ; **protégé** ; engagements sans donnée |
 
 ### LOT-02 · Mes contacts et clients — `claude/refonte-contacts` — 13 écrans
 

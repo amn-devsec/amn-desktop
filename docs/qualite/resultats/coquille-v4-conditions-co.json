@@ -1,0 +1,150 @@
+{
+  "verifications": [
+    {
+      "nom": "interne, coquille éteinte : pas de data-famille-active sur <html>",
+      "ok": true,
+      "detail": "{\"familleActive\":null,\"ambiance\":\"noir\",\"mouvement\":\"complet\",\"fam\":[\"#a58bff\",\"#6ea8ff\"],\"partout\":0,\"coquille\":0}"
+    },
+    {
+      "nom": "interne, coquille allumée : data-famille-active posé sur <html>",
+      "ok": true,
+      "detail": "{\"familleActive\":\"jour\",\"ambiance\":\"noir\",\"mouvement\":\"complet\",\"fam\":[\"#6ea8ff\",\"#a58bff\"],\"partout\":2,\"coquille\":1}"
+    },
+    {
+      "nom": "interne, coquille allumée : la famille suit la route",
+      "ok": true,
+      "detail": "{\"#/\":\"jour\",\"#/tasks\":\"jour\",\"#/facturation\":\"argent\",\"#/messages\":\"jour\",\"#/clients\":\"contacts\"}"
+    },
+    {
+      "nom": "interne : éteindre la coquille en direct retire l’attribut (sans recharger)",
+      "ok": true,
+      "detail": "{\"familleActive\":null,\"ambiance\":\"noir\",\"mouvement\":\"complet\",\"fam\":[\"#a58bff\",\"#6ea8ff\"],\"partout\":0,\"coquille\":0}"
+    },
+    {
+      "nom": "interne : rallumer la coquille repose l’attribut",
+      "ok": true,
+      "detail": "{\"familleActive\":\"contacts\",\"ambiance\":\"noir\",\"mouvement\":\"complet\",\"fam\":[\"#4fe3c1\",\"#6ea8ff\"],\"partout\":2,\"coquille\":1}"
+    },
+    {
+      "nom": "interne : écran de connexion (coquille démontée) : pas d’attribut",
+      "ok": true,
+      "detail": "écran de connexion=true {\"familleActive\":null,\"ambiance\":\"noir\",\"mouvement\":\"complet\",\"fam\":[\"#a58bff\",\"#6ea8ff\"],\"partout\":0,\"coquille\":0}"
+    },
+    {
+      "nom": "cliente : ni data-famille-active, ni data-ambiance, ni --fam-a",
+      "ok": true,
+      "detail": "{\"familleActive\":null,\"ambiance\":null,\"mouvement\":null,\"fam\":[\"\",\"\"],\"partout\":0,\"coquille\":0}"
+    },
+    {
+      "nom": "cliente, drapeau amn.coquille posé : ni data-famille-active, ni data-ambiance, ni --fam-a",
+      "ok": true,
+      "detail": "{\"familleActive\":null,\"ambiance\":null,\"mouvement\":null,\"fam\":[\"\",\"\"],\"partout\":0,\"coquille\":0}"
+    },
+    {
+      "nom": "mouvement réduit, #/ : plus aucune animation CSS infinie",
+      "ok": true,
+      "detail": "permis : 5 infinie(s) [amnHalo, pulse, sc-mvt-clignote] · réduit : 0 [] · data-mouvement=reduit"
+    },
+    {
+      "nom": "mouvement réduit, #/notifications : plus aucune animation CSS infinie",
+      "ok": true,
+      "detail": "permis : 7 infinie(s) [amnHalo, pulse, sc-mvt-clignote] · réduit : 0 [] · data-mouvement=reduit"
+    },
+    {
+      "nom": "mouvement réduit, #/demarrage : plus aucune animation CSS infinie",
+      "ok": true,
+      "detail": "permis : 5 infinie(s) [amnHalo, sc-mvt-clignote] · réduit : 0 [] · data-mouvement=reduit"
+    },
+    {
+      "nom": "mouvement réduit, #/demarrage/metier : plus aucune animation CSS infinie",
+      "ok": true,
+      "detail": "permis : 10 infinie(s) [amnHalo, sc-mvt-clignote, sc-squelette] · réduit : 0 [] · data-mouvement=reduit"
+    },
+    {
+      "nom": "mouvement réduit, #/tous-les-modules : plus aucune animation CSS infinie",
+      "ok": true,
+      "detail": "permis : 5 infinie(s) [amnHalo, pulse, sc-mvt-clignote] · réduit : 0 [] · data-mouvement=reduit"
+    }
+  ],
+  "mouvement": {
+    "#/|permis": {
+      "total": 5,
+      "infinies": 5,
+      "noms": [
+        "amnHalo",
+        "pulse",
+        "sc-mvt-clignote"
+      ],
+      "mouvement": "complet"
+    },
+    "#/notifications|permis": {
+      "total": 7,
+      "infinies": 7,
+      "noms": [
+        "amnHalo",
+        "pulse",
+        "sc-mvt-clignote"
+      ],
+      "mouvement": "complet"
+    },
+    "#/demarrage|permis": {
+      "total": 5,
+      "infinies": 5,
+      "noms": [
+        "amnHalo",
+        "sc-mvt-clignote"
+      ],
+      "mouvement": "complet"
+    },
+    "#/demarrage/metier|permis": {
+      "total": 10,
+      "infinies": 10,
+      "noms": [
+        "amnHalo",
+        "sc-mvt-clignote",
+        "sc-squelette"
+      ],
+      "mouvement": "complet"
+    },
+    "#/tous-les-modules|permis": {
+      "total": 5,
+      "infinies": 5,
+      "noms": [
+        "amnHalo",
+        "pulse",
+        "sc-mvt-clignote"
+      ],
+      "mouvement": "complet"
+    },
+    "#/|réduit": {
+      "total": 1,
+      "infinies": 0,
+      "noms": [],
+      "mouvement": "reduit"
+    },
+    "#/notifications|réduit": {
+      "total": 0,
+      "infinies": 0,
+      "noms": [],
+      "mouvement": "reduit"
+    },
+    "#/demarrage|réduit": {
+      "total": 0,
+      "infinies": 0,
+      "noms": [],
+      "mouvement": "reduit"
+    },
+    "#/demarrage/metier|réduit": {
+      "total": 0,
+      "infinies": 0,
+      "noms": [],
+      "mouvement": "reduit"
+    },
+    "#/tous-les-modules|réduit": {
+      "total": 1,
+      "infinies": 0,
+      "noms": [],
+      "mouvement": "reduit"
+    }
+  }
+}

@@ -13,6 +13,10 @@
  * transcription absent (une situation attendue, jamais testée avec un vrai micro) s'affichait
  * comme si le micro lui-même était en cause.
  *
+ * Il tient aussi LE GUIDE DE VOIX du socle (PLAN-10NOV §7, 06-V4 §4 : `src/socle/mots/voix.ts`) : ses règles
+ * (tutoiement de l'interface, vouvoiement des textes clients, ni point d'exclamation, ni formule servile, ni code
+ * d'erreur), ses encouragements, et les mots du socle, qui doivent le suivre.
+ *
  *   npm run check:voix
  */
 
@@ -20,6 +24,7 @@ import assert from 'node:assert/strict';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as esbuild from 'esbuild';
+import { charger } from './lib/essai-socle.ts';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
@@ -331,6 +336,84 @@ await dit('prise trop courte (bruit d’appui) → "trop-court", sans jamais app
   const r = await session.arreter('fr');
   assert.equal((r as { raison: string }).raison, 'trop-court');
   assert.equal(transcrireAppele, false);
+});
+
+/* ═══ Le guide de voix du socle (PLAN-10NOV §7, 06-V4 §4) : ses règles, et les mots du socle qui les suivent ═══ */
+
+type EcartVoix = { regle: string; extrait: string };
+const G = await loadFromSrc<{
+  TOURNURES: readonly { cle: string; motif: RegExp; eviter: string; preferer: string; exemple: string }[];
+  ENCOURAGEMENTS: Record<'fr' | 'en', readonly string[]>;
+  encouragement: (n: number, langue?: 'fr' | 'en') => string;
+  ecartsDeVoix: (t: string, zone?: 'interface' | 'client') => EcartVoix[];
+  VOUS_PLURIELS: readonly string[];
+}>('src/socle/mots/voix.ts');
+const regles = (t: string, zone?: 'interface' | 'client') => G.ecartsDeVoix(t, zone).map((e) => e.regle);
+
+await dit('guide de voix : les cinq tournures (vouvoiement, impératif de politesse, exclamation, formule servile, code d’erreur), chacune avec un exemple qui la suit', () => {
+  assert.deepEqual(G.TOURNURES.map((t) => t.cle), ['vouvoiement', 'imperatif-de-politesse', 'exclamation', 'formule-servile', 'code-erreur']);
+  for (const t of G.TOURNURES) {
+    assert.ok(t.eviter && t.preferer && t.exemple, t.cle);
+    assert.deepEqual(G.ecartsDeVoix(t.exemple), [], `l’exemple de « ${t.cle} » suit le guide`);
+  }
+});
+
+await dit('guide de voix : l’interface tutoie — « vous », « votre », « vos » et l’impératif en « -ez » sont repérés ; « rendez-vous », « chez », « assez » et « Combien êtes-vous ? » (l’équipe) ne le sont pas', () => {
+  assert.deepEqual(regles('Rien ne vous attend.'), ['vouvoiement']);
+  assert.deepEqual(regles('Votre espace est prêt'), ['vouvoiement']);
+  assert.deepEqual(regles('Ajoutez un client.'), ['imperatif-de-politesse']);
+  assert.deepEqual(regles('Veuillez patienter.'), ['imperatif-de-politesse']);
+  assert.deepEqual(regles('Réessayez dans un instant.'), ['imperatif-de-politesse']);
+  for (const juste of ['Rien ne t’attend.', 'Prends rendez-vous chez le client.', 'Assez pour aujourd’hui.', 'Combien êtes-vous ?', 'Ajoute un client.', 'Réessaie dans un instant.']) {
+    assert.deepEqual(G.ecartsDeVoix(juste), [], juste);
+  }
+  assert.ok(regles('Combien voulez-vous ?').length > 0, 'seul le pluriel de l’équipe est permis');
+});
+
+await dit('guide de voix : chez un client, le vouvoiement reste et le tutoiement est la faute', () => {
+  assert.deepEqual(regles('Bonjour, vous trouverez la facture en pièce jointe.', 'client'), []);
+  assert.deepEqual(regles('Bonjour, tu trouveras la facture en pièce jointe.', 'client'), ['tutoiement-chez-un-client']);
+  assert.deepEqual(regles('Merci, je t’envoie le devis.', 'client'), ['tutoiement-chez-un-client']);
+  assert.deepEqual(regles('Le texte du devis est prêt.', 'client'), [], '« texte » n’est pas « te »');
+});
+
+await dit('guide de voix : ni point d’exclamation, ni « Bien sûr », ni code d’erreur', () => {
+  assert.deepEqual(regles('Super !'), ['exclamation']);
+  assert.deepEqual(regles('Bien sûr, je m’en occupe.'), ['formule-servile']);
+  assert.deepEqual(regles('N’hésite pas à demander.'), ['formule-servile']);
+  assert.deepEqual(regles('Erreur 500'), ['code-erreur']);
+  assert.deepEqual(regles('La connexion n’a pas pu aboutir. Réessaie dans un instant.'), []);
+});
+
+await dit('guide de voix : un encouragement quand une tâche est finie — une phrase courte, sans point d’exclamation, en français comme en anglais', () => {
+  assert.equal(G.ENCOURAGEMENTS.fr.length, G.ENCOURAGEMENTS.en.length);
+  for (const l of ['fr', 'en'] as const) {
+    for (const p of G.ENCOURAGEMENTS[l]) {
+      assert.ok(p.length <= 24, `« ${p} » : courte`);
+      assert.match(p, /^[A-ZÀ-Ý][^!?]*\.$/u, `« ${p} » : une phrase, un point final`);
+      assert.deepEqual(G.ecartsDeVoix(p), [], p);
+    }
+  }
+  assert.equal(G.encouragement(0), G.ENCOURAGEMENTS.fr[0]);
+  assert.notEqual(G.encouragement(1), G.encouragement(2), 'pas deux fois la même d’affilée');
+  assert.equal(G.encouragement(Number.NaN, 'en'), G.ENCOURAGEMENTS.en[0]);
+  assert.equal(G.encouragement(-3), G.ENCOURAGEMENTS.fr[3]);
+});
+
+await dit('les mots du socle suivent le guide : tutoiement, aucun point d’exclamation, aucune formule servile, aucun code d’erreur', async () => {
+  const M = await charger<Record<string, Record<string, string>> & { DICTIONNAIRES_SOCLE: Record<'fr' | 'en', Record<string, string>> }>({
+    code: ['archetypes', 'briques', 'controles', 'graphiques', 'situations', 'vivant'].map((m) => `export { FR_${m.toUpperCase()} } from '../src/socle/mots/${m}';`).join('\n') + "\nexport { DICTIONNAIRES_SOCLE } from '../src/socle/i18n';",
+  });
+  const D: Record<string, Record<string, string>> = { coquille: M.DICTIONNAIRES_SOCLE.fr };
+  for (const m of ['ARCHETYPES', 'BRIQUES', 'CONTROLES', 'GRAPHIQUES', 'SITUATIONS', 'VIVANT']) D[m.toLowerCase()] = M[`FR_${m}`];
+  let n = 0;
+  for (const [dico, mots] of Object.entries(D)) {
+    for (const [cle, texte] of Object.entries(mots)) {
+      n += 1;
+      assert.deepEqual(G.ecartsDeVoix(texte), [], `${dico}.${cle} : « ${texte} »`);
+    }
+  }
+  assert.ok(n > 300, `${n} textes lus`);
 });
 
 console.log(`\nOK — ${vus} contrôles.\n`);

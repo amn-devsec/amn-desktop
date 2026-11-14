@@ -2,15 +2,15 @@
  * LA VUE D'ENSEMBLE D'UNE FAMILLE — où mène la première ligne de chaque famille de la barre latérale.
  *
  * Toute famille sauf Ma journée commence par « Vue d'ensemble » (01-SOCLE-DESIGN §3). Ma journée a son
- * Accueil, et La Garde sa salle (`/garde`). Les autres n'ont, aujourd'hui, ni page propre ni route : le lot
- * qui construit la page d'accueil de la famille (F10 à F60) la déclare ici, et en attendant une page générique
- * (`PageEnsembleFamille`) dresse la liste de ses modules — jamais un lien mort, jamais « introuvable ».
+ * Accueil (`/`). Les sept autres ont leur hub, F10 à F70, à l'adresse `/ensemble/<famille>` — La Garde
+ * comprise (`/ensemble/garde`, STATUT § 1.8 : sa salle `/garde` ne change pas). En attendant le hub de son
+ * lot, déclaré par substitution sur cette route EXACTE (`src/refonte/substitutions/hubs.ts`), une page
+ * générique (`PageEnsembleFamille`) dresse la liste des modules — jamais un lien mort, jamais « introuvable ».
  */
 
 /** Les familles qui ont déjà une page d'accueil propre, et son adresse. */
 const ACCUEILS_PROPRES: Readonly<Record<string, string>> = {
   jour: '/',
-  garde: '/garde',
 };
 
 export const PREFIXE_ENSEMBLE = '/ensemble';

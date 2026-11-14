@@ -13,7 +13,7 @@ encore branché aux écrans : on crée les briques, la migration viendra écran 
 
 | Fichier | Rôle |
 |---|---|
-| `src/index.css`, bloc « LE SOCLE DE LA REFONTE (S0) » (fin du fichier) | Les jetons : graphite, 7 familles, états, thème clair, règles `data-famille` et `data-mouvement`. |
+| `src/socle/theme.css` (bloc « LE SOCLE DE LA REFONTE (S0) ») | Les jetons : graphite, 7 familles, états, thème clair, règles `data-famille` et `data-mouvement`. Édition interne seulement : `src/index.css` importe la couture `@edition/socle-theme.css` à sa fin (interne : ce fichier ; cliente : un jumeau vide), Tailwind l'insère à cette place (C-001 de T1 fermé, `check:client-statique` compile la feuille cliente et n'y tolère aucune référence au socle). |
 | `src/socle/familles.ts` | Les 7 identifiants de famille et le type `Famille`. |
 | `src/socle/i18n.ts` | Les mots du socle en fr/en (noms de familles, Mouvement, libellés des briques), et `useSocleLangue()`. |
 | `src/socle/ui/` | `Bouton`, `Carte`, `Modale`, `Saisie`. |
@@ -216,3 +216,287 @@ la logique du réglage. `check:calques` vérifie la pile qu'utilise la Modale.
 ## Mise à jour — LOT-00 Système et démarrage
 
 Nouveaux groupes de briques dans `src/socle/ui/` (tous réexportés par `index.ts`) : `controles/`, `situations/`, `graphiques/`, `archetypes/`. Les mots fr/en vivent par écran (`definirMots`, `src/socle/mots.ts`). La page de démonstration interne `/dev/socle` (développement seulement) montre chaque brique. Écrans système : `src/refonte/systeme/`. Liste et chemins : section « LOT-00 » de [`refonte/STATUT.md`](refonte/STATUT.md).
+
+## Mise à jour — v3 (2026-11-01)
+
+Couche de mouvement commune (`src/socle/mouvement.css`, attribut `data-mvt`), police monospace (`--socle-police-mono`, `.sc-mono`), composants vivants (`src/socle/ui/vivant/` : `LiveDot`, `Caret`, `Severity`, `FilterChips`, `Gauge`, `HeatCell`, `FlowLine`, `InlineSuggestion`), coquille v3 (`usePageCoquille`). Aperçus de capture : `scripts/apercu/`. Détail et chemins : section « LOT-00 v3 » de [`refonte/STATUT.md`](refonte/STATUT.md).
+
+## Mise à jour — briques partagées v3 (STATUT § 1.10, point 1)
+
+Les briques que les fiches v3 citent dans tous les lots vivent dans `src/socle/ui/briques-partagees/` (feuille
+`briques-partagees.css`, chargée par `@import` depuis `briques.css`, donc par `Ambiance.tsx`, édition interne seulement) et
+s'importent depuis `src/socle/ui` :
+
+```tsx
+import { IconTile, CountBadge, ModuleTile, ModuleGroupGrid, AddModuleTile, PageHead, StatusPill } from '../socle/ui';
+```
+
+- **`IconTile`** (`icone`, `taille` 22 | 26 | 28 | 36 | 38 | 42 | 44 | 48, `famille?` dont `garde`, `ton?` neutre | succes |
+  attention | critique | info, `part?` 10 | 13 | 14 | 18, `bordure?`, `libelle?`) : le carré arrondi teinté de la famille à
+  13 % (§ 4) ou neutre (`--socle-tag`). Rayon et glyphe suivent la taille. `part` et `bordure` sont des variantes
+  **officielles** (décision du CO : les images font foi) : elles reproduisent les images de D02 (10 %, bordure à 22 %) et
+  de H41 (14 %, 18 % pour l'aperçu) ; D02 et H41 l'emploient sans changer un pixel, et
+  `BlocEtat` lui passe son ton (`attention`, `critique`, `neutre` en compact) ou sa teinte (famille, gris T3 du neutre
+  standard) par la variable `--sc-tuile-teinte` de la brique, sans redéfinir une cote ni un fond dans `situations.css`.
+- **`CountBadge`** (`n`, `libelle?`, `variante?` standard | laterale | texte, `critique?`) : 16 px, fond
+  `--socle-pastille-compte`, 10,5 / 600 ; la pastille de Cyber (`laterale`, qui pose son propre `display` : 21 × 16 où
+  qu'elle soit) et le chiffre seul des épinglés (`texte`) de la barre latérale ; rien à zéro, « 99+ » au-delà, le chiffre
+  dit en mots (lecteur d'écran et info-bulle ; « 1 alerte critique » au singulier).
+- **`ModuleTile`** (`nom`, `icone`, `famille?`, `sousTexte?`, `accessoire?`, `variante?` standard | ligne, `actif?`,
+  `vers` OU `onClick` — exactement l'un des deux, par le type `CibleTuile` : ni aucun, ni les deux (décision du CO) —, `tuile?`) : un lien ou un bouton, focus
+  visible. `ligne` = la puce des épinglés de D02 (34 px, rayon `--socle-rayon-controle`) ; `standard` = 41 px (tuile 26,
+  nom 13 T2, sous-texte 11,5 T4 — T3 sur le module ouvert, pour tenir AA sur `--socle-ligne-choisie` —, survol de ligne,
+  `aria-current` du module ouvert), **provisoire** jusqu'aux fiches F10 à F70. Un `LiveDot` en accessoire porte
+  `afficherLibelle` : un point seul ne dit pas l'état (§ 7.6).
+- **`ModuleGroupGrid`** (`titre`, `effectif?`, `colonnes?`, `onAjouter?` ou `versAjouter?` — jamais les deux, type `AjoutGroupe` —, enfants `ModuleTile`) et
+  **`AddModuleTile`** (`libelle?`, `vers` ou `onClick` (`CibleTuile`), `variante?`) : la grille d'un groupe (titre 11 px
+  capitales T4, effectif dit en texte aux lecteurs d'écran, écart 6) fermée par « + Ajouter un module » (pointillé
+  `--socle-pointille`, même hauteur que la tuile). Provisoires.
+- **`PageHead`** (= `EnTeteDePage`) : `titre`, `sousTitre?`, puis soit `primaire?`, `secondaires?` (avec `infobulle?`),
+  `extra?`, soit `controles` (à la place des boutons, D02) — exclusifs par le type, rien ne disparaît en silence ;
+  `className?` (les cotes propres d'un écran restent dans sa feuille, en `.x-entete.sc-page__entete`), `attributsTitre?`
+  (`data-guide` d'une visite). H40, H42, H47 et D02 l'emploient.
+- **`StatusPill`** = `PastilleEtat` ; **le catalogue des noms des fiches** est `src/socle/ui/noms.ts` (`Card` = `Carte`,
+  `Button` = `Bouton`… tableau en tête du fichier ; `Sidebar`, `Header`, `AjmaniBar` depuis `src/socle/coquille`). Un alias
+  n'existe que si la brique suit la ligne du § 4 : `Empty` = `EtatVide` depuis la correction de l'état vide (table de la
+  section suivante ; `action` est demandé, `action={null}` pour un emplacement en lecture seule).
+
+Démonstration : section « Briques partagées » de `/dev/socle`. Garde : `npm run check:socle-briques`.
+
+## Mise à jour — alignement du § 4 (2026-11-06)
+
+Audit brique par brique de `01-SOCLE-DESIGN.md` § 4, mesuré dans le **CSS calculé** de `/dev/socle` (aperçu `scripts/apercu/ecrans/SOCLE-DEMO.tsx`, Chromium 1440 × 900 ; script Playwright jetable, effacé). Tout ce que la table ne cite pas était déjà à la valeur exacte (Card, Subcard, Button, IconButton, Kpi, StatusPill, Pill, Tag, FlagUrgent, Kbd, Avatar / AvatarStack / Sq, Progress, Ring, Donut, Check, Toggle, Field / Select, Tabs, Segmented, SearchBox, Table, Ticket, colonne de kanban, Suggestion, cartes ludiques) ; `check:socle-controles`, `check:socle-graphiques` et `check:socle-archetypes` tiennent désormais chaque valeur.
+
+| Brique | Spec § 4 | Mesuré avant | Corrigé |
+|---|---|---|---|
+| TimelineItem, filet vertical | `#222224` | `#2a2a2d` (`--socle-filet-vertical`) | oui : jeton à `#222224` |
+| Empty (`EtatVide`), pointillé | `#2E2E33` | `#28282b` (`--socle-bord-controle`) | oui : `--socle-pointille` |
+| Empty, rayon | 14 | 12 | oui : `--socle-rayon-carte` |
+| Empty, titre | 14 px / 600 | 15 px (surcharge de `situations.css`) | oui : 14 px, surcharge retirée |
+| Empty, texte | 12,5 px T4, 300 px au plus | 12,5 px T4, sans limite | oui : `max-width: 300px` |
+| Empty, icône | 44 px dans un carré arrondi | absente | oui : prop `icone` (`.sc-vide__icone`, 44 px, rayon 12, glyphe 20) |
+| Empty, action | toujours | facultative | oui : `action` demandé (`null` l'assume) ; alias `Empty` dans `noms.ts` |
+| Kpi, hauteur | 84 à 92 | jusqu'à 94 : la variation passait sous la valeur dès que les deux ne tenaient pas côte à côte | oui : une seule ligne (`flex-wrap: nowrap`), variation en ellipse ; la phrase entière reste dans l'infobulle et pour les lecteurs d'écran |
+| Ring muet (< 40 px) avec un centre donné | — | centre à 16 px, la cote de 72 px | oui : 11 px, la plus petite cote |
+| Segmented désactivé (fieldset) | état visible (§ 7.6) | aucun état, survol actif | oui : `.sc-segment:disabled` comme le sélecteur (60 %, curseur « interdit »), survol épargné |
+| Check, bordure | 1,5 px `#3A3A3E` | déclarée 1,5 px, rendue 1 px (Chromium arrondit une bordure de 1,5 px à 1 px en échelle 1) | non : la feuille dit 1,5 px, le rendu ne peut pas faire mieux |
+| `BlocEtat` (le bloc d'état de H43) | — (c'est `StateBlock`, fiche H43) | tuile 48 px, titre 15 px, texte 240 px | non : cotes mesurées sur l'image H43 (0,72 %), hors § 4 |
+
+Ajouts demandés par LOT-06 (point 2) : `Anneau` accepte `taille` de **26 à 80** (`tailleAnneau` borne, `epaisseurAnneau` donne 3 px à 26 → 8 px dès 72, `coteAnneau` règle la valeur centrée : 16 px, 13 px sous 72, 11 px sous 48, rien sous 40 — `children` l'y remet) ; `CaseACocher` prend `taille={16 | 18 | 24}` (16 px, coche de 11 px ; `'serie'` reste) ; `Segmente` prend `taille="compact"` (26 px : rembourrage 2, segments 12 px 3 × 9) ; `BoiteRecherche` prend `hauteur={38}` (le champ 270 × 38 de l'en-tête de D02). Une cible de 16 ou 26 px est sous les 34 px du § 7.6 : réservée aux rangées denses.
+
+### Les noms de mouvement des fiches (`amn-grow`, `amn-slide`, `amn-bar`, `amnFlow`, `amnHalo`)
+
+Les fiches des lots nomment les mouvements à l'anglaise ; `src/socle/mouvement.css` les fournit sans rien dupliquer (LOT-06, point 4) : trois **classes** qui partagent la règle de leur attribut, deux **noms de keyframes** pour une feuille d'écran qui anime elle-même un trait. Même coupure que le reste de la couche (`prefers-reduced-motion`, Mouvement « aucun » ; « réduit » garde un fondu court pour `amn-grow` et `amn-slide`, coupe `amn-bar`).
+
+| Nom de la fiche | Équivalent de la couche | Ce que c'est |
+|---|---|---|
+| `.amn-grow` | `data-mvt="entree"` | l'entrée d'une carte : 500 ms, monte de 6 px, décalage `--sc-mvt-rang` × 45 ms |
+| `.amn-slide` | `data-mvt="arrivee"` | l'arrivée d'une ligne : glisse de 8 px depuis la gauche, 450 ms |
+| `.amn-bar` | `data-mvt="pousse"` | une barre qui pousse depuis sa base : 700 ms, décalage `--sc-mvt-rang` × `--sc-mvt-barre-decalage` |
+| `amnFlow` | keyframes de `data-mvt="flux"` | un pointillé qui s'écoule (`stroke-dashoffset` recule de `--sc-mvt-flux-pas`), en boucle |
+| `amnHalo` | keyframes de `data-mvt="onde"` | une onde qui s'élargit (opacité .55 → 0, échelle 1 → 2,6), en boucle |
+
+Les noms `amn-fade` et `amn-in` de la fiche D02 sont `data-mvt="fondu"` et `data-mvt="entree"` ; ils n'ont pas de classe (un seul nom par mouvement). Côté code, `CLASSES_MOUVEMENT` (`src/socle/couche-mouvement.ts`, avec le type `ClasseMouvement`) porte les trois classes et l'attribut de chacune ; `check:socle-vivant` le compare à la feuille.
+
+### `Mono` et `src/socle/formats.ts`
+
+- `Mono` (`src/socle/ui/Mono.tsx`, exporté par `src/socle/ui`) : la donnée technique « en MONO » des fiches — `<Mono>10:42:07</Mono>`, `<Mono as="time" dateTime="…">`, `<Mono as="code">`, `taille` de 11 à 18 px (bornée, ±Infinity compris ; la borne l'emporte sur un `style.fontSize` de l'appelant ; NaN hérite du parent) ; la couleur vient du parent. C'est `.sc-mono` de `noir.css` (`--socle-police-mono`, chiffres tabulaires, sans ligatures).
+- `src/socle/formats.ts` : `formaterNombre`, `formaterPourcent` (déjà en pour cent), `formaterRatio` (0 à 1), `formaterEuro`, `formaterMontant`, `formaterDate`, `formaterHeure`, `dateIso`, importables depuis tout code interne (`import { formaterEuro } from '../../socle/formats'`) — `check:socle-graphiques` interdit d'importer `src/socle/ui/graphiques/*` hors du socle ; ce module neutre réexporte les deux sources sans rien recopier. Une valeur illisible (NaN, ±Infinity, date invalide) donne « — » sur chaque export (jamais « NaN € », « 0 % » pour un ratio inconnu ni une exception), sauf `dateIso` qui rend « » ; jamais « -0 € ».
+- Jetons ajoutés dans `noir.css` : `--socle-decor-1/2/3` (illustrations seulement), `--socle-hachure-attention` / `--socle-hachure-grise` (`background-image`), `--socle-pointille-ok` / `--socle-pointille-attention` (`border`) ; la teinte de sélection `#FFA463` des fiches est `--socle-fam-creer`.
+
+## « Aujourd'hui » et compteurs de la barre latérale (socle v3)
+
+### « Aujourd'hui » : un seul calcul (`src/refonte/coquille/aujourdhui/`)
+
+La carte « Aujourd'hui » de la barre latérale et l'Accueil (N01) lisent les mêmes chiffres parce qu'ils sortent d'un seul calcul (consigne du CO, `STATUT.md` §1.10 point 3). LOT-01 le lit, il ne le recalcule pas.
+
+```ts
+import { useAujourdhui } from '../coquille/aujourdhui';
+
+const a = useAujourdhui();
+// a.faites / a.total   : « x sur y faites » (les lignes faites sur les lignes visibles du fil)
+// a.serie               : la série en cours, en jours (0 : aucune), comptée à la clôture (04-ECARTS B2)
+// a.prochainRdv         : { titre, debut } du prochain rendez-vous du jour pas encore fini, ou null
+// a.fil / a.masquees    : le fil du jour tel qu'on le montre (retouches appliquées), et ce qui est masqué
+// a.enLigne / a.presenceMontree : qui est en ligne et le libellé du module où chacun est (jamais une adresse)
+// a.maintenant / a.jour : l'horloge à la minute, le jour « AAAA-MM-JJ »
+// a.cocher(ligne)       : cocher dans la donnée (priorité, tâche) ou sur ce poste (ligne à soi)
+// a.retoucher(fn)       : masquer, ajouter, tout réafficher (fonctions pures de `accueil/filDuJour.ts`)
+```
+
+- Les **règles** restent celles de S2 : `construireFil` et `appliquerRetouches` (`src/refonte/accueil/filDuJour.ts`), `meilleureSerie` (`tuiles.ts`). Elles sont appelées par la fonction pure `calculerAujourdhui(sources, maintenant, libelles)` (`calculer.ts`), jamais recopiées ; `construireFil` n'est appelé que là (`check:socle-coquille`).
+- **Un seul calcul** : `FournisseurAujourdhui` est monté une fois dans la coque interne (`AppLayout`, par `@edition/coquille`, jumeau cliente inerte), **au-dessus des deux coquilles** (décision du CO) : nouvelle coquille allumée ou non, tout ce qui est sous la coque reçoit le même objet, et cocher une ligne à l'Accueil met la carte de la barre à jour sans second calcul. Les bureaux (`CadreBureau`) restent hors du fournisseur. Sans fournisseur (contrôles, aperçus), `useAujourdhui()` calcule localement. Règle des hooks : chaque consommateur garde une instance inactive de `useCalculAujourdhui` (ses accès appelés, rien de calculé) ; l'Accueil reprend les accès de `useAujourdhui().acces`.
+- `useCarteAujourdhui(langue, versAccueil)` (`carte.ts`) met ces chiffres en mots pour la barre (« 11:00 · dans 18 min »). `useAccueil` (N01) lit `useAujourdhui()` et garde le reste (tuiles, activité, familles, message d'Ajmani).
+
+### Compteurs de la barre latérale : déclarés par les lots (`src/refonte/compteurs/`)
+
+Les pastilles de la barre latérale (« ce qui attend », par adresse de module) ne sont plus calculées en dur dans la coquille. Chaque lot déclare les siennes dans **un fichier**, `src/refonte/compteurs/<famille>.ts`, ramassé seul (comme le registre des modules de S5) :
+
+```ts
+import { useMemo } from 'react';
+import { useCollection } from '../../state/SyncContext';
+import { declarerCompteurs } from '../coquille/declarerCompteurs';
+
+function useCompteurs(): Record<string, number> {
+  const articles = useCollection<Article>('stock');
+  return useMemo(() => ({ '/stock': articlesASurveiller(articles).length }), [articles]);
+}
+export default declarerCompteurs({ famille: 'creer', useCompteurs });
+```
+
+- `useCompteurs` est un **hook** (il lit les accès existants) qui rend les compteurs par adresse de vue (le `to` du catalogue). Rendez un objet mémorisé. Une adresse absente ou à zéro n'affiche rien. **Rien ne s'additionne** (décision du CO) : sur une adresse, la déclaration du module l'emporte ; `useRepli` (facultatif) donne des compteurs de repli, montrés seulement là où aucune déclaration ne donne l'adresse (un zéro déclaré compte). Déclarez une adresse une seule fois : deux fois, la première dans l'ordre des chemins l'emporte.
+- `famille` : une des sept familles, `garde`, `cyber` ou `developpement`. Une déclaration mal formée est écartée avec sa raison (`COMPTEURS_DECLARES.ecartes`), les autres s'affichent.
+- `useSignaux` (Développement seulement, voir « v4 : l'entrée Développement ») : les deux signaux d'état de sa ligne.
+- Les compteurs d'avant sont la première déclaration, `compteurs/jour.ts` (agenda, tâches, relances, priorités ; et, en repli, l'activité non vue de chaque module) ; celui de Cyber est `compteurs/cyber.ts` (absent tant que la source n'a pas répondu : pas de pastille, pas de zéro inventé).
+- Hors de Vite (contrôles Node), `import.meta.glob` n'existe pas : la liste est vide ; `check:socle-coquille` et les aperçus (`scripts/apercu/construire.ts`) la remplacent par le contenu du dossier.
+
+## Substituer un écran (refonte, STATUT § 1.3)
+
+Un écran refondu est un nouveau composant dans `src/refonte/<lot>/` ; `src/screens/**` et `appRoot.internal.tsx` ne bougent pas. Le lot le déclare dans `src/refonte/substitutions/declarations/<lot>.tsx` (un fichier par lot, ramassé seul) :
+
+```tsx
+import { lazy } from 'react';
+import { declarerSubstitutions } from '../declarer';
+
+export default declarerSubstitutions('jour', [
+  { route: '/tasks', module: 'tasks', support: 'identique', composant: lazy(() => import('../../jour/PageTaches')) },
+]);
+```
+
+`route` : le chemin exact de la route d'origine (paramétré accepté : `/garde/bureaux/:equipe`, une route de bureau rendue par `CadreBureau`) — pour les **hubs F10 à F70**, sept routes exactes, une par lot (`/ensemble/contacts` … `/ensemble/garde`, table `src/refonte/substitutions/hubs.ts`, décision du CO) : un lot ne déclare que la sienne, jamais `/ensemble/:famille` (la page générique, le repli) ; `module` : la clé de la garde `ModuleRoute` de la route d'origine, conservée (un module fermé renvoie à l'Accueil) — aujourd'hui seule la session de support garde ses routes (`ClientContextRoutes` dans `appRoot.internal.tsx` ; les routes internes de `AppLayout` n'ont pas de garde), la clé est donc obligatoire avec `support: 'identique'` et s'applique aussi dans l'édition interne ; `check:substitutions` la compare à la source ; `support` : `'identique'` rend le même substitut en session de support cliente, `'aucune'` (défaut) y laisse l'écran d'origine — en session de support aussi, un substitut `'identique'` suit le drapeau `amn.coquille` du poste, sauf `toujours: true` ; `toujours` : rendu même coquille éteinte (défaut : seulement coquille allumée). Le point unique est `SubstitutionDEcran` (`src/refonte/substitutions/SubstitutionDEcran.tsx`), monté par `AppLayout` (ses deux sorties), `CadreBureau` (la pièce des cinq bureaux : `/garde/*`, `/cyber/*`, `/supervisor/*`, `/studio/*`, `/strategie/*`) et `ClientContextLayout` via la couture `@edition/substitutions` ; côté cliente, le jumeau rend l'`Outlet` et le registre est vide. Gardes : `npm run check:substitutions` (route existante, pas de doublon, clé `module` égale à la garde de la route d'origine, substitut dans `src/refonte/<lot>/` sans `src/screens/**`, `declarations/` en `.tsx` seulement, plus aucun `Outlet` nu dans la coque interne) et `npm run check:client-statique` (le paquet client n'atteint rien de `src/socle`, `src/refonte`, `*.internal.*`, `src/client-context`, `src/bureaux`).
+
+## Mise à jour — `check:coquille` sur la barre v3 (2026-11-06)
+
+`scripts/check-coquille.mjs` mesure désormais aussi la barre latérale v3 (01-SOCLE-DESIGN §0.1) : une seule colonne de 252 px en `border-box` (padding 16 / 14 / 14), recherche 34 px et bouton carré 34 px collé à droite, sections ESPACE / SURVEILLANCE / ÉPINGLÉS (10,5 px capitales, 20 px, encre T4 `#8a8a8e`, interlettrage .09em), familles de 32 px à icône de 15 px en T3 sans aucune pastille (la teinte de famille ne colore que l'icône de la famille active, fond `#19191B`, 600, T1, chevron), La Garde « veille » + voyant, Cyber toujours présent, sous-liste de cinq lignes de 27 px au plus avec le module courant visible et son repère blanc 2 × 13 sur le filet puis « + N autres », carte « Aujourd'hui » (anneau 34, filet, rendez-vous, présence sans adresse brute), en-tête de 60 px (fil, « N en ligne », cloche 34, Garde avec onde), barre Ajmani 46 px / rayon 14 avec « Entrée pour envoyer » et ⌘J d'un bloc, aucun ambre — opaque ou translucide : les teintes (ambre, rouges, teintes de famille) se comparent par composantes `rgb` / `rgba`, un fond `rgba(ambre, .13)`, une lueur ou un dégradé comptent, seule une alpha de 0 ne compte pas —, une seule ligne active. Deux usages :
+
+- **T1, bundle servi** (inchangé) : `AMN_E2E_EMAIL=… AMN_E2E_PASSWORD=… AMN_EDITION=interne node scripts/check-coquille.mjs <dossier-du-bundle> [port]`. Coquille éteinte : les sept mesures d'origine et les bureaux ; puis un second passage, coquille allumée (`localStorage['amn.coquille'] = 'noir'` posé avant la navigation, fenêtre 1440 × 900), sur la liste interne. `AMN_COQUILLE=eteinte|allumee` restreint à un passage (pour isoler une faute du second passage : `eteinte` puis `allumee`) ; hors `AMN_EDITION=interne`, `allumee` est refusé (sortie 2), le drapeau n'existant pas dans l'édition cliente. Le drapeau est posé avant la navigation et l'événement `amn:coquille` (celui auquel `drapeau.ts` s'abonne) levé aussitôt, sans compter sur un re-rendu. Les bureaux sont mesurés aussi coquille allumée (décision du CO) : mêmes mesures que coquille éteinte, et la barre v3 ne doit pas être rendue en plus de leur coquille.
+- **Page statique, sans serveur ni connexion** : `npm run apercu -- COQUILLE-H42 --sortie /tmp/apercu/x/COQUILLE-H42` puis `node scripts/check-coquille.mjs --page /tmp/apercu/x/COQUILLE-H42/index.html` (ou `AMN_COQUILLE_PAGE=`). Un fichier local seulement (aucune adresse, même locale) ; toute requête réseau est refusée et comptée comme une faute. Les aperçus `COQUILLE-H40`, `-H42`, `-H47`, `-D02` sont faits pour lui ; dans ce mode, la section ÉPINGLÉS, La Garde, « + N autres », la carte « Aujourd'hui » et « N en ligne » sont exigés (l'aperçu les porte), alors que dans l'application ils peuvent manquer pour une raison de données.
+
+## Mise à jour — réglages des écrans LOT-00 (2026-11-06)
+
+Les trois surfaces de réglages que LOT-00 possède dans les Paramètres passent par la porte `MouvementSection` de `@edition/socle` (`src/edition/socle.internal.tsx` ; le jumeau client rend `null`) et sont chacune la sienne, sur une `Carte` du socle : **Mouvement** (un `Segmente` à trois niveaux, l'aide du niveau choisi, « Suivre le système » quand un choix est écrit), **Écran de veille** (`src/refonte/systeme/veille/EcranDeVeilleSection.tsx` : un `Interrupteur` dans l'en-tête, « Veille après » en `Segmente`, « Verrouiller l'espace après » en `Selecteur`, coupés ensemble quand l'écran est éteint — et visiblement : `.sc-segment:disabled` comme `.sc-selecteur:disabled`, estompés à 60 % avec le curseur « interdit »), **Nouvelle coquille** (`src/refonte/coquille/CoquilleSection.tsx` : l'état en pastille, les quatre points, un `Interrupteur` dans un `<label>` avec son texte — le cliquer bascule ; les tailles de texte sont celles de la `Carte`, héritées ; les aides de Mouvement portent le style d'aide du socle, `.sc-champ__aide`, comme l'aide du sélecteur de l'écran de veille : aucune cote en pixels hors feuille dans ces surfaces). Ancres : `reglages-mouvement`, `reglages-ecran-de-veille`, `reglages-coquille`.
+
+Un écran qui envoie aux Paramètres passe la rubrique dans l'état de navigation : `navigate('/settings', { state: { section: 'notifications' } })` (H40 « Réglages »). `SettingsScreen` (partagé, non modifié) expose un `id="reglages-<rubrique>"` par rubrique (Guide et Extensions par les sections qu'il monte, `GuideSection` et `ExtensionsSection`) ; `ANCRES_REGLAGES` liste chaque rubrique de son plan et les trois surfaces de LOT-00 (`check:socle` le tient) ; la porte interne (`ancreDeReglages`, `ANCRES_REGLAGES`) fait défiler jusqu'à elle, sans glissement quand le mouvement est réduit. Une rubrique inconnue ne fait rien. Aperçu : `npm run apercu -- REGLAGES-LOT-00`. Gardes : `check:socle` (trois surfaces distinctes, H40 → Notifications, G09 inactif pendant la veille, aucun archétype du §5 en gabarit d'écran), `check:systeme-veille`.
+
+## Mise à jour — réponses du CO au socle complet (2026-11-12)
+
+- **Zones de clic de 34 px** (§7.6 l'emporte, décision du CO), **sans changer le dessin** : un `::after` invisible (ni fond, ni bordure), centré sur le contrôle, donne 34 × 34 à l'interrupteur (dessiné 34 × 20) et aux cases (16, 18, 24), 34 px de haut au moins aux segments (et 34 de large au moins) et aux boutons de `PageHead` (dessinés 31). Mesuré dans Chromium : le contrôle répond à 16,5 px de son centre, pas à 18,5.
+- **Segment choisi** : en plus du fond et de l'encre, la graisse (600). Chaque libellé réserve la largeur de sa forme grasse (`.sc-segment__texte`, copie invisible par `attr(data-texte)`, hors de l'arbre d'accessibilité) : choisir un segment ne déplace pas ses voisins.
+- **Compteurs** : la déclaration du module l'emporte, rien ne s'additionne ; l'activité non vue est le repli de `jour.ts` (voir plus haut).
+- **« Aujourd'hui »** : `FournisseurAujourdhui` au-dessus des deux coquilles.
+- **Hubs** : huit routes exactes, une par lot (le huitième, `/ensemble/developpement`, STATUT §1.17 n° 2) (`src/refonte/substitutions/hubs.ts`) ; la « Vue d'ensemble » de La Garde mène à `/ensemble/garde` (F70, STATUT §1.8 ; la Salle `/garde` ne change pas).
+- **C-001** : le socle quitte `src/index.css` pour `src/socle/theme.css`, par la couture `@edition/socle-theme.css`.
+- **D02** : le chiffre rouge d'Alertes suit le drapeau `critique` du registre (sur l'entrée ou une vue), que S5 pose ; tant qu'il n'est pas posé, D02 ne change pas.
+- **Tuiles** : `vers` et `onClick` exclusifs (`CibleTuile`), `onAjouter` et `versAjouter` aussi (`AjoutGroupe`).
+
+## Mise à jour — v4 : deux couleurs par famille (2026-11-12)
+
+`06-V4-NEON-ET-TUTOIEMENT.md` l'emporte sur `01-SOCLE-DESIGN.md`. Chaque famille a deux couleurs, **a** (principal) et **b** (second) : jetons `--socle-fam-<famille>-a` / `-b` de `src/socle/noir.css`, pour les onze familles de `FAMILLES_COULEUR` (`src/socle/familles.ts`) : les sept, `garde`, `cyber` (ses propres couleurs, distinctes de La Garde), `developpement` (LOT-11 ; absent de `couleurs-familles.json`, pris dans le tableau de 06) et `systeme` (connexion, modules : la paire « brand »).
+
+- **Lire, jamais écrire** : un écran lit `var(--fam-a)` et `var(--fam-b)`. Aucun lot n'écrit une de ces couleurs à la main.
+- **La coquille pose la famille active** sur sa racine (`data-famille-active`, prop `famille` de `Coquille`) : Cyber sur ses écrans, la famille de la barre (ou celle que la page déclare par `usePageCoquille`), sinon Système (`familleDeCouleur`). Toute la coquille, barre et contenu, reçoit sa paire.
+- **Un bloc qui dit sa famille** (`data-famille="argent"`) pose la sienne pour ce qu'il contient.
+- **Par défaut** (hors coquille, page sans famille) : la paire de Système, posée sur la racine noire.
+- Une famille ajoutée (LOT-11) prend l'identifiant `developpement` au registre pour recevoir ses couleurs.
+- Les règles de rendu de 06 § 3 (dégradés, lueurs, barre latérale active…) lisent ces jetons : voir « v4 : les quinze règles de rendu ».
+
+## Mise à jour — v4 : couleurs d'état (2026-11-12)
+
+Les huit couleurs d'état de 06-V4 § 2 remplacent les v3 partout dans le socle (`noir.css` : `--socle-etat-*`, `--color-etat-*`, et les teintes de famille qui les portaient, `--socle-fam-*` / `--color-fam-*`) :
+
+| Rôle | v3 | v4 |
+|---|---|---|
+| succès | `#8FBF7A` | `#5EE6A8` |
+| info | `#8AA4D6` | `#6EA8FF` |
+| attention | `#E0B35A` | `#FFBE5C` |
+| danger (critique) | `#E08A80` | `#FF6B7A` |
+| sarcelle (Contacts) | `#6FB7A8` | `#4FE3C1` |
+| violet (Écrire) | `#A79BDB` | `#A58BFF` |
+| rose (Échanger) | `#D98FA8` | `#FF7EB6` |
+| orange (Créer, teinte de sélection) | `#D9A27A` | `#FFA463` |
+
+- Les briques lisent les jetons : aucune n'a changé de règle. `check:socle` refuse toute couleur d'état v3 (hexadécimal ou `rgb()`) dans `src/socle`, `src/refonte/systeme`, `src/refonte/coquille` et `src/refonte/compteurs` ; `check:coquille` reconnaît l'ambre v4 et les teintes v4 (et toujours les v3) dans la colonne.
+- Outils (`#9A9AA0`) et La Garde (`#D6D6DA`) gardent leur gris de pastille d'ici aux règles de rendu de 06 § 3 ; leur paire v4 est en `--socle-fam-outils-a/-b` et `--socle-fam-garde-a/-b`.
+- Restent des teintes dérivées de la v3, qui relèvent des règles de rendu (06 § 3) : le fond de l'interrupteur allumé (`--socle-toggle-actif`, vert sombre ; en v4 un dégradé a → b) et le bord du toast (`--socle-bord-toast`).
+
+## Mise à jour — v4 : les quinze règles de rendu (2026-11-12)
+
+Les règles de 06-V4 § 3 sont portées par les briques et la coquille, aux valeurs des sources néon (`sources-neon/`). Tout ce qui dépend de la famille s'écrit sur l'élément même, en `var(--fam-a)` / `var(--fam-b)` ; aucun lot n'écrit une couleur à la main.
+
+| Règle | Où | Ce que la brique pose |
+|---|---|---|
+| 1. Fond | `--socle-halos` (`noir.css`) | deux halos : a 20 % en haut à droite (900 × 480 à 92 % / -8 %), b 15 % en bas à gauche (800 × 520 à 32 % / 112 %). Le jeton se redéclare là où la paire change (racine, `data-famille-active`, `data-famille`) : il suit la famille de l'élément. Une page : `background: var(--socle-halos), var(--socle-fond-page)`. |
+| 2. Cartes | `[data-socle='carte']`, `.sc-kpi` | dégradé `#19191C → #111113`, bord `#2A2A2E`, rayon 16, reflet + ombre, halo a 8,5 % (b 8,5 % sur la première) dans un coin qui alterne. |
+| 3. Titre de page | `.sc-page__titre` | 30 / 700 / -0,03 em, texte en dégradé `#FFF 30 % → b`. |
+| 4. Grands chiffres | `.sc-kpi__valeur`, `.sc-grand-nombre` | texte en dégradé vertical `#FFF 30 % → a 140 %`. |
+| 5. Bouton principal | `[data-variante='primaire']` | dégradé a → b, encre `#0B0B0C`, ombre de a, reflet. |
+| 6. Bouton secondaire | `[data-variante='secondaire']` | verre `#1C1C1F → #151517`, bord `#303035`. |
+| 7. Pastilles, points, anneaux, courbes, arcs | `.sc-etat`, `.sc-point`, `.sc-anneau`, `.sc-g__ligne`, `.sc-g__segment` | fond 14 %, bord 38 %, point lumineux ; lueur `drop-shadow` de la couleur ; aire sous courbe à 0,42. |
+| 8. Histogrammes | `Barres` | neutres en dégradé de a (50 % → 10 %) ; mise en valeur pleine → 30 % et sa lueur. Ton par défaut : `famille` (`var(--fam-a)`). |
+| 9. Progression | `.sc-barre` | dégradé a → b et lueur ; une barre d'état, sa couleur et sa lueur. |
+| 10. Barre latérale | `coquille.css` | famille active : dégradé a 24 % → b 8 %, liseré a 38 %, blanc, 600 (chaque ligne pose sa paire) ; module courant : a 20 % → transparent ; repère 3 × 14 en a → b avec lueur. |
+| 11. Onglets, segments, puces | `controles.css`, `vivant.css` | soulignement a ; segment actif a 30 % → b 16 % ; puce active a 28 % → b 14 %, bord a 50 %. |
+| 12. Barre Ajmani, suggestion | `.sc-ajmani`, `.sc-suggestion`, `.sc-suggestion-ligne` | bord en dégradé (fond en `padding-box`) ; au survol, le fond de la barre passe à `#151516`. |
+| 13. Avatars | `--socle-avatar-*` | six dégradés pastel, encre `#0B0B0C`. |
+| 14. Tuiles d'icône | `IconTile` | dégradé c 26 % → 6 %, bord c 42 %, lueur ; `part` garde l'aplat mesuré (D02, H41, H43). |
+| 15. Mouvement | `mouvement.css` | `prefers-reduced-motion` et Mouvement « aucun » coupent les transitions et les lueurs animées. |
+
+- **Teintes v3 passées en v4** (demande du CO) : l'icône active d'Outils prend sa couleur a `#7CC4FF` (les sources v4 la dessinent encore `#9A9AA0`) ; La Garde `#5EE6A8` ; Cyber `#FF6B7A` ; l'interrupteur allumé en dégradé a → b avec lueur ; le bord du toast `#243931` (le succès v4 à 15 % sur le fond du dialogue, comme l'erreur à 30 %).
+- Les miroirs `--color-socle-surface` / `-eleve` / `-bord` suivent les cartes v4 (`#111113`, `#19191C`, `#2A2A2E`).
+- Gardent leur rayon 14 (`--socle-rayon-boite`, sources v4) : boîte de dialogue, toast, palettes, zone vide ; la barre Ajmani a le sien (`--socle-rayon-ajmani`).
+- `check:socle` vérifie les quinze règles, valeur pour valeur ; `check:coquille --page` mesure la barre v4 dans le navigateur (dégradés de la paire, repère, lueur).
+
+## Mise à jour — v4 : l'entrée « Développement » (2026-11-12)
+
+La barre latérale a une entrée « Développement » (LOT-11, 07-ESPACE-DEV), **toujours visible**, seule ligne de la section **« ESPACES DE TRAVAIL », juste au-dessus de SURVEILLANCE** (STATUT §1.17 n° 1), avec l'icône de code et la paire de couleurs `developpement` (`#6EA8FF` / `#5EE6A8`).
+
+- **Sa sous-liste** (`src/refonte/coquille/sousListeDeveloppement.ts`) suit l'ordre des treize lignes de l'image (fiche LOT-11 `00-COMMUN`) : « Vue d'ensemble », puis les modules de LOT-11 (famille `developpement` du registre, déclarés dans l'ordre de l'image) et des **vues reprises d'autres familles** (§1.19 n° 1 : le registre reste sans doublon, la sous-liste pointe vers elles) : Automatisations (H20, `automations`), Coffre-fort (H24, `vault`), Base de connaissances (ME05, `knowledge`) ; Connecteurs (H21), Missions et tickets (H03) et Sauvegardes (MO03) ne sont pas encore au registre : leur identifiant s'écrira dans `ORDRE_DEVELOPPEMENT` quand leur lot les déclarera. Puis le socle §0.1 : cinq lignes au plus, « + N autres ». Une vue reprise n'est jamais allumée par sa famille d'origine (une seule ligne allumée dans la barre).
+- **Sa vue d'ensemble** : le huitième hub, `/ensemble/developpement` (`DEV-ensemble`, lot `developpement`, `src/refonte/substitutions/hubs.ts`, §1.17 n° 2), que LOT-11 déclare par substitution sur cette route exacte ; d'ici là, la page générique.
+- **Dépliée sur ses écrans** : un module du registre, sa vue d'ensemble ou une page qui se déclare `famille: 'developpement'` (`usePageCoquille`) l'allument et la déplient ; la coquille pose alors sa paire (`data-famille-active="developpement"`).
+- **Deux signaux** à droite de la ligne : les déploiements en cours (voyant bleu, qui ondule) et les tests en échec (voyant rouge), chacun avec son chiffre ; ils se disent avec le nom de la ligne pour les lecteurs d'écran. Zéro, ou rien de déclaré : rien ne s'écrit, jamais un zéro inventé.
+- **LOT-11 les déclare** dans `src/refonte/compteurs/developpement.ts`, ramassé seul :
+
+```ts
+import { useMemo } from 'react';
+import { declarerCompteurs, type SignauxDeveloppement } from '../coquille/declarerCompteurs';
+
+function useCompteurs(): Record<string, number> {
+  return useMemo(() => ({}), []); // ses compteurs de modules, s'il en a
+}
+function useSignaux(): SignauxDeveloppement {
+  const deploiements = …; const tests = …; // ses propres accès
+  return useMemo(() => ({ deploiementsEnCours: deploiements, testsEnEchec: tests }), [deploiements, tests]);
+}
+export default declarerCompteurs({ famille: 'developpement', useCompteurs, useSignaux });
+```
+
+- `null` ou absent : la source n'a pas répondu. Rien ne s'additionne : si deux fichiers donnent un signal, le premier dans l'ordre des chemins l'emporte. `useSignaux` sur une autre famille : la déclaration est écartée.
+- Côté socle, la ligne reçoit des `signaux` génériques (`SignalLateral` : clé, nombre, ton `info` ou `critique`, libellé, `enCours`) : la barre ne sait rien des déploiements.
+- À 900 px de haut, une famille dépliée et trois épinglés, la colonne dépasse : elle défile (comme avant), la carte « Aujourd'hui » s'atteint en descendant.
+- `check:socle-coquille` (présence, section, sous-liste, signaux, déclaration), `check:substitutions` (huit hubs) et `check:coquille --page` (dans le navigateur : seule ligne d'ESPACES DE TRAVAIL, juste avant SURVEILLANCE, icône, signaux dits) le tiennent.
+
+## Mise à jour — v4 : tutoiement et guide de voix (2026-11-12)
+
+L'interface tutoie (06-V4 §4) : la coquille, les mots du socle (`src/socle/i18n.ts`, `src/socle/mots/*`) et les neuf écrans de LOT-00 (`src/refonte/systeme/*`), ainsi que leurs aperçus. Les textes des maquettes viennent de `_data/tutoiement.json` ; les autres suivent les mêmes tournures (« Demande à Ajmani, ou dis ce que tu veux faire », « Rien ne part sans ton accord », « Tu voulais dire … ? Sinon, essaie un autre mot. », « Réessaie dans un instant »).
+
+- **Vouvoiement gardé** : tout texte destiné à un client (courriels, devis, factures, relances, réponses automatiques, page publique, messages reçus). Dans LOT-00 : le brouillon de relance montré par l'aperçu de G05.
+- **Restent aussi** : « Combien êtes-vous ? » (H47, le pluriel désigne l'équipe), et les mots reconnus dans la saisie d'Ajmani (`relancez`, `trouvez`, `validez`…, à côté de leurs formes tutoyées) : ce sont des mots que la personne peut taper, pas des textes affichés. `VERBES_VAGUES` gagne « valide » et « confirme ».
+- La clé `recents.vous` de D02 devient `recents.toi`.
+- **Le guide de voix** (PLAN-10NOV §7) : `src/socle/mots/voix.ts`. Les règles (tutoiement, vouvoiement des textes clients, phrases courtes, aucun reproche, aucune urgence inventée, aucun point d'exclamation, aucun code d'erreur), les tournures (`TOURNURES` : ce que l'on n'écrit pas, ce que l'on écrit à la place, un exemple), `ecartsDeVoix(texte, zone)` (« interface » ou « client »), les encouragements (`ENCOURAGEMENTS`, `encouragement(n)` : une phrase, sans confettis ni son) ; les salutations restent celles de `src/lib/homeGreetings.ts` (neutres par défaut).
+- Les gardes des écrans de LOT-00 exigent désormais le tutoiement là où elles exigeaient le vouvoiement (`check:systeme-ajmani`, `check:systeme-demarrage`, `check:systeme-demo`) ; leurs textes attendus sont passés au tutoiement mot pour mot.
+
+### Les gardes du tutoiement (point 8)
+
+- **`check:tutoiement`** (`scripts/check-tutoiement.ts`) : dans le **périmètre** passé au tutoiement (`src/socle`, `src/refonte/coquille`, `src/refonte/compteurs`, `src/refonte/systeme`, `scripts/apercu`), chaque chaîne du code (commentaires exclus) est lue avec le guide de voix : aucun « vous », « votre », « vos », aucun impératif en « -ez ». Ses listes, écrites dans la garde, chacune avec sa raison : les **zones client** (textes destinés à un client, qui doivent vouvoyer : le brouillon de relance de G05), les **lexiques de saisie** (mots qu'Ajmani reconnaît, chacun avec sa forme tutoyée à côté), les **citations** (le guide de voix lui-même). Un lot qui passe ses écrans au tutoiement ajoute son dossier à `PERIMETRE`.
+- **`check:voix`** tient aussi le guide de voix : les tournures et leurs exemples, la règle client, les encouragements, et tous les mots du socle (`i18n`, `mots/*`) passés au guide.
+- Les deux gardes tournent dans le workflow des éditions.
+
+## Mise à jour — v4 : captures comparées aux images v4 (point 9, 2026-11-12)
+
+Les 9 écrans et les 4 aperçus en coquille, capturés et comparés aux images v4 (tableau et écarts : STATUT §7, LOT-00). Corrections trouvées par la comparaison, toutes d'après les sources néon :
+
+- **La famille active vaut aussi en portail** : la coquille la pose aussi sur la racine du document tant qu'elle est montée (`document.documentElement.dataset.familleActive`), et `noir.css` lit la paire sur `:root[data-famille-active]`. Les palettes ⌘K et ⌘J, les dialogues et les toasts, rendus dans `document.body`, prennent la paire de la famille active (avant : celle de Système).
+- **Le troisième halo** (140 pages sur 143) : b à 6 %, 520 × 340 à 0 % / 45 %, dans `--socle-halos`.
+- **Le voile des pages pleines** (D02, G06, G09, H43, et les écrans mobiles) : `--socle-halos-ecran` (a à 20 %, 820 × 440 à 94 % / -8 % ; b à 16 %, 760 × 460 à 20 % / 112 %), posé par-dessus en mode écran par la classe `sc-halos-ecran` (fixe, z-index 1, sans prendre le clic, sous les calques).
+- **Les écrans hors coquille** : le bouton principal de G06 en dégradé a → b ; l'instant de G09 dans la couleur a ; la case cochée de la palette d'Ajmani (G05) est celle du socle ; « Le point d'Ajmani » de H40 a le bord dégradé des suggestions.
+

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Sidebar } from './Sidebar';
 import { OrgRail } from './org-rail/OrgRail';
@@ -7,7 +7,7 @@ import { TopBar } from './TopBar';
 import { SitePanelProvider } from './site-panel/SitePanelContext';
 import { SiteDetailPanel } from './site-panel/SiteDetailPanel';
 import { CommandPaletteProvider } from './command-palette/CommandPalette';
-import { AssistantProvider } from '../assistant/AssistantContext';
+import { AssistantProvider, useAssistant } from '../assistant/AssistantContext';
 import { AssistantPanel } from '../assistant/AssistantPanel';
 import { AjmaniBubble } from '../assistant/AjmaniBubble';
 import { RemoteSitesProvider } from '../state/RemoteSitesContext';
@@ -50,7 +50,9 @@ import { ModulesOuvertsTracker } from '../state/useModulesOuverts';
 import { RegardsProvider } from '../state/RegardsContext';
 import { SourceBureauxProvider, useActiverSourceBureaux } from '../bureaux/donnees/source';
 import { NavigationEspacesProvider } from '../bureaux/navigation';
-import { CoquilleRefonte, useCoquilleActive } from '@edition/coquille';
+import { CoquilleRefonte, FournisseurAujourdhui, useCoquilleActive } from '@edition/coquille';
+// Refonte (§ 1.3) : le point unique de substitution d'écran, à la place de chaque Outlet ; vide côté cliente.
+import { SubstitutionDEcran } from '@edition/substitutions';
 import { bureauDuChemin } from '../bureaux/catalogue';
 import { CadreBureau } from '../bureaux/CadreBureau';
 import { PaletteEspaces } from '../bureaux/ui/PaletteEspaces';
@@ -165,7 +167,11 @@ export function AppLayout() {
               <LocalSessionBanner />
               {bureau ? (
                 <CadreBureau bureau={bureau} />
-              ) : coquille ? (
+              ) : (
+              /* « Aujourd'hui » : un seul calcul, au-dessus des DEUX coquilles (décision du CO) — la barre latérale et
+                 l'Accueil le lisent, nouvelle coquille allumée ou non ; basculer le drapeau ne le remonte pas. */
+              <FournisseurAujourdhui>
+              {coquille ? (
               <>
               <SourceEnAttente />
               {/* La nouvelle coquille : une navigation, un fil d'Ariane, ⌘K, ⌘J. L'écran est le même. */}
@@ -179,7 +185,7 @@ export function AppLayout() {
                   >
                     <NavAllegesSync />
                     <PremiereOuverture />
-                    <Outlet />
+                    <SubstitutionDEcran />
                   </motion.div>
                 </div>
               </CoquilleRefonte>
@@ -241,7 +247,7 @@ export function AppLayout() {
                   >
                     <NavAllegesSync />
                     <PremiereOuverture />
-                    <Outlet />
+                    <SubstitutionDEcran />
                   </motion.div>
                 </div>
               </main>
@@ -264,6 +270,8 @@ export function AppLayout() {
               />
               </>
               )}
+              </FournisseurAujourdhui>
+              )}
             </div>
               {/* ⌘E / Ctrl E partout : la palette d'espaces, et « ? » dans un bureau. */}
               <PaletteEspaces />
@@ -273,7 +281,8 @@ export function AppLayout() {
               <CallOverlay />
               <SiteDetailPanel />
               <AssistantPanel />
-              <AjmaniBubble />
+              {/* Le point flottant d'Ajmani (✦) n'a pas sa place sur la nouvelle coquille : sa barre le remplace (écart C10). */}
+              <BulleAjmaniSelonCoquille coquille={coquille} />
               <PremierLancement />
               <Celebrations />
               <NotificationsManager />
@@ -320,6 +329,17 @@ function RouteSeenTracker() {
     markSeen(location.pathname);
   }, [location.pathname, markSeen]);
   return null;
+}
+
+/**
+ * La bulle d'Ajmani : telle quelle sur l'ancienne coquille. Sur la nouvelle (drapeau `@edition/coquille`, éteint
+ * par défaut et toujours éteint côté cliente), le point flottant du repos n'est pas posé — la barre Ajmani et ⌘J
+ * en tiennent lieu — mais la bulle s'ouvre encore quand on l'appelle (F9, la voix).
+ */
+function BulleAjmaniSelonCoquille({ coquille }: { coquille: boolean }) {
+  const { bulleOuverte } = useAssistant();
+  if (coquille && !bulleOuverte) return null;
+  return <AjmaniBubble />;
 }
 
 /**

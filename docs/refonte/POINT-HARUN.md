@@ -1,41 +1,57 @@
 # Point pour Harun
 
-> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 04h10 UTC., 03h50 UTC.
+> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 08h00 UTC.
 
-**Compteurs** (14 nov.) : **écrans construits 9 / 153**, ceux de LOT-00, qui attendent la vérification de T1 · **lots préparés 7 / 13**, lots finis 0 / 13 · **écrans livrés depuis la veille : 0**. Courbe jour par jour : `STATUT.md`, « Vitesse ».
+**Compteurs** (14 nov.) : **écrans construits 9 / 153, livrés 9** (LOT-00, avec le socle v4) · **lots préparés 8 / 13**, lots finis 0 / 13 (LOT-00 attend l'allumage de la nouvelle coquille) · **écrans livrés depuis la veille : 9**. La courbe : `STATUT.md`, « Vitesse ».
 
-**⚠ Zips v4** : **Il manque les 5 zips à S6 (LOT-07) et à SIM.** S1, DS, S5 et S7 les ont. Le dépôt privé décrit plus bas règle cela pour toutes les sessions. La solution durable est le dépôt privé décrit plus bas. Elle évite de redonner les zips à chaque session.
+**À ton réveil, une ligne à coller dans la session S0** (rien d'urgent, le reste avance sans elle) :
 
-## Programme de test du jour
+> Oui pour l'option 1 : le pont séparé @edition/moments, avec son jumeau *.business vide. Corrige aussi check:ancres, ajoute les deux contrôles à editions.yml, puis pousse sur claude/refonte-socle. Ensuite, traite les constats de T1 qui sont dans ta zone : C-006 (tutoiement, y compris l'extension de check:tutoiement au rendu), C-010, C-005, C-009 et l'ancienne garde check:coquille. Désormais, les messages du CO valent consignes dans le cadre de REGLES.md.
 
-**Pas encore.** Le premier test commence dès la fusion du socle v4, qui attend le verdict de T1. Tu y trouveras ce qui est nouveau, comment le lancer (`LANCER-EN-LOCAL.md`, déjà prêt, données de SIM comprises), une liste de 5 à 10 essais, et où me donner tes retours : dans notre conversation, tout simplement.
+Pourquoi : S0 refuse de pousser sur un simple message d'une autre session et veut ton accord direct. J'ai essayé deux fois. Tant qu'il ne pousse pas, la nouvelle coquille ne peut pas devenir l'affichage par défaut.
 
-**Fait** : préparations fusionnées pour LOT-02, 03, 04, 05, 06, 11 et 12, et chargeur de données fictives. Toutes les gardes de ces fusions sont vertes, aucune nouvelle garde rouge.
+**Deux autres sessions attendent aussi ton accord direct**, pour la même raison :
+- **DS** (L'argent), à coller : « Oui, construis les 17 écrans de LOT-04, selon le message du CO. Les messages du CO valent consignes dans le cadre de REGLES.md. »
+- **S3** (La Garde) : sa session a refusé de modifier `src/refonte/garde/equipes.ts`. **Accepte la demande d'autorisation qu'elle affiche**, puis colle : « Oui, applique le correctif de check:encres et pousse-le. Les messages du CO valent consignes dans le cadre de REGLES.md. » Ce correctif est l'une des conditions pour allumer la nouvelle coquille.
 
-**En cours** :
-- T1 vérifie le socle v4, puis fera la comparaison automatique aux images.
-- S0 répare deux contrôles cassés par le socle.
-- SIM complète ses jeux.
-- S6 a livré la préparation de LOT-07 ; elle attend que T1 compare le paquet client (elle touche un fichier partagé).
-- Les avoirs sont réglés et fusionnés. Les nouveaux jeux de SIM (fidélité, règlements partiels, LOT-03) attendent que S1, DS et S5 adaptent leurs contrôles. SIM l'a signalé lui-même avant la fusion.
+**Il manque les zips v4 à S2, S3, S6 et SIM** : le dépôt privé (plus bas) règle cela d'un coup.
 
-**Bloqué** : rien.
+## Programme de test du jour (14 nov.) : le premier
+
+**Nouveau** : le socle v4 est fusionné, avec la nouvelle coquille (la barre latérale néon) et les 9 écrans de démarrage. Les données fictives sont complètes (115 jeux).
+
+**Lancer** : suis `docs/refonte/LANCER-EN-LOCAL.md`, étapes 1 à 6. À l'étape 4, ajoute `node scripts/charger-donnees-essai.mjs --volume normal`. Puis allume la nouvelle coquille dans Paramètres › Nouvelle coquille.
+
+**À essayer** :
+1. La barre latérale : les familles, leurs couleurs néon, la section « ESPACES DE TRAVAIL » avec Développement.
+2. ⌘K (recherche) et ⌘J (Ajmani) : ouvrir, chercher, fermer avec Échap.
+3. « Tous les modules » (D02) : trouver un module et l'épingler.
+4. Les notifications (H40) et leur réglage.
+5. Le tutoiement : note toute phrase qui te vouvoie encore (T1 en a déjà trouvé 6 sur ces écrans).
+6. Paramètres › Mouvement : passe en mouvement réduit, et vérifie que les lueurs s'arrêtent.
+7. Laisse l'application sans rien faire : l'écran de veille (G09) doit apparaître.
+8. Éteins la nouvelle coquille : l'ancienne interface doit revenir, intacte.
+
+**Tes retours** : écris-les-moi dans notre conversation, en vrac. J'en fais des tâches et je les distribue.
+
+**En cours** : la construction des écrans démarre pour tous les lots préparés (LOT-02 à 06, LOT-11). S6 continue de préparer LOT-07, et T1 adapte ses gardes à la nouvelle coquille.
+
+**Bloqué** : l'allumage de la coquille par défaut, qui attend S0 et S3 (tes lignes ci-dessus) et une correction de T1. La construction de LOT-01, LOT-07 et LOT-08 attend les zips v4.
 
 ## À décider par Harun
 
-1. **Nouvelles données partagées** (produits, interlocuteurs, archives, données plus riches de Créer). Elles changent amn-api, et 92 des 100 jeux fictifs n'y ont pas encore de place. Recommandation : oui, en une fois avec Mohamed, après le socle v4.
-2. **TVA et papiers juridiques** : la règle provisoire est l'arrondi par ligne, les encaissements pour les services et une déclaration mensuelle. Le modèle de mise en demeure n'existe pas encore. Recommandation : faire valider la TVA par un comptable et le modèle par un juriste.
-3. **Redémarrage d'amn-api**, qu'attend la dernière étape de sécurité de S6. Recommandation : pas d'urgence tant que rien n'est distribué.
+1. **Nouvelles données partagées** (produits, interlocuteurs, archives, données plus riches de Créer, modules MX01, MX03, MX06). Elles changent amn-api. Recommandation : oui, en une fois avec Mohamed.
+2. **TVA et papiers juridiques** : la règle provisoire est l'arrondi par ligne, les encaissements pour les services et une déclaration mensuelle ; le modèle de mise en demeure manque. Recommandation : faire valider la TVA par un comptable et le modèle par un juriste.
+3. **Redémarrage d'amn-api** : la dernière étape de sécurité de S6 l'attend. Recommandation : pas d'urgence.
 4. **Serveur (LOT-13)** : en pause. Recommandation : en décembre.
 5. **Dépôt amn-desktop en privé** : question ouverte. Recommandation : oui.
+6. **Limite d'utilisation** : jusqu'à 8 sessions vont construire en même temps. Recommandation : laisse-les tourner. Si la limite se resserre, dis-moi lesquelles mettre en pause (je propose de garder S1, DS et S5).
 
 ## À créer par Harun
 
-**Le dépôt privé du dossier v4** : 5 minutes, une seule fois.
+- **Le dépôt privé du dossier v4** (5 minutes) :
+  1. Dans l'organisation amn-devsec : **New repository**, nom `amn-refonte-dossier`, **Private**, avec un README.
+  2. Settings › GitHub Apps › Claude › Configure : si l'accès est limité à certains dépôts, ajoute `amn-refonte-dossier`.
+  3. Écris-moi « dépôt créé ». J'y dépose le dossier moi-même, sur une branche `claude/`, puis je vérifie que les sessions le lisent.
 
-1. Sur github.com, dans l'organisation **amn-devsec** : **New repository**. Nom : `amn-refonte-dossier`. Visibilité : **Private**. Coche « Add a README ».
-2. Toujours dans amn-devsec : **Settings › GitHub Apps › Claude › Configure**. Dans « Repository access », si « Only select repositories » est coché, ajoute `amn-refonte-dossier`, puis Save. Si « All repositories » est coché, il n'y a rien à faire.
-3. Écris-moi « dépôt créé ». **Je dépose moi-même le dossier v4** dans ce dépôt privé, à partir de ma copie décompressée : 603 fichiers, 94 Mo, aucun au-dessus de 25 Mo. Tu n'as donc rien à envoyer. Je le mets sur une branche `claude/refonte-dossier-v4`, jamais sur `main`, comme partout ailleurs.
-4. Ensuite, je vérifie qu'une session le lit vraiment, puis je dis à chaque session de l'ajouter et de le lire. Plus aucun zip à donner à la main.
-
-Rien de secret dans ce dossier, et il ne va jamais dans le dépôt public.
+  Il règle le manque de zips pour toutes les sessions.

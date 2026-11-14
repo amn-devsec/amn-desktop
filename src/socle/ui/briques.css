@@ -17,6 +17,9 @@
   ne se posent JAMAIS en `color` (voir `check:socle`).
 */
 
+/* Les briques partagées v3 (`IconTile`, `CountBadge`, `ModuleTile`…) : leur feuille vit à côté d'elles. */
+@import './briques-partagees/briques-partagees.css';
+
 /* ── Le focus : le même partout, visible sur chaque fond ── */
 :root[data-ambiance='noir'] .sc-focus:focus-visible,
 :root[data-ambiance='noir'] [data-socle]:focus-visible {
@@ -31,21 +34,32 @@
   width: 7px;
   height: 7px;
   border-radius: 99px;
-  background: var(--fam, var(--socle-fam-outils));
+  background: var(--fam, var(--fam-a));
+  /* v4 (06 §3 règle 7) : la lueur de sa couleur. */
+  box-shadow: 0 0 6px var(--fam, var(--fam-a));
 }
 .sc-point[data-taille='6'] { width: 6px; height: 6px; }
 .sc-point[data-taille='8'] { width: 8px; height: 8px; }
 .sc-point[data-taille='9'] { width: 9px; height: 9px; }
 /* Le halo d'un point « vivant » (La Garde veille) : fixe, il ne bat pas. */
-.sc-point[data-halo='true'] { box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 22%, transparent); }
+.sc-point[data-halo='true'] { box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 22%, transparent), 0 0 6px var(--fam, var(--fam-a)); }
 
 /* ── La carte (brique d'origine, retouchée) ── */
-:root[data-ambiance='noir'] [data-socle='carte'] {
-  background: linear-gradient(180deg, var(--socle-carte-haut), var(--socle-carte-bas));
+/* v4 (06 §3 règle 2) : #19191C → #111113, bord #2A2A2E, rayon 16, ombre interne claire 6,5 % + ombre portée douce, et le
+   halo de la famille (8,5 %) dans un coin qui alterne d'une carte à l'autre (b en haut à gauche, a en bas à droite, a en
+   haut à droite — l'ordre des sources). */
+:root[data-ambiance='noir'] :is([data-socle='carte'], .sc-kpi) {
+  --sc-halo-coin: 0% 0%;
+  --sc-halo-teinte: var(--fam-b);
+  background:
+    radial-gradient(440px 160px at var(--sc-halo-coin), color-mix(in srgb, var(--sc-halo-teinte) 8.5%, transparent), transparent 70%),
+    linear-gradient(180deg, var(--socle-carte-haut), var(--socle-carte-bas));
   border-color: var(--socle-bord-carte);
   border-radius: var(--socle-rayon-carte);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  box-shadow: inset 0 1px 0 var(--socle-reflet-carte), var(--socle-ombre-carte);
 }
+:root[data-ambiance='noir'] :is([data-socle='carte'], .sc-kpi):nth-child(3n + 2) { --sc-halo-coin: 100% 100%; --sc-halo-teinte: var(--fam-a); }
+:root[data-ambiance='noir'] :is([data-socle='carte'], .sc-kpi):nth-child(3n) { --sc-halo-coin: 100% 0%; --sc-halo-teinte: var(--fam-a); }
 :root[data-ambiance='noir'] [data-socle='carte']:not([data-sans-marge='true']) { padding: 16px 18px; }
 :root[data-ambiance='noir'] [data-socle='carte'][data-compacte='true']:not([data-sans-marge='true']) { padding: 14px 16px; }
 /* La carte « active » d'un panneau (D02) : bordure plus claire, haut éclairci. */
@@ -69,15 +83,19 @@
   padding: 8px 15px;
 }
 :root[data-ambiance='noir'] [data-socle='bouton'] svg { width: 14px; height: 14px; }
+/* v4 (06 §3 règle 5) : le principal en dégradé 135° a → b, encre #0B0B0C, ombre de la couleur a ; au survol, le blanc
+   (`.amn-bp:hover` des sources). Le secondaire en verre sombre (#1C1C1F → #151517, bord #303035, reflet). */
 :root[data-ambiance='noir'] [data-socle='bouton'][data-variante='primaire'] {
-  background: var(--socle-primaire);
-  color: var(--socle-primaire-encre);
-  box-shadow: none;
+  background: linear-gradient(135deg, var(--fam-a), var(--fam-b));
+  color: var(--socle-encre-accent);
+  box-shadow: 0 10px 24px -10px color-mix(in srgb, var(--fam-a) 85%, transparent), inset 0 1px 0 var(--socle-reflet-principal);
 }
-:root[data-ambiance='noir'] [data-socle='bouton'][data-variante='primaire']:hover:not(:disabled) { background: #ffffff; }
+:root[data-ambiance='noir'] [data-socle='bouton'][data-variante='primaire']:hover:not(:disabled) { background: var(--socle-blanc); }
 :root[data-ambiance='noir'] [data-socle='bouton'][data-variante='secondaire'] {
   padding: 7px 13px;
-  border-color: var(--socle-bord-bouton);
+  border-color: var(--socle-bord-verre);
+  background: linear-gradient(180deg, var(--socle-verre-haut), var(--socle-verre-bas));
+  box-shadow: inset 0 1px 0 var(--socle-reflet-verre);
   color: var(--socle-texte-courant);
   font-weight: 500;
 }
@@ -118,22 +136,24 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 3px 9px;
+  /* v4 (06 §3 règle 6, sources néon) : fond de la couleur à 14 %, bord à 38 %, texte de la couleur, 600. */
+  padding: 3px 10px 3px 8px;
+  border: 1px solid color-mix(in srgb, var(--etat) 38%, transparent);
   border-radius: var(--socle-rayon-pastille);
-  background: color-mix(in srgb, var(--etat) 12%, transparent);
+  background: color-mix(in srgb, var(--etat) 14%, transparent);
   color: var(--etat);
   font-size: 11.5px;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.3;
   white-space: nowrap;
 }
-/* Allégée : le point et le libellé, sans fond ni marge (« ● en cours », D02). */
-.sc-etat[data-allegee='true'] { padding: 0; background: transparent; font-size: 12px; }
+/* Allégée : le point et le libellé, sans fond, bord ni marge (« ● en cours », D02). */
+.sc-etat[data-allegee='true'] { padding: 0; border: 0; background: transparent; font-size: 12px; }
 .sc-etat[data-etat='succes'] { --etat: var(--socle-etat-succes); }
 .sc-etat[data-etat='attention'] { --etat: var(--socle-etat-attention); }
 .sc-etat[data-etat='critique'] { --etat: var(--socle-etat-critique); }
 .sc-etat[data-etat='info'] { --etat: var(--socle-etat-info); }
-.sc-etat::before { content: ''; width: 6px; height: 6px; border-radius: 99px; background: var(--etat); }
+.sc-etat::before { content: ''; width: 6px; height: 6px; border-radius: 99px; background: var(--etat); box-shadow: 0 0 8px var(--etat); }
 
 /* ── Avatar (une initiale) et pile d'avatars ── */
 .sc-avatar {
@@ -146,7 +166,8 @@
   height: var(--sc-avatar, 24px);
   border-radius: 99px;
   background: var(--sc-avatar-fond, var(--socle-avatar-a));
-  color: var(--socle-texte-1);
+  /* v4 (06 §3 règle 13) : sur les dégradés pastel, l'encre sombre des sources. */
+  color: var(--socle-encre-accent);
   font-size: max(10.5px, calc(var(--sc-avatar, 24px) * 0.42));
   font-weight: 600;
   line-height: 1;
@@ -175,11 +196,11 @@
 .sc-pile .sc-avatar { box-shadow: 0 0 0 2px var(--sc-fond-anneau, var(--socle-fond-page)); }
 .sc-pile .sc-avatar + .sc-avatar { margin-left: -7px; }
 
-/* ── Barre de progression : 5 px, dégradé gris → blanc ── */
+/* ── Barre de progression : 5 px ; v4 (06 §3 règle 9) : dégradé a → b et sa lueur (la piste ne la coupe plus) ── */
 .sc-barre {
   display: block;
   height: 5px;
-  overflow: hidden;
+  overflow: visible;
   border-radius: 99px;
   background: var(--socle-piste);
 }
@@ -190,13 +211,16 @@
   display: block;
   height: 100%;
   border-radius: 99px;
-  background: linear-gradient(90deg, var(--socle-fam-outils), var(--socle-texte-1));
+  background: linear-gradient(90deg, var(--fam-a), var(--fam-b));
+  box-shadow: 0 0 10px color-mix(in srgb, var(--fam-a) 55%, transparent);
   transition: width 0.18s ease-out;
 }
-.sc-barre[data-ton='succes'] > span { background: var(--socle-etat-succes); }
-.sc-barre[data-ton='attention'] > span { background: var(--socle-etat-attention); }
-.sc-barre[data-ton='critique'] > span { background: var(--socle-etat-critique); }
-.sc-barre[data-ton='info'] > span { background: var(--socle-etat-info); }
+.sc-barre[data-ton='succes'] > span { --sc-barre-c: var(--socle-etat-succes); }
+.sc-barre[data-ton='attention'] > span { --sc-barre-c: var(--socle-etat-attention); }
+.sc-barre[data-ton='critique'] > span { --sc-barre-c: var(--socle-etat-critique); }
+.sc-barre[data-ton='info'] > span { --sc-barre-c: var(--socle-etat-info); }
+/* Une barre d'état : sa couleur pleine, et la lueur de sa couleur. */
+.sc-barre[data-ton] > span { background: var(--sc-barre-c); box-shadow: 0 0 10px color-mix(in srgb, var(--sc-barre-c) 55%, transparent); }
 /* Les repères à 25, 50 et 75 % d'un jalon. */
 .sc-barre > i { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--socle-fond-page); opacity: 0.8; }
 
@@ -205,7 +229,9 @@
 .sc-anneau svg { display: block; transform: rotate(-90deg); }
 .sc-anneau circle { fill: none; stroke-linecap: round; }
 .sc-anneau .sc-anneau__piste { stroke: var(--socle-piste); }
-.sc-anneau .sc-anneau__trait { stroke: var(--socle-texte-1); transition: stroke-dashoffset 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+.sc-anneau .sc-anneau__trait { stroke: var(--sc-anneau-c, var(--socle-texte-1)); transition: stroke-dashoffset 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+/* v4 (06 §3 règle 7, sources néon `drop-shadow(0 0 6px <couleur>aa)`) : un anneau de couleur porte sa lueur ; le neutre (T1), non. */
+.sc-anneau .sc-anneau__trait[style*='--sc-anneau-c'] { filter: drop-shadow(0 0 6px color-mix(in srgb, var(--sc-anneau-c) 67%, transparent)); }
 .sc-anneau__centre {
   position: absolute;
   inset: 0;
@@ -236,6 +262,8 @@
 .sc-kpi[data-hauteur='92'] { min-height: 92px; }
 .sc-kpi { position: relative; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035); }
 .sc-kpi__droite { position: absolute; right: 16px; bottom: 14px; display: flex; align-items: flex-end; }
+/* Avec une mini-courbe (70 px à 16 px du bord), la valeur et sa variation s'arrêtent avant elle : aucun texte ne passe dessous. */
+.sc-kpi:has(> .sc-kpi__droite) .sc-kpi__valeur { max-width: calc(100% - 86px); }
 button.sc-kpi { width: 100%; cursor: pointer; transition: border-color 0.15s; }
 button.sc-kpi:hover { border-color: var(--color-socle-bord-fort); }
 .sc-kpi__label {
@@ -252,7 +280,7 @@ button.sc-kpi:hover { border-color: var(--color-socle-bord-fort); }
 .sc-kpi__valeur {
   display: flex;
   max-width: 100%;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: baseline;
   gap: 0 8px;
   font-size: 24px;
@@ -261,7 +289,18 @@ button.sc-kpi:hover { border-color: var(--color-socle-bord-fort); }
   line-height: 1.2;
   font-variant-numeric: tabular-nums;
 }
-.sc-kpi__variation { min-width: 0; color: var(--socle-texte-3); font-size: 12px; font-weight: 500; letter-spacing: 0; line-height: 1.35; }
+/* v4 (06 §3 règle 4) : un grand chiffre (≥ 22 px, ≥ 600) en dégradé vertical #FFF → a. La valeur du Kpi le porte ; un
+   écran pose `.sc-grand-nombre` sur les siens (jamais une couleur écrite à la main). */
+.sc-kpi__valeur > span:first-child,
+.sc-grand-nombre {
+  background: linear-gradient(180deg, var(--socle-blanc) 30%, var(--fam-a) 140%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+/* La tuile fait 84 à 92 px (§4), jamais plus : la variation reste sur la ligne de la valeur et s'ellipse si la place manque
+   (la phrase entière est dans l'infobulle de la tuile et lue par les lecteurs d'écran). */
+.sc-kpi__variation { min-width: 0; overflow: hidden; color: var(--socle-texte-3); font-size: 12px; font-weight: 500; letter-spacing: 0; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
 .sc-kpi__variation[data-ton='succes'] { color: var(--socle-etat-succes); }
 .sc-kpi__variation[data-ton='attention'] { color: var(--socle-etat-attention); }
 .sc-kpi__variation[data-ton='critique'] { color: var(--socle-etat-critique); }
@@ -296,9 +335,16 @@ button.sc-kpi:hover { border-color: var(--color-socle-bord-fort); }
   transition: background-color 0.18s ease-out, border-color 0.18s ease-out;
 }
 .sc-case[data-taille='serie'] { width: 24px; height: 24px; }
-.sc-case[aria-checked='true'] { border-color: var(--socle-primaire); background: var(--socle-primaire); }
+/* 16 px (LOT-06 : listes serrées) : la coche passe à 11 px. */
+.sc-case[data-taille='16'] { width: 16px; height: 16px; }
+.sc-case[data-taille='16'] svg { width: 11px; height: 11px; }
+/* v4 (sources néon) : cochée, la case en dégradé 135° a → b, sa lueur, la coche à l'encre sombre. */
+.sc-case[aria-checked='true'] { border-color: transparent; background: linear-gradient(135deg, var(--fam-a), var(--fam-b)); box-shadow: 0 0 12px -2px var(--fam-a); color: var(--socle-encre-accent); }
 .sc-case:hover:not([aria-disabled='true']) { border-color: var(--socle-texte-1); }
 .sc-case[aria-disabled='true'] { cursor: default; opacity: 0.7; }
+/* Zone de clic de 34 × 34 (§7.6, décision du CO), invisible : les cases de 16, 18 et 24 px gardent leur dessin. */
+.sc-case { position: relative; }
+.sc-case::after { content: ''; position: absolute; top: 50%; left: 50%; width: 34px; height: 34px; transform: translate(-50%, -50%); }
 
 /* ── Ligne de tâche : 60 px, filet #19191b ── */
 .sc-ligne {
@@ -343,19 +389,32 @@ button.sc-ligne__corps:disabled { cursor: default; }
 }
 .sc-ligne__droite { display: flex; flex: none; align-items: center; gap: 8px; }
 
-/* ── État vide : une invitation à agir ── */
+/* ── État vide (« Empty », §4) : pointillé #2e2e33, rayon 14, icône 44 px dans un carré arrondi, titre 14 / 600,
+   texte 12,5 T4 (300 px au plus), toujours une action ── */
 .sc-vide {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 10px;
   padding: 18px 18px;
-  border: 1px dashed var(--socle-bord-controle);
-  border-radius: 12px;
+  border: 1px dashed var(--socle-pointille);
+  border-radius: var(--socle-rayon-boite);
   background: var(--socle-encart);
 }
-.sc-vide__titre { color: var(--socle-texte-1); font-size: 14px; font-weight: 600; }
-.sc-vide__texte { color: var(--socle-texte-3); font-size: 13px; line-height: 1.45; }
+.sc-vide__icone {
+  display: inline-flex;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--fam, var(--socle-texte-2)) 13%, transparent);
+  color: var(--fam, var(--socle-texte-2));
+}
+.sc-vide__icone svg { width: 20px; height: 20px; }
+.sc-vide__titre { color: var(--socle-texte-1); font-size: 14px; font-weight: 600; line-height: 1.35; }
+.sc-vide__texte { max-width: 300px; color: var(--socle-texte-3); font-size: 12.5px; line-height: 1.45; }
 
 /* ── Raccourci clavier ── */
 .sc-kbd {
@@ -419,7 +478,7 @@ button.sc-ligne__corps:disabled { cursor: default; }
   width: 26px;
   height: 26px;
   border-radius: 99px;
-  background: color-mix(in srgb, var(--fam, var(--socle-fam-outils)) 16%, transparent);
-  color: var(--fam, var(--socle-fam-outils));
+  background: color-mix(in srgb, var(--fam, var(--fam-a)) 16%, transparent);
+  color: var(--fam, var(--fam-a));
 }
 .sc-etape__etiquette { color: var(--fam, var(--socle-texte-3)); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
