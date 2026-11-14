@@ -1,13 +1,26 @@
-import React from 'react';
+import React, { useInsertionEffect } from 'react';
 import { Page, PageHead, Etiquette, BlocEtat, Bouton, IconeEtincelle, type ActionPage } from '../../socle/ui';
 import type { DonneesDeveloppement } from './donnees';
 import { dire } from './i18n';
-import './developpement.css';
+import { FEUILLE_DEVELOPPEMENT } from './styles';
 
 /**
  * LOT-11 · LES BRIQUES COMMUNES DES ÉCRANS DE DÉVELOPPEMENT — l'en-tête, la carte, la liste « à regarder », l'état
  * « à brancher ». Elles ne font que de la mise en page : les données et leurs règles viennent de la logique du lot.
  */
+
+const ID_FEUILLE = 'amn-feuille-developpement';
+
+/** Pose la feuille du lot dans le document, une seule fois (la même balise pour les sept écrans). */
+export function useFeuilleDev(): void {
+  useInsertionEffect(() => {
+    if (typeof document === 'undefined' || document.getElementById(ID_FEUILLE)) return;
+    const balise = document.createElement('style');
+    balise.id = ID_FEUILLE;
+    balise.textContent = FEUILLE_DEVELOPPEMENT;
+    document.head.appendChild(balise);
+  }, []);
+}
 
 /** La page : son en-tête (un seul primaire) puis son contenu, en colonne, écart de 14. */
 export function PageDev({
@@ -27,6 +40,7 @@ export function PageDev({
   children: React.ReactNode;
   className?: string;
 }) {
+  useFeuilleDev();
   const sous = (
     <>
       {sousTitre}

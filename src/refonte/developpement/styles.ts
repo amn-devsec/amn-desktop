@@ -1,11 +1,19 @@
+/**
+ * LOT-11 · LA FEUILLE DE L'ESPACE DÉVELOPPEMENT — en texte, injectée une fois par `PageDev` (`useFeuilleDev`).
+ *
+ * Pourquoi pas un fichier `.css` importé : les gardes qui assemblent le registre avec esbuild (`check:navigation`)
+ * suivent les écrans neufs jusqu'à leurs imports, et esbuild n'y charge pas de CSS. Le texte reste une feuille
+ * ordinaire ; `check:developpement` y refuse toute couleur écrite à la main.
+ */
+export const FEUILLE_DEVELOPPEMENT = `
 /*
   LOT-11 · ESPACE DÉVELOPPEMENT — la mise en page des sept écrans.
 
-  Couleurs : jetons du socle seulement. La paire de la famille arrive par la coquille (`--fam-a` / `--fam-b`,
-  posées par `data-famille-active="developpement"`) ; les états par `--socle-etat-*` ; les teintes de catégorie
-  (langages, blocs) par les paires des autres familles (`--socle-fam-<id>-a`). Aucune couleur écrite à la main.
+  Couleurs : jetons du socle seulement. La paire de la famille arrive par la coquille (\`--fam-a\` / \`--fam-b\`,
+  posées par \`data-famille-active="developpement"\`) ; les états par \`--socle-etat-*\` ; les teintes de catégorie
+  (langages, blocs) par les paires des autres familles (\`--socle-fam-<id>-a\`). Aucune couleur écrite à la main.
 
-  Cotes : celles des fiches (`docs/refonte/fiches/LOT-11/`, rubrique 3), relatives à la zone principale
+  Cotes : celles des fiches (\`docs/refonte/fiches/LOT-11/\`, rubrique 3), relatives à la zone principale
   (contenu de 1108 px à x = 40, en-tête de page jusqu'à y = 83, premières cartes à y = 97).
 */
 
@@ -197,3 +205,74 @@
 @container (max-width: 700px) {
   .dv-ens-postes, .dv-ens-milieu, .dv-ens-groupes { grid-template-columns: 1fr; }
 }
+
+.dv-lien { background: none; border: 0; padding: 0; color: var(--fam-a); font: inherit; font-weight: 600; cursor: pointer; }
+
+/* ═══ DEV-projets ════════════════════════════════════════════════════════ */
+.dv-pj-bandeau { height: 120px; padding: 0 20px 0 22px; display: flex; align-items: center; justify-content: space-between; }
+.dv-pj-chiffres { display: flex; gap: 60px; }
+.dv-pj-carte { display: flex; gap: 3px; }
+.dv-pj-colonne { display: flex; flex-direction: column; gap: 3px; }
+.dv-pj-case { width: 10px; height: 10px; border-radius: 2px; background: color-mix(in srgb, var(--fam-b) 9%, var(--socle-carte-bas)); }
+.dv-pj-case[data-niveau='1'] { background: color-mix(in srgb, var(--fam-b) 22%, transparent); }
+.dv-pj-case[data-niveau='2'] { background: color-mix(in srgb, var(--fam-b) 42%, transparent); }
+.dv-pj-case[data-niveau='3'] { background: color-mix(in srgb, var(--fam-b) 66%, transparent); }
+.dv-pj-case[data-niveau='4'] { background: color-mix(in srgb, var(--fam-b) 90%, transparent); box-shadow: 0 0 5px color-mix(in srgb, var(--fam-b) 45%, transparent); }
+
+.dv-pj-grille { display: grid; grid-template-columns: repeat(3, 360px); gap: 15px 14px; }
+.dv-pj-depot { height: 144px; padding: 14px 16px 12px; display: flex; flex-direction: column; }
+/* La teinte de la carte : celle de sa tuile d'icône (une paire de famille du socle), attention si les tests échouent. */
+.dv-pj-depot[data-teinte='0'] { --fam-a: var(--socle-fam-jour-a); }
+.dv-pj-depot[data-teinte='1'] { --fam-a: var(--socle-fam-ecrire-a); }
+.dv-pj-depot[data-teinte='2'] { --fam-a: var(--socle-fam-argent-a); }
+.dv-pj-depot[data-teinte='3'] { --fam-a: var(--socle-fam-creer-a); }
+.dv-pj-depot[data-teinte='4'] { --fam-a: var(--socle-fam-ecrire-a); }
+.dv-pj-depot[data-teinte='5'] { --fam-a: var(--socle-texte-3); }
+.dv-pj-depot[data-teinte='6'] { --fam-a: var(--socle-fam-contacts-a); }
+.dv-pj-depot[data-teinte='7'] { --fam-a: var(--socle-fam-echanger-a); }
+.dv-pj-depot[data-teinte='echec'] { --fam-a: var(--socle-etat-attention); }
+.dv-pj-depot { --fam-b: var(--fam-a); }
+.dv-pj-depot__tete { display: flex; align-items: flex-start; gap: 12px; }
+.dv-pj-tuile {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  color: var(--fam-a);
+  border: 1px solid color-mix(in srgb, var(--fam-a) 42%, transparent);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--fam-a) 26%, transparent), color-mix(in srgb, var(--fam-a) 6%, transparent));
+}
+.dv-pj-depot__noms { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.dv-pj-depot__nom { font-size: 14px; font-weight: 600; color: var(--socle-texte-1); }
+.dv-pj-depot__desc { font-size: 13px; color: var(--socle-texte-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dv-pj-langages { display: flex; gap: 2px; height: 5px; margin-top: 12px; }
+.dv-pj-langage { height: 5px; border-radius: 3px; background: var(--socle-texte-3); }
+.dv-pj-langage[data-langue='typescript'] { background: var(--socle-etat-info); }
+.dv-pj-langage[data-langue='css'] { background: var(--socle-fam-ecrire-a); }
+.dv-pj-langage[data-langue='html'] { background: var(--socle-fam-creer-a); }
+.dv-pj-langage[data-langue='python'] { background: var(--socle-etat-attention); }
+.dv-pj-liste { margin-top: 8px; font-size: 12px; }
+.dv-pj-bas { margin-top: auto; display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; }
+.dv-pj-bas__textes { min-width: 0; display: flex; flex-direction: column; gap: 3px; font-size: 12px; }
+.dv-pj-tronque { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dv-pj-bas-page { display: grid; grid-template-columns: 638px 456px; gap: 14px; }
+.dv-pj-bas-page > .dv-carte { height: 204px; }
+.dv-pj-versions__liste { list-style: none; margin: 0; padding: 0; }
+.dv-pj-version { width: 100%; display: flex; gap: 18px; align-items: flex-start; min-height: 48px; padding: 4px 0; background: none; border: 0; border-top: 1px solid var(--socle-bord-ligne); color: inherit; text-align: left; cursor: pointer; }
+.dv-pj-versions__liste li:first-child .dv-pj-version { border-top: 0; }
+.dv-pj-version__date { flex: none; width: 52px; font-size: 13px; }
+.dv-pj-version__textes { display: flex; flex-direction: column; gap: 2px; font-size: 12px; min-width: 0; }
+.dv-pj-version__titre { font-size: 13.5px; font-weight: 500; color: var(--socle-texte-1); }
+
+@container (max-width: 1100px) {
+  .dv-pj-grille { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dv-pj-bas-page { grid-template-columns: 1fr; }
+  .dv-pj-carte { display: none; }
+}
+@container (max-width: 700px) {
+  .dv-pj-grille { grid-template-columns: 1fr; }
+  .dv-pj-chiffres { gap: 24px; }
+}
+`;

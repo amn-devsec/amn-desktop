@@ -573,11 +573,11 @@ await dit('construction : seuls les écrans du lot et leurs briques sont des .ts
   assert.ok(zone.length >= 5, 'la zone du lot est vide');
   assert.deepEqual(zone.filter((f) => f.endsWith('.tsx') && !VISUELS.has(path.basename(f))), []);
 });
-await dit('feuilles de style du lot : jetons du socle seulement, aucune couleur écrite à la main', () => {
-  for (const f of zone.filter((x) => x.endsWith('.css'))) {
-    const src = fs.readFileSync(path.join(racine, f), 'utf8');
-    assert.doesNotMatch(src, /#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(/i, f);
-  }
+await dit('feuille du lot (styles.ts) : jetons du socle seulement, aucune couleur écrite à la main, aucun fichier .css', () => {
+  assert.deepEqual(zone.filter((x) => x.endsWith('.css')), []);
+  const feuille = fs.readFileSync(path.join(racine, ZONE, 'styles.ts'), 'utf8');
+  assert.doesNotMatch(feuille, /#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(/i);
+  assert.match(feuille, /var\(--fam-a\)/);
 });
 await dit('la logique n’importe ni l’écran partagé, ni l’édition cliente, ni le pont du poste', () => {
   for (const f of zone) {
