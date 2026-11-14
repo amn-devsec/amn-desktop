@@ -20,7 +20,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 | S5 | `session_012jWErBSSkcoVaU3iN895bQ` | **construit LOT-03, puis LOT-05** | lots de 3 à 5 écrans → T1 → fusion |
 | S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **construit LOT-02** (feu vert le 14 nov., 08h) | lots de 3 à 5 écrans → `check:fidelite` de T1 → fusion |
 | S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **construit LOT-06** | lots de 3 à 5 écrans → T1 → fusion |
-| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | LOT-11, 7 sur 7, non accepté (6 écrans non montés) | correction durable de `check:navigation`, puis déclarer ses 6 modules → T1 remesure → fusion |
+| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | LOT-11, 7 sur 7, non accepté (6 écrans non montés) ; déclarations prêtes en local | attend la correction de `check:navigation` par S5, puis pousse → T1 remesure → fusion |
 | S9 | `session_01C5DAVygXYax6Q7g436TPQx` | LOT-12 fini, valeurs de MC07 fusionnées (`bcdc65f`) | rien |
 | S2, S3 (première tâche : `check:encres`), F1 — **relancés le 14 nov., 08h** | `session_014ZkF6SeGRNi6NR3uEsjM5q`, `session_01FBSpK6n1yYtYXYyxbLAuBV`, `session_01VZHqP3gvzrtnpgsTrrKguV` | arrêtées | relancer au socle v4 (prompts : `PROMPTS-11NOV.md`, §1.21) |
 
@@ -44,6 +44,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov., 09h25 : la session de S8 a refusé de modifier `check-navigation.ts`, qu'elle juge être un assouplissement de garde. **La correction revient à S5**, propriétaire du registre, qui a déjà pu modifier ce fichier. Leçon : une garde ne se modifie que par sa session propriétaire.
 - 14 nov., 09h25 : défauts C-011 répartis (§1.37). On ne touche pas `src/screens` : chaque défaut devient une exigence de l'écran de la refonte qui le remplace. Deux corrections vont à S0. Les 39 routes ont toutes une entrée au registre : T1 vérifie qu'un geste mène à chacune, et c'est une condition de l'allumage.
 - 14 nov., 09h20 : **LOT-07 préparation fusionnée** (`89ef910a`), paquet client vérifié par T1 ; 5 conflits, tous des ajouts, gardés. Premier `check:fidelite` sur les lots : LOT-11 non accepté (6 écrans non montés, faute de déclaration au registre) ; F20 à justifier, avec deux tuiles à ajouter ; F50 et H15 à justifier ; H16 à reprendre (bouton, jauge, suggestion). Réorganisation : la correction durable de `check:navigation` passe de S5 à S8, qui est bloqué et disponible.
 - 14 nov., 09h10 : **C-008 réglé** (patch de T1, appliqué par le CO dans `check-contraste.mjs` et `routes-coquille.mjs`). Sous la coquille v4, les gardes trouvent 160 écrans au lieu de 15 ; contraste : 34 622 textes, aucun sous AA ; plus de faux rouge sur le néon. C-009 corrigé aussi. Restent des défauts réels, à répartir : 11 familles de cibles trop petites, 4 écrans qui débordent à 390 px, 39 écrans de l'ancienne barre que la coquille v4 ne relie plus.
