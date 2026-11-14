@@ -16,6 +16,12 @@ import type { Langue } from './commun';
  */
 const EN = {
   // Série d'écriture
+  'serie.pageDuJour': 'Page of the day written, milestone of {palier} days on {jour}.',
+  'serie.jours.court': '{n} days',
+  'plan.blocs.1': '{n} titled block',
+  'plan.blocs.n': '{n} titled blocks',
+  'liens.pages.1': '{n} page',
+  'liens.pages.n': '{n} pages',
   'serie.jours.1': '{n} day in a row',
   'serie.jours.n': '{n} days in a row',
   'serie.belle': 'Nice streak',
@@ -128,6 +134,12 @@ const EN = {
 } as const;
 
 const FR: Record<keyof typeof EN, string> = {
+  'serie.pageDuJour': 'Page du jour écrite, palier de {palier} jours {jour}.',
+  'serie.jours.court': '{n} jours',
+  'plan.blocs.1': '{n} bloc titré',
+  'plan.blocs.n': '{n} blocs titrés',
+  'liens.pages.1': '{n} page',
+  'liens.pages.n': '{n} pages',
   'serie.jours.1': '{n} jour de suite',
   'serie.jours.n': '{n} jours de suite',
   'serie.belle': 'Belle série',

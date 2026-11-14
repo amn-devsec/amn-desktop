@@ -1,0 +1,490 @@
+/*
+ * H11 — Documents. Cotes propres : la barre d'intercalaires (rangée de 34 px), la liste (372 px) et le document ouvert
+ * qui prend le reste. Couleurs : jetons de la famille et du socle.
+ */
+.ec-h11__barre {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  margin-top: 16px;
+}
+.ec-h11__onglets {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+.ec-h11__onglet {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 36px;
+  box-sizing: border-box;
+  padding: 0 18px;
+  border: 1px solid var(--socle-bord-carte);
+  border-bottom: 0;
+  border-radius: 12px 12px 0 0;
+  background: transparent;
+  color: var(--socle-texte-2);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.ec-h11__onglet[data-actif='oui'] {
+  color: var(--socle-texte-1);
+  font-weight: 600;
+  background: linear-gradient(180deg, var(--socle-carte-haut), var(--socle-carte-bas));
+  box-shadow: inset 0 2px 0 var(--fam-a);
+}
+.ec-h11__onglet-compteur {
+  font-size: 11.5px;
+  color: var(--socle-texte-3);
+}
+.ec-h11__onglet--ajout {
+  border-style: dashed;
+  border-color: var(--socle-pointille);
+  color: var(--socle-texte-3);
+  cursor: default;
+  gap: 6px;
+}
+.ec-h11__recherche {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 268px;
+  height: 34px;
+  box-sizing: border-box;
+  margin-bottom: 4px;
+  padding: 0 12px;
+  border-radius: 10px;
+  background: var(--socle-champ);
+  border: 1px solid var(--socle-bord-controle);
+  color: var(--socle-texte-3);
+  font-size: 12.5px;
+}
+.ec-h11__recherche input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  color: var(--socle-texte-1);
+  font: inherit;
+}
+.ec-h11__corps {
+  margin-top: 0;
+  flex-direction: row;
+  gap: 0;
+  border-top-left-radius: 0;
+  overflow: hidden;
+}
+.ec-h11__liste {
+  width: 372px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-right: 1px solid var(--socle-bord-ligne);
+}
+.ec-h11__liste-tete {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 14px 16px 10px;
+}
+.ec-h11__liste-tete h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+.ec-h11__liste-tete p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--socle-texte-3);
+}
+.ec-h11__groupes {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+.ec-h11__annee {
+  display: flex;
+  justify-content: space-between;
+  padding: 7px 16px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--socle-texte-3);
+  background: var(--socle-sous-carte);
+  border-top: 1px solid var(--socle-bord-ligne);
+  border-bottom: 1px solid var(--socle-bord-ligne);
+}
+.ec-h11__groupes ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.ec-h11__ligne {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 50px;
+  box-sizing: border-box;
+  padding: 6px 16px;
+  border: 0;
+  border-left: 2px solid transparent;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.ec-h11__ligne:hover {
+  background: var(--socle-ligne-survol);
+}
+.ec-h11__ligne[data-actif='oui'] {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--fam-a) 14%, transparent), transparent);
+  border-left-color: var(--fam-a);
+}
+.ec-h11__ext {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  display: inline-flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 4px;
+  box-sizing: border-box;
+  border-radius: 7px;
+  border: 1px solid var(--socle-bord-sous-carte);
+  background: var(--socle-sous-carte);
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--socle-texte-3);
+}
+.ec-h11__ligne-textes {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.ec-h11__ligne-nom {
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ec-h11__ligne-sous {
+  font-size: 11.5px;
+  color: var(--socle-texte-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ec-h11__ligne-etat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  flex: none;
+  color: var(--socle-texte-3);
+}
+.ec-h11__ligne-etat[data-ton='succes'] { color: var(--socle-etat-succes); }
+.ec-h11__ligne-etat[data-ton='attention'] { color: var(--socle-etat-attention); }
+.ec-h11__autres {
+  margin: 0;
+  padding: 10px 16px;
+  font-size: 12px;
+  color: var(--socle-texte-3);
+}
+.ec-h11__espace {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 12px 16px;
+  border-top: 1px solid var(--socle-bord-ligne);
+  font-size: 12px;
+  color: var(--socle-texte-3);
+}
+.ec-h11__espace-valeur {
+  margin-left: auto;
+  color: var(--socle-texte-2);
+}
+.ec-h11__piste {
+  flex-basis: 100%;
+  height: 5px;
+  border-radius: 99px;
+  background: var(--socle-piste);
+  overflow: hidden;
+}
+.ec-h11__piste i {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--fam-a), var(--fam-b));
+}
+.ec-h11__piste[data-ton='ambre'] i { background: var(--socle-etat-attention); }
+.ec-h11__piste[data-ton='rouge'] i { background: var(--socle-etat-critique); }
+
+/* — Le document ouvert — */
+.ec-h11__detail {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.ec-h11__detail-tete {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 14px 18px 12px;
+}
+.ec-h11__detail-tete h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+.ec-h11__detail-tete p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--socle-texte-3);
+}
+.ec-h11__actions {
+  display: flex;
+  gap: 8px;
+}
+.ec-h11__lecture {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: 16px;
+  padding: 0 18px;
+}
+.ec-h11__miniatures {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 50px;
+  flex: none;
+}
+.ec-h11__miniatures li {
+  position: relative;
+  height: 62px;
+  box-sizing: border-box;
+  padding: 8px 6px;
+  border-radius: 6px;
+  border: 1px solid var(--socle-bord-sous-carte);
+  background: var(--socle-sous-carte);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ec-h11__miniatures li[data-actif='oui'] {
+  border-color: var(--fam-a);
+}
+.ec-h11__miniatures li span {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--socle-piste);
+}
+.ec-h11__miniatures em {
+  position: absolute;
+  right: 4px;
+  bottom: 2px;
+  font-size: 9px;
+  font-style: normal;
+  color: var(--socle-texte-3);
+}
+.ec-h11__papier {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+.ec-h11__faits {
+  width: 250px;
+  flex: none;
+  min-height: 0;
+  overflow: hidden;
+}
+.ec-h11__faits h3 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+.ec-h11__faits-sous {
+  margin: 2px 0 10px;
+  font-size: 11.5px;
+  color: var(--socle-texte-3);
+}
+.ec-h11__faits ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ec-h11__faits li {
+  display: flex;
+  gap: 10px;
+}
+.ec-h11__repere {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 1px solid var(--socle-bord-controle);
+  font-size: 11px;
+  color: var(--socle-texte-2);
+}
+.ec-h11__faits li > span:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.ec-h11__fait-libelle {
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--socle-texte-3);
+}
+.ec-h11__fait-valeur {
+  font-size: 12.5px;
+  color: var(--socle-texte-1);
+}
+.ec-h11__fait-mention,
+.ec-h11__fait-note {
+  font-size: 11px;
+  color: var(--socle-etat-succes);
+}
+.ec-h11__fait-note {
+  color: var(--socle-texte-3);
+}
+.ec-h11__partage {
+  margin: 12px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--socle-bord-ligne);
+  font-size: 11.5px;
+  color: var(--socle-texte-3);
+}
+.ec-h11__versions {
+  flex: none;
+  padding: 12px 18px 14px;
+  border-top: 1px solid var(--socle-bord-ligne);
+}
+.ec-h11__versions-tete {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  font-size: 13px;
+}
+.ec-h11__frise {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: flex;
+  gap: 0;
+}
+.ec-h11__frise li {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+}
+.ec-h11__version-tete {
+  font-size: 12px;
+  color: var(--socle-texte-3);
+}
+.ec-h11__version-tete b {
+  color: var(--socle-texte-1);
+}
+.ec-h11__version-tete em {
+  margin-left: 6px;
+  font-style: normal;
+  color: var(--socle-etat-succes);
+}
+.ec-h11__noeud {
+  position: relative;
+  height: 12px;
+}
+.ec-h11__noeud::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 5px;
+  height: 2px;
+  background: var(--socle-piste);
+}
+.ec-h11__noeud::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 12px;
+  height: 12px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 2px solid var(--socle-bord-controle);
+  background: var(--socle-carte-bas);
+}
+.ec-h11__frise li[data-actuelle='oui'] .ec-h11__noeud::after {
+  border-color: var(--fam-a);
+  box-shadow: 0 0 10px var(--fam-a);
+}
+.ec-h11__noeud--signe::after {
+  border-radius: 2px;
+  transform: rotate(45deg) scale(0.8);
+  border-color: var(--socle-etat-succes);
+  background: var(--socle-etat-succes);
+}
+.ec-h11__version-note {
+  font-size: 12px;
+  color: var(--socle-texte-2);
+}
+/* — Le papier de l'aperçu (la feuille du contrat) — */
+.ec-h11__feuille {
+  height: 100%;
+  box-sizing: border-box;
+  padding: 18px 20px;
+  border-radius: 8px;
+  border: 1px solid var(--socle-bord-sous-carte);
+  background: var(--socle-sous-carte);
+  font-size: 12.5px;
+  color: var(--socle-texte-courant);
+}
+.ec-h11__feuille h3 {
+  margin: 8px 0 2px;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--socle-texte-1);
+}
+.ec-h11__article {
+  margin-top: 12px;
+}
+.ec-h11__article span {
+  display: block;
+  font-size: 11.5px;
+  color: var(--socle-texte-3);
+}
+.ec-h11__article strong {
+  display: inline-block;
+  margin-top: 3px;
+  padding: 2px 8px;
+  border-radius: 5px;
+  font-weight: 400;
+  background: color-mix(in srgb, var(--fam-a) 18%, transparent);
+}
