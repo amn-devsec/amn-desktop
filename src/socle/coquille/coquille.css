@@ -47,11 +47,14 @@
   left: 8px;
   z-index: 60;
   padding: 8px 14px;
+  border: 0;
   border-radius: var(--socle-rayon-controle);
   background: var(--socle-primaire);
   color: var(--socle-primaire-encre);
+  font-family: inherit;
   font-size: 13px;
   font-weight: 600;
+  cursor: pointer;
   transform: translateY(-200%);
 }
 .sc-evitement:focus-visible { transform: none; outline: 2px solid var(--color-socle-focus); outline-offset: 2px; }

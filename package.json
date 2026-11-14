@@ -98,6 +98,7 @@
     "check:argent": "node --experimental-strip-types --disable-warning=ExperimentalWarning --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-argent.ts",
     "check:connecteurs": "node --experimental-strip-types --disable-warning=ExperimentalWarning --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-connecteurs.ts",
     "check:fidelite": "node scripts/qualite/fidelite/garde.mjs",
+    "check:licences": "node scripts/qualite/check-licences.mjs",
     "test:fidelite": "node --test tests/fidelite/comparer.test.mjs tests/fidelite/decision.test.mjs",
     "check:outils": "node --experimental-strip-types --disable-warning=ExperimentalWarning --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-outils.ts",
     "check:clavier": "node scripts/check-clavier.mjs",

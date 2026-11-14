@@ -123,6 +123,10 @@ jobs:
         run: npm run check:tutoiement
       - name: Voix — commande vocale et guide de voix du socle
         run: npm run check:voix
+      - name: Ancres sous HashRouter — aucun lien « #section » qui changerait la route
+        run: npm run check:ancres
+      - name: Avoirs et dette nette — numérotation, solde dû et retard des factures avec leurs avoirs
+        run: npm run check:avoirs
       - name: LOT-00 — coquille du socle
         run: npm run check:socle-coquille
       - name: v3 — vivant et couche de mouvement du socle
@@ -165,7 +169,7 @@ jobs:
         run: npm run check:contacts
       - name: Ma journée — série, H04, G08 et H25 face à SIM, défis (aucun chiffre individuel, aucun classement), voix
         run: npm run check:journee
-      - name: Ma journée (S1) — calendrier, missions, cockpit, projets, habitudes, planning, notes, rappels : logique des écrans, voix, structure
+      - name: "Ma journée (S1) — calendrier, missions, cockpit, projets, habitudes, planning, notes, rappels : logique des écrans, voix, structure"
         run: npm run check:journee-ecrans
       - name: Connecteurs et autonomie (LOT-12) — local d'abord, coût avant, trois clics, aucune clé, moteurs locaux
         run: npm run check:connecteurs
@@ -180,6 +184,10 @@ jobs:
       - name: Outils et réglages (LOT-07) — couture du moteur de H20, tarifs relevés de H21
         run: npm run check:outils
 
+      - name: Licences des dépendances — aucune AGPL, GPL et LGPL signalées (docs/qualite/licences.md)
+        run: |
+          npm run check:licences
+          node tests/licences/classer.test.mjs
       - name: Fidélité aux images v4 — tests de la règle de décision (les images restent hors du dépôt)
         run: npm run test:fidelite
       - name: Contrôle de la file d'envoi
