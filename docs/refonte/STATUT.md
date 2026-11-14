@@ -24,6 +24,8 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 | S9 | `session_01C5DAVygXYax6Q7g436TPQx` | LOT-12 fini, valeurs de MC07 fusionnées (`bcdc65f`) | rien |
 | S2, S3 (première tâche : `check:encres`), F1 | `session_014ZkF6SeGRNi6NR3uEsjM5q`, `session_01FBSpK6n1yYtYXYyxbLAuBV`, `session_01VZHqP3gvzrtnpgsTrrKguV` | arrêtées | relancer au socle v4 (prompts : `PROMPTS-11NOV.md`, §1.21) |
 
+**Fusion en attente** : `541b2bd` (SIM), après les adaptations de S1, DS et S5.
+
 **À dire au prochain message** : à T1, (a) La Garde dans l'API d'essai demande une base sur fichier (SIM), (b) comparer le paquet client de `claude/refonte-outils` @ `f52ef5d` (`AutomationsRunner.tsx` partagé) avant sa fusion.
 
 **Décisions provisoires en cours** (révisables par Harun) : arrondi et régime de TVA, seuils de l'argent (§1.29) ; valeurs de départ des connecteurs (§1.22 n° 3) ; plafonds de relance 3 et 1 par jour (§1.28 n° 4) ; seuils de charge (validés, §1.20). Liste « À décider par Harun » : `POINT-HARUN.md`.
@@ -44,6 +46,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov. : jeux de SIM `541b2bd` (fidélité de MC02, statut H05, liste de LOT-03, règlements partiels, remises, MR08) **pas encore fusionnés**. Ils rendent `check:contacts`, `check:argent` et `check:ecrire` rouges, par des changements commandés. S1, DS et S5 adaptent leur logique, puis le CO fusionne quand les trois sont verts dessus.
 - 14 nov. : arbitrage S6 / S9. S6 étend le modèle des connecteurs (zone de S9, en pause) pour les devises et les plafonds : champs facultatifs seulement, aucune somme mêlant € et $, `check:connecteurs` étendu sans rien assouplir, une ligne dans le rapport de S9.
 - 14 nov. : LOT-03 et LOT-05 complétés d'après les images v4 (S5, `0804131`, `425e4ad`), fusionnés (`d41501a`). Écarts image/texte : tutoiement dans l'interface (F20, MX05) ; humeur et énergie de ME01 comme l'image, bandeau de série non codé tant que la fiche n'a pas de règle ; compteurs de H10 et F40 calculés depuis les données, jamais repris de l'image.
 - 14 nov. : LOT-04 avec les avoirs fusionné (`0727968`, 70 propriétés). Rôles du serveur dans H19, `owner` publie, `owner` et `admin` gèrent les connecteurs (provisoire), prises de H21 sur le poste, tarifs tels que publiés (§1.34).
