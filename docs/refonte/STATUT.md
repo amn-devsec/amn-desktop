@@ -13,14 +13,14 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 | Session | Identifiant | État | Prochain geste |
 |---|---|---|---|
 | S0 Socle | `session_01SJe828c2W5EnkMY4fhFY6z` | attend l'accord direct de Harun | sa liste, §1.38 |
-| T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | `check:fidelite` par lot (aperçu + application) | mesure des zones de clic par sonde ; LOT-03, puis LOT-11 |
+| T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | `check:fidelite` par lot (aperçu + application) | LOT-11 en mesure ; puis LOT-03 (dès ME05), LOT-02 |
 | S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **LOT-02 complet, 13 sur 13** (`fbed7734`) | T1 → fusion |
 | S2 | `session_014ZkF6SeGRNi6NR3uEsjM5q` | préparation de LOT-01 finie ; **sans zips v4** | en pause jusqu'aux zips |
 | S3 | `session_01FBSpK6n1yYtYXYyxbLAuBV` | attend l'accord de Harun (`check:encres`) ; **sans zips v4** | correctif d'`equipes.ts`, puis LOT-08 |
 | S5 | `session_012jWErBSSkcoVaU3iN895bQ` | LOT-03 complet, mise en page acceptée ; ME05 encore dans l'ancien bureau | retirer `/knowledge` et `/decisions` du Supervisor → T1 → fusion ; puis LOT-05 |
 | S6 | `session_01RHV8Xq2txWkfjAusKvq9DG` | préparation de LOT-07 fusionnée ; **sans zips v4** | construire LOT-07 dès les zips |
 | S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **LOT-06 livré**, suites fusionnées | reprendre MR01, MR10, H16, MR05, MR04 (disposition) |
-| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | LOT-11, 7 sur 7, structure bonne | pousser ses aperçus et `justifies-LOT-11.json`, vérifier DEV-modeles-sites → T1 → fusion |
+| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | LOT-11, 7 sur 7, aperçus et justifications poussés (`f363811`) | T1 → fusion |
 | DS | `session_01TZGDvVWristJnnPK59rruY` | attend l'accord direct de Harun pour construire LOT-04 | commencer par MA03, H07, MA12 |
 | SIM, S9, F1 | `session_011UF2ufZg9moGv2rRZFRuf7`, `session_01C5DAVygXYax6Q7g436TPQx`, `session_01VZHqP3gvzrtnpgsTrrKguV` | en pause | F1 : intégration reportée (S0) |
 
