@@ -55,9 +55,9 @@ async function charger<T>(code: string): Promise<T> {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const M = await charger<any>(
-  "export * as L from '../src/refonte/contacts';\nexport * as monde from '../src/refonte/donnees';\nexport { DICTIONNAIRES_CONTACTS } from '../src/refonte/contacts/i18n';\nexport * as V from '../src/refonte/connecteurs/reglages';\nexport * as H from '../src/refonte/contacts/hub/modele';\nexport * as N from '../src/refonte/contacts/hub/nuage';\nexport { DICTIONNAIRES_HUB } from '../src/refonte/contacts/hub/i18n';\nexport { depuisMonde } from '../src/refonte/contacts/sources/depuisMonde';\nexport * as C from '../src/refonte/contacts/clients/modele';\nexport { DICTIONNAIRES_CLIENTS } from '../src/refonte/contacts/clients/i18n';\nexport * as G from '../src/refonte/contacts/fiche/modele';\nexport { DICTIONNAIRES_FICHE } from '../src/refonte/contacts/fiche/i18n';",
+  "export * as L from '../src/refonte/contacts';\nexport * as monde from '../src/refonte/donnees';\nexport { DICTIONNAIRES_CONTACTS } from '../src/refonte/contacts/i18n';\nexport * as V from '../src/refonte/connecteurs/reglages';\nexport * as H from '../src/refonte/contacts/hub/modele';\nexport * as N from '../src/refonte/contacts/hub/nuage';\nexport { DICTIONNAIRES_HUB } from '../src/refonte/contacts/hub/i18n';\nexport { depuisMonde } from '../src/refonte/contacts/sources/depuisMonde';\nexport * as C from '../src/refonte/contacts/clients/modele';\nexport { DICTIONNAIRES_CLIENTS } from '../src/refonte/contacts/clients/i18n';\nexport * as G from '../src/refonte/contacts/fiche/modele';\nexport { DICTIONNAIRES_FICHE } from '../src/refonte/contacts/fiche/i18n';\nexport * as P from '../src/refonte/contacts/prospects/modele';\nexport * as PN from '../src/refonte/contacts/prospects/nuage';\nexport { DICTIONNAIRES_PROSPECTS } from '../src/refonte/contacts/prospects/i18n';",
 );
-const { L, monde, V, H, N, C, G, DICTIONNAIRES_HUB: DICO_HUB, DICTIONNAIRES_CLIENTS: DICO_CLIENTS, DICTIONNAIRES_FICHE: DICO_FICHE, depuisMonde, DICTIONNAIRES_CONTACTS: DICO } = M;
+const { L, monde, V, H, N, C, G, DICTIONNAIRES_HUB: DICO_HUB, DICTIONNAIRES_CLIENTS: DICO_CLIENTS, DICTIONNAIRES_FICHE: DICO_FICHE, P, PN, DICTIONNAIRES_PROSPECTS: DICO_PROSPECTS, depuisMonde, DICTIONNAIRES_CONTACTS: DICO } = M;
 const paris = (jour: string, hhmm: string): number => L.instantParis(jour, hhmm);
 const VOLUMES = ['vide', 'peu', 'normal', 'beaucoup'] as const;
 const mondes = Object.fromEntries(VOLUMES.map((v) => [v, monde.construireMonde({ volume: v })])) as Record<(typeof VOLUMES)[number], any>;
@@ -1305,6 +1305,133 @@ await dit('G04 · textes : mêmes clés en fr et en, mêmes paramètres, comptes
   }
   for (const b of new Set(en.filter((k) => /\.(1|n)$/.test(k)).map((k) => k.replace(/\.(1|n)$/, '')))) for (const l of ['fr', 'en']) assert.ok(DICO_FICHE[l][`${b}.1`] && DICO_FICHE[l][`${b}.n`], `${b} (${l})`);
   assert.equal(DICO_FICHE.fr['ouvert.titre'], 'Ce qui est ouvert');
+});
+
+/* ── H06 : Prospects ────────────────────────────────────────────────────── */
+console.log('\nContacts — H06, Prospects (nuage intérêt × montant, appels de la semaine)\n');
+
+const prospectH06 = (id: string, montantEuros: number, o: Record<string, unknown> = {}): any => prospect({ id, nom: `Prospect ${id}`, montantCents: montantEuros * 100, etape: 'devis envoyé', probabilite: 60, creeLe: '2026-10-28', ...o });
+const signauxH06 = (lectures14j: number, delai: number | null, rdv: number, contact: number | null, ilYa14: number | null = null): any => ({ signaux: { lectures14j, delaiReponseHeures: delai, rendezVous: rdv, joursDepuisContact: contact }, interetIlYa14j: ilYa14, evenements: [] });
+
+await dit('H06 · axe et rayon : plafond de 10 000 € au moins, arrondi à 2 500 € au-dessus du plus gros ; rayon = 5 + chance × 8 / 100', () => {
+  assert.deepEqual([0, 820_000, 1_000_000, 1_020_000, 1_230_000].map((c) => P.plafondDAxe(c)), [1_000_000, 1_000_000, 1_000_000, 1_250_000, 1_250_000]);
+  assert.deepEqual([0, 20, 70, 100].map((c) => Math.round(PN.rayonDuPoint(c) * 100) / 100), [5, 6.6, 10.6, 13]);
+  assert.equal(PN.positionX(0), PN.INTERIEUR.x);
+  assert.equal(PN.positionX(100), PN.INTERIEUR.x + PN.INTERIEUR.largeur);
+  assert.equal(PN.positionY(1_000_000, 1_000_000), PN.INTERIEUR.y);
+  assert.equal(PN.positionY(0, 1_000_000), PN.INTERIEUR.y + PN.INTERIEUR.hauteur);
+  assert.equal(PN.positionX(250), PN.positionX(100), 'borné');
+  assert.deepEqual(PN.graduationsMontant(1_000_000), [0, 250_000, 500_000, 750_000, 1_000_000]);
+  assert.deepEqual([PN.TRACE.largeur, PN.TRACE.hauteur, PN.INTERIEUR.largeur, PN.INTERIEUR.hauteur], [736, 548, 656, 488]);
+});
+
+await dit('H06 · quadrant « à appeler » : intérêt ≥ 60 ET montant ≥ 3 000 € ; total et compteur ; appels ordonnés par intérêt × montant', () => {
+  const src = base({ prospects: [prospectH06('a', 8200), prospectH06('b', 4200), prospectH06('c', 2700), prospectH06('d', 3000), prospectH06('e', 9000), prospectH06('f', 5000, { etape: 'gagné', signeLe: '2026-10-20' })] });
+  const signaux = { a: signauxH06(4, 2, 2, 0), b: signauxH06(3, 10, 1, 2), c: signauxH06(4, 2, 2, 0), d: signauxH06(3, 8, 2, 1), e: signauxH06(0, null, 0, 40), f: signauxH06(4, 2, 2, 0) };
+  const m = P.modeleProspects(src, signaux);
+  assert.equal(m.total, 5, 'un prospect signé n’est plus en jeu');
+  assert.deepEqual(m.points.filter((x: any) => x.prioritaire).map((x: any) => x.id).sort(), ['a', 'b', 'd']);
+  assert.deepEqual(m.prioritaires, { n: 3, totalCents: (8200 + 4200 + 3000) * 100 });
+  assert.equal(m.enJeuCents, (8200 + 4200 + 2700 + 3000 + 9000) * 100);
+  assert.deepEqual(m.appels.map((x: any) => x.id), ['a', 'b', 'd'].sort((x, y) => { const v = (i: string) => m.points.find((p: any) => p.id === i); return v(y).interet * v(y).montantCents - v(x).interet * v(x).montantCents; }));
+  assert.equal(m.estime, false);
+  assert.equal(m.candidats.length, 0);
+  assert.ok(m.points.find((x: any) => x.id === 'c').interet >= 60 && !m.points.find((x: any) => x.id === 'c').prioritaire, 'c est intéressé mais sous 3 000 €');
+  assert.equal(m.points.find((x: any) => x.id === 'd').prioritaire, true, '3 000 € pile compte');
+});
+
+await dit('H06 · quadrant vide : les deux meilleurs candidats hors quadrant, par intérêt × montant', () => {
+  const src = base({ prospects: [prospectH06('a', 1000), prospectH06('b', 2000), prospectH06('c', 2500)] });
+  const m = P.modeleProspects(src, { a: signauxH06(1, 20, 0, 20), b: signauxH06(2, 12, 1, 10), c: signauxH06(0, null, 0, 40) });
+  assert.equal(m.appels.length, 0);
+  assert.deepEqual(m.candidats.map((x: any) => x.id), ['b', 'a'], 'c n’a aucun intérêt : produit nul');
+});
+
+await dit('H06 · traînée : l’intérêt d’il y a 14 jours, seulement si l’écart atteint 10 points', () => {
+  const src = base({ prospects: [prospectH06('a', 5000), prospectH06('b', 5000)] });
+  const m = P.modeleProspects(src, { a: signauxH06(4, 2, 2, 0, 20), b: signauxH06(4, 2, 2, 0, 95) });
+  const [a, b] = ['a', 'b'].map((id) => m.points.find((x: any) => x.id === id));
+  assert.equal(a.trainee, 20);
+  assert.equal(b.trainee, null, 'moins de 10 points d’écart : pas de traînée');
+});
+
+await dit('H06 · sans signaux : l’intérêt est ESTIMÉ (étape et ancienneté), et le modèle le dit', () => {
+  const src = base({ prospects: [prospectH06('a', 5000, { etape: 'nouveau', creeLe: '2026-10-29' }), prospectH06('b', 5000, { etape: 'devis envoyé', creeLe: '2026-10-01' })] });
+  const m = P.modeleProspects(src, null);
+  assert.equal(m.estime, true);
+  assert.ok(m.points.every((x: any) => x.estime && x.signaux.length === 0 && x.trainee === null));
+  const [a, b] = ['a', 'b'].map((id) => m.points.find((x: any) => x.id === id));
+  assert.ok(a.interet !== b.interet);
+  assert.deepEqual(P.signauxEstimes({ etape: 'nouveau', creeLe: '2026-10-20' }, '2026-10-30').signaux, { lectures14j: 0, delaiReponseHeures: null, rendezVous: 0, joursDepuisContact: 10 });
+  assert.equal(P.signauxEstimes({ etape: 'devis envoyé', creeLe: '2026-10-20' }, '2026-10-30').signaux.rendezVous, 1);
+  assert.equal(P.modeleProspects(src, { a: signauxH06(1, 1, 1, 1) }).points.find((x: any) => x.id === 'b').estime, true, 'un prospect sans signal reste estimé');
+});
+
+await dit('H06 · puces : « Les miens » = responsable connecté, « Nouveaux » = créés depuis 14 jours ; la liste va du plus intéressé au moins intéressé', () => {
+  const src = base({ prospects: [prospectH06('a', 5000, { responsableEmail: 'camille@exemple.test', creeLe: '2026-10-25' }), prospectH06('b', 4000, { responsableEmail: 'autre@exemple.test', creeLe: '2026-08-01' }), prospectH06('c', 3000, { creeLe: '2026-10-29' })] });
+  const m = P.modeleProspects(src, { a: signauxH06(0, null, 0, 20), b: signauxH06(4, 2, 2, 0), c: signauxH06(2, 12, 1, 10) });
+  assert.deepEqual(m.chips, { tous: 3, miens: 1, nouveaux: 2 });
+  assert.deepEqual(P.filtrerPoints(m.points, 'miens').map((x: any) => x.id), ['a']);
+  assert.deepEqual(P.filtrerPoints(m.points, 'nouveaux').map((x: any) => x.id).sort(), ['a', 'c']);
+  assert.deepEqual(P.listeParInteret(m.points).map((x: any) => x.id), ['b', 'c', 'a']);
+});
+
+await dit('H06 · étiquettes : aucune ne touche un point, une autre étiquette ou une légende ; elles restent dans le tracé ; le survolé n’en a pas', () => {
+  const geom = Array.from({ length: 24 }, (_, i) => ({ id: `p${i}`, x: PN.positionX((i * 37) % 100), y: PN.positionY(((i * 53) % 10) * 100_000, 1_000_000), r: PN.rayonDuPoint(20 + ((i * 11) % 60)), nom: `Prospect numéro ${i}`, montant: `${1000 + i * 100} €`, prioritaire: i % 5 === 0, poids: 1000 + i }));
+  const zones = PN.zonesDesLegendes(PN.rectangleQuadrant(60, 300_000, 1_000_000));
+  const posees = PN.placerEtiquettes(geom, new Set(['p3']), zones);
+  assert.ok(posees.size > 0 && posees.size < geom.length, 'certaines se taisent quand la place manque');
+  assert.ok(!posees.has('p3'));
+  const lst = [...posees.values()];
+  const rect = (e: any) => ({ x0: e.x, x1: e.x + e.largeur, y0: e.y, y1: e.y + e.hauteur });
+  const coupe = (a: any, b: any) => a.x0 < b.x1 && b.x0 < a.x1 && a.y0 < b.y1 && b.y0 < a.y1;
+  for (let i = 0; i < lst.length; i += 1) {
+    const a = rect(lst[i]);
+    assert.ok(a.x0 >= PN.INTERIEUR.x && a.x1 <= PN.INTERIEUR.x + PN.INTERIEUR.largeur && a.y0 >= PN.INTERIEUR.y && a.y1 <= PN.INTERIEUR.y + PN.INTERIEUR.hauteur, `${lst[i].id} dans le tracé`);
+    for (let j = i + 1; j < lst.length; j += 1) assert.ok(!coupe(a, rect(lst[j])), `${lst[i].id} / ${lst[j].id}`);
+    for (const z of zones) assert.ok(!coupe(a, { x0: z.x, x1: z.x + z.largeur, y0: z.y, y1: z.y + z.hauteur }), `${lst[i].id} sur une légende`);
+    for (const g of geom) {
+      const px = Math.max(a.x0, Math.min(g.x, a.x1)), py = Math.max(a.y0, Math.min(g.y, a.y1));
+      assert.ok((px - g.x) ** 2 + (py - g.y) ** 2 >= g.r ** 2, `${lst[i].id} sur le point ${g.id}`);
+    }
+  }
+  const seul = PN.placerEtiquettes([{ id: 'x', x: 300, y: 200, r: 8, nom: 'Seul', montant: '1 000 €', prioritaire: false, poids: 1 }]);
+  assert.equal(seul.get('x').cote, 'droite', 'à droite par défaut');
+});
+
+await dit('H06 · semaine : les appels cochés se remettent à zéro le lundi ; pied encourageant : signatures du mois comparées aux cinq mois d’avant', () => {
+  assert.deepEqual(['2026-10-26', '2026-10-30', '2026-11-01', '2026-11-02'].map((j) => P.lundiDe(j)), ['2026-10-26', '2026-10-26', '2026-10-26', '2026-11-02']);
+  const signe = (id: string, jour: string) => prospectH06(id, 1000, { etape: 'gagné', signeLe: jour });
+  const m = P.modeleProspects(base({ prospects: [signe('s1', '2026-10-02'), signe('s2', '2026-10-09'), signe('s3', '2026-10-16'), signe('s4', '2026-10-20'), signe('s5', '2026-09-01'), signe('s6', '2026-09-02'), signe('s7', '2026-09-03'), signe('s8', '2026-09-04')] }), null);
+  assert.equal(m.signatures.ceMois, 4);
+  assert.equal(m.signatures.fait.genre, 'egale-meilleur', '4 en octobre, 4 en septembre : comme ton meilleur mois');
+  assert.equal(P.modeleProspects(base(), null).signatures.fait, null, 'aucune signature : rien à dire');
+});
+
+await dit('H06 · sur les jeux de SIM (quatre volumes) : le modèle se construit, les comptes tiennent, les intérêts sont entre 0 et 100', () => {
+  for (const v of VOLUMES) {
+    const src = depuisMonde(mondes[v]);
+    const m = P.modeleProspects(src, null);
+    assert.equal(m.total, src.prospects.filter((p: any) => p.etape !== 'gagné' && p.etape !== 'perdu').length, v);
+    assert.ok(m.points.every((x: any) => x.interet >= 0 && x.interet <= 100), v);
+    assert.equal(m.prioritaires.n, m.points.filter((x: any) => x.prioritaire).length, v);
+    assert.ok(m.appels.every((x: any) => x.prioritaire), v);
+    assert.equal(m.plafondCents % 250_000, 0, v);
+    assert.ok(m.points.every((x: any) => x.montantCents <= m.plafondCents), v);
+  }
+});
+
+await dit('H06 · textes : mêmes clés en fr et en, mêmes paramètres, comptes à deux formes, l’interface tutoie', () => {
+  const en = Object.keys(DICO_PROSPECTS.en).sort();
+  assert.deepEqual(Object.keys(DICO_PROSPECTS.fr).sort(), en);
+  const params = (t: string) => [...t.matchAll(/\{(\w+)\}/g)].map((x) => x[1]).sort().join(',');
+  for (const k of en) {
+    assert.ok(DICO_PROSPECTS.en[k].trim() && DICO_PROSPECTS.fr[k].trim(), k);
+    assert.equal(params(DICO_PROSPECTS.fr[k]), params(DICO_PROSPECTS.en[k]), `paramètres de ${k}`);
+    assert.ok(!VOUVOIEMENT_UI.test(DICO_PROSPECTS.fr[k]), `${k} vouvoie : ${DICO_PROSPECTS.fr[k]}`);
+  }
+  for (const b of new Set(en.filter((k) => /\.(1|n)$/.test(k)).map((k) => k.replace(/\.(1|n)$/, '')))) for (const l of ['fr', 'en']) assert.ok(DICO_PROSPECTS[l][`${b}.1`] && DICO_PROSPECTS[l][`${b}.n`], `${b} (${l})`);
+  assert.equal(DICO_PROSPECTS.fr['peek.rien'], 'Survole un point pour voir le détail');
 });
 
 /* ── Structure ──────────────────────────────────────────────────────────── */

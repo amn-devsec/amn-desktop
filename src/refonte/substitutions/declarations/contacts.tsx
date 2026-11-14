@@ -18,4 +18,7 @@ export default declarerSubstitutions('contacts', [
 
   // H05 — Clients : la mosaïque. La fiche, la création et le reste passent par l'écran d'origine (`useOutlet`) jusqu'à leur refonte.
   { route: '/clients', composant: lazy(() => import('../../contacts/clients/PageClients')) },
+
+  // H06 — Prospects : le nuage intérêt × montant. « Colonnes » et la création restent servies par l'écran d'origine (`useOutlet`).
+  { route: '/pipeline', composant: lazy(() => import('../../contacts/prospects/PageProspects')) },
 ]);
