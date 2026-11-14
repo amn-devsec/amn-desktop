@@ -477,6 +477,14 @@ export interface Commande {
   preuveRemise: boolean;
   paiement: 'Payé' | 'À payer';
   preparation: 'À préparer' | 'En préparation' | 'Prête' | 'Remise';
+  /** MR07 : l'instant de création (ISO), le même jour que `creeLe`. */
+  creeAt: string;
+  /** MR07 : l'heure à laquelle la commande doit être prête ce jour-là (`HH:MM`). */
+  heureEcheance: string;
+  /** MR07 : le jour où elle a été remise (null tant qu'elle ne l'est pas). */
+  livreeLe: Jour | null;
+  /** MR07 : réglée en ligne (colis et tournées payés) plutôt qu'au retrait. */
+  paiementEnLigne: boolean;
 }
 
 /** H16. */
@@ -556,7 +564,11 @@ export interface EtapeTournee {
   adresse: string;
   arriveePrevue: string;
   dureeMin: number;
-  etat: 'À faire' | 'En route' | 'Fait' | 'Reportée';
+  etat: 'À faire' | 'En route' | 'Sur place' | 'Fait' | 'Reportée';
+  /** MR03 : durée du trajet depuis l'étape précédente (ou le dépôt, pour la première), en minutes. */
+  trajetMin: number;
+  /** MR03 : distance de ce trajet, en kilomètres. */
+  distanceKm: number;
   heureFixee: boolean;
   conducteurEmail: string;
   commandeId: string | null;
@@ -575,6 +587,12 @@ export interface Equipement {
   valeurCents: number;
   achatLe: Jour;
   statut: 'En service' | 'Au rebut';
+  /** MR04 : le dernier entretien fait (le prochain en découle). */
+  dernierEntretienLe: Jour;
+  /** MR04 : le dernier contrôle, après le dernier entretien. */
+  dernierControleLe: Jour;
+  /** MR04 : le jour de la réforme, pour un matériel au rebut. */
+  reformeLe: Jour | null;
 }
 
 /** MR06. */
@@ -805,7 +823,7 @@ export interface UsageCalcul {
 
 /* ================================ La Garde ================================ */
 
-export type EtatGarde = 'Sain' | 'À surveiller' | 'Critique';
+export type EtatGarde = 'Sain' | 'Attention' | 'Critique';
 export type GraviteAlerte = 'Critique' | 'Moyenne' | 'Faible';
 
 /** H30, H31, N02. L'état se déduit (voir `etatOrganisation`) : il n'est stocké ici que pour comparer. */

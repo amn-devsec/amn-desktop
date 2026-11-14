@@ -2,7 +2,7 @@
  * LES JEUX « MA JOURNÉE » — tâches, calendrier, projets, tickets, notes,
  * rappels, habitudes (lot 01 : N01, H01, H02, H03, MJ01 à MJ05, L01 à L03).
  *
- * Le « maintenant » des maquettes est le vendredi 30 octobre, 10 h 15. À cette
+ * Le « maintenant » des maquettes est le vendredi 30 octobre, 10 h 42. À cette
  * heure : 5 tâches sur 8 faites aujourd'hui, 2 en retard, un stand-up passé,
  * une ronde de La Garde à venir. Ces repères sont des RÉGLAGES DE LA GÉNÉRATION,
  * pas des valeurs à recopier : un écran doit les recalculer depuis les
@@ -241,6 +241,21 @@ export function genererTaches(
       }
     }
     jour = ajouterJours(jour, -1);
+  }
+  // 6. H04 (« Semaine prochaine : 14 tâches prévues, 2 de plus que d'habitude ») : la semaine suivante pèse deux tâches
+  // de plus que la moyenne des quatre dernières. Dès « normal » ; « peu » n'a pas assez d'historique pour une moyenne.
+  if (volume !== 'peu') {
+    const lundi = lundiDe(ctx.aujourdhui);
+    const duneSemaine = (decalage: number): number => {
+      const debut = ajouterJours(lundi, 7 * decalage);
+      const fin = ajouterJours(debut, 6);
+      return liste.filter((t) => t.assigneeEmail === m.email && t.echeance !== null && t.echeance >= debut && t.echeance <= fin).length;
+    };
+    const moyenne = ([-1, -2, -3, -4] as const).reduce((s, k) => s + duneSemaine(k), 0) / 4;
+    const voulues = Math.ceil(moyenne) + 2;
+    for (let i = 0, a = duneSemaine(1); a + i < voulues; i += 1) {
+      fabrique({ echeance: ajouterJours(lundi, 7 + (i % 5)), done: false, assigne: m, urgent: false, suivie: false });
+    }
   }
   return liste.sort((a, b) => (a.echeance ?? '9999').localeCompare(b.echeance ?? '9999') || a.id.localeCompare(b.id));
 }
@@ -596,7 +611,7 @@ export function genererHabitudes(ctx: Contexte, equipe: readonly Membre[]): Habi
     for (let d = 120; d >= 0; d -= 1) {
       const jour = ajouterJours(ctx.aujourdhui, -d);
       if (jour < debut || !prevueCeJour(mod.frequence, jour)) continue;
-      // Aujourd'hui (10 h 15) : seules les habitudes du matin peuvent déjà être faites.
+      // Aujourd'hui (10 h 42) : seules les habitudes du matin peuvent déjà être faites.
       const probabilite = d === 0 ? mod.reussite * 0.35 : mod.reussite;
       const lun = lundiDe(jour);
       if (mod.frequence.type === 'fois par semaine' && (semaine.get(lun) ?? 0) >= (mod.frequence.fois ?? 1)) continue;

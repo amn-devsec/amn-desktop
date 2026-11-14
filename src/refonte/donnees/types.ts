@@ -74,6 +74,10 @@ export interface Contexte {
   maintenant: number;
   /** Le jour de Paris de `maintenant`. */
   aujourdhui: Jour;
+  /** « Maintenant » du lot Cyber (mardi 3 nov. 2026, 10 h 42 au défaut), en ms. */
+  maintenantCyber: number;
+  /** Le jour de Paris de `maintenantCyber`. */
+  aujourdhuiCyber: Jour;
   /** Le volume demandé pour chaque jeu. */
   volumes: Record<NomDuJeu, Volume>;
 }
@@ -131,6 +135,8 @@ export interface Entreprise {
     iban: string;
     bic: string;
     vatExempt: boolean;
+    /** MA08, H07 : le régime de TVA ; « Franchise en base » va avec `vatExempt`. */
+    regimeTva: 'Réel normal' | 'Réel simplifié' | 'Franchise en base';
     paymentTermDays: number;
     latePenaltyRate: number;
   };
@@ -365,6 +371,8 @@ export interface Prospect {
   perduLe: Jour | null;
   /** Client créé à la signature. */
   clientId: number | null;
+  /** H06 : pourquoi le prospect est perdu (null tant qu'il ne l'est pas). */
+  raisonPerte: string | null;
 }
 
 /** H45. */
@@ -408,6 +416,8 @@ export interface Avis {
   date: Jour;
   themes: string[];
   canal: 'courriel' | 'message' | 'lien public';
+  /** H44 : se déduit de la note (4 et 5 positif, 3 neutre, 1 et 2 négatif). */
+  sentiment: 'positif' | 'neutre' | 'négatif';
 }
 
 export type MotifRelance = 'devis' | 'facture' | 'rendez-vous' | 'prospect' | 'inactif';
@@ -528,6 +538,8 @@ export interface CompteBancaire {
   soldeCents: number;
   synchroniseLe: string;
   accesLectureSeule: boolean;
+  /** MA07, H09 : le solde de fin de journée, des 90 derniers jours à aujourd'hui (le dernier point est `soldeCents`). */
+  historique: { jour: Jour; soldeCents: number }[];
 }
 
 /** MA07, MA10. Montant signé : positif = entrée, négatif = sortie. */
@@ -541,6 +553,8 @@ export interface Mouvement {
   montantCents: number;
   /** Réel (déjà passé en banque) ou prévu (trésorerie). */
   reel: boolean;
+  /** H09, MA07 : un encaissement attendu dont la facture est déjà échue. */
+  echue: boolean;
   rapprochement: 'rapproché' | 'à vérifier' | 'sans objet';
   lien: { type: 'facture' | 'depense' | 'abonnement' | 'paiement' | 'manuel'; id: string | null };
   recurrent: boolean;
@@ -556,6 +570,8 @@ export interface Enveloppe {
   responsables: string[];
   categories: string[];
   mois: string;
+  /** MA06 : ce qui a été dépensé dans l'enveloppe, mois par mois, sur six mois (le dernier est le mois courant). */
+  historique: { mois: string; depenseCents: number }[];
 }
 
 /* -------------------------------- Le monde -------------------------------- */

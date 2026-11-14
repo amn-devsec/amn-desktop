@@ -17,7 +17,7 @@ const mixte = construireMonde({ volume: 'normal', volumes: { factures: 'vide', c
 | Garantie | Comment |
 |---|---|
 | **Reproductible** | même graine, mêmes données, à l'octet près (`GRAINE_REFERENCE`). Chaque jeu a son hasard : changer le volume d'un jeu ne déplace pas les autres. |
-| **Stable dans le temps** | rien ne lit l'horloge. « Maintenant » = **vendredi 30 octobre 2026, 10 h 15** (`MAINTENANT_REFERENCE`), le jour des maquettes. Une capture refaite dans un an est identique. `construireMonde({ maintenant })` décale tout de façon cohérente. |
+| **Stable dans le temps** | rien ne lit l'horloge. « Maintenant » = **vendredi 30 octobre 2026, 10 h 42** (`MAINTENANT_REFERENCE`), le jour des maquettes ; **mardi 3 novembre 2026** pour le lot Cyber (`MAINTENANT_CYBER`). Une capture refaite dans un an est identique. `construireMonde({ maintenant })` décale tout de façon cohérente. |
 | **Rien de réel** | courriels en `@….exemple.test` (domaine réservé, RFC 2606) ; téléphones dans les plages que l'ARCEP réserve à la fiction (`01 99 00`, `06 39 98`) ; SIRET commençant par `000`, IBAN à clé `00`, jamais d'IBAN complet ; plaques d'immatriculation invalides par construction ; aucune photo, aucun secret (les secrets sont des **valeurs masquées**, jamais une valeur). La Garde et Cyber : identifiants `FICT-AAAA-NNNN`, aucune adresse réseau, aucun nom d'outil de sécurité réel, constats réduits à un titre et une gravité, campagnes réduites à des agrégats. Les noms sont des assemblages de prénoms et noms courants : une ressemblance avec une vraie personne est une coïncidence. |
 | **Cohérent** | une facture payée a son paiement, qui a son mouvement bancaire ; un client est « Impayé » parce qu'une facture est échue ; une série vient des tâches faites ; le statut d'un projet vient de ses tâches ; la TVA à payer vient des factures et des dépenses du mois ; le net d'un bulletin vient des salaires du mouvement bancaire ; la quantité d'un article est la somme de ses mouvements ; le nombre de non-lus d'une conversation vient de ses messages ; l'état d'une organisation de La Garde vient de son score, de ses alertes ouvertes et de sa dernière ronde ; l'état d'une mission Cyber vient de son accord. Les maquettes se contredisent (72 clients ici, 48 là) : ces jeux, non. |
 | **Complet pour les écrans** | dès « peu » ou « normal », chaque cas que les fiches montrent existe : un impayé, un brouillon, une facture annulée, une tâche en retard, une ronde de La Garde à venir, les trois statuts de client, les quatre colonnes de tickets… |
@@ -62,13 +62,38 @@ Aides communes : `commun.ts` (horodatages bornés au passé, cycles, hasard par 
 
 **Pas encore faits** : voir le rapport `docs/refonte/rapports/DONNEES.md`.
 
+## Les valeurs attendues des écrans calculés (`attendus.ts`)
+
+Quatre écrans calculent au lieu de lire un jeu. Leurs **attendus de test** sont des fonctions littérales du monde (pas une seconde implémentation : le calcul reste à la session du lot, qui compare) :
+
+| Écran | Fonction | Ce qu'elle rend |
+|---|---|---|
+| H09 Prévisions de trésorerie | `attendusPrevisions(monde, { horizonJours })` | solde, série jour par jour, point le plus bas et creux, entrées attendues, six prochains mouvements, trois scénarios, fourchette, bannière |
+| H04 Bilan de la semaine | `attendusBilanSemaine(monde, { jour, email })` | tâches faites sur total, encaissé, nouveaux clients, tâches par jour, à reporter, jalons, suggestion de la semaine suivante |
+| G08 Cockpit | `attendusCockpit(monde)` | revenu récurrent, encaissé du mois, clients actifs, tickets par colonne, sources |
+| H25 Tableau de bord | `attendusTableauDeBord(monde)` | chiffre d'affaires, tickets, factures impayées, mes tâches, prochain rendez-vous, activité |
+
+Ce que les jeux ne portent pas (boîte à zéro de N01, objectif du mois de G08, utilisateurs connectés) est rendu `null` et nommé dans `manque`. Les règles que les fiches disent « Proposition » ou « à confirmer » le restent dans les commentaires.
+
+## Charger les jeux dans l'API d'essai (`scripts/charger-donnees-essai.mjs`)
+
+```
+node scripts/charger-donnees-essai.mjs --volume normal      # vide | peu | normal | beaucoup
+```
+
+N'écrit que sur `127.0.0.1` et que pour un compte `@exemple.test`. Huit jeux ont une collection d'accueil dans amn-api (clients, projets, tâches, rendez-vous, notes, devis, factures, dépenses ; sept sont prouvés par `compat.ts`, les tâches ont un type lâche) ; le script nomme les autres en fin de passage. Mode d'emploi pour Harun : `docs/refonte/LANCER-EN-LOCAL.md`, étape 4. La Garde (`--garde`) passe par `scripts/seed-supervision.mjs`, qui exige une API d'essai sur un fichier.
+
+## La charge (LOT-14, `charge.ts`)
+
+`genererOrganisationsDeCharge({ graine, nombre })` : jusqu'à 1 000 organisations fictives de 10 à 600 personnes, reproductibles et emboîtées ; `choisirConnectees` désigne celles qui travaillent en même temps. Scénarios, seuils et mode d'emploi : `docs/simulation/charge.md` ; exécution : `simulation/charge/executer.mjs`.
+
 ## Vérifier
 
 ```
 node --experimental-strip-types --disable-warning=ExperimentalWarning --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-donnees.ts
 ```
 
-87 contrôles : reproductibilité, volumes, absence de données réelles, références
+106 contrôles : reproductibilité, volumes, absence de données réelles, références
 qui existent, numérotation continue des factures, chiffres qui se recoupent,
 français correct, absence de secret, d'adresse réseau et de nom d'outil de sécurité réel, et les mêmes invariants sur 12 graines (« peu » et « normal »), 4 graines (« beaucoup ») et 4 dates de référence.
 
