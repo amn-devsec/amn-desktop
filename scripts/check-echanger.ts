@@ -51,8 +51,8 @@ async function charger<T>(code: string): Promise<T> {
 const FICHIERS = ['commun', 'boite', 'hub', 'canaux', 'connecteurs', 'appels', 'annonces', 'courriel', 'reunions', 'partages', 'sondages', 'reponsesAuto', 'i18n', 'phrases'];
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerF40 from '../${ZONE}/ecrans/f40/composer';` + `\nexport * as composerG07 from '../${ZONE}/ecrans/g07/composer';` + `\nexport * as composerH14 from '../${ZONE}/ecrans/h14/composer';` + `\nexport * as composerH13 from '../${ZONE}/ecrans/h13/composer';` + `\nexport * as composerMX05 from '../${ZONE}/ecrans/mx05/composer';` + `\nexport * as composerMX04 from '../${ZONE}/ecrans/mx04/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
-const { commun: C, boite: B, hub: H, canaux: CA, connecteurs: CO, appels: AP, annonces: AN, courriel: CM, reunions: RE, partages: PA, sondages: SO, reponsesAuto: AU, i18n: I, phrases: PH, composerF40: CF40, composerG07: CG07, composerH14: CH14, composerH13: CH13, composerMX05: CMX05, composerMX04: CMX04, monde } = M;
+const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerF40 from '../${ZONE}/ecrans/f40/composer';` + `\nexport * as composerG07 from '../${ZONE}/ecrans/g07/composer';` + `\nexport * as composerH14 from '../${ZONE}/ecrans/h14/composer';` + `\nexport * as composerH13 from '../${ZONE}/ecrans/h13/composer';` + `\nexport * as composerMX05 from '../${ZONE}/ecrans/mx05/composer';` + `\nexport * as composerMX04 from '../${ZONE}/ecrans/mx04/composer';` + `\nexport * as composerMX02 from '../${ZONE}/ecrans/mx02/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
+const { commun: C, boite: B, hub: H, canaux: CA, connecteurs: CO, appels: AP, annonces: AN, courriel: CM, reunions: RE, partages: PA, sondages: SO, reponsesAuto: AU, i18n: I, phrases: PH, composerF40: CF40, composerG07: CG07, composerH14: CH14, composerH13: CH13, composerMX05: CMX05, composerMX04: CMX04, composerMX02: CMX02, monde } = M;
 const A_SEG = AN.segmentsDeLecture;
 
 const NB = ' ';
@@ -1245,6 +1245,40 @@ await dit('MX04 · composerCanaux : rail, flux (événement, messages, réaction
   assert.equal(sans.ecrit, null);
   const ailleurs = CMX04.composerCanaux({ ...e, canaux: [{ ...canal('general'), ouvreAilleurs: true }], canalId: 'general' });
   assert.equal(ailleurs.canal, null, 'un canal qui s’ouvre ailleurs n’est jamais le canal choisi d’office');
+});
+
+await dit('MX02 · composerReunions : en cours, ordre du jour minuté, suggestion de durée, prochaine (compte à rebours sous 1 h), à venir et préparation ; rien d’inventé sans réunion en cours', () => {
+  const sj = (titre: string, minutes: number, extra: any = {}) => ({ titre, minutes, ...extra });
+  const reunions = [
+    { id: 'r1', titre: 'Point', debutPrevuAt: MAINT - 12 * 60_000, debutReelAt: MAINT - 12 * 60_000, dureePrevueMin: 30, participants: ['a@x', 'b@x'], ordreDuJour: [sj('A', 6), sj('B', 10), sj('C', 14)] },
+    { id: 'r2', titre: 'Suivante', debutPrevuAt: MAINT + 18 * 60_000, dureePrevueMin: 45, lieu: 'visio', participants: ['a@x', 'c@x'], documentNom: 'doc.pdf', ordreDuJour: [sj('U', 5, { prepare: true }), sj('V', 15)], casesDePreparation: [{ libelle: 'Relire', fait: true }, { libelle: 'Ouvrir', fait: false }] },
+    { id: 'r3', titre: 'Plus tard', debutPrevuAt: paris('2026-11-03', '09:00'), dureePrevueMin: 120, inscrits: 8, participants: ['a@x'], ordreDuJour: [sj('1', 0, { prepare: true }), sj('2', 0)] },
+    { id: 'r4', titre: 'Sans préparation', debutPrevuAt: paris('2026-11-04', '10:00'), dureePrevueMin: 60, participants: ['a@x'], ordreDuJour: [] },
+  ];
+  const e = { langue: 'fr', maintenant: MAINT, moi: 'a@x', nom: (m: string) => m.split('@')[0].toUpperCase(), reunions, enSalle: { vignettes: [{ email: 'b@x', micro: true, parle: true }] }, notes: null, actions: null, dureesReelles: [18, 17, 19] };
+  const v = CMX02.composerReunions(e);
+  assert.equal(v.sousTitre, 'Courtes, préparées, avec un compte rendu automatique · 1 en cours');
+  assert.equal(v.enCours.detail, 'depuis 12 min · prévu 30 min');
+  assert.deepEqual(v.enCours.ordre.map((s: any) => [s.etat, Math.round(s.remplissage * 100)]), [['fait', 0], ['en-cours', 60], ['a-venir', 0]]);
+  assert.deepEqual(v.enCours.vignettes, [{ nom: 'B', micro: true, parle: true }]);
+  assert.equal(v.enCours.vous, true, 'la personne n’est pas dans la salle : l’emplacement « Vous »');
+  assert.ok(/18 min/.test(v.suggestion.texte) && /20 min/.test(v.suggestion.texte), v.suggestion.texte);
+  assert.equal(CMX02.composerReunions({ ...e, suggestionMasquee: true }).suggestion, null, '« Garder » masque la suggestion');
+  assert.equal(CMX02.composerReunions({ ...e, dureesReelles: [18, 28, 29] }).suggestion, null, 'sans écart de 30 %, pas de suggestion');
+  assert.equal(v.prochaine.titre, 'Suivante');
+  assert.equal(v.prochaine.compte.valeur, '18 min', 'compte à rebours sous une heure');
+  assert.equal(v.prochaine.avant.compte, '1 sur 2 fait');
+  assert.equal(v.prochaine.avant.titre, 'Avant ' + v.prochaine.sous.slice(0, 5));
+  assert.deepEqual(v.prochaine.ordre.map((s: any) => [s.minutes, s.fait]), [['5 min', true], ['15 min', false]]);
+  assert.equal(v.prochaine.document, 'doc.pdf');
+  assert.deepEqual(v.avenir.map((r: any) => [r.id, r.jour, r.sous, r.preparation && r.preparation.pourcent]), [['r3', 'Mar. 3', '2 h · 8 inscrits', 50], ['r4', 'Mer. 4', '1 h', null]], 'une réunion sans rien à préparer n’a pas de pourcentage');
+  const calme = CMX02.composerReunions({ ...e, reunions: reunions.slice(1), enSalle: null });
+  assert.equal(calme.enCours, null);
+  assert.equal(calme.suggestion, null);
+  assert.equal(calme.sousTitre, 'Courtes, préparées, avec un compte rendu automatique');
+  const apres = CMX02.composerReunions({ ...e, maintenant: MAINT + 120 * 60_000 });
+  assert.equal(apres.prochaine.titre, 'Plus tard', 'la prochaine est la plus proche encore à venir');
+  assert.equal(apres.prochaine.compte, null, 'pas de compte à rebours au-delà d’une heure');
 });
 
 await dit('aucune brique visuelle : ni React, ni src/socle/ui, ni code partagé ; seulement les voisins, le dictionnaire du socle et le modèle des connecteurs (S9)', () => {

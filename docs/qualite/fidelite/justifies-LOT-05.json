@@ -18,6 +18,9 @@
     },
     "MX04": {
       "raison": "20,6 % brut. Surface 1108 de large en trois zones (rail de 214, conversation, tiroir de 300), lignes de canal de 31 et de message direct de 34, flux aligné en bas, compositeur et tiroir (origine, réponses, ligne système, abonnés, résumé, champ) tiennent leurs cotes. Ce qui diffère : (1) le texte, décalé de 2 à 4 px dans le flux et le tiroir (interligne, chasse des heures) ; (2) les non lus viennent des données de l'aperçu (3 et 1) et non des « 2 » et « 1 » de la maquette, qui ne comptent pas les réponses de fil ; (3) la pastille « 2 » du canal actif est blanche comme la fiche, mais ses chiffres suivent la logique ; (4) les textes du jeu fictif sont au tutoiement (« Merci aux deux ») ; (5) la barre latérale de l'aperçu (voir plus haut)."
+    },
+    "MX02": {
+      "raison": "17,0 % brut. Tuile « EN COURS » 367 de haut (vignettes `1fr 1fr 170px`, ordre du jour minuté), notes et décisions en deux colonnes avec le bandeau de suggestion, « Prochaine réunion » et « À venir » tiennent leurs cotes. Ce qui diffère : (1) le texte, décalé de 2 à 4 px (interligne des lignes de notes et d'actions, chasse des heures) ; (2) les avatars des vignettes et des actions prennent les couleurs du jeu de teintes du socle, pas le brun et le vert sourds de la maquette ; (3) l'ordre du jour de la tuile est découpé comme les minutes du jeu fictif (6, 10, 8 et 6 min) pour tenir « Relances » à 60 % ; (4) la barre latérale de l'aperçu (voir plus haut)."
     }
   }
 }
