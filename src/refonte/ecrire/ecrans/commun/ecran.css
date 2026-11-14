@@ -109,7 +109,7 @@
 
 /*
  * LES CIBLES (décision du CO, STATUT §1.39) : le dessin des fiches v4 est gardé (boutons de 31 px, disques de 26 px…), mais
- * toute cible a une zone de clic INVISIBLE de 34 px au moins, comme le socle le fait pour `PageHead` et l'interrupteur
+ * toute cible a une zone de clic INVISIBLE de 36 px au moins, comme le socle le fait pour `PageHead` et l'interrupteur
  * (`::after` centré sur la cible, sans changer sa taille ni la mise en page).
  */
 :is(.ec-page, .ec-f20, .ec-h10) :is(
@@ -150,7 +150,7 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: max(100%, 34px);
-  height: max(100%, 34px);
+  width: max(100%, 36px);
+  height: max(100%, 36px);
   transform: translate(-50%, -50%);
 }
