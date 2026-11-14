@@ -51,8 +51,8 @@ async function charger<T>(code: string): Promise<T> {
 const FICHIERS = ['commun', 'serie', 'pages', 'relecture', 'documents', 'signatures', 'modeles', 'journal', 'redaction', 'archives', 'connaissances', 'hub', 'i18n', 'phrases'];
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerH10 from '../${ZONE}/ecrans/h10/composer';\nexport * as composerF20 from '../${ZONE}/ecrans/f20/composer';\nexport * as composerH11 from '../${ZONE}/ecrans/h11/composer';\nexport * as composerH12 from '../${ZONE}/ecrans/h12/composer';\nexport * as composerME01 from '../${ZONE}/ecrans/me01/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
-const { commun: C, serie: S, pages: P, relecture: R, documents: D, signatures: G, modeles: MO, journal: J, redaction: RE, archives: A, connaissances: K, hub: H, i18n: I, phrases: PH, composerH10: CH10, composerF20: CF20, composerH11: CH11, composerH12: CH12, composerME01: CME01, monde } = M;
+const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerH10 from '../${ZONE}/ecrans/h10/composer';\nexport * as composerF20 from '../${ZONE}/ecrans/f20/composer';\nexport * as composerH11 from '../${ZONE}/ecrans/h11/composer';\nexport * as composerH12 from '../${ZONE}/ecrans/h12/composer';\nexport * as composerME01 from '../${ZONE}/ecrans/me01/composer';\nexport * as composerME02 from '../${ZONE}/ecrans/me02/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
+const { commun: C, serie: S, pages: P, relecture: R, documents: D, signatures: G, modeles: MO, journal: J, redaction: RE, archives: A, connaissances: K, hub: H, i18n: I, phrases: PH, composerH10: CH10, composerF20: CF20, composerH11: CH11, composerH12: CH12, composerME01: CME01, composerME02: CME02, monde } = M;
 
 const NB = ' ';
 const paris = (j: string, hhmm: string) => C.instantParis(j, Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3)));
@@ -1310,6 +1310,33 @@ await dit('ME01 · composerJournal : calendrier, série, humeur du mois, souveni
   assert.equal(CME01.composerJournal({ ...e, bilanAuCalendrier: false }, a).page.suggestion, null);
   assert.equal(CME01.composerJournal({ ...e, jour: '2026-10-20' }, a).page.mercis, null, 'rien d’inventé quand le champ est vide');
   assert.equal(CME01.composerJournal({ ...e, pages: [] }, a).souvenir, null);
+});
+
+await dit('ME02 · composerRedaction : les corrections se lisent barrées et soulignées, l’anneau compte le texte final, un engagement attend la décision', () => {
+  const morceaux = [
+    { type: 'texte', texte: 'Bonjour.\n\nJe me permets ' },
+    { type: 'correction', retire: 'de revenir vers vous', ajoute: 'je reviens', raison: 'plus court', explication: 'Plus direct' },
+    { type: 'texte', texte: ' sur le devis. ' },
+    { type: 'correction', ajoute: 'Un passage offert. ', raison: 'plus clair', explication: 'Ajoute une promesse', valeur: 'vaut 96 €', engagement: true },
+    { type: 'correction', retire: 'Rien.', ajoute: 'Fin.', raison: 'plus clair', explication: 'ok', decision: 'refusee' },
+  ];
+  const b = (id: string, publie = false) => ({ id, titre: `T${id}`, source: { surtitre: 'Message de Léo', texte: 'x' }, publie, morceaux });
+  const e = { langue: 'fr', brouillons: [b('1'), b('2', true)], choisi: '1', longueur: 'court', enregistreA: '10:38' };
+  const decisions: any[] = [];
+  const v = CME02.composerRedaction(e, { onChoisir: () => undefined, onDecider: (i: number, d: string) => decisions.push([i, d]) });
+  assert.deepEqual(v.onglets.map((o: any) => [o.id, o.actif, o.nonEnvoye]), [['1', true, true], ['2', false, false]]);
+  assert.deepEqual(v.lettre.paragraphes.map((p: any) => p.map((s: any) => s.genre)), [['plain'], ['plain', 'retire', 'ajoute', 'plain', 'ajoute', 'plain']]);
+  assert.equal(CME02.texteFinal(morceaux), 'Bonjour.\n\nJe me permets je reviens sur le devis. Un passage offert. Rien.');
+  assert.equal(v.marge.anneau.mots, 13);
+  assert.equal(v.marge.anneau.depasse, false);
+  assert.deepEqual(v.marge.notes.map((n: any) => [n.titre, n.attention, n.actions.length]), [['Plus court', false, 2], ['Engagement à confirmer', true, 2], ['Plus clair', false, 0]]);
+  assert.equal(v.marge.notes[1].mention, 'vaut 96 €');
+  assert.equal(v.marge.notes[2].mention, 'ignorée');
+  v.marge.notes[1].actions[0].onClick();
+  v.marge.notes[1].actions[1].onClick();
+  assert.deepEqual(decisions, [[3, 'acceptee'], [3, 'refusee']]);
+  assert.equal(v.lettre.entetes[0].valeur, 'Message de Léo');
+  assert.equal(CME02.composerRedaction({ ...e, brouillons: [] }, { onChoisir: () => undefined, onDecider: () => undefined }).lettre, null);
 });
 
 await dit('rien ne lit l’horloge ni le hasard : « maintenant » est toujours un paramètre', () => {

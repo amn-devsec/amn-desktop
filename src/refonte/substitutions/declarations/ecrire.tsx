@@ -16,4 +16,6 @@ export default declarerSubstitutions('ecrire', [
   { route: '/signature-a-distance', composant: lazy(() => import('../../ecrire/ecrans/h12/PageSignatures')) },
   // ME01 — Journal, à la place du journal personnel (même route).
   { route: '/personnel/journal', composant: lazy(() => import('../../ecrire/ecrans/me01/PageJournal')) },
+  // ME02 — Rédaction et traduction, à la place de l'écran de rédaction (même route).
+  { route: '/outils/redaction', composant: lazy(() => import('../../ecrire/ecrans/me02/PageRedaction')) },
 ]);
