@@ -1,0 +1,17 @@
+{
+  "_": "Écarts de LOT-01 (Ma journée, écrans de S7 : N01, H25, H02, H04, L01, L02, L03, L07) que T1 peut regarder zone par zone, sur le modèle de justifies-LOT-06.json. Tous sont sous 15 % en disposition (±10) ; les plus hauts sont justifiés ici. Chaque raison dit ce qui diffère de l'image v4 sans être une faute de disposition : données d'exemple de l'aperçu, champs « non disponibles » du dépôt (STATUT §1.27 n° 4), écarts de coquille de LOT-00.",
+  "ecrans": {
+    "H02": {
+      "raison": "tâches, échéances, durées et catégories de l'aperçu viennent de données d'exemple ; les vraies tâches n'ont ni échéance, ni durée, ni catégorie (urgent = priorité haute, important = client ou site, case choisie gardée sur ce poste) ; mêmes écarts de coquille que LOT-00 (sélecteur d'organisation dans l'en-tête, section « Développement » de la barre latérale, états de la barre « Aujourd'hui », décalage du titre de page du socle), absents de l'image"
+    },
+    "H04": {
+      "raison": "semaines, montants et jalons d'exemple, pas ceux de l'image ; semaines « calculées » et non « clôturées » (aucune clôture stockée) ; boîte à zéro, messages et rondes de La Garde « non disponibles » ; mêmes écarts de coquille que LOT-00 (sélecteur d'organisation dans l'en-tête, section « Développement » de la barre latérale, états de la barre « Aujourd'hui », décalage du titre de page du socle), absents de l'image"
+    },
+    "N01": {
+      "raison": "rendez-vous, tâches, encaissements et courbe d'exemple ; messages à traiter, rondes de La Garde, « lu par » et point d'équipe « non disponibles » (pas de source dans le dépôt, §1.10 règle A1, aucun faux chiffre) ; mêmes écarts de coquille que LOT-00 (sélecteur d'organisation dans l'en-tête, section « Développement » de la barre latérale, états de la barre « Aujourd'hui », décalage du titre de page du socle), absents de l'image"
+    },
+    "L07": {
+      "raison": "défi de la semaine, relais, engagements, défis passés et célébrations de l'aperçu sont fictifs ; le dépôt ne stocke pas encore de défi (§1.27, pas de collection nouvelle sans l'accord de Harun) : l'écran réel montre l'état vide de la fiche et le seul défi calculable, « Zéro impayé » (factures) ; les cinq barres du relais sont plus étroites que sur l'image d'environ 20 px (largeur proportionnelle aux messages du jour) ; mêmes écarts de coquille que LOT-00 (sélecteur d'organisation dans l'en-tête, section « Développement » de la barre latérale, états de la barre « Aujourd'hui », décalage du titre de page du socle), absents de l'image"
+    }
+  }
+}

@@ -66,6 +66,7 @@ const M = await charger<any>(
     `export * as MX from '../${ZONE}/matrice';`,
     `export * as ES from '../${ZONE}/escalier';`,
     `export * as MT from '../${ZONE}/matin';`,
+    `export * as RL from '../${ZONE}/relais';`,
     "export * as monde from '../src/refonte/donnees';",
     "export * as attendus from '../src/refonte/donnees/attendus';",
     "export { avancementProjet, statutProjet } from '../src/refonte/donnees/ma-journee';",
@@ -76,7 +77,7 @@ const M = await charger<any>(
     "export { ecartsDeVoix } from '../src/socle/mots/voix';",
   ].join('\n'),
 );
-const { L, G, MX, ES, MT, monde, attendus, moi, jourDeSim, avancementProjet, statutProjet, joursSansImpayeSim, DICTIONNAIRES_JOURNEE: DICO, ecartsDeVoix } = M;
+const { L, G, MX, ES, MT, RL, monde, attendus, moi, jourDeSim, avancementProjet, statutProjet, joursSansImpayeSim, DICTIONNAIRES_JOURNEE: DICO, ecartsDeVoix } = M;
 
 const VOLUMES = ['vide', 'peu', 'normal', 'beaucoup'] as const;
 const mondes = Object.fromEntries(VOLUMES.map((v) => [v, monde.construireMonde({ volume: v })])) as Record<(typeof VOLUMES)[number], any>;
@@ -1033,6 +1034,85 @@ await dit('L03 : les réglages — 08:30 du lundi au vendredi par défaut ; une 
   assert.deepEqual(MT.reglagesValides({ heure: '07:15', jours: [3, 1, 1] }), { heure: '07:15', jours: [1, 3] });
   assert.deepEqual(MT.reglagesValides({ heure: '25:00', jours: [1] }), MT.REGLAGES_PAR_DEFAUT);
   assert.deepEqual(MT.reglagesValides(null), MT.REGLAGES_PAR_DEFAUT);
+});
+
+/* ── 3g. L07 : le relais, les compteurs longs, les repères du défi ───────── */
+console.log('\nLOT-01 — relais et repères du défi (L07)\n');
+
+await dit('L07 : 47 à temps sur 52 échus donnent 90 % ; les 4 en attente ne comptent ni pour ni contre ; rien d’échu : pas de pourcentage', () => {
+  const sem = [
+    { jour: '2026-10-26', aTemps: 9, echus: 9, enAttente: 0 }, { jour: '2026-10-27', aTemps: 10, echus: 11, enAttente: 0 }, { jour: '2026-10-28', aTemps: 9, echus: 11, enAttente: 0 },
+    { jour: '2026-10-29', aTemps: 12, echus: 13, enAttente: 0 }, { jour: '2026-10-30', aTemps: 7, echus: 8, enAttente: 4 },
+  ];
+  const t = RL.totauxDeLaSemaine(sem);
+  assert.deepEqual([t.aTemps, t.echus, t.enAttente, t.taux], [47, 52, 4, 90]);
+  assert.equal(RL.tauxDeTenue(0, 0), null);
+  assert.equal(RL.tauxDeTenue(9, 4), 100, 'jamais plus de 100 %');
+  const r = RL.relaisDeLaSemaine(sem, '2026-10-30');
+  assert.deepEqual(r.map((b: any) => b.rang), [1, 2, 3, 4, 5]);
+  assert.deepEqual(r.map((b: any) => b.courant), [false, false, false, false, true]);
+  assert.equal(r[3].largeur, 1, 'la plus longue barre (jeudi, 13)');
+  assert.equal(Math.round(r[4].largeur * 100), Math.round((12 / 13) * 100), 'vendredi : échus 8 + en attente 4 = 12');
+  assert.equal(r[1].plusTard, 1);
+  assert.ok(Math.abs(r[4].parts.aTemps + r[4].parts.plusTard + r[4].parts.enAttente - 1) < 1e-9);
+});
+
+await dit('L07 : le relais ne porte aucun nom ni nombre par personne ; début de semaine : cinq barres vides, pas de division par zéro', () => {
+  const r = RL.relaisDeLaSemaine([], '2026-10-26');
+  assert.equal(r.length, 5);
+  assert.ok(r.every((b: any) => b.largeur === 0 && b.echus === 0));
+  assert.deepEqual(Object.keys(r[0]).sort(), ['aTemps', 'courant', 'echus', 'enAttente', 'jour', 'largeur', 'parts', 'plusTard', 'rang']);
+});
+
+await dit('L07 : l’encadré d’action — seulement s’il y a des éléments en attente ; « garde l’objectif » ou « rapproche »', () => {
+  assert.equal(RL.phraseDActionDuRelais(0, 95, 90), null);
+  assert.equal(RL.phraseDActionDuRelais(4, 90, 90), 'garde');
+  assert.equal(RL.phraseDActionDuRelais(4, 80, 90), 'rapproche');
+  assert.equal(RL.phraseDActionDuRelais(4, null, 90), 'rapproche');
+  assert.deepEqual(RL.ageEnHeuresMinutes(80), { h: 1, m: 20 });
+});
+
+await dit('L07 : 21 jours sur 30 = 70 % et « encore 9 jours » ; 142 h sur 168 = 85 % et « plus que 26 heures » ; plafonnés à 100 %', () => {
+  assert.deepEqual(RL.progressionDuCompteur(21, 30), { pct: 70, encore: 9 });
+  assert.deepEqual(RL.progressionDuCompteur(45, 30), { pct: 100, encore: 0 });
+  assert.deepEqual(RL.progressionDeLaDuree(142), { pct: 85, plusQue: 26 });
+  assert.deepEqual(RL.progressionDeLaDuree(500), { pct: 100, plusQue: 0 });
+  assert.equal(RL.heuresDepuis(null, 1000), null);
+  assert.equal(RL.heuresDepuis(0, 142 * 3_600_000 + 5), 142);
+});
+
+await dit('L07 : étiquette de jour (Auj., Hier, jour abrégé, date courte) ; célébrations des 7 derniers jours', () => {
+  const a = '2026-10-30';
+  assert.equal(RL.etiquetteDeJour('2026-10-30', a).type, 'aujourdhui');
+  assert.equal(RL.etiquetteDeJour('2026-10-29', a).type, 'hier');
+  assert.equal(RL.etiquetteDeJour('2026-10-26', a).type, 'jour');
+  assert.equal(RL.etiquetteDeJour('2026-10-23', a).type, 'date');
+  const c = [{ id: 'a', jour: '2026-10-20' }, { id: 'b', jour: '2026-10-29' }, { id: 'c', jour: '2026-10-30' }, { id: 'd', jour: '2026-11-02' }];
+  assert.deepEqual(RL.celebrationsRecentes(c, a).map((x: any) => x.id), ['c', 'b']);
+});
+
+await dit('L07 : semaine 44 = lundi 26 au vendredi 30 octobre ; la fête est le premier vendredi APRÈS la fin du défi (6 novembre)', () => {
+  assert.equal(RL.numeroDeSemaine('2026-10-30'), 44);
+  assert.equal(RL.numeroDeSemaine('2026-10-26'), 44);
+  assert.equal(RL.vendrediDeLaSemaine('2026-10-28'), '2026-10-30');
+  assert.equal(RL.vendrediDeFete('2026-10-30'), '2026-11-06');
+  assert.equal(RL.vendrediDeFete('2026-10-28'), '2026-10-30');
+});
+
+await dit('L07 : « Fêtez ensemble » — défi de la semaine tenu le dernier jour, ou défi long à 70 % avec une fin connue ; sinon l’astuce', () => {
+  assert.equal(RL.proposerLaFete({ principal: { taux: 91, cible: 90, dernierJour: true }, longs: [] }), true);
+  assert.equal(RL.proposerLaFete({ principal: { taux: 91, cible: 90, dernierJour: false }, longs: [] }), false);
+  assert.equal(RL.proposerLaFete({ principal: null, longs: [{ pct: 70, finConnue: true }] }), true);
+  assert.equal(RL.proposerLaFete({ principal: null, longs: [{ pct: 70, finConnue: false }] }), false);
+  assert.equal(RL.proposerLaFete({ principal: null, longs: [] }), false);
+});
+
+await dit('L07 : un engagement est une phrase de 80 caractères au plus ; un défi à un seul participant passe en pause', () => {
+  assert.equal(RL.engagementValide('Je prends les messages du matin.'), true);
+  assert.equal(RL.engagementValide('   '), false);
+  assert.equal(RL.engagementValide('x'.repeat(81)), false);
+  assert.equal(RL.defiEnPause(1), true);
+  assert.equal(RL.defiEnPause(2), false);
 });
 
 /* ── 4. Les éléments ludiques protégés (L07, trophées, défis) ─────────────── */
