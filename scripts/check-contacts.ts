@@ -55,9 +55,9 @@ async function charger<T>(code: string): Promise<T> {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const M = await charger<any>(
-  "export * as L from '../src/refonte/contacts';\nexport * as monde from '../src/refonte/donnees';\nexport { DICTIONNAIRES_CONTACTS } from '../src/refonte/contacts/i18n';\nexport * as V from '../src/refonte/connecteurs/reglages';\nexport * as H from '../src/refonte/contacts/hub/modele';\nexport * as N from '../src/refonte/contacts/hub/nuage';\nexport { DICTIONNAIRES_HUB } from '../src/refonte/contacts/hub/i18n';\nexport { depuisMonde } from '../src/refonte/contacts/sources/depuisMonde';",
+  "export * as L from '../src/refonte/contacts';\nexport * as monde from '../src/refonte/donnees';\nexport { DICTIONNAIRES_CONTACTS } from '../src/refonte/contacts/i18n';\nexport * as V from '../src/refonte/connecteurs/reglages';\nexport * as H from '../src/refonte/contacts/hub/modele';\nexport * as N from '../src/refonte/contacts/hub/nuage';\nexport { DICTIONNAIRES_HUB } from '../src/refonte/contacts/hub/i18n';\nexport { depuisMonde } from '../src/refonte/contacts/sources/depuisMonde';\nexport * as C from '../src/refonte/contacts/clients/modele';\nexport { DICTIONNAIRES_CLIENTS } from '../src/refonte/contacts/clients/i18n';",
 );
-const { L, monde, V, H, N, DICTIONNAIRES_HUB: DICO_HUB, depuisMonde, DICTIONNAIRES_CONTACTS: DICO } = M;
+const { L, monde, V, H, N, C, DICTIONNAIRES_HUB: DICO_HUB, DICTIONNAIRES_CLIENTS: DICO_CLIENTS, depuisMonde, DICTIONNAIRES_CONTACTS: DICO } = M;
 const paris = (jour: string, hhmm: string): number => L.instantParis(jour, hhmm);
 const VOLUMES = ['vide', 'peu', 'normal', 'beaucoup'] as const;
 const mondes = Object.fromEntries(VOLUMES.map((v) => [v, monde.construireMonde({ volume: v })])) as Record<(typeof VOLUMES)[number], any>;
@@ -1043,6 +1043,152 @@ await dit('F10 · textes : mêmes clés en fr et en, mêmes paramètres, comptes
   for (const b of new Set(en.filter((k) => /\.(1|n)$/.test(k)).map((k) => k.replace(/\.(1|n)$/, '')))) for (const l of ['fr', 'en']) assert.ok(DICO_HUB[l][`${b}.1`] && DICO_HUB[l][`${b}.n`], `${b} (${l})`);
   assert.equal(DICO_HUB.fr['sousTitre.chaud'], '{salut} {prenom}, tes relations sont au chaud', 'la phrase de tutoiement.json');
   assert.equal(DICO_HUB.fr['modules.sousTitre'], 'ouvre, épingle ou masque', 'la phrase de tutoiement.json');
+});
+
+/* ── H05 : Clients ──────────────────────────────────────────────────────── */
+console.log('\nContacts — H05, Clients (mosaïque, segments, tris, prochaine chose)\n');
+
+let compteurFactures = 0;
+const factureH05 = (clientId: number, o: Record<string, unknown> = {}): any => ({
+  id: `f-${clientId}-${++compteurFactures}`, clientId, number: `F-${2000 + clientId}`, status: 'issued', issuedAt: '2026-09-20', dueAt: '2026-10-20', paidAt: '',
+  lines: [{ id: 'l', label: 'x', quantity: 1, unitPriceCents: 100_000, vatRate: 0 }], ...o,
+});
+const devisH05 = (id: number, clientId: number, o: Record<string, unknown> = {}): any => ({
+  id, clientId, numero: `D-${id}`, status: 'sent', sentAt: '2026-10-24T10:00:00.000Z', vuAt: null, acceptéLe: null, refuséLe: null,
+  lignes: [{ id: 'l', label: 'x', quantity: 1, unitPriceCents: 50_000, vatRate: 0 }], ...o,
+});
+
+await dit('H05 · segments : Tous, Actifs (statut actif), À relancer, Impayés — comptés sur les mêmes clients que la liste', () => {
+  const src = base({
+    clients: [fiche(1, 1), fiche(2, 2, { statutAffiche: 'Impayé' }), fiche(3, 3, { statutAffiche: 'À relancer' }), fiche(4, 4, { status: 'inactive' }), fiche(5, 5, { statutAffiche: 'Nouveau' })],
+  });
+  const m = C.modeleClients(src);
+  assert.deepEqual(m.segments, { tous: 5, actifs: 4, aRelancer: 1, impayes: 1 });
+  for (const [segment, attendu] of [['tous', 5], ['actifs', 4], ['aRelancer', 1], ['impayes', 1]] as const) {
+    assert.equal(C.filtrerEtTrier(m, { segment, recherche: '', responsables: new Set(), tri: 'nom' }).length, attendu, segment);
+  }
+});
+
+await dit('H05 · « à traiter d’abord » : impayés (le plus en retard d’abord), puis à relancer (le moins en santé d’abord), puis les autres par échange récent', () => {
+  const src = base({
+    clients: [
+      fiche(1, 5, { statutAffiche: 'Actif' }), fiche(2, 1, { statutAffiche: 'Impayé' }), fiche(3, 1, { statutAffiche: 'Impayé' }),
+      fiche(4, 1, { statutAffiche: 'À relancer', sante: 60 }), fiche(5, 1, { statutAffiche: 'À relancer', sante: 40 }), fiche(6, 1, { statutAffiche: 'Actif' }),
+    ],
+    factures: [factureH05(2, { dueAt: '2026-10-25' }), factureH05(3, { dueAt: '2026-10-01' })],
+  });
+  const ordre = C.filtrerEtTrier(C.modeleClients(src), { segment: 'tous', recherche: '', responsables: new Set(), tri: 'aTraiter' }).map((t: any) => t.id);
+  assert.deepEqual(ordre, [3, 2, 5, 4, 6, 1]);
+});
+
+await dit('H05 · facturé sur 12 mois : factures émises ou payées des douze derniers mois, courbe de douze mois (le plus ancien d’abord)', () => {
+  const src = base({
+    clients: [fiche(1, 1)],
+    factures: [
+      factureH05(1, { status: 'paid', issuedAt: '2026-10-05', paidAt: '2026-10-10' }),       // ce mois-ci : 1 000 €
+      factureH05(1, { status: 'issued', issuedAt: '2026-09-15', dueAt: '2026-12-01' }),       // septembre : 1 000 €
+      factureH05(1, { status: 'paid', issuedAt: '2025-11-02', paidAt: '2025-11-05' }),        // il y a 11 mois : compté
+      factureH05(1, { status: 'paid', issuedAt: '2025-10-02', paidAt: '2025-10-05' }),        // il y a 12 mois : hors fenêtre
+      factureH05(1, { status: 'draft', issuedAt: '2026-10-06' }),                              // brouillon : jamais
+    ],
+  });
+  const t = C.modeleClients(src).tuiles[0];
+  assert.equal(t.factureCents, 300_000);
+  assert.equal(t.courbe.length, 12);
+  assert.equal(t.courbe[11], 100_000, 'dernier point : octobre');
+  assert.equal(t.courbe[10], 100_000, 'septembre');
+  assert.equal(t.courbe[0], 100_000, 'novembre de l’an dernier');
+  assert.deepEqual(C.derniersMois('2026-10-30').slice(0, 2).concat(C.derniersMois('2026-10-30').slice(-1)), ['2025-11', '2025-12', '2026-10']);
+});
+
+await dit('H05 · prochaine chose : retard, rendez-vous du jour, devis vu, devis sans réponse, paiement attendu, sinon « client depuis »', () => {
+  const rdv = (clientId: number, heure: string): any => ({ id: `e${clientId}`, clientId, type: 'rendez-vous client', systeme: false, confirmation: 'confirmé', startAt: new Date(paris('2026-10-30', heure)).toISOString(), durationMin: 45 });
+  const src = base({
+    clients: [fiche(1, 3), fiche(2, 3), fiche(3, 3), fiche(4, 3), fiche(5, 3), fiche(6, 3)],
+    factures: [factureH05(1, { dueAt: '2026-10-10' }), factureH05(5, { dueAt: '2026-11-03' })],
+    evenements: [rdv(2, '11:00')],
+    devis: [devisH05(1, 3, { vuAt: '2026-10-28T09:00:00.000Z' }), devisH05(2, 4, { sentAt: '2026-10-20T09:00:00.000Z' })],
+  });
+  const genres = C.modeleClients(src).tuiles.map((t: any) => t.prochaine.genre);
+  assert.deepEqual(genres, ['retard', 'rdv', 'devisVu', 'sansReponse', 'paiement', 'depuis']);
+  const t1 = C.modeleClients(src).tuiles[0];
+  assert.deepEqual(t1.prochaine.params, { numero: 'F-2001', jours: 20 });
+  assert.equal(C.modeleClients(src).tuiles[1].rdvDuJour, true);
+  assert.equal(C.modeleClients(src).prochainRdv.heure, '11:00');
+});
+
+await dit('H05 · recherche : nom, secteur, ville, sans accent ni casse ; le filtre « responsable » ne garde que les siens', () => {
+  const src = base({
+    clients: [fiche(1, 1, { company: 'Boulangerie Léo', secteur: 'Commerce', ville: 'Franconville', responsableEmail: 'a@exemple.test' }), fiche(2, 1, { company: 'Garage Benali', secteur: 'Garage', ville: 'Argenteuil', responsableEmail: 'b@exemple.test' })],
+    equipe: [
+      { id: 1, prenom: 'Alex', nom: 'T', nomComplet: 'Alex T', initiales: 'AT', email: 'a@exemple.test', teinte: 1, statut: 'en ligne' },
+      { id: 2, prenom: 'Bea', nom: 'U', nomComplet: 'Bea U', initiales: 'BU', email: 'b@exemple.test', teinte: 2, statut: 'en ligne' },
+    ],
+  });
+  const m = C.modeleClients(src);
+  const cherche = (recherche: string, responsables: string[] = []) => C.filtrerEtTrier(m, { segment: 'tous', recherche, responsables: new Set(responsables), tri: 'nom' }).map((t: any) => t.id);
+  assert.deepEqual(cherche('LEO'), [1]);
+  assert.deepEqual(cherche('léo'), [1]);
+  assert.deepEqual(cherche('argenteuil'), [2]);
+  assert.deepEqual(cherche('commerce'), [1]);
+  assert.deepEqual(cherche('zzz'), []);
+  assert.deepEqual(cherche('', ['b@exemple.test']), [2]);
+  assert.deepEqual(m.responsables.map((r: any) => r.initiales), ['AT', 'BU']);
+});
+
+await dit('H05 · pagination : 12 par page, « 1 à 12 sur 48 », dernière page partielle, page bornée', () => {
+  const liste = Array.from({ length: 48 }, (_, i) => i);
+  const p0 = C.pageDe(liste, 0);
+  assert.deepEqual([p0.debut, p0.fin, p0.total, p0.pages, p0.elements.length], [1, 12, 48, 4, 12]);
+  const p3 = C.pageDe(Array.from({ length: 50 }, (_, i) => i), 9);
+  assert.deepEqual([p3.debut, p3.fin, p3.elements.length], [49, 50, 2]);
+  assert.deepEqual([C.pageDe([], 0).debut, C.pageDe([], 0).fin], [0, 0]);
+});
+
+await dit('H05 · santé du portefeuille : 31 / 11 / 6 sur 48 en barre empilée ; « payé en avance » compte les clients, une fois chacun', () => {
+  const parts = C.partsDeLaBarre({ bonne: 31, aSurveiller: 11, fragile: 6 });
+  assert.equal(Math.round((parts.bonne + parts.aSurveiller + parts.fragile) * 1e6) / 1e6, 1);
+  assert.equal(Math.round(parts.bonne * 1000) / 1000, 0.646);
+  assert.deepEqual(C.partsDeLaBarre({ bonne: 0, aSurveiller: 0, fragile: 0 }), { bonne: 0, aSurveiller: 0, fragile: 0 });
+  const src = base({
+    clients: [fiche(1, 1, { sante: 90 }), fiche(2, 1, { sante: 50 }), fiche(3, 1, { sante: 10 })],
+    factures: [
+      factureH05(1, { status: 'paid', issuedAt: '2026-10-01', dueAt: '2026-10-20', paidAt: '2026-10-10' }),
+      factureH05(1, { status: 'paid', issuedAt: '2026-10-02', dueAt: '2026-10-25', paidAt: '2026-10-12' }),
+      factureH05(2, { status: 'paid', issuedAt: '2026-10-01', dueAt: '2026-10-20', paidAt: '2026-10-21' }),
+      factureH05(3, { status: 'paid', issuedAt: '2026-09-01', dueAt: '2026-09-20', paidAt: '2026-09-10' }),
+    ],
+  });
+  const m = C.modeleClients(src);
+  assert.equal(m.payesEnAvance, 1, 'client 1 une fois ; client 2 en retard ; client 3 le mois dernier');
+  assert.deepEqual(m.portefeuille, { bonne: 1, aSurveiller: 1, fragile: 1 });
+});
+
+await dit('H05 · sur les jeux de SIM (quatre volumes) : total = clients, segments cohérents, une tuile par client, tri stable', () => {
+  for (const v of VOLUMES) {
+    const m = C.modeleClients(depuisMonde(mondes[v]));
+    assert.equal(m.total, mondes[v].clients.length, v);
+    assert.equal(m.tuiles.length, m.total, v);
+    assert.ok(m.segments.impayes + m.segments.aRelancer <= m.total, v);
+    assert.equal(m.portefeuille.bonne + m.portefeuille.aSurveiller + m.portefeuille.fragile, m.total, v);
+    const o1 = C.filtrerEtTrier(m, { segment: 'tous', recherche: '', responsables: new Set(), tri: 'aTraiter' }).map((t: any) => t.id);
+    const o2 = C.filtrerEtTrier(m, { segment: 'tous', recherche: '', responsables: new Set(), tri: 'aTraiter' }).map((t: any) => t.id);
+    assert.deepEqual(o1, o2, v);
+    assert.equal(new Set(o1).size, m.total, v);
+  }
+});
+
+await dit('H05 · textes : mêmes clés en fr et en, mêmes paramètres, comptes à deux formes, l’interface tutoie', () => {
+  const en = Object.keys(DICO_CLIENTS.en).sort();
+  assert.deepEqual(Object.keys(DICO_CLIENTS.fr).sort(), en);
+  const params = (t: string) => [...t.matchAll(/\{(\w+)\}/g)].map((x) => x[1]).sort().join(',');
+  for (const k of en) {
+    assert.ok(DICO_CLIENTS.en[k].trim() && DICO_CLIENTS.fr[k].trim(), k);
+    assert.equal(params(DICO_CLIENTS.fr[k]), params(DICO_CLIENTS.en[k]), `paramètres de ${k}`);
+    assert.ok(!VOUVOIEMENT_UI.test(DICO_CLIENTS.fr[k]), `${k} vouvoie : ${DICO_CLIENTS.fr[k]}`);
+  }
+  for (const b of new Set(en.filter((k) => /\.(1|n)$/.test(k)).map((k) => k.replace(/\.(1|n)$/, '')))) for (const l of ['fr', 'en']) assert.ok(DICO_CLIENTS[l][`${b}.1`] && DICO_CLIENTS[l][`${b}.n`], `${b} (${l})`);
+  assert.equal(DICO_CLIENTS.fr['sousTitre.rdv'], '{nom} t’attend à {heure}', 'la phrase de tutoiement.json');
 });
 
 /* ── Structure ──────────────────────────────────────────────────────────── */

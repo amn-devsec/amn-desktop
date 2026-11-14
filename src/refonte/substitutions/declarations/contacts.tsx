@@ -15,4 +15,7 @@ import { declarerSubstitutions } from '../declarer';
 export default declarerSubstitutions('contacts', [
   // F10 — la vue d'ensemble de la famille : la route exacte de SON hub (`hubs.ts`), jamais `/ensemble/:famille`.
   { route: '/ensemble/contacts', composant: lazy(() => import('../../contacts/hub/PageHub')) },
+
+  // H05 — Clients : la mosaïque. La fiche, la création et le reste passent par l'écran d'origine (`useOutlet`) jusqu'à leur refonte.
+  { route: '/clients', composant: lazy(() => import('../../contacts/clients/PageClients')) },
 ]);

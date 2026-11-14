@@ -1,0 +1,133 @@
+/*
+  « CLIENTS » (H05, v4) — mise en page aux cotes de la fiche (zone principale de 1108 px, x = 40, y = 94 → 758).
+
+    barre d'outils   34 px, à y = 94 ;
+    tuiles           267 × 173, 4 par ligne, écart 14, trois lignes (y = 143, 330, 517 sur l'image : 187 de pas) ;
+    bandeau          1108 × 54, à y = 704 : « Santé du portefeuille », « N clients ont payé en avance », pagination.
+
+  Aucune couleur écrite ici : `--socle-*` (src/socle/noir.css) et `--fam-a`/`--fam-b` (posés par la coquille). Les trois
+  teintes de santé sont les états du socle (succès, attention, critique). Chargée par `VueClients.tsx` ; édition interne.
+*/
+.sc-cl__entete.sc-page__entete { flex-wrap: nowrap; gap: 16px; }
+.sc-cl__hors-ligne { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 12px; color: var(--socle-etat-attention); }
+
+.sc-cl__outils { display: flex; align-items: center; gap: 12px; flex: 0 0 auto; min-height: 34px; }
+.sc-cl__segments { flex: 0 0 auto; }
+.sc-cl__recherche { flex: 0 1 230px; min-width: 170px; }
+.sc-cl__responsables { display: flex; align-items: center; gap: 2px; margin-left: auto; }
+.sc-cl__responsables-t { margin-right: 6px; font-size: 12px; color: var(--socle-texte-3); }
+.sc-cl__resp {
+  display: inline-flex; padding: 2px; border: 1.5px solid transparent; border-radius: 50%; background: none; cursor: pointer; line-height: 0;
+}
+.sc-cl__resp[aria-pressed='true'] { border-color: var(--fam-a); }
+.sc-cl__resp:focus-visible { outline: 2px solid var(--fam-a); outline-offset: 1px; }
+.sc-cl__tri {
+  height: 34px; max-width: 190px; padding: 0 26px 0 10px; border-radius: 10px; border: 1px solid var(--socle-bord-controle); background-color: var(--socle-sous-carte);
+  color: var(--socle-texte-2); font: inherit; font-size: 12px; cursor: pointer;
+}
+.sc-cl__tri:focus-visible { outline: 2px solid var(--fam-a); outline-offset: 1px; }
+.sc-cl__affichage { display: inline-flex; flex: 0 0 auto; gap: 2px; padding: 2px; border-radius: 10px; border: 1px solid var(--socle-bord-controle); background: var(--socle-sous-carte); }
+.sc-cl__affichage button { display: grid; place-items: center; width: 30px; height: 28px; border: 0; border-radius: 8px; background: none; color: var(--socle-texte-3); cursor: pointer; }
+.sc-cl__affichage button[aria-checked='true'] { background: var(--socle-ligne-survol); color: var(--socle-texte-1); }
+.sc-cl__affichage button:focus-visible { outline: 2px solid var(--fam-a); outline-offset: 1px; }
+
+/* La grille : 4 colonnes de 267 (écart 14 : 4 × 267 + 3 × 14 = 1110, à 2 px près de la zone de 1108). */
+.sc-cl__grille { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; flex: 0 0 auto; }
+.sc-cl__cellule { display: flex; min-width: 0; }
+.sc-cl__tableau { flex: 1 1 0; min-height: 0; }
+
+.sc-cl-tuile {
+  position: relative; display: flex; flex-direction: column; justify-content: space-between; width: 100%; height: 173px; padding: 16px 16px 14px;
+  border-radius: var(--socle-rayon-carte); border: 1px solid var(--socle-bord-carte); text-align: left; cursor: pointer; overflow: hidden;
+  background: linear-gradient(180deg, var(--socle-carte-haut), var(--socle-carte-bas)); box-shadow: var(--socle-ombre-carte); color: var(--socle-texte-1); font: inherit;
+}
+.sc-cl-tuile:hover { border-color: var(--socle-bord-carte-active); }
+.sc-cl-tuile:focus-visible { outline: 2px solid var(--fam-a); outline-offset: 2px; }
+.sc-cl-tuile[data-rdv] { border-color: var(--socle-bord-carte-active); }
+.sc-cl-tuile--squelette { cursor: default; background: var(--socle-sous-carte); animation: sc-cl-pulse 1.6s ease-in-out infinite; }
+@keyframes sc-cl-pulse { 50% { opacity: 0.55; } }
+@media (prefers-reduced-motion: reduce) { .sc-cl-tuile--squelette { animation: none; } }
+
+/* Le filet de 2 px : Impayé en critique, À relancer en attention. */
+.sc-cl-tuile[data-statut='Impayé']::before,
+.sc-cl-tuile[data-statut='À relancer']::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 2px; }
+.sc-cl-tuile[data-statut='Impayé']::before { background: var(--socle-etat-critique); }
+.sc-cl-tuile[data-statut='À relancer']::before { background: var(--socle-etat-attention); }
+
+.sc-cl-tuile__haut { display: flex; align-items: center; gap: 12px; }
+.sc-cl-tuile__initiale {
+  display: grid; place-items: center; flex: 0 0 34px; width: 34px; height: 34px; border-radius: 10px; background: var(--socle-sous-carte);
+  border: 1px solid var(--socle-bord-sous-carte); font-size: 14px; font-weight: 600; color: var(--socle-texte-1);
+}
+.sc-cl-tuile__identite { display: flex; flex-direction: column; min-width: 0; flex: 1 1 auto; gap: 2px; }
+.sc-cl-tuile__nom { font-size: 14px; font-weight: 600; line-height: 1.25; color: var(--socle-texte-1); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sc-cl-tuile__sous { font-size: 12px; color: var(--socle-texte-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sc-cl-tuile__anneau { flex: 0 0 auto; font-size: 12px; font-weight: 600; color: var(--socle-texte-1); }
+
+.sc-cl-tuile__chiffre { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--socle-bord-ligne); }
+.sc-cl-tuile__montant { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sc-cl-tuile__etiquette { font-size: 12px; color: var(--socle-texte-3); }
+.sc-cl-tuile__valeur { font-size: 18px; font-weight: 700; line-height: 1.2; color: var(--socle-texte-1); }
+
+.sc-cl-tuile__ligne { display: flex; align-items: center; gap: 6px; min-height: 26px; }
+.sc-cl-tuile__echange { flex: 1 1 auto; min-width: 0; font-size: 12px; color: var(--socle-texte-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sc-cl-tuile__prochaine { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--socle-texte-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sc-cl-tuile__voyant { flex: 0 0 8px; width: 8px; height: 8px; border-radius: 50%; background: var(--socle-etat-info); }
+.sc-cl-tuile__prochaine[data-genre='retard'] .sc-cl-tuile__voyant { background: var(--socle-etat-critique); }
+
+/* L'anneau et la courbe prennent la couleur de la santé. */
+.sc-cl-tuile__anneau .sc-anneau__centre { font-size: 12px; font-weight: 600; }
+.sc-cl-spark { flex: 0 0 auto; overflow: visible; }
+.sc-cl-spark__trait { stroke-width: 1.6; }
+.sc-cl-spark[data-sante='vert'] { --sc-cl-ton: var(--socle-etat-succes); }
+.sc-cl-spark[data-sante='orange'] { --sc-cl-ton: var(--socle-etat-attention); }
+.sc-cl-spark[data-sante='rouge'] { --sc-cl-ton: var(--socle-etat-critique); }
+.sc-cl-spark__trait { stroke: var(--sc-cl-ton); }
+.sc-cl-spark__point { fill: var(--socle-carte-bas); stroke: var(--sc-cl-ton); stroke-width: 1.6; }
+.sc-cl-spark__haut { stop-color: var(--sc-cl-ton); stop-opacity: 0.22; }
+.sc-cl-spark__bas { stop-color: var(--sc-cl-ton); stop-opacity: 0; }
+
+/* La pastille de statut. */
+.sc-cl-statut {
+  display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto; height: 26px; padding: 0 10px; border-radius: var(--socle-rayon-pastille); border: 1px solid var(--sc-cl-bord, var(--socle-bord-sous-carte));
+  background: var(--sc-cl-fond, var(--socle-sous-carte)); color: var(--sc-cl-encre, var(--socle-texte-2)); font-size: 12px; font-weight: 600; white-space: nowrap;
+}
+.sc-cl-statut__point { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.sc-cl-statut[data-statut='Impayé'] { --sc-cl-encre: var(--socle-etat-critique); --sc-cl-bord: var(--socle-etat-critique); --sc-cl-fond: transparent; }
+.sc-cl-statut[data-statut='À relancer'] { --sc-cl-encre: var(--socle-etat-attention); --sc-cl-bord: var(--socle-etat-attention); --sc-cl-fond: transparent; }
+.sc-cl-statut[data-statut='Nouveau'] { --sc-cl-encre: var(--socle-etat-info); --sc-cl-bord: var(--socle-etat-info); --sc-cl-fond: transparent; }
+
+/* La vue en liste. */
+.sc-cl-liste__nom { display: flex; flex-direction: column; min-width: 0; }
+.sc-cl-liste__nom-t { font-weight: 600; color: var(--socle-texte-1); }
+.sc-cl-liste__sous { font-size: 12px; color: var(--socle-texte-3); }
+.sc-cl-liste__sante { display: inline-flex; align-items: center; gap: 8px; }
+.sc-cl-liste__echange { display: inline-flex; align-items: center; gap: 8px; }
+
+/* Le bandeau « Santé du portefeuille » : 1108 × 54. */
+.sc-cl-portefeuille {
+  display: flex; align-items: center; gap: 24px; height: 54px; flex: 0 0 auto; margin-top: auto; padding: 0 18px;
+  border-radius: var(--socle-rayon-carte); border: 1px solid var(--socle-bord-carte); background: linear-gradient(180deg, var(--socle-carte-haut), var(--socle-carte-bas));
+}
+.sc-cl-portefeuille__bloc { display: flex; align-items: center; gap: 14px; min-width: 0; flex: 1 1 auto; }
+.sc-cl-portefeuille__titre { font-size: 12px; font-weight: 600; color: var(--socle-texte-1); white-space: nowrap; }
+.sc-cl-portefeuille__barre { display: flex; width: 140px; height: 8px; flex: 0 0 140px; gap: 2px; border-radius: 4px; overflow: hidden; }
+.sc-cl-portefeuille__barre > span { min-width: 2px; }
+.sc-cl-portefeuille__barre > [data-sante='vert'] { background: var(--socle-etat-succes); }
+.sc-cl-portefeuille__barre > [data-sante='orange'] { background: var(--socle-etat-attention); }
+.sc-cl-portefeuille__barre > [data-sante='rouge'] { background: var(--socle-etat-critique); }
+.sc-cl-portefeuille__legende { display: flex; gap: 16px; margin: 0; padding: 0; list-style: none; font-size: 12px; color: var(--socle-texte-2); }
+.sc-cl-portefeuille__legende li { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.sc-cl-portefeuille__legende li::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--sc-cl-ton); }
+.sc-cl-portefeuille__legende [data-sante='vert'], li[data-sante='vert'] { --sc-cl-ton: var(--socle-etat-succes); }
+li[data-sante='orange'] { --sc-cl-ton: var(--socle-etat-attention); }
+li[data-sante='rouge'] { --sc-cl-ton: var(--socle-etat-critique); }
+.sc-cl-portefeuille__avance { font-size: 12px; color: var(--socle-texte-2); white-space: nowrap; }
+.sc-cl-portefeuille__pages { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--socle-texte-3); white-space: nowrap; }
+.sc-cl-portefeuille__fleche {
+  display: grid; place-items: center; width: 28px; height: 28px; border-radius: 8px; border: 1px solid var(--socle-bord-controle); background: var(--socle-sous-carte); color: var(--socle-texte-2); cursor: pointer;
+}
+.sc-cl-portefeuille__fleche:disabled { opacity: 0.4; cursor: default; }
+.sc-cl-portefeuille__fleche:focus-visible { outline: 2px solid var(--fam-a); outline-offset: 1px; }
+
+@media (max-width: 1100px) { .sc-cl__grille { grid-template-columns: repeat(2, minmax(0, 1fr)); } .sc-cl-portefeuille { flex-wrap: wrap; height: auto; padding: 12px 18px; } }
