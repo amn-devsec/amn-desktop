@@ -1,0 +1,86 @@
+diff --git a/scripts/check-navigation.ts b/scripts/check-navigation.ts
+index 7775852..7aaa007 100644
+--- a/scripts/check-navigation.ts
++++ b/scripts/check-navigation.ts
+@@ -398,7 +398,8 @@ await dit('Créer et produire rapatrie les modules des écrans de LOT-06 (STATUT
+   }
+   const creer = R.familles.find((f) => f.id === 'creer');
+   assert.deepEqual(creer?.actions.map((a) => a.id).slice(0, 3), ['fabriquer', 'livrer', 'stocker'], 'les trois groupes de F50 d’abord');
+-  assert.equal(R.entrees.length, 101, 'on déplace, on ne perd rien');
++  // 101 entrées de S5 + les trois modules de l'Atelier (F1, STATUT §1.21), qui sont des écrans neufs.
++  assert.equal(R.entrees.length, 104, 'on déplace, on ne perd rien');
+   assert.deepEqual(fautes, [], fautes.join('\n'));
+ });
+ 
+@@ -557,12 +558,14 @@ await dit('une famille ajoutée (un fichier) arrive aux familles, aux essentiels
+   assert.ok(item, 'absent du catalogue');
+   assert.equal(item.to, '/essai/gabarits');
+   assert.equal(sections.find((s) => s.items.includes(item))?.space, 'workspace');
+-  assert.deepEqual(m.ecransNeufs(r).map((e) => e.route), ['/essai/gabarits'], 'route non montée');
++  assert.deepEqual(m.ecransNeufs(r).map((e) => e.route).filter((x) => x.startsWith('/essai/')), ['/essai/gabarits'], 'route non montée');
+   const g = m.composerRail({ catalogue: [...catalogue, item].map((i) => ({ key: i.key })), epingles: [], recents: [], quand: new Date(2026, 9, 21, 9), essentiels });
+   assert.ok(g.essentiels.some((i) => i.key === 'essaiGabarits'), 'absent du rail');
+-  // Le registre réel n'a aucun écran neuf : rien n'est ajouté au catalogue ni aux routes.
+-  assert.deepEqual(m.sectionsDuRegistre(R), []);
+-  assert.deepEqual(m.ecransNeufs(R), []);
++  // Le registre réel n'a pour écrans neufs que les trois modules de l'Atelier (F1, STATUT §1.21) : rien d'autre n'est
++  // ajouté au catalogue ni aux routes.
++  const ATELIER = ['comparateurDevis', 'echeancier', 'tauxHoraire'];
++  assert.deepEqual(m.sectionsDuRegistre(R).flatMap((s) => s.items.map((i) => i.key)).sort(), ATELIER);
++  assert.deepEqual(m.ecransNeufs(R).map((e) => e.id).sort(), ATELIER);
+ });
+ 
+ await dit('un module ajouté seul (un fichier) rejoint sa famille, après ceux du fichier de la famille', () => {
+diff --git a/scripts/check-socle-archetypes.ts b/scripts/check-socle-archetypes.ts
+index ee80ceb..17cce0d 100644
+--- a/scripts/check-socle-archetypes.ts
++++ b/scripts/check-socle-archetypes.ts
+@@ -1011,7 +1011,8 @@ await dit('édition cliente : aucun fichier hors du socle et de la refonte n’i
+   const fautes: string[] = [];
+   for (const f of fichiers(path.join(racine, 'src'), /\.(tsx?|css)$/)) {
+     const rel = path.relative(racine, f).replace(/\\/g, '/');
+-    if (rel.startsWith('src/socle/') || rel.startsWith('src/refonte/') || /\.internal\.(tsx?)$/.test(rel)) continue;
++    // `src/ateliers/` : les modules de l'Atelier (F1), internes par construction, déclarés au registre (STATUT §1.21).
++    if (rel.startsWith('src/socle/') || rel.startsWith('src/refonte/') || rel.startsWith('src/ateliers/') || /\.internal\.(tsx?)$/.test(rel)) continue;
+     const src = fs.readFileSync(f, 'utf8');
+     if (/(?:from|import)\s+['"][^'"]*socle\/(?:ui\/archetypes|mots\/archetypes)/.test(src) || /archetypes\.css/.test(src)) fautes.push(rel);
+   }
+diff --git a/scripts/check-systeme-demarrage.ts b/scripts/check-systeme-demarrage.ts
+index d902295..c482de3 100644
+--- a/scripts/check-systeme-demarrage.ts
++++ b/scripts/check-systeme-demarrage.ts
+@@ -131,7 +131,8 @@ await dit('huit familles, dans l’ordre de la fiche, avec leurs titres et leurs
+ 
+ await dit('le registre est sain (101 entrées) et CHAQUE identifiant de module de chaque modèle y est une entrée — aucun identifiant inventé', () => {
+   assert.deepEqual(registre.fautes, []);
+-  assert.equal(registre.entrees.length, 101);
++  // 101 entrées de S5 + les trois modules de l'Atelier (F1, STATUT §1.21).
++  assert.equal(registre.entrees.length, 104);
+   for (const m of MODELES) {
+     assert.equal(new Set(m.modules).size, m.modules.length, `${m.id} : un module revient deux fois`);
+     for (const id of m.modules) assert.ok(idsEntrees.has(id), `${m.id} : « ${id} » n’est pas une entrée du registre`);
+@@ -237,7 +238,8 @@ await dit('allègements : tout ce qui n’est pas activé s’allège, rien d’
+     }
+     assert.ok(sortie.length < catalogueCles.length, `${m.id} : tout est allégé`);
+   }
+-  assert.deepEqual(registre, geler, 'le registre ne doit pas bouger : rien n’est supprimé');
++  // `geler` est un clone JSON : les écrans neufs (`nouveau`) portent une fonction et une icône que JSON ne garde pas.
++  assert.deepEqual(JSON.parse(JSON.stringify(registre)), geler, 'le registre ne doit pas bouger : rien n’est supprimé');
+   for (const k of TOUJOURS) assert.ok(!R.calculerAllegements(['clients'], registre, catalogueCles, { toujoursOuverts: TOUJOURS }).includes(k), k);
+ });
+ 
+diff --git a/src/edition/navLexique.internal.ts b/src/edition/navLexique.internal.ts
+index ea2a823..41d9e0b 100644
+--- a/src/edition/navLexique.internal.ts
++++ b/src/edition/navLexique.internal.ts
+@@ -40,6 +40,10 @@ const NAV_EN_INTERNE: Record<string, TraductionNav> = {
+   scanner: { label: 'Scanner', hint: 'Vulnerability scanning' },
+   comply: { label: 'Comply', hint: 'GDPR compliance' },
+   ssl: { label: 'SSL Monitor', hint: 'TLS certificates' },
++  // Les trois modules de l'Atelier (F1), choisis par Harun le 12 nov. (STATUT §1.21) : mêmes noms que leur déclaration.
++  tauxHoraire: { label: 'Cost-based hourly rate', hint: 'The hourly price that covers your costs' },
++  echeancier: { label: 'Payment in instalments', hint: 'Spread a payment over several months' },
++  comparateurDevis: { label: 'Supplier quote comparison', hint: 'Compare quotes from suppliers' },
+ };
+ 
+ export const NAV_EN: Record<string, TraductionNav> = {
