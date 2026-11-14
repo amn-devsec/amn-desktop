@@ -1382,7 +1382,24 @@ dit('G08 cockpit : le revenu récurrent est la somme des abonnements actifs, les
     for (const col of Object.values(c.tickets) as Attendu[]) assert.ok(col.visibles.length <= 3 && col.visibles.length <= col.compteur);
     assert.equal(c.impayes, m.factures.filter((f) => f.status === 'issued' && str(f.dueAt) < aujourdhuiDe(m)).length);
     assert.equal(c.sources.length, m.connecteurs.length);
-    assert.ok(c.objectifDuMois === null && c.utilisateursConnectes === null && c.manque.length === 2);
+    assert.equal(c.manque.length, 0, `${nom} : plus rien ne manque à G08`);
+    const o = c.objectifDuMois as Lien;
+    const reg = m.entreprise.reglages as Lien;
+    assert.equal(o.objectifCents, reg.objectifMrrCents);
+    assert.equal(o.mrrCents, c.mrr.cents);
+    assert.equal(o.resteCents, Math.max(0, num(o.objectifCents) - num(o.mrrCents)));
+    assert.equal(o.partPourcent, Math.round((num(o.mrrCents) / num(o.objectifCents)) * 100));
+    assert.equal(o.atteint, num(o.mrrCents) >= num(o.objectifCents));
+    const jm = new Date(Date.UTC(Number(aujourdhuiDe(m).slice(0, 4)), Number(aujourdhuiDe(m).slice(5, 7)), 0)).getUTCDate();
+    assert.equal(o.ecartDeRythmeJours, Math.round((num(o.mrrCents) / num(o.objectifCents)) * jm - Number(aujourdhuiDe(m).slice(8))), `${nom} : avance ou retard sur le rythme`);
+    if (m.utilisateursConnectes.length === 0) assert.equal(c.utilisateursConnectes, null, `${nom} : sans série, rien à montrer`);
+    else {
+      const u = c.utilisateursConnectes as Lien;
+      const sept = u.parJour as Lien[];
+      assert.equal(sept.length, 7, `${nom} : sept jours`);
+      assert.equal(u.aujourdhui, sept[6].connectes);
+      assert.equal(str(sept[6].jour), aujourdhuiDe(m), `${nom} : aujourd'hui en dernier`);
+    }
   }
   const c = D.attendusCockpit(normal);
   assert.ok(c.mrr.ecartPourcent !== null && c.mrr.ecartPourcent !== 0 && c.nouveauxClientsActifs >= 1, 'normal : le MRR a bougé, des nouveaux clients actifs');
