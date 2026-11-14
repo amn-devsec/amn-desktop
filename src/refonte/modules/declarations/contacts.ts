@@ -1,4 +1,4 @@
-import { Award, Contact, Filter, Handshake } from 'lucide-react';
+import { Award, CalendarClock, Contact, Filter, Handshake } from 'lucide-react';
 import { declarerFamille, vue } from '../declarer';
 
 /**
@@ -27,6 +27,21 @@ export default declarerFamille({
       vues: [
         vue('clients', '/clients', ['ajouter un client', 'retrouver un client', 'faire un devis', 'créer un devis', 'trouver un contact', 'voir l’historique d’un client'], ['client', 'cliente', 'fiche', 'devis', 'crm', 'contact', 'répertoire', 'carnet d’adresses'], {
           en: { verbes: ['add a customer', 'find a customer', 'make a quote', 'create a quote'], motsCles: ['customer', 'client', 'contact', 'quote', 'estimate', 'crm'] },
+        }),
+      ],
+    },
+    {
+      nom: { fr: 'Rendez-vous clients', en: 'Client meetings' },
+      action: 'clients',
+      niveau: 'courant',
+      vues: [
+        vue('rdvClients', '/rendez-vous-clients', ['voir mes rendez-vous avec les clients', 'préparer ma journée de rendez-vous', 'voir le prochain rendez-vous client'], ['rendez-vous', 'rdv', 'journée', 'trajet', 'créneau', 'réservation'], {
+          en: { verbes: ['see my client meetings', 'plan my day of meetings', 'see the next client meeting'], motsCles: ['meeting', 'appointment', 'day', 'route', 'slot', 'booking'] },
+          nouveau: {
+            icone: CalendarClock,
+            ecran: () => import('../../contacts/rdv/PageRdv'),
+            indice: { fr: 'La journée de tes rendez-vous clients, heure par heure', en: 'The day of your client meetings, hour by hour' },
+          },
         }),
       ],
     },

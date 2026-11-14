@@ -55,9 +55,9 @@ async function charger<T>(code: string): Promise<T> {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const M = await charger<any>(
-  "export * as L from '../src/refonte/contacts';\nexport * as monde from '../src/refonte/donnees';\nexport { DICTIONNAIRES_CONTACTS } from '../src/refonte/contacts/i18n';\nexport * as V from '../src/refonte/connecteurs/reglages';\nexport * as H from '../src/refonte/contacts/hub/modele';\nexport * as N from '../src/refonte/contacts/hub/nuage';\nexport { DICTIONNAIRES_HUB } from '../src/refonte/contacts/hub/i18n';\nexport { depuisMonde } from '../src/refonte/contacts/sources/depuisMonde';\nexport * as C from '../src/refonte/contacts/clients/modele';\nexport { DICTIONNAIRES_CLIENTS } from '../src/refonte/contacts/clients/i18n';\nexport * as G from '../src/refonte/contacts/fiche/modele';\nexport { DICTIONNAIRES_FICHE } from '../src/refonte/contacts/fiche/i18n';\nexport * as P from '../src/refonte/contacts/prospects/modele';\nexport * as PN from '../src/refonte/contacts/prospects/nuage';\nexport { DICTIONNAIRES_PROSPECTS } from '../src/refonte/contacts/prospects/i18n';\nexport * as RT from '../src/refonte/contacts/retours/modele';\nexport { DICTIONNAIRES_RETOURS } from '../src/refonte/contacts/retours/i18n';\nexport * as FO from '../src/refonte/contacts/fournisseurs/modele';\nexport { DICTIONNAIRES_FOURNISSEURS } from '../src/refonte/contacts/fournisseurs/i18n';\nexport * as PL from '../src/refonte/contacts/pipeline/modele';\nexport * as PG from '../src/refonte/contacts/pipeline/geometrie';\nexport { DICTIONNAIRES_PIPELINE } from '../src/refonte/contacts/pipeline/i18n';\nexport * as FI from '../src/refonte/contacts/fidelite/modele';\nexport { DICTIONNAIRES_FIDELITE } from '../src/refonte/contacts/fidelite/i18n';\nexport * as PE from '../src/refonte/contacts/personnes/modele';\nexport { DICTIONNAIRES_CONTACTS_PERSONNES } from '../src/refonte/contacts/personnes/i18n';\nexport * as EQ from '../src/refonte/contacts/equipe/modele';\nexport { DICTIONNAIRES_EQUIPE } from '../src/refonte/contacts/equipe/i18n';\nexport * as PA from '../src/refonte/contacts/partenaires/modele';\nexport * as PAG from '../src/refonte/contacts/partenaires/geometrie';\nexport { DICTIONNAIRES_PARTENAIRES } from '../src/refonte/contacts/partenaires/i18n';",
+  "export * as L from '../src/refonte/contacts';\nexport * as monde from '../src/refonte/donnees';\nexport { DICTIONNAIRES_CONTACTS } from '../src/refonte/contacts/i18n';\nexport * as V from '../src/refonte/connecteurs/reglages';\nexport * as H from '../src/refonte/contacts/hub/modele';\nexport * as N from '../src/refonte/contacts/hub/nuage';\nexport { DICTIONNAIRES_HUB } from '../src/refonte/contacts/hub/i18n';\nexport { depuisMonde } from '../src/refonte/contacts/sources/depuisMonde';\nexport * as C from '../src/refonte/contacts/clients/modele';\nexport { DICTIONNAIRES_CLIENTS } from '../src/refonte/contacts/clients/i18n';\nexport * as G from '../src/refonte/contacts/fiche/modele';\nexport { DICTIONNAIRES_FICHE } from '../src/refonte/contacts/fiche/i18n';\nexport * as P from '../src/refonte/contacts/prospects/modele';\nexport * as PN from '../src/refonte/contacts/prospects/nuage';\nexport { DICTIONNAIRES_PROSPECTS } from '../src/refonte/contacts/prospects/i18n';\nexport * as RT from '../src/refonte/contacts/retours/modele';\nexport { DICTIONNAIRES_RETOURS } from '../src/refonte/contacts/retours/i18n';\nexport * as FO from '../src/refonte/contacts/fournisseurs/modele';\nexport { DICTIONNAIRES_FOURNISSEURS } from '../src/refonte/contacts/fournisseurs/i18n';\nexport * as PL from '../src/refonte/contacts/pipeline/modele';\nexport * as PG from '../src/refonte/contacts/pipeline/geometrie';\nexport { DICTIONNAIRES_PIPELINE } from '../src/refonte/contacts/pipeline/i18n';\nexport * as FI from '../src/refonte/contacts/fidelite/modele';\nexport { DICTIONNAIRES_FIDELITE } from '../src/refonte/contacts/fidelite/i18n';\nexport * as PE from '../src/refonte/contacts/personnes/modele';\nexport { DICTIONNAIRES_CONTACTS_PERSONNES } from '../src/refonte/contacts/personnes/i18n';\nexport * as EQ from '../src/refonte/contacts/equipe/modele';\nexport { DICTIONNAIRES_EQUIPE } from '../src/refonte/contacts/equipe/i18n';\nexport * as PA from '../src/refonte/contacts/partenaires/modele';\nexport * as PAG from '../src/refonte/contacts/partenaires/geometrie';\nexport { DICTIONNAIRES_PARTENAIRES } from '../src/refonte/contacts/partenaires/i18n';\nexport * as RD from '../src/refonte/contacts/rdv/modele';\nexport { DICTIONNAIRES_RDV } from '../src/refonte/contacts/rdv/i18n';",
 );
-const { L, monde, V, H, N, C, G, DICTIONNAIRES_HUB: DICO_HUB, DICTIONNAIRES_CLIENTS: DICO_CLIENTS, DICTIONNAIRES_FICHE: DICO_FICHE, P, PN, DICTIONNAIRES_PROSPECTS: DICO_PROSPECTS, RT, DICTIONNAIRES_RETOURS: DICO_RETOURS, FO, DICTIONNAIRES_FOURNISSEURS: DICO_FOURNISSEURS, PL, PG, DICTIONNAIRES_PIPELINE: DICO_PIPELINE, FI, DICTIONNAIRES_FIDELITE: DICO_FIDELITE, PE, DICTIONNAIRES_CONTACTS_PERSONNES: DICO_PERSONNES, EQ, DICTIONNAIRES_EQUIPE: DICO_EQUIPE, PA, PAG, DICTIONNAIRES_PARTENAIRES: DICO_PARTENAIRES, depuisMonde, DICTIONNAIRES_CONTACTS: DICO } = M;
+const { L, monde, V, H, N, C, G, DICTIONNAIRES_HUB: DICO_HUB, DICTIONNAIRES_CLIENTS: DICO_CLIENTS, DICTIONNAIRES_FICHE: DICO_FICHE, P, PN, DICTIONNAIRES_PROSPECTS: DICO_PROSPECTS, RT, DICTIONNAIRES_RETOURS: DICO_RETOURS, FO, DICTIONNAIRES_FOURNISSEURS: DICO_FOURNISSEURS, PL, PG, DICTIONNAIRES_PIPELINE: DICO_PIPELINE, FI, DICTIONNAIRES_FIDELITE: DICO_FIDELITE, PE, DICTIONNAIRES_CONTACTS_PERSONNES: DICO_PERSONNES, EQ, DICTIONNAIRES_EQUIPE: DICO_EQUIPE, PA, PAG, DICTIONNAIRES_PARTENAIRES: DICO_PARTENAIRES, RD, DICTIONNAIRES_RDV: DICO_RDV, depuisMonde, DICTIONNAIRES_CONTACTS: DICO } = M;
 const paris = (jour: string, hhmm: string): number => L.instantParis(jour, hhmm);
 const VOLUMES = ['vide', 'peu', 'normal', 'beaucoup'] as const;
 const mondes = Object.fromEntries(VOLUMES.map((v) => [v, monde.construireMonde({ volume: v })])) as Record<(typeof VOLUMES)[number], any>;
@@ -2307,6 +2307,126 @@ await dit('MC05 · textes : mêmes clés en fr et en, mêmes paramètres, compte
   }
   for (const b of new Set(en.filter((k) => /\.(1|n)$/.test(k)).map((k) => k.replace(/\.(1|n)$/, '')))) for (const l of ['fr', 'en']) assert.ok(DICO_PARTENAIRES[l][`${b}.1`] && DICO_PARTENAIRES[l][`${b}.n`], `${b} (${l})`);
   assert.equal(DICO_PARTENAIRES.fr['suggestion.texte.n'], 'Ton contrat se termine dans {n} jours. Je compare 2 offres équivalentes moins chères, sans rien résilier.', 'la phrase de tutoiement.json');
+});
+
+/* ── MC06 : Rendez-vous clients (le ruban de la journée) ─────────────────── */
+console.log('\nContacts — MC06, Rendez-vous clients (ruban de la journée, trajets, puces de jour)\n');
+
+const rdvJour = (id: string, jour: string, heure: string, minutes: number, o: Record<string, unknown> = {}): any => ({
+  id, clientId: 7, clientName: `Client ${id}`, type: 'rendez-vous client', systeme: false, confirmation: 'confirmé', title: `Sujet ${id}`, location: 'Paris 8e', mode: 'chez le client', participants: [],
+  startAt: new Date(paris(jour, heure)).toISOString(), durationMin: minutes, ...o,
+});
+const srcMC06 = (evenements: any[], o: Record<string, unknown> = {}): any => base({ evenements, ...o });
+
+await dit('MC06 · ruban : de 08:00 à 19:00 sur 1 036 px (94,2 px par heure), position = (heure − 8) × largeur ÷ 11', () => {
+  assert.equal(RD.LARGEUR_RUBAN, 1036);
+  assert.equal(Math.round(RD.PX_PAR_HEURE * 10) / 10, 94.2);
+  assert.deepEqual([8 * 60, 9 * 60, 11 * 60, 19 * 60].map((m) => Math.round(RD.xDeLaMinute(m) * 10) / 10), [0, 94.2, 282.5, 1036]);
+  assert.equal(RD.lundiDe('2026-10-30'), '2026-10-26');
+  assert.equal(RD.lundiDe('2026-11-01'), '2026-10-26');
+});
+
+await dit('MC06 · cartes : centrées sur leur créneau, jamais l’une sur l’autre (8 px d’écart), jamais hors du ruban, dans l’ordre des heures', () => {
+  const [seul] = RD.placerCartes([{ centre: 500, largeur: 180 }]);
+  assert.equal(seul, 410);
+  assert.deepEqual(RD.placerCartes([{ centre: 40, largeur: 180 }]), [0], 'collée au bord gauche');
+  assert.deepEqual(RD.placerCartes([{ centre: 1030, largeur: 180 }]), [856], 'collée au bord droit');
+  const proches = RD.placerCartes([{ centre: 400, largeur: 170 }, { centre: 420, largeur: 170 }, { centre: 440, largeur: 170 }]);
+  for (let i = 1; i < proches.length; i += 1) assert.ok(proches[i] >= proches[i - 1] + 170 + RD.ECART_CARTES, `carte ${i}`);
+  const bord = RD.placerCartes([{ centre: 900, largeur: 190 }, { centre: 980, largeur: 190 }, { centre: 1030, largeur: 190 }]);
+  assert.ok(bord.every((x: number, i: number) => x >= 0 && x + 190 <= 1036 && (i === 0 || x >= bord[i - 1] + 190 + RD.ECART_CARTES)), bord.join(', '));
+  const cinq = RD.placerCartes(Array.from({ length: 5 }, (_, i) => ({ centre: 300 + i * 40, largeur: 170 })));
+  assert.ok(cinq.every((x: number, i: number) => i === 0 || x >= cinq[i - 1] + 170 + RD.ECART_CARTES) && cinq[4] + 170 <= 1036);
+  assert.deepEqual(RD.placerCartes([]), []);
+});
+
+await dit('MC06 · journée : seulement les rendez-vous clients (ni système, ni manqués), état fait / prochain « dans N min » / à venir, puces de jour avec leur nombre', () => {
+  const src = srcMC06([
+    rdvJour('a', '2026-10-30', '09:00', 45), rdvJour('b', '2026-10-30', '11:00', 60), rdvJour('c', '2026-10-30', '14:00', 90), rdvJour('d', '2026-10-30', '16:30', 45),
+    rdvJour('m', '2026-10-30', '15:00', 30, { confirmation: 'manqué' }), rdvJour('s', '2026-10-30', '08:00', 30, { systeme: true }), rdvJour('r', '2026-10-30', '10:00', 30, { type: 'réunion' }),
+    rdvJour('l', '2026-10-26', '10:00', 30), rdvJour('l2', '2026-10-27', '10:00', 30), rdvJour('l3', '2026-10-27', '15:00', 30),
+  ]);
+  const j = RD.modeleJournee(src);
+  assert.deepEqual(j.cartes.map((c: any) => c.id), ['a', 'b', 'c', 'd']);
+  assert.deepEqual(j.cartes.map((c: any) => c.etat), ['passe', 'a-venir', 'a-venir', 'a-venir']);
+  assert.deepEqual(j.cartes.map((c: any) => c.prochain), [false, true, false, false]);
+  assert.equal(j.cartes[1].dansMin, 18);
+  assert.equal(j.cartes[2].dansMin, null);
+  assert.deepEqual(j.puces.map((p: any) => [p.jour, p.nb, p.actif]), [['2026-10-26', 1, false], ['2026-10-27', 2, false], ['2026-10-28', 0, false], ['2026-10-29', 0, false], ['2026-10-30', 4, true]]);
+  assert.deepEqual(j.prochain, { client: 'Client b', heure: '11:00' });
+  assert.equal(j.total, 4);
+  const mardi = RD.modeleJournee(src, { jour: '2026-10-27' });
+  assert.deepEqual([mardi.cartes.length, mardi.maintenantX, mardi.puces[1].actif], [2, null, true], 'un autre jour : pas de ligne « maintenant »');
+});
+
+await dit('MC06 · ligne « maintenant » : seulement aujourd’hui et dans la plage de 08:00 à 19:00 ; elle passe sous les cartes (rien à calculer de plus)', () => {
+  const j = RD.modeleJournee(srcMC06([rdvJour('a', '2026-10-30', '11:00', 60)]));
+  assert.equal(Math.round(j.maintenantX), Math.round(RD.xDeLaMinute(10 * 60 + 42)));
+  assert.equal(j.maintenantHeure, '10:42');
+  const tard = srcMC06([], { maintenant: paris('2026-10-30', '19:30') });
+  assert.equal(RD.modeleJournee(tard).maintenantX, null);
+  const tot = srcMC06([], { maintenant: paris('2026-10-30', '07:00') });
+  assert.equal(RD.modeleJournee(tot).maintenantX, null);
+});
+
+await dit('MC06 · pause déjeuner : la plage libre de plus de 45 min entre 12:00 et 14:00 ; sans service d’itinéraire (durées null) : pas de bande de route', () => {
+  const j = RD.modeleJournee(srcMC06([rdvJour('a', '2026-10-30', '11:00', 60), rdvJour('b', '2026-10-30', '14:00', 60)]));
+  assert.equal(j.route, null, 'durées absentes : null, jamais des zéros');
+  assert.ok(j.pause);
+  assert.equal(Math.round(j.pause.x), Math.round(RD.xDeLaMinute(12 * 60)));
+  assert.equal(Math.round(j.pause.largeur), Math.round(2 * RD.PX_PAR_HEURE));
+  const prise = RD.modeleJournee(srcMC06([rdvJour('a', '2026-10-30', '12:00', 120)]));
+  assert.equal(prise.pause, null);
+});
+
+await dit('MC06 · trajets (durées fournies par un service d’itinéraire) : un bloc par rendez-vous à déplacement, total, fin de journée ; trop juste = départ conseillé', () => {
+  const evs = [rdvJour('a', '2026-10-30', '09:00', 45), rdvJour('b', '2026-10-30', '11:00', 60), rdvJour('c', '2026-10-30', '14:00', 90, { mode: 'visio' }), rdvJour('d', '2026-10-30', '16:30', 45)];
+  const j = RD.modeleJournee(srcMC06(evs), { durees: { a: 20, b: 15, d: 35 }, retourMin: 10 });
+  assert.deepEqual(j.route.blocs.map((b: any) => [b.verId, b.dureeMin, b.tropJuste]), [['a', 20, false], ['b', 15, false], ['d', 35, false]], 'la visio n’a pas de trajet');
+  assert.equal(j.route.totalMin, 20 + 15 + 35 + 10);
+  assert.equal(j.route.finDeJournee, '17:25');
+  assert.deepEqual(j.route.blocs.map((b: any) => b.mode), ['vehicule', 'pied', 'vehicule']);
+  const serre = RD.modeleJournee(srcMC06([rdvJour('a', '2026-10-30', '09:00', 60), rdvJour('b', '2026-10-30', '10:15', 60)]), { durees: { a: 20, b: 30 } });
+  const b = serre.route.blocs.find((x: any) => x.verId === 'b');
+  assert.equal(b.tropJuste, true);
+  assert.equal(b.depart, '09:45');
+  const sansLieu = RD.modeleJournee(srcMC06([rdvJour('a', '2026-10-30', '09:00', 60)]), { durees: { a: null } });
+  assert.deepEqual([sansLieu.route.blocs[0].dureeMin, sansLieu.route.totalMin], [null, 0], 'lieu à préciser : bloc pointillé, aucune durée inventée');
+});
+
+await dit('MC06 · journée vide : ruban sans carte, route masquée, puces à zéro', () => {
+  const j = RD.modeleJournee(srcMC06([]), { durees: {} });
+  assert.deepEqual([j.cartes.length, j.route, j.total, j.prochain], [0, null, 0, null]);
+  assert.ok(j.puces.every((p: any) => p.nb === 0));
+});
+
+await dit('MC06 · sur les jeux de SIM (quatre volumes) : la journée se construit pour chaque jour de la semaine, aucune carte hors du ruban ni sur sa voisine', () => {
+  for (const v of VOLUMES) {
+    const src = depuisMonde(mondes[v]);
+    for (const jour of ['2026-10-26', '2026-10-27', '2026-10-28', '2026-10-29', '2026-10-30']) {
+      const j = RD.modeleJournee(src, { jour });
+      assert.equal(j.puces.reduce((s: number, p: any) => s + p.nb, 0) >= j.cartes.length, true, `${v} ${jour}`);
+      for (let i = 0; i < j.cartes.length; i += 1) {
+        const c = j.cartes[i];
+        assert.ok(c.largeur >= RD.LARGEUR_CARTE_MIN && c.largeur <= RD.LARGEUR_CARTE_MAX, `${v} ${jour}`);
+        assert.ok(c.x >= 0 && c.x + c.largeur <= RD.LARGEUR_RUBAN + 0.001 || j.cartes.length * (RD.LARGEUR_CARTE_MIN + RD.ECART_CARTES) > RD.LARGEUR_RUBAN, `${v} ${jour} hors du ruban`);
+        if (i > 0 && j.cartes.length * (RD.LARGEUR_CARTE_MAX + RD.ECART_CARTES) <= RD.LARGEUR_RUBAN) assert.ok(c.x >= j.cartes[i - 1].x + j.cartes[i - 1].largeur + RD.ECART_CARTES - 0.001, `${v} ${jour} chevauchement`);
+      }
+    }
+  }
+});
+
+await dit('MC06 · textes : mêmes clés en fr et en, mêmes paramètres, comptes à deux formes, l’interface tutoie', () => {
+  const en = Object.keys(DICO_RDV.en).sort();
+  assert.deepEqual(Object.keys(DICO_RDV.fr).sort(), en);
+  const params = (t: string) => [...t.matchAll(/\{(\w+)\}/g)].map((x) => x[1]).sort().join(',');
+  for (const k of en) {
+    assert.ok(DICO_RDV.en[k].trim() && DICO_RDV.fr[k].trim(), k);
+    assert.equal(params(DICO_RDV.fr[k]), params(DICO_RDV.en[k]), `paramètres de ${k}`);
+    assert.ok(!VOUVOIEMENT_UI.test(DICO_RDV.fr[k]), `${k} vouvoie : ${DICO_RDV.fr[k]}`);
+  }
+  for (const b of new Set(en.filter((k) => /\.(1|n)$/.test(k)).map((k) => k.replace(/\.(1|n)$/, '')))) for (const l of ['fr', 'en']) assert.ok(DICO_RDV[l][`${b}.1`] && DICO_RDV[l][`${b}.n`], `${b} (${l})`);
+  assert.equal(DICO_RDV.fr['sousTitre'], 'Tes clients réservent seuls, tu gardes la main · prochain à {heure}', 'la phrase de tutoiement.json');
 });
 
 /* ── Structure ──────────────────────────────────────────────────────────── */

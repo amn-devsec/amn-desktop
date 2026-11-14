@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Activity, AlertCircle, Download, MoreHorizontal, Phone, Mail, Pin, Star, UserPlus, Users, Clock, CalendarClock, Smile } from 'lucide-react';
 import { Bouton } from '../../../socle/ui/Bouton';
 import { Page, PageHead } from '../../../socle/ui/archetypes';

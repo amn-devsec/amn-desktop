@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAssistant } from '../../../assistant/AssistantContext';
 import { useSourcesContacts } from '../sources/depuisApp';
-import { modeleReseau, type ModeleReseau, type NoeudPartenaire } from './modele';
+import { modeleReseau, type ModeleReseau } from './modele';
 import { VuePartenaires, type ActionsPartenaires } from './VuePartenaires';
 
 /**
@@ -57,7 +57,7 @@ export default function PagePartenaires(): React.ReactElement {
     () => ({
       ajouter: () => navigate('/fournisseurs'),
       inviter: () => navigate('/membres'),
-      ecrire: (_n: NoeudPartenaire) => navigate('/messages-prives'),
+      ecrire: () => navigate('/messages-prives'),
       voirAcces: () => navigate('/membres'),
       comparer: () => ouvrirAjmani(),
       plusTard,
