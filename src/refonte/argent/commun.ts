@@ -62,11 +62,36 @@ export function lundiDe(j: Jour): Jour {
 /** Un instant ISO ou un jour → le jour (la partie `AAAA-MM-JJ`). */
 export const jourDe = (valeur: string): Jour => valeur.slice(0, 10);
 
-/** « 1 263,56 € » (fr) ou « €1,263.56 » (en). */
-export function formaterMontant(cents: number, langue: Langue = 'fr'): string {
-  return new Intl.NumberFormat(langue === 'en' ? 'en-GB' : 'fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(
-    (Number.isFinite(cents) ? cents : 0) / 100,
-  );
+/**
+ * Un montant au format des fiches (G03 rubrique 6) : espace fine insécable pour les
+ * milliers, espace insécable avant « € », virgule décimale, vrai signe moins « − »
+ * (U+2212). Mode `exact` (documents, lignes, totaux) : toujours deux décimales
+ * (« 1 250,00 € ») ; mode `compact` (bandes, listes) : sans décimales si le montant est
+ * rond (« 1 250 € »), deux sinon (« 62,40 € »).
+ *
+ * Ce format ne sert plus, à la construction, qu'aux textes envoyés aux clients : les
+ * écrans liront `src/socle/formats.ts` (STATUT §1.29 n° 8).
+ */
+export function formaterMontant(cents: number, langue: Langue = 'fr', mode: 'exact' | 'compact' = 'exact'): string {
+  const c = Number.isFinite(cents) ? cents : 0;
+  const decimales = mode === 'compact' && c % 100 === 0 ? 0 : 2;
+  const texte = new Intl.NumberFormat(langue === 'en' ? 'en-GB' : 'fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: decimales, maximumFractionDigits: decimales }).format(c / 100);
+  return texte.replace('-', '\u2212');
+}
+
+/** Arrondi à la centaine d'euros (les étiquettes de trésorerie : « 22 200 € »). */
+export const arrondirCentaine = (cents: number): number => arrondi(cents / 10_000) * 10_000;
+
+/** Le jour ouvré (lundi à vendredi) `n` jours ouvrés avant `j` (jours fériés non comptés : à confirmer). */
+export function joursOuvresAvant(j: Jour, n: number): Jour {
+  let d = j;
+  let reste = n;
+  while (reste > 0) {
+    d = ajouterJours(d, -1);
+    const js = new Date(`${d}T12:00:00Z`).getUTCDay();
+    if (js !== 0 && js !== 6) reste -= 1;
+  }
+  return d;
 }
 
 /** « 20/10/2026 » (fr) ou « 20/10/2026 » (en-GB) : une date de document, sans le jour de la semaine. */
@@ -77,6 +102,7 @@ export function formaterJour(j: Jour, langue: Langue = 'fr'): string {
 
 /** Un pourcentage à une décimale près (`62`, `47.5`), ou `null` quand le dénominateur est nul. */
 export function pourcentage(numerateur: number, denominateur: number, decimales = 1): number | null {
+  // Arrondi demi vers le haut (MA12 : 62,5 → 63).
   if (!denominateur) return null;
   const f = 10 ** decimales;
   return arrondi((numerateur / denominateur) * 100 * f) / f;
