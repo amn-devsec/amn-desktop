@@ -1,0 +1,30 @@
+{
+  "_": "Valeurs acceptées de LOT-05 (STATUT §1.30, §1.40) : mesures de T1 sur l'APERÇU STATIQUE du lot (claude/refonte-echanger @ c0320220, fusion à blanc sur claude/refonte-vivante @ 4671ff58), 1440×900, vendredi 30 oct. 2026 à 10:42. `valeurs` = écart brut (±2 px, couleur ±2) ; `disposition` = même comparaison, couleur ±10, surveillée aussi (`surveillerDisposition`) : un écran échoue si l'une ou l'autre monte de plus de 2 points au-dessus de sa valeur. Les écarts au-dessus de 15 % sont justifiés dans justifies-LOT-05.json.",
+  "source": "apercu",
+  "mesure": "strict",
+  "surveillerDisposition": true,
+  "valeurs": {
+    "F40": 16.6,
+    "G07": 18.2,
+    "H13": 22.9,
+    "H14": 31.9,
+    "MX01": 20.1,
+    "MX02": 18.5,
+    "MX03": 24.3,
+    "MX04": 18.3,
+    "MX05": 15.6,
+    "MX06": 20.4
+  },
+  "disposition": {
+    "F40": 8.1,
+    "G07": 6.2,
+    "H13": 8.2,
+    "H14": 13.4,
+    "MX01": 6.7,
+    "MX02": 8.8,
+    "MX03": 9.6,
+    "MX04": 5.7,
+    "MX05": 8.0,
+    "MX06": 10.0
+  }
+}
