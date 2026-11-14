@@ -51,8 +51,8 @@ async function charger<T>(code: string): Promise<T> {
 const FICHIERS = ['commun', 'boite', 'hub', 'canaux', 'connecteurs', 'appels', 'annonces', 'courriel', 'reunions', 'partages', 'sondages', 'reponsesAuto', 'i18n', 'phrases'];
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerF40 from '../${ZONE}/ecrans/f40/composer';` + `\nexport * as composerG07 from '../${ZONE}/ecrans/g07/composer';` + `\nexport * as composerH14 from '../${ZONE}/ecrans/h14/composer';` + `\nexport * as composerH13 from '../${ZONE}/ecrans/h13/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
-const { commun: C, boite: B, hub: H, canaux: CA, connecteurs: CO, appels: AP, annonces: AN, courriel: CM, reunions: RE, partages: PA, sondages: SO, reponsesAuto: AU, i18n: I, phrases: PH, composerF40: CF40, composerG07: CG07, composerH14: CH14, composerH13: CH13, monde } = M;
+const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerF40 from '../${ZONE}/ecrans/f40/composer';` + `\nexport * as composerG07 from '../${ZONE}/ecrans/g07/composer';` + `\nexport * as composerH14 from '../${ZONE}/ecrans/h14/composer';` + `\nexport * as composerH13 from '../${ZONE}/ecrans/h13/composer';` + `\nexport * as composerMX05 from '../${ZONE}/ecrans/mx05/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
+const { commun: C, boite: B, hub: H, canaux: CA, connecteurs: CO, appels: AP, annonces: AN, courriel: CM, reunions: RE, partages: PA, sondages: SO, reponsesAuto: AU, i18n: I, phrases: PH, composerF40: CF40, composerG07: CG07, composerH14: CH14, composerH13: CH13, composerMX05: CMX05, monde } = M;
 const A_SEG = AN.segmentsDeLecture;
 
 const NB = ' ';
@@ -1172,6 +1172,42 @@ await dit('H13 · composerAppels : plan des salles, Standard et sa file, sous-ti
   assert.equal(sans.historique.rappels, null);
   const garde = CH13.composerAppels({ ...base, roleDeSupervision: false }).salles.plan.map((p: any) => p.id);
   assert.ok(!garde.includes('ga'), 'la salle de La Garde ne se voit que par la supervision');
+});
+
+await dit('MX05 · composerSondages : barres, en tête, participation sans nom, votes en direct (masqués si anonyme), autres sondages, éditeur ; jamais de nom sur un sondage anonyme', () => {
+  const vt = (qui: string, optionId: string, hhmm: string) => ({ email: `${qui}@x`, optionId, at: paris(AUJ, hhmm) });
+  const sond = (id: string, extra: any = {}) => ({ id, question: `Question ${id}`, type: 'un-choix', anonyme: false, destinataires: 8, etat: 'en-cours', creeAt: paris('2026-10-28', '09:00'), clotureAt: paris('2026-11-02', '18:00'), options: [{ id: 'h', libelle: 'Horizon', votes: 0 }, { id: 'b', libelle: 'Boussole', votes: 0 }, { id: 'c', libelle: 'Cap', votes: 0 }], votes: [vt('a', 'h', '10:05'), vt('b', 'h', '09:50'), vt('c', 'b', '08:00'), vt('d', 'h', '07:00')], ...extra });
+  const base = { langue: 'fr', maintenant: MAINT, moi: 'a@x', nom: (e: string) => e.split('@')[0].toUpperCase(), sondages: [sond('p1'), sond('p2', { anonyme: true, etat: 'termine' }), sond('p3', { etat: 'termine', type: 'note', options: ['1', '2', '3', '4', '5'].map((n) => ({ id: n, libelle: n, votes: 0 })), votes: [vt('a', '5', '08:00'), vt('b', '4', '08:00')] })], choisiId: null, editeur: null };
+  const v = CMX05.composerSondages(base);
+  assert.equal(v.sousTitre, 'Décider ensemble en 30 secondes · 1 en cours, ton équipe participe');
+  assert.deepEqual(v.resultat.barres.map((b: any) => [b.libelle, b.pourcent, b.enTete]), [['Horizon', 75, true], ['Boussole', 25, false], ['Cap', 0, false]]);
+  assert.deepEqual(v.resultat.barres[0].avatars, ['A', 'B', 'D'], 'sondage visible : les avatars des votants');
+  assert.equal(v.resultat.participation.texte, '4 sur 8');
+  assert.equal(v.resultat.participation.attendus, '4 votes attendus', 'un nombre, jamais un nom');
+  assert.ok(!JSON.stringify(v.resultat.participation).includes('@'));
+  assert.deepEqual(v.direct.lignes.map((l: any) => [l.heure, l.nom, l.option]), [['10:05', 'A (toi)', 'Horizon'], ['09:50', 'B', 'Horizon'], ['08:00', 'C', 'Boussole'], ['07:00', 'D', 'Horizon']]);
+  assert.equal(v.direct.lignes[0].nouveau, true);
+  assert.equal(v.direct.lignes[1].nouveau, false);
+  assert.ok(/se termine lundi à 18:00/.test(v.resultat.etat.detail) && /réponses visibles/.test(v.resultat.etat.detail), v.resultat.etat.detail);
+  assert.deepEqual(v.autres.map((a: any) => [a.id, a.resultat]), [['p2', 'Horizon'], ['p3', '4,5 sur 5']]);
+  const anon = CMX05.composerSondages({ ...base, choisiId: 'p2' });
+  assert.equal(anon.resultat.etat.genre, 'termine');
+  assert.ok(anon.resultat.barres.every((b: any) => b.avatars.length === 0), 'sondage anonyme : aucun avatar');
+  assert.ok(anon.direct.lignes.every((l: any) => l.nom === null && l.option === null && l.texte === 'Un vote reçu'), 'sondage anonyme : « Un vote reçu », jamais un nom');
+  assert.ok(!/@|\bA\b|\bB\b/.test(JSON.stringify(anon.direct)), 'aucun nom ni initiale dans les votes d’un sondage anonyme');
+  const sansHeures = CMX05.composerSondages({ ...base, sondages: [sond('p1', { heuresConnues: false })] });
+  assert.equal(sansHeures.direct, null, 'sans l’heure des votes, pas de « Votes en direct »');
+  let vote: any = null;
+  const avecVote = CMX05.composerSondages({ ...base, moi: 'z@x', sondages: [sond('p1')], actions: { onVoter: (s: string, o: string) => { vote = [s, o]; } } });
+  avecVote.resultat.barres[1].onVoter();
+  assert.deepEqual(vote, ['p1', 'b'], 'tant qu’on n’a pas voté, une barre se clique');
+  assert.equal(CMX05.composerSondages({ ...base, actions: { onVoter: () => undefined } }).resultat.barres[0].onVoter, undefined, 'un seul vote par personne');
+  const ed = CMX05.composerSondages({ ...base, editeur: { question: ' ', options: ['x', ''], anonyme: false, ajmani: null, extras: null } }).editeur;
+  assert.equal(ed.complet, false);
+  assert.equal(ed.note, 'Ton équipe voit le sondage tout de suite');
+  const vide = CMX05.composerSondages({ ...base, sondages: [] });
+  assert.equal(vide.resultat, null);
+  assert.equal(vide.sousTitre, 'Décider ensemble en 30 secondes · aucun en cours');
 });
 
 await dit('aucune brique visuelle : ni React, ni src/socle/ui, ni code partagé ; seulement les voisins, le dictionnaire du socle et le modèle des connecteurs (S9)', () => {
