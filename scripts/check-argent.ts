@@ -165,6 +165,40 @@ await dit('reste dû : TTC − avoirs émis − paiements réussis, jamais néga
   assert.equal(F.resteDu(av, { factures: [f, av], paiements: [] }), 0, 'un avoir n’est jamais dû');
 });
 
+await dit('avoirs (comme useInvoices et SIM) : rattachés à leur facture, ils réduisent reste dû, impayés et TVA collectée ; jamais comptés comme une facture', () => {
+  // f : T1 (TTC 1 263,56 €), échue le 20/10 → 10 jours de retard au 30/10. av : avoir de 100,00 € HT à 20 % (TTC 120,00 €) sur f.
+  // g : T1 non échue (15/11), avec un avoir de 120,00 € aussi. Reste dû de chacune : 1 263,56 − 120,00 = 1 143,56 €.
+  const f = facture({ id: 'f', number: '2026-0001' });
+  const g = facture({ id: 'g', number: '2026-0002', dueAt: '2026-11-15' });
+  const av = (id: string, pour: string, o: Record<string, unknown> = {}) => facture({ id, number: `AV-2026-000${id.slice(-1)}`, kind: 'creditNote', creditNoteFor: pour, issuedAt: '2026-10-25', dueAt: '2026-10-25', lines: [ligne(1, 10_000, 20)], ...o });
+  const tout = [f, g, av('av1', 'f'), av('av2', 'g')];
+  const ctx = { paiements: [] };
+  assert.equal(F.resteDu(f, { factures: tout, paiements: [] }), 114_356);
+  assert.equal(F.resteDu(f, { factures: tout, paiements: [] }), M.netDueCents(f, tout), 'comme netDueCents');
+  assert.equal(F.resteDu(tout[2], { factures: tout, paiements: [] }), 0);
+  // Impayés : une seule ligne (f), à 1 143,56 € ; l'avoir, échu le 25/10, n'est jamais un impayé.
+  assert.deepEqual(IM.impayes(tout, AUJ, ctx).map((i: any) => [i.facture.id, i.resteCents]), [['f', 114_356]]);
+  assert.equal(IM.totalImpaye(tout, AUJ, ctx), 114_356);
+  assert.deepEqual(IM.tranchesDeRetard(tout, AUJ, ctx)[0], { tranche: '0-30', nombre: 1, montantCents: 114_356 });
+  // G03 : en retard 1 / 1 143,56 € ; envoyées 1 (g) / 1 143,56 € ; aucun avoir compté.
+  const c = F.compteursParStation(tout, '2026-10', AUJ, ctx);
+  assert.deepEqual([c.enRetard, c.envoyees], [{ nombre: 1, montantCents: 114_356 }, { nombre: 1, montantCents: 114_356 }]);
+  assert.equal(F.montantAttendu(tout, AUJ, ctx), 114_356);
+  // TVA d'octobre (débits) : 2 × 206,06 − 2 × 20,00 = 372,12 € ; base HT 2 × 1 057,50 − 2 × 100,00 = 1 915,00 €.
+  const t = TV.tvaDuMois({ mois: '2026-10', regime: 'debits', factures: tout, paiements: [], depenses: [] });
+  assert.deepEqual([t.collecteeCents, t.baseVentesHtCents], [37_212, 191_500]);
+  // Encaissements : un avoir ne s'encaisse pas, il ne compte jamais.
+  assert.equal(TV.tvaDuMois({ mois: '2026-10', regime: 'encaissements', factures: tout, paiements: [], depenses: [] }).collecteeCents, 0);
+  // Un avoir total solde la facture (payée, rien dû) ; un avoir brouillon ou annulé ne réduit rien ; un avoir sur une autre facture non plus.
+  const total = av('av3', 'f', { lines: LIGNES_T1 });
+  assert.equal(F.statutFacture(f, AUJ, { factures: [f, total], paiements: [] }), 'payee');
+  assert.equal(IM.totalImpaye([f, total], AUJ, ctx), 0);
+  assert.equal(F.resteDu(f, { factures: [f, av('av4', 'f', { status: 'draft' }), av('av5', 'f', { status: 'cancelled' }), av('av6', 'g')], paiements: [] }), 126_356);
+  // Numérotation : deux suites séparées.
+  assert.equal(F.prochainNumero(tout.map((x: any) => x.number), 2026), '2026-0003');
+  assert.equal(F.prochainNumero(tout.map((x: any) => x.number), 2026, 'AV'), 'AV-2026-0003');
+});
+
 await dit('statut d’une facture (G03) : en retard au lendemain de l’échéance (pas le jour même), vue, soldée ; un acompte ne change pas la station', () => {
   const f = facture({});
   const ctx = (paiements: unknown[] = []) => ({ factures: [f], paiements });
@@ -850,13 +884,16 @@ for (const graine of [7, 42, 2026]) MONDES.push({ nom: `normal/${graine}`, m: mo
  * alignement, la logique est comparée À L'IDENTIQUE à `money.ts`, et aux jeux à une tolérance d'un centime par ligne
  * (l'écart qu'un arrondi par ligne peut produire, au plus). Quand SIM s'aligne, la tolérance passe à zéro. */
 const ecartLignes = (f: any) => f.lines.length;
+/** Les factures ET les avoirs d'un monde, rangés ensemble comme le fait le chargeur de SIM (les avoirs sont des factures `creditNote`). */
+const toutes = (m: any): any[] => [...m.factures, ...(m.avoirs ?? [])];
 
 await dit('totaux et reste dû : identiques à money.ts ; aux jeux, à un centime par ligne près ; statut affiché identique', () => {
   const traduit: Record<string, string> = { brouillon: 'Brouillon', envoyee: 'Envoyée', 'en-retard': 'En retard', payee: 'Payée', annulee: 'Annulée' };
   let ecarts = 0;
   for (const { nom, m } of MONDES) {
     const auj = m.contexte.aujourdhui;
-    for (const f of m.factures) {
+    const tf = toutes(m);
+    for (const f of tf) {
       const t = F.totauxDocument(f.lines);
       const money = M.documentTotals(f.lines);
       assert.deepEqual([t.htCents, t.tvaCents, t.ttcCents], [money.netCents, money.vatCents, money.grossCents], `${nom} ${f.id} (money.ts)`);
@@ -864,21 +901,35 @@ await dit('totaux et reste dû : identiques à money.ts ; aux jeux, à un centim
       assert.equal(t.htCents, ref.htCents, `${nom} ${f.id} HT`);
       assert.ok(Math.abs(t.tvaCents - ref.tvaCents) <= ecartLignes(f), `${nom} ${f.id} TVA ${t.tvaCents} / ${ref.tvaCents}`);
       if (t.tvaCents !== ref.tvaCents) ecarts += 1;
-      const reste = F.resteDu(f, { factures: m.factures, paiements: [] });
-      assert.ok(Math.abs(reste - f.soldeCents) <= (f.soldeCents ? ecartLignes(f) : 0), `${nom} ${f.id} reste dû`);
-      assert.equal(traduit[F.statutFacture(f, auj, { factures: m.factures, paiements: [] })], monde.statutAffiche(f, auj), `${nom} ${f.id} statut`);
-      if (f.status === 'issued') assert.equal(reste, M.netDueCents(f, m.factures), `${nom} ${f.id} = netDueCents`);
+      const reste = F.resteDu(f, { factures: tf, paiements: [] });
+      // Le reste dû des jeux tient compte des avoirs ; un avoir ne doit jamais rien.
+      assert.ok(Math.abs(reste - f.soldeCents) <= (f.soldeCents ? ecartLignes(f) : 0), `${nom} ${f.id} reste dû ${reste} / ${f.soldeCents}`);
+      if (f.status === 'issued') assert.equal(reste, M.netDueCents(f, tf), `${nom} ${f.id} = netDueCents`);
+      if (f.kind === 'creditNote') {
+        assert.equal(reste, 0, `${nom} ${f.id} : un avoir n’est jamais dû`);
+        continue;
+      }
+      assert.equal(traduit[F.statutFacture(f, auj, { factures: tf, paiements: [] })], monde.statutAffiche(f, auj), `${nom} ${f.id} statut`);
     }
   }
   console.log(`      (factures dont la TVA diffère d’un centime entre les deux règles, sur tous les mondes : ${ecarts})`);
 });
 
-await dit('numérotation des jeux : continue, sans trou, chaque année', () => {
+await dit('numérotation des jeux : AAAA-NNNN et AV-AAAA-NNNN (§1.29 n° 4), chaque suite continue, sans trou, chaque année ; aucun numéro hors format', () => {
+  let vus = 0;
   for (const { nom, m } of MONDES) {
-    // Les jeux numérotent encore `F-AAAA-NNNN` (§1.29 n° 4 : SIM s'aligne) : lus avec le préfixe `F`.
-    const numeros = m.factures.map((f: any) => f.number);
-    for (const an of new Set(numeros.filter(Boolean).map((n: string) => Number(n.slice(2, 6))))) assert.deepEqual(F.trousDeNumerotation(numeros, an, 'F'), [], `${nom} ${an}`);
+    const numeros = toutes(m).map((f: any) => f.number).filter(Boolean);
+    // Les anciens jeux numérotaient `F-AAAA-NNNN` : ce format n'est plus admis.
+    for (const n of numeros) assert.match(n, /^(AV-)?\d{4}-\d{4}$/, `${nom} ${n}`);
+    for (const prefixe of ['', 'AV']) {
+      const suite = numeros.filter((n: string) => n.startsWith('AV-') === (prefixe === 'AV'));
+      for (const an of new Set(suite.map((n: string) => Number(n.replace(/^AV-/, '').slice(0, 4))))) {
+        assert.deepEqual(F.trousDeNumerotation(suite, an, prefixe), [], `${nom} ${prefixe || 'factures'} ${an}`);
+        vus += 1;
+      }
+    }
   }
+  assert.ok(vus > 0, 'aucune suite lue : le contrôle serait vide');
 });
 
 await dit('TVA (débits) de chaque échéance « TVA de … » des jeux, et cotisations à 46 % du net', () => {
@@ -890,8 +941,8 @@ await dit('TVA (débits) de chaque échéance « TVA de … » des jeux, et coti
       if (e.famille === 'TVA') {
         tvaVues += 1;
         // Tolérance d'un centime par ligne des factures du mois, jusqu'à l'alignement de SIM (voir plus haut).
-        const lignesDuMois = m.factures.filter((f: any) => f.status !== 'draft' && f.status !== 'cancelled' && f.issuedAt.startsWith(prec)).reduce((s: number, f: any) => s + f.lines.length, 0);
-        const calcule = TV.tvaDuMois({ mois: prec, regime: 'debits', factures: m.factures, paiements: [], depenses: m.depenses }).soldeCents;
+        const lignesDuMois = toutes(m).filter((f: any) => f.status !== 'draft' && f.status !== 'cancelled' && f.issuedAt.startsWith(prec)).reduce((s: number, f: any) => s + f.lines.length, 0);
+        const calcule = TV.tvaDuMois({ mois: prec, regime: 'debits', factures: toutes(m), paiements: [], depenses: m.depenses }).soldeCents;
         assert.ok(Math.abs(calcule - e.montantCents) <= lignesDuMois, `${nom} ${e.intitule} : ${calcule} / ${e.montantCents}`);
         assert.equal(TV.echeanceTva(prec), e.echeanceLe);
       }
@@ -943,11 +994,14 @@ await dit('devis, budget, tarifs, impayés et banque sur les jeux : aucun NaN, c
       assert.equal(r.depenseCents - e.prevuCents, -r.resteCents, `${nom} ${e.id} reste`);
     }
     for (const p of m.prestations) assert.ok(TA.margePct(p.prixCents, p.coutCents) === null || Number.isFinite(TA.margePct(p.prixCents, p.coutCents)));
-    const tranches = IM.tranchesDeRetard(m.factures, auj, { paiements: [] });
-    assert.equal(tranches.reduce((s: number, t: any) => s + t.montantCents, 0), IM.totalImpaye(m.factures, auj, { paiements: [] }));
-    const enRetard = m.factures.filter((f: any) => monde.statutAffiche(f, auj) === 'En retard');
-    const attendu = enRetard.reduce((s: number, f: any) => s + M.netDueCents(f, m.factures), 0);
-    assert.equal(IM.totalImpaye(m.factures, auj, { paiements: [] }), attendu, `${nom} impayés`);
+    const tf = toutes(m);
+    const tranches = IM.tranchesDeRetard(tf, auj, { paiements: [] });
+    assert.equal(tranches.reduce((s: number, t: any) => s + t.montantCents, 0), IM.totalImpaye(tf, auj, { paiements: [] }));
+    // Les avoirs ne sont jamais des impayés ; ils réduisent celui de leur facture (comme netDueCents et soldeCents des jeux).
+    const enRetard = m.factures.filter((f: any) => (f.kind ?? 'invoice') === 'invoice' && monde.statutAffiche(f, auj) === 'En retard');
+    const attendu = enRetard.reduce((s: number, f: any) => s + M.netDueCents(f, tf), 0);
+    assert.equal(IM.totalImpaye(tf, auj, { paiements: [] }), attendu, `${nom} impayés`);
+    assert.ok(IM.impayes(tf, auj, { paiements: [] }).every((i: any) => i.facture.kind !== 'creditNote'), `${nom} : un avoir compté comme impayé`);
     for (const c of m.comptes) assert.equal(c.accesLectureSeule, true);
   }
 });
