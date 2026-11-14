@@ -23,8 +23,7 @@
  * c'est la liste « Manque aux données » du lot, à relire avec lui.
  */
 
-import { ajouterJours, debutDeMois, jourDe, lundiDe, type Jour } from './outils';
-import { journeesDeTravail, serieEnCours } from './ma-journee';
+import { ajouterJours, debutDeMois, jourDe, jourSemaine, lundiDe, type Jour } from './outils';
 import { moi } from './equipe';
 import type { Monde } from './types';
 
@@ -33,6 +32,45 @@ const somme = (xs: readonly number[]): number => xs.reduce((s, x) => s + x, 0);
 const entre = (j: Jour, debut: Jour, fin: Jour): boolean => j >= debut && j <= fin;
 /** Écart en pourcent arrondi à l'entier, ou null quand la base est nulle. */
 const ecartPourcent = (actuel: number, avant: number): number | null => (avant > 0 ? Math.round(((actuel - avant) / avant) * 100) : null);
+
+/* ================== La série : la clôture des priorités du jour (L01, N01, H04, H25) ================== */
+
+/**
+ * La série d'une personne, d'après la règle retenue (STATUT §1.36 n° 1, fiche L01) : une journée est « bouclée » quand
+ * chacune de ses priorités est faite avant la fin de ce jour-là. En remontant d'aujourd'hui :
+ *   · une journée bouclée compte un ;
+ *   · le week-end, une journée sans priorité choisie et la journée d'aujourd'hui (pas finie) ne comptent pas et ne cassent rien ;
+ *   · une journée jouée et non bouclée casse la série.
+ * C'est une relecture littérale de la règle, pas `serieDeLaJournee` : `check:journee` et `check:donnees` comparent les deux.
+ */
+export function serieDesPriorites(m: Monde, email: string, jour: Jour): number {
+  const parJour = new Map(m.dailyPriorities.filter((p) => p.email === email && p.day <= jour).map((p) => [p.day, p]));
+  const bouclee = (j: Jour): boolean => {
+    const p = parJour.get(j);
+    return p !== undefined && p.items.length > 0 && p.items.every((i) => i.doneAt !== null && jourDeIso(i.doneAt) <= p.day);
+  };
+  const premier = [...parJour.keys()].sort().find((j) => bouclee(j));
+  if (premier === undefined) return 0;
+  let serie = 0;
+  for (let j = jour; j >= premier; j = ajouterJours(j, -1)) {
+    if (bouclee(j)) { serie += 1; continue; }
+    if (jourSemaine(j) >= 6) continue; // samedi et dimanche : repos
+    const p = parJour.get(j);
+    if (p === undefined || p.items.length === 0) continue; // pas jouée
+    if (j === jour) continue; // aujourd'hui n'est pas fini
+    break;
+  }
+  return serie;
+}
+
+/** La Boîte à zéro : jours consécutifs, en remontant d'aujourd'hui, où zéro message à traiter a été atteint. */
+function serieBoiteAZero(m: Monde, jour: Jour): { jours: number; enCours: boolean } | null {
+  const lignes = m.boiteAZero.filter((b) => b.jour <= jour).sort((a, b) => b.jour.localeCompare(a.jour));
+  if (lignes.length === 0) return null;
+  let jours = 0;
+  for (const l of lignes) { if (!l.zeroAtteint) break; jours += 1; }
+  return { jours, enCours: lignes[0].zeroAtteint };
+}
 
 /* ================================ H09 : prévisions ================================ */
 
@@ -170,8 +208,8 @@ export interface AttendusBilanSemaine {
   jalons: { serie: number; prochainPalier: number | null; joursRestants: number | null; progression: number; facturesEnvoyeesOuPayees: number; dixFactures: boolean };
   /** Suggestion « semaine prochaine » : se déclenche si les tâches prévues dépassent la moyenne des 4 semaines précédentes d'au moins 2. */
   semaineProchaine: { prevues: number; moyenne4Semaines: number; suggere: boolean };
-  /** « Boîte à zéro » : pas d'historique quotidien des messages à traiter dans les jeux. */
-  boiteAZero: null;
+  /** « Boîte à zéro » : les jours consécutifs où zéro a été atteint (null sans historique). */
+  boiteAZero: { jours: number; enCours: boolean } | null;
   manque: string[];
 }
 
@@ -203,7 +241,7 @@ export function attendusBilanSemaine(m: Monde, options: { jour?: Jour; email?: s
   const max = Math.max(...parJour);
   const meilleurJour = max === 0 ? null : parJour.lastIndexOf(max);
 
-  const serie = serieEnCours(journeesDeTravail(m.taches, email, jour, 120), jour);
+  const serie = serieDesPriorites(m, email, jour);
   const prochainPalier = PALIERS_DE_SERIE.find((p) => p > serie) ?? null;
   const envoyees = m.factures.filter((f) => f.status === 'issued' || f.status === 'paid').length;
 
@@ -222,8 +260,8 @@ export function attendusBilanSemaine(m: Monde, options: { jour?: Jour; email?: s
     aReporter: prevues(d0, f0).filter((t) => t.status !== 'done').sort((a, b) => String(a.echeance).localeCompare(String(b.echeance)) || a.id.localeCompare(b.id)).map((t) => ({ id: t.id, echeance: t.echeance })),
     jalons: { serie, prochainPalier, joursRestants: prochainPalier === null ? null : prochainPalier - serie, progression: prochainPalier === null ? 1 : serie / prochainPalier, facturesEnvoyeesOuPayees: envoyees, dixFactures: envoyees >= 10 },
     semaineProchaine: { prevues: prevuesProchaine, moyenne4Semaines: moyenne, suggere: prevuesProchaine - moyenne >= 2 },
-    boiteAZero: null,
-    manque: ['Boîte à zéro (N01) : pas d’historique quotidien des messages à traiter'],
+    boiteAZero: serieBoiteAZero(m, jour),
+    manque: [],
   };
 }
 
@@ -325,7 +363,7 @@ export function attendusTableauDeBord(m: Monde, options: { email?: string } = {}
     chiffreAffaires: { cents: encaisseA(mois, jourDuMois), ecartPourcent: ecartPourcent(encaisseA(mois, jourDuMois), encaisseA(moisPrecedent, jourDuMois)) },
     tickets: { visibles: ouverts.slice(0, 3).map((t) => t.id), autres: Math.max(0, ouverts.length - 3) },
     facturesImpayees: { visibles: impayes.slice(0, 3), autres: Math.max(0, impayes.length - 3), totalCents: somme(impayes.map((x) => x.soldeCents)) },
-    mesTaches: { faites: duJour.filter((t) => t.status === 'done').length, total: duJour.length, serie: serieEnCours(journeesDeTravail(m.taches, email, auj, 120), auj) },
+    mesTaches: { faites: duJour.filter((t) => t.status === 'done').length, total: duJour.length, serie: serieDesPriorites(m, email, auj) },
     prochainRendezVous: suivant ? { id: suivant.id, debut: suivant.startAt } : null,
     activiteRecente: activite.map(({ libelle, jour }) => ({ libelle, jour })),
     manque: [

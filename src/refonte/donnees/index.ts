@@ -32,7 +32,7 @@ export { quantiteEnStock } from './creer';
 export { etatOrganisation, niveauMaturite, NIVEAUX_MATURITE, scoreMaturite } from './garde';
 export { etatAccord, niveauConformite, outilDisponible, PHASES_MISSION } from './cyber';
 export {
-  attendusBilanSemaine, attendusCockpit, attendusPrevisions, attendusTableauDeBord, PALIERS_DE_SERIE,
+  attendusBilanSemaine, attendusCockpit, attendusPrevisions, attendusTableauDeBord, PALIERS_DE_SERIE, serieDesPriorites,
   type AttendusBilanSemaine, type AttendusCockpit, type AttendusPrevisions, type AttendusTableauDeBord, type OptionsPrevisions,
 } from './attendus';
 export {
