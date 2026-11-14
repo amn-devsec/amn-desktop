@@ -44,6 +44,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov., 10h25 : suites de LOT-06 (S7 `5177df0`) : zones de clic de 34 px, repli de H17, H17 à 9,2 % en disposition. T1 remesure avant la fusion. Deux points du socle vont à la liste de S0 : le Bouton à 31 px et le décalage de PageHead (§1.38 n° 6).
 - 14 nov., 10h20 : LOT-11 (`a86c470`) : structure et paquet client bons (7 routes montées, identique octet pour octet côté client), mais **pas fusionné** : la fidélité n'est pas mesurable, faute d'aperçus dans le dépôt. S8 pousse ses aperçus (`scripts/apercu/ecrans/DEV-*.tsx`) et `justifies-LOT-11.json`, puis vérifie DEV-modeles-sites (75,6 % brut). DEV-ensemble n'a pas d'image, c'est une proposition validée : « ni pour ni contre » accepté. La règle tient : aucune fusion d'écrans sans fidélité mesurée.
 - 14 nov., 10h20 : entrées de registre des 3 écrans neufs de LOT-06 fusionnées (S7 `37152cf`) ; valeurs acceptées de LOT-06 fixées par T1 (brut et disposition surveillés, à +2 points). Gardes vertes.
 - 14 nov., 10h15 : **LOT-06 fusionné** (`e1615090`, 15 écrans), **premier lot livré** de la vague de construction. T1 l'a accepté : fidélité sur l'aperçu, les 15 écrans justifiés ; structure sur l'application, les 12 routes montées dans la coquille v4, rien de coupé à 390 px. Suites demandées à S7 : relire 6 écrans au-dessus de 15 % en disposition (H17, MR01, MR10, H16, MR05, MR04) ; zones de clic de 34 px (§1.39) ; l'état vide de H17 (« Le livre de marque d’ · ») ; les entrées de registre de ses 3 écrans neufs. T1 fixe les valeurs acceptées de LOT-06.
@@ -826,7 +827,7 @@ Dans l'ordre :
 5. **Palette ⌘K (H41)**, relevé de T1 sur les 20 tâches courantes :
    - (a) ajouter des actions de création (« Nouvelle tâche », « Nouveau client », « Nouvelle facture », « Nouveau devis », « Nouveau rendez-vous »), pour tenir l'objectif de 3 actions au plus ;
    - (b) quand la saisie correspond à un module, **Entrée ouvre le module**, et « Demander à Ajmani » passe en second. Aujourd'hui, « client » puis Entrée lance Ajmani.
-6. (Aucune route sans geste, relevé de T1.)
+6. **Bouton du socle** : zone de clic invisible de 34 px (il fait 31 px de haut, comme les fiches) ; **boutons de PageHead** décalés de 26 px par rapport aux images, sur les 15 écrans de LOT-06 (relevé de S7).
 7. **« Tous les modules » (D02)** : montrer les vues secondaires de chaque module (36 écrans n'ont aujourd'hui que la Bibliothèque comme chemin) ; ⌘K les trouve par leur nom.
 
 Éléments ludiques protégés (relevé de T1) : absents partout, parce que leurs écrans (LOT-01, LOT-10) ne sont pas encore construits. Ce n'est **pas une régression**. L'absence devient bloquante dès qu'un lot annonce L07, H02, H04 ou L01 livrés : T1 relance son contrôle à chaque lot concerné.
