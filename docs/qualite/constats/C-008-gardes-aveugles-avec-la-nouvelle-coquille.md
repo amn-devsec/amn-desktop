@@ -4,7 +4,7 @@
 - Où : `scripts/check-{contraste,mouvement,cibles,largeur}.mjs`, `scripts/lib/vues-detail.mjs` (découverte des écrans), `scripts/check-contraste.mjs` (couleurs)
 - Branche : `claude/refonte-socle` @ `888f7a0`
 - Responsable proposé : auteurs des gardes (S1/S0), CO
-- État : ouvert. Contournement : `scripts/qualite/contraste-pixels.mjs` (T1)
+- État : **correctif prêt** ([`C-008-gardes-coquille-v4.patch`](C-008-gardes-coquille-v4.patch), à appliquer par le CO : les deux fichiers touchés sont hors de la zone de T1). Mesure complémentaire : `scripts/qualite/contraste-pixels.mjs`
 
 ## Constat 1 — la découverte d'écrans s'effondre
 
@@ -38,3 +38,18 @@ sur les extrémités des dégradés : **7,2:1 à 8,2:1** (AAA). C'est un faux po
 2. Constat 1 : faire lire la liste des routes dans le registre (`src/refonte/systeme/modules`) au lieu de la navigation visible,
    ou déplier les familles avant de lire les liens. Tant que ce n'est pas fait, T1 ne donne pas de vert « gardes navigateur »
    pour la coquille v4.
+
+## Correctif livré (14 nov., build de vivante `c377b63`, coquille v4 allumée)
+
+[`C-008-gardes-coquille-v4.patch`](C-008-gardes-coquille-v4.patch) (`git apply`, vérifié applicable) touche deux fichiers hors zone T1 :
+
+- `scripts/lib/routes-coquille.mjs` : déplie chaque famille de la coquille v4 (`[data-socle="lateral"] button[aria-expanded]`) et ses « + N autres », lit la page « Tous les modules », puis ajoute la liste versionnée [`docs/qualite/routes-interne.json`](../routes-interne.json) (régénérable : `node scripts/qualite/lister-routes.mjs`). Utilisé par `contraste`, `cibles`, `largeur`, `mouvement`. La coquille v4 fusionne des modules : sur 142 écrans de l'ancienne barre, 39 ne sont plus liés nulle part (`#/relances`, `#/tracker`, `#/ssl`…), d'où la liste.
+- `scripts/check-contraste.mjs` : (1) lit la couche du dessus d'un `background-image` en dégradé opaque et retient le pire arrêt (les 160 faux « EI » 1,01:1 disparaissent) ; la couche du dessus seulement, car `linear-gradient(plein, plein), linear-gradient(néon)` est une bordure dégradée ; (2) ferme les « Plus tard » un par un (C-009).
+
+| Garde, interne, coquille v4 allumée | Avant | Avec le patch |
+|---|---|---|
+| amorce | 15, « non concluant » | **160** |
+| `mouvement` | `?` | ✓ 393 déplacements, aucun en mouvement réduit |
+| `contraste` | `?` + 2 faux rouges | ✓ **209 écrans + 27 vues de détail + 46 bascules, 34 622 textes, aucun sous AA** |
+| `cibles` | `?` 8 familles sur 15 routes | conclusive, ✗ (défauts réels, voir le rapport) |
+| `largeur` | `?` 4 écrans sur 169 | conclusive, ✗ (défauts réels, voir le rapport) |
