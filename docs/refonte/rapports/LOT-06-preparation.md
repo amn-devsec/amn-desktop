@@ -9,7 +9,14 @@ Branche `claude/refonte-creer`. Date : 14 nov. 2026. Mode préparation : aucun �
 - `check:creer` : 137 contrôles (130 + tutoiement + cas limites : seuils de stock aux bornes, rupture au 14e / 15e jour, retards de chantier, de tournée et de commande, volumes vide et « beaucoup », plage de réservation à cheval). Un défaut trouvé et corrigé : la barre de budget ambre utilisait le pourcentage arrondi ; elle lit désormais le rapport exact (> 90 %).
 - Section LOT-06 du STATUT : liste « Manque aux données » (15 lignes, avec l'écran), mise à jour v4.
 
-## Non fait, et pourquoi
+## Addendum du 14 nov. (zips v4 lus)
+- Fiches et `_data` des 15 écrans : identiques au v3. Rien ne change dans la logique, sauf une clé de texte : `materiel.talon.toi` (« Aaron (toi) »).
+- Famille Créer : `--fam-a` `#FFA463`, `--fam-b` `#FF6B7A` ; tons de la logique traduits en couleurs d'état v4 (note §0).
+- `tutoiement.json` : 14 entrées concernent le lot, listées dans la note ; H17 dit « nous ressemble », pas « te ressemble ».
+- La barre latérale v4 (images F50 et MR04) range les 16 modules sous « Créer et produire » : la question 1 du CO penche pour le rapatriement.
+- Plus aucun point « à vérifier » dans la note.
+
+## Non fait, et pourquoi (état du 14 nov. matin, périmé pour les zips)
 - **Les 5 zips du dossier v4 n'ont pas été remis** à cette session. `06-V4-NEON-ET-TUTOIEMENT.md`, `_data/tutoiement.json`, `couleurs-familles.json` et les images v4 de mes 15 écrans n'ont pas été lus. La note s'appuie sur STATUT §1.14 et sur le rapport LOT-00 de `claude/refonte-socle` ; chaque point qui dépend du dossier est marqué « à vérifier ».
 - Les textes statiques des écrans (titres, boutons, vides) ne sont pas écrits : ils suivront `tutoiement.json` à la construction.
 

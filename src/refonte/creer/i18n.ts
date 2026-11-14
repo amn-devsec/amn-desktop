@@ -166,6 +166,7 @@ const EN = {
   'materiel.enPret.1': '{n} item on loan today',
   'materiel.enPret.n': '{n} items on loan today',
   'materiel.nonPretable': 'This item is out of service and cannot be lent.',
+  'materiel.talon.toi': '{nom} (you)',
 
   // MR05 — catalogue
   'catalogue.stock': '{n} in stock',
@@ -406,6 +407,7 @@ const FR: Readonly<Record<keyof typeof EN, string>> = {
   'materiel.enPret.1': '{n} équipement en prêt aujourd’hui',
   'materiel.enPret.n': '{n} équipements en prêt aujourd’hui',
   'materiel.nonPretable': 'Cet équipement est hors service : il ne peut pas être prêté.',
+  'materiel.talon.toi': '{nom} (toi)',
 
   'catalogue.stock': '{n} en stock',
   'catalogue.service': 'Service',

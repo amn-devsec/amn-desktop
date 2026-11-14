@@ -1124,6 +1124,7 @@ await dit('le français est au tutoiement (v4) : ni « vous », ni impératif en
     for (const m of v.matchAll(/(?<![\p{L}’'-])(\p{L}+ez)\b(?!-vous)/gu)) assert.ok(pasVerbe.has(m[1].toLowerCase()), `impératif en -ez : ${k} → ${v}`);
   }
   assert.equal(fr['marque.manque.logo'], 'Ajoute ton logo');
+  assert.equal(mots.traduire('fr', 'materiel.talon.toi', { nom: 'Aaron' }), 'Aaron (toi)'); // tutoiement.json : « Aaron (vous) » → « Aaron (toi) »
   assert.equal(fr['stock.negatif'], 'Il n’en reste que {n}. Corrige la quantité ou fais un inventaire.');
 });
 await dit('les comptes : 0 et 1 au singulier en français, 1 seulement en anglais', () => {
