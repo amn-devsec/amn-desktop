@@ -67,11 +67,12 @@ const M = await charger<any>(
     "export { journeesDeTravail, serieEnCours, avancementProjet, statutProjet } from '../src/refonte/donnees/ma-journee';",
     "export { joursSansImpaye as joursSansImpayeSim } from '../src/refonte/donnees/complements';",
     "export { moi } from '../src/refonte/donnees/equipe';",
+    "export { jourDe as jourDeSim } from '../src/refonte/donnees/outils';",
     "export { DICTIONNAIRES_JOURNEE } from '../" + ZONE + "/i18n';",
     "export { ecartsDeVoix } from '../src/socle/mots/voix';",
   ].join('\n'),
 );
-const { L, monde, attendus, moi, journeesDeTravail, serieEnCours, avancementProjet, statutProjet, joursSansImpayeSim, DICTIONNAIRES_JOURNEE: DICO, ecartsDeVoix } = M;
+const { L, monde, attendus, moi, jourDeSim, journeesDeTravail, serieEnCours, avancementProjet, statutProjet, joursSansImpayeSim, DICTIONNAIRES_JOURNEE: DICO, ecartsDeVoix } = M;
 
 const VOLUMES = ['vide', 'peu', 'normal', 'beaucoup'] as const;
 const mondes = Object.fromEntries(VOLUMES.map((v) => [v, monde.construireMonde({ volume: v })])) as Record<(typeof VOLUMES)[number], any>;
@@ -454,6 +455,284 @@ await dit('H03 : les urgentes d’abord, puis l’ordre choisi, puis l’identif
     const tri = L.trierLaColonne(m.tickets.filter((x: any) => x.colonne === col));
     for (let i = 1; i < tri.length; i += 1) assert.ok(Number(tri[i - 1].urgent) >= Number(tri[i].urgent), `${col} : une urgente passe après une normale`);
   }
+});
+
+/* ── 3b. H01, MJ04, L02, L03 : d'après STATUT, le code existant et les jeux de SIM ─────────── */
+console.log('\nLOT-01 — calendrier (H01), notes rapides (MJ04), mode Focus (L02), rituel du matin (L03)\n');
+
+const ev = (id: string, debut: string, fin: string, o: Record<string, unknown> = {}) => ({ id, startAt: `2026-10-30T${debut}:00.000Z`, endAt: `2026-10-30T${fin}:00.000Z`, ...o });
+
+await dit('H01 : « n rendez-vous » ne compte ni les événements du système ni les annulés, aux quatre volumes (oracle : le filtre direct sur les jeux de SIM)', () => {
+  let nonVides = 0;
+  for (const [nom, m] of tousLesMondes) {
+    for (const decalage of [-14, -7, -1, 0, 1, 7]) {
+      const jour = L.ajouterJours(m.contexte.aujourdhui, decalage);
+      const attendu = m.evenements.filter((e: any) => !e.systeme && e.status !== 'cancelled' && jourDeSim(Date.parse(e.startAt)) === jour).map((e: any) => e.id).sort();
+      const calcule = L.rendezVousDuJour(m.evenements, jour);
+      assert.deepEqual(calcule.map((e: any) => e.id).sort(), attendu, `${nom} ${jour}`);
+      for (let i = 1; i < calcule.length; i += 1) assert.ok(Date.parse(calcule[i - 1].startAt) <= Date.parse(calcule[i].startAt), `${nom} ${jour} : ordre`);
+      if (attendu.length) nonVides += 1;
+    }
+  }
+  assert.ok(nonVides > 5, `${nonVides} jours non vides seulement`);
+  assert.deepEqual(L.rendezVousDuJour([ev('a', '09:00', '10:00', { systeme: true }), ev('b', '09:00', '10:00', { status: 'cancelled' }), ev('c', '09:00', '10:00')], '2026-10-30').map((e: any) => e.id), ['c']);
+});
+
+await dit('H01 : l’état d’un événement (annulé, passé, en cours, à venir) et le prochain événement', () => {
+  const e = ev('x', '10:00', '11:00');
+  const t = (h: string) => Date.parse(`2026-10-30T${h}:00.000Z`);
+  assert.equal(L.etatDeLEvenement(e, t('09:59')), 'a-venir');
+  assert.equal(L.etatDeLEvenement(e, t('10:00')), 'en-cours', 'le début est atteint');
+  assert.equal(L.etatDeLEvenement(e, t('10:59')), 'en-cours');
+  assert.equal(L.etatDeLEvenement(e, t('11:00')), 'passe', 'la fin est atteinte');
+  assert.equal(L.etatDeLEvenement({ ...e, status: 'cancelled' }, t('10:30')), 'annule');
+  assert.equal(L.etatDeLEvenement(ev('p', '10:00', '10:00'), t('10:00')), 'passe', 'un événement sans durée est passé dès son instant');
+  const liste = [ev('b', '12:00', '13:00'), ev('a', '11:30', '12:00'), ev('s', '11:15', '11:45', { systeme: true }), ev('c', '11:20', '11:40', { status: 'cancelled' })];
+  assert.equal(L.prochainEvenement(liste, t('11:00')).id, 'a', 'ni le système ni l’annulé');
+  assert.equal(L.prochainEvenement(liste, t('13:30')), null);
+  for (const [nom, m] of tousLesMondes) {
+    const maintenant = m.contexte.maintenant;
+    const attendu = m.evenements.filter((x: any) => !x.systeme && x.status !== 'cancelled' && Date.parse(x.startAt) > maintenant).map((x: any) => Date.parse(x.startAt));
+    const p = L.prochainEvenement(m.evenements, maintenant);
+    assert.equal(p ? Date.parse(p.startAt) : null, attendu.length ? Math.min(...attendu) : null, nom);
+    for (const x of m.evenements) {
+      const etat = L.etatDeLEvenement(x, maintenant);
+      if (x.status === 'cancelled') assert.equal(etat, 'annule');
+      else assert.equal(etat, maintenant >= Date.parse(x.endAt) ? 'passe' : maintenant >= Date.parse(x.startAt) ? 'en-cours' : 'a-venir', `${nom} ${x.id}`);
+    }
+  }
+});
+
+await dit('H01 : les événements qui se chevauchent se partagent la largeur ; les groupes sont indépendants ; bout à bout ne chevauche pas', () => {
+  const p = (liste: any[]) => Object.fromEntries(L.placerLesEvenements(liste).map((x: any) => [x.id, [x.colonne, x.colonnes]]));
+  assert.deepEqual(p([ev('A', '09:00', '10:00'), ev('B', '09:30', '10:30'), ev('C', '10:00', '11:00'), ev('D', '14:00', '15:00')]), { A: [0, 2], B: [1, 2], C: [0, 2], D: [0, 1] });
+  assert.deepEqual(p([ev('A', '09:00', '12:00'), ev('B', '09:00', '10:00'), ev('C', '10:00', '11:00'), ev('D', '11:00', '12:00')]), { A: [0, 2], B: [1, 2], C: [1, 2], D: [1, 2] });
+  assert.deepEqual(p([ev('A', '09:00', '11:00'), ev('B', '09:00', '11:00'), ev('C', '09:00', '11:00')]), { A: [0, 3], B: [1, 3], C: [2, 3] });
+  assert.deepEqual(p([ev('A', '09:00', '10:00'), ev('B', '10:00', '11:00')]), { A: [0, 1], B: [0, 1] }, 'bout à bout : chacun prend toute la largeur');
+  assert.deepEqual(p([ev('P', '09:00', '09:00'), ev('Q', '09:00', '09:00')]), { P: [0, 1], Q: [0, 1] }, 'deux instants ne se chevauchent pas');
+  assert.deepEqual(L.placerLesEvenements([]), []);
+  // L'ordre d'arrivée ne change rien.
+  const trois = [ev('A', '09:00', '10:00'), ev('B', '09:30', '10:30'), ev('C', '10:15', '11:00')];
+  assert.deepEqual(p([...trois].reverse()), p(trois));
+});
+
+await dit('H01 : sur les semaines de SIM, jamais deux événements qui se chevauchent dans la même colonne, et chaque colonne existe', () => {
+  let groupes = 0;
+  for (const [nom, m] of tousLesMondes) {
+    for (const j of L.semaineDuCalendrier(m.evenements, m.contexte.aujourdhui)) {
+      const places = L.placerLesEvenements(j.evenements);
+      assert.equal(places.length, j.evenements.length, `${nom} ${j.jour} : un événement a disparu`);
+      const par = new Map(j.evenements.map((e: any) => [e.id, e]));
+      for (const a of places) {
+        assert.ok(a.colonne >= 0 && a.colonne < a.colonnes, `${nom} ${a.id}`);
+        if (a.colonnes > 1) groupes += 1;
+        for (const b of places) {
+          if (a.id >= b.id || a.colonne !== b.colonne) continue;
+          const [x, y] = [par.get(a.id) as any, par.get(b.id) as any];
+          const chevauche = Date.parse(x.startAt) < Date.parse(y.endAt) && Date.parse(y.startAt) < Date.parse(x.endAt);
+          assert.ok(!chevauche, `${nom} ${j.jour} : ${a.id} et ${b.id} se chevauchent dans la colonne ${a.colonne}`);
+        }
+      }
+    }
+  }
+  assert.ok(groupes >= 0);
+});
+
+await dit('H01 : la semaine (lundi à dimanche, annulés et système visibles) et la grille du mois (de 4 à 6 semaines complètes)', () => {
+  const sem = L.semaineDuCalendrier([ev('a', '09:00', '10:00', { systeme: true }), ev('b', '09:00', '10:00', { status: 'cancelled' })], '2026-10-30');
+  assert.deepEqual(sem.map((j: any) => j.jour), ['2026-10-26', '2026-10-27', '2026-10-28', '2026-10-29', '2026-10-30', '2026-10-31', '2026-11-01']);
+  assert.deepEqual(sem.map((j: any) => j.jourSemaine), [1, 2, 3, 4, 5, 6, 7]);
+  assert.deepEqual(sem[4].evenements.map((e: any) => e.id), ['a', 'b']);
+  const oct = L.moisEnSemaines('2026-10-15');
+  assert.equal(oct.length, 5);
+  assert.equal(oct[0][0].jour, '2026-09-28');
+  assert.deepEqual(oct[0].map((c: any) => c.dansLeMois), [false, false, false, true, true, true, true]);
+  assert.equal(oct[4][6].jour, '2026-11-01');
+  assert.equal(oct[4][6].dansLeMois, false);
+  assert.equal(L.moisEnSemaines('2026-11-10').length, 6, 'novembre 2026 : le 30 est un lundi');
+  assert.equal(L.moisEnSemaines('2027-02-10').length, 4, 'février 2027 : exactement quatre semaines');
+  for (const jour of ['2026-01-15', '2026-02-15', '2026-03-15', '2026-12-15', '2028-02-15']) {
+    const semaines = L.moisEnSemaines(jour);
+    const jours = semaines.flat().map((c: any) => c.jour);
+    assert.ok(semaines.length >= 4 && semaines.length <= 6, jour);
+    assert.equal(L.jourSemaineIso(jours[0]), 1);
+    assert.equal(jours.filter((j: string) => j.startsWith(jour.slice(0, 7))).length, new Date(Number(jour.slice(0, 4)), Number(jour.slice(5, 7)), 0).getDate(), `${jour} : tous les jours du mois`);
+  }
+});
+
+const note = (id: string, o: Record<string, unknown> = {}) => ({ id, title: 'Titre', body: 'Corps de la note', authorEmail: 'a@exemple.test', pinned: false, updatedAt: '2026-10-29T10:00:00.000Z', etiquette: null, visibilite: 'privée', clientId: null, tacheId: null, projectId: null, nonLue: false, ...o });
+
+await dit('MJ04 : la visibilité — privée et « personnes choisies » à leur auteur seulement, équipe à tous', () => {
+  assert.equal(L.noteVisiblePar(note('n'), 'a@exemple.test'), true);
+  assert.equal(L.noteVisiblePar(note('n'), 'b@exemple.test'), false);
+  assert.equal(L.noteVisiblePar(note('n', { visibilite: 'équipe' }), 'b@exemple.test'), true);
+  assert.equal(L.noteVisiblePar(note('n', { visibilite: 'personnes choisies' }), 'b@exemple.test'), false, 'la liste des personnes n’existe pas encore : on ne divulgue rien');
+  assert.equal(L.noteVisiblePar(note('n', { visibilite: 'personnes choisies' }), 'a@exemple.test'), true);
+});
+
+await dit('MJ04 : tri (épinglées, puis récentes, puis identifiant), recherche sans accents ni majuscules, filtres, étiquettes', () => {
+  const notes = [
+    note('c', { updatedAt: '2026-10-20T10:00:00.000Z', title: 'Réunion équipe', etiquette: 'équipe', visibilite: 'équipe' }),
+    note('b', { updatedAt: '2026-10-29T10:00:00.000Z', etiquette: 'commercial', nonLue: true }),
+    note('a', { updatedAt: '2026-10-29T10:00:00.000Z', etiquette: 'commercial' }),
+    note('z', { updatedAt: '2026-01-01T10:00:00.000Z', pinned: true, body: 'Une idée de CAFÉ' }),
+    note('e', { authorEmail: 'b@exemple.test', visibilite: 'privée' }),
+  ];
+  const moi = 'a@exemple.test';
+  assert.deepEqual(L.notesAffichees(notes, moi).map((n: any) => n.id), ['z', 'a', 'b', 'c'], 'épinglée, puis égalité de date par identifiant, puis plus ancienne ; la note privée d’un autre est absente');
+  assert.deepEqual(L.notesAffichees(notes, moi, { recherche: 'reunion' }).map((n: any) => n.id), ['c'], 'accents et majuscules');
+  assert.deepEqual(L.notesAffichees(notes, moi, { recherche: ' CAFE ' }).map((n: any) => n.id), ['z'], 'dans le corps aussi');
+  assert.deepEqual(L.notesAffichees(notes, moi, { etiquette: 'commercial' }).map((n: any) => n.id), ['a', 'b']);
+  assert.deepEqual(L.notesAffichees(notes, moi, { nonLues: true }).map((n: any) => n.id), ['b']);
+  assert.deepEqual(L.notesAffichees(notes, 'b@exemple.test').map((n: any) => n.id), ['e', 'c'], 'un autre membre ne voit que l’équipe et les siennes');
+  assert.deepEqual(L.etiquettesDesNotes(notes), [{ etiquette: 'commercial', nombre: 2 }, { etiquette: 'équipe', nombre: 1 }]);
+  assert.equal(L.nonLues(notes, moi), 1);
+});
+
+await dit('MJ04 : « sans place » (ni client, ni tâche, ni projet) et l’aperçu', () => {
+  const ns = [note('1'), note('2', { clientId: 4 }), note('3', { tacheId: 't-1' }), note('4', { projectId: 'p-1' }), note('5', { projectId: undefined })];
+  assert.deepEqual(L.notesSansPlace(ns).map((n: any) => n.id), ['1', '5']);
+  assert.equal(L.apercuDeNote('Première ligne\nDeuxième'), 'Première ligne');
+  assert.equal(L.apercuDeNote('x'.repeat(100)).length, 70);
+  assert.ok(L.apercuDeNote('x'.repeat(100)).endsWith('…'));
+});
+
+await dit('MJ04 : sur les notes de SIM — chaque note affichée est permise, l’ordre tient, et rien n’est perdu entre « avec » et « sans place »', () => {
+  for (const [nom, m] of tousLesMondes) {
+    const moiEmail = moi(m.equipe).email;
+    const autre = m.equipe.find((x: any) => x.email !== moiEmail)?.email ?? 'autre@exemple.test';
+    for (const email of [moiEmail, autre]) {
+      const vues = L.notesAffichees(m.notes, email);
+      for (const n of vues) assert.ok(n.visibilite === 'équipe' || n.authorEmail === email, `${nom} ${n.id} : visible à tort par ${email}`);
+      for (let i = 1; i < vues.length; i += 1) {
+        const [a, b] = [vues[i - 1], vues[i]];
+        assert.ok(Number(a.pinned) > Number(b.pinned) || (a.pinned === b.pinned && a.updatedAt >= b.updatedAt), `${nom} : ordre`);
+      }
+    }
+    const sans = L.notesSansPlace(m.notes).length;
+    const avec = m.notes.filter((n: any) => n.clientId !== null || n.tacheId !== null || n.projectId).length;
+    assert.equal(sans + avec, m.notes.length, nom);
+  }
+});
+
+await dit('L02 : les règles du Pomodoro existant — trois durées, pause de 5 min, pause longue de 15 min à la quatrième séance', () => {
+  assert.deepEqual([...L.DUREES_DE_SEANCE], [15, 25, 50]);
+  assert.deepEqual([L.DUREE_PAR_DEFAUT, L.PAUSE_MIN, L.PAUSE_LONGUE_MIN, L.SEANCES_PAR_CYCLE], [25, 5, 15, 4]);
+  assert.equal(L.nouveauFocus(40).dureeSeanceMin, 25, 'une durée inconnue retombe sur 25');
+  assert.equal(L.nouveauFocus(50).dureeSeanceMin, 50);
+  const MIN = 60_000;
+  let f = L.nouveauFocus(25);
+  const t0 = 1_000_000;
+  const vus: string[] = [];
+  for (let i = 1; i <= 5; i += 1) {
+    f = L.lancer(f, t0);
+    assert.ok(L.phaseTerminee(f, t0 + 25 * MIN), 'la séance finit au bout de 25 minutes');
+    const suite = L.phaseSuivante(f);
+    assert.equal(suite.seanceTerminee, true);
+    f = suite.focus;
+    vus.push(`${f.phase}:${f.rang}`);
+    const retour = L.phaseSuivante({ ...f, reprisA: t0 });
+    assert.equal(retour.seanceTerminee, false, 'la fin d’une pause ne fabrique pas de séance');
+    f = retour.focus;
+  }
+  assert.deepEqual(vus, ['pause:1', 'pause:2', 'pause:3', 'pauseLongue:0', 'pause:1'], 'la quatrième ouvre la pause longue et le cycle repart');
+});
+
+await dit('L02 : le temps se déduit des instants — pause, reprise, veille de l’ordinateur, jamais négatif', () => {
+  const MIN = 60_000;
+  const t0 = 5_000_000;
+  let f = L.lancer(L.nouveauFocus(25), t0);
+  assert.equal(L.restantMs(f, t0), 25 * MIN);
+  assert.equal(L.restantMs(f, t0 + 10 * MIN), 15 * MIN);
+  f = L.mettreEnPause(f, t0 + 10 * MIN);
+  assert.equal(L.enMarche(f), false);
+  assert.equal(L.restantMs(f, t0 + 90 * MIN), 15 * MIN, 'en pause, le temps ne passe pas');
+  assert.equal(L.mettreEnPause(f, t0 + 99 * MIN), f, 'une pause déjà en pause ne change rien');
+  f = L.lancer(f, t0 + 30 * MIN);
+  assert.equal(L.restantMs(f, t0 + 30 * MIN), 15 * MIN);
+  assert.equal(L.lancer(f, t0 + 31 * MIN), f, 'déjà en marche : sans effet');
+  assert.equal(L.restantMs(f, t0 + 45 * MIN), 0);
+  assert.equal(L.phaseTerminee(f, t0 + 45 * MIN), true);
+  assert.equal(L.restantMs(f, t0 + 600 * MIN), 0, 'après une longue veille : 0, jamais négatif');
+  assert.equal(L.progression(f, t0 + 600 * MIN), 1);
+  assert.equal(L.progression(L.nouveauFocus(25), t0), 0);
+  assert.equal(L.restantMs(L.lancer(L.nouveauFocus(25), t0 + 5000), t0), 25 * MIN, 'une horloge qui recule ne fait pas gagner de temps');
+});
+
+await dit('L02 : le cadran (arrondi vers le haut), les durées figées une fois commencé, l’abandon (le cycle repart, rien ne se perd)', () => {
+  const MIN = 60_000;
+  const f0 = L.nouveauFocus(25);
+  assert.equal(L.restantEnTexte(f0, 0), '25:00');
+  assert.equal(L.restantEnTexte(L.lancer(f0, 0), 1), '25:00', 'une milliseconde après le départ : toujours 25:00');
+  assert.equal(L.restantEnTexte(L.lancer(f0, 0), 25 * MIN - 1), '00:01');
+  assert.equal(L.restantEnTexte(L.lancer(f0, 0), 25 * MIN), '00:00');
+  assert.equal(L.choisirLaDuree(f0, 50).dureeSeanceMin, 50);
+  assert.equal(L.choisirLaDuree(f0, 33).dureeSeanceMin, 25, 'seulement parmi les trois durées');
+  assert.equal(L.choisirLaDuree(L.lancer(f0, 0), 50).dureeSeanceMin, 25, 'pas en cours de séance');
+  const enPause = { ...L.phaseSuivante({ ...f0, rang: 1 }).focus };
+  assert.equal(L.choisirLaDuree(enPause, 50), enPause, 'pas pendant une pause');
+  const milieu = L.mettreEnPause(L.lancer({ ...f0, rang: 2 }, 0), 7 * MIN);
+  const abandon = L.abandonner(milieu);
+  assert.deepEqual([abandon.phase, abandon.rang, abandon.ecouleMs, abandon.reprisA, abandon.dureeSeanceMin], ['travail', 0, 0, null, 25], 'le cycle reprend à la première, la durée choisie reste');
+  assert.deepEqual(L.seancesDuJour([{ startedAt: '2026-10-30T08:00:00.000Z', minutes: 25 }, { startedAt: '2026-10-30T09:00:00.000Z', minutes: 50 }, { startedAt: '2026-10-29T08:00:00.000Z', minutes: 25 }], '2026-10-30'), { nombre: 2, minutes: 75 });
+  assert.deepEqual(L.seancesDuJour([], '2026-10-30'), { nombre: 0, minutes: 0 });
+});
+
+await dit('L03 : la salutation suit l’heure (matin dès 5 h, après-midi dès 12 h, soir dès 18 h, la nuit se salue « bonsoir »)', () => {
+  const m = (h: number) => L.momentDeLaJournee(h);
+  assert.deepEqual([4, 5, 11, 12, 17, 18, 23, 0, 3].map(m), ['soir', 'matin', 'matin', 'apres-midi', 'apres-midi', 'soir', 'soir', 'soir', 'soir']);
+  assert.equal(m(29), 'matin', 'une heure hors bornes est ramenée à 0–23 (29 h = 5 h)');
+  assert.equal(m(-1), 'soir', '−1 h = 23 h');
+});
+
+const sourcesRituel = (o: Record<string, unknown> = {}) => ({ heure: 8, priorites: { choisies: 0 }, rendezVous: 2, enAttente: { rappels: 0, urgents: 0 }, etapesPassees: [], fermeAujourdhui: false, ...o });
+
+await dit('L03 : les étapes, la reprise « là où l’on s’était arrêté », l’étape absente quand rien n’attend, une seule proposition le matin', () => {
+  const r0 = L.rituelDuMatin(sourcesRituel());
+  assert.deepEqual(r0.etapes.map((e: any) => [e.cle, e.fait, e.nombre]), [['priorites', false, 0], ['agenda', false, 2]]);
+  assert.deepEqual([r0.faites, r0.total, r0.termine, r0.reprise, r0.aProposer], [0, 2, false, 'priorites', true]);
+  const r1 = L.rituelDuMatin(sourcesRituel({ priorites: { choisies: 3 } }));
+  assert.deepEqual([r1.faites, r1.reprise], [1, 'agenda'], 'les priorités choisies comptent d’elles-mêmes : on reprend à l’étape suivante');
+  const r2 = L.rituelDuMatin(sourcesRituel({ priorites: { choisies: 1 }, etapesPassees: ['agenda'] }));
+  assert.deepEqual([r2.termine, r2.reprise, r2.aProposer], [true, null, false], 'fini : plus proposé');
+  const r3 = L.rituelDuMatin(sourcesRituel({ enAttente: { rappels: 2, urgents: 1 } }));
+  assert.deepEqual(r3.etapes.map((e: any) => e.cle), ['priorites', 'agenda', 'a-reprendre']);
+  assert.equal(r3.etapes[2].nombre, 3);
+  assert.equal(L.rituelDuMatin(sourcesRituel({ heure: 14 })).aProposer, false, 'jamais l’après-midi');
+  assert.equal(L.rituelDuMatin(sourcesRituel({ fermeAujourdhui: true })).aProposer, false, 'il n’insiste pas après avoir été fermé');
+  assert.equal(L.rituelDuMatin(sourcesRituel({ priorites: { choisies: 9 } })).etapes[0].nombre, 3, 'au plus 3 priorités');
+  assert.equal(L.rituelDuMatin(sourcesRituel({ priorites: { choisies: 1 }, etapesPassees: ['agenda'], enAttente: { rappels: 1, urgents: 0 } })).reprise, 'a-reprendre');
+});
+
+await dit('H01, MJ04, L02, L03 : leurs phrases tutoient et ne reprochent rien', () => {
+  const t = [
+    L.libelleDEtatDEvenement('fr', 'en-cours'),
+    L.phraseDeRendezVous('fr', 1),
+    L.phraseDeRendezVous('fr', 3),
+    L.direCompte('fr', 'notes.sansPlace', 1),
+    L.direCompte('fr', 'notes.sansPlace', 4),
+    L.libelleDePhase('fr', 'pauseLongue'),
+    L.phraseDeCycle('fr', { phase: 'travail', rang: 1 }),
+    L.phraseDeCycle('fr', { phase: 'pause', rang: 2 }),
+    L.phraseDeCycle('fr', { phase: 'pauseLongue', rang: 0 }),
+    L.phraseDeFinDePhase('fr', 'travail'),
+    L.phraseDeFinDePhase('fr', 'pause'),
+    L.phraseDAbandon('fr'),
+    L.direCompte('fr', 'focus.jour', 2, { minutes: 75 }),
+    L.phraseDeSalutation('fr', 'matin', 'Aaron'),
+    L.phraseDeSalutation('fr', 'soir', 'Aaron'),
+    L.phraseDeReprise('fr', { reprise: 'agenda' }),
+    L.phraseDeReprise('fr', { reprise: null }),
+  ];
+  assert.deepEqual(t, [
+    'En cours', '1 rendez-vous', '3 rendez-vous',
+    '1 note rapide n’a pas encore de place.', '4 notes rapides n’ont pas encore de place.',
+    'Pause longue', 'Séance 2 sur 4', 'Séance 2 sur 4', 'Séance 4 sur 4',
+    'Séance terminée. Souffle un peu.', 'Pause terminée. On y retourne quand tu veux.', 'Séance arrêtée. Tout est gardé.',
+    '2 séances aujourd’hui · 75 min',
+    'Bonjour Aaron', 'Bonsoir Aaron',
+    'On reprend là où tu t’étais arrêté : Regarde ta journée', 'Ta journée est prête.',
+  ]);
 });
 
 /* ── 4. Les éléments ludiques protégés (L07, trophées, défis) ─────────────── */

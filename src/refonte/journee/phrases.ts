@@ -6,6 +6,10 @@ import type { StatutDeProjet } from './projets';
 import type { EtatDeRappel } from './rappels';
 import type { EtatDeDefi, ErreurDeProposition, JaugeDeDefi, TypeDeDefi } from './defis';
 import type { ActiviteRecente } from './tableauDeBord';
+import type { EtatDEvenement } from './calendrier';
+import type { Focus, PhaseDeFocus } from './focus';
+import { SEANCES_PAR_CYCLE } from './focus';
+import type { CleDEtape, MomentDeLaJournee, Rituel } from './rituel';
 
 /**
  * Ce que la logique SAIT DIRE — les phrases qui découlent d'un état calculé. Chaque fonction est pure et ne produit
@@ -84,3 +88,31 @@ export function phraseDeSemaineChargee(langue: Langue, prevues: number, moyenne:
   const m = moyenne.toLocaleString(langue === 'fr' ? 'fr-FR' : 'en-GB', { maximumFractionDigits: 1 });
   return dire(langue, 'bilan.semaineChargee', { prevues, moyenne: m });
 }
+
+const CLE_EVENEMENT: Record<EtatDEvenement, CleJournee> = { annule: 'agenda.etat.annule', passe: 'agenda.etat.passe', 'en-cours': 'agenda.etat.enCours', 'a-venir': 'agenda.etat.aVenir' };
+export const libelleDEtatDEvenement = (langue: Langue, e: EtatDEvenement): string => dire(langue, CLE_EVENEMENT[e]);
+
+export const phraseDeRendezVous = (langue: Langue, n: number): string => direCompte(langue, 'agenda.rdv', n);
+
+const CLE_PHASE: Record<PhaseDeFocus, CleJournee> = { travail: 'focus.phase.travail', pause: 'focus.phase.pause', pauseLongue: 'focus.phase.pauseLongue' };
+export const libelleDePhase = (langue: Langue, p: PhaseDeFocus): string => dire(langue, CLE_PHASE[p]);
+
+/** La phrase quand une phase se termine : après la séance on souffle, après la pause on reprend quand on veut. */
+export const phraseDeFinDePhase = (langue: Langue, p: PhaseDeFocus): string => dire(langue, p === 'travail' ? 'focus.fin.travail' : 'focus.fin.pause');
+
+/** « Séance 2 sur 4 » : la place dans le cycle (pendant une pause, la séance qui vient d'être faite). */
+export function phraseDeCycle(langue: Langue, f: Pick<Focus, 'phase' | 'rang'>): string {
+  const n = f.phase === 'travail' ? f.rang + 1 : f.phase === 'pauseLongue' ? SEANCES_PAR_CYCLE : f.rang;
+  return dire(langue, 'focus.cycle', { n, total: SEANCES_PAR_CYCLE });
+}
+
+export const phraseDAbandon = (langue: Langue): string => dire(langue, 'focus.abandon');
+
+const CLE_SALUT: Record<MomentDeLaJournee, CleJournee> = { matin: 'rituel.salut.matin', 'apres-midi': 'rituel.salut.apresMidi', soir: 'rituel.salut.soir' };
+export const phraseDeSalutation = (langue: Langue, m: MomentDeLaJournee, prenom: string): string => dire(langue, CLE_SALUT[m], { prenom });
+
+const CLE_ETAPE: Record<CleDEtape, CleJournee> = { priorites: 'rituel.etape.priorites', agenda: 'rituel.etape.agenda', 'a-reprendre': 'rituel.etape.aReprendre' };
+export const libelleDEtape = (langue: Langue, c: CleDEtape): string => dire(langue, CLE_ETAPE[c]);
+
+/** « On reprend là où tu t'étais arrêté : … », ou « Ta journée est prête. » quand tout est fait. */
+export const phraseDeReprise = (langue: Langue, r: Pick<Rituel, 'reprise'>): string => (r.reprise === null ? dire(langue, 'rituel.pret') : dire(langue, 'rituel.reprise', { etape: libelleDEtape(langue, r.reprise) }));

@@ -34,17 +34,17 @@ Conséquence : **aucune disposition, aucune cote, aucun texte statique** n'est �
 | N01 | Accueil | mixte | `/` · couture `@edition/accueils` (l'Accueil `42k` actuel : `src/refonte/accueil/`) | `taches`, `evenements`, `tickets`, `factures`… via `useAujourdhui` | `serieDeLaJournee` (la règle unique), `bilan`, phrases | l'écran ; **il lit `useAujourdhui`, il ne recalcule rien** ; `check:accueils` reste vert |
 | H25 | Tableau de bord, widgets | mixte | `/tableau-de-bord` · `src/screens/TableauDeBordScreen.tsx` · `dashboard` | `tickets`, `factures`, `paiements`, `taches`, `evenements`, `devis` | `tableauDeBord` (égale `attendusTableauDeBord`) | les widgets et leur disposition (format de la grille : à confirmer, fiche H25) |
 | G08 | Cockpit client : Stripe, utilisateurs, tickets | mixte | **aucun écran, aucune route** : à lire sur la fiche (contexte client / support ?) | `abonnements`, `paiements`, `clients`, `tickets`, `connecteurs` | `cockpitDuClient` (égale `attendusCockpit`) | l'écran ; **clés Stripe côté serveur**, l'écran ne voit que des agrégats et des valeurs masquées |
-| H01 | Calendrier | mixte | `/agenda` · `src/business/AgendaScreen.tsx` (**partagé avec l'édition cliente**) · `agenda` | `evenements` (⊇ `Appointment`) | aucune (la grille et le placement des événements qui se chevauchent sont à écrire) | l'écran, par une couture si le fichier d'origine reste partagé ; `systeme` ne compte pas dans « n rendez-vous » |
+| H01 | Calendrier | mixte | `/agenda` · `src/business/AgendaScreen.tsx` (**partagé avec l'édition cliente**) · `agenda` | `evenements` (⊇ `Appointment`) | `calendrier.ts` : `rendezVousDuJour`, `etatDeLEvenement`, `prochainEvenement`, `placerLesEvenements`, `semaineDuCalendrier`, `moisEnSemaines` (logique préparée, à confirmer sur la fiche) | l'écran, par une couture si le fichier d'origine reste partagé ; `systeme` ne compte pas dans « n rendez-vous » |
 | H02 | Tâches | mixte | `/tasks` · `src/screens/TasksScreen.tsx` · `tasks` | `taches` | série et paliers (`PALIERS_DE_SERIE`) | l'écran, les trophées et paliers (**protégés**) |
 | H03 | Missions et tickets, kanban | mixte | **pas d'écran d'origine** (le plus proche, `/tableau-projets`, est le tableau des projets) : route à lire sur la fiche | `tickets` | `trierLaColonne`, `deplacer` (CY12 s'appuie sur H03) | l'écran ; entrée `nouveau` dans `declarations/jour.ts` |
 | H04 | Bilan de la semaine | mixte | `/revue-hebdo` · `src/screens/WeeklyReviewScreen.tsx` · `weekly` | `taches`, `paiements`, `clients`, `factures` | `bilanDeLaSemaine` (égale `attendusBilanSemaine`), jalons | l'écran, les trophées et paliers (**protégés**) |
 | MJ01 | Projets | mixte | `/projets` · `src/screens/ProjectsScreen.tsx` · `projects` | `projets`, `taches` | `projetCalcule` (avancement et statut, égale SIM) | l'écran |
 | MJ03 | Planning de l'équipe | mixte | `/planning` · `src/screens/ShiftsScreen.tsx` · `shifts` | `creneaux` | `personnesDuCreneau`, `chevauchements` | l'écran |
 | MJ02 | Habitudes | mixte | `/personnel/habitudes` · `src/screens/HabitsScreen.tsx` · `habits` (et `/routines`, `routines`) | `habitudes` | `serieDHabitude`, `tauxDeTenue`, `prevueCeJour` | l'écran |
-| MJ04 | Notes rapides | mixte | `/notes` · `src/screens/NotesScreen.tsx` · `notes` | `notes` (⊇ `Note`, `nonLue`) | aucune | l'écran |
+| MJ04 | Notes rapides | mixte | `/notes` · `src/screens/NotesScreen.tsx` · `notes` | `notes` (⊇ `Note`, `nonLue`) | `notes.ts` : visibilité, tri, recherche, étiquettes, « sans place » (logique préparée, à confirmer) | l'écran |
 | MJ05 | Rappels | mixte | **pas d'écran d'origine** : `/relances` (`RemindersScreen`) est celui des relances de paiement, pas MJ05 | `rappels` | `etatDuRappel`, `ordreDesRappels` | l'écran ; entrée `nouveau` |
-| L03 | Rituel du matin | nouveau | aucun | — (composé des sources de N01) | à lire sur la fiche | tout |
-| L02 | Mode Focus | nouveau | aucun (existe : `/personnel/pomodoro`, `PomodoroScreen`) | — | à lire sur la fiche (machine à états de la session) | tout |
+| L03 | Rituel du matin | nouveau | aucun | — (composé des sources de N01) | `rituel.ts` : étapes, reprise, une seule proposition le matin (préparée, à confirmer) | tout |
+| L02 | Mode Focus | nouveau | aucun (existe : `/personnel/pomodoro`, `PomodoroScreen`) | — | `focus.ts` : machine à états tirée du Pomodoro existant — 15/25/50 min, pause 5 min, pause longue 15 min à la 4ᵉ séance (préparée, à confirmer) | tout |
 | L01 | Séries et jalons | nouveau | aucun | `taches` (SIM) ; **priorités du jour absentes des jeux** | `serieDeLaJournee`, `PALIERS_DE_SERIE`, `jalonDeFactures` | tout ; trophées et paliers (**protégés**) |
 | L07 | Défis d'équipe | nouveau | aucun | `defis` | `etatDuDefi`, `jaugeDuDefi`, `defiDeLaSemaine`, `aussiEnCours`, `friseDesDefis`, `defisACelebrer`, `apportsDeLEquipe`, `verifierProposition`, `joursSansImpaye` | tout (**protégé : rien n'est simplifié**) |
 
@@ -108,12 +108,14 @@ T1 vérifiera en plus **leur présence à l'écran** à ± 2 px (§1.10) : c'est
 | Utilisateurs connectés par jour (API du client) | G08, H25 | amn-api |
 | Historique quotidien des messages à traiter | « Boîte à zéro » (N01, H04) | SIM |
 | Disposition des widgets (format de la grille) | H25 | à lire sur la fiche |
+| Liste des personnes d'une note « personnes choisies » | MJ04 (en attendant, visible de son auteur seulement) | SIM / amn-api |
 
-## 7. Ce que `check:journee` vérifie (45 contrôles, sans réseau ni navigateur)
+## 7. Ce que `check:journee` vérifie (62 contrôles, sans réseau ni navigateur)
 
 - la série : clôture, aujourd'hui neutre, repos, jour sans priorité, paliers, record, jour du palier, fuseau de Paris ;
 - **H04, G08 et H25 égaux aux valeurs attendues de SIM**, aux quatre volumes et sur quatre graines de plus (la garde rougit si une règle est cassée : vérifié par mutation) ;
 - les projets, les habitudes, les rappels, le planning, le kanban ;
+- H01, MJ04, L02, L03 d'après STATUT, le code existant et les jeux de SIM : filtre des rendez-vous égal à celui de SIM, placement sans chevauchement dans une colonne, grille du mois, visibilité et tri des notes, chronologie du Focus (pause, veille, abandon), reprise du rituel ;
 - les propriétés protégées de L07 et de L01 (§4) ;
 - la voix : tutoiement, aucun « -ez », aucun point d'exclamation, aucun mot de reproche, français et anglais alignés, formes `.1` et `.n` ;
 - la structure : aucun composant ni React ni brique du socle visuel, aucune horloge, aucun secret dans le cockpit, aucune adresse hors `exemple.test`, aucune dépendance à la logique d'un autre lot.
