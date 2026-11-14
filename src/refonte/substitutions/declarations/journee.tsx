@@ -12,4 +12,6 @@ export default declarerSubstitutions('journee', [
   { route: '/tableau-de-bord', module: 'dashboard', composant: lazy(() => import('../../journee/ecrans/H25/TableauDeBordRefonte')) },
   // H02 — Tâches.
   { route: '/tasks', module: 'tasks', composant: lazy(() => import('../../journee/ecrans/H02/TachesRefonte')) },
+  // H04 — Bilan de la semaine.
+  { route: '/revue-hebdo', module: 'weekly', composant: lazy(() => import('../../journee/ecrans/H04/BilanRefonte')) },
 ]);
