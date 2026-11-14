@@ -623,7 +623,23 @@ await dit('contrôle négatif : le filtre /essai/ ne cache pas un second écran 
       },
     ],
   });
-  const r = m.assembler([...m.FICHIERS, { chemin: 'declarations/zz-atelier.ts', declaration: declarationOk() }, { chemin: 'declarations/zz-autre.ts', declaration: deux }]);
+  // Un écran neuf HORS /essai/, déclaré par ce contrôle lui-même : il ne dépend pas de l'état du registre réel.
+  const neuf = m.declarerFamille({
+    id: 'atelier3',
+    ordre: 97,
+    teinte: 'creer',
+    nom: { fr: 'Atelier ter', en: 'Workshop ter' },
+    actions: { fabriquer: { fr: 'Fabriquer', en: 'Make' } },
+    modules: [
+      {
+        nom: { fr: 'Exemple', en: 'Example' },
+        action: 'fabriquer',
+        niveau: 'courant',
+        vues: [m.vue('neufExemple', '/neuf/exemple', ['voir un exemple'], ['exemple'], { nouveau: { icone: () => null, ecran: async () => ({ default: () => null }), indice: { fr: 'Exemple', en: 'Example' } } })],
+      },
+    ],
+  });
+  const r = m.assembler([...m.FICHIERS, { chemin: 'declarations/zz-atelier.ts', declaration: declarationOk() }, { chemin: 'declarations/zz-autre.ts', declaration: deux }, { chemin: 'declarations/zz-neuf.ts', declaration: neuf }]);
   const essai = m.ecransNeufs(r).map((e) => e.route).filter((route) => route.startsWith('/essai/')).sort();
   assert.deepEqual(essai, ['/essai/autre', '/essai/gabarits'], 'deux routes d’essai : les deux se voient');
   assert.notDeepEqual(essai, ['/essai/gabarits'], 'la comparaison de l’essai rougirait si une route d’essai en plus apparaissait');
