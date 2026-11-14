@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { CalendarClock, Check, Minus, Rocket, X } from 'lucide-react';
 import { Bouton, DialogueConfirmation, PastilleEtat, type EtatPastille } from '../../socle/ui';
 import { CarteDev, PageDev, Point, SuggestionDev, ABrancher, type TonPoint } from './briques';
-import { dateCourte, dateEtHeure, formaterDuree, ms } from './commun';
+import { dateCourte, dateEtHeure, formaterDuree, ms, quandRelatif } from './commun';
 import {
   dureeEtape,
   enLigne,
@@ -24,7 +24,6 @@ import {
 } from './deploiements';
 import { useDonneesDeveloppement } from './donnees';
 import { dire, direCompte } from './i18n';
-import { quandRelatif } from './commun';
 
 /**
  * DEV-deploiements · DÉPLOIEMENTS — fiche `docs/refonte/fiches/LOT-11/DEV-deploiements.md`, image `DEV-deploiements.png`.

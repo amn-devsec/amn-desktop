@@ -348,4 +348,72 @@ export const FEUILLE_DEVELOPPEMENT = `
   .dv-dp-lien { display: none; }
   .dv-dp-droite { grid-template-columns: 1fr; }
 }
+
+/* ═══ DEV-serveur ════════════════════════════════════════════════════════ */
+.dv-sv-jauges { display: grid; grid-template-columns: repeat(4, 267px); gap: 14px; }
+.dv-sv-jauge { height: 117px; padding: 0 16px 0 18px; display: flex; align-items: center; gap: 16px; }
+.dv-sv-anneau { position: relative; flex: none; width: 88px; height: 88px; }
+.dv-sv-anneau svg { display: block; }
+.dv-sv-piste { fill: none; stroke: var(--socle-piste); stroke-width: 8; }
+.dv-sv-arc { fill: none; stroke-width: 8; stroke-linecap: round; filter: drop-shadow(0 0 5px var(--dv-jauge-a)); }
+.dv-sv-stop-a { stop-color: var(--dv-jauge-a); }
+.dv-sv-stop-b { stop-color: var(--dv-jauge-b); }
+/* Une teinte fixe par mesure (fiche DEV-serveur §5) : jamais la gravité, que le texte dit. */
+.dv-sv-anneau[data-jauge='processeur'] { --dv-jauge-a: var(--socle-fam-ecrire-a); --dv-jauge-b: var(--socle-etat-info); }
+.dv-sv-anneau[data-jauge='memoire'] { --dv-jauge-a: var(--socle-etat-info); --dv-jauge-b: var(--socle-etat-succes); }
+.dv-sv-anneau[data-jauge='disque'] { --dv-jauge-a: var(--socle-fam-echanger-a); --dv-jauge-b: var(--socle-etat-critique); }
+.dv-sv-anneau[data-jauge='reseau'] { --dv-jauge-a: var(--socle-fam-creer-a); --dv-jauge-b: var(--socle-etat-critique); }
+.dv-sv-anneau__pct { position: absolute; inset: 0; display: grid; place-items: center; font-size: 17px; font-weight: 600; color: var(--socle-texte-1); }
+.dv-sv-jauge__textes { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.dv-sv-jauge__libelle { font-size: 11px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: var(--socle-texte-3); }
+.dv-sv-jauge__valeur { font-size: 24px; font-weight: 700; color: var(--socle-texte-1); white-space: nowrap; }
+.dv-sv-jauge__sur { font-size: 12.5px; font-weight: 400; color: var(--socle-texte-2); }
+.dv-sv-jauge__ligne { font-size: 12.5px; }
+.dv-sv-corps { display: grid; grid-template-columns: 742px 350px; gap: 16px; }
+.dv-sv-gauche, .dv-sv-droite { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.dv-sv-charge { height: 199px; padding: 16px 20px 12px; }
+.dv-sv-legende { display: inline-flex; align-items: center; gap: 6px; }
+.dv-sv-legende .dv-point:last-of-type { margin-left: 10px; }
+.dv-sv-courbes { display: block; width: 100%; height: 110px; overflow: visible; }
+.dv-sv-ligne { fill: none; stroke-width: 2; }
+.dv-sv-ligne[data-serie='processeur'] { stroke: var(--socle-etat-info); filter: drop-shadow(0 0 4px var(--socle-etat-info)); }
+.dv-sv-ligne[data-serie='memoire'] { stroke: var(--socle-etat-succes); filter: drop-shadow(0 0 4px var(--socle-etat-succes)); }
+.dv-sv-aire-mem-haut { stop-color: var(--socle-etat-succes); stop-opacity: 0.32; }
+.dv-sv-aire-proc-haut { stop-color: var(--socle-etat-info); stop-opacity: 0.22; }
+.dv-sv-aire-bas { stop-color: var(--socle-carte-bas); stop-opacity: 0; }
+.dv-sv-reperes { display: flex; justify-content: space-between; margin-top: 8px; font-size: 11px; }
+.dv-sv-services { height: 315px; padding: 16px 20px; }
+.dv-sv-tuiles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 225px); gap: 12px 13px; }
+.dv-sv-tuile {
+  height: 105px; box-sizing: border-box; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px;
+  border: 1px solid var(--socle-bord-sous-carte); border-radius: var(--socle-rayon-sous-carte); background: var(--socle-sous-carte);
+}
+.dv-sv-tuile[data-ton='attention'] { border-color: color-mix(in srgb, var(--socle-etat-attention) 38%, transparent); }
+.dv-sv-tuile[data-ton='critique'] { border-color: color-mix(in srgb, var(--socle-etat-critique) 38%, transparent); }
+.dv-sv-tuile__nom { display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 600; color: var(--socle-texte-1); }
+.dv-sv-tuile__detail { font-size: 12.5px; }
+.dv-sv-tuile__bas { margin-top: auto; display: flex; align-items: center; justify-content: space-between; }
+.dv-sv-tuile__dispo { font-size: 16px; font-weight: 700; color: var(--dv-ton, var(--socle-texte-1)); }
+.dv-sv-sauvegardes { height: 144px; padding: 16px 20px; }
+.dv-sv-lignes { margin: 0; display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.dv-sv-lignes div { display: flex; justify-content: space-between; gap: 10px; }
+.dv-sv-lignes dt { color: var(--socle-texte-courant); }
+.dv-sv-lignes dd { margin: 0; font-weight: 600; color: var(--dv-ton, var(--socle-texte-1)); }
+.dv-sv-cout { height: 147px; padding: 18px 20px; display: flex; flex-direction: column; gap: 4px; }
+.dv-sv-cout__libelle { font-size: 11px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: var(--socle-texte-3); }
+.dv-sv-cout__ligne { display: flex; align-items: baseline; gap: 10px; }
+.dv-sv-cout__montant { font-size: 44px; font-weight: 700; line-height: 1.05; background: linear-gradient(180deg, var(--socle-blanc), var(--fam-b)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.dv-sv-cout__texte { font-size: 12.5px; line-height: 1.45; }
+.dv-sv-suggestion { min-height: 138px; }
+
+@container (max-width: 1100px) {
+  .dv-sv-jauges { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dv-sv-corps { grid-template-columns: 1fr; }
+  .dv-sv-droite { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .dv-sv-services { height: auto; }
+}
+@container (max-width: 700px) {
+  .dv-sv-jauges, .dv-sv-droite { grid-template-columns: 1fr; }
+  .dv-sv-tuiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 `;

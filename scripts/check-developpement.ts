@@ -522,6 +522,23 @@ await dit('disque : « tranquille pour 2 ans » à 1,1 Go par semaine (160 Go, 3
   assert.equal(V.semainesAvantPlein(160, 38, [1]), null);
   assert.equal(V.semainesAvantPlein(160, 38, [0, 0]), null);
 });
+await dit('serveur : disponibilité « 99,98 % » / « 100 % », tons, Go, débit, moyenne de la dernière heure', () => {
+  assert.equal(V.texteDisponibilite(99.98), `99,98${NB}%`);
+  assert.equal(V.texteDisponibilite(100), `100${NB}%`);
+  assert.deepEqual([99.97, 99.41, 98.2].map(V.tonDisponibilite), ['succes', 'attention', 'critique']);
+  assert.equal(V.texteGo(4.08), `4,1${NB}Go`);
+  assert.equal(V.texteGo(38.4), `38${NB}Go`);
+  assert.equal(V.texteDebit(1.24), `1,2${NB}Mo/s`);
+  assert.equal(V.moyenneDerniereHeure([90, 90, 10, 20, 30, 40, 50, 60]), 35);
+  assert.equal(V.moyenneDerniereHeure([]), null);
+});
+await dit('jeux de SIM : un seul serveur, des services, 24 h de mesures sans hôte ni adresse', () => {
+  const mm = monde.construireMonde();
+  assert.equal(mm.serveur.length, 1);
+  assert.ok(mm.servicesServeur.length > 0 && mm.mesuresServeur.length >= 100);
+  const texte = JSON.stringify([mm.serveur, mm.servicesServeur]);
+  assert.doesNotMatch(texte, /\b\d{1,3}(?:\.\d{1,3}){3}\b|https?:\/\/|localhost|\.local\b/);
+});
 await dit('coûts : part faite seul sur les opérations branchées, payé du mois sans commission', () => {
   const cs = [
     { mode: 'local', consommationMois: { utilise: 412 }, payeCeMoisCents: 0 },

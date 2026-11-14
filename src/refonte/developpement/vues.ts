@@ -201,3 +201,30 @@ export function partFaiteSeul(connecteurs: readonly { mode: string; consommation
 
 /** Ce qui a été payé ce mois aux connecteurs, en centimes (les commissions sont retenues à l'encaissement, à part). */
 export const payeDuMois = (connecteurs: readonly { payeCeMoisCents: number }[]): number => connecteurs.reduce((s, c) => s + c.payeCeMoisCents, 0);
+
+/** La disponibilité d'un service : « 99,98 % », « 100 % » quand c'est exact (fiche DEV-serveur §6). */
+export function texteDisponibilite(pct: number): string {
+  if (pct >= 100) return '100 %';
+  return `${pct.toFixed(2).replace('.', ',')} %`;
+}
+
+/** Le ton d'une disponibilité sur 30 jours : succès dès 99,9 %, attention dès 99 %, critique en dessous (proposition). */
+export function tonDisponibilite(pct: number): 'succes' | 'attention' | 'critique' {
+  if (pct >= 99.9) return 'succes';
+  if (pct >= 99) return 'attention';
+  return 'critique';
+}
+
+/** « 4,1 Go » sous 10, « 38 Go » au-delà. */
+export function texteGo(go: number): string {
+  return go < 10 ? `${(Math.round(go * 10) / 10).toString().replace('.', ',')} Go` : `${Math.round(go)} Go`;
+}
+
+/** « 1,2 Mo/s ». */
+export const texteDebit = (mo: number): string => `${(Math.round(mo * 10) / 10).toString().replace('.', ',')} Mo/s`;
+
+/** La moyenne des mesures de la dernière heure (6 points de 10 minutes), `null` sans mesure. */
+export function moyenneDerniereHeure(valeurs: readonly number[]): number | null {
+  const fin = valeurs.slice(-6);
+  return fin.length ? fin.reduce((s, x) => s + x, 0) / fin.length : null;
+}
