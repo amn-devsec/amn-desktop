@@ -50,7 +50,7 @@
 .ex-mx02__action em { font-style: normal; font-size: 12.5px; color: var(--socle-texte-2); }
 .ex-mx02__action em[data-ton='succes'] { color: var(--socle-etat-succes); }
 .ex-mx02__action[data-fait='oui'] b { color: var(--socle-texte-3); text-decoration: line-through; }
-.ex-mx02__saisie { box-sizing: border-box; width: 100%; height: 32px; margin-top: auto; padding: 0 10px; border-radius: 8px; border: 1px solid var(--socle-bord-champ); background: var(--socle-champ); color: var(--socle-texte-1); font: inherit; font-size: 12.5px; caret-color: var(--fam-a); }
+.ex-mx02__saisie { box-sizing: border-box; width: 100%; height: 36px; margin-top: auto; padding: 0 10px; border-radius: 8px; border: 1px solid var(--socle-bord-champ); background: var(--socle-champ); color: var(--socle-texte-1); font: inherit; font-size: 12.5px; caret-color: var(--fam-a); }
 .ex-mx02__suggestion { flex: none; display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--socle-bord-suggestion); background: linear-gradient(180deg, var(--socle-suggestion-haut), var(--socle-suggestion-bas)); font-size: 13px; color: var(--socle-texte-1); }
 .ex-mx02__suggestion span { flex: 1; line-height: 18px; }
 .ex-mx02__suggestion .sc-etincelle { color: var(--socle-etat-succes); flex: none; }
@@ -82,8 +82,8 @@
 .ex-mx02__avant { padding-top: 12px; border-top: 1px solid var(--socle-bord-ligne); }
 .ex-mx02__avant p { display: flex; justify-content: space-between; margin: 0 0 8px; font-size: 12px; color: var(--socle-texte-3); }
 .ex-mx02__avant p b { font-size: 13px; color: var(--socle-texte-1); font-weight: 600; }
-.ex-mx02__avant ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
-.ex-mx02__avant li { display: flex; align-items: center; gap: 12px; font-size: 13px; }
+.ex-mx02__avant ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.ex-mx02__avant li { display: flex; align-items: center; gap: 12px; min-height: 36px; font-size: 13px; }
 .ex-mx02__avant li[data-fait='oui'] span { color: var(--socle-texte-3); text-decoration: line-through; }
 .ex-mx02__case { width: 18px; height: 18px; flex: none; padding: 0; border-radius: 50%; border: 1.5px solid var(--socle-case-vide); background: none; color: var(--socle-primaire-encre); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
 .ex-mx02__case[aria-checked='true'] { border-color: transparent; background: linear-gradient(135deg, var(--fam-a), var(--fam-b)); }

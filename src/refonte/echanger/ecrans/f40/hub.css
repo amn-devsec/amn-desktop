@@ -6,8 +6,7 @@
   display: flex;
   gap: 14px;
   margin-top: 15px;
-  flex: 1;
-  min-height: 0;
+  flex: 1 0 auto;
 }
 .ex-f40__pouls {
   flex: 1;

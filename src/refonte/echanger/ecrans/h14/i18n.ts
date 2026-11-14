@@ -1,3 +1,4 @@
+import { EDITION_PRODUCT_NAME } from '../../../../edition/edition';
 import { definirMots } from '../../../../socle/mots';
 
 /**
@@ -37,7 +38,7 @@ export const { useMots, traduire, dictionnaires } = definirMots(
     'suggestion.texte': 'The announcement “{titre}” is not confirmed by everyone. Shall I remind those who have not confirmed it at {rappel}?',
     'suggestion.programmer': 'Schedule',
     'suggestion.non': 'No thanks',
-    'nouveaute': 'What’s new in AMN Business',
+    'nouveaute': 'What’s new in {produit}',
     'nouveaute.toutes': 'All the news',
     'brouillon.titre': 'Share some news',
     'brouillon.champ': 'Title, then a few lines…',
@@ -86,7 +87,7 @@ export const { useMots, traduire, dictionnaires } = definirMots(
     'suggestion.texte': 'L’annonce « {titre} » n’est pas confirmée par tous. Je la rappelle à {rappel} à ceux qui ne l’ont pas confirmée ?',
     'suggestion.programmer': 'Programmer',
     'suggestion.non': 'Non merci',
-    'nouveaute': 'Nouveauté d’AMN Business',
+    'nouveaute': 'Nouveauté de {produit}',
     'nouveaute.toutes': 'Toutes les nouveautés',
     'brouillon.titre': 'Partager une nouvelle',
     'brouillon.champ': 'Titre, puis quelques lignes…',
@@ -105,7 +106,8 @@ export const { useMots, traduire, dictionnaires } = definirMots(
   },
 );
 
-export function libellesDe(tm: (cle: keyof (typeof dictionnaires)['fr'] & string, params?: Record<string, string | number>) => string): Record<string, string> {
+/** `produit` : le nom de l'édition (affichage), jamais écrit en dur. */
+export function libellesDe(tm: (cle: keyof (typeof dictionnaires)['fr'] & string, params?: Record<string, string | number>) => string, produit: string = EDITION_PRODUCT_NAME): Record<string, string> {
   return {
     titre: tm('titre'),
     sousTitre: tm('sousTitre'),
@@ -122,7 +124,7 @@ export function libellesDe(tm: (cle: keyof (typeof dictionnaires)['fr'] & string
     suggestionTitre: tm('suggestion.titre'),
     programmer: tm('suggestion.programmer'),
     nonMerci: tm('suggestion.non'),
-    nouveaute: tm('nouveaute'),
+    nouveaute: tm('nouveaute', { produit }),
     nouveauteToutes: tm('nouveaute.toutes'),
     brouillonTitre: tm('brouillon.titre'),
     brouillonChamp: tm('brouillon.champ'),

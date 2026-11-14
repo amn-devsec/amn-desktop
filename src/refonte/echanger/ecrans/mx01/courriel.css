@@ -8,7 +8,7 @@
 .ex-mx01__dossiers { width: 196px; flex: none; box-sizing: border-box; padding: 14px 10px; display: flex; flex-direction: column; background: color-mix(in srgb, var(--socle-fond-page) 80%, transparent); border-right: 1px solid var(--socle-bord-ligne); overflow: auto; }
 .ex-mx01__titre-rail { margin: 4px 8px 6px; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--socle-texte-3); }
 .ex-mx01__dossiers ul { list-style: none; margin: 0 0 12px; padding: 0; }
-.ex-mx01__dossier { display: flex; align-items: center; gap: 10px; width: 100%; height: 32px; box-sizing: border-box; padding: 0 10px; border: 0; border-radius: 8px; background: none; color: var(--socle-texte-2); font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
+.ex-mx01__dossier { display: flex; align-items: center; gap: 10px; width: 100%; height: 36px; box-sizing: border-box; padding: 0 10px; border: 0; border-radius: 8px; background: none; color: var(--socle-texte-2); font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
 .ex-mx01__dossier:hover { background: var(--socle-ligne-survol); }
 .ex-mx01__dossier[data-actif='oui'] { background: var(--socle-ligne-active); color: var(--socle-texte-1); }
 .ex-mx01__dossier[data-actif='oui'] > svg { color: var(--fam-a); }
@@ -24,7 +24,7 @@
 .ex-mx01__presences li { display: flex; align-items: center; gap: 9px; height: 30px; padding: 0 8px; font-size: 12.5px; color: var(--socle-texte-2); }
 
 .ex-mx01__fils { width: 330px; flex: none; display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--socle-bord-ligne); }
-.ex-mx01__chercher { display: flex; align-items: center; gap: 9px; height: 36px; margin: 14px 14px 10px; padding: 0 12px; box-sizing: border-box; border-radius: 9px; border: 1px solid var(--socle-bord-champ); background: var(--socle-champ); color: var(--socle-texte-3); }
+.ex-mx01__chercher { display: flex; align-items: center; gap: 9px; height: 38px; margin: 14px 14px 8px; padding: 0 12px; box-sizing: border-box; border-radius: 9px; border: 1px solid var(--socle-bord-champ); background: var(--socle-champ); color: var(--socle-texte-3); }
 .ex-mx01__chercher input { flex: 1; min-width: 0; background: none; border: 0; outline: 0; color: var(--socle-texte-1); font: inherit; font-size: 12.5px; }
 .ex-mx01__filtres { display: flex; align-items: center; gap: 6px; padding: 0 14px 10px; }
 .ex-mx01__filtres .ex-puce { height: 24px; cursor: pointer; font: inherit; font-size: 12px; }

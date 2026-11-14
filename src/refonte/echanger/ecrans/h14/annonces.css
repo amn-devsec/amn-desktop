@@ -135,7 +135,7 @@
 .ex-h14__epingle-ligne span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ex-h14__categories { padding: 14px 18px 8px; flex: none; }
 .ex-h14__categories ul { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; }
-.ex-h14__ligne-cat { display: flex; align-items: center; gap: 10px; width: 100%; height: 32px; box-sizing: border-box; padding: 0 8px; border: 0; border-radius: 8px; background: none; color: var(--socle-texte-2); font: inherit; font-size: 13px; cursor: pointer; text-align: left; }
+.ex-h14__ligne-cat { display: flex; align-items: center; gap: 10px; width: 100%; height: 36px; box-sizing: border-box; padding: 0 8px; border: 0; border-radius: 8px; background: none; color: var(--socle-texte-2); font: inherit; font-size: 13px; cursor: pointer; text-align: left; }
 .ex-h14__ligne-cat[data-actif='oui'] { background: var(--socle-sous-element-actif); color: var(--socle-texte-1); }
 .ex-h14__ligne-cat > span:first-of-type { flex: none; }
 .ex-h14__ligne-cat > .ex-mono:last-child { margin-left: auto; font-size: 12px; color: var(--socle-texte-3); }

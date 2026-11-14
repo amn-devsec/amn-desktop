@@ -124,3 +124,22 @@
   transform: translate(-50%, -50%);
 }
 
+/*
+ * LES CIBLES DU SOCLE ET DES CHAMPS (§1.41) : les interrupteurs (34 × 20 au socle), les choix d'un segmenté, les onglets, les cases et les
+ * pastilles de filtre reçoivent la même zone invisible de 36 px au moins ; un champ de recherche remplit son `label` (le champ fait 36 px de haut : le clic tombe sur lui). Les rangées empilées (dossiers, canaux, catégories, cases) ont un pas de 36 px : aucune zone ne
+ * déborde sur celle de sa voisine.
+ */
+.ex-page :is([role='switch'], [role='radio'], [role='tab'], [role='checkbox'], .sc-filtre, .sc-bouton-icone) {
+  position: relative;
+}
+.ex-page :is([role='switch'], [role='radio'], [role='tab'], [role='checkbox'], .sc-filtre, .sc-bouton-icone)::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100%, 36px);
+  height: max(100%, 36px);
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+}
+.ex-mx01__chercher input, .ex-mx04__chercher input { align-self: stretch; }

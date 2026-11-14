@@ -229,7 +229,8 @@
   .ex-g07__contexte { grid-template-columns: repeat(2, 1fr); height: auto; }
 }
 
-.ex-g07__messages { flex: 1; min-height: 0; overflow: auto; padding: 14px 16px 6px; display: flex; flex-direction: column; justify-content: flex-end; }
+.ex-g07__messages { flex: 1; min-height: 0; overflow: auto; padding: 14px 16px 6px; display: flex; flex-direction: column; }
+.ex-g07__messages > ul { margin-top: auto; }
 .ex-g07__messages ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
 .ex-g07__pli > p {
   display: flex;

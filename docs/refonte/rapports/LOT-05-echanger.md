@@ -9,13 +9,13 @@ Les 10 écrans, un commit chacun, dans `src/refonte/echanger/ecrans/<id>/` (`Vue
 | Écran | Route | Aperçu | Écart brut |
 |---|---|---|---|
 | F40 Vue d'ensemble | `/ensemble/echanger` | `npm run apercu -- F40` | 16,6 % |
-| G07 Messagerie (boîte des clients) | `/messagerie` (écran neuf) | `npm run apercu -- G07` | 18,0 % |
+| G07 Messagerie (boîte des clients) | `/messagerie` (écran neuf) | `npm run apercu -- G07` | 18,2 % |
 | H13 Appels et salles | `/appels` | `npm run apercu -- H13` | 22,9 % |
-| H14 Annonces | `/annonces` | `npm run apercu -- H14` | 31,6 % |
+| H14 Annonces | `/annonces` | `npm run apercu -- H14` | 31,9 % |
 | MX01 Courriel | `/courriel` (écran neuf) | `npm run apercu -- MX01` | 20,1 % |
-| MX02 Réunions | `/reunions` | `npm run apercu -- MX02` | 17,0 % |
+| MX02 Réunions | `/reunions` | `npm run apercu -- MX02` | 18,5 % |
 | MX03 Partage de fichiers | `/partages` (écran neuf) | `npm run apercu -- MX03` | 24,3 % |
-| MX04 Canaux | `/groupes` | `npm run apercu -- MX04` | 20,6 % |
+| MX04 Canaux | `/groupes` | `npm run apercu -- MX04` | 18,3 % |
 | MX05 Sondages | `/sondages` | `npm run apercu -- MX05` | 15,6 % |
 | MX06 Réponses automatiques | `/reponses-automatiques` (écran neuf) | `npm run apercu -- MX06` | 20,5 % |
 
