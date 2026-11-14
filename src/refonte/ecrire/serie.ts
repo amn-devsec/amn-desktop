@@ -40,6 +40,9 @@ export function motsParJour(...sources: readonly (readonly ActiviteEcrite[])[]):
   return out;
 }
 
+/** Repos par défaut (décision du CO, STATUT §1.29 n° 1) : samedi et dimanche, réglable. */
+export const JOURS_DE_REPOS_PAR_DEFAUT: readonly number[] = [6, 7];
+
 export interface OptionsSerie {
   /** Jours de repos, en jours ISO (1 = lundi … 7 = dimanche) : sauter un jour de repos ne casse pas la série. */
   joursDeRepos?: readonly number[];
@@ -64,7 +67,7 @@ export interface Serie {
 }
 
 export function serieDEcriture(mots: MotsParJour, aujourdhui: Jour, options: OptionsSerie = {}): Serie {
-  const repos = new Set(options.joursDeRepos ?? []);
+  const repos = new Set(options.joursDeRepos ?? JOURS_DE_REPOS_PAR_DEFAUT);
   const ecrit = (j: Jour) => (mots.get(j) ?? 0) > 0;
   const ecritAujourdhui = ecrit(aujourdhui);
 

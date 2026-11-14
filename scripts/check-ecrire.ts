@@ -125,7 +125,7 @@ const motsMaquette = () => {
 };
 
 await dit('ME01 : 12 jours de suite, record 21, 25 jours écrits, prochain palier 14 dans 2 jours (86 %)', () => {
-  const s = S.serieDEcriture(motsMaquette(), AUJ);
+  const s = S.serieDEcriture(motsMaquette(), AUJ, { joursDeRepos: [] });
   assert.equal(s.serie, 12);
   assert.equal(s.record, 21);
   assert.equal(s.etat, 'en-cours');
@@ -144,17 +144,17 @@ await dit('ME01 : 12 jours de suite, record 21, 25 jours écrits, prochain palie
 await dit('aujourd’hui vide : la série va jusqu’à hier, rien n’est perdu ; un jour de plus se compte', () => {
   const m = motsMaquette();
   m.delete(AUJ);
-  const s = S.serieDEcriture(m, AUJ);
+  const s = S.serieDEcriture(m, AUJ, { joursDeRepos: [] });
   assert.equal(s.serie, 11);
   assert.equal(s.ecritAujourdhui, false);
   assert.equal(s.etat, 'en-cours');
-  assert.equal(S.serieDEcriture(m, '2026-10-30').joursAvantPalier, 3);
+  assert.equal(S.serieDEcriture(m, '2026-10-30', { joursDeRepos: [] }).joursAvantPalier, 3);
   const mois = S.moisEnCases(m, AUJ, AUJ);
   assert.equal(mois.cases[29].etat, 'aujourdhui', 'le jour en cours reste en pointillé tant que rien n’est écrit');
 });
 await dit('série interrompue : elle reprend, sans « 0 » ni reproche ; le record reste ; jamais écrit : première page', () => {
   const m = new Map<string, number>([...jours('2026-10-01', '2026-10-10')].map((j) => [j, 50]));
-  const s = S.serieDEcriture(m, AUJ);
+  const s = S.serieDEcriture(m, AUJ, { joursDeRepos: [] });
   assert.equal(s.serie, 0);
   assert.equal(s.etat, 'reprise');
   assert.equal(s.record, 10);
@@ -165,21 +165,22 @@ await dit('série interrompue : elle reprend, sans « 0 » ni reproche ; le reco
 });
 await dit('les jours de repos ne cassent pas la série ; sans repos, le week-end la casse', () => {
   const m = new Map<string, number>([['2026-10-23', 40], ['2026-10-26', 40], ['2026-10-27', 40]]);
-  assert.equal(S.serieDEcriture(m, '2026-10-27').serie, 2, 'samedi et dimanche non écrits la cassent');
+  assert.equal(S.serieDEcriture(m, '2026-10-27', { joursDeRepos: [] }).serie, 2, 'samedi et dimanche non écrits la cassent');
   assert.equal(S.serieDEcriture(m, '2026-10-27', { joursDeRepos: [6, 7] }).serie, 3);
   assert.equal(S.serieDEcriture(m, '2026-10-27', { joursDeRepos: [6, 7] }).record, 3);
+  assert.equal(S.serieDEcriture(m, '2026-10-27').serie, 3, 'repos par défaut : samedi et dimanche (décision du CO, §1.29 n° 1)');
 });
 await dit('les paliers : 7, 14, 21, 30, 60, 100 ; au-delà du dernier, plus de palier', () => {
   assert.deepEqual([...S.PALIERS_SERIE], [7, 14, 21, 30, 60, 100]);
   const longue = new Map<string, number>(jours('2026-06-01', AUJ).map((j) => [j, 10]));
-  const s = S.serieDEcriture(longue, AUJ);
+  const s = S.serieDEcriture(longue, AUJ, { joursDeRepos: [] });
   assert.equal(s.serie, 152);
   assert.equal(s.prochainPalier, null);
   assert.equal(s.joursAvantPalier, null);
   assert.equal(s.progression, 1);
 });
 await dit('badges de F20 : sur la série en cours (7 jours obtenu, 14 et Record 21 en pointillé)', () => {
-  const s = S.serieDEcriture(motsMaquette(), AUJ);
+  const s = S.serieDEcriture(motsMaquette(), AUJ, { joursDeRepos: [] });
   assert.deepEqual(S.badgesDeSerie(s), [
     { genre: 'palier', valeur: 7, obtenu: true },
     { genre: 'palier', valeur: 14, obtenu: false },
@@ -207,7 +208,7 @@ await dit('H10 : les 7 disques de la semaine (L M M J V S D) : 5 cochés, samedi
   assert.equal(S.semaineEnDisques(m, AUJ)[4].etat, 'en-cours');
 });
 await dit('phrases : « Belle série · prochain palier : 14 jours, dans 2 jours », reprise, première page, conseil du jour', () => {
-  const s = S.serieDEcriture(motsMaquette(), AUJ);
+  const s = S.serieDEcriture(motsMaquette(), AUJ, { joursDeRepos: [] });
   assert.equal(PH.phraseDeSerie(s, 'fr'), 'Belle série · prochain palier : 14 jours, dans 2 jours');
   assert.equal(PH.phraseDeSerie(s, 'en'), 'Nice streak · next milestone: 14 days, in 2 days');
   assert.equal(PH.phraseDeSerie({ ...s, etat: 'reprise' }, 'fr'), 'La série reprend aujourd’hui');
