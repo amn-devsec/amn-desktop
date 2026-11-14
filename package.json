@@ -94,6 +94,8 @@
     "check:contacts": "node --experimental-strip-types --disable-warning=ExperimentalWarning --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-contacts.ts",
     "check:argent": "node --experimental-strip-types --disable-warning=ExperimentalWarning --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-argent.ts",
     "check:connecteurs": "node --experimental-strip-types --disable-warning=ExperimentalWarning --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-connecteurs.ts",
+    "check:fidelite": "node scripts/qualite/fidelite/garde.mjs",
+    "test:fidelite": "node --test tests/fidelite/comparer.test.mjs tests/fidelite/decision.test.mjs",
     "check:clavier": "node scripts/check-clavier.mjs",
     "gardes": "node scripts/gardes-navigateur.mjs",
     "seed:essai": "node scripts/seed-essai.mjs",

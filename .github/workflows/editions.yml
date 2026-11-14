@@ -172,6 +172,8 @@ jobs:
       - name: L’argent (LOT-04) — facturation, TVA, impayés, trésorerie, cas écrits à l’avance, banque en lecture seule
         run: npm run check:argent
 
+      - name: Fidélité aux images v4 — tests de la règle de décision (les images restent hors du dépôt)
+        run: npm run test:fidelite
       - name: Contrôle de la file d'envoi
         run: npm run check:envoi
 
