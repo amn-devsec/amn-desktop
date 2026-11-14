@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Eye, Package, Pencil, Plus, Search, Star, X } from 'lucide-react';
+import { Download, Eye, Package, Pencil, Plus, Search, Star, X } from 'lucide-react';
 import { PageHead, SuggestionAjmani } from '../../../../socle/ui';
 import { FilterChips } from '../../../../socle/ui/vivant';
 import { formaterEuro } from '../../commun';
@@ -46,15 +46,16 @@ export function VueCatalogue(p: VueCatalogueProps) {
       <PageHead
         titre={tm('titre')}
         sousTitre={nomVedette ? `${tm('sous')} · ${tm('sous.vedette', { nom: nomVedette })}` : tm('sous')}
-        secondaires={[{ libelle: tm('importer'), onClick: p.onImporter ?? (() => undefined) }]}
-        primaire={{ libelle: tm('nouveau'), onClick: p.onNouveau ?? (() => undefined) }}
+        secondaires={[{ libelle: tm('importer'), onClick: p.onImporter ?? (() => undefined), icone: <Download size={14} aria-hidden /> }]}
+        primaire={{ libelle: tm('nouveau'), onClick: p.onNouveau ?? (() => undefined), icone: <Plus size={14} aria-hidden /> }}
       />
+      <div className="cr-catalogue" data-ouvert={!!choisi}>
+        <div className="cr-catalogue__gauche">
       <div className="cr-materiel-barre">
         <FilterChips libelle={tm('titre')} valeur={filtre} onChange={(c) => setFiltre(c as Filtre)} puces={FILTRES.map((f) => ({ cle: f, libelle: tm(`puce.${f}` as 'puce.tout'), compteur: compte(f) }))} />
         <label className="cr-recherche"><Search size={14} aria-hidden /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder={tm('chercher')} aria-label={tm('chercher')} /></label>
         <span className="cr-parc"><i className="cr-anneau-mini" style={{ ['--pct' as string]: fc.total ? (fc.completes / fc.total) * 100 : 0 }} />{tm('complet', { a: fc.completes, b: fc.total })}</span>
       </div>
-      <div className="cr-catalogue" data-ouvert={!!choisi}>
         {actifs.length === 0 ? <section className="cr-carte" style={{ padding: 32 }}><h2 style={{ margin: 0 }}>{tm('vide.titre')}</h2><p className="cr-t3">{tm('vide.texte')}</p></section> : (
           <div className="cr-mosaique">
             {liste.map((x) => {
@@ -74,6 +75,7 @@ export function VueCatalogue(p: VueCatalogueProps) {
             <button type="button" className="cr-tuile-produit cr-tuile-produit--ajout sc-focus" onClick={p.onNouveau}><Plus size={16} aria-hidden /><small>{tm('nouveauTuile')}</small></button>
           </div>
         )}
+        </div>
         {choisi && (
           <aside className="cr-carte cr-fiche-produit" aria-label={choisi.nom} data-mvt="entree">
             <header><small>{tm('fiche.titre')}</small>
