@@ -46,7 +46,7 @@ export const jourFrancais = (j: Jour): string => j.split('-').reverse().join('/'
  * quand un voisin est trop proche : la zone d'une cible ne doit jamais couvrir le centre, ni la moitié centrale, d'une autre cible.
  * Jamais plus petite que la cible elle-même (deux cibles qui se touchent déjà se recouvrent par leur dessin, rien à faire de plus).
  */
-export function zonesDeClic(cibles: readonly { x: number; y: number; r: number }[], cote = 36): number[] {
+export function zonesDeClic(cibles: readonly { x: number; y: number; r: number }[], cote = 38): number[] {
   return cibles.map((a, i) => {
     let demi = cote / 2;
     cibles.forEach((b, j) => {

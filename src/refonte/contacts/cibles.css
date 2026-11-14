@@ -1,9 +1,9 @@
 /*
-  LOT-02 — zones de clic de 36 px (STATUT §1.39). Le dessin suit la fiche v4 ; chaque cible reçoit une zone de clic invisible
+  LOT-02 — zones de clic de 38 px (STATUT §1.39). Le dessin suit la fiche v4 ; chaque cible reçoit une zone de clic invisible
   d'au moins 34 px × 34 px, comme le socle le fait pour PageHead, l'interrupteur et les cases. T1 mesure la zone, pas le dessin.
 
   · les boutons du socle (`Bouton`) et les petits boutons des écrans (listés ici) portent un pseudo-élément transparent
-    centré, de 36 px au moins, qui reçoit le clic ;
+    centré, de 38 px au moins, qui reçoit le clic ;
   · les points et pastilles dessinés en SVG ont un cercle ou un carré transparent (`.sc-ct-zone`) de 34 px sous le dessin ;
   · sur un nuage dense, deux zones voisines se recouvrent : c'est la dernière dessinée qui reçoit le clic, le dessin ne bouge pas.
   Chargée par `Page` de chaque écran (classe `sc-ct-cibles`).
@@ -14,8 +14,8 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: max(100%, var(--sc-zone, 36px));
-  height: max(100%, var(--sc-zone, 36px));
+  width: max(100%, var(--sc-zone, 38px));
+  height: max(100%, var(--sc-zone, 38px));
   transform: translate(-50%, -50%);
 }
 :where(.sc-ct-cibles) :where(.sc-ct-modules__tous, .sc-ct-point, .sc-cl__resp, .sc-cl__affichage button, .sc-cl-portefeuille__fleche, .sc-fc-id__modifier, .sc-fc-coordonnees__copier, .sc-rt-theme, .sc-rt-tag, .sc-fo-puce, .sc-pe-plus, .sc-eq-icone, .sc-eq-lien, .sc-rd-fleche, .sc-rd-puce, .sc-pl-reglages__tete button) { position: relative; }

@@ -2594,12 +2594,12 @@ await dit('MC07 · textes : mêmes clés en fr et en, mêmes paramètres, compte
   for (const k of ['client.chaleureux.intro', 'client.chaleureux.fin', 'client.bref.fin', 'client.sujet.facture', 'client.sujet.devis', 'client.sujet.rendez-vous', 'client.sujet.prospect', 'client.sujet.inactif']) assert.ok(!TUTOIEMENT.test(DICO.fr[k]), `${k} tutoie`);
 });
 
-await dit('zones de clic (§1.39, §1.41) : 36 px au plus, bornées par les voisins, jamais sous la cible ; deux points au même endroit sont écartés, les isolés ne bougent pas', () => {
+await dit('zones de clic (§1.39, §1.41) : 38 px au plus, bornées par les voisins, jamais sous la cible ; deux points au même endroit sont écartés, les isolés ne bougent pas', () => {
   const seul = L.zonesDeClic([{ x: 100, y: 100, r: 3 }]);
-  assert.deepEqual(seul, [36]);
+  assert.deepEqual(seul, [38]);
   const voisins = L.zonesDeClic([{ x: 100, y: 100, r: 3 }, { x: 112, y: 100, r: 3 }, { x: 300, y: 100, r: 3 }]);
   assert.ok(voisins[0] < 36 && voisins[0] >= 6, `bornée par le voisin : ${voisins[0]}`);
-  assert.equal(voisins[2], 36, 'un point isolé garde 36 px');
+  assert.equal(voisins[2], 38, 'un point isolé garde 38 px');
   const colles = L.zonesDeClic([{ x: 100, y: 100, r: 4 }, { x: 101, y: 100, r: 4 }]);
   assert.deepEqual(colles, [8, 8], 'jamais sous la taille de la cible');
   const m = L.ecarterPoints([{ x: 50, y: 50, r: 3 }, { x: 50, y: 50, r: 3 }, { x: 50, y: 50, r: 3 }, { x: 300, y: 80, r: 3 }]);

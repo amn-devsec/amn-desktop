@@ -15,7 +15,7 @@
 
 /* La liste. */
 .sc-pe-liste__tete { display: flex; flex-direction: column; gap: 10px; padding: 14px 14px 8px; }
-.sc-pe-liste__corps { flex: 1 1 0; min-height: 0; overflow-y: auto; }
+.sc-pe-liste__corps { flex: 1 1 0; min-height: 0; overflow-y: auto; padding-bottom: 12px; }
 .sc-pe-groupe { margin: 0; padding: 10px 14px 6px; font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--socle-texte-3); }
 .sc-pe-ligne { position: relative; display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; align-items: center; gap: 10px; width: 100%; height: 50px; padding: 0 14px; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
 .sc-pe-ligne:hover { background: var(--socle-ligne-survol); }

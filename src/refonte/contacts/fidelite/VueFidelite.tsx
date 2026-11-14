@@ -169,7 +169,7 @@ function Pose({ c, y, jour, nb, gardee, onOuvrir, niveauSuivantY }: { c: ClientP
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOuvrir(c.clientId); } }}
         className="sc-fi-carre"
       >
-        <rect x={x - 18} y={haut - 5} width={36} height={36} className="sc-ct-zone" />
+        <rect x={x - 19} y={haut - 6} width={38} height={38} className="sc-ct-zone" />
         <rect x={x - 13} y={haut} width={26} height={26} rx={7} />
         <text x={x} y={haut + 17} textAnchor="middle" className="sc-fi-carre__lettre">{c.initiale}</text>
         <title>{tm('client.info', { nom: c.nom, points: nb(c.points), jour: jour(c.derniereActiviteLe) })}</title>

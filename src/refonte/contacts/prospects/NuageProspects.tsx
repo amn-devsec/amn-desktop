@@ -105,7 +105,7 @@ export function NuageProspects({ modele, points, actifId, figeId, onSurvol, onCh
         return (
           <g key={p.id} role="presentation" onMouseEnter={() => onSurvol(p.id)} onMouseLeave={() => onSurvol(null)} onClick={() => onChoisir(p.id)}>
             {/* Zone de clic invisible de 34 px au moins (STATUT §1.39) : les événements remontent à ce groupe. */}
-            <circle cx={g.x} cy={g.y} r={(zoneDe.get(p.id) ?? 36) / 2} className="sc-ct-zone" />
+            <circle cx={g.x} cy={g.y} r={(zoneDe.get(p.id) ?? 38) / 2} className="sc-ct-zone" />
             {actif && <circle cx={g.x} cy={g.y} r={g.r + 6} className="sc-pr-nuage__halo" />}
             <circle
               cx={g.x}
