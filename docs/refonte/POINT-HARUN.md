@@ -1,8 +1,8 @@
 # Point pour Harun
 
-> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 12h45 UTC., 10h15 UTC., 10h00 UTC., 10h00 UTC., 09h35 UTC., 09h00 UTC., 08h40 UTC., 08h20 UTC., 08h00 UTC.
+> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 12h50 UTC., 10h15 UTC., 10h00 UTC., 10h00 UTC., 09h35 UTC., 09h00 UTC., 08h40 UTC., 08h20 UTC., 08h00 UTC.
 
-**Compteurs** (14 nov., 12h15) : **écrans construits 67 / 153, livrés 63** (LOT-00 9, LOT-06 Créer et produire 15, LOT-11 Développement 7, LOT-02 Contacts 13, LOT-03 Écrire et retenir 9, **LOT-05 Échanger 10**) · **lots préparés 9 / 13, lots finis 5 / 13** · **écrans livrés depuis la veille : 63**. LOT-01 Ma journée est en construction (S7 et S1). La courbe : `STATUT.md`, « Vitesse ».
+**Compteurs** (14 nov., 12h15) : **écrans construits 72 / 153, livrés 63** (LOT-00 9, LOT-06 Créer et produire 15, LOT-11 Développement 7, LOT-02 Contacts 13, LOT-03 Écrire et retenir 9, **LOT-05 Échanger 10**) · **lots préparés 9 / 13, lots finis 5 / 13** · **écrans livrés depuis la veille : 63**. LOT-01 Ma journée est en construction (S7 et S1). La courbe : `STATUT.md`, « Vitesse ».
 
 **À ton réveil, une ligne à coller dans la session S0** (rien d'urgent, le reste avance sans elle) :
 
