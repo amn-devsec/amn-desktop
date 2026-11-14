@@ -1338,17 +1338,21 @@ Lire `05-CYBER-MODELE-COMMUN.md` : consentement d'abord (accord signé, périmè
 
 ### LOT-11 · Développement — `claude/refonte-developpement` — 7 images (6 écrans), plus une vue d'ensemble à proposer
 
-Brief : `07-ESPACE-DEV.md`. Entrée de barre latérale au-dessus de « Surveillance ». Fiches écrites par S8 le 12 nov. : [`fiches/LOT-11/`](fiches/LOT-11/00-COMMUN.md), **relues par Harun le 12 nov.** (8 décisions, tableau en tête de `00-COMMUN.md`), alignées sur les décisions du CO (§1.17, §1.19) ; barre latérale : section « ESPACES DE TRAVAIL » de l'image, sous-liste du socle §0.1 (5 lignes, puis « + N autres »). Construction au feu vert du CO (socle v4 fusionné, fiches relues). Préparation : [`preparation/LOT-11-developpement.md`](preparation/LOT-11-developpement.md) (inventaire, dépendances, 7 constats pour le CO au §5) ; logique pure dans `src/refonte/developpement/` (journal des exécutions, tâches planifiées locales, état des déploiements), garde `check:developpement` (51 contrôles, en CI).
+Brief : `07-ESPACE-DEV.md`. Fiches : [`fiches/LOT-11/`](fiches/LOT-11/00-COMMUN.md), relues par Harun le 12 nov. (tableau en tête de `00-COMMUN.md`), alignées sur §1.17, §1.19 et §1.23. Préparation : [`preparation/LOT-11-developpement.md`](preparation/LOT-11-developpement.md). **Construction en cours depuis le 14 nov.** (feu vert §1.35), écrans dans `src/refonte/developpement/`, garde `check:developpement` (62 contrôles, en CI).
+
+- **Source des écrans** (`donnees.tsx`) : amn-api n'a aucune collection pour le lot. Les jeux fictifs de SIM ne s'affichent que pour un compte d'essai `@exemple.test`, avec l'étiquette « Données d'exemple » ; tout autre compte voit l'état « à brancher », jamais une donnée inventée.
+- **Bloqué, en attente du CO** : la déclaration des 6 écrans neufs au registre (`check:navigation`, instantanés 101 entrées / `ecransNeufs` / `NAV_EN`) et les signaux de la barre (`check:socle-coquille`, ligne 769). Fichiers prêts, hors du dépôt tant que la décision n'est pas prise. D'ici là, seul le hub est monté (substitution) ; les routes `/developpement/*` ne le sont pas.
+- **Captures** : banc statique hors dépôt (coquille du socle, jeux de SIM, 1440 × 900, réseau coupé), amn-api n'ayant pas pu être attaché à cette session. Mesure de `comparer.mjs` (T1) indicative : la barre latérale diffère de l'image (écart accepté §1.17 n° 1) et les données d'exemple aussi. T1 refait la mesure.
 
 | ID | Écran | Type | État | Écart / note |
 |---|---|---|---|---|
-| DEV-ensemble | Développement · Vue d'ensemble | nouveau | fiche validée par Harun | aucune image : sur le modèle des hubs ; 8e hub `/ensemble/developpement` accepté (§1.17 n° 2), posé par S0 |
-| DEV-projets | Développement · Projets de code | nouveau | fiche écrite | attend le connecteur Code (LOT-12) |
-| DEV-deploiements | Développement · Déploiements | mixte | fiche écrite | attend le connecteur Hébergement (LOT-12) ; logique pure livrée (`deploiements.ts`) ; total mesuré de bout en bout (étapes de l'image : 113 s ≠ 1 min 48) ; cible « Interne » inerte (§1.17 n° 6) |
-| DEV-serveur | Développement · Serveur et santé | nouveau | fiche écrite | lié à LOT-13 (reporté) : état « serveur non branché » |
-| DEV-editeur | Développement · Éditeur de flux | mixte | fiche écrite | logique livrée (`journal.ts`, `planification.ts`) ; format des blocs avec Sinon / Puis : S9, relu par S6 (§1.17 n° 7) ; mode API : LOT-12 ; écart : « Éditeur de flux » partout, l'image dit « Éditeur d'automatisation » en h1 (§1.17 n° 4) |
-| DEV-couts | Développement · Coûts et API | nouveau | fiche écrite | modèle de LOT-12 (S9) ; comptes calculés depuis les connecteurs réels (§1.17 n° 5) ; écart : l'image dit « 5 sur 7 » pour 4 lignes « Local » |
-| DEV-modeles-sites | Développement · Modèles de sites (et vue code) | nouveau | fiche écrite | famille Développement, seconde entrée possible dans Créer et produire (§1.17 n° 3) ; prototype v3 gris : néon et tutoiement à appliquer |
+| DEV-ensemble | Développement · Vue d'ensemble | nouveau | fait | `/ensemble/developpement` (substitution, 8e hub). Un jeton par poste (« deux au plus ») pour tenir au-dessus de la barre Ajmani ; « Personnaliser » inactif (réordonner : plus tard) |
+| DEV-projets | Développement · Projets de code | nouveau | fait | carte d'activité par semaine (le jeu n'a pas de commits par jour : aucune case inventée) ; « tests verts » = part des dépôts verts. Écart brut 39,8 %, disposition 17,4 % (barre latérale et données d'exemple) |
+| DEV-deploiements | Développement · Déploiements | mixte | fait | `PageDeploiements.tsx`. Total mesuré de bout en bout ; « Revenir » : une ligne de confirmation sauf Aperçu (§1.23) ; « Déployer » et « Planifier » inactifs jusqu'au connecteur Hébergement ; cible « Interne » inerte. Écart brut 34,3 %, disposition 14,7 % |
+| DEV-serveur | Développement · Serveur et santé | nouveau | fait | « Redémarrer » secondaire et inerte, « Relancer » inerte (LOT-13) ; courbes cadrées sur la plus haute mesure, comme l'image |
+| DEV-editeur | Développement · Éditeur de flux | mixte | en cours | « Éditeur de flux » partout (§1.17 n° 4) ; format des blocs : S9 |
+| DEV-couts | Développement · Coûts et API | nouveau | à faire | comptes calculés (§1.17 n° 5) ; plafond demandé au premier outil payant (Harun) |
+| DEV-modeles-sites | Développement · Modèles de sites (et vue code) | nouveau | à faire | famille Développement (§1.17 n° 3) ; modèles livrés après relecture de Harun |
 
 ### LOT-12 · Connecteurs et autonomie — `claude/refonte-connecteurs` — aucun écran
 
