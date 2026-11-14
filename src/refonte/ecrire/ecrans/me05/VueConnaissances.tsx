@@ -136,7 +136,7 @@ export function VueConnaissances(p: VueConnaissancesProps) {
 
         <section className="ec-carte ec-me05__lecture" aria-label={l.article}>
           {p.article ? (
-            <>
+            <div className="ec-me05__texte">
               <p className="ec-me05__chemin">{p.article.chemin.join(' / ')}</p>
               <h2>{p.article.titre}</h2>
               <p className="ec-me05__meta">
@@ -175,7 +175,7 @@ export function VueConnaissances(p: VueConnaissancesProps) {
               </ol>
               )}
               {p.article.suggestion && <InlineSuggestion texte={p.article.suggestion.texte} onOui={p.article.suggestion.onOui} onNon={p.article.suggestion.onNon} libelleOui={p.article.suggestion.oui} libelleNon={p.article.suggestion.non} />}
-            </>
+            </div>
           ) : (
             <div className="ec-vide">
               <h2>{l.videTitre}</h2>
@@ -185,43 +185,43 @@ export function VueConnaissances(p: VueConnaissancesProps) {
               </Bouton>
             </div>
           )}
-        </section>
-
-        {p.droite && (
-          <aside className="ec-me05__droite" aria-label={l.surCettePage}>
-            <section className="ec-carte ec-me05__bloc">
-              <h3>{p.droite.plan.entete}</h3>
-              <ol className="ec-me05__plan">
-                {p.droite.plan.items.map((i) => (
-                  <li key={i.rang} data-actif={i.actif ? 'oui' : undefined}>
-                    {i.rang}. {i.titre}
-                  </li>
-                ))}
-              </ol>
-              <span className="ec-me05__progression" role="img" aria-label={p.droite.plan.pied}>
-                <i style={{ width: `${Math.round(p.droite.plan.progression * 100)}%` }} />
-              </span>
-              <p className="ec-discret">{p.droite.plan.pied}</p>
-            </section>
-            {p.droite.voirAussi && (
-              <section className="ec-carte ec-me05__bloc">
-                <h3>{p.droite.voirAussi.entete}</h3>
-                <ul className="ec-me05__aussi">
-                  {p.droite.voirAussi.items.map((i) => (
-                    <li key={i.id}>
-                      <button type="button" onClick={() => p.droite?.voirAussi?.onOuvrir(i.id)}>
-                        <FileText size={13} aria-hidden />
-                        <span>{i.titre}</span>
-                        <b>{i.duree}</b>
-                      </button>
+          {p.droite && (
+            <aside className="ec-me05__droite" aria-label={l.surCettePage}>
+              <section className="ec-me05__bloc">
+                <h3>{p.droite.plan.entete}</h3>
+                <ol className="ec-me05__plan">
+                  {p.droite.plan.items.map((i) => (
+                    <li key={i.rang} data-actif={i.actif ? 'oui' : undefined}>
+                      {i.rang}. {i.titre}
                     </li>
                   ))}
-                </ul>
-                {p.droite.dernierLecteur && <p className="ec-discret ec-me05__lu">{p.droite.dernierLecteur}</p>}
+                </ol>
+                <span className="ec-me05__progression" role="img" aria-label={p.droite.plan.pied}>
+                  <i style={{ width: `${Math.round(p.droite.plan.progression * 100)}%` }} />
+                </span>
+                <p className="ec-discret">{p.droite.plan.pied}</p>
               </section>
-            )}
-          </aside>
-        )}
+              {p.droite.voirAussi && (
+                <section className="ec-me05__bloc">
+                  <h3>{p.droite.voirAussi.entete}</h3>
+                  <ul className="ec-me05__aussi">
+                    {p.droite.voirAussi.items.map((i) => (
+                      <li key={i.id}>
+                        <button type="button" onClick={() => p.droite?.voirAussi?.onOuvrir(i.id)}>
+                          <FileText size={13} aria-hidden />
+                          <span>{i.titre}</span>
+                          <b>{i.duree}</b>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                  {p.droite.dernierLecteur && <p className="ec-discret ec-me05__lu">{p.droite.dernierLecteur}</p>}
+                </section>
+              )}
+            </aside>
+          )}
+        </section>
+
       </div>
     </div>
   );

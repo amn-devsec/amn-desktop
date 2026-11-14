@@ -4,7 +4,7 @@
  */
 .ec-me05__question {
   margin-top: 14px;
-  padding: 14px 16px;
+  padding: 12px 16px;
   flex: none;
   flex-direction: row;
   gap: 18px;
@@ -145,8 +145,17 @@
 .ec-me05__lecture {
   flex: 1;
   min-width: 0;
-  padding: 18px 24px 14px;
+  flex-direction: row;
+  gap: 22px;
+  padding: 18px 20px 14px 24px;
   overflow: hidden;
+}
+.ec-me05__texte {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 .ec-me05__chemin {
   margin: 0;
@@ -231,7 +240,7 @@
   color: var(--socle-etat-attention);
 }
 .ec-me05__droite {
-  width: 214px;
+  width: 206px;
   flex: none;
   display: flex;
   flex-direction: column;
@@ -241,6 +250,9 @@
 .ec-me05__bloc {
   padding: 14px 14px;
   flex: none;
+  border-radius: 12px;
+  border: 1px solid var(--socle-bord-sous-carte);
+  background: var(--socle-sous-carte);
 }
 .ec-me05__bloc h3 {
   margin: 0 0 10px;

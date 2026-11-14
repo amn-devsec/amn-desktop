@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Check, FileText, Folder, History, Plus, Search, Share2 } from 'lucide-react';
 import { Avatar, Bouton, LiveDot, PageHead, PileAvatars, Raccourci, SuggestionAjmani } from '../../../../socle/ui';
+import '../commun/ecran.css';
 import './notes.css';
 
 /**

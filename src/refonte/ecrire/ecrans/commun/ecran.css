@@ -106,3 +106,51 @@
 .ec-mono {
   font-family: var(--socle-police-mono);
 }
+
+/*
+ * LES CIBLES (décision du CO, STATUT §1.39) : le dessin des fiches v4 est gardé (boutons de 31 px, disques de 26 px…), mais
+ * toute cible a une zone de clic INVISIBLE de 34 px au moins, comme le socle le fait pour `PageHead` et l'interrupteur
+ * (`::after` centré sur la cible, sans changer sa taille ni la mise en page).
+ */
+:is(.ec-page, .ec-f20, .ec-h10) :is(
+    [data-socle='bouton'],
+    .sc-puce,
+    button.ec-puce,
+    .ec-me01__jour,
+    .ec-me01__fleches button,
+    .ec-me02__onglet,
+    .ec-me05__rubrique,
+    .ec-me05__article,
+    .ec-me05__aussi button,
+    .ec-h10__element,
+    .ec-f20__ligne-action,
+    .ec-h11__onglet,
+    .ec-me04__annee,
+    .ec-me05__source button
+  ) {
+  position: relative;
+}
+:is(.ec-page, .ec-f20, .ec-h10) :is(
+    [data-socle='bouton'],
+    .sc-puce,
+    button.ec-puce,
+    .ec-me01__jour,
+    .ec-me01__fleches button,
+    .ec-me02__onglet,
+    .ec-me05__rubrique,
+    .ec-me05__article,
+    .ec-me05__aussi button,
+    .ec-h10__element,
+    .ec-f20__ligne-action,
+    .ec-h11__onglet,
+    .ec-me04__annee,
+    .ec-me05__source button
+  )::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100%, 34px);
+  height: max(100%, 34px);
+  transform: translate(-50%, -50%);
+}

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Settings2, Plus } from 'lucide-react';
 import { Avatar, Bouton, CountBadge, FilterChips, InlineSuggestion, ModuleTile, PageHead, PileAvatars, Raccourci, LiveDot } from '../../../../socle/ui';
 import type { Segment } from '../../relecture';
+import '../commun/ecran.css';
 import './hub.css';
 
 /**
