@@ -1,9 +1,27 @@
 # Point pour Harun
 
-> Réécrit par le CO. Dernière mise à jour : 14 nov., 16h00 UTC. La boucle tourne.
+> Réécrit par le CO. Dernière mise à jour : 14 nov., 16h15 UTC. La boucle tourne ; ton plan « Bureau de travail » est en tête.
 
 **Compteurs** (14 nov., 15h35) : **écrans construits 79 / 153, livrés 79** · **lots préparés 9 / 13, lots finis 6 / 13** · **écrans livrés depuis la veille : 79**.
 Lots livrés : LOT-01 Ma journée (16), LOT-02 Contacts (13), LOT-03 Écrire et retenir (9), LOT-05 Échanger (10), LOT-06 Créer et produire (15), LOT-11 Développement (7), et les 9 écrans de LOT-00 du socle. Tout ce qui est construit est livré. T1 a vérifié vivante en entier à 14h00 : 77 contrôles sur 77, et la fidélité des six lots dans les seuils. La courbe : `STATUT.md`, « Vitesse ».
+
+## Ton plan « Bureau de travail » (direction du 14 nov., en priorité)
+
+Le plan complet est dans [`PLAN-BUREAU-DE-TRAVAIL.md`](PLAN-BUREAU-DE-TRAVAIL.md). En bref :
+- **Principe** : chaque outil marche sans IA. Ajmani reste un raccourci, et l'IA, quand elle sert (retrait de fond, sous-titres, voix), est **locale et en option**, avec un geste manuel à côté. Les outils sont gratuits ou ouverts et tournent sur le poste. On préfère les licences MIT, Apache ou MPL, et **jamais d'AGPL**. Le jeu est **collectif** (un carnet d'atelier d'équipe, des paliers communs, des célébrations), sans chiffre individuel ni classement.
+- **Les 8 modèles de sites** : **aucun n'est livré dans l'application** (la liste est vide en attendant ta relecture des textes). Les 8 de l'aperçu ont été écrits par S8 pour mesurer l'écran : une seule page générique en 8 couleurs, avec des noms fictifs pris sur l'image v4 (Optique Lumière, Atelier Marceau, La Table de Marcel, Prestige Drive, Veillance, Lina Bardet, Maison Karim, Studio Souffle). **Je n'en garderais aucun** : ce sont des modèles de remplissage. Leurs 8 secteurs servent de liste de départ.
+- **Cinq nouveaux lots**, chacun commencé par une note de préparation, puisqu'aucune fiche v4 n'existe :
+  - **LOT-14 Modèles de sites v2** (S2) : bibliothèque pour 100 modèles et plus, avec filtres et vignettes progressives ; inspecteur au clic ; copie du site, d'une section ou d'un composant ; porte de qualité (signes-ia à 0, accessibilité, responsive, performance, code actuel, ta relecture).
+  - **LOT-15 Studio de contenu** (S9) : formats, retouche par lot, retrait de fond, vidéo (coupe, sous-titres, voix off, jamais de musique par défaut), médias, kit de marque, calendrier.
+  - **LOT-16 Atelier développement** (S5) : extraits, outils du quotidien, contrôle SEO, accessibilité et performance, assistant de lancement de projet.
+  - **LOT-17 Atelier cyber** (S8, après LOT-10, relu par S6) : CVE depuis des sources publiques gratuites, rapports d'audit, listes de contrôle, périmètres autorisés. Les 4 CYB-* restent exclus.
+  - **LOT-18 Métiers d'AMN** (F1) : fiche d'intervention de dépannage (hatf), échéances et rapport mensuel de maintenance, contrats et générateur légal (avec un juriste avant tout usage réel), suivi du temps, brief client, kit de livraison.
+- **Ordre** : les lots en cours gardent leur priorité (LOT-04, 07, 08, 10, le socle). Les cinq nouveaux démarrent par leur note de préparation, en parallèle.
+
+**Tes questions**
+1. **La liste des sites faits par AMN**, dont ceux de ta base de projets Claude, pour choisir les premiers modèles. Pour chacun : fait pour un client ou non, et si l'accord du client existe.
+2. **L'accord des clients** : qui le demande (toi, Mohamed ?) et sous quelle forme (un courriel suffit-il ?). Sans accord, le site reste une référence privée, hors du dépôt public.
+3. **Les sources de vulnérabilités** (CISA, NVD, OSV) demandent un accès réseau sortant. Elles sont gratuites et publiques, et interrogées seulement à la demande. Recommandation : oui.
 
 ## Lignes à coller (ton accord direct, que ces sessions demandent)
 
