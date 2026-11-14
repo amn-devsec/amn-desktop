@@ -22,7 +22,7 @@ const V = await charger<{
 }>({ code: "export * from '../src/socle/mots/voix';" });
 
 /** Ce qui est passé au tutoiement. Un lot y ajoute son dossier quand il passe ses textes au tutoiement. */
-export const PERIMETRE = ['src/socle', 'src/refonte/coquille', 'src/refonte/compteurs', 'src/refonte/systeme', 'scripts/apercu'];
+export const PERIMETRE = ['src/socle', 'src/refonte/coquille', 'src/refonte/compteurs', 'src/refonte/systeme', 'scripts/apercu', 'src/refonte/argent'];
 
 /**
  * LES ZONES CLIENT : des textes destinés à un client, qui gardent le vouvoiement (courriels, devis, factures,
@@ -30,6 +30,9 @@ export const PERIMETRE = ['src/socle', 'src/refonte/coquille', 'src/refonte/comp
  */
 export const ZONES_CLIENT: readonly { fichier: string; debut: string; raison: string }[] = [
   { fichier: 'scripts/apercu/ecrans/G05-ajmani.tsx', debut: 'Bonjour, sauf erreur de notre part', raison: 'le brouillon de relance montré par l’aperçu de G05 : il part chez le client' },
+  { fichier: 'src/refonte/argent/i18n.ts', debut: 'Bonjour, sauf erreur de notre part, la facture', raison: 'la relance 1 de MA04 (clé client.relance.relance-1) : elle part chez le client' },
+  { fichier: 'src/refonte/argent/i18n.ts', debut: 'Bonjour, la facture {numero}', raison: 'la relance 2 de MA04 (clé client.relance.relance-2) : elle part chez le client' },
+  { fichier: 'src/refonte/argent/i18n.ts', debut: 'Vous trouverez ci-dessous notre devis', raison: 'l’introduction d’un devis de H07 (clé client.devis.intro) : elle part chez le client' },
 ];
 
 /**

@@ -1,0 +1,62 @@
+/*
+  LES ÉCRANS DE L'ARGENT (LOT-04) — ce que les 17 écrans partagent : la carte des volets, son en-tête, le badge
+  d'un moyen de paiement, les montants en chasse fixe. Jetons du socle seulement (`noir.css`) ; la paire néon de la
+  famille (`--fam-a`, `--fam-b`) est posée par la coquille. Aucune couleur hexadécimale ici.
+*/
+
+.ar-ecran {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 0;
+  flex-direction: column;
+  padding-bottom: 4px;
+}
+.ar-ecran .sc-page__entete.ar-entete { height: 70px; flex-wrap: nowrap; gap: 16px; }
+.ar-ecran .ar-entete .sc-page__actions { flex-wrap: nowrap; margin-top: 27px; }
+
+/* Une carte de volet : bord, rayon et reflet du socle. */
+.ar-carte {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--socle-bord-carte);
+  border-radius: var(--socle-rayon-carte);
+  background: linear-gradient(180deg, var(--socle-carte-haut), var(--socle-carte-bas));
+  box-shadow: inset 0 1px 0 var(--socle-reflet-carte), var(--socle-ombre-carte);
+}
+.ar-carte > * { flex-shrink: 0; }
+.ar-carte__entete { display: flex; min-height: 20px; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px 0; }
+.ar-carte__titre { margin: 0; color: var(--socle-texte-1); font-size: 15px; font-weight: 600; line-height: 20px; }
+.ar-carte__aside { color: var(--socle-texte-3); font-size: 12.5px; line-height: 18px; white-space: nowrap; }
+
+/* Le badge d'un moyen de paiement (CB, VIR, PRÉL) : il complète le texte, il ne le remplace pas. */
+.ar-moyen {
+  display: inline-flex;
+  min-width: 44px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 7px;
+  border: 1px solid var(--socle-bord-pilule);
+  border-radius: 7px;
+  background: var(--socle-pilule);
+  color: var(--socle-texte-courant);
+  font-family: var(--socle-police-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.ar-montant { font-family: var(--socle-police-mono); font-variant-numeric: tabular-nums; }
+.ar-discret { color: var(--socle-texte-3); }
+.ar-doux { color: var(--socle-texte-2); }
+.ar-succes { color: var(--socle-etat-succes); }
+.ar-attention { color: var(--socle-etat-attention); }
+.ar-critique { color: var(--socle-etat-critique); }
+
+/* « À valider par un comptable » : toujours visible, jamais en alarme. */
+.ar-mention { color: var(--socle-texte-3); font-size: 11.5px; line-height: 16px; }

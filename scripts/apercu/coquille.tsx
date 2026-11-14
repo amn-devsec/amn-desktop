@@ -104,6 +104,18 @@ const FAMILLES: FamilleFictive[] = [
       { cle: 'depenses', libelle: 'Dépenses et achats' },
       { cle: 'tresorerie', libelle: 'Trésorerie' },
       { cle: 'impayes', libelle: 'Impayés', badge: 4 },
+      // Au-delà des cinq premières : montrées seulement quand l'écran les allume (LOT-04).
+      { cle: 'paiements', libelle: 'Paiements en ligne' },
+      { cle: 'previsions', libelle: 'Prévisions' },
+      { cle: 'contrats', libelle: 'Contrats' },
+      { cle: 'comptabilite', libelle: 'Comptabilité' },
+      { cle: 'notes-de-frais', libelle: 'Notes de frais' },
+      { cle: 'budget', libelle: 'Budget' },
+      { cle: 'tva', libelle: 'TVA et impôts' },
+      { cle: 'abonnements', libelle: 'Abonnements' },
+      { cle: 'banque', libelle: 'Banque' },
+      { cle: 'paie', libelle: 'Paie' },
+      { cle: 'tarifs', libelle: 'Tarifs et remises' },
     ],
   },
   {

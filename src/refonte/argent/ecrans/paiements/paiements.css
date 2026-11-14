@@ -1,0 +1,204 @@
+/*
+  MA03 · PAIEMENTS EN LIGNE — cotes de la fiche (rubrique 3) : trois volets 428 / 300 / 340 à 20 px d'écart, 664 de
+  haut ; à droite, les versements (501) puis la connexion (149), 14 px d'écart. Jetons du socle seulement.
+*/
+
+.ar-paie__corps {
+  display: grid;
+  min-height: 664px;
+  grid-template-columns: 428px 300px minmax(0, 340px);
+  grid-template-rows: 664px;
+  gap: 20px;
+}
+.ar-paie__droite { display: flex; min-width: 0; flex-direction: column; gap: 14px; }
+.ar-paie__non-connecte { min-height: 664px; align-items: center; justify-content: center; }
+
+/* ── Le flux ── */
+.ar-paie__flux-titre { display: inline-flex; align-items: center; gap: 12px; }
+.ar-paie__direct {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--socle-texte-3);
+  font-family: var(--socle-police-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.ar-paie__direct[data-actif='oui'] { color: var(--socle-etat-succes); }
+.ar-paie__fil {
+  min-height: 0;
+  flex: 1 1 0;
+  margin-top: 14px;
+  overflow-y: auto;
+  border-top: 1px solid var(--socle-bord-sous-carte);
+  background: var(--socle-sous-carte);
+}
+.ar-paie__fil-chargement { display: flex; flex-direction: column; gap: 10px; padding: 12px 18px; }
+.ar-paie__erreur { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; color: var(--socle-texte-courant); font-size: 13px; }
+.ar-paie__evenements { position: relative; margin: 0; padding: 0; list-style: none; }
+/* La ligne de temps : un filet vertical sous les nœuds. */
+.ar-paie__evenements::before {
+  position: absolute;
+  top: 22px;
+  bottom: 22px;
+  left: 88px;
+  width: 1px;
+  background: var(--socle-bord-ticket);
+  content: '';
+}
+.ar-paie__evt { position: relative; }
+.ar-paie__evt[data-recent='oui'] { background: linear-gradient(90deg, color-mix(in srgb, var(--socle-etat-succes) 9%, transparent), transparent 70%); }
+.ar-paie__evt-bouton {
+  display: grid;
+  width: 100%;
+  grid-template-columns: 50px 12px minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0 14px;
+  padding: 12px 18px 12px 18px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.ar-paie__evt-bouton:hover { background: rgba(255, 255, 255, 0.03); }
+.ar-paie__evt-bouton:focus-visible { outline: 2px solid var(--socle-focus); outline-offset: -2px; }
+.ar-paie__evt-heure { padding-top: 3px; white-space: nowrap; color: var(--socle-texte-2); font-size: 12px; line-height: 18px; text-align: right; }
+.ar-paie__evt-noeud {
+  position: relative;
+  z-index: 1;
+  width: 12px;
+  height: 12px;
+  margin-top: 6px;
+  border: 2px solid var(--socle-etat-succes);
+  border-radius: 50%;
+  background: var(--socle-sous-carte);
+}
+.ar-paie__evt[data-etat='en attente'] .ar-paie__evt-noeud { border-color: var(--socle-etat-attention); }
+.ar-paie__evt[data-etat='échoué'] .ar-paie__evt-noeud { border-color: var(--socle-etat-critique); }
+.ar-paie__evt[data-etat='remboursé'] .ar-paie__evt-noeud { border-color: var(--socle-texte-3); }
+.ar-paie__evt[data-recent='oui'] .ar-paie__evt-noeud {
+  width: 18px;
+  height: 18px;
+  margin: 3px 0 0 -3px;
+  background: var(--socle-etat-succes);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--socle-etat-succes) 18%, transparent), 0 0 0 2px var(--socle-sous-carte) inset;
+}
+.ar-paie__evt-corps { display: flex; min-width: 0; flex-direction: column; gap: 3px; }
+.ar-paie__evt-ligne { display: flex; align-items: center; gap: 10px; }
+.ar-paie__evt-client { overflow: hidden; color: var(--socle-texte-1); font-size: 13.5px; font-weight: 500; line-height: 24px; text-overflow: ellipsis; white-space: nowrap; }
+.ar-paie__evt-ref { color: var(--socle-texte-3); font-size: 12px; line-height: 18px; }
+.ar-paie__evt-note { color: var(--socle-texte-2); font-size: 11.5px; line-height: 16px; }
+.ar-paie__evt[data-etat='échoué'] .ar-paie__evt-note { color: var(--socle-etat-critique); }
+.ar-paie__evt-droite { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.ar-paie__evt-montant { color: var(--socle-texte-1); font-size: 16px; font-weight: 600; line-height: 24px; white-space: nowrap; }
+.ar-paie__evt-montant[data-barre='oui'] { color: var(--socle-texte-2); text-decoration: line-through; }
+
+.ar-paie__pied { flex: none; padding: 14px; border-top: 1px solid var(--socle-bord-sous-carte); }
+.ar-paie__suggestion {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 14px 14px 16px;
+  border: 1px solid var(--socle-bord-suggestion);
+  border-radius: 12px;
+  background: linear-gradient(180deg, var(--socle-suggestion-haut), var(--socle-suggestion-bas));
+}
+.ar-paie__suggestion p { margin: 0; color: var(--socle-texte-courant); font-size: 12.5px; line-height: 18px; }
+.ar-paie__suggestion-icone { color: var(--fam-a); }
+.ar-paie__suggestion-bouton {
+  height: 32px;
+  padding: 0 15px;
+  border: 0;
+  border-radius: var(--socle-rayon-bouton);
+  background: linear-gradient(100deg, var(--fam-a), var(--fam-b));
+  color: var(--socle-encre-accent);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.ar-paie__suggestion-bouton:disabled { opacity: 0.6; cursor: not-allowed; }
+.ar-paie__aucun-echec { margin: 0; padding: 10px 4px; color: var(--socle-texte-3); font-size: 12.5px; }
+
+/* ── Le taux de réussite ── */
+.ar-paie__taux-chargement { display: flex; justify-content: center; padding: 24px; }
+.ar-paie__anneau { display: flex; justify-content: center; padding-top: 4px; }
+.ar-paie__anneau .sc-anneau__centre { display: flex; flex-direction: column; align-items: center; }
+.ar-paie__anneau-valeur { color: var(--socle-texte-1); font-size: 36px; font-weight: 600; line-height: 40px; letter-spacing: -0.02em; }
+.ar-paie__anneau-legende { color: var(--socle-texte-2); font-size: 12.5px; line-height: 16px; }
+.ar-paie__compteurs { display: grid; grid-template-columns: repeat(3, 1fr); margin: 18px 18px 0; padding-bottom: 14px; border-bottom: 1px solid var(--socle-bord-sous-carte); }
+.ar-paie__compteurs > div { display: flex; flex-direction: column-reverse; align-items: center; gap: 2px; }
+.ar-paie__compteurs > div + div { border-left: 1px solid var(--socle-bord-sous-carte); }
+.ar-paie__compteurs dt { color: var(--socle-texte-3); font-size: 12px; }
+.ar-paie__compteurs dd { margin: 0; color: var(--socle-texte-1); font-size: 18px; font-weight: 600; line-height: 24px; }
+.ar-paie__moyens { display: flex; flex-direction: column; gap: 12px; margin: 14px 18px 0; padding: 0; list-style: none; }
+.ar-paie__moyen { display: flex; flex-direction: column; gap: 8px; }
+.ar-paie__moyen-ligne { display: flex; align-items: center; gap: 10px; }
+.ar-paie__moyen-nom { flex: 1; color: var(--socle-texte-courant); font-size: 12.5px; }
+.ar-paie__moyen-taux { color: var(--socle-texte-2); font-size: 11.5px; }
+.ar-paie__jours { margin: 14px 18px 0; }
+.ar-paie__jours-titre { display: flex; justify-content: space-between; margin: 0 0 10px; color: var(--socle-texte-courant); font-size: 12.5px; }
+.ar-paie__barres { display: flex; height: 78px; align-items: flex-end; gap: 3px; }
+.ar-paie__barre { flex: 1; border-radius: 2px 2px 0 0; background: color-mix(in srgb, var(--socle-etat-succes) 32%, transparent); }
+.ar-paie__barre[data-ton='echec'] { background: var(--socle-etat-critique); }
+.ar-paie__barre[data-ton='aujourdhui'] { background: var(--socle-etat-succes); }
+.ar-paie__axe { position: relative; height: 16px; margin-top: 4px; color: var(--socle-texte-3); font-size: 10.5px; }
+.ar-paie__axe span { position: absolute; transform: translateX(-50%); }
+.ar-paie__totaux { display: flex; flex-direction: column; gap: 4px; margin: auto 18px 16px; padding-top: 12px; border-top: 1px solid var(--socle-bord-sous-carte); }
+.ar-paie__totaux > div { display: flex; align-items: baseline; justify-content: space-between; }
+.ar-paie__totaux dt { color: var(--socle-texte-2); font-size: 12.5px; }
+.ar-paie__totaux dd { margin: 0; font-size: 12px; }
+.ar-paie__encaisse { color: var(--socle-texte-1); font-size: 16px !important; font-weight: 600; }
+
+/* ── Les versements ── */
+.ar-paie__versements { height: 501px; flex: none; }
+.ar-paie__calendrier { display: flex; flex-direction: column; gap: 4px; margin: 8px 16px 0; }
+.ar-paie__cal-entetes,
+.ar-paie__cal-semaine { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.ar-paie__cal-entetes span { color: var(--socle-texte-3); font-size: 11px; text-align: center; }
+.ar-paie__case {
+  position: relative;
+  display: flex;
+  height: 44px;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 4px 5px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: var(--socle-sous-carte);
+  color: var(--socle-texte-2);
+  font-size: 11px;
+}
+.ar-paie__case[data-hors='oui'] { color: var(--socle-texte-3); opacity: 0.55; }
+.ar-paie__case[data-verse='oui'] { border-color: color-mix(in srgb, var(--socle-etat-succes) 30%, transparent); background: color-mix(in srgb, var(--socle-etat-succes) 14%, transparent); color: var(--socle-texte-1); }
+.ar-paie__case[data-prevu='oui'] { border: 1px dashed color-mix(in srgb, var(--socle-etat-succes) 60%, transparent); color: var(--socle-texte-1); }
+.ar-paie__case[data-aujourdhui='oui'] { border: 1.5px solid var(--socle-texte-1); color: var(--socle-texte-1); }
+.ar-paie__case-montant { font-size: 11px; }
+.ar-paie__recap { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 16px 0; }
+.ar-paie__boite { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border: 1px solid var(--socle-bord-sous-carte); border-radius: 10px; background: var(--socle-sous-carte); }
+.ar-paie__boite[data-prevu='oui'] { border: 1px dashed color-mix(in srgb, var(--socle-etat-succes) 55%, transparent); }
+.ar-paie__boite-titre { color: var(--socle-texte-3); font-size: 11px; letter-spacing: 0.06em; }
+.ar-paie__boite-valeur { color: var(--socle-texte-1); font-size: 16px; font-weight: 600; }
+.ar-paie__boite[data-prevu='oui'] .ar-paie__boite-valeur { color: var(--socle-etat-succes); }
+.ar-paie__legende { display: flex; gap: 16px; margin: 12px 16px 0; color: var(--socle-texte-3); font-size: 11.5px; }
+.ar-paie__legende span::before { display: inline-block; width: 10px; height: 10px; margin-right: 6px; border-radius: 3px; vertical-align: -1px; content: ''; }
+.ar-paie__legende [data-cle='verse']::before { background: color-mix(in srgb, var(--socle-etat-succes) 40%, transparent); }
+.ar-paie__legende [data-cle='prevu']::before { border: 1px dashed var(--socle-etat-succes); }
+.ar-paie__legende [data-cle='aujourdhui']::before { border: 1.5px solid var(--socle-texte-1); }
+.ar-paie__indispo { margin: 10px 16px 0; color: var(--socle-texte-3); font-size: 11.5px; line-height: 16px; }
+
+/* ── La connexion ── */
+.ar-paie__connexion { height: 149px; flex: none; }
+.ar-paie__kv { display: flex; flex-direction: column; gap: 10px; margin: 14px 18px 0; }
+.ar-paie__kv > div { display: flex; justify-content: space-between; gap: 12px; }
+.ar-paie__kv dt { color: var(--socle-texte-2); font-size: 13px; }
+.ar-paie__kv dd { margin: 0; color: var(--socle-texte-1); font-size: 13px; }
+
+@container (max-width: 1100px) {
+  .ar-paie__corps { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto; }
+  .ar-paie__droite { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; }
+}

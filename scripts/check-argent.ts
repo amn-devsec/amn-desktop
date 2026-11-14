@@ -11,9 +11,10 @@
  * sur plusieurs graines et volumes : elle doit retrouver les chiffres que les jeux
  * stockent pour comparaison (soldes, TVA des échéances, cotisations, prélèvements).
  *
- * Enfin, des contrôles de structure : aucun écran (mode préparation), aucun import du
- * code partagé vers la zone, aucune fonction qui émettrait un virement, des textes
- * fr/en aux mêmes clés, l'interface au tutoiement et ce qui part chez un client au
+ * Enfin, des contrôles de structure : la logique reste pure (aucun React, aucune brique
+ * visuelle hors de `ecrans/`), chaque écran est déclaré (substitution ou registre), aucun
+ * import du code partagé vers la zone, aucune fonction qui émettrait un virement, des
+ * textes fr/en aux mêmes clés, l'interface au tutoiement et ce qui part chez un client au
  * vouvoiement.
  *
  *   npm run check:argent
@@ -27,6 +28,9 @@ import * as esbuild from 'esbuild';
 
 const racine = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ZONE = 'src/refonte/argent';
+/** Tous les fichiers de la zone, sous-dossiers compris (chemins relatifs à la zone). */
+const fichiersDeLaZone = (dossier = ''): string[] =>
+  fs.readdirSync(path.join(racine, ZONE, dossier), { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? fichiersDeLaZone(path.join(dossier, e.name)) : [path.join(dossier, e.name)]));
 let echecs = 0;
 let vus = 0;
 const dit = async (nom: string, fn: () => void | Promise<void>) => {
@@ -781,7 +785,7 @@ await dit('aucune fonction de la zone n’émet un virement ni n’envoie un pai
   for (const mod of MODULES) {
     for (const nom of Object.keys(M[mod])) assert.doesNotMatch(nom, /^(virer|emettre|envoyer(Virement|Paiement)|executer|payer)/i, `${mod}.${nom}`);
   }
-  for (const f of fs.readdirSync(path.join(racine, ZONE))) assert.doesNotMatch(fs.readFileSync(path.join(racine, ZONE, f), 'utf8'), /\bfetch\(|XMLHttpRequest|bridge\(/, `${f} appelle le réseau`);
+  for (const f of fichiersDeLaZone()) assert.doesNotMatch(fs.readFileSync(path.join(racine, ZONE, f), 'utf8'), /\bfetch\(|XMLHttpRequest|bridge\(/, `${f} appelle le réseau`);
 });
 
 await dit('connecteurs (modèle de S9, lecture seule) : paiements en ligne à brancher, puis externes ; la banque reste en lecture', () => {
@@ -1069,12 +1073,22 @@ await dit('libellés de statut : chaque statut calculé a son texte, en fr et en
 
 console.log('\nL’argent — structure\n');
 
-await dit('mode préparation : aucun écran (.tsx), aucune brique visuelle, aucun React dans la zone', () => {
-  for (const f of fs.readdirSync(path.join(racine, ZONE))) {
-    assert.ok(!f.endsWith('.tsx'), `${f} : pas d’écran avant la fusion du socle v4`);
+await dit('la logique reste pure : React et les briques du socle seulement sous ecrans/ ; aucun écran (.tsx) ailleurs', () => {
+  for (const f of fichiersDeLaZone()) {
+    if (f.startsWith(`ecrans${path.sep}`)) continue;
+    assert.ok(!f.endsWith('.tsx'), `${f} : un écran vit sous ecrans/`);
     const src = fs.readFileSync(path.join(racine, ZONE, f), 'utf8');
     assert.doesNotMatch(src, /from ['"][^'"]*socle\/ui|from ['"]react['"]|from ['"]react-dom/, `${f} importe une brique visuelle ou React`);
   }
+});
+
+await dit('chaque page de ecrans/ est déclarée (substitution de LOT-04 ou écran neuf du registre), et chaque déclaration pointe une page qui existe', () => {
+  const pages = fichiersDeLaZone().filter((f) => /^ecrans[\\/].*[\\/]Page[A-Z][^\\/]*\.tsx$/.test(f)).map((f) => f.replace(/\\/g, '/').replace(/\.tsx$/, ''));
+  const declarations = ['src/refonte/substitutions/declarations/argent.tsx', 'src/refonte/modules/declarations/argent.ts'].map((f) => fs.readFileSync(path.join(racine, f), 'utf8')).join('\n');
+  const pointees = [...declarations.matchAll(/import\(['"][./]*argent\/(ecrans\/[^'"]+)['"]\)/g)].map((m) => m[1]);
+  for (const p of pages) assert.ok(pointees.includes(p), `${p} n’est déclarée nulle part`);
+  for (const p of pointees) assert.ok(pages.includes(p), `${p} est déclarée mais n’existe pas`);
+  assert.ok(pages.length > 0, 'aucune page : le contrôle serait vide');
 });
 
 await dit('aucun fichier partagé n’importe la zone (seuls src/refonte/** et les fichiers .internal le peuvent)', () => {
@@ -1091,7 +1105,7 @@ await dit('aucun fichier partagé n’importe la zone (seuls src/refonte/** et l
 });
 
 await dit('aucun montant ni nom tiré d’une image : la zone n’écrit pas de montant en euros en dur', () => {
-  for (const f of fs.readdirSync(path.join(racine, ZONE))) {
+  for (const f of fichiersDeLaZone().filter((x) => /\.tsx?$/.test(x))) {
     const src = fs.readFileSync(path.join(racine, ZONE, f), 'utf8').replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, '');
     assert.doesNotMatch(src, /\d[\d\s\u202f]*,\d{2}\s?€/, `${f} écrit un montant en dur`);
   }

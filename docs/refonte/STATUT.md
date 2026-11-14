@@ -1130,7 +1130,7 @@ Préparation par DS (14 nov.) : logique pure `src/refonte/argent/` (18 fichiers)
 | MA04 | Argent · Impayés | mixte | en cours (préparation) | `impayes.ts` : colonnes d'âge, échelle de relance sur les seuils de `relances.ts` ; aucun calcul de pénalités (fiche) ; mise en demeure sans modèle par défaut |
 | MA01 | Argent · Contrats | mixte | en cours (préparation) | `contrats.ts` : à renouveler dans le préavis de 60 jours, jamais pour un tacite ; révision |
 | MA02 | Argent · Comptabilité | mixte | en cours (préparation) | `comptabilite.ts` : soldes du 512, résultat indicatif, 8 points calculés ; FEC existant |
-| MA03 | Argent · Paiements en ligne | mixte | en cours (préparation) | `paiements.ts` : réussite, frais, par moyen ; état « à brancher » (S9, H21) |
+| MA03 | Argent · Paiements en ligne | mixte | **construit** (`/acompte`, coquille allumée) | `ecrans/paiements/` : flux, taux de réussite, versements, connexion ; aperçu `MA03` comparé à l'image : 18,8 % brut (données fictives de SIM, coquille v4) ; page réelle « non connecté » tant que le serveur ne pousse pas les paiements ni H21 ses instances ; versements absents des jeux ; nom du service non écrit en dur |
 | MA05 | Argent · Notes de frais | mixte | en cours (préparation) | sommes dues par personne ; remboursement préparé |
 | MA06 | Argent · Budget | mixte | en cours (préparation) | `budget.ts` : presque plein dès 90 %, payé, dépassé ; bandeau |
 | MA08 | Argent · TVA et impôts | mixte | en cours (préparation) | `tva.ts` : débits ou encaissements, prochaine échéance, 2 jours ouvrés, mis de côté ; période trimestrielle à confirmer |
