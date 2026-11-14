@@ -926,20 +926,20 @@ Mots fr/en par `definirMots`. Gardes : `check:socle-controles|graphiques|situati
 | ID | Écran | Type | État | Écart / note |
 |---|---|---|---|---|
 | F10 | Contacts · Vue d'ensemble | nouveau | en cours (préparation) | préparation : aucune logique propre, lit les autres. Attend `ModuleTile`, `ModuleGroupGrid`, `AddModuleTile` |
-| H05 | Contacts · Clients | mixte | en cours (préparation) | préparation : `ClientsScreen` `/clients` ; santé et statut à recalculer (SIM) |
+| H05 | Contacts · Clients | mixte | en cours (préparation) | préparation : `ClientsScreen` `/clients` ; `clients.ts` : statut et couleur de santé de la fiche, recalculés comme le jeu de SIM |
 | G04 | Contacts · Fiche client | mixte | en cours (préparation) | préparation : `ClientDetail` dans `ClientsScreen` ; « contacts par client » livré (`interlocuteurs.ts`) |
 | H06 | Contacts · Prospects | mixte | en cours (préparation) | préparation : `PipelineScreen` `/pipeline` ; `pipeline.ts` (dont `rouvrir`) et `interet.ts` (échelles à valider) |
 | H44 | Contacts · Retours clients | mixte | en cours (préparation) | préparation : `ReviewsScreen`, `SentimentScreen`, `NpsScreen` ; sentiment et NPS sans jeu propre |
 | H45 | Contacts · Fournisseurs | mixte | en cours (préparation) | préparation : `SuppliersScreen` `/fournisseurs` ; pas de logique neuve |
 | MC01 | Contacts · Pipeline commercial | mixte | en cours (préparation) | préparation : même écran que H06 ; `colonnesPipeline`, `previsionPonderee`, `tauxDePassage`, `transitionsPermises` |
-| MC02 | Contacts · Fidélité | mixte | en cours (préparation) | préparation : points et niveaux = l'écran, **paliers de la fiche 0 / 800 / 1 800** (le jeu de SIM a 500 / 1 500) ; la carte à tampons reste une formule au choix (§1.28) ; `pointsProgramme`, `formuleDe` |
+| MC02 | Contacts · Fidélité | mixte | en cours (préparation) | préparation : points et niveaux = l'écran, paliers de la fiche 0 / 800 / 1 800 (jeu de SIM aligné le 14 nov.) ; la carte à tampons reste une formule au choix (§1.28) ; `pointsProgramme`, `formuleDe` |
 | MC03 | Contacts · Fiches contacts | mixte | en cours (préparation) | préparation : aucun écran existant ; « non disponible » avec la raison tant que Harun n'a pas décidé de la collection d'interlocuteurs (§1.28) |
 | MC04 | Contacts · Équipe | mixte | en cours (préparation) | préparation : se construit sur le trombinoscope (`DirectoryScreen`, §1.28) |
 | MC05 | Contacts · Partenaires | mixte | en cours (préparation) | préparation : aucun écran ; le jeu d'organisations partenaires est commandé à SIM (§1.28) |
 | MC06 | Contacts · Rendez-vous clients | mixte | en cours (préparation) | préparation : `AgendaScreen` partagé (couture requise) et `BookingScreen` ; `rendezvous.ts` (trajets : durées du service d'itinéraire, LOT-12) |
 | MC07 | Contacts · Relances | mixte | en cours (préparation) | préparation : `RemindersScreen` ne relance que les factures ; `relances.ts` applique les huit points de la fiche pour les cinq motifs ; 5 jours et 9:00–18:00 lus de `connecteurs/reglages.ts` (§1.31, réglable de 3 à 14 j) |
 
-Préparation par S1 (14 nov., `claude/refonte-contacts`) : note [`preparation/LOT-02-contacts.md`](preparation/LOT-02-contacts.md), logique dans `src/refonte/contacts/`, garde `check:contacts` (85 contrôles). Aucun écran visuel. **Dossier v4 lu le 14 nov.** (deuxième passe) : les règles « à confirmer » sont levées ou transformées en questions (note §7).
+Préparation par S1 (14 nov., `claude/refonte-contacts`) : note [`preparation/LOT-02-contacts.md`](preparation/LOT-02-contacts.md), logique dans `src/refonte/contacts/`, garde `check:contacts` (93 contrôles). Aucun écran visuel. **Dossier v4 lu le 14 nov.** (deuxième passe) : les règles « à confirmer » sont levées ou transformées en questions (note §7).
 
 **Manque au socle**
 - `ModuleTile`, `ModuleGroupGrid`, `AddModuleTile` (décidés au §1.10, absents de la liste des composants disponibles) pour F10.
@@ -953,8 +953,6 @@ Préparation par S1 (14 nov., `claude/refonte-contacts`) : note [`preparation/LO
 - Sentiment et NPS (H44) : pas de jeu propre, à dériver des `avis`.
 - Une raison de perte sur les prospects perdus (H06).
 - Les avantages de fidélité « offerts / utilisés » côté app : le jeu de SIM les porte, aucune collection ne les garde.
-- **Jeu « fidélité »** : aligner les paliers sur la fiche (800 / 1 800) et ajouter les points des avis (50) et des recommandations (200).
-- **Jeu « clients »** : statut affiché plus fin (fiche H05 : « Impayé » dès 7 jours de retard, « À relancer », « Nouveau » sous 30 jours).
 - **Pipeline** : historique des mouvements d'étape (date d'entrée), montant estimé, signaux d'intérêt (lectures du devis, délai de réponse) pour H06 et MC01.
 - **Relances** : état « reportée » ; ton du message ; préférences d'envoi des contacts (MC03).
 - Une collection d'interlocuteurs côté app (MC03, G04, source de H41) : décision de Harun en attente (§1.28).

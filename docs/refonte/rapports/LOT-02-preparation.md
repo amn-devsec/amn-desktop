@@ -4,7 +4,7 @@
 
 ## Résumé (5 lignes au plus)
 
-1. Logique pure de LOT-02 dans `src/refonte/contacts/` (9 fichiers) : pipeline (H06, MC01), relances (MC07), fidélité (MC02), rendez-vous (MC06), « Contacts par client » (H41). `check:contacts` : 85 contrôles.
+1. Logique pure de LOT-02 dans `src/refonte/contacts/` (10 fichiers) : pipeline (H06, MC01), relances (MC07), fidélité (MC02), rendez-vous (MC06), « Contacts par client » (H41). `check:contacts` : 93 contrôles.
 2. **Dossier v4 lu** (fiches du lot, `06`, `tutoiement.json`, image MC07) : la règle de relance est celle de la fiche, en huit points testés ; trois de mes suppositions sont corrigées (messagerie ≠ courriel ; une relance par client et par **semaine** ; paliers de fidélité 800 / 1 800).
 3. Décisions du CO du §1.28 appliquées (réouverture d'un perdu, deux formules de fidélité, MC03 « non disponible », pas de raccourci).
 4. **Deux écarts à trancher** : la fiche dit 5 jours et 9:00–18:00, le CO a adopté 7 jours et 08:00–19:00 ; et deux jeux de SIM (fidélité, statut des clients) ne suivent pas la fiche.
@@ -25,6 +25,7 @@ A	docs/refonte/preparation/LOT-02-contacts.md
 A	docs/refonte/rapports/LOT-02-preparation.md
 M	package.json
 A	scripts/check-contacts.ts
+A	src/refonte/contacts/clients.ts
 A	src/refonte/contacts/commun.ts
 A	src/refonte/contacts/fidelite.ts
 A	src/refonte/contacts/i18n.ts
@@ -58,12 +59,14 @@ Lecture seule dans d'autres zones : `src/refonte/connecteurs/` (S9) est **import
 | `check:moments` | OK |
 | `check:navigation` | OK |
 | `check:donnees` | OK |
-| `check:contacts` (dans `editions.yml`) | OK, 85 contrôles |
+| `check:contacts` (dans `editions.yml`) | OK, 93 contrôles |
 | `check:tutoiement` | n'existe pas dans la base (arrive avec la passe finale v4 de S0) |
 
 ## Points à trancher (CO, Harun)
 
 Réglés par le CO le 14 nov. (`STATUT.md` §1.31) : la fiche l'emporte (5 jours, 9:00–18:00, réglable de 3 à 14, une seule source `connecteurs/reglages.ts`) ; une relance par client et par semaine glissante, plafond de 3 ; jeux de SIM « fidélité » et « statut des clients » commandés ; messagerie = G07 ; échelles de l'intérêt (H06) adoptées à titre provisoire.
+
+Mise à jour du 14 nov. (SIM `541b2bd`) : les jeux de fidélité (800 / 1 800, avis 50, recommandations 200) et de statut des clients (H05) sont livrés ; `pointsProgramme`, `PALIERS` et le nouveau `clients.ts` les rejouent à l'identique aux quatre volumes (`check:contacts`, 93 contrôles, rien d'assoupli).
 
 Restent : la collection d'interlocuteurs (MC03, décision de Harun), et un identifiant de messagerie (G07) dans le modèle des interlocuteurs.
 

@@ -7,9 +7,8 @@ import { ajouterJours, ecartJours, type Jour } from './commun';
  *
  * Règles de la fiche MC02 : 1 € facturé et payé = 1 point (TTC, arrondi à l'euro inférieur), un
  * avis = 50, un client recommandé = 200, sur 12 mois glissants ; Bronze dès 0, Argent dès 800, Or
- * dès 1 800 (réglables). Le jeu de SIM (`derives.ts › genererFidelite`) compte les factures
- * seulement, avec des paliers à 500 et 1 500 : un écran REFAIT le calcul à partir des sources, le
- * jeu sert à comparer — `PALIERS_DU_JEU_SIM` permet de le rejouer à l'identique.
+ * dès 1 800 (réglables). Le jeu de SIM (`derives.ts › genererFidelite`) suit les mêmes règles depuis
+ * le 14 nov. : un écran REFAIT le calcul à partir des sources (`pointsProgramme`), le jeu sert à comparer.
  *
  * LES DEUX FORMULES (décision du CO, `STATUT.md` §1.28). Les points et niveaux de MC02
  * sont l'écran. La carte à tampons de l'écran actuel `/fidelite` (`LoyaltyScreen` :
@@ -61,16 +60,6 @@ export const PALIERS: readonly Palier[] = [
   { niveau: 'Bronze', depuis: 0 },
   { niveau: 'Argent', depuis: 800 },
   { niveau: 'Or', depuis: 1800 },
-];
-
-/**
- * Les paliers du JEU de SIM (`derives.ts › genererFidelite`) : 500 et 1 500. Ils ne sont plus ceux de la
- * fiche ; ils ne servent qu'à rejouer le jeu et à comparer. Écart signalé au CO : SIM doit les aligner.
- */
-export const PALIERS_DU_JEU_SIM: readonly Palier[] = [
-  { niveau: 'Bronze', depuis: 0 },
-  { niveau: 'Argent', depuis: 500 },
-  { niveau: 'Or', depuis: 1500 },
 ];
 
 export const niveauPour = (points: number, paliers: readonly Palier[] = PALIERS): Niveau =>
