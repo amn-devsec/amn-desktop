@@ -42,6 +42,7 @@ async function loadFromSrc<T>(entry: string): Promise<T> {
 }
 
 type Lien = Record<string, unknown>;
+type Attendu = any; // eslint-disable-line @typescript-eslint/no-explicit-any -- les attendus sont inspectés champ par champ
 type MondeBrut = Record<string, Lien[]> & { contexte: { aujourdhui: string; maintenant: number; aujourdhuiCyber: string; maintenantCyber: number }; entreprise: Lien };
 const D = await loadFromSrc<{
   construireMonde: (o?: Record<string, unknown>) => MondeBrut;
@@ -66,6 +67,11 @@ const D = await loadFromSrc<{
   niveauMaturite: (s: number) => { niveau: number; nom: string };
   niveauConformite: (d: unknown) => string;
   joursSansImpaye: (f: unknown, j: string) => number;
+  attendusPrevisions: (m: MondeBrut, o?: Record<string, unknown>) => Attendu;
+  attendusBilanSemaine: (m: MondeBrut, o?: Record<string, unknown>) => Attendu;
+  attendusCockpit: (m: MondeBrut) => Attendu;
+  attendusTableauDeBord: (m: MondeBrut, o?: Record<string, unknown>) => Attendu;
+  PALIERS_DE_SERIE: readonly number[];
 }>('src/refonte/donnees/index.ts');
 
 let vus = 0;
@@ -81,6 +87,7 @@ const peu = D.construireMonde({ volume: 'peu' });
 const vide = D.construireMonde({ volume: 'vide' });
 const jours = (m: MondeBrut): string => m.contexte.aujourdhui;
 const joursCyber = (m: MondeBrut): string => m.contexte.aujourdhuiCyber;
+const aujourdhuiDe = jours;
 const str = (x: unknown): string => String(x ?? '');
 const num = (x: unknown): number => Number(x);
 
@@ -1171,6 +1178,124 @@ dit('les cas attendus par les écrans existent dès « normal », pour 12 graine
     assert.equal(new Set(n.accords.map((a) => D.etatAccord(a, joursCyber(n)))).size, 4, `${nom} : états d’accord`);
     assert.ok(n.echeancesFiscales.some((e) => e.paiement === 'À payer' && str(e.echeanceLe) < jours(n)), `${nom} : échéance fiscale en retard`);
     assert.ok(n.sites.some((s) => s.etat === 'Dégradé') && n.notifications.some((x) => !x.lue), `${nom} : sites, notifications`);
+  }
+});
+
+console.log('  — Les valeurs attendues des écrans calculés');
+
+dit('H09 prévisions : la série part du solde, le creux est son minimum, les scénarios se recoupent', () => {
+  for (const [nom, m] of [['normal', normal], ['peu', peu], ['beaucoup', gros], ['vide', vide]] as const) {
+    for (const horizon of [30, 90, 365]) {
+      const p = D.attendusPrevisions(m, { horizonJours: horizon });
+      const solde0 = m.comptes.reduce((s, c) => s + num(c.soldeCents), 0);
+      assert.equal(p.serieCentrale.length, horizon + 1, `${nom} ${horizon} : un point par jour`);
+      assert.equal(p.serieCentrale[0].soldeCents, solde0, `${nom} : le premier point est le solde d’aujourd’hui`);
+      assert.equal(p.soldeAujourdhuiCents, solde0);
+      const prevus = m.mouvements.filter((x) => x.reel === false && str(x.date) > aujourdhuiDe(m) && str(x.date) <= D.jourDe(Date.parse(`${aujourdhuiDe(m)}T12:00:00Z`) + horizon * 86_400_000));
+      assert.equal(p.soldeFinCents, solde0 + prevus.reduce((s, x) => s + num(x.montantCents), 0), `${nom} ${horizon} : solde final = solde + mouvements prévus`);
+      assert.equal(p.pointLePlusBas.soldeCents, Math.min(...p.serieCentrale.map((x: Attendu) => x.soldeCents)), `${nom} : le creux est le minimum`);
+      assert.equal(p.scenarios.central, p.soldeFinCents);
+      assert.ok(p.scenarios.paiementsEnRetard <= p.scenarios.central, `${nom} : un retard ne peut qu’enlever des entrées à l’horizon`);
+      assert.equal(p.creuxTrace, p.pointLePlusBas.soldeCents <= solde0 * 0.9);
+      assert.ok(p.prochainsMouvements.length <= 6 && p.prochainsMouvements.every((x: Attendu, i: number, l: Attendu[]) => i === 0 || l[i - 1].jour <= x.jour));
+      assert.ok(p.fourchette.auCreux.basCents <= p.fourchette.auCreux.hautCents + 1 || p.fourchette.auCreux.basCents <= p.pointLePlusBas.soldeCents, `${nom} : bas ≤ haut`);
+    }
+  }
+  // Le scénario « Nouvelle embauche » retranche le coût saisi à chaque 1er du mois dans l’horizon, rien d’autre (cas de référence : 90 jours depuis le 30 oct. → un seul 1er janvier).
+  const p90 = D.attendusPrevisions(normal, { horizonJours: 90 });
+  assert.equal(p90.scenarios.nouvelleEmbauche, p90.scenarios.central - 320_000, '23 100 − 3 200 = 19 900 : un seul prélèvement en janvier');
+  assert.equal(D.attendusPrevisions(normal, { horizonJours: 365 }).scenarios.nouvelleEmbauche, D.attendusPrevisions(normal, { horizonJours: 365 }).scenarios.central - 320_000 * 10, 'dix échéances sur 12 mois : du 1er janvier au 1er octobre 2027');
+  assert.equal(D.attendusPrevisions(normal, { embaucheMensuelleCents: 100_000 }).scenarios.nouvelleEmbauche, p90.scenarios.central - 100_000, 'le coût est saisi, jamais calculé');
+  // Les prévus couvrent l’horizon de 90 jours (sinon la prévision serait tronquée), dès « normal ».
+  assert.ok(str(p90.couvertJusquau) >= D.jourDe(Date.parse(`${aujourdhui}T12:00:00Z`) + 90 * 86_400_000), 'les mouvements prévus couvrent 90 jours');
+  // Les trois situations existent : un creux, une prévision négative, pas de creux.
+  assert.ok(D.attendusPrevisions(normal).creuxTrace && D.attendusPrevisions(peu).pointLePlusBas.soldeCents < 0 && !D.attendusPrevisions(gros).creuxTrace, 'creux / négatif / pas de creux');
+  assert.equal(D.attendusPrevisions(vide).couvertJusquau, null);
+});
+
+dit('H04 bilan de la semaine : lundi à dimanche, les parties font le tout, les garanties de la semaine existent', () => {
+  for (const [nom, m] of [['normal', normal], ['peu', peu], ['beaucoup', gros], ['vide', vide]] as const) {
+    const b = D.attendusBilanSemaine(m);
+    assert.equal(b.semaine.lundi, '2026-10-26');
+    assert.equal(b.semaine.dimanche, '2026-11-01');
+    assert.equal(b.parJour.length, 7);
+    assert.equal(b.parJour.reduce((s: number, x: number) => s + x, 0), b.tachesFaites.faites, `${nom} : la somme des jours = les tâches faites`);
+    assert.ok(b.tachesFaites.faites <= b.tachesFaites.total);
+    assert.equal(b.meilleurJour === null, b.tachesFaites.faites === 0);
+    if (b.meilleurJour !== null) assert.ok(b.parJour[b.meilleurJour] === Math.max(...b.parJour) && b.parJour.slice(b.meilleurJour + 1).every((x: number) => x < b.parJour[b.meilleurJour]), 'meilleur jour : le plus récent en cas d’égalité');
+    assert.equal(b.encaisse.parJourCents.reduce((s: number, x: number) => s + x, 0), b.encaisse.cents, `${nom} : l’encaissé du jour fait celui de la semaine`);
+    assert.ok(b.aReporter.every((t: Attendu) => t.echeance >= b.semaine.lundi && t.echeance <= b.semaine.dimanche));
+    assert.ok(b.aReporter.length <= b.tachesFaites.total - b.tachesFaites.faites + 0, `${nom} : à reporter ≤ non faites`);
+    assert.ok(b.jalons.prochainPalier === null || (b.jalons.prochainPalier > b.jalons.serie && D.PALIERS_DE_SERIE.includes(b.jalons.prochainPalier) && b.jalons.joursRestants === b.jalons.prochainPalier - b.jalons.serie));
+    assert.equal(b.jalons.dixFactures, b.jalons.facturesEnvoyeesOuPayees >= 10);
+    assert.equal(b.boiteAZero, null);
+  }
+  const b = D.attendusBilanSemaine(normal);
+  assert.ok(b.nouveauxClients.nombre >= 1 && b.encaisse.cents > 0 && b.aReporter.length > 0 && b.tachesFaites.faites > 0, 'normal : nouveaux clients, encaissé, à reporter, tâches faites');
+  assert.equal(b.semaineProchaine.suggere, true, 'normal : la semaine prochaine pèse au moins 2 de plus que d’habitude');
+  assert.equal(D.attendusBilanSemaine(normal, { jour: '2026-10-28' }).semaine.lundi, '2026-10-26', 'un mercredi donne la même semaine');
+});
+
+dit('H04 jalons : le palier suivant est strictement au-dessus de la série (cas de référence 4, 5 et 100 jours)', () => {
+  const moiEmail = str((normal.equipe.find((x) => x.moi === true) as Lien).email);
+  const jourOuvres = ['2026-10-29', '2026-10-28', '2026-10-27', '2026-10-26', '2026-10-23', '2026-10-22'];
+  const avec = (n: number) => ({ ...normal, taches: jourOuvres.slice(0, n).map((j, i) => ({ id: `ref-${i}`, assigneeEmail: moiEmail, echeance: j, status: 'done', faiteAt: `${j}T08:30:00Z` })) }) as unknown as MondeBrut;
+  const cas: [number, number, number | null][] = [[4, 4, 5], [5, 5, 10], [0, 0, 5]];
+  for (const [n, serie, palier] of cas) {
+    const j = D.attendusBilanSemaine(avec(n)).jalons;
+    assert.deepEqual([j.serie, j.prochainPalier], [serie, palier], `${n} jours bouclés`);
+  }
+});
+
+dit('H04 : deux règlements cette semaine et deux la semaine d’avant dès « normal » (« peu » n’a que huit factures : pas de garantie)', () => {
+  const dans = (m: MondeBrut, debut: string, fin: string) => m.factures.filter((f) => f.status === 'paid' && str(f.paidAt) >= debut && str(f.paidAt) <= fin).length;
+  for (let graine = 1; graine <= 12; graine += 1) {
+    const n = D.construireMonde({ volume: 'normal', graine });
+    assert.ok(dans(n, '2026-10-26', '2026-10-30') >= 2 && dans(n, '2026-10-19', '2026-10-25') >= 2, `graine ${graine} : règlements des deux semaines`);
+  }
+});
+
+dit('G08 cockpit : le revenu récurrent est la somme des abonnements actifs, les compteurs de tickets sont réels', () => {
+  for (const [nom, m] of [['normal', normal], ['peu', peu], ['beaucoup', gros], ['vide', vide]] as const) {
+    const c = D.attendusCockpit(m);
+    const actifs = m.abonnements.filter((a) => a.etat === 'Actif' && str(a.depuis) <= aujourdhuiDe(m));
+    assert.equal(c.mrr.cents, actifs.reduce((s, a) => s + num(a.montantMensuelCents), 0), `${nom} : MRR`);
+    assert.equal(c.clientsActifs, new Set(actifs.map((a) => a.clientId)).size);
+    const partages = m.tickets.filter((t) => t.partageClient);
+    assert.equal(Object.values(c.tickets).reduce((s: number, x: Attendu) => s + x.compteur, 0), partages.length, `${nom} : tous les tickets partagés sont comptés`);
+    for (const col of Object.values(c.tickets) as Attendu[]) assert.ok(col.visibles.length <= 3 && col.visibles.length <= col.compteur);
+    assert.equal(c.impayes, m.factures.filter((f) => f.status === 'issued' && str(f.dueAt) < aujourdhuiDe(m)).length);
+    assert.equal(c.sources.length, m.connecteurs.length);
+    assert.ok(c.objectifDuMois === null && c.utilisateursConnectes === null && c.manque.length === 2);
+  }
+  const c = D.attendusCockpit(normal);
+  assert.ok(c.mrr.ecartPourcent !== null && c.mrr.ecartPourcent !== 0 && c.nouveauxClientsActifs >= 1, 'normal : le MRR a bougé, des nouveaux clients actifs');
+});
+
+dit('H25 tableau de bord : tickets urgents d’abord, impayés du plus gros au plus petit, tâches du jour', () => {
+  for (const [nom, m] of [['normal', normal], ['peu', peu], ['beaucoup', gros], ['vide', vide]] as const) {
+    const t = D.attendusTableauDeBord(m);
+    const ouverts = m.tickets.filter((x) => x.colonne !== 'termine');
+    assert.equal(t.tickets.visibles.length + t.tickets.autres, ouverts.length, `${nom} : visibles + autres = ouverts`);
+    const urgents = ouverts.filter((x) => x.urgent).length;
+    assert.ok(t.tickets.visibles.slice(0, Math.min(urgents, 3)).every((id: string) => ouverts.find((x) => x.id === id)?.urgent), `${nom} : les urgents d’abord`);
+    const montants = t.facturesImpayees.visibles.map((x: Attendu) => x.soldeCents);
+    assert.deepEqual(montants, [...montants].sort((a: number, b: number) => b - a), `${nom} : du plus gros au plus petit`);
+    assert.equal(t.facturesImpayees.totalCents, m.factures.filter((f) => f.status === 'issued').reduce((s, f) => s + num(f.soldeCents), 0));
+    assert.ok(t.mesTaches.faites <= t.mesTaches.total && t.activiteRecente.length <= 5);
+  }
+  const t = D.attendusTableauDeBord(normal);
+  assert.ok(t.chiffreAffaires.cents > 0 && t.chiffreAffaires.ecartPourcent !== null && t.prochainRendezVous !== null && t.mesTaches.total > 0, 'normal : de quoi remplir chaque widget');
+});
+
+dit('les cas attendus par H04, H25 et G08 existent aussi pour 12 graines', () => {
+  for (let graine = 1; graine <= 12; graine += 1) {
+    const n = D.construireMonde({ volume: 'normal', graine });
+    const b = D.attendusBilanSemaine(n);
+    assert.ok(b.nouveauxClients.nombre >= 3 && b.nouveauxClients.ecartSemainePrecedente !== undefined, `graine ${graine} : trois nouveaux clients cette semaine`);
+    assert.ok(b.encaisse.cents > 0 && b.encaisse.ecartPourcent !== null, `graine ${graine} : un encaissé comparable à la semaine d’avant`);
+    assert.equal(b.semaineProchaine.suggere, true, `graine ${graine} : suggestion de la semaine prochaine`);
+    assert.ok(D.attendusPrevisions(n).entreesAttendues.nombre > 0 && D.attendusCockpit(n).nouveauxClientsActifs >= 1, `graine ${graine} : entrées attendues, nouveaux clients actifs`);
   }
 });
 

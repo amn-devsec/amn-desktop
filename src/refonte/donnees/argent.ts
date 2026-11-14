@@ -14,7 +14,7 @@
 
 import { CATEGORIES_DEPENSE, DEPENSES_TYPES, PRESTATIONS } from './fond';
 import {
-  ajouterJours, arrondir, centimes, compter, ecartJours, graineDe, hasard, instantParis, iso, tva, type Hasard, type Jour,
+  ajouterJours, arrondir, centimes, compter, ecartJours, graineDe, hasard, instantParis, iso, lundiDe, tva, type Hasard, type Jour,
 } from './outils';
 import type {
   Abonnement, CompteBancaire, Contexte, Contrat, Depense, Devis, Enveloppe, Facture, FicheClient, Membre, Mouvement, Paiement,
@@ -207,7 +207,9 @@ export function genererFactures(ctx: Contexte, clients: readonly FicheClient[], 
     if (manque > 0) {
       // 1. de préférence une facture réglée il y a peu, redevenue impayée ; 2. sinon n'importe quelle facture réglée plus ancienne ;
       // 3. sinon une facture libre non encore échue, ramenée dans le passé.
-      const payees = brutes.filter((f) => f.status === 'paid' && f.dueAt <= ajouterJours(ctx.aujourdhui, -2)).sort((a, b) => b.dueAt.localeCompare(a.dueAt));
+      // Les règlements de la semaine en cours et de la précédente (animerLaSemaine, encaisseAujourdhui) restent réglés.
+      const intouchables = ajouterJours(lundiDe(ctx.aujourdhui), -7);
+      const payees = brutes.filter((f) => f.status === 'paid' && f.paidAt < intouchables && f.dueAt <= ajouterJours(ctx.aujourdhui, -2)).sort((a, b) => b.dueAt.localeCompare(a.dueAt));
       const recentes = payees.filter((f) => f.dueAt >= ajouterJours(ctx.aujourdhui, -45));
       const choisies = [...recentes, ...payees.filter((f) => !recentes.includes(f))].slice(0, manque);
       for (const f of choisies) {
@@ -240,8 +242,24 @@ export function genererFactures(ctx: Contexte, clients: readonly FicheClient[], 
       ?? brutes.find((x) => x.status === 'issued' && x.issuedAt <= ctx.aujourdhui);
     if (f) Object.assign(f, { status: 'paid', paidAt: ctx.aujourdhui, paymentMethod: 'virement' });
   };
+  // H04 (« Encaissé, +12 % ») et H25 (« Chiffre d'affaires, +9 % ») comparent la semaine ou le mois à la période d'avant :
+  // il faut des règlements dans la semaine en cours ET dans la précédente (deux chacune dès « normal » ; « peu », avec huit factures, en a quand les factures s'y prêtent).
+  const animerLaSemaine = (): void => {
+    if (brutes.length < 8) return;
+    const lundi = lundiDe(ctx.aujourdhui);
+    const parSemaine = brutes.length >= 20 ? 2 : 1;
+    const jours = [ajouterJours(lundi, 0), ajouterJours(lundi, 2), ajouterJours(lundi, -7 + 1), ajouterJours(lundi, -7 + 3)].filter((j) => j <= ctx.aujourdhui);
+    const cette = jours.filter((j) => j >= lundi).slice(0, parSemaine);
+    const avant = jours.filter((j) => j < lundi).slice(0, parSemaine);
+    for (const j of [...cette, ...avant]) {
+      if (brutes.filter((f) => f.status === 'paid' && f.paidAt === j).length > 0) continue;
+      const f = brutes.find((x) => x.status === 'issued' && x.issuedAt !== '' && x.issuedAt <= j && x.quoteId === null);
+      if (f) Object.assign(f, { status: 'paid', paidAt: j, paymentMethod: 'virement', updatedAt: iso(instantParis(j, '12:00')) });
+    }
+  };
   garantir();
   encaisseAujourdhui();
+  animerLaSemaine();
   garantir();
 
   // Numérotation continue, sans trou, dans l'ordre d'émission ; les brouillons n'ont pas de numéro.
@@ -366,11 +384,16 @@ const PLANS = PRESTATIONS.filter((p) => p[2] === 'mois');
 export function genererAbonnements(ctx: Contexte, clients: readonly FicheClient[]): Abonnement[] {
   const h = hasard(graineDe(ctx.graine, 'abonnements'));
   const n = clients.length === 0 ? 0 : Math.min(compter(ctx.volumes.abonnements, [0, 3, 14, 90]), clients.length);
-  const choisis = h.echantillon(clients, n);
+  // G08 : le revenu récurrent bouge d'un mois à l'autre parce que des clients récents s'abonnent.
+  const recents = clients.filter((c) => c.debutLe >= ajouterJours(ctx.aujourdhui, -30)).sort((a, b) => b.debutLe.localeCompare(a.debutLe)).slice(0, Math.min(3, Math.floor(n / 3)));
+  const echantillon = h.echantillon(clients, n);
+  const choisis = [...recents, ...echantillon.filter((c) => !recents.includes(c))].slice(0, n);
   return choisis.map((c, i) => {
     const [plan, prix] = h.choix(PLANS);
     const jour = h.entier(1, 28);
-    const etat = h.pondere([['Actif', 80], ['Paiement échoué', 8], ['En pause', 6], ['Résilié', 6]] as const);
+    const tire = h.pondere([['Actif', 80], ['Paiement échoué', 8], ['En pause', 6], ['Résilié', 6]] as const);
+    const recent = recents.includes(c);
+    const etat = recent ? 'Actif' : tire;
     const resilie = etat === 'Résilié' ? ajouterJours(ctx.aujourdhui, -h.entier(5, 120)) : null;
     const remise = h.chance(0.2) ? 0.9 : 1;
     return {
@@ -379,7 +402,7 @@ export function genererAbonnements(ctx: Contexte, clients: readonly FicheClient[
       clientNom: c.company || c.name,
       plan,
       montantMensuelCents: Math.round(centimes(prix) * remise),
-      depuis: ajouterJours(ctx.aujourdhui, -h.entier(20, 700)),
+      depuis: recent ? [ajouterJours(c.debutLe, h.entier(0, 3)), ctx.aujourdhui].sort()[0] : ajouterJours(ctx.aujourdhui, -h.entier(20, 700)),
       jourPrelevement: jour,
       prochainPrelevementLe: etat === 'Résilié' || etat === 'En pause' ? null : prochainPrelevement(ctx.aujourdhui, jour),
       etat,
@@ -445,6 +468,8 @@ export function genererMouvements(
   factures: readonly Facture[],
   /** Net mensuel des bulletins de paie (MA11), pour que les prélèvements « Salaires » s'y recoupent. */
   salairesMensuelsCents: number | null = null,
+  /** Les échéances fiscales (MA08) : celles à payer deviennent des sorties prévues (H09, MA07 « À venir »). */
+  echeances: readonly { intitule: string; echeanceLe: Jour; montantCents: number | null; paiement: string }[] = [],
 ): Mouvement[] {
   const h = hasard(graineDe(ctx.graine, 'mouvements'));
   if (comptes.length === 0) return [];
@@ -485,16 +510,32 @@ export function genererMouvements(
     liste.push({ compteId: principal.id, libelle: `Encaissement attendu ${f.clientNom}`, nature: 'Encaissement attendu', categorie: 'Ventes', date: attendu, montantCents: totauxDeFacture(f).ttcCents, reel: false, rapprochement: 'sans objet', lien: { type: 'facture', id: f.id }, recurrent: false });
   }
   for (const [libelle, categorie, montant, jour] of fixes) {
-    for (let k = 1; k <= 2; k += 1) {
+    // Quatre mois : de quoi couvrir l'horizon de 90 jours de H09 (prévisions de trésorerie).
+    for (let k = 1; k <= 4; k += 1) {
       const [a, m] = ajouterJours(ctx.aujourdhui, 30 * k).split('-').map(Number);
       const date = `${a}-${String(m).padStart(2, '0')}-${String(jour).padStart(2, '0')}`;
       if (date > ctx.aujourdhui) liste.push({ compteId: principal.id, libelle, nature: 'Prélèvement', categorie, date, montantCents: montant, reel: false, rapprochement: 'sans objet', lien: { type: 'manuel', id: null }, recurrent: true });
     }
   }
 
+  // Les prélèvements des abonnements actifs (revenu récurrent) et les impôts et la TVA à payer : les deux sources que H09 ajoute aux factures.
+  for (const ab of abonnements) {
+    if (ab.etat !== 'Actif') continue;
+    for (let k = 0; k < 5; k += 1) {
+      const [a, m] = ajouterJours(ctx.aujourdhui, 30 * k).split('-').map(Number);
+      const date = `${a}-${String(m).padStart(2, '0')}-${String(ab.jourPrelevement).padStart(2, '0')}`;
+      if (date > ctx.aujourdhui && date <= ajouterJours(ctx.aujourdhui, 125)) liste.push({ compteId: principal.id, libelle: `Abonnement ${ab.clientNom}`, nature: 'Prélèvement', categorie: 'Ventes', date, montantCents: ab.montantMensuelCents, reel: false, rapprochement: 'sans objet', lien: { type: 'abonnement', id: ab.id }, recurrent: true });
+    }
+  }
+  for (const e of echeances) {
+    if (e.paiement !== 'À payer' || e.montantCents === null || e.montantCents <= 0 || e.echeanceLe <= ctx.aujourdhui) continue;
+    liste.push({ compteId: principal.id, libelle: e.intitule, nature: 'Paiement', categorie: 'Impôts et taxes', date: e.echeanceLe, montantCents: -e.montantCents, reel: false, rapprochement: 'sans objet', lien: { type: 'manuel', id: null }, recurrent: false });
+  }
+
   const cap = compter(ctx.volumes.mouvements, [0, 14, 80, 600]);
   const reels = liste.filter((m) => m.reel).sort((a, b) => b.date.localeCompare(a.date)).slice(0, cap);
-  const prevus = liste.filter((m) => !m.reel).sort((a, b) => a.date.localeCompare(b.date)).slice(0, Math.ceil(cap * 0.35));
+  // Les prévus couvrent quatre mois (l'horizon de 90 jours de H09) : leur plafond suit.
+  const prevus = liste.filter((m) => !m.reel).sort((a, b) => a.date.localeCompare(b.date)).slice(0, Math.ceil(cap * 1.6));
   const tous = [...reels, ...prevus].sort((a, b) => b.date.localeCompare(a.date)).map((m, i) => ({ ...m, id: `mv-${String(i + 1).padStart(4, '0')}` }));
 
   // Soldes : le compte principal vaut la cible, ses mouvements réels y mènent ; les autres comptes sont des montants fixes.

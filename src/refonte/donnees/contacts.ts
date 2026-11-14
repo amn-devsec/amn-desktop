@@ -14,7 +14,7 @@ import {
   TEXTES_AVIS_NEGATIFS, TEXTES_AVIS_POSITIFS, THEMES_AVIS, TYPES_ENTREPRISE, VILLES,
 } from './fond';
 import {
-  ajouterJours, arrondir, centimes, compter, courriel, DOMAINE_COURRIEL, ecartJours, graineDe, hasard, instantParis, iso, jourDe, slug,
+  ajouterJours, arrondir, centimes, compter, courriel, DOMAINE_COURRIEL, ecartJours, graineDe, hasard, instantParis, iso, jourDe, lundiDe, slug,
   telephone, type Hasard, type Jour,
 } from './outils';
 import type {
@@ -59,9 +59,28 @@ const suiveurs = (equipe: readonly Membre[]): Membre[] => {
 
 /* ------------------------------ Clients ------------------------------ */
 
+/**
+ * Les jours de début des clients les plus récents. H04 (« Nouveaux clients : 3, 1 de plus ») et G08
+ * (« Nouveaux : +6 ») comptent les clients arrivés cette semaine, la semaine d'avant et ce mois-ci :
+ * sans eux, ces compteurs resteraient à zéro. Trois cette semaine, deux la précédente, puis les
+ * suivants plus tôt dans le mois (« peu » : un et un).
+ */
+export function joursDeNouveauxClients(aujourdhui: Jour, n: number): Jour[] {
+  const lundi = lundiDe(aujourdhui);
+  // Jamais plus tard qu'hier (sauf un lundi : il n'y a pas d'hier dans la semaine).
+  const borne = (j: Jour): Jour => (j > ajouterJours(aujourdhui, -1) && aujourdhui > lundi ? ajouterJours(aujourdhui, -1) : j);
+  const cetteSemaine = [0, 1, 3].map((k) => borne(ajouterJours(lundi, k)));
+  const precedente = [1, 3].map((k) => ajouterJours(lundi, k - 7));
+  const plusTot = [ajouterJours(lundi, -9), ajouterJours(lundi, -12)];
+  const voulus = n >= 40 ? [...cetteSemaine, ...precedente, ...plusTot.slice(0, 1)] : n >= 6 ? [cetteSemaine[0], precedente[0]] : [];
+  return voulus.filter((j) => j <= aujourdhui);
+}
+
 export function genererClients(ctx: Contexte, equipe: readonly Membre[]): FicheClient[] {
   const h = hasard(graineDe(ctx.graine, 'clients'));
   const n = compter(ctx.volumes.clients, [0, 6, 48, 300]);
+  // Les derniers clients de la liste sont les plus récents.
+  const recents = joursDeNouveauxClients(ctx.aujourdhui, n);
   const resp = suiveurs(equipe);
   const deja = new Set<string>();
   const clients: FicheClient[] = [];
@@ -70,11 +89,15 @@ export function genererClients(ctx: Contexte, equipe: readonly Membre[]): FicheC
     const contact = personne(h);
     const ville = h.choix(VILLES);
     const org = nature === 'organisation' ? nomEntreprise(h, deja) : { nom: '', secteur: h.choix(['Particulier', 'Profession libérale', 'Association']) };
-    const debutLe = ajouterJours(ctx.aujourdhui, -h.entier(25, 1100));
-    const dernier = ctx.maintenant - ecartEchange(h) * 86_400_000 - h.entier(0, 8) * 3_600_000;
+    const ancien = ajouterJours(ctx.aujourdhui, -h.entier(25, 1100));
+    const cible = i > n - recents.length ? recents[n - i] : null;
+    const debutLe = cible ?? ancien;
+    const dernierBrut = ctx.maintenant - ecartEchange(h) * 86_400_000 - h.entier(0, 8) * 3_600_000;
+    // Un client arrivé cette semaine n'a pas eu son dernier échange avant d'arriver.
+    const dernier = cible ? Math.min(ctx.maintenant - 3_600_000, Math.max(dernierBrut, instantParis(cible, '09:00') + 3_600_000)) : dernierBrut;
     const domaine = nature === 'organisation' ? `${slug(org.nom)}.${DOMAINE_COURRIEL}` : DOMAINE_COURRIEL;
     const echanges = h.echantillon(ECHANGES, h.entier(2, 5));
-    const debutMs = instantParis(debutLe, '09:00');
+    const debutMs = Math.min(instantParis(debutLe, '09:00'), dernier - 1_800_000);
     const events = echanges
       .map((e, k) => ({ e, quand: debutMs + Math.round(((dernier - debutMs) * (k + 1)) / echanges.length) }))
       .map(({ e, quand }, k) => ({ id: i * 100 + k, clientId: i, title: e[0], detail: e[1], date: iso(quand) }));

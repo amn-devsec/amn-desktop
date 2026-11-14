@@ -31,6 +31,10 @@ export { joursSansImpaye, jourDuCreneau } from './complements';
 export { quantiteEnStock } from './creer';
 export { etatOrganisation, niveauMaturite, NIVEAUX_MATURITE, scoreMaturite } from './garde';
 export { etatAccord, niveauConformite, outilDisponible, PHASES_MISSION } from './cyber';
+export {
+  attendusBilanSemaine, attendusCockpit, attendusPrevisions, attendusTableauDeBord, PALIERS_DE_SERIE,
+  type AttendusBilanSemaine, type AttendusCockpit, type AttendusPrevisions, type AttendusTableauDeBord, type OptionsPrevisions,
+} from './attendus';
 export type * from './types-suite';
 
 import { construireMonde, type OptionsMonde } from './monde';

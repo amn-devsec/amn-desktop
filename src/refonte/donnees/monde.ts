@@ -79,7 +79,9 @@ export function construireMonde(options: OptionsMonde = {}): Monde {
   const depenses = genererDepenses(ctx, equipe);
   const bulletins = genererBulletins(ctx, equipe);
   const comptes = genererComptes(ctx);
-  const mouvements = genererMouvements(ctx, comptes, paiements, depenses, abonnements, factures, netMensuelMoyen(bulletins));
+  // Les échéances fiscales se déduisent des factures, des dépenses et de la paie ; les sorties prévues en dépendent.
+  const echeancesFiscales = genererEcheances(ctx, factures, depenses, bulletins);
+  const mouvements = genererMouvements(ctx, comptes, paiements, depenses, abonnements, factures, netMensuelMoyen(bulletins), echeancesFiscales);
   const enveloppes = genererEnveloppes(ctx, equipe, depenses);
   // Le budget mensuel global est la somme des enveloppes (MA06), pas un nombre posé à côté.
   if (enveloppes.length) entreprise.reglages.budgetMensuelDepensesCents = enveloppes.reduce((s, e) => s + e.prevuCents, 0);
@@ -93,7 +95,6 @@ export function construireMonde(options: OptionsMonde = {}): Monde {
   /* ----------------------------- La suite ----------------------------- */
 
   // Compléments des lots déjà faits.
-  const echeancesFiscales = genererEcheances(ctx, factures, depenses, bulletins);
   const prestations = genererPrestations(ctx, equipe, factures);
   const partenaires = genererPartenaires(ctx, equipe, fournisseurs);
   const creneaux = genererCreneaux(ctx, equipe, clients);
