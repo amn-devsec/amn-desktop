@@ -60,6 +60,10 @@ Huit jeux de plus (109 au total) : `depots`, `deploiements`, `deploiementsPlanif
 
 Pas fait : le résumé du serveur de DEV-serveur (en ligne depuis N jours, copie hors serveur, coût du mois, remplissage du disque) — non listé dans la commande ; les modèles de sites (contenu, pas des données).
 
+## Avoirs : sur demande seulement (retrait du 14 nov. par le CO)
+
+Le CO a retiré temporairement la fusion `c9e8713` de `refonte-vivante` : `check:argent` (DS) ne lit pas encore la nature `creditNote`, donc les avoirs faussaient le reste dû, la TVA et les impayés. Réponse de SIM : le jeu `avoirs` reste, mais **n'entre dans le monde que sur demande** — `construireMonde({ avoirs: true })`, `jeu('avoirs')`, `--avoirs` pour le chargeur. Par défaut le monde n'a pas d'avoirs, et les contrôles de tous les lots qui lisent ces jeux passent (argent 53, contacts 85, échanger 89, écrire 94, créer 137, développement 51, connecteurs 103). Quand DS lit les avoirs, passer `avoirs` à `true` par défaut (une ligne dans `monde.ts`).
+
 ## Ce qui reste à faire (par ordre d'utilité)
 
 1. **Champs réclamés, non faits** (relus sur `STATUT.md` de `refonte-vivante` pour LOT-02, et sur les branches `refonte-argent` et `refonte-creer` pour LOT-04 et LOT-06, pas encore fusionnées) :
