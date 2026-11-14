@@ -4,7 +4,7 @@
 
 ## REPRISE (à lire en premier après une compaction ; tenu par le CO, réécrit à chaque tour)
 
-Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `bf46299`.
+Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `74bb0d4`.
 
 **À refusionner** : `c9e8713` (SIM). Sa fusion a été retirée par `git revert -m 1`, donc il faut d'abord **annuler ce retrait** (`git revert` du commit de retrait), puis fusionner la suite de SIM, une fois que `check:argent` passe chez DS.
 
@@ -16,7 +16,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 | T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | passage 2 sur `888f7a0` en cours (avec le delta d'`ancres` et `avoirs` de S0) | son verdict → fusion du socle v4 et allumage (§1.9) ; puis `check:fidelite` (§1.30) |
 | S6 Sécurité | `session_01RHV8Xq2txWkfjAusKvq9DG` | LOT-07 préparation prête (`f52ef5d`) ; une étape de sécurité attend amn-api | fusion après le contrôle du paquet client par T1 |
 | SIM | `session_011UF2ufZg9moGv2rRZFRuf7` | `c9e8713` prêt mais **retiré** (casse `check:argent`) ; **sans dossier v4** | refusionner quand DS lit les avoirs ; puis fidélité, H05, LOT-03, LOT-11 |
-| DS | `session_01TZGDvVWristJnnPK59rruY` | préparation de LOT-04 fusionnée (§1.29) ; **sans dossier v4** | **lire les avoirs (nature creditNote)** pour que `check:argent` passe sur `c9e8713` |
+| DS | `session_01TZGDvVWristJnnPK59rruY` | LOT-04 relu avec le v4 et fusionné (§1.33) ; a les zips | **lire les avoirs** : encore 2 propriétés rouges sur `c9e8713` |
 | S5 | `session_012jWErBSSkcoVaU3iN895bQ` | LOT-03, registre et LOT-05 fusionnés (§1.32) | attend le socle v4 |
 | S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | LOT-02 relu avec le v4 et fusionné (§1.31) ; a les zips | attend le socle v4 |
 | S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | préparation v4 fusionnée (`526cd63`) | attend le socle v4 |
@@ -44,6 +44,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov. : LOT-04 relu avec le v4, fusionné (`74bb0d4`) ; neuf décisions, dont le moteur de relances unique et la série de G03 (§1.33).
 - 14 nov. : LOT-07 préparation (S6, `f52ef5d`). Couture `@edition/automatisations` et tarifs de H21 relevés. Fusion à blanc propre : aucune garde nouvelle rouge, typechecks verts, un seul conflit d'ajout dans `editions.yml`. **Fusion en attente** : elle touche `AutomationsRunner.tsx`, partagé avec l'édition cliente, donc T1 compare d'abord le paquet client (règle D). LOT-05 (`df07f85`) fusionné.
 - 14 nov. : LOT-05 préparation et réglages de MC07 fusionnés (`5b2e8d0`), gardes lues avant le push (§1.32).
 - 14 nov. : **incident**. La fusion de `c9e8713` (SIM) a été poussée (`c565bd7`) avant que ses gardes soient lues : `check:argent` était rouge (avoirs rangés avec les factures). Elle a été retirée quelques minutes après (`8121e07`), et tout est revenu au vert. DS adapte sa logique aux avoirs, puis le CO refusionne. **Correction de méthode : le CO lit toutes les gardes avant chaque push, jamais après.**
@@ -694,6 +695,22 @@ Fusionnés (`5b2e8d0`). Gardes lues **avant** le push, et toutes vertes : `check
 | 4 | Présence « lit / écrit » | **Masquée** au premier jet, sans rien simuler (comme §1.29, LOT-03 n° 3). |
 | 5 | « Messages programmés » | Le nom de la fiche est gardé, **provisoire, révisable par Harun**. |
 | 6 | Tutoiement dans MX04 | **La v4 l'emporte** : tutoiement dans l'interface, vouvoiement pour ce qui part chez un client. |
+
+### 1.33 LOT-04 relu avec le dossier v4 (DS, `85aebbd`) : fusionné, décisions du CO
+
+Fusionné (`74bb0d4`). Gardes lues avant le push : `check:argent` (69), les typechecks et lint sont verts, et aucune garde nouvelle n'est rouge. DS a les zips v4. Avec les jeux de SIM (`c9e8713`), 2 propriétés échouent encore : DS les traite (les avoirs).
+
+| # | Point de DS | Décision |
+|---|---|---|
+| 1 | TVA par taux (fiche) ou par ligne | Reste **par ligne** (§1.29 n° 1, provisoire). Aucun écart sur l'exemple de H07 ni sur les jeux. La question va à Harun et à un comptable. |
+| 2 | Relances : « J+7 » de la fiche contre le 8e jour du moteur ; étapes successives | On garde **le moteur unique** (le palier s'ouvre après le seuil) : `src/lib/relances.ts` sert aussi l'édition cliente. L'écart d'un jour est noté, **provisoire, révisable par Harun**. La condition d'étape de MA04 (relance 2 après relance 1) **s'ajoute** dans la couche de la refonte. |
+| 3 | Modèle de mise en demeure | Il se règle dans l'**identité de facturation** (H18). Pas de modèle par défaut : l'étape reste vide tant qu'un modèle validé par un juriste n'est pas posé. La validation revient à Harun. |
+| 4 | Place des modules de F1 | Comme le propose DS, **provisoire** : Taux horaire de revient dans MA12, Paiement en plusieurs fois dans H07, Comparateur de devis dans MA03. Par des liens, F1 garde ses modules. |
+| 5 | Deux « séries » de même nom | **La définition de G03** (aucune facture en retard laissée « non traitée » à 23 h 59). F30 renvoie à G03, donc F30 la suit. |
+| 6 | TVA récupérable | **Deux chiffres distincts**, chacun nommé : indicatif dans H08 (dépenses justifiées), déclaratif dans MA08. |
+| 7 | Période de TVA | Un réglage, mensuel ou trimestriel. **Mensuel par défaut**, comme les jeux ; le trimestre est la somme des mois. **Provisoire**, à valider par un comptable. |
+| 8 | Ordre des cartes de MA04 | **La règle de la fiche** (retard décroissant). L'écart avec l'image est noté. |
+| 9 | Seuils | Les valeurs de la fiche remplacent les miennes là où elles existent. Elles restent réglables. |
 
 ## 2. Les lots
 
