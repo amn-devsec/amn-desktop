@@ -1,6 +1,6 @@
 # Lancer AMN Business sur mon PC (données fictives)
 
-> Pour Harun, à suivre **quand le socle v4 est fusionné** dans `claude/refonte-vivante` (`STATUT.md` le dira). Tout reste sur ton poste : l'application, une API d'essai qui garde tout en mémoire, et des données inventées. Rien ne part sur Internet, rien de réel n'est touché, et tout s'efface quand tu arrêtes.
+> Pour Harun. **Le socle v4 est fusionné** dans `claude/refonte-vivante` (14 nov.) : tu peux le suivre dès maintenant. Tout reste sur ton poste : l'application, une API d'essai qui garde tout en mémoire, et des données inventées. Rien ne part sur Internet, rien de réel n'est touché, et tout s'efface quand tu arrêtes.
 
 ## Ce qu'il faut avant de commencer
 

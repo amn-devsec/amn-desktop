@@ -4,7 +4,7 @@
 
 ## REPRISE (à lire en premier après une compaction ; tenu par le CO, réécrit à chaque tour)
 
-Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `75dc9fb`.
+Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `9759cbd`.
 
 **Avoirs** : réglé, ils sont présents par défaut (`b0173f3`).
 
@@ -13,7 +13,7 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 | Session | Identifiant | État | Prochain geste |
 |---|---|---|---|
 | S0 Socle | `session_01SJe828c2W5EnkMY4fhFY6z` | passe finale v4 finie (`888f7a0`) ; correctifs `ancres` et `avoirs` prêts mais **attend l'accord direct de Harun** pour pousser | ligne à coller par Harun (POINT-HARUN) ; puis ce que T1 signale |
-| T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | passage 2 sur `888f7a0` en cours (avec le delta d'`ancres` et `avoirs` de S0) | son verdict → fusion du socle v4 et allumage (§1.9) ; puis `check:fidelite` (§1.30) |
+| T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | passage 2 fini : socle fusionné (§1.35) | C-008 (gardes sous la coquille v4), puis `check:fidelite` sur chaque lot, priorité 2 |
 | S6 Sécurité | `session_01RHV8Xq2txWkfjAusKvq9DG` | LOT-07 préparation (`afdbccf`) ; **sans zips v4** ; une étape de sécurité attend amn-api | fusion après le contrôle du paquet client par T1 |
 | SIM | `session_011UF2ufZg9moGv2rRZFRuf7` | tout fusionné (`b0173f3`, 115 jeux) ; **sans dossier v4** | listes « Manque aux données » des lots à venir |
 | DS | `session_01TZGDvVWristJnnPK59rruY` | LOT-04 avec les avoirs, fusionné (§1.34) | appliquer §1.33, comparer H09 aux attendus de SIM |
@@ -40,10 +40,11 @@ Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son �
 
 | Jour | Construits | Livrés (cumul) | Livrés depuis la veille | Lots préparés | Lots finis | Note |
 |---|---|---|---|---|---|---|
-| 14 nov. | 9 / 153 | 0 | 0 | 7 / 13 | 0 / 13 | les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. La note de LOT-08 n'est pas fusionnée. |
+| 14 nov. | 9 / 153 | 9 (LOT-00, socle v4) | 9 | 7 / 13 | 0 / 13 (LOT-00 attend l'allumage) | les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 05, 06, 11 et 12. La note de LOT-08 n'est pas fusionnée. |
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov., 08h : **socle v4 fusionné** (`a76c201`) après le feu vert de T1. La coquille n'est pas allumée par défaut (conditions de T1, §1.35). Feu vert à la construction des écrans pour tous les lots préparés.
 - 14 nov., 05h25 : outils de T1 fusionnés (`be05376`) : contrôle de fidélité v4, garde `check:fidelite` (tests unitaires 2 sur 2), conditions de la coquille v4. Gardes vertes. Le verdict du passage 2 sur le socle est toujours attendu.
 - 14 nov., 05h : **S0, deuxième échec sur le même point** (anti-blocage, règle C). Diagnostic : S0 ne pousse pas sur un message d'une autre session, et attend l'accord direct de Harun. Ce n'est pas un défaut de travail : c'est une règle de prudence de la session. Tentatives : deux messages du CO, dont un avec la règle de `REGLES.md`. Correctif proposé par S0 et retenu par le CO : un pont `@edition/moments` séparé, avec son jumeau `*.business`. Mis dans `POINT-HARUN.md`, une ligne à coller par Harun. Rien d'autre n'est bloqué par là.
 - 14 nov., 04h30 : S0 s'était arrêté pour demander une confirmation avant de corriger `ancres` et `avoirs`. Le CO l'a relancé avec carte blanche dans son cadre (règle « Messages du CO »). Première relance sur ce point.
@@ -735,6 +736,28 @@ LOT-04 fusionné : `check:argent` passe ses 70 propriétés, avec et sans les av
 | 5 | Qui gère les connecteurs | **`owner` et `admin`** (`isAdminRole`). **Provisoire, révisable par Harun.** |
 | 6 | Où vit l'état des prises de H21 | **Sur le poste** pour l'instant (local d'abord). Les clés ne sont jamais sur le poste, elles restent chez amn-api. L'état passera au serveur avec LOT-13. |
 | 7 | Devise et plafonds des tarifs | **Tels que publiés** : un prix en dollars reste en dollars, avec la mention « publié en dollars », sans conversion inventée. Le plafond par transaction est indiqué comme publié. |
+
+### 1.35 Socle v4 fusionné (14 nov., 08h) ; coquille pas encore allumée par défaut
+
+**Passage 2 de T1 sur `888f7a0` : feu vert à la fusion.** Rapport : `docs/qualite/SANTE.md` « Passage 2 » (claude/refonte-qualite @ `e4d20af`, fusionnée).
+- L'édition cliente est intacte : le JS du paquet client ne contient que les coutures vides, aucun mot interdit, et pas de `data-famille-active`.
+- 59 `check:*` d'`editions.yml` sont verts, ainsi que le typecheck et lint.
+- Les trois conditions du §1.25 tiennent : attribut de famille posé et retiré en direct ; aucune animation infinie en mouvement réduit ; contraste mesuré sur les pixels, 1 136 textes, dont un seul à 4,49:1 (C-010).
+
+**Fusionné** : `a76c201`, puis les outils de T1, puis `check:fidelite` et `test:fidelite` branchés (`9759cbd`). Seul conflit : des ajouts côte à côte dans `package.json` et `editions.yml`, tous gardés, sans doublon. Gardes lues avant le push : aucune garde rouge nouvelle, aucune garde d'`editions.yml` rouge, typechecks et lint verts.
+
+**Allumage de la coquille par défaut (§1.9) : pas encore.** T1 ne le valide pas tant que ces points restent ouverts :
+- **C-006** (S0) : tutoiement. 6 chaînes visibles sur LOT-00 et la coquille, plus 79 lignes sur 19 autres écrans. `check:tutoiement` est vert parce qu'il ne lit que les 353 textes du dictionnaire : il faut l'étendre au rendu.
+- **C-007** (S3) : `check:encres`, des copies de jetons dans `src/refonte/garde/equipes.ts`.
+- **C-008** (T1) : sous la coquille v4, les gardes navigateur ne trouvent que 15 écrans sur 142. Elles sont à adapter avant toute certification, et le faux rouge de `check:contraste` (texte sombre sur dégradé néon) aussi.
+- Les correctifs `ancres` et `avoirs` (S0) ; l'ancienne garde `check:coquille` interne, à adapter (S0) ; C-005, CSS inerte dans le paquet client, 64 sélecteurs (S0) ; C-009, un compte neuf qui voit H42 fait planter `check:contraste` (S0 ou T1) ; C-010, encre T4 à `#8b8b8f` (S0).
+
+**Fidélité de LOT-00** (mesures de T1, écart brut à ± 2 px, valeurs acceptées dans `docs/qualite/fidelite/acceptes-LOT-00.json`) : G09 13,3 · G06 11,4 · H42 18,1 · H40 20,0 · H47 21,3 · H41 22,7 · H43 27,6 · D02 30,6 · G05 43,4 %. En disposition (couleur à ± 10), tous les écrans sont sous 15 %. Les écarts justifiés sont dans `justifies-LOT-00.json`.
+
+**Feu vert à la construction des écrans**, derrière le drapeau de la coquille. La coquille reste éteinte par défaut ; on l'allume dans Paramètres › Nouvelle coquille. Pour chaque lot :
+- un commit par écran, et un push par lot de 3 à 5 écrans ;
+- avant de signaler au CO : `check:tutoiement` et la garde du lot ;
+- avant la fusion : T1 passe `check:fidelite`.
 
 ## 2. Les lots
 
