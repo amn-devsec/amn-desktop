@@ -768,18 +768,18 @@ Mots fr/en par `definirMots`. Gardes : `check:socle-controles|graphiques|situati
 | F10 | Contacts · Vue d'ensemble | nouveau | en cours (préparation) | préparation : aucune logique propre, lit les autres. Attend `ModuleTile`, `ModuleGroupGrid`, `AddModuleTile` |
 | H05 | Contacts · Clients | mixte | en cours (préparation) | préparation : `ClientsScreen` `/clients` ; santé et statut à recalculer (SIM) |
 | G04 | Contacts · Fiche client | mixte | en cours (préparation) | préparation : `ClientDetail` dans `ClientsScreen` ; « contacts par client » livré (`interlocuteurs.ts`) |
-| H06 | Contacts · Prospects | mixte | en cours (préparation) | préparation : `PipelineScreen` `/pipeline` ; logique `pipeline.ts` |
+| H06 | Contacts · Prospects | mixte | en cours (préparation) | préparation : `PipelineScreen` `/pipeline` ; logique `pipeline.ts` (dont `rouvrir`) |
 | H44 | Contacts · Retours clients | mixte | en cours (préparation) | préparation : `ReviewsScreen`, `SentimentScreen`, `NpsScreen` ; sentiment et NPS sans jeu propre |
 | H45 | Contacts · Fournisseurs | mixte | en cours (préparation) | préparation : `SuppliersScreen` `/fournisseurs` ; pas de logique neuve |
 | MC01 | Contacts · Pipeline commercial | mixte | en cours (préparation) | préparation : même écran que H06 ; `colonnesPipeline`, `transitionsPermises` |
-| MC02 | Contacts · Fidélité | mixte | en cours (préparation) | préparation : l'écran actuel est une carte à tampons, la fiche des points et niveaux → question au CO (note §5, 1) |
-| MC03 | Contacts · Fiches contacts | mixte | en cours (préparation) | préparation : aucun écran existant ; collection d'interlocuteurs à créer (note §5, 3) |
-| MC04 | Contacts · Équipe | mixte | en cours (préparation) | préparation : recoupe le trombinoscope (`DirectoryScreen`) |
-| MC05 | Contacts · Partenaires | mixte | en cours (préparation) | préparation : aucun écran ni jeu d'organisations partenaires |
+| MC02 | Contacts · Fidélité | mixte | en cours (préparation) | préparation : points et niveaux = l'écran ; la carte à tampons reste une formule au choix (§1.28) ; `formuleDe`, `progressionTampons` |
+| MC03 | Contacts · Fiches contacts | mixte | en cours (préparation) | préparation : aucun écran existant ; « non disponible » avec la raison tant que Harun n'a pas décidé de la collection d'interlocuteurs (§1.28) |
+| MC04 | Contacts · Équipe | mixte | en cours (préparation) | préparation : se construit sur le trombinoscope (`DirectoryScreen`, §1.28) |
+| MC05 | Contacts · Partenaires | mixte | en cours (préparation) | préparation : aucun écran ; le jeu d'organisations partenaires est commandé à SIM (§1.28) |
 | MC06 | Contacts · Rendez-vous clients | mixte | en cours (préparation) | préparation : `AgendaScreen` partagé (couture requise) et `BookingScreen` ; logique `rendezvous.ts` |
 | MC07 | Contacts · Relances | mixte | en cours (préparation) | préparation : `RemindersScreen` ne relance que les factures ; logique `relances.ts` pour les cinq motifs |
 
-Préparation par S1 (14 nov., `claude/refonte-contacts`) : note [`preparation/LOT-02-contacts.md`](preparation/LOT-02-contacts.md), logique dans `src/refonte/contacts/`, garde `check:contacts` (63 contrôles). Aucun écran visuel. **Les 13 fiches et le dossier v4 n'ont pas pu être lus** (zips absents de l'environnement) : les règles qui en dépendent sont marquées « à confirmer ».
+Préparation par S1 (14 nov., `claude/refonte-contacts`) : note [`preparation/LOT-02-contacts.md`](preparation/LOT-02-contacts.md), logique dans `src/refonte/contacts/`, garde `check:contacts` (66 contrôles). Aucun écran visuel. **Les 13 fiches et le dossier v4 n'ont pas pu être lus** (zips absents de l'environnement) : les règles qui en dépendent sont marquées « à confirmer ».
 
 **Manque au socle**
 - `ModuleTile`, `ModuleGroupGrid`, `AddModuleTile` (décidés au §1.10, absents de la liste des composants disponibles) pour F10.
@@ -788,11 +788,11 @@ Préparation par S1 (14 nov., `claude/refonte-contacts`) : note [`preparation/LO
 - `check:tutoiement` : pas encore dans la base.
 
 **Manque aux données**
-- Un jeu d'organisations partenaires (MC05) : seuls des interlocuteurs de type `partenaire` existent.
+- Un jeu d'organisations partenaires (MC05) : **commandé à SIM** (§1.28). Seuls des interlocuteurs de type `partenaire` existent.
 - Sentiment et NPS (H44) : pas de jeu propre, à dériver des `avis`.
 - Une raison de perte sur les prospects perdus (H06).
 - Les avantages de fidélité « offerts / utilisés » côté app : le jeu de SIM les porte, aucune collection ne les garde.
-- Une collection d'interlocuteurs côté app (MC03, G04, source de H41).
+- Une collection d'interlocuteurs côté app (MC03, G04, source de H41) : décision de Harun en attente (§1.28).
 
 ### LOT-03 · Écrire et retenir — `claude/refonte-ecrire` — 9 écrans
 

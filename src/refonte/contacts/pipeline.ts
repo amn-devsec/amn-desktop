@@ -93,8 +93,9 @@ export function resumePipeline(prospects: readonly Prospect[], aujourdhui: Jour)
 /**
  * Où un prospect peut aller. Avancer de n'importe quel nombre d'étapes (un devis
  * peut partir sans rendez-vous), reculer d'une seule ; « perdu » depuis toute étape
- * ouverte ; « gagné » et « perdu » sont terminaux (rouvrir est une décision à
- * prendre, voir la note du lot).
+ * ouverte. « gagné » ne se rouvre pas. « perdu » ne se déplace pas comme les autres :
+ * il se ROUVRE (voir `rouvrir`), avec confirmation et une trace — décision du CO
+ * (`STATUT.md` §1.28), valable tant que la fiche H06 n'en dit pas autre chose.
  */
 export function transitionsPermises(etape: EtapeProspect): EtapeProspect[] {
   if (etape === 'gagné' || etape === 'perdu') return [];
@@ -128,6 +129,34 @@ export function deplacer(p: Prospect, vers: EtapeProspect, aujourdhui: Jour): Re
     suite.urgent = false;
   }
   return { prospect: suite, creerClient: vers === 'gagné' && p.clientId == null };
+}
+
+/** Où repart un prospect rouvert : au début, la fiche H06 dira s'il en va autrement. */
+export const ETAPE_DE_REOUVERTURE: EtapeProspect = 'nouveau';
+
+/** La trace gardée d'une réouverture : qui regardera l'historique saura qu'un prospect perdu est revenu. */
+export interface TraceReouverture {
+  genre: 'reouvert';
+  le: Jour;
+  depuis: 'perdu';
+  vers: EtapeProspect;
+  /** Le jour où il avait été perdu. */
+  perduLe: Jour | null;
+}
+
+/**
+ * Rouvrir un prospect perdu. Exige la confirmation de la personne (`confirme`) : sans
+ * elle, rien ne change et l'erreur le dit. Un prospect gagné, ou encore ouvert, ne se
+ * rouvre pas. La probabilité reste à 0 : la personne la fixe, la valeur pondérée ne
+ * monte pas toute seule.
+ */
+export function rouvrir(p: Prospect, aujourdhui: Jour, confirme: boolean): { prospect: Prospect; trace: TraceReouverture } {
+  if (p.etape !== 'perdu') throw new Error(`réouverture refusée : ${p.etape} n'est pas perdu`);
+  if (!confirme) throw new Error('réouverture refusée : confirmation requise');
+  return {
+    prospect: { ...p, etape: ETAPE_DE_REOUVERTURE, perduLe: null },
+    trace: { genre: 'reouvert', le: aujourdhui, depuis: 'perdu', vers: ETAPE_DE_REOUVERTURE, perduLe: p.perduLe },
+  };
 }
 
 /** Depuis combien de jours un prospect attend (création → aujourd'hui), pour l'âge d'une carte. */

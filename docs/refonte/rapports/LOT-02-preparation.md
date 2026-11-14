@@ -77,3 +77,10 @@ Lecture seule dans d'autres zones : `src/refonte/connecteurs/` (S9) est **import
 - Aucun écran, donc aucune capture, aucune comparaison à ± 2 px.
 - `build:web` et l'application : non lancés, inutile en préparation.
 - Le comportement des écrans actuels (`RemindersScreen`, `LoyaltyScreen`…) : lu dans le code, jamais exécuté.
+
+## Mise à jour du 14 nov. (après les décisions du CO, `STATUT.md` §1.28)
+
+- Appliqué dans la logique : `rouvrir` (perdu seulement, confirmation, trace), les deux formules de fidélité (`formuleDe`, `progressionTampons`), « messagerie » = courriel, la clé « non disponible » de MC03. `check:contacts` : 66 contrôles.
+- Note §5 et section LOT-02 de `STATUT.md` : réponses du CO reportées, jeu des partenaires marqué « commandé à SIM ».
+- **Toujours bloqué** : les 5 zips du dossier v4 ne sont pas dans l'environnement de la session. Les 13 fiches, leurs images et `_data/tutoiement.json` ne sont toujours pas lus : `i18n.ts` n'est pas aligné et les règles « à confirmer » ne sont pas levées. À reprendre dès que Harun pose les zips à un endroit lisible par la session.
+- Extension de `src/lib/relances.ts` (un seul moteur) : fichier partagé, non touché ici ; à la construction, avec S9.

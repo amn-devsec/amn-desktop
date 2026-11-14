@@ -7,11 +7,11 @@
 
 ## 1. En bref
 
-- **Livré** : `src/refonte/contacts/` (8 fichiers, logique pure, sans React) et `scripts/check-contacts.ts` (`npm run check:contacts`, **63 contrôles**, ajouté à `package.json` et `editions.yml`). Quatre sujets, comme demandé : **pipeline**, **relances**, **fidélité**, **rendez-vous**, plus la source **« Contacts par client »** de H41.
+- **Livré** : `src/refonte/contacts/` (8 fichiers, logique pure, sans React) et `scripts/check-contacts.ts` (`npm run check:contacts`, **66 contrôles**, ajouté à `package.json` et `editions.yml`). Quatre sujets, comme demandé : **pipeline**, **relances**, **fidélité**, **rendez-vous**, plus la source **« Contacts par client »** de H41.
 - **La règle de relance** : on ne harcèle jamais un client. Quatre garde-fous, tous testés, aucun contournable par un écran : 7 jours minimum entre deux relances du même objet (valeur de départ du CO, §1.22, **lue chez S9** pour qu'il n'y ait qu'une source), 3 relances au plus par objet, un seul message par client et par jour, envoi seulement lun.–ven. 08:00–19:00 heure de Paris.
 - **Deux voix** : l'interface tutoie, tout ce qui part chez un client vouvoie. `check:contacts` vérifie les deux sens sur les clés fr.
 - **Ce qui attend** : tous les écrans (socle v4), les 13 fiches (à relire avec le dossier v4), `check:tutoiement` (pas encore dans la base).
-- **Cinq constats pour le CO** (§5).
+- **Cinq constats**, tous décidés par le CO le 14 nov. (§5).
 
 ## 2. Les 13 écrans
 
@@ -64,19 +64,20 @@ H41 (Recherche ⌘K, LOT-00) propose « Écrire à X » : il lui faut, pour un c
 - `marquerEnvoyee` **lève une erreur** si le verdict ne le permet pas : un écran ne peut pas, par erreur, envoyer deux fois le même jour.
 - Les jeux de SIM (`relances`, `fidelite`) servent de **comparaison**, pas de source : `pointsDe` redonne exactement les points du jeu, et la file recalculée respecte les quatre garde-fous sur chaque volume.
 
-## 5. Constats et questions pour le CO
+## 5. Constats et décisions du CO (`STATUT.md` §1.28, 14 nov.)
 
-1. **Fidélité : deux mécaniques.** L'écran actuel `/fidelite` est une carte à tampons (collection `loyaltyCards` : 10 tampons, le 11e offert). Le jeu de SIM et la logique livrée suivent la fiche MC02 (points, niveaux Bronze/Argent/Or, avantages). Lire la fiche avant de construire : garder les tampons, les remplacer, ou proposer les deux ? Une décision de Harun.
-2. **Relances : le périmètre grandit.** `RemindersScreen` relance les factures seules (paliers `rappel` → `dernier-avis`, moteur `src/lib/relances.ts` que S9 réutilise). MC07 en attend cinq (devis, rendez-vous, prospects, inactifs). La logique livrée traite les cinq ; **elle ne reprend pas les paliers d'escalade des factures**, déjà dans `src/lib/relances.ts` et `connecteurs/moteurs/relances.ts`. À arbitrer à la construction : un seul moteur pour les cinq motifs (recommandé) ou deux côte à côte.
-3. **Collection d'interlocuteurs.** MC03 et la source de H41 supposent une collection d'interlocuteurs ; l'app n'en a pas. Il faut un schéma, un hook et une migration (sans toucher à l'édition cliente). À planifier, avec l'accord du CO.
-4. **Plafond de 3 relances et un message par client et par jour.** Ces deux garde-fous découlent de « on ne harcèle jamais un client » ; leurs valeurs viennent de moi (3 et 1), pas d'une fiche. L'espacement (7 jours) et la plage (lun.–ven. 08:00–19:00) viennent du CO. Valeurs à confirmer avec MC07.
-5. **MC04 Équipe et MC05 Partenaires.** MC04 recoupe le trombinoscope (déjà au registre) ; MC05 n'a ni écran ni jeu d'organisations partenaires. À décider : jeu à commander à SIM, ou écrans plus simples.
+| # | Constat | Décision du CO | Où c'est dans la logique |
+|---|---|---|---|
+| 1 | Fidélité : l'écran actuel est une carte à tampons, la fiche MC02 des points et niveaux | **Les deux formules, sans rien perdre.** Points et niveaux = l'écran. La carte à tampons reste une formule au choix de l'organisation, et la formule par défaut là où elle sert déjà | `fidelite.ts` : `Formule`, `formuleDe`, `progressionTampons` |
+| 2 | Relances : cinq motifs, l'écran actuel n'en relance qu'un | **Un seul moteur** pour les cinq motifs, `src/lib/relances.ts` étendu ; les paliers des factures restent tels quels | `relances.ts` (verdicts) est la couche « quand et à qui » ; l'extension de `src/lib/relances.ts` se fait à la construction, avec S9 |
+| 3 | Collection d'interlocuteurs absente | **À Harun**, présenté par le CO. D'ici là, MC03 s'affiche « non disponible », avec la raison | clé `contacts.indisponible` (`i18n.ts`) |
+| 4 | Plafond de 3 relances, un message par client et par jour | **Adoptés comme valeurs de départ, modifiables.** À relire avec MC07 | `REGLES_PAR_DEFAUT` |
+| 5 | MC04 Équipe et MC05 Partenaires | MC04 se construit sur le trombinoscope ; le jeu d'organisations partenaires est **commandé à SIM** | liste « Manque aux données » de `STATUT.md` |
+| — | Rouvrir un prospect | Selon la fiche H06. À défaut : un perdu se rouvre, **avec confirmation et une trace** ; un gagné ne se rouvre pas | `pipeline.ts` : `rouvrir`, `TraceReouverture` |
+| — | « Messagerie » comme moyen de joindre | Selon la fiche MC03. À défaut : le courriel | `interlocuteurs.ts` : `moyenDeJoindre` |
+| — | Raccourci « Relancer » | Aucun (⌘R est pris par Electron) | — |
 
-Questions de mise en œuvre, à trancher avant les écrans :
-
-- Reculer d'une étape dans le pipeline, rouvrir un prospect gagné ou perdu : la logique les interdit pour l'instant (terminaux). La fiche H06 dit-elle autre chose ?
-- « Messagerie » comme moyen de joindre : ce que la fiche MC03 entend par là (message interne ? courriel ?) n'est pas lu. Aujourd'hui `moyenDeJoindre` rend l'adresse courriel.
-- ⌘R est pris par le rechargement d'Electron (`STATUT.md` §1.8 n° 14) : aucun raccourci « Relancer » tant qu'une touche libre n'est pas choisie.
+Choix de la session, à relire avec la fiche H06 : un prospect rouvert repart en « Nouveau » (`ETAPE_DE_REOUVERTURE`) et sa probabilité reste à 0, pour qu'aucune valeur pondérée n'apparaisse sans que la personne l'ait fixée.
 
 ## 6. Ce qui n'a pas été fait, et pourquoi
 

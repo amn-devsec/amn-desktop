@@ -132,6 +132,19 @@ await dit('gagner : date de signature, 100 %, plus d’action, et un client à c
   assert.deepEqual([p.prospect.perduLe, p.prospect.probabilite, p.creerClient], ['2026-10-30', 0, false]);
 });
 
+await dit('rouvrir : un prospect perdu seulement, avec confirmation et une trace ; il repart en « Nouveau », sans probabilité inventée', () => {
+  const perdu = L.deplacer(prospect({ probabilite: 60 }), 'perdu', '2026-10-20').prospect;
+  assert.throws(() => L.rouvrir(perdu, '2026-10-30', false), /confirmation/);
+  assert.equal(perdu.etape, 'perdu', 'sans confirmation, rien ne change');
+  const r = L.rouvrir(perdu, '2026-10-30', true);
+  assert.deepEqual([r.prospect.etape, r.prospect.perduLe, r.prospect.probabilite], ['nouveau', null, 0]);
+  assert.deepEqual(r.trace, { genre: 'reouvert', le: '2026-10-30', depuis: 'perdu', vers: 'nouveau', perduLe: '2026-10-20' });
+  assert.equal(L.valeurPonderee(r.prospect), 0);
+  assert.throws(() => L.rouvrir(prospect({ etape: 'gagné' }), '2026-10-30', true), /n'est pas perdu/, 'un gagné ne se rouvre pas');
+  assert.throws(() => L.rouvrir(prospect(), '2026-10-30', true), /n'est pas perdu/);
+  assert.deepEqual(L.transitionsPermises('perdu'), [], 'rouvrir n’est pas un déplacement ordinaire');
+});
+
 await dit('un mouvement refusé lève une erreur ; l’objet d’origine n’est jamais modifié', () => {
   const p = prospect({ etape: 'gagné' });
   assert.throws(() => L.deplacer(p, 'nouveau', '2026-10-30'), /refusé/);
@@ -303,6 +316,20 @@ await dit('progression : points qui manquent, part dans le niveau, Or = plafond'
   assert.deepEqual(L.progression(1500), { niveau: 'Or', suivant: null, manque: null, part: 1 });
 });
 
+await dit('deux formules : le choix de l’organisation, sinon tampons là où des cartes existent déjà, sinon points', () => {
+  assert.equal(L.formuleDe('points', 12), 'points', 'le choix l’emporte');
+  assert.equal(L.formuleDe('tampons', 0), 'tampons');
+  assert.equal(L.formuleDe(null, 3), 'tampons', 'on ne retire rien à qui s’en sert');
+  assert.equal(L.formuleDe(null, 0), 'points');
+});
+
+await dit('carte à tampons : 10 pour la récompense, bornée entre 0 et 10', () => {
+  assert.deepEqual(L.progressionTampons(4), { tampons: 4, manque: 6, pleine: false });
+  assert.deepEqual(L.progressionTampons(10), { tampons: 10, manque: 0, pleine: true });
+  assert.deepEqual(L.progressionTampons(14), { tampons: 10, manque: 0, pleine: true });
+  assert.deepEqual(L.progressionTampons(-2), { tampons: 0, manque: 10, pleine: false });
+});
+
 await dit('les points d’un client = euros TTC payés sur 12 mois, jamais une facture en attente, ancienne ou d’un autre client', () => {
   const facture = (o: Record<string, unknown>) => ({
     clientId: 1, status: 'paid', paidAt: '2026-06-01', lines: [{ id: 'l', label: 'x', quantity: 1, unitPriceCents: 10_000, vatRate: 20 }], ...o,
@@ -426,7 +453,8 @@ await dit('le résumé d’un client : principal, non lus, dernier échange, jou
   assert.deepEqual([vide.principal, vide.tous, vide.nonLus, L.joursSansEchange(vide, '2026-10-30')], [null, [], 0, null]);
 });
 
-await dit('moyen de joindre : la préférence, avec repli quand le champ manque', () => {
+await dit('moyen de joindre : la préférence, avec repli quand le champ manque ; « messagerie » se lit comme le courriel', () => {
+  assert.deepEqual(L.moyenDeJoindre(it({ preference: 'messagerie' })), { moyen: 'courriel', valeur: 'a@exemple.test' });
   assert.deepEqual(L.moyenDeJoindre(it({ preference: 'téléphone' })), { moyen: 'téléphone', valeur: '06 39 98 00 01' });
   assert.deepEqual(L.moyenDeJoindre(it({ preference: 'téléphone', telephone: '' })), { moyen: 'courriel', valeur: 'a@exemple.test' });
   assert.deepEqual(L.moyenDeJoindre(it({ email: '', telephone: '06 39 98 00 01' })), { moyen: 'téléphone', valeur: '06 39 98 00 01' });

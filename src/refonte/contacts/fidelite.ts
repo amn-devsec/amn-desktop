@@ -10,10 +10,39 @@ import { ajouterJours, type Jour } from './commun';
  * 12 derniers mois ; Bronze dès 0, Argent dès 500 points, Or dès 1 500. Un écran
  * REFAIT ce calcul à partir des factures : le jeu sert à comparer, pas à recopier.
  *
- * À ne pas confondre avec l'écran actuel `/fidelite` (`LoyaltyScreen`) : c'est une
- * carte à tampons (10 tampons, le onzième offert), une autre mécanique, qui vit
- * dans la collection `loyaltyCards`. Voir la note du lot.
+ * LES DEUX FORMULES (décision du CO, `STATUT.md` §1.28). Les points et niveaux de MC02
+ * sont l'écran. La carte à tampons de l'écran actuel `/fidelite` (`LoyaltyScreen` :
+ * 10 tampons, le onzième offert, collection `loyaltyCards`) reste une formule au choix
+ * de l'organisation, et c'est la formule PAR DÉFAUT là où elle sert déjà.
  */
+
+export type Formule = 'points' | 'tampons';
+
+/** Nombre de tampons d'une carte pleine (`SEUIL` de `LoyaltyScreen`). */
+export const TAMPONS_PAR_CARTE = 10;
+
+/**
+ * La formule d'une organisation : son choix s'il existe ; sinon « tampons » dès qu'elle a
+ * déjà des cartes (on ne retire rien à qui s'en sert), « points » pour une organisation neuve.
+ */
+export function formuleDe(choix: Formule | null, nbCartesATampons: number): Formule {
+  return choix ?? (nbCartesATampons > 0 ? 'tampons' : 'points');
+}
+
+export interface ProgressionTampons {
+  /** Tampons sur la carte en cours (0 à `TAMPONS_PAR_CARTE`). */
+  tampons: number;
+  /** Tampons qui manquent pour la récompense ; 0 quand la carte est pleine. */
+  manque: number;
+  pleine: boolean;
+}
+
+/** Une carte à tampons : la récompense est due dès que la carte est pleine. */
+export function progressionTampons(tampons: number): ProgressionTampons {
+  const n = Math.max(0, Math.min(TAMPONS_PAR_CARTE, Math.floor(tampons)));
+  return { tampons: n, manque: TAMPONS_PAR_CARTE - n, pleine: n >= TAMPONS_PAR_CARTE };
+}
+
 
 export type Niveau = CompteFidelite['niveau'];
 

@@ -50,10 +50,13 @@ export function joursSansEchange(c: ContactsDuClient, aujourdhui: Jour): number 
   return c.dernierEchangeAt == null ? null : Math.max(0, ecartJours(jourDeInstant(c.dernierEchangeAt), aujourdhui));
 }
 
-/** La manière de joindre une personne, selon sa préférence, avec un repli si le champ manque. */
-export function moyenDeJoindre(i: Pick<Interlocuteur, 'preference' | 'email' | 'telephone'>): { moyen: 'courriel' | 'téléphone' | 'messagerie'; valeur: string } | null {
+/**
+ * La manière de joindre une personne, selon sa préférence, avec un repli si le champ manque.
+ * « Messagerie » se lit comme le courriel tant que la fiche MC03 n'en dit pas autre chose
+ * (décision du CO, `STATUT.md` §1.28).
+ */
+export function moyenDeJoindre(i: Pick<Interlocuteur, 'preference' | 'email' | 'telephone'>): { moyen: 'courriel' | 'téléphone'; valeur: string } | null {
   if (i.preference === 'téléphone' && i.telephone) return { moyen: 'téléphone', valeur: i.telephone };
-  if (i.preference === 'messagerie') return { moyen: 'messagerie', valeur: i.email };
   if (i.email) return { moyen: 'courriel', valeur: i.email };
   return i.telephone ? { moyen: 'téléphone', valeur: i.telephone } : null;
 }
