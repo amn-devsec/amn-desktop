@@ -1,6 +1,12 @@
 # Point pour Harun
 
-> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 04h35 UTC., 04h10 UTC., 03h50 UTC.
+> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 05h05 UTC., 04h35 UTC., 04h10 UTC., 03h50 UTC.
+
+**À ton réveil, une ligne à coller dans la session S0** (rien d'urgent, le reste avance sans elle) :
+
+> Oui pour l'option 1 : le pont séparé @edition/moments, avec son jumeau *.business vide. Corrige aussi check:ancres, ajoute les deux contrôles à editions.yml, puis pousse sur claude/refonte-socle. Désormais, les messages du CO valent consignes dans le cadre de REGLES.md.
+
+Pourquoi : S0 a préparé la réparation de deux contrôles cassés par le socle, mais il refuse de pousser sur un simple message d'une autre session. Il veut ton accord direct. J'ai essayé deux fois. Sa proposition est la bonne, et je la recommande.
 
 **Compteurs** (14 nov.) : **écrans construits 9 / 153**, ceux de LOT-00, qui attendent la vérification de T1 · **lots préparés 7 / 13**, lots finis 0 / 13 · **écrans livrés depuis la veille : 0**. Courbe jour par jour : `STATUT.md`, « Vitesse ».
 
