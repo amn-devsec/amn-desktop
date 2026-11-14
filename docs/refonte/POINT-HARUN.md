@@ -1,8 +1,8 @@
 # Point pour Harun
 
-> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 03h40 UTC.
+> Réécrit par le CO à chaque tour. Dernière mise à jour : 14 nov., 03h50 UTC.
 
-**Compteurs** (14 nov.) : **écrans construits 9 / 153**, ceux de LOT-00, qui attendent la vérification de T1 · **lots préparés 6 / 13**, lots finis 0 / 13 · **écrans livrés depuis la veille : 0**. Courbe jour par jour : `STATUT.md`, « Vitesse ».
+**Compteurs** (14 nov.) : **écrans construits 9 / 153**, ceux de LOT-00, qui attendent la vérification de T1 · **lots préparés 7 / 13**, lots finis 0 / 13 · **écrans livrés depuis la veille : 0**. Courbe jour par jour : `STATUT.md`, « Vitesse ».
 
 **⚠ Zips v4** : **SIM ne les a pas, et DS non plus d'après son rapport** (j'attends sa confirmation). S1 les a. La solution durable est le dépôt privé décrit plus bas. Elle évite de redonner les zips à chaque session.
 
@@ -10,14 +10,14 @@
 
 **Pas encore.** Le premier test commence dès la fusion du socle v4, qui attend le verdict de T1. Tu y trouveras ce qui est nouveau, comment le lancer (`LANCER-EN-LOCAL.md`, déjà prêt, données de SIM comprises), une liste de 5 à 10 essais, et où me donner tes retours : dans notre conversation, tout simplement.
 
-**Fait** : préparations fusionnées pour LOT-02, 03, 04, 06, 11 et 12, et chargeur de données fictives. Toutes les gardes de ces fusions sont vertes, aucune nouvelle garde rouge.
+**Fait** : préparations fusionnées pour LOT-02, 03, 04, 05, 06, 11 et 12, et chargeur de données fictives. Toutes les gardes de ces fusions sont vertes, aucune nouvelle garde rouge.
 
 **En cours** :
 - T1 vérifie le socle v4, puis fera la comparaison automatique aux images.
 - S0 répare deux contrôles cassés par le socle.
 - SIM complète ses jeux.
-- S5 prépare LOT-05.
-- S6 prépare LOT-07.
+- S6 a livré la préparation de LOT-07 ; elle attend que T1 compare le paquet client (elle touche un fichier partagé).
+- DS adapte son calcul aux avoirs, et je refusionne ensuite les jeux de SIM (retirés : ils cassaient un contrôle).
 
 **Bloqué** : rien.
 
