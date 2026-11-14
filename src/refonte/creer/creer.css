@@ -426,3 +426,61 @@ button.cr-rail__noeud { cursor: pointer; }
 .cr-attente { display: flex; align-items: center; gap: 10px; padding: 8px 18px 14px; font-size: 13px; color: var(--socle-texte-2); flex-wrap: wrap; }
 .cr-attente__prive { margin-left: auto; display: inline-flex; gap: 6px; align-items: center; font-size: 12.5px; color: var(--socle-texte-3); }
 .cr-apercu-direct .sc-suggestion-ligne { margin: 0 18px 8px; }
+
+/* ── MR03 · Tournées ────────────────────────────────────────────────────── */
+.cr-tournees { display: grid; grid-template-columns: minmax(0, 752fr) minmax(0, 346fr); gap: 14px; align-items: stretch; }
+.cr-plan { position: relative; height: 650px; overflow: hidden; background: linear-gradient(180deg, var(--socle-carte-bas), var(--socle-fond-page)); }
+.cr-plan__svg { position: absolute; inset: 0; width: 100%; height: 100%; transform-origin: center; transition: transform .3s; }
+.cr-plan__route { fill: none; stroke: var(--socle-decor-3); stroke-width: 14; opacity: .35; }
+.cr-plan__seine { fill: var(--socle-decor-2); opacity: .9; }
+.cr-plan__flux { animation: cr-flux-trait 1.2s linear infinite; }
+@keyframes cr-flux-trait { to { stroke-dashoffset: -11; } }
+.cr-plan__ville { position: absolute; font-size: 12px; color: var(--socle-texte-3); transform: translate(-50%, -50%); }
+.cr-plan__depart { position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11.5px; color: var(--socle-texte-3); }
+.cr-plan__depart > svg { width: 22px; height: 22px; padding: 4px; border-radius: 6px; background: var(--socle-carte-haut); border: 1px solid var(--socle-bord-carte); color: var(--socle-texte-2); box-sizing: border-box; }
+.cr-arret { position: absolute; transform: translate(-13px, -13px); display: inline-flex; align-items: center; gap: 8px; }
+.cr-arret i { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: 12px; font-weight: 700; border: 1.5px solid var(--socle-trait-discret); background: var(--socle-carte-bas); color: var(--socle-texte-2); flex: none; }
+.cr-arret[data-etat='fait'] i { background: var(--socle-etat-succes); border-color: var(--socle-etat-succes); color: var(--socle-primaire-encre); }
+.cr-arret[data-etat='prochaine'] i { background: var(--socle-texte-1); border-color: var(--socle-etat-info); color: var(--socle-primaire-encre); box-shadow: 0 0 0 5px color-mix(in srgb, var(--socle-etat-info) 25%, transparent); }
+.cr-arret b { font-size: 12.5px; font-weight: 500; padding: 4px 10px; border-radius: 8px; background: var(--socle-carte-haut); border: 1px solid var(--socle-bord-carte); color: var(--socle-texte-1); white-space: nowrap; }
+.cr-arret b small { margin-left: 6px; font-size: 11px; color: var(--socle-texte-3); }
+.cr-vehicule { position: absolute; transform: translate(-16px, -16px); display: inline-flex; align-items: center; gap: 8px; }
+.cr-vehicule i { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--socle-etat-info); color: var(--socle-primaire-encre); box-shadow: 0 0 0 6px color-mix(in srgb, var(--socle-etat-info) 25%, transparent); }
+.cr-vehicule small { font-size: 12px; color: var(--socle-etat-info); white-space: nowrap; }
+.cr-plan__resume { position: absolute; top: 16px; left: 16px; width: 324px; box-sizing: border-box; padding: 12px 16px; border-radius: 14px; background: color-mix(in srgb, var(--socle-carte-haut) 92%, transparent); border: 1px solid var(--socle-bord-carte); }
+.cr-plan__resume > b { font-size: 14px; font-weight: 500; color: var(--socle-texte-1); }
+.cr-plan__resume > b small { font-size: 12.5px; font-weight: 400; color: var(--socle-texte-3); margin-left: 6px; }
+.cr-plan__resume dl { display: grid; grid-template-columns: repeat(4, auto); gap: 14px; margin: 8px 0; }
+.cr-plan__resume dl div { display: flex; flex-direction: column; }
+.cr-plan__resume dt { font-size: 17px; font-weight: 600; color: var(--socle-texte-1); }
+.cr-plan__resume dd { margin: 0; font-size: 11.5px; color: var(--socle-texte-3); font-family: var(--socle-font-ui, inherit); }
+.cr-plan__resume dl div[data-ton='vert'] dt { color: var(--socle-etat-succes); }
+.cr-plan__resume dl div[data-ton='orange'] dt { color: var(--socle-etat-attention); }
+.cr-plan__resume dl div[data-ton='rouge'] dt { color: var(--socle-etat-critique); }
+.cr-plan__resume p { margin: 0; font-size: 12px; color: var(--socle-etat-succes); display: flex; gap: 6px; align-items: center; }
+.cr-plan__periode { position: absolute; top: 16px; right: 16px; }
+.cr-plan__zoom { position: absolute; right: 16px; bottom: 90px; display: flex; flex-direction: column; gap: 6px; }
+.cr-plan__zoom button { width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--socle-bord-controle); background: var(--socle-carte-haut); color: var(--socle-texte-2); cursor: pointer; display: grid; place-items: center; }
+.cr-plan__legende { position: absolute; left: 16px; bottom: 90px; display: flex; gap: 12px; align-items: center; padding: 6px 12px; border-radius: 9px; background: var(--socle-carte-haut); border: 1px solid var(--socle-bord-carte); font-size: 12px; color: var(--socle-texte-2); }
+.cr-plan__legende span { width: 16px; height: 0; border-top: 3px solid var(--socle-etat-succes); display: inline-block; }
+.cr-plan__legende span[data-t='route'] { border-top: 3px dashed var(--socle-etat-info); }
+.cr-plan__legende span[data-t='avenir'] { border-top: 2px dashed var(--socle-trait-discret); }
+.cr-plan__ajmani { position: absolute; left: 14px; right: 14px; bottom: 14px; display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 14px; border: 1px solid transparent; background: linear-gradient(var(--socle-carte-bas), var(--socle-carte-bas)) padding-box, linear-gradient(135deg, var(--fam-a), var(--fam-b)) border-box; font-size: 13px; color: var(--socle-texte-1); }
+.cr-plan__ajmani p { margin: 0; flex: 1; line-height: 18px; }
+.cr-tournees__droite { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.cr-etapes { padding-bottom: 12px; flex: 1; }
+.cr-etapes > header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 6px; }
+.cr-etapes > header b { font-size: 15px; font-weight: 600; color: var(--socle-texte-1); }
+.cr-etapes > header small { font-size: 12.5px; color: var(--socle-texte-3); }
+.cr-etapes ol { list-style: none; margin: 8px 0 0; padding: 0; }
+.cr-etape { display: grid; grid-template-columns: 44px 22px 1fr; gap: 10px; padding: 6px 16px; position: relative; }
+.cr-etape__heure { font-size: 12px; color: var(--socle-texte-3); padding-top: 3px; }
+.cr-etape[data-actuelle='true'] .cr-etape__heure { color: var(--socle-texte-1); font-weight: 600; }
+.cr-etape__marque { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: 11px; border: 1px solid var(--socle-trait-discret); color: var(--socle-texte-2); background: var(--socle-carte-bas); position: relative; z-index: 1; }
+.cr-etape[data-etat='Terminé'] .cr-etape__marque { background: var(--socle-etat-succes); border-color: var(--socle-etat-succes); color: var(--socle-primaire-encre); }
+.cr-etape[data-actuelle='true'] .cr-etape__marque { background: var(--socle-etat-critique); border-color: var(--socle-etat-critique); color: var(--socle-primaire-encre); }
+.cr-etape b { display: block; font-size: 13.5px; font-weight: 500; color: var(--socle-texte-1); }
+.cr-etape small { display: block; font-size: 12px; color: var(--socle-texte-3); line-height: 16px; }
+.cr-etape__route { margin-top: 6px; padding: 8px 10px; border-radius: 10px; border: 1px solid color-mix(in srgb, var(--socle-etat-info) 35%, transparent); background: color-mix(in srgb, var(--socle-etat-info) 8%, transparent); display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: var(--socle-etat-info); }
+.cr-etape__route > span:last-child { display: flex; gap: 8px; }
+.cr-etapes footer { display: flex; gap: 8px; align-items: center; padding: 12px 16px 0; font-size: 12.5px; color: var(--socle-texte-3); }

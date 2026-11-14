@@ -19,4 +19,6 @@ export default declarerSubstitutions('creer', [
   { route: '/montage-video', module: 'video', composant: lazy(() => import('../../creer/ecrans/MR01/VideoRefonte')) },
   // MR02 — Ma page publique (`/portfolio` garde son écran).
   { route: '/mini-page', module: 'minisite', composant: lazy(() => import('../../creer/ecrans/MR02/PagePubliqueRefonte')) },
+  // MR03 — Tournées (`/itineraires` garde son écran).
+  { route: '/tournees', module: 'rounds', composant: lazy(() => import('../../creer/ecrans/MR03/TourneesRefonte')) },
 ]);
