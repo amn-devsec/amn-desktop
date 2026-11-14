@@ -40,10 +40,6 @@ const NAV_EN_INTERNE: Record<string, TraductionNav> = {
   scanner: { label: 'Scanner', hint: 'Vulnerability scanning' },
   comply: { label: 'Comply', hint: 'GDPR compliance' },
   ssl: { label: 'SSL Monitor', hint: 'TLS certificates' },
-  // Les trois écrans neufs de « Créer et produire » (LOT-06, STATUT §1.27 c) : internes pour l'instant.
-  catalogue: { label: 'Product catalogue', hint: 'Price, margin and stock of each product' },
-  reservations: { label: 'Bookings', hint: 'Rooms and equipment, slot by slot' },
-  photosChantier: { label: 'Site photos', hint: 'Before, during, after, dated and filed' },
 };
 
 export const NAV_EN: Record<string, TraductionNav> = {
