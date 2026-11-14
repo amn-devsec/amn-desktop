@@ -1,0 +1,145 @@
+/*
+ * LES COTES COMMUNES DES ÉCRANS DE LOT-03 (à partir de H11) : la page qui prend toute la hauteur de la coquille, la carte
+ * v4 (dégradé, bord, reflet, halo de la famille), l'en-tête de carte, les puces. Les cotes propres à un écran restent
+ * dans sa feuille. Couleurs : les jetons du socle et de la famille (--fam-a, --fam-b) ; aucune écrite à la main.
+ */
+@media (min-width: 1280px) {
+  .sc-principal:has(.ex-page) { display: flex; flex-direction: column; }
+  .sc-principal:has(.ex-page) > .sc-principal-fin { display: none; }
+  .sc-principal:has(.ex-page) :has(> .ex-page),
+  .sc-principal:has(.ex-page) :has(> * > .ex-page) { display: flex; min-height: 0; flex: 1 1 0; flex-direction: column; }
+}
+.ex-page {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 0;
+  flex-direction: column;
+  padding-bottom: 4px;
+}
+.ex-page > .sc-page__entete {
+  flex-wrap: nowrap;
+  align-items: flex-end;
+  gap: 20px;
+}
+.ex-page__corps {
+  display: flex;
+  gap: 14px;
+  margin-top: 15px;
+  flex: 1;
+  min-height: 0;
+}
+.ex-carte {
+  position: relative;
+  box-sizing: border-box;
+  border-radius: var(--socle-rayon-carte);
+  background: radial-gradient(440px 160px at 0% 0%, color-mix(in srgb, var(--fam-b) 8.5%, transparent), transparent 70%), linear-gradient(180deg, var(--socle-carte-haut), var(--socle-carte-bas));
+  border: 1px solid var(--socle-bord-carte);
+  box-shadow: var(--socle-reflet-carte), var(--socle-ombre-carte);
+  color: var(--socle-texte-1);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.ex-tete {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 24px;
+  flex: none;
+}
+.ex-tete h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  white-space: nowrap;
+}
+.ex-tete > :last-child:not(:first-child) {
+  margin-left: auto;
+}
+.ex-discret {
+  font-size: 12px;
+  color: var(--socle-texte-3);
+  white-space: nowrap;
+}
+.ex-vide {
+  margin: auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: var(--socle-texte-3);
+}
+.ex-vide h2 {
+  margin: 0;
+  color: var(--socle-texte-1);
+  font-size: 16px;
+}
+.ex-puce {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  box-sizing: border-box;
+  padding: 0 9px;
+  border-radius: 99px;
+  font-size: 11.5px;
+  border: 1px solid var(--socle-bord-pilule);
+  background: var(--socle-pilule);
+  color: var(--socle-texte-2);
+  white-space: nowrap;
+}
+.ex-puce[data-ton='succes'] { color: var(--socle-etat-succes); border-color: color-mix(in srgb, var(--socle-etat-succes) 38%, transparent); background: color-mix(in srgb, var(--socle-etat-succes) 12%, transparent); }
+.ex-puce[data-ton='attention'] { color: var(--socle-etat-attention); border-color: color-mix(in srgb, var(--socle-etat-attention) 38%, transparent); background: color-mix(in srgb, var(--socle-etat-attention) 12%, transparent); }
+.ex-puce[data-ton='info'] { color: var(--socle-etat-info); border-color: color-mix(in srgb, var(--socle-etat-info) 38%, transparent); background: color-mix(in srgb, var(--socle-etat-info) 12%, transparent); }
+.ex-puce[data-ton='critique'] { color: var(--socle-etat-critique); border-color: color-mix(in srgb, var(--socle-etat-critique) 38%, transparent); background: color-mix(in srgb, var(--socle-etat-critique) 12%, transparent); }
+.ex-point {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 6px currentColor;
+  flex: none;
+}
+.ex-mono {
+  font-family: var(--socle-police-mono);
+}
+
+/*
+ * LES CIBLES (décision du CO, STATUT §1.39) : le dessin des fiches v4 est gardé, mais toute cible a une zone de clic
+ * INVISIBLE de 36 px au moins, comme le socle le fait pour PageHead et l'interrupteur (::after centré, sans changer la mise en page).
+ */
+.ex-page :is([data-socle='bouton'], .sc-puce, button.ex-puce, .ex-cible) {
+  position: relative;
+}
+.ex-page :is([data-socle='bouton'], .sc-puce, button.ex-puce, .ex-cible)::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100%, 36px);
+  height: max(100%, 36px);
+  transform: translate(-50%, -50%);
+}
+
+/*
+ * LES CIBLES DU SOCLE ET DES CHAMPS (§1.41) : les interrupteurs (34 × 20 au socle), les choix d'un segmenté, les onglets, les cases et les
+ * pastilles de filtre reçoivent la même zone invisible de 36 px au moins ; un champ de recherche remplit son `label` (le champ fait 36 px de haut : le clic tombe sur lui). Les rangées empilées (dossiers, canaux, catégories, cases) ont un pas de 36 px : aucune zone ne
+ * déborde sur celle de sa voisine.
+ */
+.ex-page :is([role='switch'], [role='radio'], [role='tab'], [role='checkbox'], .sc-filtre, .sc-bouton-icone) {
+  position: relative;
+}
+.ex-page :is([role='switch'], [role='radio'], [role='tab'], [role='checkbox'], .sc-filtre, .sc-bouton-icone)::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100%, 36px);
+  height: max(100%, 36px);
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+}
+.ex-mx01__chercher input, .ex-mx04__chercher input { align-self: stretch; }

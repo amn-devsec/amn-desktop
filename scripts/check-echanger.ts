@@ -51,8 +51,9 @@ async function charger<T>(code: string): Promise<T> {
 const FICHIERS = ['commun', 'boite', 'hub', 'canaux', 'connecteurs', 'appels', 'annonces', 'courriel', 'reunions', 'partages', 'sondages', 'reponsesAuto', 'i18n', 'phrases'];
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + "\nexport * as monde from '../src/refonte/donnees';");
-const { commun: C, boite: B, hub: H, canaux: CA, connecteurs: CO, appels: AP, annonces: AN, courriel: CM, reunions: RE, partages: PA, sondages: SO, reponsesAuto: AU, i18n: I, phrases: PH, monde } = M;
+const M = await charger<any>(FICHIERS.map((f) => `export * as ${f} from '../${ZONE}/${f}';`).join('\n') + `\nexport * as composerF40 from '../${ZONE}/ecrans/f40/composer';` + `\nexport * as composerG07 from '../${ZONE}/ecrans/g07/composer';` + `\nexport * as composerH14 from '../${ZONE}/ecrans/h14/composer';` + `\nexport * as composerH13 from '../${ZONE}/ecrans/h13/composer';` + `\nexport * as composerMX05 from '../${ZONE}/ecrans/mx05/composer';` + `\nexport * as composerMX04 from '../${ZONE}/ecrans/mx04/composer';` + `\nexport * as composerMX02 from '../${ZONE}/ecrans/mx02/composer';` + `\nexport * as composerMX01 from '../${ZONE}/ecrans/mx01/composer';` + `\nexport * as composerMX03 from '../${ZONE}/ecrans/mx03/composer';` + `\nexport * as composerMX06 from '../${ZONE}/ecrans/mx06/composer';` + "\nexport * as monde from '../src/refonte/donnees';");
+const { commun: C, boite: B, hub: H, canaux: CA, connecteurs: CO, appels: AP, annonces: AN, courriel: CM, reunions: RE, partages: PA, sondages: SO, reponsesAuto: AU, i18n: I, phrases: PH, composerF40: CF40, composerG07: CG07, composerH14: CH14, composerH13: CH13, composerMX05: CMX05, composerMX04: CMX04, composerMX02: CMX02, composerMX01: CMX01, composerMX03: CMX03, composerMX06: CMX06, monde } = M;
+const A_SEG = AN.segmentsDeLecture;
 
 const NB = ' ';
 const paris = (j: string, hhmm: string): number => C.instantParis(j, Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3)));
@@ -264,8 +265,8 @@ await dit('règle d’attente : échelle en racine carrée, orange au-delà de l
   assert.equal(r.nombre, 4);
   assert.equal(r.personneNAttend, false);
   const pos = Object.fromEntries(r.clients.map((c: any) => [c.filId, c]));
-  assert.ok(Math.abs(pos['client:1'].position - Math.sqrt(80 / 480)) < 1e-9);
-  assert.ok(pos['client:2'].position > pos['client:7'].position && pos['client:7'].position > pos['client:1'].position, 'plus on attend, plus on est à droite');
+  assert.ok(Math.abs(pos['client:1'].position - Math.sqrt(80 / 180)) < 1e-9);
+  assert.ok(pos['client:2'].position >= pos['client:7'].position && pos['client:7'].position > pos['client:1'].position, 'plus on attend, plus on est à droite (à égalité au bout de l’axe de 3 h)');
   assert.equal(pos['client:2'].orange, true);
   assert.equal(pos['client:1'].orange, false);
   assert.ok(r.clients.every((c: any) => c.position >= 0 && c.position <= 1));
@@ -954,10 +955,31 @@ console.log('\nÉchanger — structure du lot\n');
 const sources = FICHIERS.map((f) => ({ f, src: fs.readFileSync(path.join(racine, ZONE, `${f}.ts`), 'utf8') }));
 const sansCommentaires = (s: string) => s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
 
-await dit('aucun écran visuel avant le socle v4 : que des .ts, aucun fichier .tsx dans la zone', () => {
+await dit('la logique reste en .ts à la racine de la zone ; les écrans vivent dans ecrans/ (un dossier par écran), et nulle part ailleurs', () => {
   const tous = fs.readdirSync(path.join(racine, ZONE));
-  assert.deepEqual(tous.filter((f) => !f.endsWith('.ts')), []);
-  assert.deepEqual(tous.map((f) => f.replace(/\.ts$/, '')).sort(), [...FICHIERS].sort(), 'un fichier de la zone n’est pas dans la liste du contrôle');
+  assert.deepEqual(tous.filter((f) => !f.endsWith('.ts') && f !== 'ecrans'), []);
+  assert.deepEqual(tous.filter((f) => f.endsWith('.ts')).map((f) => f.replace(/\.ts$/, '')).sort(), [...FICHIERS].sort(), 'un fichier de la zone n’est pas dans la liste du contrôle');
+});
+function fichiersDesEcrans(dossier = path.join(racine, ZONE, 'ecrans')): string[] {
+  if (!fs.existsSync(dossier)) return [];
+  return fs.readdirSync(dossier, { withFileTypes: true }).flatMap((d) => (d.isDirectory() ? fichiersDesEcrans(path.join(dossier, d.name)) : [path.join(dossier, d.name)]));
+}
+await dit('écrans : composants du socle seulement, rien de src/screens ni d’une édition, aucune couleur ni nom d’image écrits à la main, aucun secret', () => {
+  const fautes: string[] = [];
+  const interdits = /Menna|Medina|Cabinet Roux|Studio Nova|Roux Santé|Boulangerie|Parc Sud|Atelier Sarah|Mohamed|Riyad|Aaron|Karim|Léa Martin|Stripe|@[a-z-]+\.(?:fr|com)\b/;
+  for (const f of fichiersDesEcrans()) {
+    const rel = path.relative(racine, f);
+    const src = fs.readFileSync(f, 'utf8');
+    const code = f.endsWith('.css') ? src.replace(/\/\*[\s\S]*?\*\//g, '') : sansCommentaires(src);
+    for (const m of src.matchAll(/(?:import|export)[^'"]*?from\s+['"]([^'"]+)['"]/g)) {
+      if (/\/(screens|business)\//.test(m[1]) || /\.business(\.|$)/.test(m[1]) || (/\/assistant\//.test(m[1]) && !/\/assistant\/AssistantContext$/.test(m[1]))) fautes.push(`${rel} importe ${m[1]}`);
+    }
+    if (/#[0-9a-fA-F]{3,8}\b|rgba?\(|hsla?\(/.test(code)) fautes.push(`${rel} : couleur écrite à la main`);
+    if (interdits.test(code)) fautes.push(`${rel} : nom d’une image (${interdits.exec(code)?.[0]})`);
+    if (/(?:sk|pk|rk)_(?:live|test)_[A-Za-z0-9]{8,}|ghp_[A-Za-z0-9]{20,}/.test(src)) fautes.push(`${rel} : un secret`);
+    if (/Math\.random\(/.test(code)) fautes.push(`${rel} : du hasard`);
+  }
+  assert.deepEqual(fautes, [], fautes.join('\n'));
 });
 await dit('heures ouvrées : une seule source, la plage « clients » des réglages (lun.–ven. 9:00–18:00), rien de recopié', () => {
   assert.deepEqual(B.HORAIRES_PAR_DEFAUT, { jours: [1, 2, 3, 4, 5], debut: 540, fin: 1080 });
@@ -1017,6 +1039,353 @@ await dit('images v4 · H13 : filtres de l’historique « Tout », « Manqués 
   const a = (id: string, sens: 'entrant' | 'sortant' | 'manque', resume: string | null) => ({ id, titre: id, sens, finAt: paris(AUJ, '09:00'), dureeSec: 60, resume, decisions: [], taches: [] });
   assert.deepEqual(AP.compteursDHistorique([a('1', 'entrant', 'Oui.'), a('2', 'sortant', 'Oui.'), a('3', 'manque', 'Pas de message laissé.')]), { tout: 3, manques: 1, avecResume: 3 });
   assert.deepEqual(AP.compteursDHistorique([]), { tout: 0, manques: 0, avecResume: 0 });
+});
+
+await dit('F40 · composerHub : sous-titre, règle en racine carrée sur 3 h, canaux, Boîte à zéro, tuiles ; rien d’inventé quand personne n’écrit', () => {
+  const il = (min: number) => MAINT - min * 60_000;
+  const msg = (id: string, clientId: number, min: number, canal = 'whatsapp') => ({ id, clientId, canal, sens: 'entrant', at: il(min), lu: true });
+  const messages = [msg('a', 1, 6), msg('b', 2, 131), msg('c', 3, 30, 'courriel')];
+  const fils = B.composerFils(messages, [], MAINT);
+  const infos = { 'client:1': { initiales: 'AA', nom: 'Un', canal: 'WhatsApp' }, 'client:2': { initiales: 'BB', nom: 'Deux', canal: 'WhatsApp' }, 'client:3': { initiales: 'CC', nom: 'Trois', canal: 'Courriel' } };
+  const mesures = { aRepondre: 3, courrielsNonLus: 1, canauxNonLus: 0, canauxAvecNonLus: 0, appelsEnCours: 0, reunionsAujourdhui: 0, annoncesAConfirmer: 0, partagesActifs: 0, sondagesEnCours: 0, reglesActives: 0, reglesTotal: 0, envoisProgrammes: 0 };
+  const e = { langue: 'fr', maintenant: MAINT, messages, fils, infos, soirs: [], canaux: [{ id: 'c1', nom: 'Canal' }], messagesDeCanaux: [{ canalId: 'c1', at: il(3) }], attendentParCanal: { c1: 2 }, repondusIds: [], lusNonArchives: 0, archivesAujourdhui: 0, mesures, modulesOuverts: null, routes: { appels: '/appels' }, nomsCourts: {}, prenomDeFil: (id: string) => infos[id as keyof typeof infos]?.nom ?? '', initialesJours: ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.'], icones: {} };
+  const v = CF40.composerHub(e, { onResumer: () => undefined });
+  assert.ok(/^3 clients attendent une réponse, le plus ancien depuis 2\s?h\s?11 · la boîte en est à 0 sur 3$/.test(v.sousTitre.replace(/[\u00a0\u202f]/g, ' ')), v.sousTitre);
+  assert.deepEqual(v.pouls.clients.map((c: any) => c.id), ['client:1', 'client:3', 'client:2'], 'du plus récent au plus ancien, de gauche à droite');
+  assert.ok(Math.abs(v.pouls.clients[2].position - Math.sqrt(131 / 180)) < 1e-9);
+  assert.ok(Math.abs(v.pouls.seuil.position - Math.sqrt(120 / 180)) < 1e-9, 'la promesse de 2 h est au rang √(120/180)');
+  assert.deepEqual(v.pouls.graduations.map((g: any) => g.libelle), ['maintenant', '15\u00a0min', '30\u00a0min', '1\u00a0h', '2\u00a0h', '3\u00a0h']);
+  assert.equal(v.pouls.vide, null);
+  assert.equal(v.canaux.lignes[0].statut, '2 attendent');
+  assert.equal(v.modules.tuiles.length, 10);
+  assert.equal(v.modules.tuiles.find((t: any) => t.cle === 'appels').vers, '/appels');
+  assert.equal(v.modules.tuiles.find((t: any) => t.cle === 'messagerie').sous, '3 à répondre');
+  const calme = CF40.composerHub({ ...e, messages: [], fils: [], infos: {}, messagesDeCanaux: [], attendentParCanal: {}, mesures: { ...mesures, aRepondre: 0 }, modulesOuverts: new Set(['appels']) }, { onResumer: () => undefined });
+  assert.equal(calme.sousTitre, 'Personne n’attend de réponse');
+  assert.equal(calme.pouls.vide, 'Personne n’attend. Une journée calme.');
+  assert.equal(calme.boite, null, 'rien à compter : pas de Boîte à zéro');
+  assert.deepEqual(calme.modules.tuiles.map((t: any) => t.cle), ['appels'], 'seuls les modules ouverts ont une tuile');
+  assert.equal(calme.canaux.lignes[0].statut, 'calme');
+});
+
+await dit('G07 · composerBoite : couloirs, filtres, bandeau, fil du client ; le plus ancien d’abord, un fil par client, la note interne dans le fil, rien d’inventé quand le poste n’a rien', () => {
+  const il = (min: number) => MAINT - min * 60_000;
+  const msg = (id: string, clientId: number, min: number, canal: string, sens = 'entrant', extra: any = {}) => ({ id, clientId, canal, sens, at: il(min), lu: id !== 'a', auteur: `Auteur ${clientId}`, texte: `Texte ${id}`, ...extra });
+  const messages = [msg('a', 1, 6, 'whatsapp'), msg('b', 2, 131, 'courriel'), msg('b2', 2, 20, 'whatsapp'), msg('n', 2, 10, 'whatsapp', 'sortant', { noteInterne: true }), msg('c', 3, 300, 'courriel'), msg('c2', 3, 250, 'courriel', 'sortant')];
+  const clients = { 'client:1': { nom: 'Un', initiales: 'UN', sousContrat: false, contexte: {} }, 'client:2': { nom: 'Deux', initiales: 'DE', interlocuteur: 'Une Personne', sousContrat: true, contexte: { contrat: { actif: true, echeance: '2026-12-31' }, contratNom: 'Contrat Z', facturesEnRetard: { nombre: 2, montantCents: 123_400 }, creneauxLibres: ['9:30', '14:00'], creneauxJour: '2026-11-05', creneauxSource: '2026-11-05' } }, 'client:3': { nom: 'Trois', initiales: 'TR', sousContrat: false, contexte: {} } };
+  const canaux = [{ canal: 'courriel', etat: 'actif' }, { canal: 'whatsapp', etat: 'actif' }, { canal: 'sms', etat: 'a-brancher' }];
+  const e = { langue: 'fr', maintenant: MAINT, prenom: 'Sam', messages, gestes: [{ filId: 'client:3', etat: 'en-attente', at: il(200), depuisLe: il(3 * 24 * 60), attend: 'Un accord' }], clients, canaux, soirs: [], filChoisi: 'client:2', filtre: 'tous', pliesOuverts: new Set(), brouillon: { texte: 'Bonjour Madame, à jeudi.', creneau: '9:30' }, initialesJours: ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.'] };
+  const v = CG07.composerBoite(e);
+  assert.equal(v.sousTitre.replace(/[\u00a0\u202f]/g, ' '), 'Bonjour Sam, 2 clients attendent une réponse · le plus ancien depuis 2 h 11');
+  assert.deepEqual(v.couloirs.aRepondre.lignes.map((l: any) => l.id), ['client:2', 'client:1'], 'le plus ancien d’abord');
+  assert.equal(v.couloirs.aRepondre.lignes[0].canal.id, 'whatsapp', 'le canal du dernier message du client, pas de la note interne');
+  assert.ok(!v.couloirs.aRepondre.lignes.some((l: any) => /Texte n\b/.test(l.apercu)), 'l’aperçu n’est jamais une note interne');
+  assert.deepEqual(v.couloirs.enAttente.lignes.map((l: any) => [l.id, l.attend, l.quand.replace(/[\u00a0\u202f]/g, ' ')]), [['client:3', 'Un accord', 'depuis 3 j']]);
+  assert.equal(v.badge, 2);
+  assert.deepEqual(v.filtres.map((f: any) => [f.id, f.n, f.actif]), [['tous', 3, true], ['courriel', 1, false], ['whatsapp', 2, false], ['sms', 0, false]]);
+  assert.equal(v.fil.contrat.texte, 'Client sous contrat');
+  assert.equal(v.fil.messages.length, 3, 'le fil du client mêle ses canaux et porte la note interne');
+  assert.ok(v.fil.messages.some((m: any) => m.genre === 'note'));
+  assert.equal(v.fil.memeFil.texte, 'Même fil sur 2 canaux');
+  const cx = Object.fromEntries(v.fil.contexte.map((c: any) => [c.cle, c]));
+  assert.equal(cx.contrat.valeur, 'Contrat Z');
+  assert.equal(cx.factures.ton, 'orange');
+  assert.equal(cx.factures.valeur, '2 impayées');
+  assert.equal(cx.creneaux.etiquette, 'Créneaux jeudi');
+  assert.equal(cx.creneaux.valeur, '9:30 ou 14:00');
+  assert.equal(cx.passage.valeur, 'Rien à signaler', 'une donnée qui manque ne laisse pas un vide');
+  assert.deepEqual(v.fil.reponse.canaux.map((c: any) => [c.id, c.actif, c.grise]), [['courriel', false, false], ['whatsapp', true, false], ['sms', false, true]], 'le canal du dernier message est choisi, un canal à brancher est grisé');
+  assert.equal(v.fil.reponse.info, 'Brouillon d’Ajmani, à relire avant d’envoyer');
+  const filtre = CG07.composerBoite({ ...e, filtre: 'courriel' });
+  assert.deepEqual(filtre.couloirs.aRepondre.lignes, [], 'les puces de canal filtrent les couloirs');
+  const vide = CG07.composerBoite({ ...e, messages: [], gestes: [], clients: {}, filChoisi: null, prenom: '' });
+  assert.equal(vide.sousTitre, 'Personne n’attend de réponse');
+  assert.equal(vide.fil, null);
+  assert.deepEqual(vide.bandeau.carres, []);
+  assert.equal(vide.bandeau.valeur, '0 sur 0');
+  assert.equal(CG07.depuisLisible(il(30 * 60), MAINT, 'fr'), 'hier');
+  assert.equal(CG07.depuisLisible(il(2 * 24 * 60 + 30), MAINT, 'fr'), '2 j');
+});
+
+await dit('H14 · composerAnnonces : À la une, accusés, « Lu par x sur y », mosaïque, « Presque à jour », catégories ; rien d’inventé sans catégories ni réactions', () => {
+  const eq = [{ email: 'a@x', nom: 'Anne' }, { email: 'b@x', nom: 'Bob' }, { email: 'c@x', nom: 'Cléo' }];
+  const an = (id: string, par: string, jour: string, extra: any = {}) => ({ id, auteurEmail: par, auteurNom: par, publieeAt: paris(jour, '09:12'), titre: `Titre ${id}`, texte: `Texte ${id}`, categorie: '', epinglee: false, confirmations: [], ...extra });
+  const base = { langue: 'fr', maintenant: MAINT, moi: 'c@x', equipe: eq, avecCategories: false, avecReactions: false, filtre: null, brouillon: null };
+  const nue = CH14.composerAnnonces({ ...base, annonces: [an('1', 'a@x', '2026-10-28'), an('2', 'b@x', AUJ, { confirmations: [{ email: 'a@x' }] })] });
+  assert.equal(nue.aLaUne.id, '2', 'sans épingle, la plus récente prend « À la une »');
+  assert.equal(nue.aLaUne.epinglee, false, '… sans bordure ambre');
+  assert.equal(nue.categories, null, 'sans catégories, pas de carte');
+  assert.equal(nue.aLaUne.reactions, null, 'sans réactions, pas de rangée');
+  assert.equal(nue.brouillon, null);
+  assert.equal(nue.suggestion, null);
+  assert.equal(nue.aLaUne.lu.texte, 'Lu par 2 sur 3');
+  assert.deepEqual(nue.aLaUne.accuses.map((x: any) => [x.nom, x.sous, x.lu]), [['Anne', 'lu', true], ['Bob', 'auteur', true], ['Cléo (toi)', 'pas encore confirmé', false]]);
+  assert.equal(nue.aLaUne.peutConfirmer, true);
+  assert.equal(nue.presque.texte, '0/2');
+  assert.equal(nue.presque.titre, '2 à confirmer');
+  assert.equal(nue.colonnes.flat().length, 1);
+  const riche = CH14.composerAnnonces({ ...base, avecCategories: true, avecReactions: true, brouillon: { titre: '', texte: '', epingler: false }, annonces: [an('1', 'a@x', '2026-10-28', { categorie: 'Technique', epinglee: true, confirmations: [{ email: 'c@x', at: paris(AUJ, '08:00') }], reactions: [{ email: 'b@x', type: 'merci' }] }), an('2', 'b@x', AUJ, { categorie: 'Clients' })] });
+  assert.equal(riche.aLaUne.id, '1', 'l’épinglée prend « À la une » même plus ancienne');
+  assert.equal(riche.aLaUne.epinglee, true);
+  assert.deepEqual(riche.aLaUne.reactions.map((r: any) => [r.type, r.n, r.active]), [['bien-note', 0, false], ['merci', 1, false], ['question', 0, false]]);
+  assert.equal(riche.aLaUne.accuses[2].sous, 'lu à 08:00');
+  assert.deepEqual(riche.categories.lignes.map((c: any) => [c.nom, c.n, c.ton]), [['Clients', 1, 'contacts'], ['Technique', 1, 'outils']]);
+  assert.equal(riche.colonnes.flat().filter((c: any) => c.genre === 'brouillon').length, 1, 'le brouillon est dans la mosaïque, une fois');
+  assert.equal(riche.presque.texte, '1/2');
+  assert.equal(riche.presque.titre, 'Presque à jour');
+  assert.deepEqual([0, 1, 2, 3].map((x) => A_SEG(x, 3)), [{ pleins: 0, vert: false }, { pleins: 1, vert: false }, { pleins: 2, vert: false }, { pleins: 3, vert: true }]);
+  assert.deepEqual(A_SEG(0, 0), { pleins: 0, vert: false });
+});
+
+await dit('H13 · composerAppels : plan des salles, Standard et sa file, sous-titre, historique et rappels ; sans salle connue, pas de plan', () => {
+  const il = (min: number) => MAINT - min * 60_000;
+  const salle = (id: string, genre: string, extra: any = {}) => ({ def: { id, nom: id, capacite: 8, genre, ton: 'jour', ...(extra.supervision ? { supervision: true } : {}) }, connectes: [], debutDeSession: null, evenementsDuJour: [], ...extra });
+  const salles = [salle('eq', 'equipe', { connectes: [{ email: 'riyad@x', voixA: MAINT }, { email: 'mo@x' }], debutDeSession: il(8), titreDeSession: 'Point', ecranPartage: true }), salle('cl', 'clients', { evenementsDuJour: [{ at: il(-30), titre: 'Rendez-vous' }] }), salle('at', 'creatif'), salle('ga', 'garde', { supervision: true })];
+  const appel = (id: string, sens: string, jour: string, extra: any = {}) => ({ id, titre: `Appel ${id}`, sens, finAt: paris(jour, '12:00'), dureeSec: sens === 'manque' ? 0 : 35 * 60, resume: null, decisions: [], taches: [], moment: { at: paris(jour, '11:25') }, ...extra });
+  const base = { langue: 'fr', maintenant: MAINT, salles, incidentDeclare: false, roleDeSupervision: true, appelEnCours: { nom: 'Aaron · Client', debutAt: il(4), enLigne: true, sous: '' }, file: [{ id: 'f1', nom: 'Léo', debutAt: il(1) }], auTelephone: ['aaron@x'], appels: [appel('1', 'manque', AUJ), appel('2', 'sortant', '2026-10-29', { resume: 'Une phrase. Deux.', decisions: ['d'], taches: ['t'], tachesCreees: true }), appel('3', 'manque', '2026-10-29', { rappele: true })], filtre: 'tout', enLigneAvec: 'Client' };
+  const v = CH13.composerAppels(base);
+  assert.equal(v.sousTitre.replace(/[\u00a0\u202f]/g, ' '), 'Tu es en ligne avec Client · l’équipe est en salle, Léo attend au standard');
+  assert.deepEqual(v.salles.plan.map((p: any) => p.id), ['eq', 'cl', 'at', 'ga', 'standard']);
+  assert.equal(v.salles.sous, '3 personnes connectées · 1 appel en attente');
+  const eq = v.salles.plan[0];
+  assert.deepEqual(eq.personnes.map((p: any) => [p.nom, p.libelle, p.parle]), [['Riyad', 'Riyad parle', true], ['Mo', 'Mo', false]]);
+  assert.ok(/depuis 8 min/.test(eq.sous), eq.sous);
+  assert.ok(/2 sur 8 places · écran partagé/.test(eq.pied.replace(/[\u00a0\u202f]/g, ' ')), eq.pied);
+  assert.equal(v.salles.plan[1].action.libelle, 'Préparer la salle');
+  assert.equal(v.salles.plan[2].action.libelle, 'Réserver', 'une salle sans événement se réserve');
+  assert.equal(v.salles.plan[2].info.texte, 'Rien de prévu aujourd’hui');
+  assert.equal(v.salles.plan[3].fermee, true, 'La Garde est fermée hors incident');
+  const st = v.salles.plan[4];
+  assert.deepEqual(st.file.map((f: any) => [f.nom, f.duree, f.ambre]), [['Aaron · Client', '04:00', false], ['Léo', '01:00', true]]);
+  assert.deepEqual(v.historique.filtres.map((f: any) => [f.id, f.n]), [['tout', 3], ['manques', 2], ['resume', 1]]);
+  assert.equal(v.historique.rappels.texte, 'Rappels du jour : 1 sur 2');
+  assert.equal(v.historique.lignes[0].action.libelle, 'Rappeler', 'un appel manqué pas rappelé se rappelle');
+  assert.equal(v.historique.lignes[0].duree, '0:00');
+  assert.equal(v.historique.lignes[1].duree, '35 min');
+  assert.deepEqual(v.historique.lignes[1].action, { genre: 'coche', libelle: 'tâche créée' });
+  assert.equal(v.historique.lignes[1].resume, 'Une phrase. Deux.', 'le résumé de la ligne vient de la première phrase du résumé');
+  assert.equal(v.historique.lignes[0].etiquettes[0].rouge, true);
+  assert.deepEqual(CH13.composerAppels({ ...base, filtre: 'manques' }).historique.lignes.map((x: any) => x.id), ['1', '3']);
+  const sans = CH13.composerAppels({ ...base, salles: null, appelEnCours: null, file: [], auTelephone: [], enLigneAvec: null, appels: [] });
+  assert.equal(sans.salles, null);
+  assert.equal(sans.sousTitre, 'Personne n’est au téléphone pour l’instant');
+  assert.equal(sans.historique.rappels, null);
+  const garde = CH13.composerAppels({ ...base, roleDeSupervision: false }).salles.plan.map((p: any) => p.id);
+  assert.ok(!garde.includes('ga'), 'la salle de La Garde ne se voit que par la supervision');
+});
+
+await dit('MX05 · composerSondages : barres, en tête, participation sans nom, votes en direct (masqués si anonyme), autres sondages, éditeur ; jamais de nom sur un sondage anonyme', () => {
+  const vt = (qui: string, optionId: string, hhmm: string) => ({ email: `${qui}@x`, optionId, at: paris(AUJ, hhmm) });
+  const sond = (id: string, extra: any = {}) => ({ id, question: `Question ${id}`, type: 'un-choix', anonyme: false, destinataires: 8, etat: 'en-cours', creeAt: paris('2026-10-28', '09:00'), clotureAt: paris('2026-11-02', '18:00'), options: [{ id: 'h', libelle: 'Horizon', votes: 0 }, { id: 'b', libelle: 'Boussole', votes: 0 }, { id: 'c', libelle: 'Cap', votes: 0 }], votes: [vt('a', 'h', '10:05'), vt('b', 'h', '09:50'), vt('c', 'b', '08:00'), vt('d', 'h', '07:00')], ...extra });
+  const base = { langue: 'fr', maintenant: MAINT, moi: 'a@x', nom: (e: string) => e.split('@')[0].toUpperCase(), sondages: [sond('p1'), sond('p2', { anonyme: true, etat: 'termine' }), sond('p3', { etat: 'termine', type: 'note', options: ['1', '2', '3', '4', '5'].map((n) => ({ id: n, libelle: n, votes: 0 })), votes: [vt('a', '5', '08:00'), vt('b', '4', '08:00')] })], choisiId: null, editeur: null };
+  const v = CMX05.composerSondages(base);
+  assert.equal(v.sousTitre, 'Décider ensemble en 30 secondes · 1 en cours, ton équipe participe');
+  assert.deepEqual(v.resultat.barres.map((b: any) => [b.libelle, b.pourcent, b.enTete]), [['Horizon', 75, true], ['Boussole', 25, false], ['Cap', 0, false]]);
+  assert.deepEqual(v.resultat.barres[0].avatars, ['A', 'B', 'D'], 'sondage visible : les avatars des votants');
+  assert.equal(v.resultat.participation.texte, '4 sur 8');
+  assert.equal(v.resultat.participation.attendus, '4 votes attendus', 'un nombre, jamais un nom');
+  assert.ok(!JSON.stringify(v.resultat.participation).includes('@'));
+  assert.deepEqual(v.direct.lignes.map((l: any) => [l.heure, l.nom, l.option]), [['10:05', 'A (toi)', 'Horizon'], ['09:50', 'B', 'Horizon'], ['08:00', 'C', 'Boussole'], ['07:00', 'D', 'Horizon']]);
+  assert.equal(v.direct.lignes[0].nouveau, true);
+  assert.equal(v.direct.lignes[1].nouveau, false);
+  assert.ok(/se termine lundi à 18:00/.test(v.resultat.etat.detail) && /réponses visibles/.test(v.resultat.etat.detail), v.resultat.etat.detail);
+  assert.deepEqual(v.autres.map((a: any) => [a.id, a.resultat]), [['p2', 'Horizon'], ['p3', '4,5 sur 5']]);
+  const anon = CMX05.composerSondages({ ...base, choisiId: 'p2' });
+  assert.equal(anon.resultat.etat.genre, 'termine');
+  assert.ok(anon.resultat.barres.every((b: any) => b.avatars.length === 0), 'sondage anonyme : aucun avatar');
+  assert.ok(anon.direct.lignes.every((l: any) => l.nom === null && l.option === null && l.texte === 'Un vote reçu'), 'sondage anonyme : « Un vote reçu », jamais un nom');
+  assert.ok(!/@|\bA\b|\bB\b/.test(JSON.stringify(anon.direct)), 'aucun nom ni initiale dans les votes d’un sondage anonyme');
+  const sansHeures = CMX05.composerSondages({ ...base, sondages: [sond('p1', { heuresConnues: false })] });
+  assert.equal(sansHeures.direct, null, 'sans l’heure des votes, pas de « Votes en direct »');
+  let vote: any = null;
+  const avecVote = CMX05.composerSondages({ ...base, moi: 'z@x', sondages: [sond('p1')], actions: { onVoter: (s: string, o: string) => { vote = [s, o]; } } });
+  avecVote.resultat.barres[1].onVoter();
+  assert.deepEqual(vote, ['p1', 'b'], 'tant qu’on n’a pas voté, une barre se clique');
+  assert.equal(CMX05.composerSondages({ ...base, actions: { onVoter: () => undefined } }).resultat.barres[0].onVoter, undefined, 'un seul vote par personne');
+  const ed = CMX05.composerSondages({ ...base, editeur: { question: ' ', options: ['x', ''], anonyme: false, ajmani: null, extras: null } }).editeur;
+  assert.equal(ed.complet, false);
+  assert.equal(ed.note, 'Ton équipe voit le sondage tout de suite');
+  const vide = CMX05.composerSondages({ ...base, sondages: [] });
+  assert.equal(vide.resultat, null);
+  assert.equal(vide.sousTitre, 'Décider ensemble en 30 secondes · aucun en cours');
+});
+
+await dit('MX04 · composerCanaux : rail, flux (événement, messages, réactions, fil), tiroir, « en train d’écrire », statuts ; un invité ne voit que ses canaux ; sans lecture connue, pas de pastille', () => {
+  const at = (hhmm: string) => paris(AUJ, hhmm);
+  const msg = (id: string, qui: string, h: string, extra: any = {}) => ({ id, canalId: 'cu', auteurEmail: `${qui}@x`, at: at(h), texte: `T ${id}`, ...extra });
+  const messages = [msg('m1', 'a', '08:51', { reactions: [{ email: 'b@x', type: 'oeil' }] }), msg('m2', 'b', '08:54'), msg('r1', 'b', '09:02', { repondA: 'm2' }), msg('r2', 'a', '09:05', { repondA: 'm2' }), msg('r3', 'c', '09:18', { repondA: 'm2' }), msg('m3', 'a', '09:20', { reactions: [{ email: 'a@x', type: 'coche' }, { email: 'b@x', type: 'coche' }, { email: 'c@x', type: 'etoile' }] }), msg('x1', 'c', '10:00', { canalId: 'cd' })];
+  const canal = (id: string, extra: any = {}) => ({ id, nom: id, visibilite: 'public', membres: ['a@x', 'b@x', 'c@x'], ...extra });
+  const e = { langue: 'fr', maintenant: MAINT, moi: 'a@x', role: 'Propriétaire', nom: (m: string) => m.split('@')[0].toUpperCase(), canaux: [canal('cu', { lectureAt: at('08:00'), alerte: true, description: 'Urgent' }), canal('cd', { lectureAt: at('08:00') }), canal('sans', { lectureAt: undefined }), canal('prive', { visibilite: 'privé', membres: ['d@x'] })], messages, evenements: [{ id: 'ev', canalId: 'cu', titre: 'Ticket', sous: 'Depuis', at: at('08:50'), resoluAt: at('09:15') }], directs: [{ id: 'd1', nom: 'B', concentre: true, enLigne: true }, { id: 'd2', nom: 'C', concentre: false, tapeA: MAINT - 2000, enLigne: true }, { id: 'd3', nom: 'D', concentre: false, dernierAt: at('10:05'), enLigne: false }], frappes: [{ canalId: 'cu', email: 'c@x', tapeA: MAINT - 3000 }, { canalId: 'cu', email: 'a@x', tapeA: MAINT - 1000 }, { canalId: 'cu', email: 'b@x', tapeA: MAINT - 60_000 }], canalId: 'cu', filOuvertId: 'm2', brouillon: '', resumes: { m2: 'Résumé.' }, avecReactions: true, peutTache: true };
+  const v = CMX04.composerCanaux(e);
+  assert.deepEqual(v.rail.canaux.map((c: any) => [c.id, c.nonLus, c.actif]), [['cu', 3, true], ['cd', 1, false], ['sans', 0, false]], 'un canal privé dont on n’est pas membre ne se voit pas ; sans lecture connue, 0');
+  assert.equal(v.sousTitre, 'Une conversation par sujet, rien ne se perd · 4 non lus');
+  assert.deepEqual(v.rail.directs.map((d: any) => d.statut), ['concentré', 'écrit…', '10:05']);
+  assert.equal(v.canal.alerte, 'Alerte tickets urgents');
+  assert.ok(/3 membres/.test(v.canal.description));
+  assert.deepEqual(v.flux.map((x: any) => x.genre + ':' + x.id), ['evenement:ev', 'message:m1', 'message:m2', 'message:m3'], 'l’événement, puis les messages (sans les réponses de fil), du plus ancien au plus récent');
+  assert.equal(v.flux[0].etat.libelle, 'Résolu à 09:15');
+  assert.equal(v.flux[2].fil.libelle, '3 réponses');
+  assert.equal(v.flux[2].fil.derniere, 'dernière à 09:18');
+  const r3 = Object.fromEntries(v.flux[3].reactions.map((r: any) => [r.type, [r.n, r.miennes]]));
+  assert.deepEqual(r3, { coche: [2, true], oeil: [0, false], etoile: [1, false] });
+  assert.equal(v.ecrit, 'C est en train d’écrire', 'ni moi, ni une frappe de plus de 6 s, jamais le contenu');
+  assert.equal(v.tiroir.reponses, '3 réponses');
+  assert.deepEqual(v.tiroir.lignes.map((l: any) => l.id), ['r1', 'r2', 'r3']);
+  assert.equal(v.tiroir.systeme.texte, 'Ticket marqué résolu');
+  assert.equal(v.tiroir.systeme.heure, '09:15');
+  assert.equal(v.tiroir.suivent.texte, '3 personnes suivent ce fil');
+  assert.equal(v.tiroir.resume, 'Résumé.');
+  assert.equal(v.compositeur.placeholder, 'Écrire dans #cu');
+  const invite = CMX04.composerCanaux({ ...e, role: 'Invité', moi: 'd@x' });
+  assert.deepEqual(invite.rail.canaux.map((c: any) => c.id), ['prive'], 'un invité ne voit que les canaux dont il est membre');
+  assert.equal(invite.rail.peutCreer, false);
+  const sans = CMX04.composerCanaux({ ...e, avecReactions: false, filOuvertId: null, frappes: [] });
+  assert.equal(sans.flux[1].reactions, null, 'sans réactions connues, aucune rangée');
+  assert.equal(sans.tiroir, null);
+  assert.equal(sans.ecrit, null);
+  const ailleurs = CMX04.composerCanaux({ ...e, canaux: [{ ...canal('general'), ouvreAilleurs: true }], canalId: 'general' });
+  assert.equal(ailleurs.canal, null, 'un canal qui s’ouvre ailleurs n’est jamais le canal choisi d’office');
+});
+
+await dit('MX02 · composerReunions : en cours, ordre du jour minuté, suggestion de durée, prochaine (compte à rebours sous 1 h), à venir et préparation ; rien d’inventé sans réunion en cours', () => {
+  const sj = (titre: string, minutes: number, extra: any = {}) => ({ titre, minutes, ...extra });
+  const reunions = [
+    { id: 'r1', titre: 'Point', debutPrevuAt: MAINT - 12 * 60_000, debutReelAt: MAINT - 12 * 60_000, dureePrevueMin: 30, participants: ['a@x', 'b@x'], ordreDuJour: [sj('A', 6), sj('B', 10), sj('C', 14)] },
+    { id: 'r2', titre: 'Suivante', debutPrevuAt: MAINT + 18 * 60_000, dureePrevueMin: 45, lieu: 'visio', participants: ['a@x', 'c@x'], documentNom: 'doc.pdf', ordreDuJour: [sj('U', 5, { prepare: true }), sj('V', 15)], casesDePreparation: [{ libelle: 'Relire', fait: true }, { libelle: 'Ouvrir', fait: false }] },
+    { id: 'r3', titre: 'Plus tard', debutPrevuAt: paris('2026-11-03', '09:00'), dureePrevueMin: 120, inscrits: 8, participants: ['a@x'], ordreDuJour: [sj('1', 0, { prepare: true }), sj('2', 0)] },
+    { id: 'r4', titre: 'Sans préparation', debutPrevuAt: paris('2026-11-04', '10:00'), dureePrevueMin: 60, participants: ['a@x'], ordreDuJour: [] },
+  ];
+  const e = { langue: 'fr', maintenant: MAINT, moi: 'a@x', nom: (m: string) => m.split('@')[0].toUpperCase(), reunions, enSalle: { vignettes: [{ email: 'b@x', micro: true, parle: true }] }, notes: null, actions: null, dureesReelles: [18, 17, 19] };
+  const v = CMX02.composerReunions(e);
+  assert.equal(v.sousTitre, 'Courtes, préparées, avec un compte rendu automatique · 1 en cours');
+  assert.equal(v.enCours.detail, 'depuis 12 min · prévu 30 min');
+  assert.deepEqual(v.enCours.ordre.map((s: any) => [s.etat, Math.round(s.remplissage * 100)]), [['fait', 0], ['en-cours', 60], ['a-venir', 0]]);
+  assert.deepEqual(v.enCours.vignettes, [{ nom: 'B', micro: true, parle: true }]);
+  assert.equal(v.enCours.vous, true, 'la personne n’est pas dans la salle : l’emplacement « Vous »');
+  assert.ok(/18 min/.test(v.suggestion.texte) && /20 min/.test(v.suggestion.texte), v.suggestion.texte);
+  assert.equal(CMX02.composerReunions({ ...e, suggestionMasquee: true }).suggestion, null, '« Garder » masque la suggestion');
+  assert.equal(CMX02.composerReunions({ ...e, dureesReelles: [18, 28, 29] }).suggestion, null, 'sans écart de 30 %, pas de suggestion');
+  assert.equal(v.prochaine.titre, 'Suivante');
+  assert.equal(v.prochaine.compte.valeur, '18 min', 'compte à rebours sous une heure');
+  assert.equal(v.prochaine.avant.compte, '1 sur 2 fait');
+  assert.equal(v.prochaine.avant.titre, 'Avant ' + v.prochaine.sous.slice(0, 5));
+  assert.deepEqual(v.prochaine.ordre.map((s: any) => [s.minutes, s.fait]), [['5 min', true], ['15 min', false]]);
+  assert.equal(v.prochaine.document, 'doc.pdf');
+  assert.deepEqual(v.avenir.map((r: any) => [r.id, r.jour, r.sous, r.preparation && r.preparation.pourcent]), [['r3', 'Mar. 3', '2 h · 8 inscrits', 50], ['r4', 'Mer. 4', '1 h', null]], 'une réunion sans rien à préparer n’a pas de pourcentage');
+  const calme = CMX02.composerReunions({ ...e, reunions: reunions.slice(1), enSalle: null });
+  assert.equal(calme.enCours, null);
+  assert.equal(calme.suggestion, null);
+  assert.equal(calme.sousTitre, 'Courtes, préparées, avec un compte rendu automatique');
+  const apres = CMX02.composerReunions({ ...e, maintenant: MAINT + 120 * 60_000 });
+  assert.equal(apres.prochaine.titre, 'Plus tard', 'la prochaine est la plus proche encore à venir');
+  assert.equal(apres.prochaine.compte, null, 'pas de compte à rebours au-delà d’une heure');
+});
+
+await dit('MX01 · composerCourriel : dossiers et comptes, fils, résumé d’Ajmani (demandes numérotées), messages repliés, pièce jointe analysée ; la boîte à brancher ne montre rien', () => {
+  const at = (j: string, h: string) => paris(j, h);
+  const msg = (id: string, filId: string, j: string, h: string, extra: any = {}) => ({ id, filId, de: 'x@x', a: ['equipe@x'], at: at(j, h), lu: true, expediteur: `Exp ${filId}`, objet: `Objet ${filId}`, texte: `Texte ${id}.`, ...extra });
+  const messages = [
+    msg('a1', 'f1', '2026-10-28', '14:00', { envoye: true, organisation: 'org' }),
+    msg('a2', 'f1', '2026-10-29', '11:00', { organisation: 'org' }),
+    msg('a3', 'f1', AUJ, '10:12', { lu: false, organisation: 'org', texte: 'Bonjour. Pouvons-nous voir les utilisateurs actifs ? Merci.\nPouvez-vous ajouter une alerte ?', piecesJointes: [{ nom: 'doc.pdf', analyse: 'sans-risque' }], taille: 1_200_000, assigneA: 'a@x' }),
+    msg('b1', 'f2', AUJ, '09:00', { lu: false }),
+    msg('c1', 'f3', '2026-10-29', '16:00'),
+    msg('d1', 'f4', '2026-10-30', '07:00', { dossier: 'brouillons', envoye: true }),
+    msg('p1', 'f5', AUJ, '07:30', { programmeAt: paris('2026-11-02', '09:00'), envoye: true }),
+  ];
+  const e = { langue: 'fr', maintenant: MAINT, moi: 'a@x', messages, dossier: 'reception', filtre: 'tous', filChoisi: 'f1', presences: [{ email: 'b@x', nom: 'Bob', filId: 'f2', filNom: 'Client', mode: 'lit' }, { email: 'a@x', nom: 'Moi', filId: 'f1', filNom: 'X', mode: 'ecrit' }], organisations: { org: { type: 'client', nom: 'Org', suivi: 'Aaron' } }, etatBoite: 'reliee', brouillonPret: 'les 2 demandes', attend: 'une date' };
+  const v = CMX01.composerCourriel(e);
+  assert.equal(v.sousTitre, 'Boîte partagée de l’équipe · 2 messages non lus, aucun en retard');
+  assert.deepEqual(v.dossiers.map((d: any) => [d.id, d.n]), [['reception', 2], ['clients', 1], ['devis', null], ['partenaires', 0], ['envoyes', null], ['brouillons', 1], ['programmes', 1], ['archives', null]]);
+  assert.deepEqual(v.fils.map((f: any) => [f.id, f.nonLu, f.compteur, f.pieceJointe, f.quand]), [['f1', true, 3, true, '10:12'], ['f2', true, null, false, '09:00'], ['f3', false, null, false, 'Hier']], 'du plus récent au plus ancien ; le compteur dit le nombre de messages');
+  assert.deepEqual(v.presences.map((p: any) => p.texte), ['Bob lit Client'], 'ma propre présence n’est pas montrée');
+  const c = v.conversation;
+  assert.equal(c.objet, 'Objet f1');
+  assert.equal(c.organisation.nom, 'Org');
+  assert.equal(c.resume.compte, '2 demandes');
+  assert.equal(c.resume.demandes.length, 2);
+  assert.ok(/3 messages en 2 jours/.test(c.resume.meta), c.resume.meta);
+  assert.equal(c.resume.attend, 'Elle attend : une date');
+  assert.equal(c.plies.length, 2, 'les messages lus plus anciens sont repliés');
+  assert.equal(c.plies[0].auteur, 'Toi');
+  assert.ok(/analysé, sans risque/.test(c.dernier.piece.detail), c.dernier.piece.detail);
+  assert.equal(c.compositeur.placeholder, 'Répondre à Exp…');
+  assert.equal(CMX01.composerCourriel({ ...e, brouillonPret: null }).conversation.compositeur.brouillon, null);
+  assert.deepEqual(CMX01.composerCourriel({ ...e, filtre: 'non-lus' }).fils.map((f: any) => f.id), ['f1', 'f2']);
+  assert.deepEqual(CMX01.composerCourriel({ ...e, filtre: 'a-moi' }).fils.map((f: any) => f.id), ['f1']);
+  assert.deepEqual(CMX01.composerCourriel({ ...e, dossier: 'programmes' }).fils.map((f: any) => f.id), [], 'les envois programmés ne sont pas des fils');
+  const vide = CMX01.composerCourriel({ ...e, messages: [], filChoisi: null });
+  assert.equal(vide.conversation, null);
+  assert.equal(vide.sousTitre, 'Boîte partagée de l’équipe · rien de non lu');
+  assert.equal(vide.videDuDossier, 'Rien dans ce dossier.');
+});
+
+await dit('MX03 · composerPartages : cartes, jauge d’expiration, ouvertures, transferts, protection, espace, relance ; sans lien, aucune carte inventée ; jamais d’adresse', () => {
+  const lien = (id: string, extra: any = {}) => ({ id, fichier: `${id}.pdf`, tailleOctets: 1_000_000, destinataire: 'Cliente Test', creeAt: paris('2026-10-24', '09:00'), expireLe: '2026-11-11', dureeJours: 30, protection: 'code par courriel', ouvertures: 1, derniereOuvertureAt: paris('2026-10-29', '10:00'), ...extra });
+  const liens = [lien('a', { note: 'Version 3' }), lien('b', { ouvertures: 0, derniereOuvertureAt: null, expireLe: '2026-11-01' }), lien('c', { destinataire: null, expireLe: null, equipe: ['A', 'M'], protection: 'compte' }), lien('d', { expireLe: '2026-10-31' }), lien('e', { revoque: true }), lien('f', { expireLe: '2026-10-01' })];
+  const transferts = [{ id: 't1', sens: 'envoi', at: MAINT - 60_000, nom: 'x.zip', pourcent: 72, avec: 'Cliente', tailleOctets: 61_000_000, secondesRestantes: 12 }, { id: 't2', sens: 'reception', at: MAINT - 120_000, verification: 'verifie', nom: 'y.pdf', pourcent: 100, avec: 'Cabinet', tailleOctets: 500_000 }, { id: 't3', sens: 'reception', at: MAINT - 180_000, verification: 'en-cours', nom: 'z.zip', pourcent: 34, avec: 'Agence', tailleOctets: 140_000_000 }, { id: 't4', sens: 'envoi', at: MAINT - 2 * 86_400_000, nom: 'vieux.zip', pourcent: 100, avec: 'X', tailleOctets: 1 }];
+  const e = { langue: 'fr', maintenant: MAINT, liens, recus: 9, onglet: 'partages', transferts, quotaOctets: 20_000_000_000, reglages: PA.REGLAGES_DU_LIEN_PAR_DEFAUT };
+  const v = CMX03.composerPartages(e);
+  assert.deepEqual(v.cartes.map((c: any) => c.id), ['d', 'b', 'a', 'c'], 'expiration la plus proche d’abord, sans expiration en dernier, ni révoqué ni expiré');
+  assert.equal(v.sousTitre, 'Envoie un lien, pas une pièce jointe · 4 liens actifs, 2 expirent bientôt');
+  assert.deepEqual(v.onglets.map((o: any) => o.libelle), ['Partagés par moi · 4', 'Reçus · 9', 'Expirés · 2']);
+  const cx = Object.fromEntries(v.cartes.map((c: any) => [c.id, c]));
+  assert.equal(cx.d.expiration.texte, 'Expire demain');
+  assert.equal(cx.d.expiration.orange, true);
+  assert.equal(cx.b.expiration.texte, 'Expire dans 2 jours');
+  assert.equal(cx.b.ouvertures.pasEncore, true);
+  assert.equal(cx.b.ouvertures.libelle, 'pas encore ouvert');
+  assert.equal(cx.a.expiration.jauge.texte, '12 / 30 j');
+  assert.equal(cx.a.detail, 'Version 3 · 1 Mo');
+  assert.equal(cx.a.type, 'PDF');
+  assert.equal(cx.a.ouvertures.dernier, 'hier');
+  assert.equal(cx.c.expiration.jauge, null, 'sans expiration, une jauge pointillée');
+  assert.equal(cx.c.expiration.sans, 'interne à l’équipe');
+  assert.equal(cx.c.peutProlonger, false, 'pas de « Prolonger » sans expiration');
+  assert.deepEqual(cx.c.destinataire.equipe, ['A', 'M']);
+  assert.deepEqual(v.transferts.lignes.map((t: any) => [t.genre, t.pourcent]), [['envoi', 72], ['recu', 100], ['verification', 34]], 'les dernières 24 heures seulement');
+  assert.equal(v.transferts.sous, '2 en cours');
+  assert.ok(/12 s restantes/.test(v.transferts.lignes[0].detail), v.transferts.lignes[0].detail);
+  assert.equal(v.protection.pourcent, 100);
+  assert.equal(v.protection.titre, 'Tous tes liens sont protégés');
+  assert.ok(v.suggestion && /Relancer Cliente Test/.test(v.suggestion.titre), 'un lien non ouvert depuis plus de 3 jours qui expire sous 3 jours : relance proposée');
+  assert.equal(CMX03.composerPartages({ ...e, suggestionMasquee: ['b'] }).suggestion, null);
+  assert.equal(CMX03.composerPartages({ ...e, suggestionMasquee: ['b'] }).astuce !== null, true, 'sans relance, une astuce, jamais une carte vide');
+  assert.deepEqual(CMX03.composerPartages({ ...e, onglet: 'expires' }).cartes.map((c: any) => c.id), ['f']);
+  assert.deepEqual(CMX03.composerPartages({ ...e, onglet: 'recus' }).cartes, []);
+  assert.deepEqual(v.reglages.slice(0, 2), ['Expire dans 30 jours', 'Code par e-mail']);
+  const vide = CMX03.composerPartages({ ...e, liens: [], transferts: [] });
+  assert.deepEqual(vide.cartes, []);
+  assert.equal(vide.protection, null);
+  assert.ok(!/https?:|@|token|jeton/i.test(JSON.stringify(v)), 'ni adresse, ni jeton');
+});
+
+await dit('MX06 · composerReponses : liste, compteurs, éditeur en phrases, garde-fou, aperçu avec variables ; une variable sans valeur ne bloque jamais l’envoi ; une règle incomplète ne s’active pas', () => {
+  const regle = (id: string, extra: any = {}) => ({ id, nom: `Règle ${id}`, canaux: ['courriel'], declencheur: { type: 'horaires' }, modele: 'Bonjour {prénom},\nNous sommes fermés jusqu’à {réouverture}.', sauf24h: true, actif: true, envoisDuMois: 10, ...extra });
+  const regles = [regle('a', { cible: 'un client', modeleTitre: 'Bien reçu', signature: 'L’équipe', tache: { personne: 'R', quand: '9:00' }, testeeQuand: 'hier', enregistreAt: paris(AUJ, '10:41') }), regle('b', { actif: false, envoisDuMois: 0, canaux: [], modele: null }), regle('c', { declencheur: { type: 'mots', mots: ['devis', 'prix'] }, sauf24h: false, envoisDuMois: 30 })];
+  const soir = paris('2026-10-29', '18:30');
+  const e = { langue: 'fr', maintenant: soir, regles, proposee: { nom: 'Suivi' }, choisieId: 'a', enLigne: true, apercu: { de: 'L’équipe', prenom: 'Karim', destinataireNom: 'Karim Medina', delaiSecondes: 2, cible: 'client' }, manque: { question: 'où en est ma commande ?', n: 12 }, avis: [4, 5] };
+  const v = CMX06.composerReponses(e);
+  assert.equal(v.regles.sous, '2 actives sur 4', 'la règle proposée compte dans le total');
+  assert.deepEqual(v.regles.pied, { envois: '40', gagne: '2 h', avis: '4,5 / 5' });
+  assert.deepEqual(v.regles.lignes.map((r: any) => [r.id, r.actif, r.selectionnee, r.peutActiver]), [['a', true, true, true], ['b', false, false, false], ['c', true, false, true]], 'une règle incomplète ne s’active pas');
+  assert.equal(v.regles.lignes[1].compteur, '0 envoyée ce mois');
+  assert.equal(v.regles.lignes[0].compteur, '10 envoyées ce mois');
+  assert.equal(v.regles.proposee.sous, 'Proposée par Ajmani · née désactivée');
+  assert.deepEqual(v.editeur.blocs.map((b: any) => b.cle), ['quand', 'etsi', 'alors', 'etaussi', 'saufsi']);
+  assert.ok(/Du lundi au vendredi après 18:00/.test(v.editeur.blocs[0].detail), 'les horaires viennent des réglages');
+  assert.equal(v.editeur.enregistre, 'Enregistré à 10:41');
+  assert.equal(v.editeur.detail, '10 envois ce mois · testée hier · aucune plainte');
+  assert.deepEqual(CMX06.composerReponses({ ...e, choisieId: 'c' }).editeur.blocs.map((b: any) => b.cle), ['quand', 'alors'], 'sans garde-fou ni tâche, ces blocs ne se montrent pas');
+  const texte = v.apercu.paragraphes.map((p: any) => p.map((s: any) => s.texte).join('')).join('\n').replace(/[\u00a0\u202f]/g, ' ');
+  assert.equal(texte, 'Bonjour Karim,\nNous sommes fermés jusqu’à demain 9:00.');
+  assert.ok(v.apercu.paragraphes[0].some((s: any) => s.v && s.texte === 'Karim'), 'les variables sont surlignées');
+  const sans = CMX06.composerReponses({ ...e, apercu: { ...e.apercu, prenom: null } });
+  assert.equal(sans.apercu.paragraphes[0].map((s: any) => s.texte).join('').trim(), 'Bonjour,', 'sans prénom : « Bonjour, », l’envoi n’est pas bloqué');
+  assert.equal(CMX06.composerReponses({ ...e, choisieId: 'b' }).apercu, null, 'une règle sans modèle n’a pas d’aperçu');
+  assert.ok(/12 clients ont demandé « où en est ma commande \? »/.test(v.suggestion.texte), v.suggestion.texte);
+  assert.equal(CMX06.composerReponses({ ...e, manque: null }).suggestion, null);
+  assert.equal(CMX06.composerReponses({ ...e, regles: [], choisieId: null }).editeur, null);
 });
 
 await dit('aucune brique visuelle : ni React, ni src/socle/ui, ni code partagé ; seulement les voisins, le dictionnaire du socle et le modèle des connecteurs (S9)', () => {
