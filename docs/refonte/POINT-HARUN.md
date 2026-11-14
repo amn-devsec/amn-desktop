@@ -1,6 +1,6 @@
 # Point pour Harun
 
-> Réécrit par le CO. Dernière mise à jour : 14 nov., 15h55 UTC, à ton « reprends ». La boucle tourne.
+> Réécrit par le CO. Dernière mise à jour : 14 nov., 16h00 UTC. La boucle tourne.
 
 **Compteurs** (14 nov., 15h35) : **écrans construits 79 / 153, livrés 79** · **lots préparés 9 / 13, lots finis 6 / 13** · **écrans livrés depuis la veille : 79**.
 Lots livrés : LOT-01 Ma journée (16), LOT-02 Contacts (13), LOT-03 Écrire et retenir (9), LOT-05 Échanger (10), LOT-06 Créer et produire (15), LOT-11 Développement (7), et les 9 écrans de LOT-00 du socle. Tout ce qui est construit est livré. T1 a vérifié vivante en entier à 14h00 : 77 contrôles sur 77, et la fidélité des six lots dans les seuils. La courbe : `STATUT.md`, « Vitesse ».
@@ -47,8 +47,8 @@ Lots livrés : LOT-01 Ma journée (16), LOT-02 Contacts (13), LOT-03 Écrire et 
 
 ## À décider par Harun
 
-Tes dix réponses du 14 nov. sont enregistrées dans STATUT §1.42. Rien de neuf n'est en attente pour l'instant.
-Rappel des points tranchés mais pas encore faits : données partagées avec Mohamed, plus tard ; TVA et papiers à faire valider avant tout usage réel ; serveur après tes tests et la charge de SIM ; dépôt amn-desktop en privé, c'est toi qui le fais. Pour les factures, on garde « en retard » ou « impayé ».
+Tes dix réponses du 14 nov. sont enregistrées (STATUT §1.42).
+1. **Une précision sur « en retard »**, provisoire : pour les tâches, rappels et habitudes, on écrit « à reprendre » ; pour les factures, « en retard » ou « impayé ». J'ai ajouté **les projets et les jalons** du côté de « en retard », comme la fiche, parce que le retard y est un fait d'équipe. Recommandation : garder ainsi. Dis-moi si tu préfères « à reprendre » aussi pour les projets.
 
 ## À créer par Harun
 

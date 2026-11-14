@@ -14,13 +14,13 @@ Mode : **continu et autonome**, repris par Harun (« reprends », 14 nov., aprè
 |---|---|---|---|
 | S0 Socle | `session_01SJe828c2W5EnkMY4fhFY6z` | attend l'accord direct de Harun | sa liste, §1.38 |
 | T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | vivante vérifiée en entier (14h00) ; file vide | mesurer le prochain lot (LOT-04, 07, 08, 10) |
-| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **LOT-02 livré ; LOT-01 moitié S1 livrée** (`544545be` fusionné) | en pause : aucun lot libre |
+| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **LOT-02 et moitié de LOT-01 livrés** | **construit LOT-08** La Garde sur `claude/refonte-garde-2` (S3 relit la logique) |
 | S2 | `session_014ZkF6SeGRNi6NR3uEsjM5q` | préparation de LOT-01 finie ; **sans zips v4** ; la construction de LOT-01 passe à S7 | en pause jusqu'aux zips, puis un autre lot |
-| S3 | `session_01FBSpK6n1yYtYXYyxbLAuBV` | attend l'accord de Harun (`check:encres`) ; **sans zips v4** | correctif d'`equipes.ts`, puis LOT-08 |
+| S3 | `session_01FBSpK6n1yYtYXYyxbLAuBV` | `check:encres` réglé (`1150965`) ; **sans zips v4** | gardien de la logique de LOT-08 ; relit les écrans de S1 ; reprend la moitié restante dès les zips |
 | S5 | `session_012jWErBSSkcoVaU3iN895bQ` | **LOT-03 et LOT-05 livrés**, préparation de LOT-09 fusionnée | en pause ; proposé pour la liste du socle (POINT-HARUN n° 9) |
 | S6 | `session_01RHV8Xq2txWkfjAusKvq9DG` | préparation de LOT-07 fusionnée ; **sans zips v4** ; LOT-10 passe à S8 | construire LOT-07 dès les zips ; relire la sécurité de LOT-10 avant sa fusion |
 | S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | **LOT-06 et LOT-01 (moitié S7) livrés** | en pause : aucun lot libre |
-| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | **LOT-11 livré** | attend l'accord de Harun pour LOT-10 Cyber (POINT-HARUN) |
+| S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | **LOT-11 livré** ; accord de Harun pour LOT-10 | **construit LOT-10** Cyber sur `claude/refonte-cyber` (note de préparation d'abord) |
 | DS | `session_01TZGDvVWristJnnPK59rruY` | attend l'accord direct de Harun pour construire LOT-04 | commencer par MA03, H07, MA12 |
 | SIM, S9, F1 | `session_011UF2ufZg9moGv2rRZFRuf7`, `session_01C5DAVygXYax6Q7g436TPQx`, `session_01VZHqP3gvzrtnpgsTrrKguV` | en pause | F1 : intégration reportée (S0) |
 
@@ -29,7 +29,7 @@ Mode : **continu et autonome**, repris par Harun (« reprends », 14 nov., aprè
 **Décisions provisoires en cours** (révisables par Harun) : arrondi et régime de TVA, seuils de l'argent (§1.29) ; valeurs de départ des connecteurs (§1.22 n° 3) ; plafonds de relance 3 et 1 par jour (§1.28 n° 4) ; seuils de charge (validés, §1.20). Liste « À décider par Harun » : `POINT-HARUN.md`.
 
 **Échecs connus à faire baisser** (relevé de T1 le 14 nov., ses mesures font foi) :
-- **régressions de la refonte** (vertes sur `main`) : `check:ancres` et `check:avoirs` (`lucide-react` non résolu dans `src/socle/ui/Bouton.tsx`), confiés à **S0** ; `check:encres` (copies de jetons dans `src/refonte/garde/equipes.ts`, venues de S3), pour **S3** à sa relance.
+- **régressions de la refonte** (vertes sur `main`) : `check:ancres` et `check:avoirs` (`lucide-react` non résolu dans `src/socle/ui/Bouton.tsx`), confiés à **S0** ; ~~`check:encres`~~ **réglé le 14 nov.** (S3 `1150965` : l'ardoise neutre lit les jetons, les 4 copies ont disparu).
 - **rouges aussi sur `main`** : `check:visite` (guide masqué). `check:migration` n'est pas jouable sans amn-api.
 - `check:xss` et `check:support` **passent des deux côtés** chez T1. Mon relevé contraire venait de mon environnement : retirés de la liste.
 - Aucune fusion n'a ajouté de nouvel échec : le déplacement du registre (`bb54c03`) a été comparé avant et après.
@@ -51,6 +51,7 @@ Mode : **continu et autonome**, repris par Harun (« reprends », 14 nov., aprè
 - 14 nov., 10h15 : **LOT-06 fusionné** (`e1615090`, 15 écrans), **premier lot livré** de la vague de construction. T1 l'a accepté : fidélité sur l'aperçu, les 15 écrans justifiés ; structure sur l'application, les 12 routes montées dans la coquille v4, rien de coupé à 390 px. Suites demandées à S7 : relire 6 écrans au-dessus de 15 % en disposition (H17, MR01, MR10, H16, MR05, MR04) ; zones de clic de 34 px (§1.39) ; l'état vide de H17 (« Le livre de marque d’ · ») ; les entrées de registre de ses 3 écrans neufs. T1 fixe les valeurs acceptées de LOT-06.
 - 14 nov., 10h00 : **LOT-06 complet** (S7, `277263a`, 15 sur 15). S7 et S8 butent tous deux sur `check:systeme-demarrage` (« le registre ne doit pas bouger », qui perd les fonctions des écrans neufs). Le correctif est sur la branche LOT-03 de S5 et arrive avec sa fusion. Ordre : LOT-03, puis S7 et S8 déclarent leurs écrans neufs, puis LOT-06 et LOT-11.
 - 14 nov., 10h00 : méthode de `check:fidelite` (§1.40). La fidélité se mesure sur l'aperçu statique, rempli avec les jeux de SIM ; l'application sert à la structure. Pas de collection nouvelle dans l'API d'essai.
+- 14 nov., 16h00 : **`check:encres` réglé** (S3 `1150965`), première des deux conditions pour allumer la coquille (l'autre est S0). La note de préparation de LOT-08 est fusionnée. **LOT-08 confié à S1** (`claude/refonte-garde-2`), d'accord avec S3, qui n'a pas les zips et reste le gardien de `src/refonte/garde/**`. Réversible. S8 commence LOT-10. Contrôle du vocabulaire du retard par T1 : 0 faute sur 70 écrans ; H02 passe à « à reprendre ».
 - 14 nov., 15h50 : **« reprends » de Harun**, avec ses réponses au POINT-HARUN (§1.42). Point notable : pour les factures, on garde « en retard » ou « impayé ». La boucle repart, avec les mêmes garde-fous.
 - 14 nov., 15h35 : **« stop » de Harun.** Le dernier réveil du CO est annulé, aucune session n'est relancée. Bilan de la journée : 79 écrans construits et livrés, 6 lots finis, 9 préparés ; tout le reste attend Harun (accords à S0, DS, S3, S8 ; zips de S6 ; POINT-HARUN n° 1 à 10).
 - 14 nov., 14h00 : **vivante vérifiée en entier par T1** (`afa4d6cb`) : 77 contrôles sur 77 verts, et `check:fidelite` des six lots livrés dans les seuils (71 écrans, aucun n'a bougé de plus de 2 points après les fusions). LOT-00 n'est pas remesuré : le socle n'a pas bougé.
@@ -891,7 +892,7 @@ Deux précisions de §1.39, mesurées par T1 et S8.
 7. **Limite d'utilisation** : tout relancer.
 8. **Connexion à la version web** (règle de S6) : oui, avec le serveur. LOT-09 se construit sur cette règle, et rien n'est branché avant le serveur.
 9. **Liste du socle** : S0 passe d'abord. S5 ne la prend que si S0 ne reprend pas.
-10. **Décisions provisoires du 14 nov.** : confirmées (seuils T01 600 / 1200 ; sondage et canal par l'écran d'origine ; MJ02 protégé). **Nuance sur le vocabulaire** : « à reprendre » pour les tâches, rappels et habitudes ; pour les factures, on garde le terme précis, « en retard » ou « impayé ».
+10. **Décisions provisoires du 14 nov.** : confirmées (seuils T01 600 / 1200 ; sondage et canal par l'écran d'origine ; MJ02 protégé). **Nuance sur le vocabulaire** : « à reprendre » pour les tâches, rappels et habitudes ; pour les factures, on garde le terme précis, « en retard » ou « impayé ». Précision du CO, *provisoire, soumise à Harun* : les projets et les jalons (MJ01) gardent aussi « en retard », comme la fiche, puisque le retard y est un fait d'équipe. Le compteur de tâches de H02 passe à « à reprendre ». Contrôle : `scripts/qualite/vocabulaire-retard.mjs` (T1).
 
 Harun colle lui-même les accords de S0, DS, S3 et S8, et donne les zips à S6. Il teste la nouvelle coquille aujourd'hui, et ses retours en vrac deviennent des tâches.
 
@@ -924,13 +925,13 @@ Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en para
 |---|---|---|---|
 | S0 Socle | LOT-00 puis socle v3 | ✓ | LOT-00 (v2) fusionné. Socle v3 en cours : §1.10 et §5. |
 | S2 | LOT-01 | ✓ | N01 remplace son Accueil ; M1, M2 et M4 sont absorbés par G05, H40 et H42. Ses 5 commits postérieurs (`b228f5d`) ne sont pas fusionnés. |
-| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **LOT-02 livré ; LOT-01 moitié S1 livrée** (`544545be` fusionné) | en pause : aucun lot libre |
+| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **LOT-02 et moitié de LOT-01 livrés** | **construit LOT-08** La Garde sur `claude/refonte-garde-2` (S3 relit la logique) |
 | S5 | `session_012jWErBSSkcoVaU3iN895bQ` | **LOT-03 et LOT-05 livrés**, préparation de LOT-09 fusionnée | en pause ; proposé pour la liste du socle (POINT-HARUN n° 9) |
 | DS | LOT-04 | ✓ à condition | Ne pousse plus dans `src/socle/**`. Banque en lecture seule ; LOT-04 n'affiche que l'état « connecté / à connecter », la configuration est dans H21 (LOT-07). |
 | **S7** (nouvelle) | LOT-06 | ✓ | **Décision de Harun : LOT-06 confié à S7, F1 écartée.** Sonnet 5.5, effort élevé. À créer. |
 | F1 | — | écartée de LOT-06 | Continue l'Atelier. Vérificateur cassé sur `refonte-vivante` (C-003, patch de T1 à appliquer par F1). Ses modules rejoignent les familles par le registre, après LOT-06. |
 | S6 | LOT-07, puis LOT-10 | ⚠ à condition | Les deux après sa phase 1 (privée ; Harun dit au CO quand elle est finie). LOT-07 d'abord : CY07 étend MO02 (Sites et trackers), qui est dans LOT-07. 30 écrans à elle seule, Opus 5.5, effort élevé. Audit privé ; commits sans description de faiblesse ; écrans sensibles relus par T1. |
-| S3 | LOT-08 | ✓ | Règles du §1.8. Zone élargie à `src/bureaux/cyber/**` (partage dans `REGLES.md`). Ajoute « Ouvrir Cyber » sur F70. |
+| S3 | `session_01FBSpK6n1yYtYXYyxbLAuBV` | `check:encres` réglé (`1150965`) ; **sans zips v4** | gardien de la logique de LOT-08 ; relit les écrans de S1 ; reprend la moitié restante dès les zips |
 | T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | vivante vérifiée en entier (14h00) ; file vide | mesurer le prochain lot (LOT-04, 07, 08, 10) |
 | SIM | transversal | ✓ | **100 jeux fusionnés** (`4fe559b`), `check:donnees` à 87 contrôles en CI, règles validées (§1.11). Enchaîne : dates v3, chargeur vers l'API d'essai, attendus des écrans calculés. |
 
@@ -940,9 +941,9 @@ Ordre : **LOT-00 d'abord, fusionné** ; puis les lots 01 à 08 et **10** en para
 |---|---|---|---|---|---|
 | S0 / LOT-00 | `claude/refonte-socle` | **v2 fusionné** (`488cdcc`) ; socle v3 à suivre sur la même branche | `fdd6366` | `rapports/LOT-00.md` (sur sa branche) | Questions de LOT-00 : §7, section LOT-00 |
 | DS | `claude/refonte-design-socle` | gelée, reprise par LOT-00 | `e97f479` | `rapports/DS.md` (branche LOT-00) | — |
-| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **LOT-02 livré ; LOT-01 moitié S1 livrée** (`544545be` fusionné) | en pause : aucun lot libre |
+| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | **LOT-02 et moitié de LOT-01 livrés** | **construit LOT-08** La Garde sur `claude/refonte-garde-2` (S3 relit la logique) |
 | S2 | `claude/refonte-s2-accueil` | fusionnée à `a537dbe` ; 5 commits non fusionnés | `b228f5d` | [`rapports/S2.md`](rapports/S2.md) | Remplacée par LOT-01 |
-| S3 | `claude/refonte-s3-supervisor` (ancienne), `claude/refonte-garde` (LOT-08) | ancienne fusionnée ; LOT-08 en préparation (note seulement, aucun code) | `e7f4f25`, `2eedc9b` | `docs/refonte/preparation-garde.md` (branche LOT-08) | 15 questions tranchées au §1.8 |
+| S3 | `session_01FBSpK6n1yYtYXYyxbLAuBV` | `check:encres` réglé (`1150965`) ; **sans zips v4** | gardien de la logique de LOT-08 ; relit les écrans de S1 ; reprend la moitié restante dès les zips |
 | S4 | — | annulée | — | — | — |
 | S5 | `session_012jWErBSSkcoVaU3iN895bQ` | **LOT-03 et LOT-05 livrés**, préparation de LOT-09 fusionnée | en pause ; proposé pour la liste du socle (POINT-HARUN n° 9) |
 | S6 | `claude/refonte-sec-*` | phase 1 en cours, privée. **Ne pas fusionner sans décision de Harun.** | — | `docs/securite/**`, hors dépôt | Prend LOT-07 puis LOT-10 |
