@@ -4,6 +4,7 @@
  */
 export * from './commun';
 export * from './pipeline';
+export * from './interet';
 export * from './relances';
 export * from './fidelite';
 export * from './rendezvous';

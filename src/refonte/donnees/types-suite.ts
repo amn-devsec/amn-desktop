@@ -22,12 +22,13 @@
 
 import type { Message } from '../../shared/api';
 import type { Jour } from './outils';
+import type { Facture } from './types';
 
 /* ============================ Noms des jeux ============================ */
 
 export const NOMS_DES_JEUX_SUITE = [
   // Compléments des lots déjà faits
-  'echeancesFiscales', 'bulletins', 'prestations', 'partenaires', 'creneaux', 'defis',
+  'echeancesFiscales', 'bulletins', 'prestations', 'partenaires', 'creneaux', 'defis', 'avoirs',
   // Écrire
   'pages', 'fichiers', 'signatures', 'modeles', 'journal', 'textes', 'archives', 'connaissances',
   // Échanger
@@ -431,6 +432,8 @@ export interface MouvementStock {
   le: Jour;
   delta: number;
   motif: 'Réception' | 'Vente' | 'Inventaire' | 'Perte' | 'Retour';
+  /** H15 : où le mouvement a eu lieu (les ventes sortent du lieu de l'article, les réceptions y entrent). */
+  emplacement: string;
 }
 
 /** H15. La quantité est la somme des mouvements : elle ne s'édite pas directement. */
@@ -443,6 +446,10 @@ export interface ArticleStock {
   prixAchatCents: number;
   emplacement: string;
   mouvements: MouvementStock[];
+  /** H15 : le niveau qu'on vise (trois fois le seuil d'alerte). */
+  niveauCible: number;
+  /** H15 : les commandes passées au fournisseur, reçues ou en route. */
+  commandesFournisseur: { id: string; quantite: number; commandeeLe: Jour; arriveeLe: Jour; recue: boolean }[];
 }
 
 /** MR05. */
@@ -459,6 +466,14 @@ export interface Produit {
   fournisseurId: string | null;
   articleId: string | null;
   etat: 'actif' | 'archivé';
+  /** MR05. */
+  photos: number;
+  tvaPourcent: 20 | 10 | 5.5;
+  prixAchatCents: number | null;
+  /** Le niveau conseillé : quatre semaines de ventes moyennes (null pour un service). */
+  niveauConseille: number | null;
+  /** Les ventes des huit dernières semaines, de la plus ancienne à la plus récente (se lisent dans les mouvements de l'article). */
+  ventesParSemaine: number[];
 }
 
 /** MR07 et MR08 : le même numéro (« #1042 ») dans les deux écrans. */
@@ -477,6 +492,14 @@ export interface Commande {
   preuveRemise: boolean;
   paiement: 'Payé' | 'À payer';
   preparation: 'À préparer' | 'En préparation' | 'Prête' | 'Remise';
+  /** MR07 : l'instant de création (ISO), le même jour que `creeLe`. */
+  creeAt: string;
+  /** MR07 : l'heure à laquelle la commande doit être prête ce jour-là (`HH:MM`). */
+  heureEcheance: string;
+  /** MR07 : le jour où elle a été remise (null tant qu'elle ne l'est pas). */
+  livreeLe: Jour | null;
+  /** MR07 : réglée en ligne (colis et tournées payés) plutôt qu'au retrait. */
+  paiementEnLigne: boolean;
 }
 
 /** H16. */
@@ -487,7 +510,12 @@ export interface Chantier {
   clientId: number | null;
   debutLe: Jour;
   finPrevueLe: Jour;
-  etapes: { nom: string; semaine: number; faite: boolean }[];
+  /** `poids` : part de l'étape dans le chantier (la somme fait 100) ; `partRealisee` : de 0 à 1. */
+  etapes: { nom: string; semaine: number; faite: boolean; poids: number; partRealisee: number }[];
+  /** H16 : interventions planifiées sur le chantier. */
+  interventions: { id: string; le: Jour; libelle: string; fait: boolean }[];
+  /** H16 : livraisons rattachées au chantier. */
+  livraisons: { id: string; libelle: string; le: Jour; recue: boolean }[];
   equipe: string[];
   budgetCents: number;
   depenseCents: number;
@@ -503,9 +531,11 @@ export interface DossierPhoto {
   chantierId: string | null;
   clientId: number | null;
   responsables: string[];
-  photos: { id: string; phase: 'Avant' | 'Pendant' | 'Après'; le: Jour; lieu: string; auteurEmail: string }[];
+  photos: { id: string; phase: 'Avant' | 'Pendant' | 'Après'; le: Jour; lieu: string; auteurEmail: string; orientation: 'portrait' | 'paysage' }[];
   demarre: boolean;
   debutPrevuLe: Jour;
+  /** MR10 : la signature du client à la remise du dossier (null tant qu'il n'a pas signé). */
+  signatureClient: { le: Jour; signataire: string } | null;
 }
 
 /** H17. Palette et polices sont celles de l'entreprise d'exemple, pas des jetons de l'application. */
@@ -513,7 +543,11 @@ export interface Marque {
   id: string;
   nom: string;
   logos: { variante: 'fond noir' | 'fond clair'; format: 'SVG' | 'PNG' }[];
-  palette: { nom: string; hex: string }[];
+  /** `role` et `partUsage` (la somme fait 100) : à quoi sert chaque couleur et combien on s'en sert. */
+  palette: { nom: string; hex: string; role: 'Principale' | 'Secondaire' | 'Accent' | 'Fond' | 'Texte'; partUsage: number }[];
+  /** H17 : les règles « à éviter ». */
+  aEviter: string[];
+  modifieLe: Jour;
   typographie: { famille: string; graisses: number[] };
   modelesVisuels: { nom: string; format: string; largeur: number; hauteur: number }[];
 }
@@ -523,7 +557,7 @@ export interface Video {
   id: string;
   titre: string;
   description: string;
-  etape: 'Idée' | 'Tournage' | 'Montage' | 'Relecture' | 'Publiée';
+  etape: 'Idée' | 'Tournage' | 'Montage' | 'Sous-titrage' | 'Relecture' | 'Publiée';
   avancement: number;
   responsables: string[];
   prevueLe: Jour;
@@ -532,6 +566,11 @@ export interface Video {
   fichiers: string[];
   lienPublication: string | null;
   vues: number;
+  /** MR01 : les plans du montage. */
+  plans: { id: string; titre: string; debutSec: number; dureeSec: number }[];
+  sousTitres: { langue: string; etat: 'brouillon' | 'relu' }[];
+  commentaires: { id: string; auteurEmail: string; texte: string; le: Jour; resolu: boolean }[];
+  publieeLe: Jour | null;
 }
 
 /** MR02. */
@@ -544,6 +583,10 @@ export interface PagePublique {
   responsableEmail: string;
   statut: 'Publiée' | 'Brouillon' | 'Modifications non publiées';
   visites7j: number;
+  /** MR02 : les sections de la page, les visites des sept derniers jours (la somme fait `visites7j`), les avis affichés. */
+  sections: { id: string; type: 'Bandeau' | 'Texte' | 'Galerie' | 'Avis' | 'Contact'; titre: string; visible: boolean }[];
+  visitesParJour: number[];
+  avis: { auteur: string; texte: string; accordClient: boolean }[];
 }
 
 /** MR03. */
@@ -556,7 +599,11 @@ export interface EtapeTournee {
   adresse: string;
   arriveePrevue: string;
   dureeMin: number;
-  etat: 'À faire' | 'En route' | 'Fait' | 'Reportée';
+  etat: 'À faire' | 'En route' | 'Sur place' | 'Fait' | 'Reportée';
+  /** MR03 : durée du trajet depuis l'étape précédente (ou le dépôt, pour la première), en minutes. */
+  trajetMin: number;
+  /** MR03 : distance de ce trajet, en kilomètres. */
+  distanceKm: number;
   heureFixee: boolean;
   conducteurEmail: string;
   commandeId: string | null;
@@ -575,6 +622,14 @@ export interface Equipement {
   valeurCents: number;
   achatLe: Jour;
   statut: 'En service' | 'Au rebut';
+  /** MR04 : depuis quand l'affectation actuelle dure. */
+  affectationDepuis: Jour;
+  /** MR04 : le dernier entretien fait (le prochain en découle). */
+  dernierEntretienLe: Jour;
+  /** MR04 : le dernier contrôle, après le dernier entretien. */
+  dernierControleLe: Jour;
+  /** MR04 : le jour de la réforme, pour un matériel au rebut. */
+  reformeLe: Jour | null;
 }
 
 /** MR06. */
@@ -585,6 +640,10 @@ export interface Ressource {
   groupe: string;
   regles: { dureeMaxMin: number; annulationGratuiteH: number; rappelMin: number };
   ouverture: { jours: number[]; debut: string; fin: string };
+  /** MR06 : indisponible (garage, hors service) pour une période. */
+  indisponibilites: { debut: Jour; fin: Jour; motif: string }[];
+  /** MR06 : les demandes qui se sont heurtées à une autre réservation. */
+  conflits: { le: Jour; demandeur: string; issue: 'refusée' | 'déplacée' }[];
 }
 
 export interface Reservation {
@@ -610,6 +669,12 @@ export interface Vehicule {
   prochainEntretien: { km: number | null; le: Jour | null };
   assuranceLe: Jour;
   controleTechniqueLe: Jour;
+  /** MR09. */
+  energie: 'Diesel' | 'Essence' | 'Électrique' | 'Hybride';
+  niveauPourcent: number;
+  autonomieKm: number;
+  /** Les sept derniers jours : kilomètres, et carburant (litres) quand le véhicule n'est pas électrique. */
+  parJour: { jour: Jour; km: number; carburantL: number | null }[];
 }
 
 /** MR11. */
@@ -626,7 +691,8 @@ export interface Controle {
   clientId: number | null;
   responsableEmail: string;
   le: Jour;
-  resultats: { pointId: string; conforme: boolean | null }[];
+  /** `sansObjet` : le point ne s'applique pas (alors `conforme` reste null). */
+  resultats: { pointId: string; conforme: boolean | null; sansObjet: boolean }[];
   statut: 'À faire' | 'En cours' | 'Terminé';
 }
 
@@ -640,6 +706,9 @@ export interface EcartQualite {
   echeanceLe: Jour;
   responsableEmail: string;
   etat: 'ouvert' | 'corrigé' | 'accepté';
+  /** MR11 : la cause trouvée, et le jour où l'écart a été relevé. */
+  cause: string;
+  releveLe: Jour;
 }
 
 /* ================================== Outils ================================== */
@@ -805,7 +874,7 @@ export interface UsageCalcul {
 
 /* ================================ La Garde ================================ */
 
-export type EtatGarde = 'Sain' | 'À surveiller' | 'Critique';
+export type EtatGarde = 'Sain' | 'Attention' | 'Critique';
 export type GraviteAlerte = 'Critique' | 'Moyenne' | 'Faible';
 
 /** H30, H31, N02. L'état se déduit (voir `etatOrganisation`) : il n'est stocké ici que pour comparer. */
@@ -1092,6 +1161,8 @@ export interface ParcSecurite {
 /* ============================= Le monde, suite ============================= */
 
 export interface MondeSuite {
+  /** G03, H07, MA04 : les avoirs sont des factures de nature `creditNote`, numérotées `AV-AAAA-NNNN`, qui réduisent `creditNoteFor`. Le chargeur les range avec les factures. */
+  avoirs: Facture[];
   echeancesFiscales: EcheanceFiscale[];
   bulletins: Bulletin[];
   prestations: Prestation[];

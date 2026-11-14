@@ -381,6 +381,27 @@ await dit('décisions : RH dans Échanger, Événements dans Créer, Équipe dan
   for (const id of ['tour', 'orgs', 'generator', 'supervision', 'sites', 'tracker', 'scanner', 'ssl', 'access']) assert.equal(famille(id), 'garde', id);
 });
 
+await dit('Créer et produire rapatrie les modules des écrans de LOT-06 (STATUT §1.27 n° 1), sans doublon ni perte', () => {
+  const attendu: Record<string, string> = {
+    assembly: 'fabriquer', interventions: 'fabriquer', checklists: 'fabriquer',
+    orders: 'livrer', rounds: 'livrer', itineraries: 'livrer',
+    stock: 'stocker', stockForecast: 'stocker', equipment: 'stocker', fleet: 'stocker', shop: 'stocker',
+  };
+  const fautes: string[] = [];
+  for (const [id, action] of Object.entries(attendu)) {
+    const e = entreeDe(id);
+    if (e?.famille !== 'creer' || e.action !== `creer.${action}`) fautes.push(`${id} : ${e?.action ?? 'absent'} au lieu de creer.${action}`);
+  }
+  // L'écran d'un autre lot garde sa famille : Salles (Échanger), Médias (Écrire), Caisse, Billetterie, Dons (Argent), Composition (Outils).
+  for (const [id, famille] of [['rooms', 'echanger'], ['media', 'ecrire'], ['cashCount', 'argent'], ['ticketing', 'argent'], ['donations', 'argent'], ['bom', 'outils']] as const) {
+    if (entreeDe(id)?.famille !== famille) fautes.push(`${id} devait rester dans ${famille}`);
+  }
+  const creer = R.familles.find((f) => f.id === 'creer');
+  assert.deepEqual(creer?.actions.map((a) => a.id).slice(0, 3), ['fabriquer', 'livrer', 'stocker'], 'les trois groupes de F50 d’abord');
+  assert.equal(R.entrees.length, 101, 'on déplace, on ne perd rien');
+  assert.deepEqual(fautes, [], fautes.join('\n'));
+});
+
 await dit('Ajmani : plus au catalogue ni aux entrées, sa route ouvre le panneau ⌘J', () => {
   assert.ok(!catalogue.some((i) => i.key === 'gardeAjmani'), 'gardeAjmani est encore au catalogue');
   assert.ok(!entreeDe('gardeAjmani'), 'gardeAjmani est encore rangé');

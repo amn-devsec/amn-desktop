@@ -8,7 +8,7 @@
  *      près. Un écran, un test et une capture voient donc le même monde.
  *   2. STABLE DANS LE TEMPS — rien ne lit l'horloge. Le « maintenant » est un
  *      paramètre (`MAINTENANT_REFERENCE` par défaut : le vendredi 30 octobre
- *      2026 à 10 h 15, heure de Paris, le jour des maquettes). Une capture prise
+ *      2026 à 10 h 42, heure de Paris, le jour des maquettes). Une capture prise
  *      dans un an montre la même chose.
  *   3. JUSTE EN FRANÇAIS — les jours et les heures sont ceux de Paris, y compris
  *      aux changements d'heure.
@@ -187,10 +187,24 @@ export function heureDe(ms: number): string {
 }
 
 /**
- * Le jour de référence des maquettes : vendredi 30 octobre 2026, 10 h 15 à Paris.
- * (Les maquettes le montrent un vendredi ; 2026-10-30 en est bien un.)
+ * Le jour de référence des maquettes (images v3) : vendredi 30 octobre 2026, 10 h 42 à Paris,
+ * pour tout le bureau. (Les maquettes le montrent un vendredi ; 2026-10-30 en est bien un.)
  */
-export const MAINTENANT_REFERENCE: number = instantParis('2026-10-30', '10:15');
+export const MAINTENANT_REFERENCE: number = instantParis('2026-10-30', '10:42');
+
+/**
+ * Le « maintenant » du lot Cyber : mardi 3 novembre 2026, 10 h 42 à Paris (images v3 de Cyber).
+ * L'heure est celle du bureau : les fiches ne donnent que le jour (à confirmer).
+ */
+export const MAINTENANT_CYBER: number = instantParis('2026-11-03', '10:42');
+
+/**
+ * Le « maintenant » de Cyber quand on décale celui du bureau : même heure de Paris, quatre jours
+ * calendaires plus tard (vendredi → mardi). Au défaut, c'est exactement `MAINTENANT_CYBER`.
+ */
+export function maintenantCyberDe(maintenant: number): number {
+  return instantParis(ajouterJours(jourDe(maintenant), 4), heureDe(maintenant));
+}
 
 /** La graine de référence : celle que les sessions et les captures partagent. */
 export const GRAINE_REFERENCE = 20261030;

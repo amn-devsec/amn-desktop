@@ -3,7 +3,7 @@
  * alertes (MG01), incidents (H32), vulnérabilités, rondes (H33), événements de
  * sécurité (MG02), journal d'accès (H35), maturité (H34), offres (MG03).
  *
- * L'ÉTAT d'une organisation (« Sain », « À surveiller », « Critique ») n'est pas
+ * L'ÉTAT d'une organisation (« Sain », « Attention », « Critique ») n'est pas
  * tiré au hasard : c'est le plus grave de trois critères (N02, 6.1) — la bande
  * de son score, la gravité de ses alertes ouvertes, le retard de sa dernière
  * ronde. Les jeux fabriquent d'abord ces trois critères, puis `etatOrganisation`
@@ -28,14 +28,14 @@ const H = 3_600_000;
 
 /* ------------------------- L'état d'une organisation (N02, 6.1) ------------------------- */
 
-const RANG: Record<EtatGarde, number> = { Sain: 0, 'À surveiller': 1, Critique: 2 };
+const RANG: Record<EtatGarde, number> = { Sain: 0, Attention: 1, Critique: 2 };
 const pire = (a: EtatGarde, b: EtatGarde): EtatGarde => (RANG[a] >= RANG[b] ? a : b);
 
 /**
  * L'état d'une organisation : le plus grave de (1) la bande du score — 70 et plus
- * « Sain », 45 à 69 « À surveiller », moins de 45 « Critique » —, (2) les alertes
- * ouvertes — une Critique « Critique », une Moyenne « À surveiller », des Faibles
- * seules « Sain » —, (3) la ronde — plus de 2 intervalles « À surveiller », plus
+ * « Sain », 45 à 69 « Attention », moins de 45 « Critique » —, (2) les alertes
+ * ouvertes — une Critique « Critique », une Moyenne « Attention », des Faibles
+ * seules « Sain » —, (3) la ronde — plus de 2 intervalles « Attention », plus
  * de 24 h « Critique ». Proposition de la fiche N02, à confirmer dans le code.
  */
 export function etatOrganisation(
@@ -45,12 +45,12 @@ export function etatOrganisation(
   intervalleRondeH: number,
   maintenant: number,
 ): EtatGarde {
-  let etat: EtatGarde = score >= 70 ? 'Sain' : score >= 45 ? 'À surveiller' : 'Critique';
+  let etat: EtatGarde = score >= 70 ? 'Sain' : score >= 45 ? 'Attention' : 'Critique';
   if (alertesOuvertes.includes('Critique')) etat = pire(etat, 'Critique');
-  else if (alertesOuvertes.includes('Moyenne')) etat = pire(etat, 'À surveiller');
+  else if (alertesOuvertes.includes('Moyenne')) etat = pire(etat, 'Attention');
   const retardH = (maintenant - Date.parse(derniereRondeAt)) / H;
   if (retardH > 24) etat = pire(etat, 'Critique');
-  else if (retardH > 2 * intervalleRondeH) etat = pire(etat, 'À surveiller');
+  else if (retardH > 2 * intervalleRondeH) etat = pire(etat, 'Attention');
   return etat;
 }
 
@@ -66,8 +66,8 @@ export function genererOrganisations(ctx: Contexte, clients: readonly FicheClien
   // On préfère les clients qui ont un site : leur domaine devient un actif surveillé.
   const choisis = [...h.melanger(clients.filter((c) => avecSite.has(c.id))), ...h.melanger(clients.filter((c) => !avecSite.has(c.id)))].slice(0, n);
   // Les trois premières organisations montrent les trois états (une critique par alerte, une à surveiller par alerte, une saine) ; le reste est mélangé.
-  const premieres = [['Critique', 'alerte'], ['À surveiller', 'alerte'], ['Sain', 'score']] as const;
-  const suite = cycle(h, [['Sain', 'score'], ['Sain', 'score'], ['À surveiller', 'score'], ['Sain', 'score'], ['Critique', 'ronde'], ['À surveiller', 'ronde'], ['Critique', 'score'], ['Sain', 'score']] as const, Math.max(0, n - 3));
+  const premieres = [['Critique', 'alerte'], ['Attention', 'alerte'], ['Sain', 'score']] as const;
+  const suite = cycle(h, [['Sain', 'score'], ['Sain', 'score'], ['Attention', 'score'], ['Sain', 'score'], ['Critique', 'ronde'], ['Attention', 'ronde'], ['Critique', 'score'], ['Sain', 'score']] as const, Math.max(0, n - 3));
   const cibles: readonly (readonly [EtatGarde, 'score' | 'alerte' | 'ronde'])[] = [...premieres, ...suite].slice(0, n);
   const plans = new Map<string, Plan>();
   const organisations = choisis.map((c, i): OrganisationGarde => {
@@ -76,9 +76,9 @@ export function genererOrganisations(ctx: Contexte, clients: readonly FicheClien
     plans.set(id, { cible, via });
     const intervalle = h.choix([1, 2, 4, 6]);
     // Score selon la cible, sauf quand l'état vient d'une alerte ou d'une ronde : le score peut alors rester bon (Menna : 71 mais rouge).
-    const score = cible === 'Sain' ? h.entier(74, 96) : cible === 'À surveiller' ? (via === 'score' ? h.entier(46, 68) : h.entier(70, 88)) : via === 'score' ? h.entier(20, 44) : h.entier(66, 80);
+    const score = cible === 'Sain' ? h.entier(74, 96) : cible === 'Attention' ? (via === 'score' ? h.entier(46, 68) : h.entier(70, 88)) : via === 'score' ? h.entier(20, 44) : h.entier(66, 80);
     // Dernière ronde : à jour, sauf si c'est elle la cause de l'état.
-    const retard = cible === 'Critique' && via === 'ronde' ? h.entier(26, 40) * H : cible === 'À surveiller' && via === 'ronde' ? (2 * intervalle + h.entier(1, 3)) * H : h.entier(5, Math.max(6, Math.round(intervalle * 50))) * MIN;
+    const retard = cible === 'Critique' && via === 'ronde' ? h.entier(26, 40) * H : cible === 'Attention' && via === 'ronde' ? (2 * intervalle + h.entier(1, 3)) * H : h.entier(5, Math.max(6, Math.round(intervalle * 50))) * MIN;
     return {
       id,
       clientId: c.id,
@@ -167,7 +167,7 @@ export function genererAlertes(
     const plan = plans.get(org.id);
     if (!plan) continue;
     if (plan.cible === 'Critique' && plan.via === 'alerte') ajouter(org, 'Critique', 'Ouverte', h.entier(4, 90) * MIN);
-    else if (plan.cible === 'À surveiller' && plan.via === 'alerte') ajouter(org, 'Moyenne', 'Ouverte', h.entier(20, 600) * MIN);
+    else if (plan.cible === 'Attention' && plan.via === 'alerte') ajouter(org, 'Moyenne', 'Ouverte', h.entier(20, 600) * MIN);
     else if (h.chance(0.4)) ajouter(org, 'Faible', 'Ouverte', h.entier(1, 40) * H);
   }
   // 2. Le reste du volume : des alertes déjà acquittées, surtout récentes ; un tiers « aujourd'hui » (KPI « Traitées aujourd'hui »).
@@ -322,7 +322,7 @@ export function genererJournalAcces(
     const acteurClient = tirage < 0.25 && clients.length ? h.choix(clients) : null;
     const inconnu = tirage > 0.96;
     const membre = h.choix(gens);
-    const numero = factures.filter((f) => f.number).length ? h.choix(factures.filter((f) => f.number)).number : 'F-2026-0001';
+    const numero = factures.filter((f) => f.number).length ? h.choix(factures.filter((f) => f.number)).number : '2026-0001';
     const actions: readonly (readonly [string, EntreeJournalAcces['resultat']])[] = acteurClient
       ? [[`A consulté la facture ${numero}`, 'Autorisé'], ['A téléchargé le devis', 'Autorisé']]
       : [[`A ouvert la facture ${numero}`, 'Autorisé'], ['A consulté la fiche d’un client', 'Autorisé'], ['A exporté la liste des clients', 'Autorisé'], [`A modifié le rôle de ${h.choix(gens).prenom}`, 'À revoir'], [`A révélé le secret « ${secretsNoms.length ? h.choix(secretsNoms) : 'Passerelle de paiement'} »`, 'À revoir'], ['A envoyé une relance', 'Autorisé']];

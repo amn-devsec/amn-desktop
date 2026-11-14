@@ -19,6 +19,8 @@
  */
 
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as esbuild from 'esbuild';
@@ -41,7 +43,9 @@ async function loadFromSrc<T>(entry: string): Promise<T> {
 }
 
 type Lien = Record<string, unknown>;
-type MondeBrut = Record<string, Lien[]> & { contexte: { aujourdhui: string; maintenant: number }; entreprise: Lien };
+type ChargeOrg = { id: string; nom: string; effectif: number; taille: string; volume: string; profil: string; proprietaire: string; domaine: string; secteur: string };
+type Attendu = any; // eslint-disable-line @typescript-eslint/no-explicit-any -- les attendus sont inspectés champ par champ
+type MondeBrut = Record<string, Lien[]> & { contexte: { aujourdhui: string; maintenant: number; aujourdhuiCyber: string; maintenantCyber: number }; entreprise: Lien };
 const D = await loadFromSrc<{
   construireMonde: (o?: Record<string, unknown>) => MondeBrut;
   NOMS_DES_JEUX: readonly string[];
@@ -55,6 +59,7 @@ const D = await loadFromSrc<{
   journeesDeTravail: (t: unknown, email: string, jusqua: string, n?: number) => { jour: string; bouclee: boolean }[];
   serieEnCours: (j: unknown, aujourdhui: string) => number;
   jourDe: (ms: number) => string;
+  heureDe: (ms: number) => string;
   ecartJours: (a: string, b: string) => number;
   etatOrganisation: (score: number, alertes: string[], derniere: string, intervalleH: number, maintenant: number) => string;
   etatAccord: (a: unknown, aujourdhui: string) => string;
@@ -64,6 +69,23 @@ const D = await loadFromSrc<{
   niveauMaturite: (s: number) => { niveau: number; nom: string };
   niveauConformite: (d: unknown) => string;
   joursSansImpaye: (f: unknown, j: string) => number;
+  attendusPrevisions: (m: MondeBrut, o?: Record<string, unknown>) => Attendu;
+  attendusBilanSemaine: (m: MondeBrut, o?: Record<string, unknown>) => Attendu;
+  attendusCockpit: (m: MondeBrut) => Attendu;
+  attendusTableauDeBord: (m: MondeBrut, o?: Record<string, unknown>) => Attendu;
+  PALIERS_DE_SERIE: readonly number[];
+  calculerNps: (a: unknown) => number | null;
+  instantParis: (jour: string, hhmm?: string) => number;
+  RAISONS_DE_PERTE: readonly string[];
+  genererOrganisationsDeCharge: (o?: { graine?: number; nombre?: number }) => ChargeOrg[];
+  choisirConnectees: (o: ChargeOrg[], n: number, graine?: number) => ChargeOrg[];
+  emailDuMembre: (o: { domaine: string; effectif: number }, rang: number) => string;
+  SEUILS_DE_CHARGE: { partRapide: number; actionRapideMs: number; visibiliteMs: number };
+  CIBLE_DE_CHARGE: { organisations: number; connectees: number; internes: number };
+  PALIERS_DE_CHARGE: readonly number[];
+  ESSAI_LONG_HEURES: number;
+  EQUIPE_INTERNE_DE_CHARGE: readonly string[];
+  MELANGE_D_ACTIONS: readonly { nom: string; poids: number; ecriture: boolean }[];
 }>('src/refonte/donnees/index.ts');
 
 let vus = 0;
@@ -78,6 +100,9 @@ const gros = D.construireMonde({ volume: 'beaucoup' });
 const peu = D.construireMonde({ volume: 'peu' });
 const vide = D.construireMonde({ volume: 'vide' });
 const jours = (m: MondeBrut): string => m.contexte.aujourdhui;
+const joursCyber = (m: MondeBrut): string => m.contexte.aujourdhuiCyber;
+const aujourdhuiDe = jours;
+const estCourrielFictifLocal = (c: string): boolean => /@[a-z0-9.-]+\.exemple\.test$/.test(c);
 const str = (x: unknown): string => String(x ?? '');
 const num = (x: unknown): number => Number(x);
 
@@ -116,12 +141,26 @@ dit('chaque jeu garde ses tirages quand on change le volume d’un autre', () =>
   const a = D.construireMonde({ volume: 'normal', volumes: { avis: 'vide' } });
   assert.equal(JSON.stringify(a.clients.map((c) => c.name)), JSON.stringify(normal.clients.map((c) => c.name)));
 });
-dit('la référence est le vendredi 30 octobre 2026', () => {
+dit('la référence est le vendredi 30 octobre 2026, 10 h 42 ; Cyber est au mardi 3 novembre 2026, 10 h 42', () => {
   assert.equal(jours(normal), '2026-10-30');
+  assert.equal(D.heureDe(normal.contexte.maintenant), '10:42');
+  assert.equal(new Date(`${jours(normal)}T12:00:00Z`).getUTCDay(), 5, 'un vendredi');
+  assert.equal(joursCyber(normal), '2026-11-03');
+  assert.equal(D.heureDe(normal.contexte.maintenantCyber), '10:42');
+  assert.equal(new Date(`${joursCyber(normal)}T12:00:00Z`).getUTCDay(), 2, 'un mardi');
+  for (const m of [peu, gros]) assert.deepEqual([jours(m), joursCyber(m)], ['2026-10-30', '2026-11-03']);
 });
-dit('un autre « maintenant » décale tout le monde de façon cohérente', () => {
+dit('le bureau est daté du 30 oct. et Cyber du 3 nov. : La Garde n’a rien après le 30, la veille de Cyber tombe le 3', () => {
+  const futurBureau = (x: unknown) => typeof x === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(x) && Date.parse(x) > normal.contexte.maintenant;
+  for (const a of normal.alertes) assert.ok(!futurBureau(a.detecteeAt), 'alerte de La Garde datée après le 30 oct.');
+  const veille = normal.alertesVeille.filter((a) => a.publieeLe === joursCyber(normal));
+  assert.ok(veille.length > 0, 'CY05 : une alerte de veille publiée le 3 nov.');
+});
+dit('un autre « maintenant » décale tout le monde de façon cohérente, Cyber compris (quatre jours plus tard)', () => {
   const m = D.construireMonde({ volume: 'normal', maintenant: Date.parse('2027-03-12T10:00:00Z') });
   assert.equal(jours(m), '2027-03-12');
+  assert.equal(joursCyber(m), '2027-03-16');
+  assert.equal(D.heureDe(m.contexte.maintenantCyber), D.heureDe(m.contexte.maintenant));
   assert.ok(m.factures.every((f) => !f.issuedAt || str(f.issuedAt) <= '2027-03-12'));
 });
 
@@ -241,14 +280,14 @@ dit('numérotation continue sans trou, par année, dans l’ordre d’émission 
   const emises = gros.factures.filter((f) => f.status !== 'draft').sort((a, b) => str(a.number).localeCompare(str(b.number)));
   const parAn = new Map<string, number[]>();
   for (const f of emises) {
-    const m = /^F-(\d{4})-(\d{4})$/.exec(str(f.number));
+    const m = /^(\d{4})-(\d{4})$/.exec(str(f.number));
     assert.ok(m, `numéro mal formé : ${str(f.number)}`);
     parAn.set(m[1], [...(parAn.get(m[1]) ?? []), Number(m[2])]);
   }
   for (const [an, suite] of parAn) assert.deepEqual(suite, suite.map((_, i) => i + 1), `trou dans la numérotation de ${an}`);
   assert.ok(gros.factures.filter((f) => f.status === 'draft').every((f) => str(f.number) === '' && str(f.issuedAt) === ''), 'brouillons');
   for (const an of parAn.keys()) {
-    const dates = emises.filter((f) => str(f.number).includes(`-${an}-`)).map((f) => str(f.issuedAt));
+    const dates = emises.filter((f) => str(f.number).startsWith(`${an}-`)).map((f) => str(f.issuedAt));
     assert.ok(dates.every((d) => d.startsWith(an)), `une facture ${an} n’est pas émise en ${an}`);
   }
   assert.ok(emises.length > 500);
@@ -267,8 +306,36 @@ dit('le solde dû vaut le TTC d’une facture envoyée, zéro sinon ; les totaux
     const t = D.totauxDeFacture(f);
     assert.ok(Number.isInteger(t.htCents) && Number.isInteger(t.tvaCents));
     assert.equal(t.ttcCents, t.htCents + t.tvaCents);
-    assert.equal(num(f.soldeCents), f.status === 'issued' ? t.ttcCents : 0);
+    const repris = gros.avoirs.filter((x) => x.creditNoteFor === f.id).reduce((n, x) => n + D.totauxDeFacture(x).ttcCents, 0);
+    assert.equal(num(f.soldeCents), f.status === 'issued' ? Math.max(0, t.ttcCents - repris) : 0, 'reste dû = TTC − avoirs');
   }
+});
+dit('les avoirs : AV-AAAA-NNNN continu, rattachés à une facture du même client, jamais plus grands qu’elle, le reste dû baisse', () => {
+  for (const [nom, m] of [['normal', normal], ['peu', peu], ['beaucoup', gros], ['vide', vide]] as const) {
+    const parAn = new Map<string, number[]>();
+    const emises = [...m.avoirs].sort((a, b) => str(a.number).localeCompare(str(b.number)));
+    for (const a of emises) {
+      const mt = /^AV-(\d{4})-(\d{4})$/.exec(str(a.number));
+      assert.ok(mt, `${nom} : numéro d’avoir ${str(a.number)}`);
+      parAn.set(mt[1], [...(parAn.get(mt[1]) ?? []), Number(mt[2])]);
+      assert.equal(a.kind, 'creditNote');
+      const origine = m.factures.find((f) => f.id === a.creditNoteFor);
+      assert.ok(origine && (origine.status === 'paid' || origine.status === 'issued'), `${nom} : facture d’origine émise`);
+      assert.equal(origine.clientId, a.clientId, `${nom} : même client`);
+      assert.ok(str(a.issuedAt) >= str(origine.issuedAt) && str(a.issuedAt) <= aujourdhuiDe(m), `${nom} : date de l’avoir`);
+      assert.ok(str(a.number).startsWith(`AV-${str(a.issuedAt).slice(0, 4)}-`), `${nom} : l’année du numéro est celle de l’émission`);
+      const total = m.avoirs.filter((x) => x.creditNoteFor === origine.id).reduce((n, x) => n + D.totauxDeFacture(x).ttcCents, 0);
+      assert.ok(total <= D.totauxDeFacture(origine).ttcCents, `${nom} : un avoir ne dépasse pas sa facture`);
+      if (origine.status === 'issued') assert.ok(total < D.totauxDeFacture(origine).ttcCents, `${nom} : sur une facture encore due, l’avoir est partiel`);
+      assert.equal(num(a.soldeCents), 0, 'un avoir n’est jamais dû');
+    }
+    for (const [an, suite] of parAn) assert.deepEqual(suite, suite.map((_, i) => i + 1), `${nom} : trou dans les avoirs de ${an}`);
+    assert.equal(new Set([...m.factures, ...m.avoirs].map((f) => f.id)).size, m.factures.length + m.avoirs.length, `${nom} : identifiants uniques`);
+    assert.ok(m.factures.every((f) => !f.kind || f.kind === 'invoice'), 'les factures restent des factures');
+  }
+  assert.ok(normal.avoirs.length >= 1 && gros.avoirs.length >= 10, 'des avoirs dès « normal »');
+  assert.ok(gros.avoirs.some((a) => gros.factures.find((f) => f.id === a.creditNoteFor)?.status === 'issued') && gros.avoirs.some((a) => gros.factures.find((f) => f.id === a.creditNoteFor)?.status === 'paid'), 'avoirs sur factures dues et réglées');
+  assert.equal(vide.avoirs.length, 0);
 });
 dit('le statut « En retard » se déduit (envoyée + échéance passée) ; il y en a, mais peu', () => {
   const retard = gros.factures.filter((f) => D.statutAffiche(f, aujourdhui) === 'En retard');
@@ -549,11 +616,12 @@ function invariants(m: MondeBrut, nom: string): void {
   const parAn = new Map<string, number[]>();
   for (const f of m.factures) {
     const t = D.totauxDeFacture(f);
-    assert.equal(num(f.soldeCents), f.status === 'issued' ? t.ttcCents : 0, `${nom} : solde`);
+    const repris = m.avoirs.filter((x) => x.creditNoteFor === f.id).reduce((n, x) => n + D.totauxDeFacture(x).ttcCents, 0);
+    assert.equal(num(f.soldeCents), f.status === 'issued' ? Math.max(0, t.ttcCents - repris) : 0, `${nom} : solde`);
     if (f.status === 'draft') { assert.equal(str(f.number), ''); continue; }
     assert.ok(str(f.dueAt) >= str(f.issuedAt) && str(f.issuedAt) <= auj, `${nom} : dates ${str(f.number)}`);
     if (f.status === 'paid') assert.ok(str(f.paidAt) >= str(f.issuedAt) && str(f.paidAt) <= auj, `${nom} : paiement ${str(f.number)}`);
-    const mt = /^F-(\d{4})-(\d{4})$/.exec(str(f.number));
+    const mt = /^(\d{4})-(\d{4})$/.exec(str(f.number));
     assert.ok(mt, `${nom} : numéro ${str(f.number)}`);
     parAn.set(mt[1], [...(parAn.get(mt[1]) ?? []), Number(mt[2])]);
   }
@@ -684,7 +752,8 @@ dit('TVA : la TVA à reverser est celle des factures émises moins celle des dé
     const [a, mEcheance] = str(e.echeanceLe).split('-').map(Number);
     const an = mEcheance === 1 ? a - 1 : a;
     const cleMois = `${an}-${String(mois).padStart(2, '0')}`;
-    const col = gros.factures.filter((f) => f.status !== 'draft' && f.status !== 'cancelled' && str(f.issuedAt).startsWith(cleMois)).reduce((t, f) => t + D.totauxDeFacture(f).tvaCents, 0);
+    const col = gros.factures.filter((f) => f.status !== 'draft' && f.status !== 'cancelled' && str(f.issuedAt).startsWith(cleMois)).reduce((t, f) => t + D.totauxDeFacture(f).tvaCents, 0)
+      - gros.avoirs.filter((x) => str(x.issuedAt).startsWith(cleMois)).reduce((t, x) => t + D.totauxDeFacture(x).tvaCents, 0);
     const ded = gros.depenses.filter((d) => str(d.spentAt).startsWith(cleMois)).reduce((t, d) => t + num(d.tvaCents), 0);
     assert.equal(num(e.montantCents), col - ded, `TVA de ${m[1]}`);
   }
@@ -885,7 +954,7 @@ dit('chantiers, photos, tournées, matériel, flotte, réservations, qualité : 
     assert.ok(point, 'un écart naît d’un point non conforme');
     assert.equal(e.gravite, point.criticite === 'critique' ? 'critique' : 'mineur');
   }
-  for (const c of gros.controles) { if (c.statut === 'À faire') assert.ok((c.resultats as Lien[]).every((r) => r.conforme === null)); if (c.statut === 'Terminé') assert.ok((c.resultats as Lien[]).every((r) => r.conforme !== null)); }
+  for (const c of gros.controles) { if (c.statut === 'À faire') assert.ok((c.resultats as Lien[]).every((r) => r.conforme === null)); if (c.statut === 'Terminé') assert.ok((c.resultats as Lien[]).every((r) => r.conforme !== null || r.sansObjet === true)); for (const r of c.resultats as Lien[]) if (r.sansObjet === true) assert.equal(r.conforme, null, 'sans objet : pas de résultat'); }
 });
 
 console.log('  — Outils');
@@ -942,21 +1011,21 @@ dit('l’état d’une organisation se déduit du score, des alertes ouvertes et
     assert.ok(ids(gros.clients).has(o.clientId) && num(o.score) >= 0 && num(o.score) <= 100);
     assert.equal(o.lettre, str(o.nom)[0].toUpperCase());
   }
-  for (const m of [normal, gros]) assert.deepEqual([...new Set(m.organisations.map((o) => o.etat))].sort(), ['Critique', 'Sain', 'À surveiller'], 'les trois états existent');
+  for (const m of [normal, gros]) assert.deepEqual([...new Set(m.organisations.map((o) => o.etat))].sort(), ['Attention', 'Critique', 'Sain'], 'les trois états existent');
   // Une organisation peut avoir un bon score et pourtant être critique : c'est l'alerte (ou la ronde) qui décide.
   assert.ok(gros.organisations.some((o) => o.etat === 'Critique' && num(o.score) >= 65), 'N02 : « 71 en rouge à cause de l’alerte critique »');
   // Les bornes de N02 6.1, écrites en dur : sans elles, comparer la fonction à elle-même ne prouverait rien.
   const maintenant = gros.contexte.maintenant;
   const ilYa = (min: number) => new Date(maintenant - min * 60_000).toISOString();
   const cas: [string, number, string[], number, number, string][] = [
-    ['score 70', 70, [], 5, 4, 'Sain'], ['score 69', 69, [], 5, 4, 'À surveiller'], ['score 45', 45, [], 5, 4, 'À surveiller'], ['score 44', 44, [], 5, 4, 'Critique'],
-    ['alerte moyenne', 95, ['Moyenne'], 5, 4, 'À surveiller'], ['alerte critique', 95, ['Critique'], 5, 4, 'Critique'], ['alertes faibles seules', 95, ['Faible', 'Faible'], 5, 4, 'Sain'],
-    ['ronde à exactement 2 intervalles', 95, [], 2 * 4 * 60, 4, 'Sain'], ['ronde juste au-delà de 2 intervalles', 95, [], 2 * 4 * 60 + 1, 4, 'À surveiller'],
-    ['ronde à 24 h pile (intervalle 4 h)', 95, [], 24 * 60, 4, 'À surveiller'], ['ronde au-delà de 24 h', 95, [], 24 * 60 + 1, 4, 'Critique'], ['ronde à 24 h pile (intervalle 24 h) : pas encore deux intervalles', 95, [], 24 * 60, 24, 'Sain'], ['le plus grave l’emporte', 80, ['Moyenne'], 25 * 60, 4, 'Critique'],
+    ['score 70', 70, [], 5, 4, 'Sain'], ['score 69', 69, [], 5, 4, 'Attention'], ['score 45', 45, [], 5, 4, 'Attention'], ['score 44', 44, [], 5, 4, 'Critique'],
+    ['alerte moyenne', 95, ['Moyenne'], 5, 4, 'Attention'], ['alerte critique', 95, ['Critique'], 5, 4, 'Critique'], ['alertes faibles seules', 95, ['Faible', 'Faible'], 5, 4, 'Sain'],
+    ['ronde à exactement 2 intervalles', 95, [], 2 * 4 * 60, 4, 'Sain'], ['ronde juste au-delà de 2 intervalles', 95, [], 2 * 4 * 60 + 1, 4, 'Attention'],
+    ['ronde à 24 h pile (intervalle 4 h)', 95, [], 24 * 60, 4, 'Attention'], ['ronde au-delà de 24 h', 95, [], 24 * 60 + 1, 4, 'Critique'], ['ronde à 24 h pile (intervalle 24 h) : pas encore deux intervalles', 95, [], 24 * 60, 24, 'Sain'], ['le plus grave l’emporte', 80, ['Moyenne'], 25 * 60, 4, 'Critique'],
   ];
   for (const [nom, score, alertes, minutes, intervalle, attendu] of cas) assert.equal(D.etatOrganisation(score, alertes, ilYa(minutes), intervalle, maintenant), attendu, nom);
   const regle = D.etatOrganisation(90, [], new Date(gros.contexte.maintenant - 3 * 3_600_000).toISOString(), 1, gros.contexte.maintenant);
-  assert.equal(regle, 'À surveiller', 'une ronde de plus de deux intervalles pèse');
+  assert.equal(regle, 'Attention', 'une ronde de plus de deux intervalles pèse');
   assert.equal(D.etatOrganisation(90, ['Faible'], new Date(gros.contexte.maintenant - 600_000).toISOString(), 4, gros.contexte.maintenant), 'Sain', 'des alertes faibles seules ne changent rien');
 });
 
@@ -1036,20 +1105,20 @@ console.log('  — Cyber');
 
 dit('accords : l’état se déduit de la signature et des dates ; les quatre états existent ; un outil « Accord requis » est bloqué sans accord valide', () => {
   for (const a of gros.accords) {
-    const etat = D.etatAccord(a, jours(gros));
+    const etat = D.etatAccord(a, joursCyber(gros));
     assert.equal(etat === 'En attente', !a.signe);
-    if (a.signe) assert.equal(etat, str(a.finLe) < jours(gros) ? 'Expiré' : D.ecartJours(jours(gros), str(a.finLe)) <= 30 ? 'Expire bientôt' : 'Valide');
+    if (a.signe) assert.equal(etat, str(a.finLe) < joursCyber(gros) ? 'Expiré' : D.ecartJours(joursCyber(gros), str(a.finLe)) <= 30 ? 'Expire bientôt' : 'Valide');
     assert.ok(str(a.finLe) > str(a.debutLe) && (a.perimetre as Lien).domaines && ((a.perimetre as Lien).domaines as string[]).every((d) => /\.exemple\.test$/.test(d)));
     assert.ok(str(a.conditionArret).length > 0);
   }
-  assert.deepEqual([...new Set(normal.accords.map((a) => D.etatAccord(a, jours(normal))))].sort(), ['En attente', 'Expire bientôt', 'Expiré', 'Valide']);
+  assert.deepEqual([...new Set(normal.accords.map((a) => D.etatAccord(a, joursCyber(normal))))].sort(), ['En attente', 'Expire bientôt', 'Expiré', 'Valide']);
   const requis = { accord: 'Accord requis' };
   const mk = (signe: boolean, debutLe: string, finLe: string) => ({ signe, debutLe, finLe });
-  assert.equal(D.outilDisponible(requis, [], jours(normal)), false, 'aucun accord');
-  assert.equal(D.outilDisponible(requis, [mk(true, '2026-01-01', '2026-02-01')], jours(normal)), false, 'accord expiré');
-  assert.equal(D.outilDisponible(requis, [mk(false, '2026-10-01', '2027-01-01')], jours(normal)), false, 'accord non signé');
-  assert.equal(D.outilDisponible(requis, [mk(true, '2026-09-01', '2026-11-10')], jours(normal)), true, 'accord qui expire bientôt');
-  assert.equal(D.outilDisponible({ accord: 'Passif' }, [], jours(normal)), true, 'un outil passif n’exige aucun accord');
+  assert.equal(D.outilDisponible(requis, [], joursCyber(normal)), false, 'aucun accord');
+  assert.equal(D.outilDisponible(requis, [mk(true, '2026-01-01', '2026-02-01')], joursCyber(normal)), false, 'accord expiré');
+  assert.equal(D.outilDisponible(requis, [mk(false, '2026-10-01', '2027-01-01')], joursCyber(normal)), false, 'accord non signé');
+  assert.equal(D.outilDisponible(requis, [mk(true, '2026-09-01', '2026-11-10')], joursCyber(normal)), true, 'accord qui expire bientôt');
+  assert.equal(D.outilDisponible({ accord: 'Passif' }, [], joursCyber(normal)), true, 'un outil passif n’exige aucun accord');
 });
 
 dit('outils : 54 au volume normal (9 familles × 6), les types et accords de la fiche, des noms génériques', () => {
@@ -1078,26 +1147,26 @@ dit('missions, constats, documents : accords, phases, signatures, états', () =>
   }
   assert.ok(normal.missions.some((m) => m.etat === 'En cours' && normal.accords.find((a) => a.id === m.accordId)?.signe === false), 'CY12 : une mission en cours dont l’accord attend sa signature');
   assert.ok(new Set(normal.missions.map((m) => m.etat)).size === 3 && normal.missions.some((m) => m.mensuelle));
-  for (const c of gros.constats) { const m = gros.missions.find((x) => x.id === c.missionId); assert.ok(m && m.etat !== 'À préparer' && str(c.creeLe) >= str(m.debutLe) && str(c.creeLe) <= jours(gros)); }
+  for (const c of gros.constats) { const m = gros.missions.find((x) => x.id === c.missionId); assert.ok(m && m.etat !== 'À préparer' && str(c.creeLe) >= str(m.debutLe) && str(c.creeLe) <= joursCyber(gros)); }
   assert.deepEqual([...new Set(gros.constats.map((c) => c.gravite))].sort(), ['Critique', 'Faible', 'Moyenne']);
   const docsAccord = gros.documentsCyber.filter((d) => d.type === 'Accord');
   assert.equal(docsAccord.length, gros.accords.length, 'un document par accord');
   for (const d of docsAccord) assert.equal(d.signature, gros.accords.find((a) => a.clientId === d.clientId)?.signe ? 'Signé' : 'À signer');
-  assert.ok(new Set(gros.documentsCyber.map((d) => d.type)).size === 7 && gros.documentsCyber.every((d) => str(d.modifieLe) <= jours(gros)));
+  assert.ok(new Set(gros.documentsCyber.map((d) => d.type)).size === 7 && gros.documentsCyber.every((d) => str(d.modifieLe) <= joursCyber(gros)));
 });
 
 dit('veille, conformité, sensibilisation, parc : compteurs recoupés, rien de nominatif', () => {
   const lg = new Set(gros.logicielsClients.map((l) => l.id));
-  for (const a of gros.alertesVeille) assert.ok((a.logicielsConcernes as string[]).every((id) => lg.has(id)) && str(a.publieeLe) <= jours(gros));
+  for (const a of gros.alertesVeille) assert.ok((a.logicielsConcernes as string[]).every((id) => lg.has(id)) && str(a.publieeLe) <= joursCyber(gros));
   const concernes = new Set(gros.alertesVeille.flatMap((a) => a.logicielsConcernes as string[]));
   for (const l of gros.logicielsClients) assert.equal(l.concerneParVeille, concernes.has(str(l.id)));
-  assert.ok(normal.alertesVeille.some((a) => a.publieeLe === jours(normal)) && normal.alertesVeille.some((a) => (a.logicielsConcernes as unknown[]).length > 0), 'CY05 « N vous concernent »');
-  assert.ok(gros.fuites.some((f) => f.etat === 'à traiter') && gros.fuites.every((f) => str(f.detecteeLe) <= jours(gros)));
+  assert.ok(normal.alertesVeille.some((a) => a.publieeLe === joursCyber(normal)) && normal.alertesVeille.some((a) => (a.logicielsConcernes as unknown[]).length > 0), 'CY05 « N vous concernent »');
+  assert.ok(gros.fuites.some((f) => f.etat === 'à traiter') && gros.fuites.every((f) => str(f.detecteeLe) <= joursCyber(gros)));
   for (const d of gros.dossiersConformite) { assert.equal((d.points as unknown[]).length, 5); assert.equal(d.registreRevuLe === null, !(d.points as Lien[])[0].ok); }
   assert.deepEqual([...new Set(gros.dossiersConformite.map((d) => D.niveauConformite(d)))].sort(), ['Conforme', 'Partiel', 'À traiter']);
   for (const c of gros.campagnes) {
     const eq = c.parEquipe as Lien[];
-    if (c.etat === 'Planifiée') assert.ok(num(c.envoyes) === 0 && eq.length === 0 && str(c.le) > jours(gros));
+    if (c.etat === 'Planifiée') assert.ok(num(c.envoyes) === 0 && eq.length === 0 && str(c.le) > joursCyber(gros));
     else { assert.equal(eq.reduce((t, e) => t + num(e.envoyes), 0), num(c.envoyes)); assert.equal(eq.reduce((t, e) => t + num(e.cliques), 0), num(c.cliques)); assert.ok(num(c.cliques) <= num(c.envoyes) && num(c.signales) <= num(c.envoyes) && num(c.ouverts) <= num(c.envoyes)); }
     if (c.type !== 'Simulation') assert.ok(num(c.cliques) === 0 && num(c.signales) === 0);
   }
@@ -1124,7 +1193,7 @@ function invariantsSuite(m: MondeBrut, nom: string): void {
   }
   for (const a of m.articles) { let c = 0; for (const mv of [...(a.mouvements as Lien[])].sort((x, y) => str(x.le).localeCompare(str(y.le)))) { c += num(mv.delta); assert.ok(c >= 0, `${nom} : stock négatif`); } }
   for (const mi of m.missions) if (mi.accordId !== null) assert.equal(m.accords.find((a) => a.id === mi.accordId)?.clientId, mi.clientId, `${nom} : accord d’une mission`);
-  for (const a of m.accords) assert.equal(D.etatAccord(a, auj) === 'En attente', !a.signe, `${nom} : accord`);
+  for (const a of m.accords) assert.equal(D.etatAccord(a, joursCyber(m)) === 'En attente', !a.signe, `${nom} : accord`);
   const parRessource = new Map<string, Lien[]>();
   for (const r of m.reservations) parRessource.set(str(r.ressourceId), [...(parRessource.get(str(r.ressourceId)) ?? []), r]);
   for (const l of parRessource.values()) { const t = [...l].sort((x, y) => str(x.debutAt).localeCompare(str(y.debutAt))); for (let i = 1; i < t.length; i += 1) assert.ok(str(t[i].debutAt) >= str(t[i - 1].finAt), `${nom} : chevauchement`); }
@@ -1151,10 +1220,449 @@ dit('les cas attendus par les écrans existent dès « normal », pour 12 graine
     assert.ok(n.incidents.some((i) => i.etape === 'En traitement'), `${nom} : incident en traitement`);
     assert.ok(n.articles.some((a) => D.quantiteEnStock(a) < num(a.seuilAlerte)), `${nom} : stock bas`);
     assert.ok(n.signatures.length >= 10 && new Set(n.signatures.map((s) => s.etat)).size >= 6, `${nom} : états de signature`);
-    assert.equal(new Set(n.accords.map((a) => D.etatAccord(a, jours(n)))).size, 4, `${nom} : états d’accord`);
+    assert.equal(new Set(n.accords.map((a) => D.etatAccord(a, joursCyber(n)))).size, 4, `${nom} : états d’accord`);
     assert.ok(n.echeancesFiscales.some((e) => e.paiement === 'À payer' && str(e.echeanceLe) < jours(n)), `${nom} : échéance fiscale en retard`);
     assert.ok(n.sites.some((s) => s.etat === 'Dégradé') && n.notifications.some((x) => !x.lue), `${nom} : sites, notifications`);
   }
+});
+
+console.log('  — Les valeurs attendues des écrans calculés');
+
+dit('H09 prévisions : la série part du solde, le creux est son minimum, les scénarios se recoupent', () => {
+  for (const [nom, m] of [['normal', normal], ['peu', peu], ['beaucoup', gros], ['vide', vide]] as const) {
+    for (const horizon of [30, 90, 365]) {
+      const p = D.attendusPrevisions(m, { horizonJours: horizon });
+      const solde0 = m.comptes.reduce((s, c) => s + num(c.soldeCents), 0);
+      assert.equal(p.serieCentrale.length, horizon + 1, `${nom} ${horizon} : un point par jour`);
+      assert.equal(p.serieCentrale[0].soldeCents, solde0, `${nom} : le premier point est le solde d’aujourd’hui`);
+      assert.equal(p.soldeAujourdhuiCents, solde0);
+      const prevus = m.mouvements.filter((x) => x.reel === false && str(x.date) > aujourdhuiDe(m) && str(x.date) <= D.jourDe(Date.parse(`${aujourdhuiDe(m)}T12:00:00Z`) + horizon * 86_400_000));
+      assert.equal(p.soldeFinCents, solde0 + prevus.reduce((s, x) => s + num(x.montantCents), 0), `${nom} ${horizon} : solde final = solde + mouvements prévus`);
+      assert.equal(p.pointLePlusBas.soldeCents, Math.min(...p.serieCentrale.map((x: Attendu) => x.soldeCents)), `${nom} : le creux est le minimum`);
+      assert.equal(p.scenarios.central, p.soldeFinCents);
+      assert.ok(p.scenarios.paiementsEnRetard <= p.scenarios.central, `${nom} : un retard ne peut qu’enlever des entrées à l’horizon`);
+      assert.equal(p.creuxTrace, p.pointLePlusBas.soldeCents <= solde0 * 0.9);
+      assert.ok(p.prochainsMouvements.length <= 6 && p.prochainsMouvements.every((x: Attendu, i: number, l: Attendu[]) => i === 0 || l[i - 1].jour <= x.jour));
+      assert.ok(p.fourchette.auCreux.basCents <= p.fourchette.auCreux.hautCents + 1 || p.fourchette.auCreux.basCents <= p.pointLePlusBas.soldeCents, `${nom} : bas ≤ haut`);
+    }
+  }
+  // Le scénario « Nouvelle embauche » retranche le coût saisi à chaque 1er du mois dans l’horizon, rien d’autre (cas de référence : 90 jours depuis le 30 oct. → un seul 1er janvier).
+  const p90 = D.attendusPrevisions(normal, { horizonJours: 90 });
+  assert.equal(p90.scenarios.nouvelleEmbauche, p90.scenarios.central - 320_000, '23 100 − 3 200 = 19 900 : un seul prélèvement en janvier');
+  assert.equal(D.attendusPrevisions(normal, { horizonJours: 365 }).scenarios.nouvelleEmbauche, D.attendusPrevisions(normal, { horizonJours: 365 }).scenarios.central - 320_000 * 10, 'dix échéances sur 12 mois : du 1er janvier au 1er octobre 2027');
+  assert.equal(D.attendusPrevisions(normal, { embaucheMensuelleCents: 100_000 }).scenarios.nouvelleEmbauche, p90.scenarios.central - 100_000, 'le coût est saisi, jamais calculé');
+  // Les prévus couvrent l’horizon de 90 jours (sinon la prévision serait tronquée), dès « normal ».
+  assert.ok(str(p90.couvertJusquau) >= D.jourDe(Date.parse(`${aujourdhui}T12:00:00Z`) + 90 * 86_400_000), 'les mouvements prévus couvrent 90 jours');
+  // Les trois situations existent : un creux, une prévision négative, pas de creux.
+  assert.ok(D.attendusPrevisions(normal).creuxTrace && D.attendusPrevisions(peu).pointLePlusBas.soldeCents < 0 && !D.attendusPrevisions(gros).creuxTrace, 'creux / négatif / pas de creux');
+  assert.equal(D.attendusPrevisions(vide).couvertJusquau, null);
+});
+
+dit('H04 bilan de la semaine : lundi à dimanche, les parties font le tout, les garanties de la semaine existent', () => {
+  for (const [nom, m] of [['normal', normal], ['peu', peu], ['beaucoup', gros], ['vide', vide]] as const) {
+    const b = D.attendusBilanSemaine(m);
+    assert.equal(b.semaine.lundi, '2026-10-26');
+    assert.equal(b.semaine.dimanche, '2026-11-01');
+    assert.equal(b.parJour.length, 7);
+    assert.equal(b.parJour.reduce((s: number, x: number) => s + x, 0), b.tachesFaites.faites, `${nom} : la somme des jours = les tâches faites`);
+    assert.ok(b.tachesFaites.faites <= b.tachesFaites.total);
+    assert.equal(b.meilleurJour === null, b.tachesFaites.faites === 0);
+    if (b.meilleurJour !== null) assert.ok(b.parJour[b.meilleurJour] === Math.max(...b.parJour) && b.parJour.slice(b.meilleurJour + 1).every((x: number) => x < b.parJour[b.meilleurJour]), 'meilleur jour : le plus récent en cas d’égalité');
+    assert.equal(b.encaisse.parJourCents.reduce((s: number, x: number) => s + x, 0), b.encaisse.cents, `${nom} : l’encaissé du jour fait celui de la semaine`);
+    assert.ok(b.aReporter.every((t: Attendu) => t.echeance >= b.semaine.lundi && t.echeance <= b.semaine.dimanche));
+    assert.ok(b.aReporter.length <= b.tachesFaites.total - b.tachesFaites.faites + 0, `${nom} : à reporter ≤ non faites`);
+    assert.ok(b.jalons.prochainPalier === null || (b.jalons.prochainPalier > b.jalons.serie && D.PALIERS_DE_SERIE.includes(b.jalons.prochainPalier) && b.jalons.joursRestants === b.jalons.prochainPalier - b.jalons.serie));
+    assert.equal(b.jalons.dixFactures, b.jalons.facturesEnvoyeesOuPayees >= 10);
+    assert.equal(b.boiteAZero, null);
+  }
+  const b = D.attendusBilanSemaine(normal);
+  assert.ok(b.nouveauxClients.nombre >= 1 && b.encaisse.cents > 0 && b.aReporter.length > 0 && b.tachesFaites.faites > 0, 'normal : nouveaux clients, encaissé, à reporter, tâches faites');
+  assert.equal(b.semaineProchaine.suggere, true, 'normal : la semaine prochaine pèse au moins 2 de plus que d’habitude');
+  assert.equal(D.attendusBilanSemaine(normal, { jour: '2026-10-28' }).semaine.lundi, '2026-10-26', 'un mercredi donne la même semaine');
+});
+
+dit('H04 jalons : le palier suivant est strictement au-dessus de la série (cas de référence 4, 5 et 100 jours)', () => {
+  const moiEmail = str((normal.equipe.find((x) => x.moi === true) as Lien).email);
+  const jourOuvres = ['2026-10-29', '2026-10-28', '2026-10-27', '2026-10-26', '2026-10-23', '2026-10-22'];
+  const avec = (n: number) => ({ ...normal, taches: jourOuvres.slice(0, n).map((j, i) => ({ id: `ref-${i}`, assigneeEmail: moiEmail, echeance: j, status: 'done', faiteAt: `${j}T08:30:00Z` })) }) as unknown as MondeBrut;
+  const cas: [number, number, number | null][] = [[4, 4, 5], [5, 5, 10], [0, 0, 5]];
+  for (const [n, serie, palier] of cas) {
+    const j = D.attendusBilanSemaine(avec(n)).jalons;
+    assert.deepEqual([j.serie, j.prochainPalier], [serie, palier], `${n} jours bouclés`);
+  }
+});
+
+dit('H04 : deux règlements cette semaine et deux la semaine d’avant dès « normal » (« peu » n’a que huit factures : pas de garantie)', () => {
+  const dans = (m: MondeBrut, debut: string, fin: string) => m.factures.filter((f) => f.status === 'paid' && str(f.paidAt) >= debut && str(f.paidAt) <= fin).length;
+  for (let graine = 1; graine <= 12; graine += 1) {
+    const n = D.construireMonde({ volume: 'normal', graine });
+    assert.ok(dans(n, '2026-10-26', '2026-10-30') >= 2 && dans(n, '2026-10-19', '2026-10-25') >= 2, `graine ${graine} : règlements des deux semaines`);
+  }
+});
+
+dit('G08 cockpit : le revenu récurrent est la somme des abonnements actifs, les compteurs de tickets sont réels', () => {
+  for (const [nom, m] of [['normal', normal], ['peu', peu], ['beaucoup', gros], ['vide', vide]] as const) {
+    const c = D.attendusCockpit(m);
+    const actifs = m.abonnements.filter((a) => a.etat === 'Actif' && str(a.depuis) <= aujourdhuiDe(m));
+    assert.equal(c.mrr.cents, actifs.reduce((s, a) => s + num(a.montantMensuelCents), 0), `${nom} : MRR`);
+    assert.equal(c.clientsActifs, new Set(actifs.map((a) => a.clientId)).size);
+    const partages = m.tickets.filter((t) => t.partageClient);
+    assert.equal(Object.values(c.tickets).reduce((s: number, x: Attendu) => s + x.compteur, 0), partages.length, `${nom} : tous les tickets partagés sont comptés`);
+    for (const col of Object.values(c.tickets) as Attendu[]) assert.ok(col.visibles.length <= 3 && col.visibles.length <= col.compteur);
+    assert.equal(c.impayes, m.factures.filter((f) => f.status === 'issued' && str(f.dueAt) < aujourdhuiDe(m)).length);
+    assert.equal(c.sources.length, m.connecteurs.length);
+    assert.ok(c.objectifDuMois === null && c.utilisateursConnectes === null && c.manque.length === 2);
+  }
+  const c = D.attendusCockpit(normal);
+  assert.ok(c.mrr.ecartPourcent !== null && c.mrr.ecartPourcent !== 0 && c.nouveauxClientsActifs >= 1, 'normal : le MRR a bougé, des nouveaux clients actifs');
+});
+
+dit('H25 tableau de bord : tickets urgents d’abord, impayés du plus gros au plus petit, tâches du jour', () => {
+  for (const [nom, m] of [['normal', normal], ['peu', peu], ['beaucoup', gros], ['vide', vide]] as const) {
+    const t = D.attendusTableauDeBord(m);
+    const ouverts = m.tickets.filter((x) => x.colonne !== 'termine');
+    assert.equal(t.tickets.visibles.length + t.tickets.autres, ouverts.length, `${nom} : visibles + autres = ouverts`);
+    const urgents = ouverts.filter((x) => x.urgent).length;
+    assert.ok(t.tickets.visibles.slice(0, Math.min(urgents, 3)).every((id: string) => ouverts.find((x) => x.id === id)?.urgent), `${nom} : les urgents d’abord`);
+    const montants = t.facturesImpayees.visibles.map((x: Attendu) => x.soldeCents);
+    assert.deepEqual(montants, [...montants].sort((a: number, b: number) => b - a), `${nom} : du plus gros au plus petit`);
+    assert.equal(t.facturesImpayees.totalCents, m.factures.filter((f) => f.status === 'issued').reduce((s, f) => s + num(f.soldeCents), 0));
+    assert.ok(t.mesTaches.faites <= t.mesTaches.total && t.activiteRecente.length <= 5);
+  }
+  const t = D.attendusTableauDeBord(normal);
+  assert.ok(t.chiffreAffaires.cents > 0 && t.chiffreAffaires.ecartPourcent !== null && t.prochainRendezVous !== null && t.mesTaches.total > 0, 'normal : de quoi remplir chaque widget');
+});
+
+dit('les cas attendus par H04, H25 et G08 existent aussi pour 12 graines', () => {
+  for (let graine = 1; graine <= 12; graine += 1) {
+    const n = D.construireMonde({ volume: 'normal', graine });
+    const b = D.attendusBilanSemaine(n);
+    assert.ok(b.nouveauxClients.nombre >= 3 && b.nouveauxClients.ecartSemainePrecedente !== undefined, `graine ${graine} : trois nouveaux clients cette semaine`);
+    assert.ok(b.encaisse.cents > 0 && b.encaisse.ecartPourcent !== null, `graine ${graine} : un encaissé comparable à la semaine d’avant`);
+    assert.equal(b.semaineProchaine.suggere, true, `graine ${graine} : suggestion de la semaine prochaine`);
+    assert.ok(D.attendusPrevisions(n).entreesAttendues.nombre > 0 && D.attendusCockpit(n).nouveauxClientsActifs >= 1, `graine ${graine} : entrées attendues, nouveaux clients actifs`);
+  }
+});
+
+console.log('  — Les champs que les lots réclament (« Manque aux données »)');
+
+dit('LOT-02 : les partenaires ont leurs référents, les avis un sentiment et un NPS, les prospects perdus une raison', () => {
+  for (const [nom, m] of [['normal', normal], ['beaucoup', gros]] as const) {
+    const ids = new Set(m.partenaires.map((p) => str(p.id)));
+    const deLaListe = m.interlocuteurs.filter((i) => i.organisationType === 'partenaire');
+    assert.ok(deLaListe.length > 0 && deLaListe.every((i) => ids.has(str(i.organisationId))), `${nom} : des interlocuteurs de type partenaire, tous rattachés à un partenaire`);
+    assert.ok(m.partenaires.every((p) => deLaListe.some((i) => i.organisationId === p.id)), `${nom} : chaque partenaire a au moins un référent`);
+    assert.ok(deLaListe.every((i) => estCourrielFictifLocal(str(i.email))), `${nom} : courriels fictifs`);
+    for (const a of m.avis) assert.equal(a.sentiment, num(a.noteSur5) >= 4 ? 'positif' : num(a.noteSur5) === 3 ? 'neutre' : 'négatif', `${nom} : sentiment d’un avis`);
+    const recos = m.avis.map((a) => a.recommandation).filter((r): r is number => typeof r === 'number');
+    const promoteurs = recos.filter((r) => r >= 9).length;
+    const detracteurs = recos.filter((r) => r <= 6).length;
+    assert.equal(D.calculerNps(m.avis), Math.round(((promoteurs - detracteurs) / recos.length) * 100), `${nom} : NPS`);
+    for (const p of m.prospects) {
+      assert.equal(p.raisonPerte !== null, p.perduLe !== null && p.etape === 'perdu', `${nom} : raison de perte ⇔ prospect perdu`);
+      if (p.raisonPerte !== null) assert.ok(D.RAISONS_DE_PERTE.includes(str(p.raisonPerte)));
+    }
+    assert.ok(m.prospects.some((p) => p.etape === 'perdu') && new Set(m.prospects.filter((p) => p.raisonPerte).map((p) => p.raisonPerte)).size >= (nom === 'normal' ? 1 : 2), `${nom} : des raisons de perte`);
+    assert.ok(new Set(m.avis.map((a) => a.sentiment)).size === 3, `${nom} : les trois sentiments existent`);
+  }
+  assert.equal(D.calculerNps([]), null);
+  assert.equal(D.calculerNps([{ recommandation: 10 }, { recommandation: 9 }, { recommandation: 7 }, { recommandation: 3 }]), 25, '2 promoteurs, 1 détracteur, 1 passif : (2 − 1) / 4');
+  assert.equal(D.calculerNps([{ recommandation: null }]), null);
+});
+
+dit('LOT-04 : régime de TVA, taux à 10 et 5,5 %, historique des soldes et des enveloppes, encaissements échus', () => {
+  const id = normal.entreprise.identite as Lien;
+  assert.ok(['Réel normal', 'Réel simplifié', 'Franchise en base'].includes(str(id.regimeTva)));
+  assert.equal(id.vatExempt, id.regimeTva === 'Franchise en base', 'franchise en base ⇔ exonéré de TVA');
+  for (const [nom, m] of [['normal', normal], ['beaucoup', gros]] as const) {
+    const taux = new Set(m.factures.flatMap((f) => (f.lines as Lien[]).map((l) => num(l.vatRate))));
+    assert.ok(taux.has(20) && taux.has(10) && taux.has(5.5), `${nom} : des lignes à 20, 10 et 5,5 %`);
+    for (const f of m.factures) { const t = D.totauxDeFacture(f); assert.equal(t.htCents + t.tvaCents, t.ttcCents); }
+    assert.ok(m.depenses.some((d) => num(d.tvaCents) > 0 && Math.abs(num(d.tvaCents) - Math.round((num(d.amountCents) * 5.5) / 105.5)) <= 1), `${nom} : une dépense à 5,5 %`);
+    for (const c of m.comptes) {
+      const h = c.historique as Lien[];
+      assert.equal(h.length, 90, `${nom} : 90 jours d’historique`);
+      assert.equal(num(h[89].soldeCents), num(c.soldeCents), `${nom} : le dernier point est le solde`);
+      assert.equal(str(h[89].jour), aujourdhuiDe(m));
+      for (let k = 1; k < h.length; k += 1) {
+        assert.equal(D.ecartJours(str(h[k - 1].jour), str(h[k].jour)), 1, 'jours consécutifs');
+        const jour = str(h[k].jour);
+        const bouge = m.mouvements.filter((x) => x.reel && x.compteId === c.id && str(x.date) === jour).reduce((s, x) => s + num(x.montantCents), 0);
+        assert.equal(num(h[k].soldeCents) - num(h[k - 1].soldeCents), bouge, `${nom} : la variation du ${jour} = les mouvements réels du jour`);
+      }
+    }
+    for (const e of m.enveloppes) {
+      const h = e.historique as Lien[];
+      assert.equal(h.length, 6);
+      assert.equal(str(h[5].mois), aujourdhuiDe(m).slice(0, 7), 'le dernier mois est le mois courant');
+      for (let k = 1; k < 6; k += 1) assert.equal(D.ecartJours(`${str(h[k - 1].mois)}-01`, `${str(h[k].mois)}-01`) >= 28 && D.ecartJours(`${str(h[k - 1].mois)}-01`, `${str(h[k].mois)}-01`) <= 31, true, 'mois consécutifs');
+      for (const mois of h) assert.equal(num(mois.depenseCents), m.depenses.filter((d) => (e.categories as string[]).includes(str(d.category)) && str(d.spentAt).startsWith(str(mois.mois))).reduce((s, d) => s + num(d.amountCents), 0), `${nom} : dépensé du mois ${str(mois.mois)}`);
+    }
+    const echues = new Set(m.factures.filter((f) => f.status === 'issued' && str(f.dueAt) < aujourdhuiDe(m)).map((f) => f.id));
+    for (const x of m.mouvements) {
+      const lien = x.lien as Lien;
+      assert.equal(x.echue, x.reel === false && x.nature === 'Encaissement attendu' && lien.type === 'facture' && echues.has(str(lien.id)), `${nom} : échue ⇔ encaissement attendu d’une facture échue`);
+    }
+    assert.ok(m.mouvements.some((x) => x.echue) && m.mouvements.some((x) => x.nature === 'Encaissement attendu' && !x.echue), `${nom} : des encaissements échus et d’autres à venir`);
+  }
+});
+
+dit('LOT-06 : commandes (création, échéance, livraison, paiement en ligne), tournées (trajets, sur place), équipements (entretien, contrôle, réforme)', () => {
+  for (const [nom, m] of [['normal', normal], ['beaucoup', gros]] as const) {
+    for (const c of m.commandes) {
+      assert.equal(D.jourDe(Date.parse(str(c.creeAt))), str(c.creeLe), `${nom} : creeAt tombe le jour de creeLe`);
+      assert.ok(Date.parse(str(c.creeAt)) <= m.contexte.maintenant, `${nom} : commande créée dans le futur`);
+      assert.match(str(c.heureEcheance), /^\d{2}:\d{2}$/);
+      assert.equal(c.livreeLe !== null, c.preparation === 'Remise', `${nom} : livrée ⇔ remise`);
+      if (c.livreeLe !== null) assert.ok(str(c.livreeLe) >= str(c.creeLe) && str(c.livreeLe) <= aujourdhuiDe(m), `${nom} : date de livraison`);
+      if (c.paiementEnLigne) assert.ok(c.paiement === 'Payé' && c.remise !== 'Retrait', `${nom} : paiement en ligne`);
+    }
+    assert.ok(m.commandes.some((c) => c.paiementEnLigne) && m.commandes.some((c) => c.livreeLe !== null) && m.commandes.some((c) => c.livreeLe === null), `${nom} : les cas existent`);
+    const parJour = new Map<string, Lien[]>();
+    for (const e of m.etapesTournee) parJour.set(str(e.jour), [...(parJour.get(str(e.jour)) ?? []), e]);
+    for (const e of m.etapesTournee) {
+      assert.ok(Number.isInteger(num(e.trajetMin)) && num(e.trajetMin) >= 10 && num(e.distanceKm) >= 1, `${nom} : trajet`);
+      if (num(e.ordre) === 1) assert.equal(e.trajetMin, 15, 'depuis le dépôt');
+      // L'état d'une étape du jour se déduit de l'heure : fait, sur place, en route (trajet entamé) ou à faire.
+      if (str(e.jour) === aujourdhuiDe(m)) {
+        const arrivee = D.instantParis(str(e.jour), str(e.arriveePrevue));
+        const fin = arrivee + num(e.dureeMin) * 60_000;
+        const maintenant = m.contexte.maintenant;
+        const attendu = fin <= maintenant ? 'Fait' : arrivee <= maintenant ? 'Sur place' : arrivee - num(e.trajetMin) * 60_000 <= maintenant ? 'En route' : 'À faire';
+        assert.equal(e.etat, attendu, `${nom} : état de l’étape ${str(e.id)}`);
+      }
+      if (e.etat === 'En route' || e.etat === 'Sur place' || e.etat === 'Fait') assert.equal(str(e.jour), aujourdhuiDe(m), `${nom} : seule la tournée du jour a avancé`);
+    }
+    for (const e of m.equipements) {
+      assert.ok(str(e.dernierEntretienLe) <= aujourdhuiDe(m) && str(e.dernierControleLe) >= str(e.dernierEntretienLe) && str(e.dernierControleLe) <= aujourdhuiDe(m), `${nom} : entretien puis contrôle`);
+      assert.equal(str(e.prochainEntretienLe), D.jourDe(Date.parse(`${str(e.dernierEntretienLe)}T12:00:00Z`) + num(e.periodiciteMois) * 30 * 86_400_000), `${nom} : le prochain entretien découle du dernier`);
+      assert.equal(e.reformeLe !== null, e.statut === 'Au rebut', `${nom} : réformé ⇔ au rebut`);
+      if (e.reformeLe !== null) assert.ok(str(e.reformeLe) >= str(e.achatLe) && str(e.reformeLe) <= aujourdhuiDe(m));
+    }
+  }
+  assert.ok(normal.etapesTournee.some((e) => e.etat === 'Sur place' || e.etat === 'En route' || e.etat === 'Fait'), 'la tournée du jour est entamée');
+  // Au fil de la matinée, une étape passe de « À faire » à « En route », « Sur place » puis « Fait » : les quatre états existent, et la règle tient à chaque instant.
+  const vus = new Set<string>();
+  for (let minutes = 7 * 60 + 30; minutes <= 13 * 60; minutes += 10) {
+    const hhmm = `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
+    const maintenant = D.instantParis('2026-10-30', hhmm);
+    const m = D.construireMonde({ volume: 'normal', maintenant });
+    for (const e of m.etapesTournee.filter((x) => str(x.jour) === '2026-10-30')) {
+      const arrivee = D.instantParis('2026-10-30', str(e.arriveePrevue));
+      const attendu = arrivee + num(e.dureeMin) * 60_000 <= maintenant ? 'Fait' : arrivee <= maintenant ? 'Sur place' : arrivee - num(e.trajetMin) * 60_000 <= maintenant ? 'En route' : 'À faire';
+      assert.equal(e.etat, attendu, `à ${hhmm} : étape ${str(e.id)}`);
+      vus.add(str(e.etat));
+    }
+  }
+  assert.deepEqual([...vus].sort(), ['En route', 'Fait', 'Sur place', 'À faire'], 'les quatre états apparaissent dans la matinée');
+});
+
+dit('LOT-06 (suite) : stock, chantiers, marque, vidéos, pages, produits, ressources, véhicules, photos, contrôles', () => {
+  for (const [nom, m] of [['normal', normal], ['beaucoup', gros]] as const) {
+    const auj = aujourdhuiDe(m);
+    // H15
+    for (const a of m.articles) {
+      assert.equal(a.niveauCible, num(a.seuilAlerte) * 3);
+      for (const mv of a.mouvements as Lien[]) assert.equal(mv.emplacement, a.emplacement, `${nom} : emplacement d’un mouvement`);
+      for (const c of a.commandesFournisseur as Lien[]) assert.ok(str(c.commandeeLe) <= auj && str(c.arriveeLe) > str(c.commandeeLe) && (c.recue === true ? str(c.arriveeLe) <= auj : str(c.arriveeLe) >= auj), `${nom} : commande fournisseur`);
+      if (D.quantiteEnStock(a) < num(a.seuilAlerte)) assert.ok((a.commandesFournisseur as Lien[]).some((c) => c.recue === false), `${nom} : un article sous son seuil a une commande en route`);
+    }
+    for (const f of m.fournisseurs) assert.ok(Number.isInteger(num(f.fraisDePortCents)) && num(f.fraisDePortCents) > 0 && (f.francoCents === null || num(f.francoCents) > num(f.fraisDePortCents)), `${nom} : franco et port`);
+    assert.ok(m.fournisseurs.some((f) => f.francoCents !== null) && m.fournisseurs.some((f) => f.francoCents === null), `${nom} : avec et sans franco`);
+    // H16, F50
+    for (const c of m.chantiers) {
+      const e = c.etapes as Lien[];
+      assert.equal(e.reduce((s, x) => s + num(x.poids), 0), 100, `${nom} : les poids font 100`);
+      assert.equal(str(e[e.length - 1].nom), 'Réception', `${nom} : dernière étape « Réception »`);
+      for (const x of e) assert.ok(num(x.partRealisee) >= 0 && num(x.partRealisee) <= 1 && (x.faite === true ? x.partRealisee === 1 : num(x.partRealisee) < 1), `${nom} : part réalisée`);
+      if (c.statut === 'Terminé') assert.ok(e.every((x) => x.faite === true), `${nom} : terminé = reçu`);
+      for (const i of c.interventions as Lien[]) assert.equal(i.fait === true, str(i.le) <= auj && c.statut !== 'À venir', `${nom} : intervention faite ⇔ passée`);
+      for (const l of c.livraisons as Lien[]) assert.equal(l.recue === true, str(l.le) <= auj, `${nom} : livraison reçue ⇔ passée`);
+      if (c.statut === 'À venir') assert.equal((c.livraisons as unknown[]).length, 0);
+    }
+    assert.ok(m.controles.some((c) => c.chantierId !== null && c.statut !== 'Terminé'), `${nom} : F50 — un contrôle ouvert rattaché à un chantier`);
+    // H17
+    for (const q of m.marque) {
+      const p = q.palette as Lien[];
+      assert.equal(p.reduce((s, x) => s + num(x.partUsage), 0), 100, `${nom} : la palette fait 100 %`);
+      assert.ok(p.every((x) => ['Principale', 'Secondaire', 'Accent', 'Fond', 'Texte'].includes(str(x.role))) && (q.aEviter as string[]).length >= 3 && str(q.modifieLe) <= auj);
+    }
+    // MR01
+    for (const v of m.videos) {
+      const rang = ['Idée', 'Tournage', 'Montage', 'Sous-titrage', 'Relecture', 'Publiée'].indexOf(str(v.etape));
+      assert.ok(rang >= 0);
+      assert.equal((v.plans as unknown[]).length > 0, rang >= 2, `${nom} : des plans dès le montage`);
+      assert.equal((v.sousTitres as unknown[]).length > 0, rang >= 3, `${nom} : des sous-titres dès l’étape « Sous-titrage »`);
+      assert.equal((v.commentaires as unknown[]).length > 0, rang >= 4, `${nom} : des commentaires dès la relecture`);
+      assert.equal(v.publieeLe !== null, v.etape === 'Publiée');
+      if (v.publieeLe !== null) assert.ok(str(v.publieeLe) <= auj);
+    }
+    assert.ok(new Set(m.videos.map((v) => v.etape)).size === 6, `${nom} : les six étapes existent`);
+    // MR02
+    for (const pg of m.pagesPubliques) {
+      assert.equal((pg.visitesParJour as number[]).length, 7);
+      assert.equal((pg.visitesParJour as number[]).reduce((s, x) => s + x, 0), num(pg.visites7j), `${nom} : les visites par jour font celles des 7 jours`);
+      assert.ok((pg.sections as unknown[]).length >= 3 && (pg.visitesParJour as number[]).every((x) => x >= 0));
+    }
+    assert.ok(m.pagesPubliques.some((pg) => (pg.avis as Lien[]).some((a) => a.accordClient === false)) && m.pagesPubliques.some((pg) => (pg.avis as Lien[]).some((a) => a.accordClient === true)), `${nom} : des avis avec et sans accord`);
+    // MR04, MR05
+    for (const e of m.equipements) assert.ok(str(e.affectationDepuis) <= auj, `${nom} : affectation datée, dans le passé`);
+    for (const p of m.produits) {
+      assert.ok([20, 10, 5.5].includes(num(p.tvaPourcent)));
+      const a = m.articles.find((x) => x.id === p.articleId);
+      if (a) {
+        assert.equal(p.prixAchatCents, a.prixAchatCents);
+        assert.equal((p.ventesParSemaine as number[]).length, 8);
+        const ventes = (a.mouvements as Lien[]).filter((x) => x.motif === 'Vente');
+        // La somme des huit semaines est celle des ventes datées de ces huit semaines (du lundi d'il y a 7 semaines à aujourd'hui).
+        const lundiCourant = D.jourDe(Date.parse(`${auj}T12:00:00Z`) - ((new Date(`${auj}T12:00:00Z`).getUTCDay() + 6) % 7) * 86_400_000);
+        const debutFenetre = D.jourDe(Date.parse(`${lundiCourant}T12:00:00Z`) - 49 * 86_400_000);
+        const attendu = ventes.filter((x) => str(x.le) >= debutFenetre && str(x.le) <= auj).reduce((s, x) => s - num(x.delta), 0);
+        assert.equal((p.ventesParSemaine as number[]).reduce((s, x) => s + x, 0), attendu, `${nom} : les ventes par semaine se lisent dans les mouvements`);
+        assert.ok(num(p.niveauConseille) >= num(p.seuilAlerte), 'niveau conseillé ≥ seuil');
+      } else assert.ok(p.prixAchatCents === null && p.niveauConseille === null && (p.ventesParSemaine as unknown[]).length === 0 && p.photos === 0);
+    }
+    // MR06, MR09, MR10, MR11
+    for (const r of m.ressources) for (const ind of r.indisponibilites as Lien[]) {
+      assert.ok(str(ind.debut) <= str(ind.fin));
+      assert.ok(m.reservations.filter((x) => x.ressourceId === r.id).every((x) => { const j = D.jourDe(Date.parse(str(x.debutAt))); return j < str(ind.debut) || j > str(ind.fin); }), `${nom} : aucune réservation pendant une indisponibilité`);
+    }
+    assert.ok(m.ressources.some((r) => (r.indisponibilites as unknown[]).length > 0) && m.ressources.some((r) => (r.conflits as unknown[]).length > 0), `${nom} : indisponibilités et conflits`);
+    for (const v of m.vehicules) {
+      assert.ok(['Diesel', 'Essence', 'Électrique', 'Hybride'].includes(str(v.energie)) && num(v.niveauPourcent) >= 0 && num(v.niveauPourcent) <= 100 && num(v.autonomieKm) > 0);
+      const j = v.parJour as Lien[];
+      assert.equal(j.length, 7);
+      assert.equal(str(j[6].jour), auj);
+      for (const x of j) assert.equal(x.carburantL === null, v.energie === 'Électrique', `${nom} : pas de carburant pour un véhicule électrique`);
+    }
+    for (const d of m.dossiersPhotos) {
+      for (const p of d.photos as Lien[]) assert.ok(['portrait', 'paysage'].includes(str(p.orientation)));
+      if (d.signatureClient !== null) assert.ok(m.chantiers.find((c) => c.id === d.chantierId)?.statut === 'Terminé' && str((d.signatureClient as Lien).le) <= auj);
+    }
+    for (const c of m.controles) for (const r of c.resultats as Lien[]) if (r.sansObjet === true) assert.ok(c.statut === 'Terminé' && r.conforme === null);
+    assert.ok(m.controles.some((c) => (c.resultats as Lien[]).some((r) => r.sansObjet === true)), `${nom} : un point « sans objet »`);
+    for (const e of m.ecarts) assert.ok(str(e.cause).length > 0 && str(e.releveLe) === str(m.controles.find((c) => c.id === e.controleId)?.le));
+  }
+});
+
+console.log('  — LOT-14 : la charge');
+
+dit('des organisations de charge : reproductibles, emboîtées, de 10 à 600 personnes, rien de réel', () => {
+  const cent = D.genererOrganisationsDeCharge({ nombre: 100 });
+  const mille = D.genererOrganisationsDeCharge({ nombre: 1000 });
+  assert.equal(cent.length, 100);
+  assert.equal(mille.length, 1000);
+  assert.deepEqual(mille.slice(0, 100), cent, 'les 100 premières organisations d’un essai à 1 000 sont celles de l’essai à 100');
+  assert.deepEqual(D.genererOrganisationsDeCharge({ nombre: 100 }), cent, 'reproductible');
+  assert.notDeepEqual(D.genererOrganisationsDeCharge({ nombre: 100, graine: 7 }).map((o) => o.effectif), cent.map((o) => o.effectif), 'une autre graine, d’autres organisations');
+  for (const lot of [cent, mille]) {
+    const effectifs = lot.map((o) => o.effectif);
+    assert.ok(Math.min(...effectifs) === 10 && Math.max(...effectifs) === 600 && effectifs.every((e) => Number.isInteger(e) && e >= 10 && e <= 600), 'de 10 à 600, bornes comprises');
+    assert.equal(new Set(lot.map((o) => o.id)).size, lot.length);
+    assert.equal(new Set(lot.map((o) => o.nom)).size, lot.length, 'noms uniques');
+    assert.equal(new Set(lot.map((o) => o.domaine)).size, lot.length, 'domaines uniques');
+    assert.ok(lot.every((o) => /^[a-z0-9-]+\.exemple\.test$/.test(o.domaine) && D.estCourrielFictif(o.proprietaire)), 'courriels fictifs');
+    assert.deepEqual([...new Set(lot.map((o) => o.taille))].sort(), ['grande', 'moyenne', 'petite'], 'les trois tailles');
+    assert.ok(lot.every((o) => o.volume === (o.taille === 'petite' ? 'peu' : o.taille === 'moyenne' ? 'normal' : 'beaucoup')));
+    assert.deepEqual([...new Set(lot.map((o) => o.profil))].sort(), ['calme', 'courant', 'intense']);
+  }
+  assert.equal(D.emailDuMembre(cent[0], 0), cent[0].proprietaire);
+  assert.ok(D.estCourrielFictif(D.emailDuMembre(cent[1], 599)));
+  assert.throws(() => D.emailDuMembre(cent[0], cent[0].effectif), /hors effectif/);
+  assert.throws(() => D.genererOrganisationsDeCharge({ nombre: 10_000 }), /invalide/);
+  assert.equal(D.genererOrganisationsDeCharge({ nombre: 0 }).length, 0);
+  const texte = JSON.stringify(mille);
+  assert.ok(!/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/.test(texte), 'aucune adresse réseau');
+});
+
+dit('des organisations connectées en même temps : toujours les mêmes, emboîtées', () => {
+  const cent = D.genererOrganisationsDeCharge({ nombre: 100 });
+  const vingt = D.choisirConnectees(cent, 20);
+  const quarante = D.choisirConnectees(cent, 40);
+  assert.equal(vingt.length, 20);
+  assert.deepEqual(D.choisirConnectees(cent, 20), vingt);
+  assert.ok(vingt.every((o) => quarante.some((x) => x.id === o.id)), 'les 20 sont dans les 40');
+  assert.equal(new Set(vingt.map((o) => o.id)).size, 20);
+  assert.equal(D.choisirConnectees(cent, 500).length, 100);
+  assert.equal(D.choisirConnectees(cent, 0).length, 0);
+});
+
+dit('les seuils et la cible du code sont ceux de STATUT §1.20 et de docs/simulation/charge.md', () => {
+  assert.deepEqual(D.SEUILS_DE_CHARGE, { partRapide: 0.95, actionRapideMs: 1000, visibiliteMs: 5000 });
+  assert.deepEqual(D.CIBLE_DE_CHARGE, { organisations: 100, connectees: 20, internes: 3 });
+  assert.equal(D.ESSAI_LONG_HEURES, 72);
+  assert.equal(D.PALIERS_DE_CHARGE.at(-1), 1000);
+  assert.ok(D.PALIERS_DE_CHARGE.every((p, i, l) => i === 0 || p > l[i - 1]), 'paliers croissants');
+  assert.equal(D.EQUIPE_INTERNE_DE_CHARGE.length, 3);
+  assert.equal(D.MELANGE_D_ACTIONS.reduce((s, a) => s + a.poids, 0), 100, 'le mélange d’actions fait 100');
+  const doc = path.join(here, '..', 'docs', 'simulation', 'charge.md');
+  assert.ok(fs.existsSync(doc), 'docs/simulation/charge.md existe');
+  const texte = fs.readFileSync(doc, 'utf8');
+  for (const motif of ['95 %', '1 s', '5 s', '72 h', '1 000', '20 organisations', '3 personnes', '127.0.0.1']) assert.ok(texte.includes(motif), `charge.md doit citer « ${motif} »`);
+  // Le dépôt est public : le document ne décrit aucune faille et ne contient ni secret ni adresse hors 127.0.0.1.
+  assert.ok(!/(mot de passe|token|jeton|secret)\s*[:=]\s*\S{6,}/i.test(texte), 'aucun secret dans charge.md');
+  assert.ok((texte.match(/\b\d{1,3}(\.\d{1,3}){3}\b/g) ?? []).every((ip) => ip === '127.0.0.1'), 'aucune adresse autre que 127.0.0.1');
+});
+
+console.log('  — Le chargeur vers l’API d’essai');
+
+const Chargeur = (await import(path.join(here, 'charger-donnees-essai.mjs'))) as {
+  cibleAutorisee: (t: string) => { ok: boolean; base?: string; raison?: string };
+  compteAutorise: (e: string) => boolean;
+  remplacerChaine: (v: unknown, de: string, vers: string) => unknown;
+  CHARGES: { jeu: string; collection: string }[];
+};
+
+dit('le chargeur n’écrit que sur 127.0.0.1, en http, sans identifiants ni redirection', () => {
+  assert.deepEqual(Chargeur.cibleAutorisee('http://127.0.0.1:4171'), { ok: true, base: 'http://127.0.0.1:4171' });
+  for (const refusee of [
+    'http://localhost:4171', 'http://[::1]:4171', 'http://0.0.0.0:4171', 'http://127.0.0.2:4171', 'http://127.0.0.1.exemple.test:4171',
+    'https://127.0.0.1:4171', 'http://user:mdp@127.0.0.1:4171', 'http://192.168.1.10:4171', 'https://api.exemple.org', 'pas une adresse', '',
+  ]) assert.equal(Chargeur.cibleAutorisee(refusee).ok, false, `cible refusée : ${refusee}`);
+  const source = fs.readFileSync(path.join(here, 'charger-donnees-essai.mjs'), 'utf8');
+  assert.ok(source.includes("redirect: 'error'"), 'une redirection ne doit jamais emmener le chargeur ailleurs');
+  const adresses = [...source.matchAll(/https?:\/\/[^\s'"`)\]]+/g)].map((x) => x[0]);
+  assert.ok(adresses.every((a) => /^http:\/\/127\.0\.0\.1(:|…|\$\{|$)/.test(a)), `adresse inattendue dans le chargeur : ${adresses.join(' ')}`);
+});
+
+dit('le chargeur ne se connecte qu’avec un compte @exemple.test', () => {
+  for (const bon of ['essai.interne@exemple.test', 'fleuriste.essai@exemple.test', 'camille.roux@maison-vallon.exemple.test']) assert.equal(Chargeur.compteAutorise(bon), true, bon);
+  for (const mauvais of ['quelquun@gmail.com', 'a@exemple.test.fr', 'a@exemple.testt', 'a@autre-exemple.test.org', '@exemple.test', 'exemple.test', '']) assert.equal(Chargeur.compteAutorise(mauvais), false, mauvais);
+});
+
+dit('le chargeur remplace « moi » partout, et seulement la chaîne entière', () => {
+  const moi = 'camille.roux@maison-vallon.exemple.test';
+  const sortie = Chargeur.remplacerChaine({ a: moi, b: [moi, 'autre'], c: { d: `${moi}.x`, e: 3, f: null } }, moi, 'essai.interne@exemple.test');
+  assert.deepEqual(sortie, { a: 'essai.interne@exemple.test', b: ['essai.interne@exemple.test', 'autre'], c: { d: `${moi}.x`, e: 3, f: null } });
+});
+
+dit('chaque jeu chargé existe, a un identifiant, et sa collection existe dans amn-api (quand le dépôt voisin est là)', () => {
+  const noms = new Set(D.NOMS_DES_JEUX);
+  assert.equal(new Set(Chargeur.CHARGES.map((c) => c.collection)).size, Chargeur.CHARGES.length, 'une collection par jeu');
+  for (const c of Chargeur.CHARGES) {
+    assert.ok(noms.has(c.jeu), `jeu inconnu : ${c.jeu}`);
+    for (const ligne of normal[c.jeu]) assert.ok(ligne.id !== undefined && ligne.id !== null && String(ligne.id).length > 0 && String(ligne.id).length <= 200, `${c.jeu} : identifiant`);
+    assert.equal(new Set(normal[c.jeu].map((l) => String(l.id))).size, normal[c.jeu].length, `${c.jeu} : identifiants uniques`);
+  }
+  const racines = [process.env.AMN_API_ROOT, '/workspace/amn-api', path.join(here, '..', '..', 'amn-api')].filter(Boolean) as string[];
+  const racine = racines.find((r) => fs.existsSync(path.join(r, 'src', 'routes', 'collections.js')));
+  if (!racine) return console.log('    (amn-api absent : comparaison des collections passée)');
+  const texte = fs.readFileSync(path.join(racine, 'src', 'routes', 'collections.js'), 'utf8');
+  const permises = new Set([...texte.slice(texte.indexOf('export const ALLOWED'), texte.indexOf(']);', texte.indexOf('export const ALLOWED'))).matchAll(/^\s*'([A-Za-z]+)',/gm)].map((x) => x[1]));
+  assert.ok(permises.size > 50, 'la liste ALLOWED d’amn-api a été lue');
+  for (const c of Chargeur.CHARGES) assert.ok(permises.has(c.collection), `amn-api n’ouvre pas la collection « ${c.collection} »`);
+});
+
+dit('le scénario de charge « cible » tourne contre une API d’essai en mémoire, sans écriture perdue (quand amn-api est là)', () => {
+  const racines = [process.env.AMN_API_ROOT, '/workspace/amn-api', path.join(here, '..', '..', 'amn-api')].filter(Boolean) as string[];
+  const racine = racines.find((r) => fs.existsSync(path.join(r, 'src', 'db', 'tenancy.js')));
+  if (!racine) return console.log('    (amn-api absent : le scénario de charge n’a pas été joué)');
+  const r = spawnSync(process.execPath, [path.join(here, '..', 'simulation', 'charge', 'executer.mjs'), 'cible', '--organisations', '6', '--connectees', '2', '--internes', '1', '--duree-s', '4'], {
+    env: { PATH: process.env.PATH, AMN_API_ROOT: racine }, encoding: 'utf8', timeout: 120_000,
+  });
+  assert.equal(r.status, 0, `le scénario a échoué : ${r.stderr.slice(0, 300)}`);
+  assert.ok(/Écritures acquittées : \d+ · perdues ou écrasées : 0/.test(r.stdout), 'aucune écriture perdue');
+  assert.ok(!/(?:^|\D)(?!127\.0\.0\.1\b)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/.test(r.stdout), 'le compte rendu ne cite aucune autre adresse');
 });
 
 console.log(`\n${vus} contrôles, tous au vert.`);

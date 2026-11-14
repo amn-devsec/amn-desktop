@@ -11,7 +11,7 @@
  * d'un jeu ne déplace pas les tirages des autres.
  */
 
-import { genererAbonnements, genererComptes, genererContrats, genererDepenses, genererDevis, genererEnveloppes, genererFactures, genererMouvements, genererPaiements } from './argent';
+import { genererAbonnements, genererAvoirs, genererComptes, genererContrats, genererDepenses, genererDevis, genererEnveloppes, genererFactures, genererMouvements, genererPaiements } from './argent';
 import { genererAide, genererAutomatisations, genererConnecteurs, genererCorbeille, genererModelesMetier, genererNotifications, genererOperations, genererRaccourcis, genererSauvegardes, genererSecrets, genererSites, genererTrackers, genererUsagesCalculs } from './boite-outils';
 import { genererBulletins, genererCreneaux, genererDefis, genererEcheances, genererPartenaires, genererPrestations, netMensuelMoyen } from './complements';
 import { genererAccords, genererAlertesVeille, genererCampagnes, genererConstats, genererDocumentsCyber, genererDossiersConformite, genererFuites, genererLogiciels, genererMissions, genererOutilsCyber, genererParcSecurite } from './cyber';
@@ -27,14 +27,16 @@ import { genererEntreprise, genererEquipe } from './equipe';
 import {
   finaliserProjets, genererEvenements, genererHabitudes, genererNotes, genererProjets, genererRappels, genererTaches, genererTickets,
 } from './ma-journee';
-import { ajouterJours, GRAINE_REFERENCE, jourDe, MAINTENANT_REFERENCE, VOLUMES, type Volume } from './outils';
+import { ajouterJours, GRAINE_REFERENCE, jourDe, MAINTENANT_REFERENCE, maintenantCyberDe, VOLUMES, type Volume } from './outils';
 import { NOMS_DES_JEUX, type Contexte, type Monde, type NomDuJeu } from './types';
 
 export interface OptionsMonde {
   /** Défaut : `GRAINE_REFERENCE`. */
   graine?: number;
-  /** « Maintenant » en ms. Défaut : `MAINTENANT_REFERENCE` (vendredi 30 octobre 2026, 10 h 15). */
+  /** « Maintenant » en ms. Défaut : `MAINTENANT_REFERENCE` (vendredi 30 octobre 2026, 10 h 42). */
   maintenant?: number;
+  /** « Maintenant » du lot Cyber. Défaut : `MAINTENANT_CYBER` (mardi 3 novembre 2026) ; décalé comme `maintenant` si celui-ci l'est. */
+  maintenantCyber?: number;
   /** Volume de tous les jeux. Défaut : `normal`. */
   volume?: Volume;
   /** Volume particulier de certains jeux (prime sur `volume`). */
@@ -46,7 +48,8 @@ export function creerContexte(options: OptionsMonde = {}): Contexte {
   const base = options.volume ?? 'normal';
   const volumes = Object.fromEntries(NOMS_DES_JEUX.map((nom) => [nom, options.volumes?.[nom] ?? base])) as Record<NomDuJeu, Volume>;
   for (const v of Object.values(volumes)) if (!VOLUMES.includes(v)) throw new Error(`Volume inconnu : ${String(v)}`);
-  return { graine: options.graine ?? GRAINE_REFERENCE, maintenant, aujourdhui: jourDe(maintenant), volumes };
+  const maintenantCyber = options.maintenantCyber ?? maintenantCyberDe(maintenant);
+  return { graine: options.graine ?? GRAINE_REFERENCE, maintenant, aujourdhui: jourDe(maintenant), maintenantCyber, aujourdhuiCyber: jourDe(maintenantCyber), volumes };
 }
 
 export function construireMonde(options: OptionsMonde = {}): Monde {
@@ -61,6 +64,8 @@ export function construireMonde(options: OptionsMonde = {}): Monde {
   const devis = genererDevis(ctx, clients);
   const factures = genererFactures(ctx, clients, devis, entreprise.identite.paymentTermDays);
   const paiements = genererPaiements(ctx, factures);
+  // Les avoirs baissent le reste dû de certaines factures (soldeCents) : ils précèdent la trésorerie et la TVA.
+  const avoirs = genererAvoirs(ctx, factures);
 
   const { projets, cibles } = genererProjets(ctx, equipe, clients);
   const taches = genererTaches(ctx, equipe, clients, projets, cibles);
@@ -76,23 +81,24 @@ export function construireMonde(options: OptionsMonde = {}): Monde {
   const depenses = genererDepenses(ctx, equipe);
   const bulletins = genererBulletins(ctx, equipe);
   const comptes = genererComptes(ctx);
-  const mouvements = genererMouvements(ctx, comptes, paiements, depenses, abonnements, factures, netMensuelMoyen(bulletins));
+  // Les échéances fiscales se déduisent des factures, des dépenses et de la paie ; les sorties prévues en dépendent.
+  const echeancesFiscales = genererEcheances(ctx, factures, depenses, bulletins, avoirs);
+  const mouvements = genererMouvements(ctx, comptes, paiements, depenses, abonnements, factures, netMensuelMoyen(bulletins), echeancesFiscales);
   const enveloppes = genererEnveloppes(ctx, equipe, depenses);
   // Le budget mensuel global est la somme des enveloppes (MA06), pas un nombre posé à côté.
   if (enveloppes.length) entreprise.reglages.budgetMensuelDepensesCents = enveloppes.reduce((s, e) => s + e.prevuCents, 0);
 
   const avis = genererAvis(ctx, clients);
   finaliserClients(clients, { factures, devis, avis, evenements }, ctx.aujourdhui, ctx.maintenant);
-  const interlocuteurs = genererInterlocuteurs(ctx, clients, fournisseurs, prospects);
+  const partenaires = genererPartenaires(ctx, equipe, fournisseurs);
+  const interlocuteurs = genererInterlocuteurs(ctx, clients, fournisseurs, prospects, partenaires);
   const relances = genererRelances(ctx, entreprise.reglages, clients, factures, devis, evenements, prospects);
   const fidelite = genererFidelite(ctx, clients, factures);
 
   /* ----------------------------- La suite ----------------------------- */
 
   // Compléments des lots déjà faits.
-  const echeancesFiscales = genererEcheances(ctx, factures, depenses, bulletins);
   const prestations = genererPrestations(ctx, equipe, factures);
-  const partenaires = genererPartenaires(ctx, equipe, fournisseurs);
   const creneaux = genererCreneaux(ctx, equipe, clients);
   const depuis30 = ajouterJours(ctx.aujourdhui, -30);
   const notes30 = avis.filter((a) => a.date >= depuis30).map((a) => a.noteSur5);
@@ -165,23 +171,24 @@ export function construireMonde(options: OptionsMonde = {}): Monde {
   const criteresMaturite = genererCriteres(ctx);
   const offresCyber = genererOffres(ctx, equipe, organisations);
 
-  // Cyber : des outils, des accords, des missions ; rien d'offensif, que du pilotage.
-  const outilsCyber = genererOutilsCyber(ctx);
-  const accords = genererAccords(ctx, clients);
-  const missions = genererMissions(ctx, equipe, clients, accords);
-  const constats = genererConstats(ctx, missions);
-  const documentsCyber = genererDocumentsCyber(ctx, equipe, missions, accords, clients);
-  const logicielsClients = genererLogiciels(ctx, clients);
-  const alertesVeille = genererAlertesVeille(ctx, logicielsClients);
-  const fuites = genererFuites(ctx, clients);
-  const dossiersConformite = genererDossiersConformite(ctx, clients);
-  const campagnes = genererCampagnes(ctx, clients);
-  const parcSecurite = genererParcSecurite(ctx, clients);
+  // Cyber : des outils, des accords, des missions ; rien d'offensif, que du pilotage. Ses images sont du mardi 3 nov. : un contexte à part.
+  const ctxCyber = { ...ctx, maintenant: ctx.maintenantCyber, aujourdhui: ctx.aujourdhuiCyber };
+  const outilsCyber = genererOutilsCyber(ctxCyber);
+  const accords = genererAccords(ctxCyber, clients);
+  const missions = genererMissions(ctxCyber, equipe, clients, accords);
+  const constats = genererConstats(ctxCyber, missions);
+  const documentsCyber = genererDocumentsCyber(ctxCyber, equipe, missions, accords, clients);
+  const logicielsClients = genererLogiciels(ctxCyber, clients);
+  const alertesVeille = genererAlertesVeille(ctxCyber, logicielsClients);
+  const fuites = genererFuites(ctxCyber, clients);
+  const dossiersConformite = genererDossiersConformite(ctxCyber, clients);
+  const campagnes = genererCampagnes(ctxCyber, clients);
+  const parcSecurite = genererParcSecurite(ctxCyber, clients);
 
   return {
     contexte: ctx, entreprise, equipe, taches, evenements, projets, tickets, notes, rappels, habitudes, clients, interlocuteurs, prospects,
     fournisseurs, achats, avis, relances, fidelite, devis, factures, paiements, depenses, abonnements, contrats, comptes, mouvements, enveloppes,
-    echeancesFiscales, bulletins, prestations, partenaires, creneaux, defis,
+    avoirs, echeancesFiscales, bulletins, prestations, partenaires, creneaux, defis,
     pages, fichiers, signatures, modeles, journal, textes, archives, connaissances,
     conversations, messages, canaux, annonces, courriels, salles, appels, reunions, partages, sondages, reponsesAuto,
     articles, produits, commandes, chantiers, dossiersPhotos, marque, videos, pagesPubliques, etapesTournee, equipements, ressources, reservations,

@@ -4,30 +4,48 @@
 
 ## REPRISE (à lire en premier après une compaction ; tenu par le CO, réécrit à chaque tour)
 
-Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `baff3a3`.
+Mode : **continu et autonome** (carte blanche de Harun, 14 nov.), jusqu'à son « stop ». Point pour Harun : [`POINT-HARUN.md`](POINT-HARUN.md). Intégration : `/home/user/amn-desktop-integration`, branche `claude/refonte-vivante` @ `f820c70`.
 
-**Si la limite d'utilisation coupe le CO** : à la reprise (un message de Harun, une session, ou le réveil programmé), relire ce bloc, faire `git fetch` des branches `claude/refonte-*`, puis reprendre la boucle (lister, lire, contrôler, fusionner, répondre, mettre à jour). Réveil du CO : `send_later`, toutes les 45 min environ, réarmé à chaque tour.
+**Si la limite d'utilisation coupe le CO** : à la reprise (un message de Harun, une session, ou le réveil programmé), relire ce bloc, faire `git fetch` des branches `claude/refonte-*`, puis reprendre la boucle (lister, lire, contrôler, fusionner, répondre, mettre à jour). Réveil du CO : `send_later`, toutes les 20 min tant que des sessions travaillent, 45 min quand toutes attendent (consigne de Harun), réarmé à chaque tour.
 
 | Session | Identifiant | État | Prochain geste |
 |---|---|---|---|
-| S0 Socle | `session_01SJe828c2W5EnkMY4fhFY6z` | passe finale v4 finie (`888f7a0`) | corriger ce que T1 signale ; puis la baisse des échecs connus |
-| T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | passage 2 sur `888f7a0` en cours | son verdict → fusion du socle v4 et allumage (§1.9) |
+| S0 Socle | `session_01SJe828c2W5EnkMY4fhFY6z` | passe finale v4 finie (`888f7a0`) ; corrige `ancres` et `avoirs` | puis ce que T1 signale |
+| T1 Qualité | `session_011oPZg1pe7zhmGFtd6x3W6h` | passage 2 sur `888f7a0` en cours (avec le delta d'`ancres` et `avoirs` de S0) | son verdict → fusion du socle v4 et allumage (§1.9) ; puis `check:fidelite` (§1.30) |
 | S6 Sécurité | `session_01RHV8Xq2txWkfjAusKvq9DG` | LOT-07 en préparation ; une étape de sécurité attend amn-api | couture H20, tarifs H21 (§1.26) |
-| SIM | `session_011UF2ufZg9moGv2rRZFRuf7` | chargeur vers l'API d'essai en cours | livrer → mettre à jour `LANCER-EN-LOCAL.md` |
+| SIM | `session_011UF2ufZg9moGv2rRZFRuf7` | chargeur livré et fusionné (`5f0a900`) ; **sans dossier v4** | numérotation, champs de LOT-06, puis jeux de LOT-11 |
 | DS | `session_01TZGDvVWristJnnPK59rruY` | préparation de LOT-04 fusionnée (§1.29) ; **sans dossier v4** | relire ses points [fiche] dès qu'il a les zips |
-| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | LOT-03 fusionné (§1.29) | registre (12 vues vers `creer`), puis LOT-05 |
-| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | décisions reçues (§1.28) ; lecture du v4 | relire et fusionner sa reprise |
+| S5 | `session_012jWErBSSkcoVaU3iN895bQ` | LOT-03 et registre fusionnés | préparation de LOT-05 |
+| S1 | `session_01CLLXtV5QPhZ4bZZRf6kdha` | LOT-02 relu avec le v4 et fusionné (§1.31) ; a les zips | attend le socle v4 |
 | S7 | `session_01C5DAW2srkqgCKRjEKHH8Hy` | préparation v4 fusionnée (`526cd63`) | attend le socle v4 |
 | S8 | `session_01C5DAVxfgf5v6YVweAwVqBj` | en pause | feu vert de l'étape 3 au socle v4 ; jeux à commander à SIM |
 | S9 | `session_01C5DAVygXYax6Q7g436TPQx` | LOT-12 fini (§1.26) | rien |
-| S2, S3, F1 | `session_014ZkF6SeGRNi6NR3uEsjM5q`, `session_01FBSpK6n1yYtYXYyxbLAuBV`, `session_01VZHqP3gvzrtnpgsTrrKguV` | arrêtées | relancer au socle v4 (prompts : `PROMPTS-11NOV.md`, §1.21) |
+| S2, S3 (première tâche : `check:encres`), F1 | `session_014ZkF6SeGRNi6NR3uEsjM5q`, `session_01FBSpK6n1yYtYXYyxbLAuBV`, `session_01VZHqP3gvzrtnpgsTrrKguV` | arrêtées | relancer au socle v4 (prompts : `PROMPTS-11NOV.md`, §1.21) |
+
+**À dire au prochain message** : à SIM, les jeux de fidélité (paliers 800 / 1 800, avis 50, recommandation 200) et le statut des clients (H05), §1.31 ; à DS, Commandes et Boutique quittent Argent pour Créer ; à S6, les vues terrain et stock quittent Outils pour Créer (`bb54c03`).
 
 **Décisions provisoires en cours** (révisables par Harun) : arrondi et régime de TVA, seuils de l'argent (§1.29) ; valeurs de départ des connecteurs (§1.22 n° 3) ; plafonds de relance 3 et 1 par jour (§1.28 n° 4) ; seuils de charge (validés, §1.20). Liste « À décider par Harun » : `POINT-HARUN.md`.
 
-**Échecs connus à faire baisser** (gardes rouges, aussi sur `main` selon S0, à confirmer par T1) : migration, encres, xss, visite, support. Aucune fusion n'en ajoute un nouveau.
+**Échecs connus à faire baisser** (relevé de T1 le 14 nov., ses mesures font foi) :
+- **régressions de la refonte** (vertes sur `main`) : `check:ancres` et `check:avoirs` (`lucide-react` non résolu dans `src/socle/ui/Bouton.tsx`), confiés à **S0** ; `check:encres` (copies de jetons dans `src/refonte/garde/equipes.ts`, venues de S3), pour **S3** à sa relance.
+- **rouges aussi sur `main`** : `check:visite` (guide masqué). `check:migration` n'est pas jouable sans amn-api.
+- `check:xss` et `check:support` **passent des deux côtés** chez T1. Mon relevé contraire venait de mon environnement : retirés de la liste.
+- Aucune fusion n'a ajouté de nouvel échec : le déplacement du registre (`bb54c03`) a été comparé avant et après.
+
+## Vitesse, jour par jour (tenu par le CO, une ligne par jour)
+
+« Construits » : écrans marqués « fait » au §7, construits et comparés à leur image. « Livrés » : fusionnés dans `refonte-vivante`, après le passage de T1. Total : 153 écrans, soit 142, plus 4 `CYB-*` et 7 `DEV-*`. Lots : 13, de LOT-00 à LOT-12.
+
+| Jour | Construits | Livrés (cumul) | Livrés depuis la veille | Lots préparés | Lots finis | Note |
+|---|---|---|---|---|---|---|
+| 14 nov. | 9 / 153 | 0 | 0 | 6 / 13 | 0 / 13 | les 9 de LOT-00 sont construits sur la branche du socle et attendent T1. Préparations fusionnées : LOT-02, 03, 04, 06, 11 et 12. La note de LOT-08 n'est pas fusionnée. |
 
 ## Journal des décisions du CO (une ligne chacune, la plus récente en haut)
 
+- 14 nov. : LOT-02 relu avec le v4, fusionné. Les fiches l'emportent sur les valeurs du CO : relances à 5 j, 9:00–18:00, une par client et par semaine glissante, une seule source de réglages (§1.31).
+- 14 nov. : test quotidien avec Harun, dossier v4 dans un dépôt privé, `check:fidelite` confié à T1 avec un seuil provisoire (2 points au-dessus de l'accepté, 15 % pour un écran nouveau) (§1.30).
+- 14 nov. : données fictives de SIM fusionnées (`f820c70`, 106 contrôles) : chargeur vers l'API d'essai (127.0.0.1, `@exemple.test`), dates à 10:42, attendus, scénarios de charge, partenaires. Jeux de LOT-11 commandés à SIM dès maintenant. `LANCER-EN-LOCAL.md` étape 4 à jour.
+- 14 nov. : registre, 11 vues déplacées vers `creer` par S5 (`bb54c03`), fusionné : 101 entrées, 142 vues. LOT-04 (Commandes, Boutique) et LOT-07 (terrain, stock) prévenus par le CO. Régressions `ancres` et `avoirs` confiées à S0, `encres` à S3.
 - 14 nov. : LOT-04 et LOT-03 préparations fusionnées (`baff3a3`). TVA par ligne comme `money.ts` (provisoire), régime de TVA réglable (provisoire), numérotation existante, archives sans nouvelle collection (§1.29).
 - 14 nov. : LOT-06 préparation v4 fusionnée (`750d8b3`). Les 12 vues à rapatrier dans `creer` sont listées par S7, et S5 fait le déplacement.
 - 14 nov. : messages directs du CO aux sessions, règle dans `REGLES.md`.
@@ -513,7 +531,7 @@ Fusionnée (`4254e7a`) : le modèle des connecteurs, les moteurs locaux, le form
 |---|---|---|
 | 1 | Notion et Webhooks, sans catégorie | Comme proposé : Webhooks est la brique « événements reçus » d'amn-api, affichée comme prise « chez nous ». Notion passe par « Demander un connecteur » tant que la liste des catégories ne l'ajoute pas. |
 | 2 | Prise arrêtée | Comme proposé : même dessin que « libre », avec « arrêtée le … » à la place de « libre, à brancher ». |
-| 3 | Valeurs par défaut | **Adoptées comme valeurs de départ**, toutes modifiables dans les réglages : plage clients lun.–ven. 08:00–19:00, plage équipe 07:30–21:00, 7 jours entre relances, 30 courriels par heure, rotation 7 / 4 / 6, suggestion à 70 % du forfait. Harun peut les corriger à tout moment. |
+| 3 | Valeurs par défaut | **Adoptées comme valeurs de départ**, toutes modifiables dans les réglages : plage clients lun.–ven. ~~08:00–19:00~~ **09:00–18:00**, plage équipe 07:30–21:00, ~~7~~ **5** jours entre relances (corrigé d'après la fiche MC07, §1.31), 30 courriels par heure, rotation 7 / 4 / 6, suggestion à 70 % du forfait. Harun peut les corriger à tout moment. |
 | 4 | Moteur de H20, aussi chargé par l'édition cliente | **Une couture `@edition/*`**, pas un déplacement. Un jumeau `.business` reprend le comportement actuel, à l'identique, et le `.internal` branche le format étendu. L'édition cliente ne change donc pas, ce que `check:client-statique` prouve. C'est S6 qui la pose, dans LOT-07. |
 | 5 | Section LOT-12 dans §7 | **Oui, courte** : état, sha, gardes et dépendances, sans table d'écrans. S9 la crée et y touche seul. |
 
@@ -635,6 +653,28 @@ Fusionnées (`baff3a3`). Seul conflit : deux ajouts côte à côte dans `edition
 | 4 | Contrat arrivant à échéance | « À renouveler » à l'approche de l'échéance, sinon « Signé ». |
 | 5 | Menu « / » (14 annoncées, 13 listées) | On suit la liste : **13**. L'écart avec la fiche est noté. |
 | 6 | Dictée (tuile de F20) | **Oui** : la tuile ouvre la barre ⌘J avec la commande vocale existante, sans toucher à `src/assistant/**`. |
+
+### 1.30 Trois améliorations validées par Harun (14 nov.)
+
+1. **Test quotidien avec Harun.** Chaque jour, en tête de `POINT-HARUN.md` : un « Programme de test du jour », avec ce qui est nouveau, comment le lancer (`LANCER-EN-LOCAL.md`, données de SIM), 5 à 10 essais précis et où noter les retours. Harun donne ses retours au CO dans leur conversation. Le CO en fait des tâches, consignées dans la section du lot concerné, et les distribue. **Premier test dès la fusion du socle v4.**
+2. **Dossier v4 privé et lisible par les sessions.** Un dépôt privé séparé, `amn-devsec/amn-refonte-dossier`, jamais le dépôt public. **Vérifié par le CO le 14 nov.** : l'accès GitHub des sessions voit déjà des dépôts privés d'`amn-devsec` (`amn-api`, avec droit d'écriture). Un nouveau dépôt privé y sera donc lisible, si l'application GitHub de Claude y a accès. Chaque session l'ajoute (`add_repo`), puis le lit. Étapes pour Harun : `POINT-HARUN.md`, « À créer par Harun ». Le dossier ne contient rien de secret.
+3. **Comparaison automatique aux images v4** (`check:fidelite`), **confiée à T1**, qui a déjà l'outil de fidélité, après son passage 2. Pour chaque écran livré : une capture, l'écart brut à l'image v4, et une ligne dans la section du lot. **Seuil provisoire, révisable par Harun** :
+   - un écran déjà mesuré échoue si son écart monte de plus de 2 points au-dessus de sa valeur acceptée ;
+   - un écran nouveau échoue au-dessus de 15 %, sauf écart justifié et écrit dans `docs/qualite/fidelite/justifies-LOT-xx.json` (données d'exemple, lignes du registre, pages derrière les palettes, méthodes de connexion absentes).
+   
+   Les images n'entrent jamais dans le dépôt public. La garde lit le dossier privé par `AMN_DOSSIER_V4`, et T1 et les sessions de lot la lancent avant chaque fusion. Dans GitHub Actions, seuls ses tests unitaires tournent : y lire le dépôt privé demanderait un secret, que le CO ne propose pas. **Passée sur chaque lot avant fusion.**
+
+### 1.31 LOT-02 relu avec le dossier v4 (S1, `2c328de`) : fusionné, décisions du CO
+
+Fusionné. `check:contacts` (85), les typechecks et lint sont verts, et aucune garde nouvelle n'est rouge. S1 a les zips v4.
+
+| # | Point | Décision |
+|---|---|---|
+| 1 | Relances : la fiche MC07 dit 5 j et 9:00–18:00, le CO avait dit 7 j et 08:00–19:00 | **La fiche l'emporte** : 5 jours entre relances, plage clients du lundi au vendredi, 9:00–18:00, réglable de 3 à 14 jours. Une seule source pour tous : `src/refonte/connecteurs/reglages.ts`. S9 y aligne les valeurs par défaut, et S1 les lit sans les recopier. Le §1.22 n° 3 est corrigé d'autant. |
+| 2 | Plafond par client | **Correction du §1.28 n° 4** : une relance par client et par **semaine glissante**, d'après la fiche, et non par jour. Le plafond de 3 est confirmé. |
+| 3 | Jeux de SIM | Fidélité aux paliers de la fiche (800 / 1 800, avis 50, recommandation 200) et statut des clients (H05) : **commandés à SIM**. |
+| 4 | « Messagerie » (MC03) | Ce sont les échanges de G07, pas le courriel. Corrigé par S1. |
+| 5 | Échelles de l'intérêt (H06) | Le choix de S1 est adopté, **provisoire, révisable par Harun**. |
 
 ## 2. Les lots
 
@@ -831,31 +871,36 @@ Mots fr/en par `definirMots`. Gardes : `check:socle-controles|graphiques|situati
 | F10 | Contacts · Vue d'ensemble | nouveau | en cours (préparation) | préparation : aucune logique propre, lit les autres. Attend `ModuleTile`, `ModuleGroupGrid`, `AddModuleTile` |
 | H05 | Contacts · Clients | mixte | en cours (préparation) | préparation : `ClientsScreen` `/clients` ; santé et statut à recalculer (SIM) |
 | G04 | Contacts · Fiche client | mixte | en cours (préparation) | préparation : `ClientDetail` dans `ClientsScreen` ; « contacts par client » livré (`interlocuteurs.ts`) |
-| H06 | Contacts · Prospects | mixte | en cours (préparation) | préparation : `PipelineScreen` `/pipeline` ; logique `pipeline.ts` |
+| H06 | Contacts · Prospects | mixte | en cours (préparation) | préparation : `PipelineScreen` `/pipeline` ; `pipeline.ts` (dont `rouvrir`) et `interet.ts` (échelles à valider) |
 | H44 | Contacts · Retours clients | mixte | en cours (préparation) | préparation : `ReviewsScreen`, `SentimentScreen`, `NpsScreen` ; sentiment et NPS sans jeu propre |
 | H45 | Contacts · Fournisseurs | mixte | en cours (préparation) | préparation : `SuppliersScreen` `/fournisseurs` ; pas de logique neuve |
-| MC01 | Contacts · Pipeline commercial | mixte | en cours (préparation) | préparation : même écran que H06 ; `colonnesPipeline`, `transitionsPermises` |
-| MC02 | Contacts · Fidélité | mixte | en cours (préparation) | préparation : l'écran actuel est une carte à tampons, la fiche des points et niveaux → question au CO (note §5, 1) |
-| MC03 | Contacts · Fiches contacts | mixte | en cours (préparation) | préparation : aucun écran existant ; collection d'interlocuteurs à créer (note §5, 3) |
-| MC04 | Contacts · Équipe | mixte | en cours (préparation) | préparation : recoupe le trombinoscope (`DirectoryScreen`) |
-| MC05 | Contacts · Partenaires | mixte | en cours (préparation) | préparation : aucun écran ni jeu d'organisations partenaires |
-| MC06 | Contacts · Rendez-vous clients | mixte | en cours (préparation) | préparation : `AgendaScreen` partagé (couture requise) et `BookingScreen` ; logique `rendezvous.ts` |
-| MC07 | Contacts · Relances | mixte | en cours (préparation) | préparation : `RemindersScreen` ne relance que les factures ; logique `relances.ts` pour les cinq motifs |
+| MC01 | Contacts · Pipeline commercial | mixte | en cours (préparation) | préparation : même écran que H06 ; `colonnesPipeline`, `previsionPonderee`, `tauxDePassage`, `transitionsPermises` |
+| MC02 | Contacts · Fidélité | mixte | en cours (préparation) | préparation : points et niveaux = l'écran, **paliers de la fiche 0 / 800 / 1 800** (le jeu de SIM a 500 / 1 500) ; la carte à tampons reste une formule au choix (§1.28) ; `pointsProgramme`, `formuleDe` |
+| MC03 | Contacts · Fiches contacts | mixte | en cours (préparation) | préparation : aucun écran existant ; « non disponible » avec la raison tant que Harun n'a pas décidé de la collection d'interlocuteurs (§1.28) |
+| MC04 | Contacts · Équipe | mixte | en cours (préparation) | préparation : se construit sur le trombinoscope (`DirectoryScreen`, §1.28) |
+| MC05 | Contacts · Partenaires | mixte | en cours (préparation) | préparation : aucun écran ; le jeu d'organisations partenaires est commandé à SIM (§1.28) |
+| MC06 | Contacts · Rendez-vous clients | mixte | en cours (préparation) | préparation : `AgendaScreen` partagé (couture requise) et `BookingScreen` ; `rendezvous.ts` (trajets : durées du service d'itinéraire, LOT-12) |
+| MC07 | Contacts · Relances | mixte | en cours (préparation) | préparation : `RemindersScreen` ne relance que les factures ; `relances.ts` applique les huit points de la fiche pour les cinq motifs. **Valeurs fiche (5 j, 9:00–18:00) ≠ CO (7 j, 08:00–19:00) : à trancher** |
 
-Préparation par S1 (14 nov., `claude/refonte-contacts`) : note [`preparation/LOT-02-contacts.md`](preparation/LOT-02-contacts.md), logique dans `src/refonte/contacts/`, garde `check:contacts` (63 contrôles). Aucun écran visuel. **Les 13 fiches et le dossier v4 n'ont pas pu être lus** (zips absents de l'environnement) : les règles qui en dépendent sont marquées « à confirmer ».
+Préparation par S1 (14 nov., `claude/refonte-contacts`) : note [`preparation/LOT-02-contacts.md`](preparation/LOT-02-contacts.md), logique dans `src/refonte/contacts/`, garde `check:contacts` (85 contrôles). Aucun écran visuel. **Dossier v4 lu le 14 nov.** (deuxième passe) : les règles « à confirmer » sont levées ou transformées en questions (note §7).
 
 **Manque au socle**
 - `ModuleTile`, `ModuleGroupGrid`, `AddModuleTile` (décidés au §1.10, absents de la liste des composants disponibles) pour F10.
 - `PageHead`, `IconTile`, `FlagUrgent` : cités au §1.10, à confirmer par S0 (`Page`, `Etiquette` et `PastilleEtat` existent).
 - Un `Kanban` existe ; son glisser-déposer doit appliquer `transitionsPermises` (MC01).
 - `check:tutoiement` : pas encore dans la base.
+- Rien d'autre : les fiches du lot n'appellent pas de composant absent de la liste du §1.10.
 
 **Manque aux données**
-- Un jeu d'organisations partenaires (MC05) : seuls des interlocuteurs de type `partenaire` existent.
+- Un jeu d'organisations partenaires (MC05) : **commandé à SIM** (§1.28). Seuls des interlocuteurs de type `partenaire` existent.
 - Sentiment et NPS (H44) : pas de jeu propre, à dériver des `avis`.
 - Une raison de perte sur les prospects perdus (H06).
 - Les avantages de fidélité « offerts / utilisés » côté app : le jeu de SIM les porte, aucune collection ne les garde.
-- Une collection d'interlocuteurs côté app (MC03, G04, source de H41).
+- **Jeu « fidélité »** : aligner les paliers sur la fiche (800 / 1 800) et ajouter les points des avis (50) et des recommandations (200).
+- **Jeu « clients »** : statut affiché plus fin (fiche H05 : « Impayé » dès 7 jours de retard, « À relancer », « Nouveau » sous 30 jours).
+- **Pipeline** : historique des mouvements d'étape (date d'entrée), montant estimé, signaux d'intérêt (lectures du devis, délai de réponse) pour H06 et MC01.
+- **Relances** : état « reportée » ; ton du message ; préférences d'envoi des contacts (MC03).
+- Une collection d'interlocuteurs côté app (MC03, G04, source de H41) : décision de Harun en attente (§1.28).
 
 ### LOT-03 · Écrire et retenir — `claude/refonte-ecrire` — 9 écrans
 
