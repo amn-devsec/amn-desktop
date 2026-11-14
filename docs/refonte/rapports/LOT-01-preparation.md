@@ -5,10 +5,10 @@ Branche `claude/refonte-journee`, partie de `claude/refonte-vivante` @ `fc94d38`
 ## Résumé
 
 1. **Mode préparation** : les 5 zips v4 n'étaient pas sur la machine. Les 16 fiches, `04-ECARTS-MAQUETTES.md`, `06-V4`, `_data/tutoiement.json` et les images n'ont pas été lus. **Aucun écran n'est construit** (0 sur 16).
-2. **La logique pure du lot** est dans `src/refonte/journee/` (15 fichiers, sans React ni horloge) : la série (clôture des priorités), les paliers et jalons, H04, G08 et H25 calculés, les projets, les défis d'équipe, les habitudes, les rappels, le planning, le kanban, et les phrases qui en découlent (tutoiement, fr et en).
+2. **La logique pure du lot** est dans `src/refonte/journee/` (19 fichiers, sans React ni horloge) : la série (clôture des priorités), les paliers et jalons, H04, G08 et H25 calculés, les projets, les défis d'équipe, les habitudes, les rappels, le planning, le kanban, et les phrases qui en découlent (tutoiement, fr et en).
 3. **H04, G08 et H25 égalent les valeurs attendues de SIM**, aux quatre volumes et sur quatre graines de plus. Vérifié par mutation : la garde rougit quand une règle est cassée.
 4. **Les éléments ludiques protégés sont des propriétés du code** testées : aucun chiffre individuel, aucun classement, aucun point perdu, aucun reproche (L07, L01, trophées, défis).
-5. **`check:journee`** (45 contrôles, ajouté à `editions.yml`) et toutes les gardes demandées sont vertes.
+5. **`check:journee`** (62 contrôles, ajouté à `editions.yml`) et toutes les gardes demandées sont vertes.
 
 ## Fichiers touchés
 
@@ -55,9 +55,12 @@ La modification de `STATUT.md` a été **refusée par le contrôle d'autorisatio
 | MJ05 | en cours (préparation) | `etatDuRappel` ; aucun écran d'origine |
 | L01 | en cours (préparation) | `serieDeLaJournee`, paliers 5/10/20/30/50/100, jalons ; **protégé** ; priorités absentes des jeux |
 | L07 | en cours (préparation) | défis, jauge, frise, célébrations, engagements, proposition ; **protégé** ; engagements sans donnée |
-| H01, MJ04, L03, L02 | à faire | sans fiche : zips v4 non reçus |
+| H01 | en cours (préparation) | `calendrier.ts` : rendez-vous du jour, placement, semaine, mois ; **à confirmer sur la fiche** |
+| MJ04 | en cours (préparation) | `notes.ts` : visibilité, tri, recherche, « sans place » ; **à confirmer** |
+| L02 | en cours (préparation) | `focus.ts` : règles du Pomodoro existant (15/25/50, pauses 5 et 15 min) ; **à confirmer** |
+| L03 | en cours (préparation) | `rituel.ts` : étapes, reprise, une proposition le matin ; **à confirmer** |
 
-**Manque aux données** : priorités du jour (`dailyPriorities`) ; engagements écrits des défis ; objectif du mois (G08) ; utilisateurs connectés par jour (G08, H25) ; historique quotidien de la « Boîte à zéro ».
+**Manque aux données** : liste des personnes d'une note « personnes choisies » (MJ04, visible de son auteur seulement en attendant) ; priorités du jour (`dailyPriorities`) ; engagements écrits des défis ; objectif du mois (G08) ; utilisateurs connectés par jour (G08, H25) ; historique quotidien de la « Boîte à zéro ».
 
 ## Ce qui n'a pas été vérifié
 
